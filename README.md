@@ -42,7 +42,6 @@ The GitGuardian MCP server requires an API key to authenticate with the GitGuard
 1. Create an `.env` file with your GitGuardian API credentials:
    ```
    GITGUARDIAN_API_KEY=your_api_key_here
-   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
    ```
 
 2. When configuring your MCP client, use the `--env-file` option with `uvx` to load these environment variables:

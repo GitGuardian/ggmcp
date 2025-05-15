@@ -13,7 +13,7 @@ This document provides instructions for developers who want to contribute to the
    ```
 4. Install dependencies:
    ```bash
-   uv sync --with dev
+   uv sync
    ```
 
 ## Project Structure
@@ -21,18 +21,19 @@ This document provides instructions for developers who want to contribute to the
 ```
 gg-mcp/
 ├── src/
-│   ├── server.py            # Main MCP server entry point
-│   ├── gitguardian/         # GitGuardian Honeytoken tool
-│   │   ├── __init__.py
-│   │   ├── client.py        # API client for GitGuardian
-│   │   └── tools.py         # Tool implementation
-│   └── [other_tools]/       # Additional tools will be added here
-├── tests/                   # Test suite
+│   └── gg_api_mcp_server/        # Main package directory
+│       ├── __init__.py
+│       ├── client.py            # GitGuardian API client
+│       ├── mcp_server.py        # MCP server implementation
+│       ├── server.py            # Main server entry point
+│       ├── tools.py            # Tool implementations
+│       └── utils.py            # Utility functions
+├── tests/                       # Test suite
 │   ├── test_gitguardian_client.py
 │   └── ...
-├── pyproject.toml           # Project configuration and dependencies
-├── README.md                # Main documentation
-└── DEVELOPMENT.md           # This file
+├── pyproject.toml               # Project configuration and dependencies
+├── README.md                   # Main documentation
+└── DEVELOPMENT.md              # This file
 ```
 
 ## Adding a New Tool
