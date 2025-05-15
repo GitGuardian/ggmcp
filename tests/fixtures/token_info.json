@@ -1,0 +1,20 @@
+{
+    "id": "api_token_123456",
+    "name": "Test API Token",
+    "created_at": "2023-01-01T00:00:00Z",
+    "expires_at": "2024-01-01T00:00:00Z",
+    "last_used_at": "2023-02-01T00:00:00Z",
+    "scopes": [
+        "incidents:read",
+        "incidents:write",
+        "honeytokens:read",
+        "honeytokens:write",
+        "api_tokens:read"
+    ],
+    "member": {
+        "id": "mem_123456",
+        "email": "user@example.com",
+        "first_name": "Test",
+        "last_name": "User"
+    }
+}

@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.7.0
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages: [pre-push]
+
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.39.0
+    hooks:
+      - id: ggshield
+
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.39.0
+    hooks:
+      - id: ggshield-push
+        stages: [ pre-push ]

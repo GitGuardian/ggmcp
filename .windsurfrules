@@ -1,0 +1,229 @@
+# Cursor Rules for MCP Tool Generation
+
+## Tool Definition Guidelines
+
+1. **Use the @mcp.tool() decorator**
+   - All tools must be defined using the `@mcp.tool()` decorator
+   - This properly registers the function as an MCP tool
+   - Include proper type hints for parameters and return values
+
+2. **Methods must be async**
+   - All tool methods should be defined as async functions
+   - Use `async def` for all tool definitions
+   - Use appropriate async libraries and patterns (e.g., httpx.AsyncClient instead of requests)
+
+3. **Include descriptive docstrings**
+   - Each tool must have a clear, descriptive docstring
+   - Docstrings should explain what the tool does and describe parameters
+
+## Examples of correct tool implementations:
+
+```python
+@mcp.tool()
+async def calculate_bmi(weight_kg: float, height_m: float) -> float:
+    """Calculate BMI given weight in kg and height in meters"""
+    return weight_kg / (height_m**2)
+
+
+@mcp.tool()
+async def fetch_weather(city: str) -> str:
+    """Fetch current weather for a city"""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"https://api.weather.com/{city}")
+        return response.text
+```
+
+## Common Mistakes to Avoid
+
+1. **Don't use synchronous functions**
+   - Incorrect: `def my_tool():`
+   - Correct: `async def my_tool():`
+
+2. **Don't forget the decorator**
+   - Incorrect: `async def my_tool():`
+   - Correct: `@mcp.tool()\nasync def my_tool():`
+
+3. **Don't use blocking HTTP libraries**
+   - Incorrect: `requests.get(...)`
+   - Correct: `async with httpx.AsyncClient() as client: await client.get(...)`
+
+
+---
+title: "Don't use uvicorn or fastapi with MCP"
+description: "MCP has native server capabilities, external web servers are not needed"
+severity: warning
+---
+
+# Don't use uvicorn or fastapi with MCP/FastMCP
+
+## Rule Details
+
+MCP and FastMCP have their own server implementations that can run directly without external web servers like uvicorn or fastapi.
+
+### ❌ Incorrect
+
+```python
+# Incorrect: Using uvicorn with MCP
+import uvicorn
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("MyServer")
+
+if __name__ == "__main__":
+    uvicorn.run(mcp.app, host="0.0.0.0", port=8000)  # Wrong
+```
+
+### ✅ Correct
+
+```python
+# Correct: Using MCP's native run method
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("MyServer")
+
+if __name__ == "__main__":
+    mcp.run()  # Correct
+```
+
+## Implementation Details
+
+This rule enforces:
+- Not using uvicorn or fastapi with MCP servers
+- Using the native `mcp.run()` method instead
+- Not adding unnecessary web server dependencies
+
+## Dependencies
+
+When working with MCP and Python 3.13, avoid unnecessary dependencies:
+- For basic MCP implementation, only `mcp` or `fastmcp` and possibly `requests` are needed
+- Do not include web server packages unnecessarily
+- Take advantage of Python 3.13's built-in typing features (using `list[str]` instead of `List[str]`)
+
+## Configuration in pyproject.toml
+
+```toml
+[project]
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=0.2.0",
+    "requests>=2.28.0",
+    # No uvicorn or fastapi
+]
+```
+
+## Import fastmcp from mcp
+
+**FastMCP imports must use the correct package path**
+- All imports concerning FastMCP must be done under `mcp.server.fastmcp`
+- Example: `from mcp.server.fastmcp import FastMCP` instead of direct imports
+
+
+---
+title: "Use pyproject.toml with uv instead of requirements.txt"
+description: "Modern Python projects should use pyproject.toml with uv for dependency management"
+severity: warning
+---
+
+# Use pyproject.toml with uv instead of requirements.txt
+
+## Rule Details
+
+This project uses pyproject.toml for dependency management with uv, not requirements.txt.
+
+### ❌ Incorrect
+
+Using requirements.txt:
+
+```
+requests>=2.28.0
+mcp>=0.2.0
+fastapi>=0.68.0  # Unnecessary
+uvicorn>=0.15.0  # Unnecessary
+```
+
+Or incorrect installation:
+
+```bash
+pip install -r requirements.txt
+```
+
+### ✅ Correct
+
+Using pyproject.toml:
+
+```toml
+[project]
+name = "my-mcp-server"
+version = "0.1.0"
+description = "My MCP server"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=0.2.0",
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.0.272",
+]
+```
+
+With correct installation:
+
+```bash
+uv sync
+# or with dev dependencies
+uv sync --with dev
+```
+
+## Implementation Details
+
+This rule enforces:
+- Using pyproject.toml for dependency management
+- Using uv for package installation
+- Properly specifying dependencies with version constraints
+- Not creating or using requirements.txt
+- Specifying Python 3.13 as the minimum required version
+
+## Python 3.13 Features
+
+Take advantage of Python 3.13's modern features:
+- Use built-in type annotations (`dict[str, Any]` instead of importing `Dict` from typing)
+- Use the pipe operator for union types (`str | None` instead of `Optional[str]`)
+- Remove unnecessary typing imports as many are now in the standard builtins
+
+## Benefits
+
+- Faster dependency resolution with uv
+- Better project metadata with pyproject.toml
+- Cleaner separation of development dependencies
+- More standardized approach to modern Python packaging
+- Ability to leverage the latest Python 3.13 features
+
+## Base directory
+
+- Ensure all code is placed within the `src/gg_api_mcp_server` directory
+- Handle imports accordingly by using the appropriate package path
+- the main file is `src/gg_api_mcp_server/server.py`
+
+## HTTP request client
+
+Use httpx to make all HTTP requests
+
+## Typing
+
+- use python typing for python > 3.12
+- use direct python type instead of importing from typing.
+
+### ❌ Incorrect
+from typing import Dict, List
+
+def my_func(my_dict: Dict, my_list: List):
+    ...
+
+
+### ✅ Correct
+
+def my_func(my_dict: dict, my_list: list):
+    ...

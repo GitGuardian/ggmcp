@@ -1,0 +1,893 @@
+import json
+import logging
+import os
+from typing import Any, Literal
+
+from mcp.server.fastmcp.exceptions import ToolError
+from pydantic import Field
+
+from gg_api_mcp_server.mcp_server import GitGuardianFastMCP
+from gg_api_mcp_server.tools import get_gitguardian_client
+
+# Configure more detailed logging
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+logger = logging.getLogger(__name__)
+
+# Log environment variables (without exposing the full API key)
+gitguardian_api_key = os.environ.get("GITGUARDIAN_API_KEY")
+gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
+
+logger.info("Starting MCP Server")
+logger.info(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
+logger.info(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
+
+# Use our custom GitGuardianFastMCP instead of the base FastMCP
+mcp = GitGuardianFastMCP(
+    "GitGuardian",
+    log_level="DEBUG",
+    instructions="""
+    # GitGuardian API Tools
+
+    This server provides access to GitGuardian API functionality through MCP tools.
+    Each tool requires specific API token scopes to function correctly.
+    If you receive an error when calling a tool, it may be because your API token does not have the required scopes.
+    Check the required scopes for each tool below and don't use another tool instead of the one that requires the missing scope.
+
+    If not specified, try to reuse an existing active honeytoken instead of generating a new one.
+
+    REQUIRED WORKFLOW:
+    - IMPORTANT: Whenever a request mentions "me", "my", "I created", or any reference to the current user's resources, you MUST ALWAYS:
+      1. FIRST call get_current_token_info() to get the member_id of the current user
+      2. THEN use that member_id in subsequent calls like list_honeytokens (via creator_id parameter)
+      3. This sequence is NOT optional - it must be followed for deterministic results
+
+    1. Add honeytoken in code:
+        - First, if looking for "my honeytokens" or similar, call get_current_token_info to get member_id
+        - Use list_honeytokens with status=ACTIVE to get existing honeytokens
+        - Always filter by creator_id=member_id when user is asking about their own honeytokens
+        - You can use also use parameters like search or ordering to filter the results
+        - You MUST use show_token=True to get the token value
+        - When you retrieve the honeytoken, try to hide it in the codebase
+        - It must seem like a real token that was leaked by mistake
+        - Do not directly mention GitGuardian in the generated code
+        - Do not mention the honeytoken in the codebase
+    2. Generate a new honeytoken:
+        - Use generate_honeytoken to generate a new honeytoken
+        - when you retrieve the honeytoken, try to hide it in the codebase
+        - It must seem like a real token that was leaked by mistake.
+        - Do not directly mention GitGuardian in the generated code.
+        - Do not mention the honeytoken in the codebase
+    3. List incidents:
+        - Use list_incidents to list incidents
+        - you can use also use parameters like severity, status, from_date, to_date, assignee_email, assignee_id, per_page, page to filter the results
+        - try to summarize the results in a few sentences
+        - if you have a lot of incidents, you can use list_all_incidents to get all incidents
+
+      """,
+)
+logger.info("Created GitGuardianFastMCP instance")
+
+# Register the GitGuardian tools if API key is available
+
+
+@mcp.tool(
+    name="generate_honeytoken",
+    description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
+    required_scopes=["honeytokens:write"],
+)
+async def generate_honeytoken(
+    name: str = Field(description="Name for the honeytoken"),
+    description: str = Field(default="", description="Description of what the honeytoken is used for"),
+) -> dict[str, Any]:
+    """
+    Generate an AWS GitGuardian honeytoken and get injection recommendations.
+
+    Args:
+        name: Name for the honeytoken
+        description: Description of what the honeytoken is used for
+
+    Returns:
+        dict[str, Any]: Dictionary containing:
+            - id: ID of the created honeytoken
+            - name: Name of the honeytoken
+            - token: The honeytoken value
+            - created_at: Creation timestamp
+            - status: Current status
+            - type: Always "AWS"
+            - injection_recommendations: dict containing:
+                - instructions: Usage instructions
+    """
+    logger.info(f"Received generate_honeytoken request with name={name}")
+    try:
+        logger.debug("Attempting to get GitGuardian client")
+        client = get_gitguardian_client()
+        logger.info("Successfully initialized GitGuardian client")
+        logger.debug("Calling create_honeytoken API")
+        custom_tags = [
+            {"key": "source", "value": "auto-generated"},
+            {"key": "type", "value": "aws"},
+        ]
+        result = await client.create_honeytoken(name=name, description=description, custom_tags=custom_tags)
+        logger.debug("got response from server %s", json.dumps(result, indent=2))
+        honeytoken_id = result.get("id")
+        if not honeytoken_id:
+            logger.error("Failed to get honeytoken ID from GitGuardian API")
+            raise ToolError("Failed to get honeytoken ID from GitGuardian API")
+        logger.info(f"Successfully created honeytoken with ID: {honeytoken_id}")
+        return {
+            "id": honeytoken_id,
+            "name": result.get("name"),
+            "token": result.get("token"),
+            "created_at": result.get("created_at"),
+            "status": result.get("status"),
+            "type": result.get("type"),
+            "injection_recommendations": {
+                "instructions": """Add the above generated token in the current codebase.
+                It should look like a real leaked token and don't mention that it's a honeytoken or a fake token.
+                It should really look like a real token that was leaked by mistake.
+                Do not directly mention GitGuardian in the generated code."""
+            },
+        }
+
+    except Exception as e:
+        logger.exception(f"Error in generate_honeytoken: {str(e)}")
+        raise ToolError(f"Failed to generate honeytoken: {str(e)}")
+
+
+@mcp.tool(
+    name="list_incidents",
+    description="List secret incidents detected by the GitGuardian dashboard",
+    required_scopes=["incidents:read"],
+)
+async def list_incidents(
+    severity: str | None = Field(
+        default=None, description="Filter incidents by severity (critical, high, medium, low)"
+    ),
+    status: str | None = Field(
+        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
+    ),
+    from_date: str | None = Field(
+        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email"),
+    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id"),
+    validity: str | None = Field(
+        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
+    ),
+    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
+        default=None, description="Sort field and direction (prefix with '-' for descending order)"
+    ),
+    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
+    page: int = Field(default=1, description="Page number"),
+):
+    """List secret incidents detected by the GitGuardian dashboard with filtering options.
+
+    Args:
+        severity: Filter by severity level (critical, high, medium, low)
+        status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+        from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
+        assignee_email: Filter incidents assigned to a specific email address
+        assignee_id: Filter incidents assigned to a specific member ID
+        validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
+        ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
+                Default is ASC, DESC if preceded by '-'
+        per_page: Number of results per page (default: 20)
+        page: Page number (default: 1)
+
+    Returns:
+        List of incidents matching the specified criteria for the requested page
+    """
+    client = get_gitguardian_client()
+    return await client.list_incidents(
+        severity=severity,
+        status=status,
+        from_date=from_date,
+        to_date=to_date,
+        assignee_email=assignee_email,
+        assignee_id=assignee_id,
+        validity=validity,
+        ordering=ordering,
+        per_page=per_page,
+        page=page,
+    )
+
+
+@mcp.tool(
+    name="list_all_incidents",
+    description="List ALL secret incidents detected by GitGuardian with filtering options",
+    required_scopes=["incidents:read"],
+)
+async def list_all_incidents(
+    severity: str | None = Field(
+        default=None, description="Filter incidents by severity (critical, high, medium, low)"
+    ),
+    status: str | None = Field(
+        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
+    ),
+    from_date: str | None = Field(
+        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email"),
+    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id"),
+    validity: str | None = Field(
+        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
+    ),
+    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
+        default=None, description="Sort field and direction (prefix with '-' for descending order)"
+    ),
+    max_pages: int = Field(
+        default=10, description="Maximum number of pages to fetch"
+    ),  # Safety limit to prevent too many API calls
+):
+    """List ALL secret incidents detected by GitGuardian with filtering options.
+    Automatically handles pagination to return all matching incidents.
+
+    Args:
+        severity: Filter by severity level (critical, high, medium, low)
+        status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+        from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
+        assignee_email: Filter incidents assigned to a specific email address
+        assignee_id: Filter incidents assigned to a specific member ID
+        validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
+        ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
+                Default is ASC, DESC if preceded by '-'
+        per_page: Number of results per page (default: 20)
+        page: Page number (default: 1)
+        max_pages: Maximum number of pages to fetch (default: 10, use -1 for all pages)
+
+    Returns:
+        Complete list of incidents matching the specified criteria across all pages
+    """
+    client = get_gitguardian_client()
+    all_incidents = []
+    current_page = 1
+    per_page = 100  # Maximum allowed by the API to reduce number of calls
+    total_pages = 1
+
+    logger.info("Starting to fetch all incidents with filters: severity=%s, status=%s", severity, status)
+
+    while True:
+        # Fetch the current page
+        response = await client.list_incidents(
+            severity=severity,
+            status=status,
+            from_date=from_date,
+            to_date=to_date,
+            assignee_email=assignee_email,
+            assignee_id=assignee_id,
+            validity=validity,
+            ordering=ordering,
+            per_page=per_page,
+            page=current_page,
+        )
+
+        # Log response structure for debugging
+        logger.debug("Response type: %s", type(response).__name__)
+        if hasattr(response, "keys"):
+            logger.debug("Response keys: %s", list(response.keys()))
+
+        # Check if the response is a list or a dict with a data field
+        if isinstance(response, list):
+            # The response itself is the list of incidents
+            incidents = response
+            logger.info("Page %d: Got %d incidents (list response)", current_page, len(incidents))
+        else:
+            # The response is a dict, try to extract the data
+            incidents = response.get("data", [])
+            # Try to get pagination info if available
+            pagination = response.get("pagination", {})
+            if pagination:
+                total_pages = pagination.get("total_pages", 1)
+                logger.info("Page %d of %d: Got %d incidents", current_page, total_pages, len(incidents))
+            else:
+                logger.info("Page %d: Got %d incidents (no pagination info)", current_page, len(incidents))
+
+        # Add the incidents to our collection
+        all_incidents.extend(incidents)
+
+        # Break if we're done or reached max_pages
+        if (current_page >= total_pages) or (max_pages > 0 and current_page >= max_pages):
+            if current_page >= total_pages:
+                logger.info("Reached last page (%d), stopping pagination", current_page)
+            else:
+                logger.info("Reached max_pages limit (%d), stopping pagination", max_pages)
+            break
+
+        # Move to the next page
+        current_page += 1
+        logger.info("Moving to next page: %d", current_page)
+
+    logger.info("Finished fetching all incidents. Total: %d incidents from %d pages", len(all_incidents), current_page)
+
+    # Return the combined results with pagination info
+    return {
+        "data": all_incidents,
+        "pagination": {
+            "total_count": len(all_incidents),
+            "fetched_pages": current_page,
+            "total_pages": min(total_pages, max_pages) if max_pages > 0 else total_pages,
+        },
+        "filters": {
+            "severity": severity,
+            "status": status,
+            "from_date": from_date,
+            "to_date": to_date,
+            "assignee_email": assignee_email,
+            "assignee_id": assignee_id,
+            "validity": validity,
+            "ordering": ordering,
+        },
+    }
+
+
+@mcp.tool(
+    name="search_team",
+    description="Search for teams and team members",
+    required_scopes=["teams:read"],
+)
+async def search_team(
+    action: Literal["list_teams", "search_team", "list_members", "search_member"] = Field(
+        description="Action to perform related to teams"
+    ),
+    team_name: str | None = Field(
+        default=None, description="The name of the team to search for (used with 'search_team' action)"
+    ),
+    member_name: str | None = Field(
+        default=None, description="The name of the member to search for (used with 'search_member' action)"
+    ),
+):
+    """Search for teams and team members.
+
+    Args:
+        action: Action to perform (list_teams, search_team, list_members, search_member)
+        team_name: The name of the team to search for (used with 'search_team' action)
+        member_name: The name of the member to search for (used with 'search_member' action)
+
+    Returns:
+        Results based on the action performed
+    """
+    logger.info(f"Searching team with action: {action}")
+
+    try:
+        client = get_gitguardian_client()
+
+        if action == "list_teams":
+            return await client.list_teams()
+
+        elif action == "search_team":
+            if not team_name:
+                raise ToolError("team_name is required for 'search_team' action")
+            return await client.list_teams(search=team_name)
+
+        elif action == "list_members":
+            return await client.list_members()
+
+        elif action == "search_member":
+            if not member_name:
+                raise ToolError("member_name is required for 'search_member' action")
+            return await client.list_members(search=member_name)
+
+        else:
+            raise ToolError(
+                f"Invalid action: {action}. Must be one of: list_teams, search_team, list_members, search_member"
+            )
+
+    except Exception as e:
+        logger.exception(f"Error searching team: {str(e)}")
+        raise ToolError(f"Failed to search team: {str(e)}")
+
+
+@mcp.tool(
+    name="add_member_to_team",
+    description="Add a member to a team",
+    required_scopes=["teams:write"],
+)
+async def add_member_to_team(
+    team_id: str = Field(description="ID of the team to add the member to"),
+    member_id: str = Field(description="ID of the member to add to the team"),
+):
+    """Add a member to a team.
+
+    Args:
+        team_id: ID of the team to add the member to
+        member_id: ID of the member to add to the team
+
+    Returns:
+        Status of the operation
+    """
+    logger.info(f"Adding member {member_id} to team {team_id}")
+
+    try:
+        client = get_gitguardian_client()
+        return await client.add_member_to_team(team_id=team_id, member_id=member_id)
+    except Exception as e:
+        logger.exception(f"Error adding member to team: {str(e)}")
+        raise ToolError(f"Failed to add member to team: {str(e)}")
+
+
+@mcp.tool(
+    name="get_current_token_info",
+    description="Get information about the current API token ",
+    required_scopes=["api_tokens:read"],
+)
+async def get_current_token_info() -> dict[str, Any]:
+    """Get information about the current API token. Use this to get information about `me` in prompt.
+
+    Args:
+        None
+
+    Returns:
+        dict[str, Any]: Dictionary containing token information including:
+            - id: ID of the API token
+            - name: Name of the token
+            - scopes: List of scopes the token has access to
+            - member_id: ID of the member who owns the token
+            - created_at: Creation timestamp
+            - expiration_date: When the token expires (if applicable)
+    """
+    logger.info("Received get_current_token_info request")
+    client = get_gitguardian_client()
+    result = await client.get_current_token_info()
+
+    response = {
+        "id": result.get("id"),
+        "name": result.get("name"),
+        "scopes": result.get("scopes", []),
+        "member_id": result.get("member_id", {}),
+        "created_at": result.get("created_at"),
+        "expiration_date": result.get("expiration_date"),
+    }
+
+    return response
+
+
+@mcp.tool(
+    name="list_honeytokens",
+    description="List honeytokens from the GitGuardian dashboard with filtering options",
+    required_scopes=["honeytokens:read"],
+)
+async def list_honeytokens(
+    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)"),
+    search: str | None = Field(default=None, description="Search string to filter results by name or description"),
+    ordering: str | None = Field(
+        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+    ),
+    show_token: bool = Field(default=False, description="Whether to include token details in the response"),
+    creator_id: str | None = Field(default=None, description="Filter by creator ID"),
+    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID"),
+    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
+    page: int = Field(default=1, description="Page number"),
+):
+    """List honeytokens from the GitGuardian dashboard with filtering options.
+    This can be used to get a honeytoken and inject it in the codebase.
+
+    Args:
+        status: Filter by status (ACTIVE or REVOKED)
+        search: Search string to filter results by name or description
+        ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
+        show_token: Whether to include token details in the response
+        creator_id: Filter by creator ID
+        creator_api_token_id: Filter by creator API token ID
+        per_page: Number of results per page (default: 20)
+        page: Page number (default: 1)
+
+    Returns:
+        List of honeytokens matching the specified criteria for the requested page
+    """
+    logger.info(
+        f"Listing honeytokens with filters: status={status}, search={search}, ordering={ordering}, creator_id={creator_id}, creator_api_token_id={creator_api_token_id}"
+    )
+    try:
+        client = get_gitguardian_client()
+        return await client.list_honeytokens(
+            status=status,
+            search=search,
+            ordering=ordering,
+            show_token=show_token,
+            creator_id=creator_id,
+            creator_api_token_id=creator_api_token_id,
+            per_page=per_page,
+            page=page,
+        )
+    except Exception as e:
+        logger.exception(f"Error listing honeytokens: {str(e)}")
+        raise ToolError(f"Failed to list honeytokens: {str(e)}")
+
+
+@mcp.tool(
+    name="list_my_incidents",
+    description="List incidents for the current user",
+    required_scopes=["api_tokens:read", "incidents:read"],
+)
+async def list_my_incidents(
+    severity: str | None = Field(
+        default=None, description="Filter incidents by severity (critical, high, medium, low)"
+    ),
+    status: str | None = Field(
+        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
+    ),
+    from_date: str | None = Field(
+        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    validity: str | None = Field(
+        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
+    ),
+    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
+        default=None, description="Sort field and direction (prefix with '-' for descending order)"
+    ),
+    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
+    page: int = Field(default=1, description="Page number"),
+):
+    """List incidents for the current user.
+    This tool first gets the current token info to retrieve the member_id and then uses that to filter incidents.
+
+    Args:
+        severity: Filter by severity level (critical, high, medium, low)
+        status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+        from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
+        validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
+        ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
+                Default is ASC, DESC if preceded by '-'
+        per_page: Number of results per page (default: 20)
+        page: Page number (default: 1)
+
+    Returns:
+        List of incidents assigned to the current user matching the specified criteria
+    """
+    logger.info("Listing incidents for the current user")
+    try:
+        # First get the current token info to retrieve the member_id
+        token_info = await get_current_token_info()
+        member_id = token_info.get("member_id")
+
+        if not member_id:
+            raise ToolError("Failed to retrieve member_id from token info")
+
+        # Then use the member_id to filter incidents
+        return await list_incidents(
+            severity=severity,
+            status=status,
+            from_date=from_date,
+            to_date=to_date,
+            validity=validity,
+            ordering=ordering,
+            assignee_id=member_id,
+            per_page=per_page,
+            page=page,
+        )
+    except Exception as e:
+        logger.exception(f"Error listing incidents for current user: {str(e)}")
+        raise ToolError(f"Failed to list incidents for current user: {str(e)}")
+
+
+@mcp.tool(
+    name="list_my_honeytokens",
+    description="List honeytokens for the current user",
+    required_scopes=["api_tokens:read", "honeytokens:read"],
+)
+async def list_my_honeytokens(
+    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)"),
+    search: str | None = Field(default=None, description="Search string to filter results by name or description"),
+    ordering: str | None = Field(
+        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+    ),
+    show_token: bool = Field(default=False, description="Whether to include token details in the response"),
+    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
+    page: int = Field(default=1, description="Page number"),
+):
+    """List honeytokens for the current user.
+    This tool first gets the current token info to retrieve the member_id and then uses that to filter honeytokens.
+
+    Args:
+        status: Filter by status (ACTIVE or REVOKED)
+        search: Search string to filter results by name or description
+        ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
+        show_token: Whether to include token details in the response
+        per_page: Number of results per page (default: 20)
+        page: Page number (default: 1)
+
+    Returns:
+        List of honeytokens created by the current user matching the specified criteria
+    """
+    logger.info("Listing honeytokens for the current user")
+    try:
+        # First get the current token info to retrieve the member_id
+        token_info = await get_current_token_info()
+        member_id = token_info.get("member_id")
+
+        if not member_id:
+            raise ToolError("Failed to retrieve member_id from token info")
+
+        # Then use the member_id to filter honeytokens
+        return await list_honeytokens(
+            status=status,
+            search=search,
+            ordering=ordering,
+            show_token=show_token,
+            creator_id=member_id,
+            per_page=per_page,
+            page=page,
+        )
+    except Exception as e:
+        logger.exception(f"Error listing honeytokens for current user: {str(e)}")
+        raise ToolError(f"Failed to list honeytokens for current user: {str(e)}")
+
+
+# Secret Incident Management Tools
+@mcp.tool(
+    name="manage_incident",
+    description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
+    required_scopes=["incidents:write"],
+)
+async def manage_incident(
+    incident_id: str = Field(description="ID of the secret incident to manage"),
+    action: Literal["assign", "unassign", "resolve", "ignore", "reopen"] = Field(
+        description="Action to perform on the incident"
+    ),
+    assignee_id: str | None = Field(
+        default=None, description="ID of the member to assign the incident to (required for 'assign' action)"
+    ),
+    ignore_reason: str | None = Field(
+        default=None,
+        description="Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)",
+    ),
+):
+    """Manage a secret incident with various actions.
+
+    Args:
+        incident_id: ID of the secret incident to manage
+        action: Action to perform on the incident (assign, unassign, resolve, ignore, reopen)
+        assignee_id: ID of the member to assign the incident to (required for 'assign' action)
+        ignore_reason: Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)
+
+    Returns:
+        Status of the operation
+    """
+    logger.info(f"Managing incident {incident_id} with action: {action}")
+
+    try:
+        client = get_gitguardian_client()
+
+        if action == "assign":
+            if not assignee_id:
+                raise ToolError("assignee_id is required for 'assign' action")
+            return await client.assign_incident(incident_id=incident_id, assignee_id=assignee_id)
+
+        elif action == "unassign":
+            return await client.unassign_incident(incident_id=incident_id)
+
+        elif action == "resolve":
+            return await client.resolve_incident(incident_id=incident_id)
+
+        elif action == "ignore":
+            return await client.ignore_incident(incident_id=incident_id, ignore_reason=ignore_reason)
+
+        elif action == "reopen":
+            return await client.reopen_incident(incident_id=incident_id)
+
+        else:
+            raise ToolError(f"Invalid action: {action}. Must be one of: assign, unassign, resolve, ignore, reopen")
+
+    except Exception as e:
+        logger.exception(f"Error managing incident: {str(e)}")
+        raise ToolError(f"Failed to manage incident: {str(e)}")
+
+
+@mcp.tool(
+    name="update_or_create_incident_custom_tags",
+    description="Update or create custom tags for a secret incident",
+    required_scopes=["incidents:write"],
+)
+async def update_or_create_incident_custom_tags(
+    incident_id: str = Field(description="ID of the secret incident"),
+    custom_tags: list[str | dict[str, str]] = Field(description="List of custom tags to apply to the incident"),
+):
+    """Update a secret incident with status and/or custom tags.
+    If a custom tag is a String, a label is created. For example "MCP": None will create a label "MCP" without a value.
+
+    Args:
+        incident_id: ID of the secret incident
+        custom_tags: List of custom tags to apply to the incident
+                     Format: [{"key": "key1"}, "label"]
+
+    Returns:
+        Updated incident data
+    """
+    if not custom_tags:
+        raise ToolError("At least one of status or custom_tags must be provided")
+
+    logger.info(f"Updating incident {incident_id} with custom_tags={custom_tags}")
+    try:
+        client = get_gitguardian_client()
+        tags = []
+        for tag in custom_tags:
+            if isinstance(tag, str):
+                tags.append({"key": tag, "value": None})
+            else:
+                tags.append(tag)
+        return await client.update_incident(incident_id=incident_id, custom_tags=tags)
+    except Exception as e:
+        logger.exception(f"Error updating incident: {str(e)}")
+        raise ToolError(f"Failed to update incident: {str(e)}")
+
+
+@mcp.tool(
+    name="update_incident_status",
+    description="Update a secret incident with status",
+    required_scopes=["incidents:write"],
+)
+async def update_incident_status(
+    incident_id: str = Field(description="ID of the secret incident"),
+    status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"),
+):
+    """Update a secret incident with status and/or custom tags.
+
+    Args:
+        incident_id: ID of the secret incident
+        status: New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+
+    Returns:
+        Updated incident data
+    """
+    if not status:
+        raise ToolError("Status must be provided")
+
+    logger.info(f"Updating incident {incident_id} with status={status}")
+    try:
+        client = get_gitguardian_client()
+        return await client.update_incident(incident_id=incident_id, status=status)
+    except Exception as e:
+        logger.exception(f"Error updating incident: {str(e)}")
+        raise ToolError(f"Failed to update incident: {str(e)}")
+
+
+@mcp.tool(
+    name="read_custom_tags",
+    description="Read custom tags from the GitGuardian dashboard",
+    required_scopes=["custom_tags:read"],
+)
+async def read_custom_tags(
+    action: Literal["list_tags", "get_tag"] = Field(description="Action to perform related to reading custom tags"),
+    tag_id: str | None = Field(
+        default=None, description="ID of the custom tag to retrieve (used with 'get_tag' action)"
+    ),
+):
+    """Read custom tags from the GitGuardian dashboard.
+
+    Args:
+        action: Action to perform (list_tags, get_tag)
+        tag_id: ID of the custom tag to retrieve (used with 'get_tag' action)
+
+    Returns:
+        Custom tag data based on the action performed
+    """
+    logger.info(f"Reading custom tags with action: {action}")
+
+    try:
+        client = get_gitguardian_client()
+
+        if action == "list_tags":
+            return await client.list_custom_tags()
+
+        elif action == "get_tag":
+            if not tag_id:
+                raise ToolError("tag_id is required for 'get_tag' action")
+            return await client.get_custom_tag(tag_id=tag_id)
+
+        else:
+            raise ToolError(f"Invalid action: {action}. Must be one of: list_tags, get_tag")
+
+    except Exception as e:
+        logger.exception(f"Error reading custom tags: {str(e)}")
+        raise ToolError(f"Failed to read custom tags: {str(e)}")
+
+
+@mcp.tool(
+    name="write_custom_tags",
+    description="Create or delete custom tags in the GitGuardian dashboard",
+    required_scopes=["custom_tags:write"],
+)
+async def write_custom_tags(
+    action: Literal["create_tag", "delete_tag"] = Field(description="Action to perform related to writing custom tags"),
+    key: str | None = Field(default=None, description="Key for the new tag (used with 'create_tag' action)"),
+    value: str | None = Field(default=None, description="Value for the new tag (used with 'create_tag' action)"),
+    tag_id: str | None = Field(
+        default=None, description="ID of the custom tag to delete (used with 'delete_tag' action)"
+    ),
+):
+    """Create or delete custom tags in the GitGuardian dashboard.
+
+    Args:
+        action: Action to perform (create_tag, delete_tag)
+        key: Key for the new tag (used with 'create_tag' action)
+        value: Value for the new tag (used with 'create_tag' action)
+        tag_id: ID of the custom tag to delete (used with 'delete_tag' action)
+
+    Returns:
+        Result based on the action performed
+    """
+    logger.info(f"Writing custom tags with action: {action}")
+
+    try:
+        client = get_gitguardian_client()
+
+        if action == "create_tag":
+            if not key:
+                raise ToolError("key is required for 'create_tag' action")
+            if not value:
+                raise ToolError("value is required for 'create_tag' action")
+            return await client.create_custom_tag(key=key, value=value)
+
+        elif action == "delete_tag":
+            if not tag_id:
+                raise ToolError("tag_id is required for 'delete_tag' action")
+            return await client.delete_custom_tag(tag_id=tag_id)
+
+        else:
+            raise ToolError(f"Invalid action: {action}. Must be one of: create_tag, delete_tag")
+
+    except Exception as e:
+        logger.exception(f"Error writing custom tags: {str(e)}")
+        raise ToolError(f"Failed to write custom tags: {str(e)}")
+
+
+@mcp.tool(
+    name="scan_multiple_contents",
+    description="Scan multiple content items for secrets and policy breaks",
+    required_scopes=["scan"],
+)
+async def scan_multiple_contents(
+    documents: list[dict[str, str]] = Field(
+        description="List of documents to scan, each with 'document' and optional 'filename'. Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]"
+    ),
+) -> dict[str, Any]:
+    """Scan multiple content items for secrets and policy breaks.
+
+    This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
+    Each document must have a 'document' field and can optionally include a 'filename' field for better context.
+
+    Args:
+        documents: List of documents to scan, each with 'document' and optional 'filename'
+                  Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
+
+    Returns:
+        Scan results for all documents, including any detected secrets or policy breaks
+    """
+    logger.info(f"Received scan_multiple_contents request for {len(documents)} documents")
+
+    try:
+        # Validate input format
+        for i, doc in enumerate(documents):
+            if "document" not in doc:
+                error_msg = f"Document at index {i} is missing required 'document' field"
+                logger.error(error_msg)
+                raise ToolError(error_msg)
+
+        client = get_gitguardian_client()
+        result = await client.multiple_scan(documents)
+
+        logger.info(f"Successfully scanned {len(documents)} documents")
+        return result
+
+    except Exception as e:
+        logger.exception(f"Error in scan_multiple_contents: {str(e)}")
+        raise ToolError(f"Failed to scan documents: {str(e)}")
+
+
+if __name__ == "__main__":
+    # Log all registered tools
+    logger.info("Starting MCP server...")
+    mcp.run()

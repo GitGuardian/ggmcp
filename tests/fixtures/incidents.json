@@ -1,0 +1,51 @@
+{
+    "data": [
+        {
+            "id": "inc_123456",
+            "severity": "critical",
+            "status": "TRIGGERED",
+            "validity": "valid",
+            "detected_at": "2023-01-01T00:00:00Z",
+            "resolved_at": null,
+            "ignored_at": null,
+            "detector": {
+                "name": "secrets_detection",
+                "display_name": "Secrets Detection"
+            },
+            "occurrence": {
+                "id": "occ_123456",
+                "file_path": "config.js",
+                "line_start": 5,
+                "line_end": 5,
+                "commit_sha": "abcdef1234567890",
+                "detected_at": "2023-01-01T00:00:00Z"
+            }
+        },
+        {
+            "id": "inc_789012",
+            "severity": "high",
+            "status": "RESOLVED",
+            "validity": "valid",
+            "detected_at": "2023-01-02T00:00:00Z",
+            "resolved_at": "2023-01-03T00:00:00Z",
+            "ignored_at": null,
+            "detector": {
+                "name": "secrets_detection",
+                "display_name": "Secrets Detection"
+            },
+            "occurrence": {
+                "id": "occ_789012",
+                "file_path": ".env",
+                "line_start": 3,
+                "line_end": 3,
+                "commit_sha": "fedcba0987654321",
+                "detected_at": "2023-01-02T00:00:00Z"
+            }
+        }
+    ],
+    "pagination": {
+        "total_count": 2,
+        "page": 1,
+        "per_page": 20
+    }
+}

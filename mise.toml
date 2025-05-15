@@ -1,0 +1,10 @@
+[tools]
+node = "latest"
+"pipx:commitizen" = "latest"
+"pipx:pre-commit" = "latest"
+"pipx:ruff" = "latest"
+"pipx:ruff-lsp" = "latest"
+uv = "0.7"
+
+[env]
+_.python.venv = ".venv"
