@@ -13,7 +13,14 @@ wheels/
 !.env.example
 
 # VSCode
-.vscode/
+.vscode/settings.json
+
+# Cursor
+.cursor/
+cursor_rules.md
+
+# Windsurf
+.windsurfrules
 
 # IntelliJ
 .idea/
