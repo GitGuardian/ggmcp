@@ -10,12 +10,14 @@ A Model Context Protocol (MCP) server implementation based on the [official Pyth
 ## Setup with mise
 
 1. Clone this repository:
+
    ```bash
    git clone https://github.com/GitGuardian/gg-mcp.git
    cd gg-mcp
    ```
 
 2. Install the required Python version using mise:
+
    ```bash
    mise install
    ```
@@ -40,6 +42,7 @@ This runs the server using MCP's native server capabilities (no external web ser
 The GitGuardian MCP server requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
 
 1. Create an `.env` file with your GitGuardian API credentials:
+
    ```
    GITGUARDIAN_API_KEY=your_api_key_here
    GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
@@ -60,17 +63,20 @@ This approach keeps sensitive API keys separate from your configuration files an
 To install and run the GitGuardian MCP server locally:
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/GitGuardian/gg-mcp.git
    cd gg-mcp
    ```
 
 2. Install the required Python version using mise:
+
    ```bash
    mise install
    ```
 
 3. Install dependencies with uv (required):
+
    ```bash
    uv sync
    ```
@@ -79,7 +85,7 @@ To install and run the GitGuardian MCP server locally:
    ```bash
    mcp dev src/gg_api_mcp_server/server.py
    ```
-</details>
+   </details>
 
 <details>
 <summary><strong>Installing in Cursor</strong></summary>
@@ -94,8 +100,10 @@ To use the GitGuardian MCP server with Cursor directly from GitHub:
     "GitGuardian": {
       "command": "uvx",
       "args": [
-        "--env-file", "/path/to/.env",
-        "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
+        "--env-file",
+        "/path/to/.env",
+        "--from",
+        "git+https://github.com/GitGuardian/gg-mcp.git",
         "gg-mcp"
       ]
     }
@@ -114,33 +122,39 @@ To use the GitGuardian MCP server with Cursor directly from GitHub:
 To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprotocol.io/quickstart/user):
 
 1. Edit your Claude Desktop MCP configuration file located at:
+
    - macOS: `~/Library/Application Support/Claude/mcp.json`
    - Windows: `%APPDATA%\Claude\mcp.json`
    - Linux: `~/.config/Claude/mcp.json`
 
 2. Add the following entry to the configuration file:
+
    ```json
    {
-    "mcpServers": {
-      "GitGuardian": {
-        "command": "/path/to/uvx",
-        "args": [
-          "--env-file", "/path/to/.env",
-          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
-          "gg-mcp"
-        ]
-      }
-    }
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "/path/to/uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
    }
    ```
 
 3. Replace:
+
    - `/path/to/uvx` with the full absolute path to the uvx executable (e.g., `/usr/local/bin/uvx` or `C:\Users\username\AppData\Local\Programs\Python\Python311\Scripts\uvx.exe`)
    - `/path/to/.env` with the absolute path to your `.env` file
 
 4. Restart Claude Desktop to apply the changes.
 
 > **Note**: Claude Desktop requires the full absolute path to the `uvx` executable, not just the command name.
+
 </details>
 
 <details>
@@ -149,22 +163,28 @@ To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprot
 To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#bring-your-own-mcp-server):
 
 1. Edit your Zed MCP configuration file located at:
+
    - macOS: `~/Library/Application Support/Zed/mcp.json`
    - Linux: `~/.config/Zed/mcp.json`
 
 2. Add the following entry to the configuration file:
+
    ```json
    {
-    "context_servers": {
-      "GitGuardian": {
-        "command": "uvx",
-        "args": [
-          "--env-file", "/path/to/.env",
-          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
-          "gg-mcp"
-        ]
-      }
-    }
+     "context_servers": {
+       "GitGuardian": {
+         "command": {
+           "path": "uvx",
+           "args": [
+             "--env-file",
+             "/path/to/.env",
+             "--from",
+             "git+https://github.com/GitGuardian/gg-mcp.git",
+             "gg-mcp"
+           ]
+         }
+       }
+     }
    }
    ```
 
@@ -179,23 +199,27 @@ To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#
 To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
 1. Edit your Windsurf MCP configuration file located at:
+
    - macOS: `~/Library/Application Support/Windsurf/mcp.json`
    - Windows: `%APPDATA%\Windsurf\mcp.json`
    - Linux: `~/.config/Windsurf/mcp.json`
 
 2. Add the following entry to the configuration file:
+
    ```json
    {
-    "mcpServers": {
-      "GitGuardian": {
-        "command": "uvx",
-        "args": [
-          "--env-file", "/path/to/.env",
-          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
-          "gg-mcp"
-        ]
-      }
-    }
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
    }
    ```
 
@@ -217,23 +241,23 @@ The GitGuardian MCP server implements scope-based access control for its tools. 
 
 ### Required Scopes for Tools
 
-| Tool | Required Scopes |
-|------|----------------|
-| `generate_honeytoken` | `honeytokens:write` |
-| `list_honeytokens` | `honeytokens:read` |
-| `list_my_honeytokens` | `honeytokens:read` |
-| `list_incidents` | `incidents:read` |
-| `list_my_incidents` | `incidents:read` |
-| `list_all_incidents` | `incidents:read` |
-| `manage_incident` | `incidents:write` |
-| `update_incident_status` | `incidents:write` |
-| `update_or_create_incident_custom_tags` | `incidents:write` |
-| `get_current_token_info` | No specific scope required |
-| `search_team` | `teams:read` |
-| `add_member_to_team` | `teams:write` |
-| `read_custom_tags` | `incidents:read` |
-| `write_custom_tags` | `incidents:write` |
-| `scan_multiple_contents` | `scan` |
+| Tool                                    | Required Scopes            |
+| --------------------------------------- | -------------------------- |
+| `generate_honeytoken`                   | `honeytokens:write`        |
+| `list_honeytokens`                      | `honeytokens:read`         |
+| `list_my_honeytokens`                   | `honeytokens:read`         |
+| `list_incidents`                        | `incidents:read`           |
+| `list_my_incidents`                     | `incidents:read`           |
+| `list_all_incidents`                    | `incidents:read`           |
+| `manage_incident`                       | `incidents:write`          |
+| `update_incident_status`                | `incidents:write`          |
+| `update_or_create_incident_custom_tags` | `incidents:write`          |
+| `get_current_token_info`                | No specific scope required |
+| `search_team`                           | `teams:read`               |
+| `add_member_to_team`                    | `teams:write`              |
+| `read_custom_tags`                      | `incidents:read`           |
+| `write_custom_tags`                     | `incidents:write`          |
+| `scan_multiple_contents`                | `scan`                     |
 
 ### Obtaining a Token with Additional Scopes
 
@@ -256,7 +280,6 @@ The Honeytoken tool generates fake credentials using GitGuardian's API that can 
 
 - `GITGUARDIAN_API_KEY`: Your GitGuardian API key
 - `GITGUARDIAN_API_URL`: GitGuardian API URL (optional, defaults to https://api.gitguardian.com/v1)
-
 
 ##### Parameters
 
