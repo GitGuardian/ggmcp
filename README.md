@@ -123,7 +123,7 @@ To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprot
    {
     "mcpServers": {
       "GitGuardian": {
-        "command": "uvx",
+        "command": "/path/to/uvx",
         "args": [
           "--env-file", "/path/to/.env",
           "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
@@ -134,9 +134,13 @@ To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprot
    }
    ```
 
-3. Replace `/path/to/.env` with the absolute path to your `.env` file.
+3. Replace:
+   - `/path/to/uvx` with the full absolute path to the uvx executable (e.g., `/usr/local/bin/uvx` or `C:\Users\username\AppData\Local\Programs\Python\Python311\Scripts\uvx.exe`)
+   - `/path/to/.env` with the absolute path to your `.env` file
 
 4. Restart Claude Desktop to apply the changes.
+
+> **Note**: Claude Desktop requires the full absolute path to the `uvx` executable, not just the command name.
 </details>
 
 <details>
@@ -225,6 +229,11 @@ The GitGuardian MCP server implements scope-based access control for its tools. 
 | `update_incident_status` | `incidents:write` |
 | `update_or_create_incident_custom_tags` | `incidents:write` |
 | `get_current_token_info` | No specific scope required |
+| `search_team` | `teams:read` |
+| `add_member_to_team` | `teams:write` |
+| `read_custom_tags` | `incidents:read` |
+| `write_custom_tags` | `incidents:write` |
+| `scan_multiple_contents` | `scan` |
 
 ### Obtaining a Token with Additional Scopes
 
