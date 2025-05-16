@@ -90,11 +90,15 @@ To use the GitGuardian MCP server with Cursor directly from GitHub:
 
 ```json
 {
-  "GitGuardian": {
-    "command": "uvx",
-    "args": [
-      "--env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp"
-    ]
+  "mcpServers": {
+    "GitGuardian": {
+      "command": "uvx",
+      "args": [
+        "--env-file", "/path/to/.env",
+        "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
+        "gg-mcp"
+      ]
+    }
   }
 }
 ```
@@ -117,12 +121,16 @@ To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprot
 2. Add the following entry to the configuration file:
    ```json
    {
-    "GitGuardian": {
-       "command": "uvx",
-       "args": [
-         "--env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp"
-       ]
-     }
+    "mcpServers": {
+      "GitGuardian": {
+        "command": "uvx",
+        "args": [
+          "--env-file", "/path/to/.env",
+          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
+          "gg-mcp"
+        ]
+      }
+    }
    }
    ```
 
@@ -134,7 +142,7 @@ To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprot
 <details>
 <summary><strong>Installing with Zed Editor</strong></summary>
 
-To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#bring-your-own-context-server):
+To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#bring-your-own-mcp-server):
 
 1. Edit your Zed MCP configuration file located at:
    - macOS: `~/Library/Application Support/Zed/mcp.json`
@@ -143,18 +151,53 @@ To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#
 2. Add the following entry to the configuration file:
    ```json
    {
-    "GitGuardian": {
-       "command": "uvx",
-       "args": [
-          "--env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp"
-       ]
-     }
+    "context_servers": {
+      "GitGuardian": {
+        "command": "uvx",
+        "args": [
+          "--env-file", "/path/to/.env",
+          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
+          "gg-mcp"
+        ]
+      }
+    }
    }
    ```
 
 3. Replace `/path/to/.env` with the absolute path to your `.env` file.
 
 4. Restart Zed to apply the changes.
+</details>
+
+<details>
+<summary><strong>Installing with Windsurf</strong></summary>
+
+To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
+
+1. Edit your Windsurf MCP configuration file located at:
+   - macOS: `~/Library/Application Support/Windsurf/mcp.json`
+   - Windows: `%APPDATA%\Windsurf\mcp.json`
+   - Linux: `~/.config/Windsurf/mcp.json`
+
+2. Add the following entry to the configuration file:
+   ```json
+   {
+    "mcpServers": {
+      "GitGuardian": {
+        "command": "uvx",
+        "args": [
+          "--env-file", "/path/to/.env",
+          "--from", "git+https://github.com/GitGuardian/gg-mcp.git",
+          "gg-mcp"
+        ]
+      }
+    }
+   }
+   ```
+
+3. Replace `/path/to/.env` with the absolute path to your `.env` file.
+
+4. Restart Windsurf to apply the changes.
 </details>
 
 ## API Token Scopes
