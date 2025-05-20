@@ -7,7 +7,6 @@ from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import Field
 
 from gg_api_mcp_server.mcp_server import GitGuardianFastMCP
-from gg_api_mcp_server.tools import get_gitguardian_client
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -36,14 +35,7 @@ mcp = GitGuardianFastMCP(
 
     If not specified, try to reuse an existing active honeytoken instead of generating a new one.
 
-    REQUIRED WORKFLOW:
-    - IMPORTANT: Whenever a request mentions "me", "my", "I created", or any reference to the current user's resources, you MUST ALWAYS:
-      1. FIRST call get_current_token_info() to get the member_id of the current user
-      2. THEN use that member_id in subsequent calls like list_honeytokens (via creator_id parameter)
-      3. This sequence is NOT optional - it must be followed for deterministic results
-
     1. Add honeytoken in code:
-        - First, if looking for "my honeytokens" or similar, call get_current_token_info to get member_id
         - Use list_honeytokens with status=ACTIVE to get existing honeytokens
         - Always filter by creator_id=member_id when user is asking about their own honeytokens
         - You can use also use parameters like search or ordering to filter the results
@@ -62,7 +54,6 @@ mcp = GitGuardianFastMCP(
         - Use list_incidents to list incidents
         - you can use also use parameters like severity, status, from_date, to_date, assignee_email, assignee_id, per_page, page to filter the results
         - try to summarize the results in a few sentences
-        - if you have a lot of incidents, you can use list_all_incidents to get all incidents
 
       """,
 )
@@ -100,8 +91,8 @@ async def generate_honeytoken(
     """
     logger.info(f"Received generate_honeytoken request with name={name}")
     try:
-        logger.debug("Attempting to get GitGuardian client")
-        client = get_gitguardian_client()
+        logger.debug("Using GitGuardian client from MCP instance")
+        client = mcp.get_client()
         logger.info("Successfully initialized GitGuardian client")
         logger.debug("Calling create_honeytoken API")
         custom_tags = [
@@ -137,7 +128,7 @@ async def generate_honeytoken(
 
 @mcp.tool(
     name="list_incidents",
-    description="List secret incidents detected by the GitGuardian dashboard",
+    description="List secret incidents detected by the GitGuardian dashboard. When you need to retrieve personal incidents (mine, me or my), set the mine parameter to True.",
     required_scopes=["incidents:read"],
 )
 async def list_incidents(
@@ -162,7 +153,8 @@ async def list_incidents(
         default=None, description="Sort field and direction (prefix with '-' for descending order)"
     ),
     per_page: int = Field(default=20, description="Number of results per page (1-100)"),
-    page: int = Field(default=1, description="Page number"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+    mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user"),
 ):
     """List secret incidents detected by the GitGuardian dashboard with filtering options.
 
@@ -176,157 +168,46 @@ async def list_incidents(
         validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
         ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
                 Default is ASC, DESC if preceded by '-'
-        per_page: Number of results per page (default: 20)
-        page: Page number (default: 1)
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        get_all: If True, fetch all results using cursor-based pagination
+        mine: If True, fetch incidents assigned to the current user
 
     Returns:
-        List of incidents matching the specified criteria for the requested page
+        List of incidents matching the specified criteria
     """
-    client = get_gitguardian_client()
-    return await client.list_incidents(
-        severity=severity,
-        status=status,
-        from_date=from_date,
-        to_date=to_date,
-        assignee_email=assignee_email,
-        assignee_id=assignee_id,
-        validity=validity,
-        ordering=ordering,
-        per_page=per_page,
-        page=page,
-    )
+    client = mcp.get_client()
 
+    if mine:
+        assignee_id = mcp.get_token_info().get("member_id")
 
-@mcp.tool(
-    name="list_all_incidents",
-    description="List ALL secret incidents detected by GitGuardian with filtering options",
-    required_scopes=["incidents:read"],
-)
-async def list_all_incidents(
-    severity: str | None = Field(
-        default=None, description="Filter incidents by severity (critical, high, medium, low)"
-    ),
-    status: str | None = Field(
-        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
-    ),
-    from_date: str | None = Field(
-        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
-    ),
-    to_date: str | None = Field(
-        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
-    ),
-    assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email"),
-    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id"),
-    validity: str | None = Field(
-        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
-    ),
-    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
-        default=None, description="Sort field and direction (prefix with '-' for descending order)"
-    ),
-    max_pages: int = Field(
-        default=10, description="Maximum number of pages to fetch"
-    ),  # Safety limit to prevent too many API calls
-):
-    """List ALL secret incidents detected by GitGuardian with filtering options.
-    Automatically handles pagination to return all matching incidents.
+    # Build parameters
+    params = {}
+    if severity:
+        params["severity"] = severity
+    if status:
+        params["status"] = status
+    if from_date:
+        params["from_date"] = from_date
+    if to_date:
+        params["to_date"] = to_date
+    if assignee_email:
+        params["assignee_email"] = assignee_email
+    if assignee_id:
+        params["assignee_id"] = assignee_id
+    if validity:
+        params["validity"] = validity
+    if ordering:
+        params["ordering"] = ordering
+    if per_page:
+        params["per_page"] = str(per_page)
 
-    Args:
-        severity: Filter by severity level (critical, high, medium, low)
-        status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
-        from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
-        to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
-        assignee_email: Filter incidents assigned to a specific email address
-        assignee_id: Filter incidents assigned to a specific member ID
-        validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
-        ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
-                Default is ASC, DESC if preceded by '-'
-        per_page: Number of results per page (default: 20)
-        page: Page number (default: 1)
-        max_pages: Maximum number of pages to fetch (default: 10, use -1 for all pages)
+    # Use the client's list_incidents method directly if not fetching all pages
+    if not get_all:
+        return await client.list_incidents(**params)
 
-    Returns:
-        Complete list of incidents matching the specified criteria across all pages
-    """
-    client = get_gitguardian_client()
-    all_incidents = []
-    current_page = 1
-    per_page = 100  # Maximum allowed by the API to reduce number of calls
-    total_pages = 1
-
-    logger.info("Starting to fetch all incidents with filters: severity=%s, status=%s", severity, status)
-
-    while True:
-        # Fetch the current page
-        response = await client.list_incidents(
-            severity=severity,
-            status=status,
-            from_date=from_date,
-            to_date=to_date,
-            assignee_email=assignee_email,
-            assignee_id=assignee_id,
-            validity=validity,
-            ordering=ordering,
-            per_page=per_page,
-            page=current_page,
-        )
-
-        # Log response structure for debugging
-        logger.debug("Response type: %s", type(response).__name__)
-        if hasattr(response, "keys"):
-            logger.debug("Response keys: %s", list(response.keys()))
-
-        # Check if the response is a list or a dict with a data field
-        if isinstance(response, list):
-            # The response itself is the list of incidents
-            incidents = response
-            logger.info("Page %d: Got %d incidents (list response)", current_page, len(incidents))
-        else:
-            # The response is a dict, try to extract the data
-            incidents = response.get("data", [])
-            # Try to get pagination info if available
-            pagination = response.get("pagination", {})
-            if pagination:
-                total_pages = pagination.get("total_pages", 1)
-                logger.info("Page %d of %d: Got %d incidents", current_page, total_pages, len(incidents))
-            else:
-                logger.info("Page %d: Got %d incidents (no pagination info)", current_page, len(incidents))
-
-        # Add the incidents to our collection
-        all_incidents.extend(incidents)
-
-        # Break if we're done or reached max_pages
-        if (current_page >= total_pages) or (max_pages > 0 and current_page >= max_pages):
-            if current_page >= total_pages:
-                logger.info("Reached last page (%d), stopping pagination", current_page)
-            else:
-                logger.info("Reached max_pages limit (%d), stopping pagination", max_pages)
-            break
-
-        # Move to the next page
-        current_page += 1
-        logger.info("Moving to next page: %d", current_page)
-
-    logger.info("Finished fetching all incidents. Total: %d incidents from %d pages", len(all_incidents), current_page)
-
-    # Return the combined results with pagination info
-    return {
-        "data": all_incidents,
-        "pagination": {
-            "total_count": len(all_incidents),
-            "fetched_pages": current_page,
-            "total_pages": min(total_pages, max_pages) if max_pages > 0 else total_pages,
-        },
-        "filters": {
-            "severity": severity,
-            "status": status,
-            "from_date": from_date,
-            "to_date": to_date,
-            "assignee_email": assignee_email,
-            "assignee_id": assignee_id,
-            "validity": validity,
-            "ordering": ordering,
-        },
-    }
+    # Use the client's paginate_all method when get_all=True
+    endpoint = "/incidents/secrets"
+    return await client.paginate_all(endpoint, params)
 
 
 @mcp.tool(
@@ -358,7 +239,7 @@ async def search_team(
     logger.info(f"Searching team with action: {action}")
 
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
 
         if action == "list_teams":
             return await client.list_teams()
@@ -407,7 +288,7 @@ async def add_member_to_team(
     logger.info(f"Adding member {member_id} to team {team_id}")
 
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
         return await client.add_member_to_team(team_id=team_id, member_id=member_id)
     except Exception as e:
         logger.exception(f"Error adding member to team: {str(e)}")
@@ -420,7 +301,7 @@ async def add_member_to_team(
     required_scopes=["api_tokens:read"],
 )
 async def get_current_token_info() -> dict[str, Any]:
-    """Get information about the current API token. Use this to get information about `me` in prompt.
+    """Get information about the current API token. Use this to get information about current user token information.
 
     Args:
         None
@@ -435,7 +316,22 @@ async def get_current_token_info() -> dict[str, Any]:
             - expiration_date: When the token expires (if applicable)
     """
     logger.info("Received get_current_token_info request")
-    client = get_gitguardian_client()
+    # Check if we already have the token info stored in the MCP instance
+    token_info = mcp.get_token_info()
+    if token_info:
+        logger.info("Returning cached token info")
+        response = {
+            "id": token_info.get("id"),
+            "name": token_info.get("name"),
+            "scopes": token_info.get("scopes", []),
+            "member_id": token_info.get("member_id", {}),
+            "created_at": token_info.get("created_at"),
+            "expiration_date": token_info.get("expiration_date"),
+        }
+        return response
+
+    # Otherwise, fetch the token info
+    client = mcp.get_client()
     result = await client.get_current_token_info()
 
     response = {
@@ -464,8 +360,9 @@ async def list_honeytokens(
     show_token: bool = Field(default=False, description="Whether to include token details in the response"),
     creator_id: str | None = Field(default=None, description="Filter by creator ID"),
     creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID"),
-    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
-    page: int = Field(default=1, description="Page number"),
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user"),
 ):
     """List honeytokens from the GitGuardian dashboard with filtering options.
     This can be used to get a honeytoken and inject it in the codebase.
@@ -478,29 +375,43 @@ async def list_honeytokens(
         creator_id: Filter by creator ID
         creator_api_token_id: Filter by creator API token ID
         per_page: Number of results per page (default: 20)
-        page: Page number (default: 1)
-
+        get_all: If True, fetch all results using cursor-based pagination
+        mine: If True, fetch honeytokens created by the current user
     Returns:
-        List of honeytokens matching the specified criteria for the requested page
+        List of honeytokens matching the specified criteria
     """
     logger.info(
         f"Listing honeytokens with filters: status={status}, search={search}, ordering={ordering}, creator_id={creator_id}, creator_api_token_id={creator_api_token_id}"
     )
-    try:
-        client = get_gitguardian_client()
-        return await client.list_honeytokens(
-            status=status,
-            search=search,
-            ordering=ordering,
-            show_token=show_token,
-            creator_id=creator_id,
-            creator_api_token_id=creator_api_token_id,
-            per_page=per_page,
-            page=page,
-        )
-    except Exception as e:
-        logger.exception(f"Error listing honeytokens: {str(e)}")
-        raise ToolError(f"Failed to list honeytokens: {str(e)}")
+    client = mcp.get_client()
+
+    if mine:
+        creator_id = mcp.get_token_info().get("member_id")
+
+    # Build parameters
+    params = {}
+    if status:
+        params["status"] = status
+    if search:
+        params["search"] = search
+    if ordering:
+        params["ordering"] = ordering
+    if show_token is not None:
+        params["show_token"] = str(show_token).lower()
+    if creator_id:
+        params["creator_id"] = creator_id
+    if creator_api_token_id:
+        params["creator_api_token_id"] = creator_api_token_id
+    if per_page:
+        params["per_page"] = str(per_page)
+
+    # Use the client's list_honeytokens method directly if not fetching all pages
+    if not get_all:
+        return await client.list_honeytokens(**params)
+
+    # Use the client's paginate_all method when get_all=True
+    endpoint = "/honeytokens"
+    return await client.paginate_all(endpoint, params)
 
 
 # Secret Incident Management Tools
@@ -536,7 +447,7 @@ async def manage_incident(
     logger.info(f"Managing incident {incident_id} with action: {action}")
 
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
 
         if action == "assign":
             if not assignee_id:
@@ -588,7 +499,7 @@ async def update_or_create_incident_custom_tags(
 
     logger.info(f"Updating incident {incident_id} with custom_tags={custom_tags}")
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
         tags = []
         for tag in custom_tags:
             if isinstance(tag, str):
@@ -624,7 +535,7 @@ async def update_incident_status(
 
     logger.info(f"Updating incident {incident_id} with status={status}")
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
         return await client.update_incident(incident_id=incident_id, status=status)
     except Exception as e:
         logger.exception(f"Error updating incident: {str(e)}")
@@ -654,7 +565,7 @@ async def read_custom_tags(
     logger.info(f"Reading custom tags with action: {action}")
 
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
 
         if action == "list_tags":
             return await client.list_custom_tags()
@@ -699,7 +610,7 @@ async def write_custom_tags(
     logger.info(f"Writing custom tags with action: {action}")
 
     try:
-        client = get_gitguardian_client()
+        client = mcp.get_client()
 
         if action == "create_tag":
             if not key:
@@ -722,11 +633,11 @@ async def write_custom_tags(
 
 
 @mcp.tool(
-    name="scan_multiple_contents",
+    name="scan_secrets",
     description="Scan multiple content items for secrets and policy breaks",
     required_scopes=["scan"],
 )
-async def scan_multiple_contents(
+async def scan_secrets(
     documents: list[dict[str, str]] = Field(
         description="List of documents to scan, each with 'document' and optional 'filename'. Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]"
     ),
@@ -743,7 +654,7 @@ async def scan_multiple_contents(
     Returns:
         Scan results for all documents, including any detected secrets or policy breaks
     """
-    logger.info(f"Received scan_multiple_contents request for {len(documents)} documents")
+    logger.info(f"Received scan_secrets request for {len(documents)} documents")
 
     try:
         # Validate input format
@@ -753,14 +664,14 @@ async def scan_multiple_contents(
                 logger.error(error_msg)
                 raise ToolError(error_msg)
 
-        client = get_gitguardian_client()
+        client = mcp.get_client()
         result = await client.multiple_scan(documents)
 
         logger.info(f"Successfully scanned {len(documents)} documents")
         return result
 
     except Exception as e:
-        logger.exception(f"Error in scan_multiple_contents: {str(e)}")
+        logger.exception(f"Error in scan_secrets: {str(e)}")
         raise ToolError(f"Failed to scan documents: {str(e)}")
 
 

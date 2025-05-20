@@ -1,7 +1,9 @@
+import json
 import logging
 import os
+import re
 from enum import Enum
-from typing import Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import httpx
 
@@ -73,16 +75,19 @@ class GitGuardianClient:
 
         logger.info("GitGuardian client initialized successfully")
 
-    async def _request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _request(
+        self, method: str, endpoint: str, return_headers: bool = False, **kwargs
+    ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
         """Make a request to the GitGuardian API.
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
+            return_headers: Whether to return headers along with data
             **kwargs: Additional arguments to pass to requests
 
         Returns:
-            Response data as dictionary
+            Response data as dictionary, or tuple of (data, headers) if return_headers=True
 
         Raises:
             requests.HTTPError: If the API returns an error
@@ -101,14 +106,31 @@ class GitGuardianClient:
                 logger.debug(f"Sending request with payload: {kwargs.get('json', {})}")
                 response = await client.request(method, url, headers=headers, **kwargs)
 
+            # Log detailed response information
+            logger.debug(f"Response status code: {response.status_code}")
+            logger.debug(f"Response headers: {dict(response.headers)}")
+
+            # Log response content if present
+            if response.content:
+                try:
+                    logger.debug(f"Response content: {response.content.decode()}")
+                except UnicodeDecodeError:
+                    logger.debug("Response content could not be decoded as UTF-8")
+
             response.raise_for_status()
 
             if response.status_code == 204:  # No content
                 logger.debug("Received 204 No Content response")
-                return {}
+                return ({}, response.headers) if return_headers else {}
 
-            logger.debug(f"Received response with status {response.status_code}")
-            return response.json()
+            try:
+                data = response.json()
+                logger.debug(f"Parsed JSON response: {json.dumps(data, indent=2)}")
+                return (data, response.headers) if return_headers else data
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Raw response content: {response.content}")
+                raise
 
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
@@ -119,6 +141,70 @@ class GitGuardianClient:
         except Exception as e:
             logger.exception(f"Unexpected error during API request: {str(e)}")
             raise
+
+    def _extract_next_cursor(self, headers: Dict[str, str]) -> Optional[str]:
+        """Extract the next cursor from the Link header.
+
+        Args:
+            headers: Response headers containing Link header
+
+        Returns:
+            Next cursor if available, None otherwise
+        """
+        link_header = headers.get("link")
+        if not link_header:
+            return None
+
+        # Extract the URL from the link header
+        next_url_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+        if not next_url_match:
+            return None
+
+        next_url = next_url_match.group(1)
+
+        # Extract cursor from the URL
+        cursor_match = re.search(r"cursor=([^&]+)", next_url)
+        if not cursor_match:
+            return None
+
+        return cursor_match.group(1)
+
+    async def paginate_all(self, endpoint: str, params: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+        """Fetch all pages of results using cursor-based pagination.
+
+        Args:
+            endpoint: API endpoint path
+            params: Query parameters to include in the request
+
+        Returns:
+            List of all items from all pages
+        """
+        params = params or {}
+        all_items = []
+        cursor = None
+
+        while True:
+            # If we have a cursor, add it to params
+            if cursor:
+                params["cursor"] = cursor
+
+            # Build query string
+            query_string = "&".join([f"{k}={v}" for k, v in params.items()]) if params else ""
+            full_endpoint = f"{endpoint}?{query_string}" if query_string else endpoint
+
+            # Make request with headers
+            data, headers = await self._request("GET", full_endpoint, return_headers=True)
+
+            # Add items to our collection
+            items = data.get("results", []) if isinstance(data, dict) and "results" in data else data
+            all_items.extend(items)
+
+            # Check for next cursor
+            cursor = self._extract_next_cursor(headers)
+            if not cursor:
+                break
+
+        return all_items
 
     async def create_honeytoken(
         self, name: str, description: str = "", custom_tags: list | None = None
@@ -197,10 +283,11 @@ class GitGuardianClient:
         assignee_id: str | None = None,
         validity: IncidentValidity | str | None = None,
         per_page: int = 20,
-        page: int = 1,
+        cursor: str | None = None,
         ordering: str | None = None,
+        get_all: bool = False,
     ) -> dict[str, Any]:
-        """List secrets incidents with optional filtering.
+        """List secrets incidents with optional filtering and cursor-based pagination.
 
         Args:
             severity: Filter by severity level (IncidentSeverity enum or string: critical, high, medium, low)
@@ -211,9 +298,10 @@ class GitGuardianClient:
             assignee_id: Filter incidents assigned to a specific member ID
             validity: Filter by validity status (IncidentValidity enum or string: valid, invalid, failed_to_check, no_checker, unknown)
             per_page: Number of results per page (default: 20)
-            page: Page number (default: 1)
+            cursor: Pagination cursor (for cursor-based pagination)
             ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
                      Default is ASC, DESC if preceded by '-'
+            get_all: If True, fetch all results using cursor-based pagination
 
         Returns:
             List of incidents matching the criteria
@@ -291,13 +379,17 @@ class GitGuardianClient:
             params["assignee_id"] = assignee_id
         if per_page:
             params["per_page"] = str(per_page)
-        if page:
-            params["page"] = str(page)
+        if cursor:
+            params["cursor"] = cursor
         if ordering:
             params["ordering"] = ordering
 
-        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         endpoint = "/incidents/secrets"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 
@@ -349,9 +441,10 @@ class GitGuardianClient:
         creator_id: str | None = None,
         creator_api_token_id: str | None = None,
         per_page: int = 20,
-        page: int = 1,
+        cursor: str | None = None,
+        get_all: bool = False,
     ) -> dict[str, Any]:
-        """List all honeytokens with optional filtering.
+        """List all honeytokens with optional filtering and cursor-based pagination.
 
         Args:
             status: Filter by status (ACTIVE or REVOKED)
@@ -361,7 +454,8 @@ class GitGuardianClient:
             creator_id: Filter by creator ID
             creator_api_token_id: Filter by creator API token ID
             per_page: Number of results per page (default: 20)
-            page: Page number (default: 1)
+            cursor: Pagination cursor (for cursor-based pagination)
+            get_all: If True, fetch all results using cursor-based pagination
 
         Returns:
             List of honeytokens matching the criteria
@@ -386,11 +480,15 @@ class GitGuardianClient:
             params["creator_api_token_id"] = creator_api_token_id
         if per_page:
             params["per_page"] = str(per_page)
-        if page:
-            params["page"] = str(page)
+        if cursor:
+            params["cursor"] = cursor
+
+        endpoint = "/honeytokens"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-        endpoint = "/honeytokens"
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 

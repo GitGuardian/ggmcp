@@ -28,6 +28,10 @@ class GitGuardianFastMCP(FastMCP):
         self._tool_scopes: dict[str, set[str]] = {}
         # Storage for token scopes
         self._token_scopes: set[str] = set()
+        # Store the GitGuardian client
+        self._client = None
+        # Store the complete token info
+        self._token_info = None
 
         # Set default scopes for demonstration or development
         if kwargs.get("default_scopes"):
@@ -67,14 +71,16 @@ class GitGuardianFastMCP(FastMCP):
         """Fetch token scopes from the GitGuardian API."""
         try:
             logger.info("Getting GitGuardian client for scope fetching")
-            client = get_gitguardian_client()
+            # Store the client in the instance variable
+            self._client = get_gitguardian_client()
 
             try:
                 logger.info("Attempting to fetch token scopes from GitGuardian API")
-                token_info = await client.get_current_token_info()
+                # Store the complete token info
+                self._token_info = await self._client.get_current_token_info()
 
                 # Extract and store scopes
-                scopes = token_info.get("scopes", [])
+                scopes = self._token_info.get("scopes", [])
                 logger.info(f"Retrieved token scopes: {scopes}")
 
                 # Store scopes for later use
@@ -87,6 +93,16 @@ class GitGuardianFastMCP(FastMCP):
         except Exception as e:
             logger.error(f"Error fetching token scopes: {str(e)}")
             # Don't re-raise the exception, let the server start anyway
+
+    def get_client(self):
+        """Return the GitGuardian client instance."""
+        if self._client is None:
+            self._client = get_gitguardian_client()
+        return self._client
+
+    def get_token_info(self):
+        """Return the token info dictionary."""
+        return self._token_info
 
     def tool(self, name: str = None, description: str = None, required_scopes: list[str] = None, **kwargs):
         """Extended tool decorator that tracks required scopes."""
