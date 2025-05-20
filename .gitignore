@@ -1,19 +1,82 @@
-# Python-generated files
+# Python
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+*.egg
+MANIFEST
 
 # Virtual environments
-.venv
+.venv/
+venv/
+ENV/
+env/
 
+# Environment files
 .env*
 !.env.example
 
-# VSCode
+# IDE
 .vscode/
-
-# IntelliJ
 .idea/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# Testing and coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation
+docs/_build/
+site/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Poetry
+poetry.lock
+
+# Distribution / packaging
+*.so
+*.pyd
+*.dll
