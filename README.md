@@ -301,19 +301,16 @@ The GitGuardian MCP server implements scope-based access control for its tools. 
 | --------------------------------------- | -------------------------- |
 | `generate_honeytoken`                   | `honeytokens:write`        |
 | `list_honeytokens`                      | `honeytokens:read`         |
-| `list_my_honeytokens`                   | `honeytokens:read`         |
 | `list_incidents`                        | `incidents:read`           |
-| `list_my_incidents`                     | `incidents:read`           |
-| `list_all_incidents`                    | `incidents:read`           |
 | `manage_incident`                       | `incidents:write`          |
 | `update_incident_status`                | `incidents:write`          |
 | `update_or_create_incident_custom_tags` | `incidents:write`          |
-| `get_current_token_info`                | No specific scope required |
 | `search_team`                           | `teams:read`               |
 | `add_member_to_team`                    | `teams:write`              |
-| `read_custom_tags`                      | `incidents:read`           |
-| `write_custom_tags`                     | `incidents:write`          |
-| `scan_multiple_contents`                | `scan`                     |
+| `get_current_token_info`                | `api_tokens:read`          |
+| `read_custom_tags`                      | `custom_tags:read`         |
+| `write_custom_tags`                     | `custom_tags:write`        |
+| `scan_secrets`                          | `scan`                     |
 
 ### Obtaining a Token with Additional Scopes
 
@@ -330,46 +327,169 @@ This repository hosts multiple MCP tools that can be used by AI assistants. Each
 
 ### GitGuardian Honeytokens
 
-The Honeytoken tool generates fake credentials using GitGuardian's API that can alert you when they are leaked or discovered outside your secure environment.
+#### generate_honeytoken
 
-#### Required Environment Variables
-
-- `GITGUARDIAN_API_KEY`: Your GitGuardian API key
-- `GITGUARDIAN_API_URL`: GitGuardian API URL (optional, defaults to https://api.gitguardian.com/v1)
+Generates fake AWS credentials using GitGuardian's API that can alert you when they are leaked or discovered.
 
 ##### Parameters
+- `name`: Name for the honeytoken (required)
+- `description`: Description of what the honeytoken is used for (optional)
 
+##### Response
+- `id`: ID of the created honeytoken
+- `name`: Name of the honeytoken
+- `token`: The honeytoken value
+- `created_at`: Creation timestamp
+- `status`: Current status
+- `type`: Always "AWS"
+- `injection_recommendations`: Usage instructions
+
+#### list_honeytokens
+
+Lists honeytokens from the GitGuardian dashboard with filtering options.
+
+##### Parameters
 - `status`: Filter by status (ACTIVE or REVOKED)
 - `search`: Search string to filter results by name or description
 - `ordering`: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
 - `show_token`: Whether to include token details in the response (default: false)
-- `creator_id`: Filter honeytokens by creator ID
-- `creator_api_token_id`: Filter honeytokens by the API token ID used to create them
-- `per_page`: Number of results per page (default: 20)
-- `page`: Page number (default: 1)
+- `creator_id`: Filter by creator ID
+- `creator_api_token_id`: Filter by creator API token ID
+- `per_page`: Number of results per page (default: 20, min: 1, max: 100)
+- `get_all`: Fetch all results using cursor-based pagination (default: false)
+- `mine`: Fetch honeytokens created by the current user (default: false)
+
+### Incident Management
+
+#### list_incidents
+
+Lists secret incidents detected by the GitGuardian dashboard with filtering options.
+
+##### Parameters
+- `severity`: Filter by severity level (critical, high, medium, low)
+- `status`: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+- `from_date`: Filter incidents created after this date (ISO format: YYYY-MM-DD)
+- `to_date`: Filter incidents created before this date (ISO format: YYYY-MM-DD)
+- `assignee_email`: Filter incidents assigned to a specific email address
+- `assignee_id`: Filter incidents assigned to a specific member ID
+- `validity`: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
+- `ordering`: Sort field (date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
+- `per_page`: Number of results per page (default: 20, min: 1, max: 100)
+- `get_all`: Fetch all results using cursor-based pagination (default: false)
+- `mine`: Fetch incidents assigned to the current user (default: false)
+
+#### manage_incident
+
+Manage a secret incident (assign, unassign, resolve, ignore, reopen).
+
+##### Parameters
+- `incident_id`: ID of the secret incident to manage (required)
+- `action`: Action to perform on the incident (assign, unassign, resolve, ignore, reopen) (required)
+- `assignee_id`: ID of the member to assign the incident to (required for 'assign' action)
+- `ignore_reason`: Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)
+- `mine`: Use the current user's ID for the assignee_id (default: false)
+
+#### update_incident_status
+
+Update a secret incident's status.
+
+##### Parameters
+- `incident_id`: ID of the secret incident (required)
+- `status`: New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED) (required)
+
+#### update_or_create_incident_custom_tags
+
+Update or create custom tags for a secret incident.
+
+##### Parameters
+- `incident_id`: ID of the secret incident (required)
+- `custom_tags`: List of custom tags to apply to the incident (required)
+
+### Team Management
+
+#### search_team
+
+Search for teams and team members.
+
+##### Parameters
+- `action`: Action to perform (list_teams, search_team, list_members, search_member) (required)
+- `team_name`: The name of the team to search for (used with 'search_team' action)
+- `member_name`: The name of the member to search for (used with 'search_member' action)
+
+#### add_member_to_team
+
+Add a member to a team.
+
+##### Parameters
+- `team_id`: ID of the team to add the member to (required)
+- `member_id`: ID of the member to add to the team (required)
+
+### Token Management
+
+#### get_current_token_info
+
+Get information about the current API token.
 
 ##### Response
+- Information about the current API token, including scopes and member ID
 
-The tool returns a list of honeytokens matching the specified criteria, including:
+### Custom Tags Management
 
-- `id`: The unique ID of the honeytoken
-- `name`: Name of the honeytoken
-- `description`: Description of the honeytoken
-- `created_at`: Creation timestamp
-- `status`: Current status (ACTIVE or REVOKED)
-- `type`: Type of honeytoken (e.g., "AWS")
-- `token`: The actual token value (only if show_token is true)
+#### read_custom_tags
 
-#### Integration with LLM
+Read custom tags from the GitGuardian dashboard.
 
-Example prompt for AI assistants:
-"List all active honeytokens in my GitGuardian workspace."
+##### Parameters
+- `action`: Action to perform (list_tags, get_tag) (required)
+- `tag_id`: ID of the custom tag to retrieve (used with 'get_tag' action)
 
-#### Important Notes
+#### write_custom_tags
 
-- Never check your actual GITGUARDIAN_API_KEY into source control
-- Honeytokens are designed to look like real credentials but don't provide actual access
-- GitGuardian will alert you if these tokens are discovered outside your secure environment
+Create or delete custom tags in the GitGuardian dashboard.
+
+##### Parameters
+- `action`: Action to perform (create_tag, delete_tag) (required)
+- `key`: Key for the new tag (used with 'create_tag' action)
+- `value`: Value for the new tag (used with 'create_tag' action)
+- `tag_id`: ID of the custom tag to delete (used with 'delete_tag' action)
+
+### Security Scanning
+
+#### scan_secrets
+
+Scan multiple content items for secrets and policy breaks.
+
+##### Parameters
+- `documents`: List of documents to scan, each with 'document' and optional 'filename' (required)
+  Format: `[{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]`
+
+##### Important Notes
+- 'document' is the content of the file (not the filename) and is mandatory
+- Do not send documents that are not related to the codebase or are in .gitignore
+- Send batches of less than 20 documents at a time
+
+## Integration Examples
+
+### Example: Generate a Honeytoken
+
+```python
+# Example LLM prompt: "Generate a new AWS honeytoken for monitoring"
+await mcp.invoke_tool("generate_honeytoken", {"name": "aws-monitoring-token", "description": "Production monitoring token"})
+```
+
+### Example: List Recent Incidents
+
+```python
+# Example LLM prompt: "Show me my recent security incidents"
+await mcp.invoke_tool("list_incidents", {"mine": True, "ordering": "-date", "per_page": 5})
+```
+
+### Example: Scan for Secrets
+
+```python
+# Example LLM prompt: "Scan my code files for secrets"
+await mcp.invoke_tool("scan_secrets", {"documents": [{"document": file_content, "filename": "config.py"}]})
+```
 
 ## Development
 
