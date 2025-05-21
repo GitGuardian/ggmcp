@@ -35,6 +35,11 @@ mcp = GitGuardianFastMCP(
 
     If not specified, try to reuse an existing active honeytoken instead of generating a new one.
 
+    IMPORTANT:
+    - if a prompt is asking to filter results for the current user, you MUST use the mine parameter.
+    For example, if a prompt is asking: list incidents assigned to me , or "list my incident", or "list my honeytokens", you MUST use the `mine` parameter.
+    - if a prompt is asking to scan for secrets, you MUST use the scan_secrets tool.
+
     1. Add honeytoken in code:
         - Use list_honeytokens with status=ACTIVE to get existing honeytokens
         - Always filter by creator_id=member_id when user is asking about their own honeytokens
@@ -54,6 +59,11 @@ mcp = GitGuardianFastMCP(
         - Use list_incidents to list incidents
         - you can use also use parameters like severity, status, from_date, to_date, assignee_email, assignee_id, per_page, page to filter the results
         - try to summarize the results in a few sentences
+    4. Scan for secrets:
+        - Use scan_secrets to scan for secrets
+        - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+        - Do not send documents that are in the .gitignore file.
+        - Perform batches of less than 20 documents at a time.
 
       """,
 )
@@ -150,7 +160,8 @@ async def list_incidents(
         default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
     ),
     ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
-        default=None, description="Sort field and direction (prefix with '-' for descending order)"
+        default=None,
+        description="Sort field and direction (prefix with '-' for descending order). If you need to get the latest incidents, use '-date'.",
     ),
     per_page: int = Field(default=20, description="Number of results per page (1-100)"),
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
@@ -432,6 +443,7 @@ async def manage_incident(
         default=None,
         description="Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)",
     ),
+    mine: bool = Field(default=False, description="If True, use the current user's ID for the assignee_id"),
 ):
     """Manage a secret incident with various actions.
 
@@ -440,11 +452,14 @@ async def manage_incident(
         action: Action to perform on the incident (assign, unassign, resolve, ignore, reopen)
         assignee_id: ID of the member to assign the incident to (required for 'assign' action)
         ignore_reason: Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)
-
+        mine: If True, use the current user's ID for the assignee_id
     Returns:
         Status of the operation
     """
     logger.info(f"Managing incident {incident_id} with action: {action}")
+
+    if mine:
+        assignee_id = mcp.get_token_info().get("member_id")
 
     try:
         client = mcp.get_client()
@@ -639,13 +654,22 @@ async def write_custom_tags(
 )
 async def scan_secrets(
     documents: list[dict[str, str]] = Field(
-        description="List of documents to scan, each with 'document' and optional 'filename'. Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]"
+        description="""
+        List of documents to scan, each with 'document' and optional 'filename'.
+        Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
+        IMPORTANT:
+        - document is the content of the file, not the filename, is a string and is mandatory.
+        - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+        - Do not send documents that are in the .gitignore file.
+        """
     ),
 ) -> dict[str, Any]:
     """Scan multiple content items for secrets and policy breaks.
 
     This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
     Each document must have a 'document' field and can optionally include a 'filename' field for better context.
+    Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+    Do not send documents that are in the .gitignore file.
 
     Args:
         documents: List of documents to scan, each with 'document' and optional 'filename'

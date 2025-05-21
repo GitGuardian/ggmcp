@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from gg_api_mcp_server.tools import get_gitguardian_client
+from gg_api_mcp_server.utils import get_gitguardian_client
 
 
 class TestGetGitGuardianClient:
@@ -14,7 +14,7 @@ class TestGetGitGuardianClient:
         # Mock environment variables
         with patch.dict(os.environ, {"GITGUARDIAN_API_KEY": "test_api_key"}):
             # Mock GitGuardianClient class
-            with patch("gg_api_mcp_server.tools.GitGuardianClient") as mock_client_class:
+            with patch("gg_api_mcp_server.utils.GitGuardianClient") as mock_client_class:
                 mock_client_instance = MagicMock()
                 mock_client_class.return_value = mock_client_instance
 
@@ -34,7 +34,7 @@ class TestGetGitGuardianClient:
             os.environ, {"GITGUARDIAN_API_KEY": "test_api_key", "GITGUARDIAN_API_URL": "https://custom.api.url"}
         ):
             # Mock GitGuardianClient class
-            with patch("gg_api_mcp_server.tools.GitGuardianClient") as mock_client_class:
+            with patch("gg_api_mcp_server.utils.GitGuardianClient") as mock_client_class:
                 mock_client_instance = MagicMock()
                 mock_client_class.return_value = mock_client_instance
 
@@ -61,7 +61,7 @@ class TestGetGitGuardianClient:
         # Mock environment variables
         with patch.dict(os.environ, {"GITGUARDIAN_API_KEY": "test_api_key"}):
             # Mock GitGuardianClient class to raise an exception
-            with patch("gg_api_mcp_server.tools.GitGuardianClient") as mock_client_class:
+            with patch("gg_api_mcp_server.utils.GitGuardianClient") as mock_client_class:
                 mock_client_class.side_effect = Exception("Test error")
 
                 # Call the function

@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from mcp.server.fastmcp import FastMCP
 from mcp.types import Tool as MCPTool
 
-from gg_api_mcp_server.tools import get_gitguardian_client
+from gg_api_mcp_server.utils import get_gitguardian_client
 
 # Configure logger
 logger = logging.getLogger(__name__)

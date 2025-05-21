@@ -197,7 +197,6 @@ class TestGitGuardianClient:
                 from_date="2023-01-01",
                 to_date="2023-12-31",
                 per_page=20,
-                page=1,
             )
 
             # Assert _request was called with correct parameters
@@ -226,7 +225,6 @@ class TestGitGuardianClient:
                 from_date="2023-01-01",
                 to_date="2023-12-31",
                 per_page=20,
-                page=1,
                 validity=IncidentValidity.VALID,
             )
 

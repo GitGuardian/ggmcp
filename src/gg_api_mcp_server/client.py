@@ -124,7 +124,17 @@ class GitGuardianClient:
                 return ({}, response.headers) if return_headers else {}
 
             try:
+                if not response.content or response.content.strip() == b"":
+                    logger.debug("Received empty response content")
+                    return ({}, response.headers) if return_headers else {}
+
                 data = response.json()
+
+                # Handle empty array responses properly
+                if data == [] and return_headers:
+                    logger.debug("Received empty array response")
+                    return ([], response.headers)
+
                 logger.debug(f"Parsed JSON response: {json.dumps(data, indent=2)}")
                 return (data, response.headers) if return_headers else data
             except json.JSONDecodeError as e:
@@ -195,8 +205,19 @@ class GitGuardianClient:
             # Make request with headers
             data, headers = await self._request("GET", full_endpoint, return_headers=True)
 
+            # Handle empty responses or empty arrays
+            if not data:
+                logger.debug("Received empty response data, stopping pagination")
+                break
+
             # Add items to our collection
-            items = data.get("results", []) if isinstance(data, dict) and "results" in data else data
+            if isinstance(data, dict) and "results" in data:
+                items = data.get("results", [])
+            elif isinstance(data, list):
+                items = data
+            else:
+                items = []
+
             all_items.extend(items)
 
             # Check for next cursor
@@ -304,7 +325,7 @@ class GitGuardianClient:
             get_all: If True, fetch all results using cursor-based pagination
 
         Returns:
-            List of incidents matching the criteria
+            List of incidents matching the criteria or an empty dict/list if no results
         """
         logger.info(
             f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, ordering={ordering}"
@@ -458,7 +479,7 @@ class GitGuardianClient:
             get_all: If True, fetch all results using cursor-based pagination
 
         Returns:
-            List of honeytokens matching the criteria
+            List of honeytokens matching the criteria or an empty dict/list if no results
         """
         logger.info(
             f"Listing honeytokens with filters: status={status}, search={search}, ordering={ordering}, creator_id={creator_id}, creator_api_token_id={creator_api_token_id}"
