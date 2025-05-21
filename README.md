@@ -27,6 +27,62 @@ A Model Context Protocol (MCP) server implementation based on the [official Pyth
    uv sync
    ```
 
+## Development Setup
+
+If you want to contribute to the MCP server development, follow these steps:
+
+1. Clone this repository:
+
+   ```bash
+   git clone https://github.com/GitGuardian/gg-mcp-server.git
+   cd gg-mcp-server
+   ```
+
+2. Install the required Python version (3.13+) using mise:
+
+   ```bash
+   mise install
+   ```
+
+3. Install dependencies including development tools:
+   ```bash
+   uv sync --with dev
+   ```
+
+4. Create a `.env` file in the project root with your GitGuardian API credentials:
+   ```
+   GITGUARDIAN_API_KEY=your_api_key_here
+   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
+   ```
+
+5. Run the MCP server locally:
+   ```bash
+   uv run --env-file .env gg-mcp-server
+   ```
+
+6. For local development with Cursor, update your Cursor MCP configuration file at `~/.cursor/mcp.json`:
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardianLocal": {
+         "command": "uv",
+         "args": [
+           "--directory",
+           "/path/to/your/workspace/gg-mcp-server",
+           "run",
+           "--env-file",
+           ".env",
+           "gg-mcp-server"
+         ]
+       }
+     }
+   }
+   ```
+   
+   Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your cloned repository.
+
+7. Restart Cursor to apply the changes.
+
 ## Running the Server
 
 Start the MCP server:
