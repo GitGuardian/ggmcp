@@ -1,11 +1,14 @@
 """OAuth authentication implementation for GitGuardian API using MCP SDK."""
 
+import datetime
+import json
 import logging
 import os
 import threading
 import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
@@ -17,6 +20,98 @@ logger = logging.getLogger(__name__)
 
 # Port range for callback server
 CALLBACK_PORT_RANGE = (8000, 8999)
+
+# Default token expiry in days (if not specified in token info)
+DEFAULT_TOKEN_EXPIRY_DAYS = 30
+
+
+class FileTokenStorage:
+    """File-based storage for OAuth tokens to enable token reuse."""
+
+    def __init__(self, token_file=None):
+        """Initialize the token storage.
+
+        Args:
+            token_file: Path to the token file. If None, uses system-appropriate directory
+                following XDG spec on Linux and Application Support on macOS
+        """
+        if token_file is None:
+            # Determine platform-appropriate config directory
+            import os
+            import platform
+
+            system = platform.system()
+            home_dir = Path.home()
+
+            if system == "Darwin":  # macOS
+                # Use macOS standard directory conventions
+                app_support_dir = home_dir / "Library" / "Application Support"
+                gitguardian_dir = app_support_dir / "GitGuardian"
+            else:  # Linux and other Unix-like systems - follow XDG spec
+                # Use XDG_CONFIG_HOME if defined, otherwise ~/.config
+                xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+                if xdg_config_home:
+                    config_dir = Path(xdg_config_home)
+                else:
+                    config_dir = home_dir / ".config"
+                gitguardian_dir = config_dir / "gitguardian"
+
+            gitguardian_dir.mkdir(exist_ok=True, parents=True)
+            self.token_file = gitguardian_dir / "mcp_oauth_tokens.json"
+        else:
+            self.token_file = Path(token_file)
+            # Ensure parent directory exists
+            self.token_file.parent.mkdir(exist_ok=True, parents=True)
+
+    def load_tokens(self):
+        """Load tokens from the token file."""
+        try:
+            if self.token_file.exists():
+                with open(self.token_file, "r") as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.warning(f"Failed to load tokens from {self.token_file}: {e}")
+        return {}
+
+    def save_token(self, instance_url, token_data):
+        """Save a token for a specific instance URL."""
+        tokens = self.load_tokens()
+
+        # Use the instance URL as the key
+        tokens[instance_url] = token_data
+
+        try:
+            with open(self.token_file, "w") as f:
+                json.dump(tokens, f, indent=2)
+            # Set file permissions to user-only read/write
+            self.token_file.chmod(0o600)
+            logger.info(f"Saved token for {instance_url} to {self.token_file}")
+        except Exception as e:
+            logger.warning(f"Failed to save token to {self.token_file}: {e}")
+
+    def get_token(self, instance_url):
+        """Get a token for a specific instance URL if it exists and is not expired."""
+        tokens = self.load_tokens()
+        token_data = tokens.get(instance_url)
+
+        if not token_data:
+            return None
+
+        # Check if token is expired
+        expires_at = token_data.get("expires_at")
+        if expires_at:
+            # Parse ISO format date
+            try:
+                expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+                now = datetime.datetime.now(datetime.timezone.utc)
+                if now >= expiry_date:
+                    logger.info(f"Token for {instance_url} has expired")
+                    return None
+            except Exception as e:
+                logger.warning(f"Failed to parse expiry date: {e}")
+                # If we can't parse the date, assume it's still valid
+
+        return token_data.get("access_token")
 
 
 class InMemoryTokenStorage(TokenStorage):
@@ -255,21 +350,72 @@ class CallbackServer:
 class GitGuardianOAuthClient:
     """OAuth client for GitGuardian using MCP SDK's OAuth support."""
 
-    def __init__(self, api_url: str, dashboard_url: str, scopes: list[str] | None = None):
-        """Initialize the OAuth client.
-
+    def __init__(
+        self, api_url: str, dashboard_url: str, scopes: list[str] | None = None, token_name: str | None = None
+    ):
+        """
         Args:
             api_url: GitGuardian API URL (e.g., https://api.gitguardian.com/v1)
             dashboard_url: GitGuardian dashboard URL (e.g., https://dashboard.gitguardian.com)
             scopes: List of OAuth scopes to request (default: ["scan"])
+            token_name: Custom name for the OAuth token (default: "mcp-server-token-YYYY-MM-DD")
         """
         self.api_url = api_url
         self.dashboard_url = dashboard_url
         self.scopes = scopes or ["scan"]
         self.token_storage = InMemoryTokenStorage()
+        self.file_token_storage = FileTokenStorage()
         self.oauth_provider = None
         self.access_token = None
         self.token_info = None
+
+        # Use provided token name or use the default "MCP server token"
+        self.token_name = token_name
+        if not self.token_name:
+            # Use a consistent default name
+            self.token_name = "MCP server token"
+
+        # Try to load a saved token first
+        self._load_saved_token()
+
+    def _load_saved_token(self):
+        """Try to load a saved token from file storage."""
+        try:
+            # Load tokens from storage
+            tokens = self.file_token_storage.load_tokens()
+            token_data = tokens.get(self.dashboard_url)
+
+            if not token_data:
+                logger.info(f"No saved token found for {self.dashboard_url}")
+                return
+
+            # Check if token is expired
+            expires_at = token_data.get("expires_at")
+            if expires_at:
+                try:
+                    # Parse ISO format date
+                    expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+                    now = datetime.datetime.now(datetime.timezone.utc)
+                    if now >= expiry_date:
+                        logger.info(f"Token for {self.dashboard_url} has expired")
+                        return
+                except Exception as e:
+                    logger.warning(f"Failed to parse expiry date: {e}")
+
+            # Set the access token and related info
+            self.access_token = token_data.get("access_token")
+            if self.access_token:
+                # Store other token information
+                self.token_info = {
+                    "expires_at": token_data.get("expires_at"),
+                    "scopes": token_data.get("scopes"),
+                    "token_name": token_data.get("token_name"),
+                }
+                self.token_name = token_data.get("token_name", self.token_name)
+                logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url}")
+        except Exception as e:
+            logger.warning(f"Failed to load saved token: {e}")
+            # Continue without a saved token
 
     async def oauth_process(self, login_path: str | None = None) -> str:
         """Execute the OAuth authentication flow.
@@ -333,8 +479,13 @@ class GitGuardianOAuthClient:
             import string
             import urllib.parse
 
-            # Generate random state
-            state = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+            # Create a state that includes the token name
+            state_data = {
+                "token_name": self.token_name,
+                "random": "".join(random.choices(string.ascii_letters + string.digits, k=8)),
+            }
+            # Encode as JSON string
+            state = json.dumps(state_data)
 
             # Generate PKCE code verifier and challenge
             code_verifier = "".join(random.choices(string.ascii_letters + string.digits + "-._~", k=128))
@@ -353,6 +504,8 @@ class GitGuardianOAuthClient:
                 "code_challenge": code_challenge,
                 "code_challenge_method": "S256",
                 "auth_mode": "ggshield_login",
+                "name": self.token_name,  # Try with 'name' instead of 'token_name'
+                "token_name": self.token_name,  # Keep original in case it's needed
                 "utm_source": "cli",  # Match the working URL parameters
                 "utm_medium": "login",
                 "utm_campaign": "ggshield",
@@ -367,8 +520,23 @@ class GitGuardianOAuthClient:
             received_state = callback_server.get_state()
 
             # 5. Verify the state to prevent CSRF attacks
-            if received_state != state:
-                raise Exception(f"State mismatch: expected {state}, got {received_state}")
+            try:
+                # Try to parse as JSON
+                if received_state and received_state.startswith("{") and received_state.endswith("}"):
+                    received_state_data = json.loads(received_state)
+                    state_data = json.loads(state) if isinstance(state, str) else state
+                    # Check if the random values match
+                    if received_state_data.get("random") != state_data.get("random"):
+                        raise Exception("State mismatch: random value doesn't match")
+                    # Store token name if present in the state
+                    if "token_name" in received_state_data:
+                        self.token_name = received_state_data["token_name"]
+                elif received_state != state:
+                    raise Exception(f"State mismatch: expected {state}, got {received_state}")
+            except json.JSONDecodeError:
+                # If either isn't valid JSON, fall back to direct comparison
+                if received_state != state:
+                    raise Exception(f"State mismatch: expected {state}, got {received_state}")
 
             logger.info("Received authorization code")
 
@@ -380,15 +548,21 @@ class GitGuardianOAuthClient:
                 "redirect_uri": f"http://localhost:{callback_server.port}",
                 "client_id": "ggshield_oauth",
                 "code_verifier": code_verifier,  # Include the PKCE code verifier
+                "name": self.token_name,  # Include token name in token request
             }
 
             # Make the token request
             import httpx
 
+            # Prepare headers with token name information
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Token-Name": self.token_name,  # Custom header with token name
+                "User-Agent": f"MCP-Server/{self.token_name}",  # Include in user agent
+            }
+
             async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    token_url, data=token_params, headers={"Content-Type": "application/x-www-form-urlencoded"}
-                )
+                response = await client.post(token_url, data=token_params, headers=headers)
 
                 if response.status_code == 200:
                     token_data = response.json()
@@ -401,9 +575,33 @@ class GitGuardianOAuthClient:
                     raise Exception(f"Failed to get token: {response.status_code}")
 
             # Get token info by calling the GitGuardian API
-            if self.access_token:
-                await self._fetch_token_info()
-                logger.info("OAuth authentication successful")
+            # Fetch token information for verification
+            await self._fetch_token_info()
+            logger.info("OAuth authentication successful")
+
+            # Save the token for future reuse
+            if self.access_token and self.token_info:
+                # Calculate expiry date (default to 30 days if not provided)
+                expires_at = self.token_info.get("expires_at")
+                if not expires_at:
+                    # Default token expiration (30 days)
+                    DEFAULT_TOKEN_EXPIRY_DAYS = 30
+                    expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+                        days=DEFAULT_TOKEN_EXPIRY_DAYS
+                    )
+                    expires_at = expiry_date.isoformat()
+
+                # Prepare token data for storage
+                token_data = {
+                    "access_token": self.access_token,
+                    "expires_at": expires_at,
+                    "token_name": self.token_name,
+                    "scopes": self.token_info.get("scopes", self.scopes),
+                }
+
+                # Save to file storage
+                self.file_token_storage.save_token(self.dashboard_url, token_data)
+                logger.info(f"Saved token '{self.token_name}' for future use")
                 return self.access_token
             else:
                 raise Exception("Failed to obtain access token during OAuth flow")

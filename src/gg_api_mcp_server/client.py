@@ -139,22 +139,59 @@ class GitGuardianClient:
             # Import here to avoid circular imports
             from gg_api_mcp_server.oauth import GitGuardianOAuthClient
 
-            # Get the requested scopes from environment or use a default set
-            scopes_str = os.environ.get("GITGUARDIAN_OAUTH_SCOPES", "scan")
+            # Get the requested scopes from environment or use all available scopes as default
+            # Only include scopes listed in the official documentation: https://docs.gitguardian.com/api-docs/authentication#scopes
+            ALL_SCOPES = [
+                "scan",
+                "incidents:read",
+                "incidents:write",
+                "incidents:share",
+                "members:read",
+                "members:write",
+                "audit_logs:read",
+                "teams:read",
+                "teams:write",
+                "honeytokens:read",
+                "honeytokens:write",
+                "api_tokens:write",
+                "api_tokens:read",
+                "ip_allowlist:read",
+                "ip_allowlist:write",
+                # "sources:read",
+                # "sources:write",
+                # "custom_tags:read",
+                # "custom_tags:write",
+            ]
+
+            # Default to all scopes, but allow restriction via environment variable
+            default_scopes = ",".join(ALL_SCOPES)
+            scopes_str = os.environ.get("GITGUARDIAN_REQUESTED_SCOPES", default_scopes)
             scopes = [scope.strip() for scope in scopes_str.split(",")]
 
             # Get custom login path if specified
             login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
 
+            # Get token name from environment or use default
+            token_name = os.environ.get("GITGUARDIAN_TOKEN_NAME")
+
             # Create OAuth client and run the OAuth flow
             # The dashboard_url is used for OAuth, not the API URL
-            oauth_client = GitGuardianOAuthClient(api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes)
+            oauth_client = GitGuardianOAuthClient(
+                api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
+            )
 
             try:
-                logger.info("Starting OAuth authentication flow...")
-                self._oauth_token = await oauth_client.oauth_process(login_path=login_path)
-                self._token_info = oauth_client.get_token_info()
-                logger.info("OAuth authentication successful")
+                # Check if we already have a valid token loaded
+                if oauth_client.access_token and oauth_client.token_info:
+                    logger.info("Using existing OAuth token")
+                    self._oauth_token = oauth_client.access_token
+                    self._token_info = oauth_client.token_info
+                else:
+                    # No valid token exists, start the OAuth flow
+                    logger.info("Starting OAuth authentication flow...")
+                    self._oauth_token = await oauth_client.oauth_process(login_path=login_path)
+                    self._token_info = oauth_client.get_token_info()
+                    logger.info("OAuth authentication successful")
             except Exception as e:
                 logger.error(f"OAuth authentication failed: {e}")
                 raise

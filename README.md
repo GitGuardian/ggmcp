@@ -69,7 +69,9 @@ OAuth authentication allows you to authenticate with GitGuardian using the web f
    # Optional - customize the login path
    # GITGUARDIAN_LOGIN_PATH=auth/login
    # Optional - specify which scopes to request (comma-separated)
-   # GITGUARDIAN_OAUTH_SCOPES=scan,incidents:read,incidents:write
+   # GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
+   # Optional - force the local success page instead of redirecting to GitGuardian
+   # GITGUARDIAN_FORCE_LOCAL_PAGE=true
    ```
 
 2. Run the MCP server:
@@ -82,20 +84,26 @@ OAuth authentication allows you to authenticate with GitGuardian using the web f
 
 #### Available OAuth Scopes
 
-You can restrict which scopes are requested during OAuth authentication by setting the `GITGUARDIAN_OAUTH_SCOPES` environment variable. The available scopes are:
+You can restrict which scopes are requested during OAuth authentication by setting the `GITGUARDIAN_REQUESTED_SCOPES` environment variable. The available scopes are:
 
 - `scan`: For scanning content for secrets
 - `incidents:read`: For reading incidents
 - `incidents:write`: For updating incidents
+- `api_tokens:read`: For reading API token information
 - `honeytokens:read`: For reading honeytokens
 - `honeytokens:write`: For creating honeytokens
 - `custom_tags:read`: For reading custom tags
 - `custom_tags:write`: For creating/updating custom tags
 - `teams:read`: For reading team information
 - `teams:write`: For updating team information
-- `api_tokens:read`: For reading API token information
 
-By default, the server will request all available scopes. To request specific scopes, set the `GITGUARDIAN_OAUTH_SCOPES` environment variable to a comma-separated list of scopes.
+By default, the server will request all available scopes. To request specific scopes, set the `GITGUARDIAN_REQUESTED_SCOPES` environment variable to a comma-separated list of scopes.
+
+Example:
+
+```
+GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
+```
 
 5. Run the MCP server locally:
    ```bash
