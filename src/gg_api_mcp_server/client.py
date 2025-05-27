@@ -47,33 +47,117 @@ class IncidentValidity(str, Enum):
 class GitGuardianClient:
     """Client for interacting with the GitGuardian API."""
 
-    def __init__(self, api_key: str | None = None, api_url: str | None = None):
+    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
         """Initialize the GitGuardian client.
 
         Args:
             api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
             api_url: GitGuardian API URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
+            use_oauth: Whether to use OAuth authentication instead of token auth
         """
         logger.info("Initializing GitGuardian client")
 
-        # Use provided API key or get from environment
-        self.api_key = api_key or os.environ.get("GITGUARDIAN_API_KEY")
-
-        # Log API key status (without exposing the actual key)
-        if self.api_key:
-            logger.info("API key found")
-            # Only show first 4 chars for logging
-            key_preview = self.api_key[:4] + "..." if len(self.api_key) > 4 else "***"
-            logger.debug(f"Using API key starting with: {key_preview}")
-        else:
-            logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
-            raise ValueError("GitGuardian API key is required")
+        self.use_oauth = use_oauth
+        self._oauth_token = None
+        self._token_info = None
 
         # Use provided API URL or get from environment with default fallback
         self.api_url = api_url or os.environ.get("GITGUARDIAN_API_URL", "https://api.gitguardian.com/v1")
         logger.info(f"Using API URL: {self.api_url}")
 
-        logger.info("GitGuardian client initialized successfully")
+        # Extract the base URL for dashboard (needed for OAuth)
+        self.dashboard_url = self._get_dashboard_url()
+        logger.info(f"Using dashboard URL: {self.dashboard_url}")
+
+        # For token-based authentication
+        if not use_oauth:
+            # Use provided API key or get from environment
+            self.api_key = api_key or os.environ.get("GITGUARDIAN_API_KEY")
+
+            # Log API key status (without exposing the actual key)
+            if self.api_key:
+                logger.info("API key found")
+                # Only show first 4 chars for logging
+                key_preview = self.api_key[:4] + "..." if len(self.api_key) > 4 else "***"
+                logger.debug(f"Using API key starting with: {key_preview}")
+            else:
+                logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
+                raise ValueError("GitGuardian API key is required for token authentication")
+
+            logger.info("GitGuardian client initialized successfully with token authentication")
+        else:
+            # For OAuth authentication
+            self.api_key = None
+            logger.info(
+                "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
+            )
+
+    def _get_dashboard_url(self) -> str:
+        """Extract the dashboard URL from the API URL."""
+        # Default GitGuardian dashboard URL
+        default_dashboard_url = "https://dashboard.gitguardian.com"
+
+        # Check if a custom dashboard URL is specified in the environment
+        dashboard_url = os.environ.get("GITGUARDIAN_DASHBOARD_URL")
+        if dashboard_url:
+            return dashboard_url
+
+        # If using the default API URL, return the default dashboard URL
+        if self.api_url == "https://api.gitguardian.com/v1":
+            return default_dashboard_url
+
+        # If using a custom API URL, try to extract the base URL
+        # This assumes the API URL is in the format: https://api.example.com/v1
+        # and the dashboard URL would be: https://example.com or http://localhost:3000
+        try:
+            # Parse the URL to get the components
+            from urllib.parse import urlparse
+
+            parsed_url = urlparse(self.api_url)
+
+            # For local development (localhost or 127.0.0.1)
+            if parsed_url.netloc.startswith("localhost") or parsed_url.netloc.startswith("127.0.0.1"):
+                port = parsed_url.port or 80
+                return f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{port}"
+
+            # For custom domains, remove the 'api.' prefix if it exists
+            hostname = parsed_url.netloc
+            if hostname.startswith("api."):
+                hostname = hostname[4:]  # Remove 'api.' prefix
+
+            return f"{parsed_url.scheme}://{hostname}"
+        except Exception as e:
+            logger.warning(f"Failed to extract dashboard URL from API URL: {e}")
+            return default_dashboard_url
+
+    async def _ensure_oauth_token(self):
+        """Ensure we have a valid OAuth token, initiating the OAuth flow if needed."""
+        if not self.use_oauth:
+            return
+
+        if self._oauth_token is None:
+            # Import here to avoid circular imports
+            from gg_api_mcp_server.oauth import GitGuardianOAuthClient
+
+            # Get the requested scopes from environment or use a default set
+            scopes_str = os.environ.get("GITGUARDIAN_OAUTH_SCOPES", "scan")
+            scopes = [scope.strip() for scope in scopes_str.split(",")]
+
+            # Get custom login path if specified
+            login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
+
+            # Create OAuth client and run the OAuth flow
+            # The dashboard_url is used for OAuth, not the API URL
+            oauth_client = GitGuardianOAuthClient(api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes)
+
+            try:
+                logger.info("Starting OAuth authentication flow...")
+                self._oauth_token = await oauth_client.oauth_process(login_path=login_path)
+                self._token_info = oauth_client.get_token_info()
+                logger.info("OAuth authentication successful")
+            except Exception as e:
+                logger.error(f"OAuth authentication failed: {e}")
+                raise
 
     async def _request(
         self, method: str, endpoint: str, return_headers: bool = False, **kwargs
@@ -95,10 +179,19 @@ class GitGuardianClient:
         url = f"{self.api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making {method} request to {url}")
 
-        headers = {
-            "Authorization": f"Token {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        # If using OAuth, ensure we have a token
+        if self.use_oauth:
+            await self._ensure_oauth_token()
+            headers = {
+                "Authorization": f"Token {self._oauth_token}",
+                "Content-Type": "application/json",
+            }
+        else:  # Token-based auth
+            headers = {
+                "Authorization": f"Token {self.api_key}",
+                "Content-Type": "application/json",
+            }
+
         headers.update(kwargs.pop("headers", {}))
 
         try:
@@ -537,6 +630,12 @@ class GitGuardianClient:
             Dictionary containing token information including scopes
         """
         logger.info("Getting current API token information")
+
+        # If using OAuth and we already have token info, return it
+        if self.use_oauth and self._token_info is not None:
+            return self._token_info
+
+        # Otherwise fetch from the API
         return await self._request("GET", "/api_tokens/self")
 
     async def list_api_tokens(self) -> dict[str, Any]:

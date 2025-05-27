@@ -55,10 +55,54 @@ If you want to contribute to the MCP server development, follow these steps:
    GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
    ```
 
+### OAuth Authentication
+
+OAuth authentication allows you to authenticate with GitGuardian using the web flow without providing an API key directly. This method opens a browser window for authentication and creates a token automatically.
+
+1. Create an `.env` file with OAuth configuration:
+
+   ```
+   GITGUARDIAN_AUTH_METHOD=web
+   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
+   # Optional - customize the base URL for authentication (for local development)
+   # GITGUARDIAN_DASHBOARD_URL=http://localhost:3000
+   # Optional - customize the login path
+   # GITGUARDIAN_LOGIN_PATH=auth/login
+   # Optional - specify which scopes to request (comma-separated)
+   # GITGUARDIAN_OAUTH_SCOPES=scan,incidents:read,incidents:write
+   ```
+
+2. Run the MCP server:
+
+   ```bash
+   uv run --env-file .env gg-mcp-server
+   ```
+
+3. The server will open a browser window for you to log in to GitGuardian. After successful authentication, the token will be stored and used for API requests.
+
+#### Available OAuth Scopes
+
+You can restrict which scopes are requested during OAuth authentication by setting the `GITGUARDIAN_OAUTH_SCOPES` environment variable. The available scopes are:
+
+- `scan`: For scanning content for secrets
+- `incidents:read`: For reading incidents
+- `incidents:write`: For updating incidents
+- `honeytokens:read`: For reading honeytokens
+- `honeytokens:write`: For creating honeytokens
+- `custom_tags:read`: For reading custom tags
+- `custom_tags:write`: For creating/updating custom tags
+- `teams:read`: For reading team information
+- `teams:write`: For updating team information
+- `api_tokens:read`: For reading API token information
+
+By default, the server will request all available scopes. To request specific scopes, set the `GITGUARDIAN_OAUTH_SCOPES` environment variable to a comma-separated list of scopes.
+
 5. Run the MCP server locally:
    ```bash
    uv run --env-file .env gg-mcp-server
    ```
+
+   If using OAuth authentication, the server will open a browser window for you to log in to GitGuardian.
 
 6. For local development with Cursor, update your Cursor MCP configuration file at `~/.cursor/mcp.json`:
    ```json
@@ -93,11 +137,18 @@ mcp dev src/gg_api_mcp_server/server.py
 
 This runs the server using MCP's native server capabilities (no external web server needed).
 
-## Environment Variables and Best Practices
+## Authentication Methods
 
-The GitGuardian MCP server requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
+The GitGuardian MCP server supports two authentication methods:
 
-1. Create an `.env` file with your GitGuardian API credentials:
+1. **Token Authentication** (default): Uses a GitGuardian API key for authentication
+2. **OAuth Authentication**: Uses the OAuth flow to authenticate with GitGuardian
+
+### Token Authentication
+
+Token authentication is the default method and requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
+
+1. Create an `.env` file with your GitGuardian API credentials for token authentication:
 
    ```
    GITGUARDIAN_API_KEY=your_api_key_here
