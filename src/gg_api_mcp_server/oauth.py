@@ -152,9 +152,9 @@ class CallbackHandler(BaseHTTPRequestHandler):
             self.callback_data["state"] = query_params.get("state", [None])[0]
             # Get the dashboard URL from the callback data
             dashboard_url = self.callback_data.get("dashboard_url")
-            force_local_page = self.callback_data.get("force_local_page", False)
+            use_dashboard_page = self.callback_data.get("use_dashboard_page", False)
             redirect_url = None
-            if dashboard_url and not force_local_page:
+            if dashboard_url and use_dashboard_page:
                 redirect_url = f"{dashboard_url}/authenticated"
 
             if redirect_url:
@@ -272,13 +272,13 @@ class CallbackHandler(BaseHTTPRequestHandler):
 class CallbackServer:
     """Simple server to handle OAuth callbacks."""
 
-    def __init__(self, port_range=CALLBACK_PORT_RANGE, dashboard_url=None, force_local_page=False):
+    def __init__(self, port_range=CALLBACK_PORT_RANGE, dashboard_url=None, use_dashboard_page=False):
         """Initialize the callback server with a range of ports to try.
 
         Args:
             port_range: Tuple of (min_port, max_port) to try
             dashboard_url: URL of the GitGuardian dashboard for redirect
-            force_local_page: If True, always show the local success page instead of redirecting
+            use_dashboard_page: If True, redirect to dashboard authenticated page instead of showing local page
         """
         self.port_range = port_range
         self.port = None
@@ -289,7 +289,7 @@ class CallbackServer:
             "authorization_code": None,
             "state": None,
             "error": None,
-            "force_local_page": force_local_page,
+            "use_dashboard_page": use_dashboard_page,
         }
 
     def _create_handler_with_data(self):
@@ -435,11 +435,15 @@ class GitGuardianOAuthClient:
 
         logger.info(f"Starting OAuth authentication with GitGuardian at {server_url}")
 
-        # Check if we should force the local page from environment variable
-        force_local_page = os.environ.get("GITGUARDIAN_FORCE_LOCAL_PAGE", "").lower() in ("true", "1", "yes")
+        # Check if we should use the dashboard authenticated page from environment variable
+        use_dashboard_page = os.environ.get("GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE", "").lower() in (
+            "true",
+            "1",
+            "yes",
+        )
 
-        # Set up callback server with the force_local_page option
-        callback_server = CallbackServer(dashboard_url=self.dashboard_url, force_local_page=force_local_page)
+        # Set up callback server with the use_dashboard_page option
+        callback_server = CallbackServer(dashboard_url=self.dashboard_url, use_dashboard_page=use_dashboard_page)
         callback_server.start()
 
         # Define the redirect handler function to open browser

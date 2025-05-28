@@ -70,8 +70,8 @@ OAuth authentication allows you to authenticate with GitGuardian using the web f
    # GITGUARDIAN_LOGIN_PATH=auth/login
    # Optional - specify which scopes to request (comma-separated)
    # GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
-   # Optional - force the local success page instead of redirecting to GitGuardian
-   # GITGUARDIAN_FORCE_LOCAL_PAGE=true
+   # Optional - use the GitGuardian dashboard authenticated page instead of the local success page
+   # GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE=true
    ```
 
 2. Run the MCP server:
@@ -149,12 +149,12 @@ This runs the server using MCP's native server capabilities (no external web ser
 
 The GitGuardian MCP server supports two authentication methods:
 
-1. **Token Authentication** (default): Uses a GitGuardian API key for authentication
-2. **OAuth Authentication**: Uses the OAuth flow to authenticate with GitGuardian
+1. **OAuth Authentication** (default): Uses the OAuth flow to authenticate with GitGuardian
+2. **Token Authentication**: Uses a GitGuardian API key for authentication
 
 ### Token Authentication
 
-Token authentication is the default method and requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
+Token authentication requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
 
 1. Create an `.env` file with your GitGuardian API credentials for token authentication:
 

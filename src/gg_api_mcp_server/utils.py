@@ -18,14 +18,14 @@ def get_gitguardian_client() -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
     The authentication method is determined by the GITGUARDIAN_AUTH_METHOD environment variable.
-    Supported methods: 'token' (default), 'web' (OAuth).
+    Supported methods: 'token', 'web' (OAuth, default).
 
     For token auth, the GITGUARDIAN_API_KEY environment variable must be set.
     For web auth, the OAuth flow will be triggered.
     """
     logger.info("Attempting to initialize GitGuardian client")
 
-    auth_method = os.environ.get("GITGUARDIAN_AUTH_METHOD", "token").lower()
+    auth_method = os.environ.get("GITGUARDIAN_AUTH_METHOD", "web").lower()
     api_url = os.environ.get("GITGUARDIAN_API_URL")
 
     if api_url:
