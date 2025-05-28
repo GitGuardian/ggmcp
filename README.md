@@ -1,35 +1,160 @@
-# GG MCP Server
+# GitGuardian MCP Server
 
-A Model Context Protocol (MCP) server implementation based on the [official Python SDK](https://github.com/modelcontextprotocol/python-sdk).
+A specialized MCP server that brings GitGuardian API features to your AI assistants, enabling powerful security capabilities wherever you use MCP.
 
-## Prerequisites
+## Key Features
 
-- [mise](https://mise.jdx.dev/) (recommended for Python version management)
-- [uv](https://github.com/astral-sh/uv) (required for package management)
+- **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
+- **Incident Management**: View, assign, and resolve security incidents
+- **Honeytokens**: Create and manage honeytokens to detect unauthorized access
+- **Team Collaboration**: Work with team members on security issues
+- **Custom Tagging**: Organize incidents with custom tags
 
-## Setup with mise
+## Installation
 
-1. Clone this repository:
+Below are instructions for installing the GitGuardian MCP server with various AI editors and interfaces.
 
-   ```bash
-   git clone https://github.com/GitGuardian/gg-mcp.git
-   cd gg-mcp
+### Installation with Claude Desktop
+
+1. Edit your Claude Desktop MCP configuration file located at:
+
+   - macOS: `~/Library/Application Support/Claude/mcp.json`
+   - Windows: `%APPDATA%\Claude\mcp.json`
+   - Linux: `~/.config/Claude/mcp.json`
+
+2. Add the GitGuardian MCP server configuration:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
+   }
    ```
 
-2. Install the required Python version using mise:
+3. Restart Claude Desktop to apply the changes.
 
-   ```bash
-   mise install
+### Installation with Cursor
+
+1. Edit your Cursor MCP configuration file located at `~/.cursor/mcp.json`
+
+2. Add the GitGuardian MCP server configuration:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
+   }
    ```
 
-3. Install dependencies with uv (required):
+3. Restart Cursor to apply the changes.
+
+### Installation with Zed Editor
+
+1. Edit your Zed MCP configuration file located at:
+
+   - macOS: `~/Library/Application Support/Zed/mcp.json`
+   - Linux: `~/.config/Zed/mcp.json`
+
+2. Add the GitGuardian MCP server configuration:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+3. Restart Zed to apply the changes.
+
+### Local Installation
+
+If you want to run the server from a local clone of the repository:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/GitGuardian/gg-mcp-server.git
+   cd gg-mcp-server
+   ```
+
+2. Install dependencies:
    ```bash
    uv sync
    ```
 
+3. Run the server:
+   ```bash
+   python -m src.gg_api_mcp_server.server
+   ```
+
+#### Local Installation with Cursor
+
+To use a local clone with Cursor:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianLocal": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/your/workspace/gg-mcp-server",
+        "run",
+        "src.gg_api_mcp_server.server"
+      ]
+    }
+  }
+}
+```
+
+## Running the Server
+
+To run the MCP server:
+
+```bash
+python -m src.gg_api_mcp_server.server
+```
+
+### Authentication Process
+
+1. When you start the server, it will automatically open a browser window to authenticate with GitGuardian
+2. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
+3. The authentication token will be securely stored for future use
+4. The next time you start the server, it will reuse the stored token without requiring re-authentication
+
 ## Development Setup
 
 If you want to contribute to the MCP server development, follow these steps:
+
+### Prerequisites
+
+- [mise](https://mise.jdx.dev/) (recommended for Python version management)
+- [uv](https://github.com/astral-sh/uv) (required for package management)
+
+### Setting up the Development Environment
 
 1. Clone this repository:
 
@@ -49,44 +174,65 @@ If you want to contribute to the MCP server development, follow these steps:
    uv sync --with dev
    ```
 
-4. Create a `.env` file in the project root with your GitGuardian API credentials:
-   ```
-   GITGUARDIAN_API_KEY=your_api_key_here
-   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
-   ```
-
-### OAuth Authentication
-
-OAuth authentication allows you to authenticate with GitGuardian using the web flow without providing an API key directly. This method opens a browser window for authentication and creates a token automatically.
-
-1. Create an `.env` file with OAuth configuration:
-
-   ```
-   GITGUARDIAN_AUTH_METHOD=web
-   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
-   # Optional - customize the base URL for authentication (for local development)
-   # GITGUARDIAN_DASHBOARD_URL=http://localhost:3000
-   # Optional - customize the login path
-   # GITGUARDIAN_LOGIN_PATH=auth/login
-   # Optional - specify which scopes to request (comma-separated)
-   # GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
-   # Optional - use the GitGuardian dashboard authenticated page instead of the local success page
-   # GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE=true
-   # Optional - set the OAuth token lifetime in days (default: 30, 'never' for no expiration)
-   # GITGUARDIAN_TOKEN_LIFETIME=30
-   ```
-
-2. Run the MCP server:
-
+4. Run the server in development mode:
    ```bash
-   uv run --env-file .env gg-mcp-server
+   python -m src.gg_api_mcp_server.server
    ```
 
-3. The server will open a browser window for you to log in to GitGuardian. After successful authentication, the token will be stored and used for API requests.
+By default, the server will use OAuth authentication, automatically opening a browser window for you to authenticate with GitGuardian. No configuration file is needed for the basic setup.
+
+### Authentication Process
+
+1. When you start the server, it will automatically open a browser window to authenticate with GitGuardian
+2. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
+3. The authentication token will be securely stored for future use
+4. The next time you start the server, it will reuse the stored token without requiring re-authentication
+
+## Environment Variables Reference
+
+Below is a complete reference of environment variables you can use to configure the GitGuardian MCP server. None of these are required for basic usage as the server uses sensible defaults.
+
+### Complete .env Example
+
+```bash
+# Authentication Method (default: 'web')
+# GITGUARDIAN_AUTH_METHOD=web
+
+# API Configuration
+# GITGUARDIAN_API_KEY=your_api_key_here               # Required only for token authentication
+# GITGUARDIAN_API_URL=https://api.gitguardian.com/v1  # Default API URL
+# GITGUARDIAN_DASHBOARD_URL=https://dashboard.gitguardian.com  # Dashboard URL
+
+# OAuth Configuration
+# GITGUARDIAN_LOGIN_PATH=auth/login                   # Custom login path
+# GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read    # Limit requested scopes
+# GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE=true   # Use dashboard page after auth
+# GITGUARDIAN_TOKEN_LIFETIME=30                       # Token lifetime in days (or 'never')
+# GITGUARDIAN_TOKEN_NAME=MCP server token             # Custom token name
+```
+
+### Authentication Variables
+
+- `GITGUARDIAN_AUTH_METHOD`: Authentication method (`web` for OAuth or `token` for API key)
+- `GITGUARDIAN_API_KEY`: Your GitGuardian API key (required only for token authentication)
+
+### API and URL Configuration
+
+- `GITGUARDIAN_API_URL`: GitGuardian API URL (default: https://api.gitguardian.com/v1)
+- `GITGUARDIAN_DASHBOARD_URL`: GitGuardian dashboard URL (default: https://dashboard.gitguardian.com)
+
+### OAuth Configuration
+
+- `GITGUARDIAN_LOGIN_PATH`: Custom login path (default: auth/login)
+- `GITGUARDIAN_TOKEN_LIFETIME`: OAuth token lifetime in days (default: 30, use 'never' for no expiration)
+- `GITGUARDIAN_TOKEN_NAME`: Custom name for the OAuth token (default: "MCP server token")
+- `GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE`: If true, redirects to GitGuardian dashboard after authentication (default: false)
+
+### Scope Configuration
+
+- `GITGUARDIAN_REQUESTED_SCOPES`: Comma-separated list of OAuth scopes to request
 
 #### Available OAuth Scopes
-
-You can restrict which scopes are requested during OAuth authentication by setting the `GITGUARDIAN_REQUESTED_SCOPES` environment variable. The available scopes are:
 
 - `scan`: For scanning content for secrets
 - `incidents:read`: For reading incidents
@@ -99,7 +245,7 @@ You can restrict which scopes are requested during OAuth authentication by setti
 - `teams:read`: For reading team information
 - `teams:write`: For updating team information
 
-By default, the server will request all available scopes. To request specific scopes, set the `GITGUARDIAN_REQUESTED_SCOPES` environment variable to a comma-separated list of scopes.
+By default, the server will request all available scopes.
 
 Example:
 
@@ -154,161 +300,54 @@ The GitGuardian MCP server supports two authentication methods:
 1. **OAuth Authentication** (default): Uses the OAuth flow to authenticate with GitGuardian
 2. **Token Authentication**: Uses a GitGuardian API key for authentication
 
-### Token Authentication
+### When to Use Environment Variables
 
-Token authentication requires an API key to authenticate with the GitGuardian API. The recommended approach is to use an `.env` file to manage your environment variables:
+The server works out-of-the-box without any configuration. However, you might want to use an `.env` file in the following cases:
 
-1. Create an `.env` file with your GitGuardian API credentials for token authentication:
+- To use token-based authentication instead of OAuth
+- To configure custom OAuth settings (token lifetime, scopes, etc.)
+- To connect to a different GitGuardian instance (like a local development environment)
+- To customize other server behavior
 
-   ```
-   GITGUARDIAN_API_KEY=your_api_key_here
-   GITGUARDIAN_API_URL=https://api.gitguardian.com/v1
-   ```
+In these cases, you would use the `--env-file` option when running the server:
 
-2. When configuring your MCP client, use the `--env-file` option with `uvx` to load these environment variables:
-   ```
-   uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp
-   ```
+```bash
+python -m gg_api_mcp_server.server --env-file /path/to/.env
+```
+
+Or when using with `uvx`:
+
+```bash
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp
+```
 
 This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
 
-## Installation Options
+## Using with Local Development
 
-<details>
-<summary><strong>Local Installation</strong></summary>
+If you want to develop or modify the GitGuardian MCP server, you can use a local installation with your editor. This is particularly useful for testing changes without pushing to GitHub.
 
-To install and run the GitGuardian MCP server locally:
+### Local Development with Cursor
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/GitGuardian/gg-mcp.git
-   cd gg-mcp
-   ```
-
-2. Install the required Python version using mise:
-
-   ```bash
-   mise install
-   ```
-
-3. Install dependencies with uv (required):
-
-   ```bash
-   uv sync
-   ```
-
-4. Run the server:
-   ```bash
-   mcp dev src/gg_api_mcp_server/server.py
-   ```
-   </details>
-
-<details>
-<summary><strong>Installing in Cursor</strong></summary>
-
-To use the GitGuardian MCP server with Cursor directly from GitHub:
-
-1. Update your Cursor MCP configuration file located at `~/.cursor/mcp.json`. Add the following entry:
+To use a local development version with Cursor:
 
 ```json
 {
   "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
+    "GitGuardianLocal": {
+      "command": "uv",
       "args": [
-        "--env-file",
-        "/path/to/.env",
-        "--from",
-        "git+https://github.com/GitGuardian/gg-mcp.git",
-        "gg-mcp"
+        "--directory",
+        "/path/to/your/workspace/gg-mcp-server",
+        "run",
+        "src.gg_api_mcp_server.server"
       ]
     }
   }
 }
 ```
 
-2. Replace `/path/to/.env` with the absolute path to your `.env` file.
-
-3. Restart Cursor to apply the changes.
-</details>
-
-<details>
-<summary><strong>Installing with Claude Desktop</strong></summary>
-
-To use the GitGuardian MCP server with [Claude Desktop](https://modelcontextprotocol.io/quickstart/user):
-
-1. Edit your Claude Desktop MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Claude/mcp.json`
-   - Windows: `%APPDATA%\Claude\mcp.json`
-   - Linux: `~/.config/Claude/mcp.json`
-
-2. Add the following entry to the configuration file:
-
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardian": {
-         "command": "/path/to/uvx",
-         "args": [
-           "--env-file",
-           "/path/to/.env",
-           "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
-         ]
-       }
-     }
-   }
-   ```
-
-3. Replace:
-
-   - `/path/to/uvx` with the full absolute path to the uvx executable (e.g., `/usr/local/bin/uvx` or `C:\Users\username\AppData\Local\Programs\Python\Python311\Scripts\uvx.exe`)
-   - `/path/to/.env` with the absolute path to your `.env` file
-
-4. Restart Claude Desktop to apply the changes.
-
-> **Note**: Claude Desktop requires the full absolute path to the `uvx` executable, not just the command name.
-
-</details>
-
-<details>
-<summary><strong>Installing with Zed Editor</strong></summary>
-
-To use the GitGuardian MCP server with [Zed Editor](https://zed.dev/docs/ai/mcp#bring-your-own-mcp-server):
-
-1. Edit your Zed MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Zed/mcp.json`
-   - Linux: `~/.config/Zed/mcp.json`
-
-2. Add the following entry to the configuration file:
-
-   ```json
-   {
-     "context_servers": {
-       "GitGuardian": {
-         "command": {
-           "path": "uvx",
-           "args": [
-             "--env-file",
-             "/path/to/.env",
-             "--from",
-             "git+https://github.com/GitGuardian/gg-mcp.git",
-             "gg-mcp"
-           ]
-         }
-       }
-     }
-   }
-   ```
-
-3. Replace `/path/to/.env` with the absolute path to your `.env` file.
-
-4. Restart Zed to apply the changes.
-</details>
+Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your local repository.
 
 <details>
 <summary><strong>Installing with Windsurf</strong></summary>
