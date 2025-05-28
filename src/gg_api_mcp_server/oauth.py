@@ -351,7 +351,12 @@ class GitGuardianOAuthClient:
     """OAuth client for GitGuardian using MCP SDK's OAuth support."""
 
     def __init__(
-        self, api_url: str, dashboard_url: str, scopes: list[str] | None = None, token_name: str | None = None
+        self,
+        api_url: str,
+        dashboard_url: str,
+        scopes: list[str] | None = None,
+        token_name: str | None = None,
+        token_lifetime: int | None = None,
     ):
         """
         Args:
@@ -374,6 +379,22 @@ class GitGuardianOAuthClient:
         if not self.token_name:
             # Use a consistent default name
             self.token_name = "MCP server token"
+
+        # Configure token lifetime from environment variable or use default (30 days)
+        # Special value 'never' or -1 means token never expires
+        self.token_lifetime = token_lifetime
+        if self.token_lifetime is None:
+            lifetime_env = os.environ.get("GITGUARDIAN_TOKEN_LIFETIME", "30")
+            if lifetime_env.lower() == "never":
+                self.token_lifetime = -1  # -1 indicates no expiration
+            else:
+                try:
+                    self.token_lifetime = int(lifetime_env)
+                except ValueError:
+                    logger.warning(
+                        f"Invalid GITGUARDIAN_TOKEN_LIFETIME value: {lifetime_env}. Using default of 30 days."
+                    )
+                    self.token_lifetime = 30
 
         # Try to load a saved token first
         self._load_saved_token()
@@ -555,6 +576,15 @@ class GitGuardianOAuthClient:
                 "name": self.token_name,  # Include token name in token request
             }
 
+            # Add lifetime parameter if configured
+            if self.token_lifetime is not None:
+                if self.token_lifetime == -1:
+                    # -1 means no expiration (don't set lifetime)
+                    logger.info("Configuring token to never expire")
+                else:
+                    logger.info(f"Setting token lifetime to {self.token_lifetime} days")
+                    token_params["lifetime"] = str(self.token_lifetime)
+
             # Make the token request
             import httpx
 
@@ -585,14 +615,26 @@ class GitGuardianOAuthClient:
 
             # Save the token for future reuse
             if self.access_token and self.token_info:
-                # Calculate expiry date (default to 30 days if not provided)
+                # Get expiry date from token info or set based on configured lifetime
                 expires_at = self.token_info.get("expires_at")
-                if not expires_at:
+
+                # If no expiry date was returned from the API but we have a token lifetime
+                if not expires_at and self.token_lifetime is not None:
+                    if self.token_lifetime == -1:
+                        # -1 means token never expires
+                        logger.info("Token configured to never expire")
+                        expires_at = None
+                    else:
+                        # Set expiry based on configured lifetime
+                        logger.info(f"Setting token expiry to {self.token_lifetime} days from now")
+                        expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+                            days=self.token_lifetime
+                        )
+                        expires_at = expiry_date.isoformat()
+                elif not expires_at:
                     # Default token expiration (30 days)
-                    DEFAULT_TOKEN_EXPIRY_DAYS = 30
-                    expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
-                        days=DEFAULT_TOKEN_EXPIRY_DAYS
-                    )
+                    logger.info("Using default token expiry of 30 days")
+                    expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
                     expires_at = expiry_date.isoformat()
 
                 # Prepare token data for storage

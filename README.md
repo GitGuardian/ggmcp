@@ -72,6 +72,8 @@ OAuth authentication allows you to authenticate with GitGuardian using the web f
    # GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
    # Optional - use the GitGuardian dashboard authenticated page instead of the local success page
    # GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE=true
+   # Optional - set the OAuth token lifetime in days (default: 30, 'never' for no expiration)
+   # GITGUARDIAN_TOKEN_LIFETIME=30
    ```
 
 2. Run the MCP server:
