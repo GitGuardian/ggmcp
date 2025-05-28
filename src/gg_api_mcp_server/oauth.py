@@ -566,7 +566,8 @@ class GitGuardianOAuthClient:
             logger.info("Received authorization code")
 
             # 6. Exchange the authorization code for an access token
-            token_url = f"{server_url}/exposed/v1/oauth/token"
+            # Use the API URL for token endpoint, not the dashboard URL
+            token_url = f"{self.api_url}/oauth/token"
             token_params = {
                 "grant_type": "authorization_code",
                 "code": auth_code,
