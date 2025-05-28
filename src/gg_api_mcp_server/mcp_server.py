@@ -1,6 +1,7 @@
 """GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -32,6 +33,10 @@ class GitGuardianFastMCP(FastMCP):
         self._client = None
         # Store the complete token info
         self._token_info = None
+
+        # Store the authentication method
+        self._auth_method = os.environ.get("GITGUARDIAN_AUTH_METHOD", "token").lower()
+        logger.info(f"Using authentication method: {self._auth_method}")
 
         # Set default scopes for demonstration or development
         if kwargs.get("default_scopes"):
@@ -85,6 +90,12 @@ class GitGuardianFastMCP(FastMCP):
 
                 # Store scopes for later use
                 self._token_scopes = set(scopes)
+
+                # Log authentication method used
+                if self._auth_method == "web":
+                    logger.info("Using OAuth authentication")
+                else:
+                    logger.info("Using token authentication")
 
             except Exception as e:
                 logger.warning(f"Error fetching token scopes from /api_tokens/self endpoint: {str(e)}")
