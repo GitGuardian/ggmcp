@@ -59,7 +59,14 @@ mcp = GitGuardianFastMCP(
         - Use list_incidents to list incidents
         - you can use also use parameters like severity, status, from_date, to_date, assignee_email, assignee_id, per_page, page to filter the results
         - try to summarize the results in a few sentences
-    4. Scan for secrets:
+    4. Find current repository incidents and fix them:
+        - retrieve the current repository from the codebase via git remote. This must be the full repository name, for example for  https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp.
+        - Use list_occurrences to list incidents for the current repository use filter by source_name
+        - It returns a list of matches that represents secrets in git patches with their file paths and their position in the patch
+        - Remove the secrets from the current codebase, using the best practices for the language you are using using env variables and .env files. If not possible, create a .env.example and document everything you need to fix the incident.
+        - IMPORTANT: If the repository is using a package manager like npm, cargo, uv or others, use it to install the required packages.
+        - if possible rewrite git history, or a least give git commands to fix the incident locally
+    5. Scan for secrets:
         - Use scan_secrets to scan for secrets
         - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
         - Do not send documents that are in the .gitignore file.
@@ -697,6 +704,229 @@ async def scan_secrets(
     except Exception as e:
         logger.exception(f"Error in scan_secrets: {str(e)}")
         raise ToolError(f"Failed to scan documents: {str(e)}")
+
+
+@mcp.tool(
+    name="list_occurrences",
+    description="List secret occurrences with filtering options. Use this tool to get a list of incidents and occurrences that match the specified criteria.",
+    required_scopes=["incidents:read"],
+)
+async def list_occurrences(
+    from_date: str | None = Field(
+        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    source_name: str | None = Field(
+        default=None,
+        description="Filter by source name. This is the full repository name. For example, 'my-organization/my-repo'",
+    ),
+    source_type: str | None = Field(default=None, description="Filter by source type"),
+    presence: str | None = Field(default=None, description="Filter by presence status"),
+    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+):
+    """List secret incidents by occurrences with optional filtering and cursor-based pagination. This tool allows you
+    to list secret incidents by filtering them based on various criteria, such as source type/repository name.
+    Use this tool to get a list of secret incidents based on the provided filters.
+
+    Args:
+        from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
+        source_name: Filter by source name
+        source_type: Filter by source type
+        presence: Filter by presence status
+        tags: Filter by tags (list of tag IDs)
+        ordering: Sort field (e.g., 'date', '-date' for descending)
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        cursor: Pagination cursor for fetching next page of results
+        get_all: If True, fetch all results using cursor-based pagination
+
+    Returns:
+        List of occurrences matching the specified criteria
+    """
+    client = mcp.get_client()
+
+    # Validate per_page
+    if per_page < 1:
+        per_page = 1
+    elif per_page > 100:
+        per_page = 100
+
+    try:
+        # Call the client method with the provided parameters
+        result = await client.list_occurrences(
+            from_date=from_date,
+            to_date=to_date,
+            source_name=source_name,
+            source_type=source_type,
+            presence=presence,
+            tags=tags,
+            per_page=per_page,
+            cursor=cursor,
+            ordering=ordering,
+            get_all=get_all,
+        )
+
+        return result
+    except Exception as e:
+        logger.exception(f"Error in list_occurrences: {str(e)}")
+        raise ToolError(f"Failed to list occurrences: {str(e)}")
+
+
+@mcp.tool(
+    name="remediate_secret_incidents",
+    description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps.",
+    required_scopes=["incidents:read"],
+)
+async def remediate_secret_incidents(
+    repository_name: str = Field(
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp"
+    ),
+    include_git_commands: bool = Field(
+        default=True, description="Whether to include git commands to fix incidents in git history"
+    ),
+    create_env_example: bool = Field(
+        default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
+    ),
+    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page"),
+):
+    """Find and remediate secret incidents in the current repository.
+
+    This tool follows a workflow to:
+    1. Use the provided repository name to search for incidents
+    2. List secret occurrences for the repository
+    3. Analyze and provide recommendations to remove secrets from the codebase
+    4. IMPORTANT:Make the changes to the codebase to remove the secrets from the code using best practices for the language. All occurrences must not appear in the codebase anymore.
+       IMPORTANT: If the repository is using a package manager like npm, cargo, uv or others, use it to install the required packages.
+    5. Only optional: propose to rewrite git history
+
+
+    Args:
+        repository_name: The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp
+        include_git_commands: Whether to include git commands to fix incidents in git history
+        create_env_example: Whether to create a .env.example file with placeholders for detected secrets
+        get_all: Whether to get all incidents or just the first page
+
+    Returns:
+        A dictionary containing:
+        - repository_info: Information about the detected repository
+        - incidents: List of detected incidents
+        - remediation_steps: Steps to remediate the incidents
+        - git_commands: Git commands to fix history (if requested)
+    """
+    client = mcp.get_client()
+
+    try:
+        logger.info(
+            f"Starting remediate_secret_incidents for repository {repository_name} with params: include_git_commands={include_git_commands}, create_env_example={create_env_example}, get_all={get_all}"
+        )
+
+        # Initialize incidents list
+        incidents = []
+
+        try:
+            # Query with the full repo name provided
+            logger.info(f"Querying incidents with repository name: {repository_name}")
+            occurrences = await client.list_occurrences(source_name=repository_name, get_all=get_all)
+
+            # Process results
+            if isinstance(occurrences, dict):
+                incidents = occurrences.get("results", [])
+                logger.info(f"Found {len(incidents)} incidents in dictionary response")
+            elif isinstance(occurrences, list):
+                incidents = occurrences
+                logger.info(f"Found {len(incidents)} incidents in list response")
+
+            logger.debug(f"Query completed. Found {len(incidents)} incidents")
+
+        except Exception as api_error:
+            logger.warning(f"Error fetching incidents with repository name: {str(api_error)}")
+            # Continue with empty incidents list
+            pass
+
+        # If we have no incidents, suggest a manual scan
+        if not incidents:
+            logger.info("No incidents found via API, suggesting local scan...")
+
+            # Return a helpful message instead of failing
+            return {
+                "repository_info": {"name": repository_name},
+                "incidents": [],
+                "remediation_steps": "No incidents found via the API. Consider using the scan_secrets tool to perform a local scan of your repository files.",
+                "git_commands": [],
+            }
+
+        # Step 3: Analyze incidents and provide remediation steps
+        logger.info(f"Analyzing {len(incidents)} incidents for remediation...")
+        remediation_steps = []
+        git_commands = []
+        detected_secrets = {}
+
+        for i, incident in enumerate(incidents):
+            incident_id = incident.get("id", f"unknown-{i}")
+            secret_type = incident.get("secret_type", "Unknown")
+            filename = incident.get("filename", "Unknown file")
+            match = incident.get("match", "")
+
+            logger.debug(
+                f"Processing incident {i + 1}/{len(incidents)}: ID={incident_id}, Type={secret_type}, File={filename}"
+            )
+
+            # Add to detected secrets
+            if secret_type not in detected_secrets:
+                detected_secrets[secret_type] = []
+
+            secret_info = {"filename": filename, "secret": match, "incident_id": incident_id}
+            detected_secrets[secret_type].append(secret_info)
+
+            # Basic remediation step
+            remediation_steps.append(f"Found {secret_type} in {filename}. Replace with environment variable.")
+
+        # Step 4: Generate git commands if requested
+        if include_git_commands:
+            git_commands = [
+                "# Commands to help fix git history (use with caution):",
+                "# Note: These commands will alter git history and require force-pushing",
+                "git filter-branch --force --index-filter \\",
+                '"git rm --cached --ignore-unmatch <path/to/file/with/secret>" \\',
+                "--prune-empty -- --all",
+                "",
+                "# After fixing, force push with:",
+                "# git push origin --force --all",
+            ]
+
+        # Step 5: Create .env.example if requested
+        if create_env_example and detected_secrets:
+            env_example = ["# Example environment variables - replace with your own values"]
+
+            for secret_type, secrets in detected_secrets.items():
+                env_var_name = f"{secret_type.upper().replace(' ', '_')}"
+                env_example.append(f"{env_var_name}=your_{secret_type.lower().replace(' ', '_')}_here")
+
+            # Save to .env.example
+            try:
+                with open(".env.example", "w") as f:
+                    f.write("\n".join(env_example))
+                remediation_steps.append("Created .env.example file with placeholder variables.")
+            except Exception as e:
+                logger.warning(f"Could not create .env.example: {str(e)}")
+                remediation_steps.append("Could not create .env.example file. Please create it manually.")
+
+        return {
+            "repository_info": {"name": repository_name},
+            "incidents": incidents,
+            "remediation_steps": remediation_steps,
+            "git_commands": git_commands if include_git_commands else [],
+        }
+
+    except Exception as e:
+        logger.exception(f"Error in remediate_secret_incidents: {str(e)}")
+        raise ToolError(f"Failed to remediate incidents: {str(e)}")
 
 
 if __name__ == "__main__":
