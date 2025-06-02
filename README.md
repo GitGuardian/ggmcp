@@ -384,6 +384,44 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 4. Restart Windsurf to apply the changes.
 </details>
 
+<details>
+<summary><strong>Installing with Claude Desktop</strong></summary>
+
+To use the GitGuardian MCP server with Claude Desktop:
+
+1. Edit your Claude Desktop MCP configuration file located at:
+
+   - macOS: `~/Library/Application Support/Claude Desktop/mcp.json`
+   - Windows: `%APPDATA%\Claude Desktop\mcp.json`
+
+2. Add the following entry to the configuration file:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "/path/to/uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+3. Replace `/path/to/uvx` with the **absolute path** to the uvx executable on your system.
+   
+   > ⚠️ **WARNING**: For Claude Desktop, you must specify the full absolute path to the `uvx` executable, not just `"command": "uvx"`. This is different from other MCP clients.
+
+4. Replace `/path/to/.env` with the absolute path to your `.env` file.
+
+5. Restart Claude Desktop to apply the changes.
+</details>
+
 ## API Token Scopes
 
 The GitGuardian MCP server implements scope-based access control for its tools. Each tool requires specific API token scopes to execute. If your API token lacks the necessary scopes, you'll receive a helpful message explaining which scopes are needed.
