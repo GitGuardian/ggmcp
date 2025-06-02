@@ -18,9 +18,8 @@ Below are instructions for installing the GitGuardian MCP server with various AI
 
 1. Edit your Claude Desktop MCP configuration file located at:
 
-   - macOS: `~/Library/Application Support/Claude/mcp.json`
-   - Windows: `%APPDATA%\Claude\mcp.json`
-   - Linux: `~/.config/Claude/mcp.json`
+   - macOS: `~/Library/Application Support/Claude Desktop/mcp.json`
+   - Windows: `%APPDATA%\Claude Desktop\mcp.json`
 
 2. Add the GitGuardian MCP server configuration:
 
@@ -28,7 +27,7 @@ Below are instructions for installing the GitGuardian MCP server with various AI
    {
      "mcpServers": {
        "GitGuardian": {
-         "command": "uvx",
+         "command": "/path/to/uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
@@ -39,7 +38,46 @@ Below are instructions for installing the GitGuardian MCP server with various AI
    }
    ```
 
-3. Restart Claude Desktop to apply the changes.
+3. Replace `/path/to/uvx` with the **absolute path** to the uvx executable on your system.
+   
+   > ⚠️ **WARNING**: For Claude Desktop, you must specify the full absolute path to the `uvx` executable, not just `"command": "uvx"`. This is different from other MCP clients.
+
+4. Replace `/path/to/.env` with the absolute path to your `.env` file if you're using one.
+
+5. Restart Claude Desktop to apply the changes.
+
+### Installation with Windsurf
+
+To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
+
+1. Edit your Windsurf MCP configuration file located at:
+
+   - macOS: `~/Library/Application Support/Windsurf/mcp.json`
+   - Windows: `%APPDATA%\Windsurf\mcp.json`
+   - Linux: `~/.config/Windsurf/mcp.json`
+
+2. Add the following entry to the configuration file:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardian": {
+         "command": "uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+3. Replace `/path/to/.env` with the absolute path to your `.env` file if you're using one.
+
+4. Restart Windsurf to apply the changes.
 
 ### Installation with Cursor
 
@@ -130,6 +168,8 @@ To use a local clone with Cursor:
 }
 ```
 
+Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your local repository.
+
 ## Running the Server
 
 To run the MCP server:
@@ -181,12 +221,35 @@ If you want to contribute to the MCP server development, follow these steps:
 
 By default, the server will use OAuth authentication, automatically opening a browser window for you to authenticate with GitGuardian. No configuration file is needed for the basic setup.
 
-### Authentication Process
+## Authentication Methods
 
-1. When you start the server, it will automatically open a browser window to authenticate with GitGuardian
-2. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
-3. The authentication token will be securely stored for future use
-4. The next time you start the server, it will reuse the stored token without requiring re-authentication
+The GitGuardian MCP server supports two authentication methods:
+
+1. **OAuth Authentication** (default): Uses the OAuth flow to authenticate with GitGuardian
+2. **Token Authentication**: Uses a GitGuardian API key for authentication
+
+### When to Use Environment Variables
+
+The server works out-of-the-box without any configuration. However, you might want to use an `.env` file in the following cases:
+
+- To use token-based authentication instead of OAuth
+- To configure custom OAuth settings (token lifetime, scopes, etc.)
+- To connect to a different GitGuardian instance (like a local development environment)
+- To customize other server behavior
+
+In these cases, you would use the `--env-file` option when running the server:
+
+```bash
+python -m gg_api_mcp_server.server --env-file /path/to/.env
+```
+
+Or when using with `uvx`:
+
+```bash
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp
+```
+
+This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
 
 ## Environment Variables Reference
 
@@ -348,79 +411,6 @@ To use a local development version with Cursor:
 ```
 
 Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your local repository.
-
-<details>
-<summary><strong>Installing with Windsurf</strong></summary>
-
-To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
-
-1. Edit your Windsurf MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Windsurf/mcp.json`
-   - Windows: `%APPDATA%\Windsurf\mcp.json`
-   - Linux: `~/.config/Windsurf/mcp.json`
-
-2. Add the following entry to the configuration file:
-
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardian": {
-         "command": "uvx",
-         "args": [
-           "--env-file",
-           "/path/to/.env",
-           "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
-         ]
-       }
-     }
-   }
-   ```
-
-3. Replace `/path/to/.env` with the absolute path to your `.env` file.
-
-4. Restart Windsurf to apply the changes.
-</details>
-
-<details>
-<summary><strong>Installing with Claude Desktop</strong></summary>
-
-To use the GitGuardian MCP server with Claude Desktop:
-
-1. Edit your Claude Desktop MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Claude Desktop/mcp.json`
-   - Windows: `%APPDATA%\Claude Desktop\mcp.json`
-
-2. Add the following entry to the configuration file:
-
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardian": {
-         "command": "/path/to/uvx",
-         "args": [
-           "--env-file",
-           "/path/to/.env",
-           "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
-         ]
-       }
-     }
-   }
-   ```
-
-3. Replace `/path/to/uvx` with the **absolute path** to the uvx executable on your system.
-   
-   > ⚠️ **WARNING**: For Claude Desktop, you must specify the full absolute path to the `uvx` executable, not just `"command": "uvx"`. This is different from other MCP clients.
-
-4. Replace `/path/to/.env` with the absolute path to your `.env` file.
-
-5. Restart Claude Desktop to apply the changes.
-</details>
 
 ## API Token Scopes
 
