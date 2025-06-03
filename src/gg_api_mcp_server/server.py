@@ -61,7 +61,7 @@ mcp = GitGuardianFastMCP(
         - try to summarize the results in a few sentences
     4. Find current repository incidents and fix them:
         - retrieve the current repository from the codebase via git remote. This must be the full repository name, for example for  https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp.
-        - Use list_occurrences to list incidents for the current repository use filter by source_name
+        - Use list_repo_incidents to list incidents for the current repository use filter by source_name
         - It returns a list of matches that represents secrets in git patches with their file paths and their position in the patch
         - Remove the secrets from the current codebase, using the best practices for the language you are using using env variables and .env files. If not possible, create a .env.example and document everything you need to fix the incident.
         - IMPORTANT: If the repository is using a package manager like npm, cargo, uv or others, use it to install the required packages.
@@ -226,91 +226,6 @@ async def list_incidents(
     # Use the client's paginate_all method when get_all=True
     endpoint = "/incidents/secrets"
     return await client.paginate_all(endpoint, params)
-
-
-@mcp.tool(
-    name="search_team",
-    description="Search for teams and team members",
-    required_scopes=["teams:read"],
-)
-async def search_team(
-    action: Literal["list_teams", "search_team", "list_members", "search_member"] = Field(
-        description="Action to perform related to teams"
-    ),
-    team_name: str | None = Field(
-        default=None, description="The name of the team to search for (used with 'search_team' action)"
-    ),
-    member_name: str | None = Field(
-        default=None, description="The name of the member to search for (used with 'search_member' action)"
-    ),
-):
-    """Search for teams and team members.
-
-    Args:
-        action: Action to perform (list_teams, search_team, list_members, search_member)
-        team_name: The name of the team to search for (used with 'search_team' action)
-        member_name: The name of the member to search for (used with 'search_member' action)
-
-    Returns:
-        Results based on the action performed
-    """
-    logger.info(f"Searching team with action: {action}")
-
-    try:
-        client = mcp.get_client()
-
-        if action == "list_teams":
-            return await client.list_teams()
-
-        elif action == "search_team":
-            if not team_name:
-                raise ToolError("team_name is required for 'search_team' action")
-            return await client.list_teams(search=team_name)
-
-        elif action == "list_members":
-            return await client.list_members()
-
-        elif action == "search_member":
-            if not member_name:
-                raise ToolError("member_name is required for 'search_member' action")
-            return await client.list_members(search=member_name)
-
-        else:
-            raise ToolError(
-                f"Invalid action: {action}. Must be one of: list_teams, search_team, list_members, search_member"
-            )
-
-    except Exception as e:
-        logger.exception(f"Error searching team: {str(e)}")
-        raise ToolError(f"Failed to search team: {str(e)}")
-
-
-@mcp.tool(
-    name="add_member_to_team",
-    description="Add a member to a team",
-    required_scopes=["teams:write"],
-)
-async def add_member_to_team(
-    team_id: str = Field(description="ID of the team to add the member to"),
-    member_id: str = Field(description="ID of the member to add to the team"),
-):
-    """Add a member to a team.
-
-    Args:
-        team_id: ID of the team to add the member to
-        member_id: ID of the member to add to the team
-
-    Returns:
-        Status of the operation
-    """
-    logger.info(f"Adding member {member_id} to team {team_id}")
-
-    try:
-        client = mcp.get_client()
-        return await client.add_member_to_team(team_id=team_id, member_id=member_id)
-    except Exception as e:
-        logger.exception(f"Error adding member to team: {str(e)}")
-        raise ToolError(f"Failed to add member to team: {str(e)}")
 
 
 @mcp.tool(
@@ -707,47 +622,50 @@ async def scan_secrets(
 
 
 @mcp.tool(
-    name="list_occurrences",
-    description="List secret occurrences with filtering options. Use this tool to get a list of incidents and occurrences that match the specified criteria.",
+    name="list_repo_incidents",
+    description="List secret incidents or secret occurrences related to this repo. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo, it must be explicitly requested by the user.",
     required_scopes=["incidents:read"],
 )
-async def list_occurrences(
+async def list_repo_incidents(
+    repository_name: str = Field(
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+    ),
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
     ),
     to_date: str | None = Field(
         default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
     ),
-    source_name: str | None = Field(
-        default=None,
-        description="Filter by source name. This is the full repository name. For example, 'my-organization/my-repo'",
-    ),
-    source_type: str | None = Field(default=None, description="Filter by source type"),
     presence: str | None = Field(default=None, description="Filter by presence status"),
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+    mine: bool = Field(
+        default=True,
+        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+    ),
 ):
-    """List secret incidents by occurrences with optional filtering and cursor-based pagination. This tool allows you
-    to list secret incidents by filtering them based on various criteria, such as source type/repository name.
-    Use this tool to get a list of secret incidents based on the provided filters.
+    """List secret incidents or occurrences related to a specific repository. This tool allows you
+    to list secret incidents by filtering them based on a repository name.
+
+    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
 
     Args:
+        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
-        source_name: Filter by source name
-        source_type: Filter by source type
         presence: Filter by presence status
         tags: Filter by tags (list of tag IDs)
         ordering: Sort field (e.g., 'date', '-date' for descending)
         per_page: Number of results per page (default: 20, min: 1, max: 100)
         cursor: Pagination cursor for fetching next page of results
         get_all: If True, fetch all results using cursor-based pagination
+        mine: If True (default), fetch only incidents assigned to the current user. Set to False to get all incidents.
 
     Returns:
-        List of occurrences matching the specified criteria
+        List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
 
@@ -758,34 +676,98 @@ async def list_occurrences(
         per_page = 100
 
     try:
-        # Call the client method with the provided parameters
-        result = await client.list_occurrences(
-            from_date=from_date,
-            to_date=to_date,
-            source_name=source_name,
-            source_type=source_type,
-            presence=presence,
-            tags=tags,
-            per_page=per_page,
-            cursor=cursor,
-            ordering=ordering,
-            get_all=get_all,
-        )
+        results = []
 
-        return result
+        # If 'mine' is True, first get incidents assigned to the current user
+        if mine:
+            logger.info(f"Getting incidents assigned to current user related to repository: {repository_name}")
+            # Get the current user's member_id from token info
+            assignee_id = mcp.get_token_info().get("member_id")
+            logger.info(f"Using member_id: {assignee_id} from token info")
+
+            if not assignee_id:
+                logger.warning("Could not retrieve member_id from token info")
+                return []
+
+            # Get incidents assigned to the current user
+            my_incidents = await client.list_incidents(
+                from_date=from_date,
+                to_date=to_date,
+                per_page=per_page,
+                ordering=ordering,
+                get_all=get_all,
+                assignee_id=assignee_id,  # Use current user's member_id
+            )
+
+            # Extract incident IDs from my incidents
+            my_incident_ids = []
+            if isinstance(my_incidents, dict) and "results" in my_incidents:
+                my_incident_ids = [incident.get("id") for incident in my_incidents.get("results", [])]
+            elif isinstance(my_incidents, list):
+                my_incident_ids = [incident.get("id") for incident in my_incidents]
+
+            logger.info(f"Found {len(my_incident_ids)} incidents assigned to current user")
+
+            # Get occurrences for the repository
+            repo_occurrences = await client.list_occurrences(
+                from_date=from_date,
+                to_date=to_date,
+                source_name=repository_name,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
+
+            # Filter occurrences to only include those related to the user's incidents
+            if isinstance(repo_occurrences, dict) and "results" in repo_occurrences:
+                results = [
+                    occ for occ in repo_occurrences.get("results", []) if occ.get("incident_id") in my_incident_ids
+                ]
+                # Preserve pagination info
+                if "cursor" in repo_occurrences:
+                    return {"results": results, "cursor": repo_occurrences.get("cursor")}
+            elif isinstance(repo_occurrences, list):
+                results = [occ for occ in repo_occurrences if occ.get("incident_id") in my_incident_ids]
+
+            logger.info(
+                f"Filtered to {len(results)} occurrences related to user's incidents in repository {repository_name}"
+            )
+
+        else:
+            # Just get all occurrences for the repository
+            logger.info(f"Getting all occurrences for repository: {repository_name}")
+            repo_occurrences = await client.list_occurrences(
+                from_date=from_date,
+                to_date=to_date,
+                source_name=repository_name,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
+
+            # Preserve the structure of the response
+            return repo_occurrences
+
+        return results
     except Exception as e:
-        logger.exception(f"Error in list_occurrences: {str(e)}")
-        raise ToolError(f"Failed to list occurrences: {str(e)}")
+        logger.exception(f"Error in list_repo_incidents: {str(e)}")
+        raise ToolError(f"Failed to list repository incidents: {str(e)}")
 
 
 @mcp.tool(
     name="remediate_secret_incidents",
-    description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps.",
+    description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
     required_scopes=["incidents:read"],
 )
 async def remediate_secret_incidents(
     repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp"
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
     ),
     include_git_commands: bool = Field(
         default=True, description="Whether to include git commands to fix incidents in git history"
@@ -794,8 +776,14 @@ async def remediate_secret_incidents(
         default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
     ),
     get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page"),
+    mine: bool = Field(
+        default=True,
+        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+    ),
 ):
     """Find and remediate secret incidents in the current repository.
+
+    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
 
     This tool follows a workflow to:
     1. Use the provided repository name to search for incidents
@@ -811,6 +799,7 @@ async def remediate_secret_incidents(
         include_git_commands: Whether to include git commands to fix incidents in git history
         create_env_example: Whether to create a .env.example file with placeholders for detected secrets
         get_all: Whether to get all incidents or just the first page
+        mine: If True (default), fetch only incidents assigned to the current user. Set to False to get all incidents.
 
     Returns:
         A dictionary containing:
@@ -823,7 +812,7 @@ async def remediate_secret_incidents(
 
     try:
         logger.info(
-            f"Starting remediate_secret_incidents for repository {repository_name} with params: include_git_commands={include_git_commands}, create_env_example={create_env_example}, get_all={get_all}"
+            f"Starting remediate_secret_incidents for repository {repository_name} with params: include_git_commands={include_git_commands}, create_env_example={create_env_example}, get_all={get_all}, mine={mine}"
         )
 
         # Initialize incidents list
@@ -832,7 +821,7 @@ async def remediate_secret_incidents(
         try:
             # Query with the full repo name provided
             logger.info(f"Querying incidents with repository name: {repository_name}")
-            occurrences = await client.list_occurrences(source_name=repository_name, get_all=get_all)
+            occurrences = await client.list_repo_incidents(repository_name=repository_name, get_all=get_all, mine=mine)
 
             # Process results
             if isinstance(occurrences, dict):
@@ -843,7 +832,6 @@ async def remediate_secret_incidents(
                 logger.info(f"Found {len(incidents)} incidents in list response")
 
             logger.debug(f"Query completed. Found {len(incidents)} incidents")
-
         except Exception as api_error:
             logger.warning(f"Error fetching incidents with repository name: {str(api_error)}")
             # Continue with empty incidents list

@@ -164,11 +164,7 @@ class GitGuardianClient:
                 "incidents:read",
                 "incidents:write",
                 "incidents:share",
-                "members:read",
-                "members:write",
                 "audit_logs:read",
-                "teams:read",
-                "teams:write",
                 "honeytokens:read",
                 "honeytokens:write",
                 "api_tokens:write",
@@ -890,56 +886,6 @@ class GitGuardianClient:
         logger.info(f"Getting custom tag {tag_id}")
         return await self._request("GET", f"/custom-tags/{tag_id}")
 
-    async def list_teams(self, search: str | None = None) -> dict[str, Any]:
-        """List teams with optional search filtering.
-
-        Args:
-            search: Optional search term to filter teams by name
-
-        Returns:
-            List of teams matching the search criteria
-        """
-        logger.info(f"Listing teams with search filter: {search}")
-
-        endpoint = "/teams"
-        if search:
-            endpoint = f"{endpoint}?search={search}"
-
-        return await self._request("GET", endpoint)
-
-    async def list_members(self, search: str | None = None) -> dict[str, Any]:
-        """List all members with optional search filtering.
-
-        Args:
-            search: Optional search term to filter members by name or email
-
-        Returns:
-            List of members matching the search criteria
-        """
-        logger.info(f"Listing members with search filter: {search}")
-
-        endpoint = "/members"
-        if search:
-            endpoint = f"{endpoint}?search={search}"
-
-        return await self._request("GET", endpoint)
-
-    async def add_member_to_team(self, team_id: str, member_id: str) -> dict[str, Any]:
-        """Add a member to a team.
-
-        Args:
-            team_id: ID of the team to add the member to
-            member_id: ID of the member to add to the team
-
-        Returns:
-            Status of the operation
-        """
-        logger.info(f"Adding member {member_id} to team {team_id}")
-
-        endpoint = f"/teams/{team_id}/team_memberships"
-        payload = {"member_id": member_id}
-        return await self._request("POST", endpoint, json=payload)
-
     # Secret Incident management endpoints
     async def assign_incident(self, incident_id: str, assignee_id: str) -> dict[str, Any]:
         """Assign a secret incident to a member.
@@ -1030,62 +976,35 @@ class GitGuardianClient:
         logger.info(f"Removing share link for incident {incident_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/unshare")
 
-    async def grant_incident_access(
-        self, incident_id: str, member_id: str = None, team_id: str = None
-    ) -> dict[str, Any]:
-        """Grant access to a secret incident to a member or team.
+    async def grant_incident_access(self, incident_id: str, member_id: str = None) -> dict[str, Any]:
+        """Grant access to a secret incident to a member.
 
         Args:
             incident_id: ID of the secret incident
-            member_id: ID of the member to grant access to (either member_id or team_id must be provided)
-            team_id: ID of the team to grant access to (either member_id or team_id must be provided)
+            member_id: ID of the member to grant access to
 
         Returns:
             Status of the operation
         """
-        if not member_id and not team_id:
-            raise ValueError("Either member_id or team_id must be provided")
+        if not member_id:
+            raise ValueError("member_id must be provided")
 
-        if member_id and team_id:
-            raise ValueError("Only one of member_id or team_id should be provided")
-
-        payload = {}
-        if member_id:
-            logger.info(f"Granting access to incident {incident_id} for member {member_id}")
-            payload["member_id"] = member_id
-        else:
-            logger.info(f"Granting access to incident {incident_id} for team {team_id}")
-            payload["team_id"] = team_id
-
+        payload = {"member_id": member_id}
+        logger.info(f"Granting access to incident {incident_id} for member {member_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/grant_access", json=payload)
 
-    async def revoke_incident_access(
-        self, incident_id: str, member_id: str = None, team_id: str = None
-    ) -> dict[str, Any]:
-        """Revoke access to a secret incident from a member or team.
+    async def revoke_incident_access(self, incident_id: str, member_id: str) -> dict[str, Any]:
+        """Revoke access to a secret incident from a member.
 
         Args:
             incident_id: ID of the secret incident
-            member_id: ID of the member to revoke access from (either member_id or team_id must be provided)
-            team_id: ID of the team to revoke access from (either member_id or team_id must be provided)
+            member_id: ID of the member to revoke access from
 
         Returns:
             Status of the operation
         """
-        if not member_id and not team_id:
-            raise ValueError("Either member_id or team_id must be provided")
-
-        if member_id and team_id:
-            raise ValueError("Only one of member_id or team_id should be provided")
-
-        payload = {}
-        if member_id:
-            logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
-            payload["member_id"] = member_id
-        else:
-            logger.info(f"Revoking access to incident {incident_id} from team {team_id}")
-            payload["team_id"] = team_id
-
+        payload = {"member_id": member_id}
+        logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
 
     async def list_incident_members(self, incident_id: str) -> dict[str, Any]:
@@ -1099,18 +1018,6 @@ class GitGuardianClient:
         """
         logger.info(f"Listing members with access to incident {incident_id}")
         return await self._request("GET", f"/incidents/secrets/{incident_id}/members")
-
-    async def list_incident_teams(self, incident_id: str) -> dict[str, Any]:
-        """List teams having access to a secret incident.
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            List of teams with access to the incident
-        """
-        logger.info(f"Listing teams with access to incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/teams")
 
     async def get_incident_impacted_perimeter(self, incident_id: str) -> dict[str, Any]:
         """Retrieve the impacted perimeter of a secret incident.
@@ -1269,26 +1176,6 @@ class GitGuardianClient:
         # Convert kwargs to query parameters
         query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
         endpoint = f"/sources/{source_id}/secret-incidents"
-        if query_params:
-            endpoint = f"{endpoint}?{query_params}"
-
-        return await self._request("GET", endpoint)
-
-    async def list_team_incidents(self, team_id: str, **kwargs) -> dict[str, Any]:
-        """List secret incidents of a team.
-
-        Args:
-            team_id: ID of the team
-            **kwargs: Additional filtering parameters
-
-        Returns:
-            List of incidents for the team
-        """
-        logger.info(f"Listing incidents for team {team_id}")
-
-        # Convert kwargs to query parameters
-        query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
-        endpoint = f"/teams/{team_id}/secret-incidents"
         if query_params:
             endpoint = f"{endpoint}?{query_params}"
 
