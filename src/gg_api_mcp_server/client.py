@@ -1,9 +1,11 @@
+import asyncio
 import json
 import logging
 import os
 import re
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
+from urllib.parse import quote_plus
 
 import httpx
 
@@ -93,17 +95,31 @@ class GitGuardianClient:
             )
 
     def _get_dashboard_url(self) -> str:
-        """Extract the dashboard URL from the API URL."""
+        """
+        Get the GitGuardian dashboard URL.
+
+        Prioritizes the following sources in order:
+        1. GITGUARDIAN_DASHBOARD_URL environment variable if set
+        2. Default dashboard URL for default API URL
+        3. Derived dashboard URL from custom API URL
+
+        Returns:
+            str: The GitGuardian dashboard URL
+        """
         # Default GitGuardian dashboard URL
         default_dashboard_url = "https://dashboard.gitguardian.com"
 
         # Check if a custom dashboard URL is specified in the environment
         dashboard_url = os.environ.get("GITGUARDIAN_DASHBOARD_URL")
         if dashboard_url:
+            # Strip trailing slash for consistency
+            dashboard_url = dashboard_url.rstrip("/")
+            logger.info(f"Using dashboard URL from GITGUARDIAN_DASHBOARD_URL: {dashboard_url}")
             return dashboard_url
 
         # If using the default API URL, return the default dashboard URL
         if self.api_url == "https://api.gitguardian.com/v1":
+            logger.info(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
 
         # If using a custom API URL, try to extract the base URL
@@ -118,14 +134,16 @@ class GitGuardianClient:
             # For local development (localhost or 127.0.0.1)
             if parsed_url.netloc.startswith("localhost") or parsed_url.netloc.startswith("127.0.0.1"):
                 port = parsed_url.port or 80
-                return f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{port}"
+                derived_url = f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{port}"
+            else:
+                # For custom domains, remove the 'api.' prefix if it exists
+                hostname = parsed_url.netloc
+                if hostname.startswith("api."):
+                    hostname = hostname[4:]  # Remove 'api.' prefix
+                derived_url = f"{parsed_url.scheme}://{hostname}"
 
-            # For custom domains, remove the 'api.' prefix if it exists
-            hostname = parsed_url.netloc
-            if hostname.startswith("api."):
-                hostname = hostname[4:]  # Remove 'api.' prefix
-
-            return f"{parsed_url.scheme}://{hostname}"
+            logger.info(f"Derived dashboard URL from API URL: {derived_url}")
+            return derived_url
         except Exception as e:
             logger.warning(f"Failed to extract dashboard URL from API URL: {e}")
             return default_dashboard_url
@@ -146,11 +164,7 @@ class GitGuardianClient:
                 "incidents:read",
                 "incidents:write",
                 "incidents:share",
-                "members:read",
-                "members:write",
                 "audit_logs:read",
-                "teams:read",
-                "teams:write",
                 "honeytokens:read",
                 "honeytokens:write",
                 "api_tokens:write",
@@ -216,6 +230,20 @@ class GitGuardianClient:
         url = f"{self.api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making {method} request to {url}")
 
+        # Log params if present for easier debugging
+        if "params" in kwargs and kwargs["params"]:
+            logger.debug(f"Request params: {kwargs['params']}")
+
+        # Log json body if present (without sensitive details)
+        if "json" in kwargs and kwargs["json"]:
+            # Create a copy to avoid modifying the original
+            safe_json = dict(kwargs["json"])
+            # Redact sensitive fields
+            for key in safe_json:
+                if any(sensitive in key.lower() for sensitive in ["token", "key", "secret", "password", "auth"]):
+                    safe_json[key] = "[REDACTED]"
+            logger.debug(f"Request body: {safe_json}")
+
         # If using OAuth, ensure we have a token
         if self.use_oauth:
             await self._ensure_oauth_token()
@@ -223,64 +251,109 @@ class GitGuardianClient:
                 "Authorization": f"Token {self._oauth_token}",
                 "Content-Type": "application/json",
             }
+            logger.debug("Using OAuth token for authorization")
         else:  # Token-based auth
             headers = {
                 "Authorization": f"Token {self.api_key}",
                 "Content-Type": "application/json",
             }
+            logger.debug("Using API key for authorization")
 
         headers.update(kwargs.pop("headers", {}))
+        logger.debug(
+            f"Final request headers: {dict((k, '[REDACTED]' if k.lower() == 'authorization' else v) for k, v in headers.items())}"
+        )
 
-        try:
-            async with httpx.AsyncClient() as client:
-                logger.debug(f"Sending request with payload: {kwargs.get('json', {})}")
-                response = await client.request(method, url, headers=headers, **kwargs)
+        # Initialize retry count
+        max_retries = 3
+        retry_count = 0
+        retry_delay = 1  # initial delay in seconds
 
-            # Log detailed response information
-            logger.debug(f"Response status code: {response.status_code}")
-            logger.debug(f"Response headers: {dict(response.headers)}")
-
-            # Log response content if present
-            if response.content:
-                try:
-                    logger.debug(f"Response content: {response.content.decode()}")
-                except UnicodeDecodeError:
-                    logger.debug("Response content could not be decoded as UTF-8")
-
-            response.raise_for_status()
-
-            if response.status_code == 204:  # No content
-                logger.debug("Received 204 No Content response")
-                return ({}, response.headers) if return_headers else {}
-
+        while retry_count <= max_retries:
             try:
-                if not response.content or response.content.strip() == b"":
-                    logger.debug("Received empty response content")
+                async with httpx.AsyncClient() as client:
+                    logger.debug(f"Sending {method} request to {url}")
+                    response = await client.request(method, url, headers=headers, **kwargs)
+
+                # Log detailed response information
+                logger.debug(f"Response status code: {response.status_code}")
+                logger.debug(f"Response headers: {dict(response.headers)}")
+
+                # Log response content if present
+                if response.content:
+                    try:
+                        # Limit content length for logging
+                        content_str = response.content.decode()
+                        if len(content_str) > 500:
+                            logger.debug(f"Response content (truncated): {content_str[:500]}...")
+                        else:
+                            logger.debug(f"Response content: {content_str}")
+                    except UnicodeDecodeError:
+                        logger.debug("Response content could not be decoded as UTF-8")
+
+                # Special handling for 500 errors - retry
+                if response.status_code == 500 and retry_count < max_retries:
+                    retry_count += 1
+                    wait_time = retry_delay * (2 ** (retry_count - 1))  # exponential backoff
+                    logger.warning(
+                        f"Received 500 error, retrying in {wait_time}s (attempt {retry_count}/{max_retries})"
+                    )
+                    await asyncio.sleep(wait_time)
+                    continue
+
+                response.raise_for_status()
+
+                if response.status_code == 204:  # No content
+                    logger.debug("Received 204 No Content response")
                     return ({}, response.headers) if return_headers else {}
 
-                data = response.json()
+                try:
+                    if not response.content or response.content.strip() == b"":
+                        logger.debug("Received empty response content")
+                        return ({}, response.headers) if return_headers else {}
 
-                # Handle empty array responses properly
-                if data == [] and return_headers:
-                    logger.debug("Received empty array response")
-                    return ([], response.headers)
+                    data = response.json()
 
-                logger.debug(f"Parsed JSON response: {json.dumps(data, indent=2)}")
-                return (data, response.headers) if return_headers else data
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON response: {str(e)}")
-                logger.error(f"Raw response content: {response.content}")
+                    # Log success response summary
+                    if isinstance(data, dict):
+                        keys_str = ", ".join(list(data.keys())[:10])
+                        logger.debug(f"Parsed JSON response with keys: {keys_str + ('...' if len(data) > 10 else '')}")
+                    elif isinstance(data, list):
+                        logger.debug(f"Parsed JSON response as list with {len(data)} items")
+                    else:
+                        logger.debug(f"Parsed JSON response as {type(data).__name__}")
+
+                    # Handle empty array responses properly
+                    if data == [] and return_headers:
+                        logger.debug("Received empty array response")
+                        return ([], response.headers)
+
+                    return (data, response.headers) if return_headers else data
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to parse JSON response: {str(e)}")
+                    logger.error(f"Raw response content: {response.content}")
+                    raise
+
+            except httpx.HTTPStatusError as e:
+                logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
+                logger.error(f"Error response content: {e.response.text}")
+                logger.error(f"Failed URL: {url}")
+                raise
+            except httpx.RequestError as e:
+                logger.error(f"Request error occurred: {str(e)}")
+                logger.error(f"Failed URL: {url}")
+                raise
+            except Exception as e:
+                logger.exception(f"Unexpected error during API request: {str(e)}")
+                logger.error(f"Failed URL: {url}")
                 raise
 
-        except httpx.HTTPStatusError as e:
-            logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
-            raise
-        except httpx.RequestError as e:
-            logger.error(f"Request error occurred: {str(e)}")
-            raise
-        except Exception as e:
-            logger.exception(f"Unexpected error during API request: {str(e)}")
-            raise
+            # If we got here with no exceptions, break out of the retry loop
+            break
+
+        # If we exhausted all retries and still have issues
+        if retry_count > max_retries:
+            logger.error(f"Exhausted all {max_retries} retries for {url}")
 
     def _extract_next_cursor(self, headers: Dict[str, str]) -> Optional[str]:
         """Extract the next cursor from the Link header.
@@ -323,14 +396,30 @@ class GitGuardianClient:
         all_items = []
         cursor = None
 
+        logger.debug(f"Starting pagination for endpoint '{endpoint}' with initial params: {params}")
+
         while True:
             # If we have a cursor, add it to params
             if cursor:
                 params["cursor"] = cursor
+                logger.debug(f"Using pagination cursor: {cursor}")
 
-            # Build query string
-            query_string = "&".join([f"{k}={v}" for k, v in params.items()]) if params else ""
+            # Build query string with proper URL encoding
+            query_parts = []
+            for k, v in params.items():
+                if v is not None:
+                    original_value = str(v)
+                    encoded_value = quote_plus(original_value)
+                    query_parts.append(f"{k}={encoded_value}")
+
+                    # Log if encoding actually changed the value (important for debugging)
+                    if original_value != encoded_value:
+                        logger.debug(f"URL-encoded parameter '{k}': '{original_value}' -> '{encoded_value}'")
+
+            query_string = "&".join(query_parts) if query_parts else ""
             full_endpoint = f"{endpoint}?{query_string}" if query_string else endpoint
+
+            logger.debug(f"Making paginated request to: {full_endpoint}")
 
             # Make request with headers
             data, headers = await self._request("GET", full_endpoint, return_headers=True)
@@ -339,6 +428,13 @@ class GitGuardianClient:
             if not data:
                 logger.debug("Received empty response data, stopping pagination")
                 break
+
+            # Log response size
+            if isinstance(data, dict):
+                result_count = len(data.get("results", [])) if "results" in data else "N/A"
+                logger.debug(f"Received page with {result_count} results")
+            elif isinstance(data, list):
+                logger.debug(f"Received page with {len(data)} items")
 
             # Add items to our collection
             if isinstance(data, dict) and "results" in data:
@@ -349,12 +445,17 @@ class GitGuardianClient:
                 items = []
 
             all_items.extend(items)
+            logger.debug(f"Total items collected so far: {len(all_items)}")
 
             # Check for next cursor
             cursor = self._extract_next_cursor(headers)
-            if not cursor:
+            if cursor:
+                logger.debug(f"Found next cursor: {cursor}")
+            else:
+                logger.debug("No next cursor found, pagination complete")
                 break
 
+        logger.info(f"Pagination complete for {endpoint}: collected {len(all_items)} total items")
         return all_items
 
     async def create_honeytoken(
@@ -785,56 +886,6 @@ class GitGuardianClient:
         logger.info(f"Getting custom tag {tag_id}")
         return await self._request("GET", f"/custom-tags/{tag_id}")
 
-    async def list_teams(self, search: str | None = None) -> dict[str, Any]:
-        """List teams with optional search filtering.
-
-        Args:
-            search: Optional search term to filter teams by name
-
-        Returns:
-            List of teams matching the search criteria
-        """
-        logger.info(f"Listing teams with search filter: {search}")
-
-        endpoint = "/teams"
-        if search:
-            endpoint = f"{endpoint}?search={search}"
-
-        return await self._request("GET", endpoint)
-
-    async def list_members(self, search: str | None = None) -> dict[str, Any]:
-        """List all members with optional search filtering.
-
-        Args:
-            search: Optional search term to filter members by name or email
-
-        Returns:
-            List of members matching the search criteria
-        """
-        logger.info(f"Listing members with search filter: {search}")
-
-        endpoint = "/members"
-        if search:
-            endpoint = f"{endpoint}?search={search}"
-
-        return await self._request("GET", endpoint)
-
-    async def add_member_to_team(self, team_id: str, member_id: str) -> dict[str, Any]:
-        """Add a member to a team.
-
-        Args:
-            team_id: ID of the team to add the member to
-            member_id: ID of the member to add to the team
-
-        Returns:
-            Status of the operation
-        """
-        logger.info(f"Adding member {member_id} to team {team_id}")
-
-        endpoint = f"/teams/{team_id}/team_memberships"
-        payload = {"member_id": member_id}
-        return await self._request("POST", endpoint, json=payload)
-
     # Secret Incident management endpoints
     async def assign_incident(self, incident_id: str, assignee_id: str) -> dict[str, Any]:
         """Assign a secret incident to a member.
@@ -925,62 +976,35 @@ class GitGuardianClient:
         logger.info(f"Removing share link for incident {incident_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/unshare")
 
-    async def grant_incident_access(
-        self, incident_id: str, member_id: str = None, team_id: str = None
-    ) -> dict[str, Any]:
-        """Grant access to a secret incident to a member or team.
+    async def grant_incident_access(self, incident_id: str, member_id: str = None) -> dict[str, Any]:
+        """Grant access to a secret incident to a member.
 
         Args:
             incident_id: ID of the secret incident
-            member_id: ID of the member to grant access to (either member_id or team_id must be provided)
-            team_id: ID of the team to grant access to (either member_id or team_id must be provided)
+            member_id: ID of the member to grant access to
 
         Returns:
             Status of the operation
         """
-        if not member_id and not team_id:
-            raise ValueError("Either member_id or team_id must be provided")
+        if not member_id:
+            raise ValueError("member_id must be provided")
 
-        if member_id and team_id:
-            raise ValueError("Only one of member_id or team_id should be provided")
-
-        payload = {}
-        if member_id:
-            logger.info(f"Granting access to incident {incident_id} for member {member_id}")
-            payload["member_id"] = member_id
-        else:
-            logger.info(f"Granting access to incident {incident_id} for team {team_id}")
-            payload["team_id"] = team_id
-
+        payload = {"member_id": member_id}
+        logger.info(f"Granting access to incident {incident_id} for member {member_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/grant_access", json=payload)
 
-    async def revoke_incident_access(
-        self, incident_id: str, member_id: str = None, team_id: str = None
-    ) -> dict[str, Any]:
-        """Revoke access to a secret incident from a member or team.
+    async def revoke_incident_access(self, incident_id: str, member_id: str) -> dict[str, Any]:
+        """Revoke access to a secret incident from a member.
 
         Args:
             incident_id: ID of the secret incident
-            member_id: ID of the member to revoke access from (either member_id or team_id must be provided)
-            team_id: ID of the team to revoke access from (either member_id or team_id must be provided)
+            member_id: ID of the member to revoke access from
 
         Returns:
             Status of the operation
         """
-        if not member_id and not team_id:
-            raise ValueError("Either member_id or team_id must be provided")
-
-        if member_id and team_id:
-            raise ValueError("Only one of member_id or team_id should be provided")
-
-        payload = {}
-        if member_id:
-            logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
-            payload["member_id"] = member_id
-        else:
-            logger.info(f"Revoking access to incident {incident_id} from team {team_id}")
-            payload["team_id"] = team_id
-
+        payload = {"member_id": member_id}
+        logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
 
     async def list_incident_members(self, incident_id: str) -> dict[str, Any]:
@@ -994,18 +1018,6 @@ class GitGuardianClient:
         """
         logger.info(f"Listing members with access to incident {incident_id}")
         return await self._request("GET", f"/incidents/secrets/{incident_id}/members")
-
-    async def list_incident_teams(self, incident_id: str) -> dict[str, Any]:
-        """List teams having access to a secret incident.
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            List of teams with access to the incident
-        """
-        logger.info(f"Listing teams with access to incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/teams")
 
     async def get_incident_impacted_perimeter(self, incident_id: str) -> dict[str, Any]:
         """Retrieve the impacted perimeter of a secret incident.
@@ -1084,10 +1096,71 @@ class GitGuardianClient:
         Returns:
             List of secret occurrences
         """
-        logger.info(f"Listing occurrences for incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/occurrences")
+        logger.info(f"Listing secret occurrences for incident ID: {incident_id}")
+        return await self._request("GET", f"/incidents/{incident_id}/secret-occurrences")
 
-    # Additional incident list methods
+    async def list_occurrences(
+        self,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        source_name: str | None = None,
+        source_type: str | None = None,
+        presence: str | None = None,
+        tags: list[str] | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """List secret occurrences with optional filtering and cursor-based pagination.
+
+        Args:
+            from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
+            to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
+            source_name: Filter by source name
+            source_type: Filter by source type
+            presence: Filter by presence status
+            tags: Filter by tags (list of tag IDs)
+            per_page: Number of results per page (default: 20)
+            cursor: Pagination cursor (for cursor-based pagination)
+            ordering: Sort field (e.g., 'date', '-date' for descending)
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            List of occurrences matching the criteria or an empty dict/list if no results
+        """
+        logger.info("Listing secret occurrences with filters")
+
+        # Build parameters
+        params = {}
+        if from_date:
+            params["from_date"] = from_date
+        if to_date:
+            params["to_date"] = to_date
+        if source_name:
+            params["source_name"] = source_name
+        if source_type:
+            params["source_type"] = source_type
+        if presence:
+            params["presence"] = presence
+        if tags:
+            params["tags"] = ",".join(tags)
+        if per_page:
+            params["per_page"] = per_page
+        if cursor:
+            params["cursor"] = cursor
+        if ordering:
+            params["ordering"] = ordering
+
+        # If get_all is True, use paginate_all to get all results
+        if get_all:
+            logger.info("Getting all occurrences using cursor-based pagination")
+            return await self.paginate_all("occurrences/secrets", params)
+
+        # Otherwise, get a single page
+        logger.info(f"Getting occurrences with params: {params}")
+        return await self._request("GET", "occurrences/secrets", params=params)
+
     async def list_source_incidents(self, source_id: str, **kwargs) -> dict[str, Any]:
         """List secret incidents of a source.
 
@@ -1103,26 +1176,6 @@ class GitGuardianClient:
         # Convert kwargs to query parameters
         query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
         endpoint = f"/sources/{source_id}/secret-incidents"
-        if query_params:
-            endpoint = f"{endpoint}?{query_params}"
-
-        return await self._request("GET", endpoint)
-
-    async def list_team_incidents(self, team_id: str, **kwargs) -> dict[str, Any]:
-        """List secret incidents of a team.
-
-        Args:
-            team_id: ID of the team
-            **kwargs: Additional filtering parameters
-
-        Returns:
-            List of incidents for the team
-        """
-        logger.info(f"Listing incidents for team {team_id}")
-
-        # Convert kwargs to query parameters
-        query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
-        endpoint = f"/teams/{team_id}/secret-incidents"
         if query_params:
             endpoint = f"{endpoint}?{query_params}"
 

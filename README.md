@@ -7,7 +7,6 @@ A specialized MCP server that brings GitGuardian API features to your AI assista
 - **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
 - **Incident Management**: View, assign, and resolve security incidents
 - **Honeytokens**: Create and manage honeytokens to detect unauthorized access
-- **Team Collaboration**: Work with team members on security issues
 - **Custom Tagging**: Organize incidents with custom tags
 
 ## Installation
@@ -305,8 +304,6 @@ Below is a complete reference of environment variables you can use to configure 
 - `honeytokens:write`: For creating honeytokens
 - `custom_tags:read`: For reading custom tags
 - `custom_tags:write`: For creating/updating custom tags
-- `teams:read`: For reading team information
-- `teams:write`: For updating team information
 
 By default, the server will request all available scopes.
 
@@ -356,62 +353,6 @@ mcp dev src/gg_api_mcp_server/server.py
 
 This runs the server using MCP's native server capabilities (no external web server needed).
 
-## Authentication Methods
-
-The GitGuardian MCP server supports two authentication methods:
-
-1. **OAuth Authentication** (default): Uses the OAuth flow to authenticate with GitGuardian
-2. **Token Authentication**: Uses a GitGuardian API key for authentication
-
-### When to Use Environment Variables
-
-The server works out-of-the-box without any configuration. However, you might want to use an `.env` file in the following cases:
-
-- To use token-based authentication instead of OAuth
-- To configure custom OAuth settings (token lifetime, scopes, etc.)
-- To connect to a different GitGuardian instance (like a local development environment)
-- To customize other server behavior
-
-In these cases, you would use the `--env-file` option when running the server:
-
-```bash
-python -m gg_api_mcp_server.server --env-file /path/to/.env
-```
-
-Or when using with `uvx`:
-
-```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp
-```
-
-This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
-
-## Using with Local Development
-
-If you want to develop or modify the GitGuardian MCP server, you can use a local installation with your editor. This is particularly useful for testing changes without pushing to GitHub.
-
-### Local Development with Cursor
-
-To use a local development version with Cursor:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardianLocal": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/path/to/your/workspace/gg-mcp-server",
-        "run",
-        "src.gg_api_mcp_server.server"
-      ]
-    }
-  }
-}
-```
-
-Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your local repository.
-
 ## API Token Scopes
 
 The GitGuardian MCP server implements scope-based access control for its tools. Each tool requires specific API token scopes to execute. If your API token lacks the necessary scopes, you'll receive a helpful message explaining which scopes are needed.
@@ -433,8 +374,6 @@ The GitGuardian MCP server implements scope-based access control for its tools. 
 | `manage_incident`                       | `incidents:write`          |
 | `update_incident_status`                | `incidents:write`          |
 | `update_or_create_incident_custom_tags` | `incidents:write`          |
-| `search_team`                           | `teams:read`               |
-| `add_member_to_team`                    | `teams:write`              |
 | `get_current_token_info`                | `api_tokens:read`          |
 | `read_custom_tags`                      | `custom_tags:read`         |
 | `write_custom_tags`                     | `custom_tags:write`        |
@@ -532,25 +471,6 @@ Update or create custom tags for a secret incident.
 ##### Parameters
 - `incident_id`: ID of the secret incident (required)
 - `custom_tags`: List of custom tags to apply to the incident (required)
-
-### Team Management
-
-#### search_team
-
-Search for teams and team members.
-
-##### Parameters
-- `action`: Action to perform (list_teams, search_team, list_members, search_member) (required)
-- `team_name`: The name of the team to search for (used with 'search_team' action)
-- `member_name`: The name of the member to search for (used with 'search_member' action)
-
-#### add_member_to_team
-
-Add a member to a team.
-
-##### Parameters
-- `team_id`: ID of the team to add the member to (required)
-- `member_id`: ID of the member to add to the team (required)
 
 ### Token Management
 
