@@ -1,6 +1,19 @@
 # GitGuardian MCP Server
 
-A specialized MCP server that brings GitGuardian API features to your AI assistants, enabling powerful security capabilities wherever you use MCP.
+A specialized MCP server workspace that brings GitGuardian API features to your AI assistants, enabling powerful security capabilities wherever you use MCP.
+
+## New Workspace Structure
+
+This project has been refactored into a multi-workspace structure using [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/):
+
+- **gg-api-core**: Core functionality shared across all servers (authentication, client, utilities)
+- **gg-developer-mcp-server**: Focused server for developers with only the remediation tool
+- **gg-secops-mcp-server**: Comprehensive server for security teams with all security tools
+
+This structure allows you to choose the right server for your needs:
+- Developers can use the lightweight developer server
+- Security teams can use the full-featured SecOps server
+- Both share the same core code for consistency and maintainability
 
 ## Key Features
 
@@ -11,7 +24,25 @@ A specialized MCP server that brings GitGuardian API features to your AI assista
 
 ## Installation
 
-Below are instructions for installing the GitGuardian MCP server with various AI editors and interfaces.
+Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
+
+### Developer MCP Server
+
+For developers who only need the remediation tool:
+
+```bash
+uv sync -g packages/gg_developer_mcp_server
+gg-developer-mcp
+```
+
+### SecOps MCP Server
+
+For security teams who need the full suite of tools:
+
+```bash
+uv sync -g packages/gg_secops_mcp_server
+gg-secops-mcp
+```
 
 ### Installation with Claude Desktop
 
@@ -25,12 +56,20 @@ Below are instructions for installing the GitGuardian MCP server with various AI
    ```json
    {
      "mcpServers": {
-       "GitGuardian": {
+       "GitGuardianDeveloper": {
          "command": "/path/to/uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
+           "gg-developer-mcp"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "/path/to/uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-secops-mcp"
          ]
        }
      }
@@ -41,9 +80,7 @@ Below are instructions for installing the GitGuardian MCP server with various AI
    
    > ⚠️ **WARNING**: For Claude Desktop, you must specify the full absolute path to the `uvx` executable, not just `"command": "uvx"`. This is different from other MCP clients.
 
-4. Replace `/path/to/.env` with the absolute path to your `.env` file if you're using one.
-
-5. Restart Claude Desktop to apply the changes.
+4. Restart Claude Desktop to apply the changes.
 
 ### Installation with Windsurf
 
@@ -60,14 +97,24 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    ```json
    {
      "mcpServers": {
-       "GitGuardian": {
+       "GitGuardianDeveloper": {
          "command": "uvx",
          "args": [
            "--env-file",
            "/path/to/.env",
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
+           "gg-developer-mcp"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-secops-mcp"
          ]
        }
      }
@@ -87,12 +134,20 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    ```json
    {
      "mcpServers": {
-       "GitGuardian": {
+       "GitGuardianDeveloper": {
          "command": "uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
+           "gg-developer-mcp"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-secops-mcp"
          ]
        }
      }
@@ -113,12 +168,20 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    ```json
    {
      "mcpServers": {
-       "GitGuardian": {
+       "GitGuardianDeveloper": {
          "command": "uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-mcp"
+           "gg-developer-mcp"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--from",
+           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "gg-secops-mcp"
          ]
        }
      }
@@ -144,7 +207,13 @@ If you want to run the server from a local clone of the repository:
 
 3. Run the server:
    ```bash
-   python -m src.gg_api_mcp_server.server
+   python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+   ```
+
+   or
+
+   ```bash
+   python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
    ```
 
 #### Local Installation with Cursor
@@ -154,13 +223,26 @@ To use a local clone with Cursor:
 ```json
 {
   "mcpServers": {
-    "GitGuardianLocal": {
+    "GitGuardianDeveloperLocal": {
       "command": "uv",
       "args": [
         "--directory",
         "/path/to/your/workspace/gg-mcp-server",
         "run",
-        "src.gg_api_mcp_server.server"
+        "--env-file",
+        ".env",
+        "packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server"
+      ]
+    },
+    "GitGuardianSecOpsLocal": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/your/workspace/gg-mcp-server",
+        "run",
+        "--env-file",
+        ".env",
+        "packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server"
       ]
     }
   }
@@ -174,7 +256,13 @@ Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your l
 To run the MCP server:
 
 ```bash
-python -m src.gg_api_mcp_server.server
+python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+```
+
+or
+
+```bash
+python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
 ```
 
 ### Authentication Process
@@ -215,7 +303,13 @@ If you want to contribute to the MCP server development, follow these steps:
 
 4. Run the server in development mode:
    ```bash
-   python -m src.gg_api_mcp_server.server
+   python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+   ```
+
+   or
+
+   ```bash
+   python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
    ```
 
 By default, the server will use OAuth authentication, automatically opening a browser window for you to authenticate with GitGuardian. No configuration file is needed for the basic setup.
@@ -239,13 +333,25 @@ The server works out-of-the-box without any configuration. However, you might wa
 In these cases, you would use the `--env-file` option when running the server:
 
 ```bash
-python -m gg_api_mcp_server.server --env-file /path/to/.env
+python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server --env-file /path/to/.env
+```
+
+or
+
+```bash
+python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server --env-file /path/to/.env
 ```
 
 Or when using with `uvx`:
 
 ```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-mcp
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-developer-mcp
+```
+
+or
+
+```bash
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-secops-mcp
 ```
 
 This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
@@ -315,7 +421,13 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
 
 5. Run the MCP server locally:
    ```bash
-   uv run --env-file .env gg-mcp-server
+   uv run --env-file .env gg-developer-mcp-server
+   ```
+
+   or
+
+   ```bash
+   uv run --env-file .env gg-secops-mcp-server
    ```
 
    If using OAuth authentication, the server will open a browser window for you to log in to GitGuardian.
@@ -324,7 +436,7 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
    ```json
    {
      "mcpServers": {
-       "GitGuardianLocal": {
+       "GitGuardianDeveloperLocal": {
          "command": "uv",
          "args": [
            "--directory",
@@ -332,7 +444,18 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
            "run",
            "--env-file",
            ".env",
-           "gg-mcp-server"
+           "gg-developer-mcp-server"
+         ]
+       },
+       "GitGuardianSecOpsLocal": {
+         "command": "uv",
+         "args": [
+           "--directory",
+           "/path/to/your/workspace/gg-mcp-server",
+           "run",
+           "--env-file",
+           ".env",
+           "gg-secops-mcp-server"
          ]
        }
      }
@@ -348,7 +471,13 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
 Start the MCP server:
 
 ```bash
-mcp dev src/gg_api_mcp_server/server.py
+mcp dev packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server.py
+```
+
+or
+
+```bash
+mcp dev packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server.py
 ```
 
 This runs the server using MCP's native server capabilities (no external web server needed).

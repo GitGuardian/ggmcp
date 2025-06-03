@@ -1,0 +1,23 @@
+[project]
+name = "gg-developer-mcp-server"
+version = "0.1.0"
+description = "GitGuardian MCP server for developers with remediation tools"
+authors = [
+    {name = "Author", email = "author@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=0.2.0",
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0",
+    "gg-api-core"
+]
+
+
+[project.scripts]
+gg-developer-mcp = "gg_developer_mcp_server.server:mcp.run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

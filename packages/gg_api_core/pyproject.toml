@@ -1,0 +1,19 @@
+[project]
+name = "gg-api-core"
+version = "0.1.0"
+description = "Core functionality for GitGuardian MCP servers"
+authors = [
+    {name = "Author", email = "author@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp[cli]>=1.9.0",
+    "python-dotenv>=1.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
