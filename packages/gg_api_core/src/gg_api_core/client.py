@@ -49,6 +49,9 @@ class IncidentValidity(str, Enum):
 class GitGuardianClient:
     """Client for interacting with the GitGuardian API."""
 
+    # Define User-Agent as a class constant
+    USER_AGENT = "GitGuardian-MCP-Server/1.0"
+
     def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
         """Initialize the GitGuardian client.
 
@@ -174,11 +177,17 @@ class GitGuardianClient:
 
             # Create OAuth client and run the OAuth flow
             # The dashboard_url is used for OAuth, not the API URL
-            # Use server name in token name if available
+            # Use server name in token name if available with proper prefixes
             if not token_name and hasattr(self, "server_name") and self.server_name:
-                token_name = f"MCP GitGuardian {self.server_name} token"
+                # Use distinct token names for different MCP server types
+                if "secops" in self.server_name.lower():
+                    token_name = "SecOps MCP Token"
+                elif "developer" in self.server_name.lower():
+                    token_name = "Developer MCP Token"
+                else:
+                    token_name = f"{self.server_name} MCP Token"
             else:
-                token_name = token_name or "MCP GitGuardian token"
+                token_name = token_name or "MCP Token"
 
             oauth_client = GitGuardianOAuthClient(
                 api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
@@ -240,12 +249,14 @@ class GitGuardianClient:
             headers = {
                 "Authorization": f"Token {self._oauth_token}",
                 "Content-Type": "application/json",
+                "User-Agent": self.USER_AGENT,
             }
             logger.debug("Using OAuth token for authorization")
         else:  # Token-based auth
             headers = {
                 "Authorization": f"Token {self.api_key}",
                 "Content-Type": "application/json",
+                "User-Agent": self.USER_AGENT,
             }
             logger.debug("Using API key for authorization")
 
