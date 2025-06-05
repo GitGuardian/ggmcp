@@ -31,17 +31,32 @@ mcp = GitGuardianFastMCP(
     "GitGuardian Developer",
     log_level="DEBUG",
     instructions="""
-    # GitGuardian Developer Tools
+    # GitGuardian Developer Tools for Secret Detection & Remediation
 
-    This server provides the GitGuardian remediation tool for developers through MCP.
-    Use this tool to find and fix secrets in your codebase.
+    This server provides GitGuardian's secret detection and remediation capabilities through MCP for developers working within IDE environments like Cursor, Windsurf, or Zed.
 
-    Find and remediate secret incidents:
-    - Use remediate_secret_incidents to find and fix secrets in the current repository
-    - The tool will detect secret incidents and provide remediation steps
-    - It will help you remove secrets from your code using best practices
-    - It can create .env.example files with placeholders for detected secrets
-    - Optionally provides git commands to fix incidents in git history
+    ## Secret Management Capabilities
+
+    This server focuses on helping developers manage secrets in their repositories through:
+
+    1. **Finding Existing Secret Incidents**:
+       - Detect secrets already identified as GitGuardian incidents in your repository
+       - Use `list_repo_incidents` to view all secret incidents in a repository
+       - Filter incidents by various criteria including those assigned to you
+
+    2. **Proactive Secret Scanning**:
+       - Use `scan_secrets` to detect secrets in code before they're committed
+       - Identify secrets that haven't yet been reported as GitGuardian incidents
+       - Prevent accidental secret commits before they happen
+
+    3. **Complete Secret Remediation**:
+       - Use `remediate_secret_incidents` for guided secret removal
+       - Get best practice recommendations for different types of secrets
+       - Replace hardcoded secrets with environment variables
+       - Create .env.example files with placeholders for detected secrets
+       - Get optional git commands to repair git history containing secrets
+
+    All tools operate within your IDE environment to provide immediate feedback and remediation steps for secret management.
     """,
 )
 logger.info("Created Developer GitGuardianFastMCP instance")
