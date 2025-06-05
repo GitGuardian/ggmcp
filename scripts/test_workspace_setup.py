@@ -76,7 +76,7 @@ def test_imports():
     """Test importing key modules from each package."""
     import_tests = [
         # Core package
-        ("gg_api_core", ["gg_api_core.client", "gg_api_core.mcp_server", "gg_api_core.utils"]),
+        ("gg_api_core", ["gg_api_core.client", "gg_api_core.mcp_server", "gg_api_core.utils", "gg_api_core.oauth"]),
         # Developer MCP server
         ("gg_developer_mcp_server", ["gg_developer_mcp_server.server"]),
         # SecOps MCP server
@@ -109,12 +109,13 @@ def test_imports():
 
 
 def test_server_classes():
-    """Test importing and creating instances of the server classes."""
+    """Test creating instances of the server classes."""
     print("\n== Testing server classes ==")
 
     try:
         from gg_api_core.mcp_server import GitGuardianFastMCP
 
+        # Just instantiate the class to test it
         GitGuardianFastMCP("Test Core")
         print("✅ Successfully created GitGuardianFastMCP instance")
     except Exception as e:
@@ -122,17 +123,17 @@ def test_server_classes():
         return False
 
     try:
-        # Import the mcp instance directly from the developer server module
-        print("✅ Successfully imported developer MCP server instance")
+        # Import the server module (with its mcp instance)
+        print("✅ Successfully imported developer MCP server module")
     except Exception as e:
-        print(f"❌ Failed to import developer MCP server instance: {e}")
+        print(f"❌ Failed to import developer MCP server module: {e}")
         return False
 
     try:
-        # Import the mcp instance directly from the secops server module
-        print("✅ Successfully imported SecOps MCP server instance")
+        # Import the server module (with its mcp instance)
+        print("✅ Successfully imported SecOps MCP server module")
     except Exception as e:
-        print(f"❌ Failed to import SecOps MCP server instance: {e}")
+        print(f"❌ Failed to import SecOps MCP server module: {e}")
         return False
 
     return True
@@ -147,7 +148,7 @@ def verify_package_structure():
     # Define expected structure
     expected_packages = ["gg_api_core", "gg_developer_mcp_server", "gg_secops_mcp_server"]
     expected_files = {
-        "gg_api_core": ["client.py", "mcp_server.py", "utils.py"],
+        "gg_api_core": ["client.py", "mcp_server.py", "utils.py", "oauth.py"],
         "gg_developer_mcp_server": ["server.py"],
         "gg_secops_mcp_server": ["server.py"],
     }

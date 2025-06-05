@@ -155,31 +155,15 @@ class GitGuardianClient:
 
         if self._oauth_token is None:
             # Import here to avoid circular imports
-            from gg_api_mcp_server.oauth import GitGuardianOAuthClient
-
-            # Get the requested scopes from environment or use all available scopes as default
-            # Only include scopes listed in the official documentation: https://docs.gitguardian.com/api-docs/authentication#scopes
-            ALL_SCOPES = [
-                "scan",
-                "incidents:read",
-                "incidents:write",
-                "incidents:share",
-                "audit_logs:read",
-                "honeytokens:read",
-                "honeytokens:write",
-                "api_tokens:write",
-                "api_tokens:read",
-                "ip_allowlist:read",
-                "ip_allowlist:write",
-                # "sources:read",
-                # "sources:write",
-                # "custom_tags:read",
-                # "custom_tags:write",
-            ]
+            from .oauth import GitGuardianOAuthClient
+            from .scopes import ALL_SCOPES
 
             # Default to all scopes, but allow restriction via environment variable
             default_scopes = ",".join(ALL_SCOPES)
-            scopes_str = os.environ.get("GITGUARDIAN_REQUESTED_SCOPES", default_scopes)
+            # Check for both GITGUARDIAN_SCOPES and GITGUARDIAN_REQUESTED_SCOPES for backward compatibility
+            scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
+                "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
+            )
             scopes = [scope.strip() for scope in scopes_str.split(",")]
 
             # Get custom login path if specified
@@ -190,6 +174,12 @@ class GitGuardianClient:
 
             # Create OAuth client and run the OAuth flow
             # The dashboard_url is used for OAuth, not the API URL
+            # Use server name in token name if available
+            if not token_name and hasattr(self, "server_name") and self.server_name:
+                token_name = f"MCP GitGuardian {self.server_name} token"
+            else:
+                token_name = token_name or "MCP GitGuardian token"
+
             oauth_client = GitGuardianOAuthClient(
                 api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
             )

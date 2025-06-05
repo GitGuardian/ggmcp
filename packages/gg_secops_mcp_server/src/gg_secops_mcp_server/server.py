@@ -6,6 +6,7 @@ import os
 from typing import Any, Literal
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.scopes import SECOPS_SCOPES
 from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import Field
 
@@ -21,6 +22,10 @@ gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
 logger.info("Starting SecOps MCP Server")
 logger.info(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
 logger.info(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
+
+# Set specific environment variable for this server to request full SecOps scopes
+os.environ["GITGUARDIAN_SCOPES"] = ",".join(SECOPS_SCOPES)
+logger.info(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
 
 # Use our custom GitGuardianFastMCP from the core package
 mcp = GitGuardianFastMCP(
