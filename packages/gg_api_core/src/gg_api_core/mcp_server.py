@@ -140,8 +140,7 @@ class GitGuardianFastMCP(FastMCP):
         return wrapped_decorator
 
     async def list_tools(self) -> list[MCPTool]:
-        """Return all tools, with scope information added to those requiring unavailable scopes."""
-        # Get all tools from parent implementation
+        """Return all tools, filtering out those requiring unavailable scopes."""
         all_tools = await super().list_tools()
 
         # Log token scopes for debugging
@@ -156,23 +155,17 @@ class GitGuardianFastMCP(FastMCP):
             except Exception as e:
                 logger.warning(f"Could not fetch token scopes: {str(e)}")
 
-        # Add information to tools that require unavailable scopes
+        # Filter out tools that require unavailable scopes
+        available_tools = []
         for tool in all_tools:
             tool_name = tool.name
             required_scopes = self._tool_scopes.get(tool_name, set())
 
-            # Check if this tool has required scopes that the user doesn't have
-            if required_scopes and not required_scopes.issubset(self._token_scopes):
+            # Check if this tool has all required scopes
+            if not required_scopes or required_scopes.issubset(self._token_scopes):
+                available_tools.append(tool)
+            else:
                 missing_scopes = required_scopes - self._token_scopes
-                scope_warning = (
-                    f"⚠️ DO NOT USE THIS TOOL - Missing required scopes: {', '.join(missing_scopes)}. "
-                    f"This tool requires GitGuardian API permissions that your token doesn't have."
-                )
+                logger.info(f"Hiding tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
 
-                # Add warning to the tool description
-                if tool.description:
-                    tool.description = f"{scope_warning}\n\n{tool.description}"
-                else:
-                    tool.description = scope_warning
-
-        return all_tools
+        return available_tools

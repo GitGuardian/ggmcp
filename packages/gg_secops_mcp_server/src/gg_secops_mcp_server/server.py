@@ -47,16 +47,12 @@ mcp = GitGuardianFastMCP(
        - List and manage existing honeytokens
        - Get detailed information about tokens
 
-    2. Secret Scanning:
-       - Scan code files for secrets and policy breaks
-       - Get detailed information about detected issues
-
-    3. Incident Management:
+    2. Incident Management:
        - List and filter incidents by various criteria
        - Manage incidents (assign, resolve, ignore)
        - Update incident status and add custom tags
 
-    4. Repository Analysis:
+    3. Repository Analysis:
        - List incidents by repository
        - Get detailed information about repository security status
 
@@ -429,16 +425,11 @@ async def update_incident_status(
         Updated incident data
     """
     client = mcp.get_client()
-    logger.info(f"Updating status for incident {incident_id} to {status}")
+    logger.info(f"Updating incident {incident_id} status to {status}")
 
     try:
-        # Make the API call
-        result = await client.update_incident_status(
-            incident_id=incident_id,
-            status=status,
-        )
-
-        logger.info(f"Successfully updated status for incident {incident_id}")
+        result = await client.update_incident_status(incident_id=incident_id, status=status)
+        logger.info(f"Successfully updated incident {incident_id} status to {status}")
         return result
     except Exception as e:
         logger.error(f"Error updating incident status: {str(e)}")
@@ -446,7 +437,7 @@ async def update_incident_status(
 
 
 @mcp.tool(
-    description="Read custom tags from the GitGuardian dashboard",
+    description="Read custom tags from the GitGuardian dashboard.",
     required_scopes=["custom_tags:read"],
 )
 async def read_custom_tags(
@@ -454,7 +445,7 @@ async def read_custom_tags(
     tag_id: str | None = Field(
         default=None, description="ID of the custom tag to retrieve (used with 'get_tag' action)"
     ),
-) -> dict[str, Any] | list[dict[str, Any]]:
+):
     """
     Read custom tags from the GitGuardian dashboard.
 
@@ -465,31 +456,26 @@ async def read_custom_tags(
     Returns:
         Custom tag data based on the action performed
     """
-    client = mcp.get_client()
-    logger.info(f"Reading custom tags with action: {action}")
-
     try:
-        # Validate required parameters
-        if action == "get_tag" and not tag_id:
-            error_msg = "tag_id is required for 'get_tag' action"
-            logger.error(error_msg)
-            raise ToolError(error_msg)
+        client = mcp.get_client()
 
-        # Make the API call
-        result = await client.read_custom_tags(
-            action=action,
-            tag_id=tag_id,
-        )
-
-        logger.info(f"Successfully read custom tags with action {action}")
-        return result
+        if action == "list_tags":
+            logger.info("Listing all custom tags")
+            return await client.custom_tags_list()
+        elif action == "get_tag":
+            if not tag_id:
+                raise ValueError("tag_id is required when action is 'get_tag'")
+            logger.info(f"Getting custom tag with ID: {tag_id}")
+            return await client.custom_tags_get(tag_id)
+        else:
+            raise ValueError(f"Invalid action: {action}. Must be one of ['list_tags', 'get_tag']")
     except Exception as e:
         logger.error(f"Error reading custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
 
 
 @mcp.tool(
-    description="Create or delete custom tags in the GitGuardian dashboard",
+    description="Create or delete custom tags in the GitGuardian dashboard.",
     required_scopes=["custom_tags:write"],
 )
 async def write_custom_tags(
@@ -499,7 +485,7 @@ async def write_custom_tags(
     tag_id: str | None = Field(
         default=None, description="ID of the custom tag to delete (used with 'delete_tag' action)"
     ),
-) -> dict[str, Any]:
+):
     """
     Create or delete custom tags in the GitGuardian dashboard.
 
@@ -512,181 +498,27 @@ async def write_custom_tags(
     Returns:
         Result based on the action performed
     """
-    client = mcp.get_client()
-    logger.info(f"Writing custom tags with action: {action}")
-
     try:
-        # Validate required parameters
-        if action == "create_tag" and not key:
-            error_msg = "key is required for 'create_tag' action"
-            logger.error(error_msg)
-            raise ToolError(error_msg)
+        client = mcp.get_client()
 
-        if action == "delete_tag" and not tag_id:
-            error_msg = "tag_id is required for 'delete_tag' action"
-            logger.error(error_msg)
-            raise ToolError(error_msg)
+        if action == "create_tag":
+            if not key:
+                raise ValueError("key is required when action is 'create_tag'")
 
-        # Make the API call
-        result = await client.write_custom_tags(
-            action=action,
-            key=key,
-            value=value,
-            tag_id=tag_id,
-        )
+            # Value is optional for label-only tags
+            logger.info(f"Creating custom tag with key: {key}, value: {value or 'None (label only)'}")
+            return await client.custom_tags_create(key, value)
 
-        logger.info(f"Successfully wrote custom tags with action {action}")
-        return result
+        elif action == "delete_tag":
+            if not tag_id:
+                raise ValueError("tag_id is required when action is 'delete_tag'")
+
+            logger.info(f"Deleting custom tag with ID: {tag_id}")
+            return await client.custom_tags_delete(tag_id)
+        else:
+            raise ValueError(f"Invalid action: {action}. Must be one of ['create_tag', 'delete_tag']")
     except Exception as e:
         logger.error(f"Error writing custom tags: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
-
-
-@mcp.tool(
-    description="Scan multiple content items for secrets and policy breaks",
-)
-async def scan_secrets(
-    documents: list[dict[str, str]] = Field(
-        description="""
-        List of documents to scan, each with 'document' and optional 'filename'.
-        Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
-        IMPORTANT:
-        - document is the content of the file, not the filename, is a string and is mandatory.
-        - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
-        - Do not send documents that are in the .gitignore file.
-        """
-    ),
-) -> dict[str, Any]:
-    """
-    Scan multiple content items for secrets and policy breaks.
-
-    This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
-    Each document must have a 'document' field and can optionally include a 'filename' field for better context.
-    Do not send documents that are not related to the codebase, only send files that are part of the codebase.
-    Do not send documents that are in the .gitignore file.
-
-    Args:
-        documents: List of documents to scan, each with 'document' and optional 'filename'
-                  Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
-
-    Returns:
-        Scan results for all documents, including any detected secrets or policy breaks
-    """
-    client = mcp.get_client()
-    logger.info(f"Scanning {len(documents)} documents for secrets")
-
-    try:
-        # Validate documents
-        for i, doc in enumerate(documents):
-            if "document" not in doc:
-                error_msg = f"Document at index {i} is missing the required 'document' field"
-                logger.error(error_msg)
-                raise ToolError(error_msg)
-
-        # Make the API call
-        result = await client.scan_secrets(documents=documents)
-
-        logger.info(f"Successfully scanned {len(documents)} documents")
-        return result
-    except Exception as e:
-        logger.error(f"Error scanning for secrets: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
-
-
-@mcp.tool(
-    description="List secret incidents or secret occurrences related to this repo. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo, it must be explicitly requested by the user.",
-    required_scopes=["incidents:read"],
-)
-async def list_repo_incidents(
-    repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
-    ),
-    from_date: str | None = Field(
-        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
-    ),
-    to_date: str | None = Field(
-        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
-    ),
-    presence: str | None = Field(default=None, description="Filter by presence status"),
-    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
-    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
-    mine: bool = Field(
-        default=True,
-        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
-    ),
-) -> dict[str, Any]:
-    """
-    List secret incidents or occurrences related to a specific repository. This tool allows you
-    to list secret incidents by filtering them based on a repository name.
-
-    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
-
-    Args:
-        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
-        from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
-        to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
-        presence: Filter by presence status
-        tags: Filter by tags (list of tag IDs)
-        ordering: Sort field (e.g., 'date', '-date' for descending)
-        per_page: Number of results per page (default: 20, min: 1, max: 100)
-        cursor: Pagination cursor for fetching next page of results
-        get_all: If True, fetch all results using cursor-based pagination
-        mine: If True (default), fetch only incidents assigned to the current user. Set to False to get all incidents.
-
-    Returns:
-        List of incidents and occurrences matching the specified criteria
-    """
-    client = mcp.get_client()
-    logger.info(f"Listing incidents for repository: {repository_name}")
-
-    try:
-        # Validate repository name
-        if not repository_name or "/" not in repository_name:
-            logger.warning(f"Invalid repository name format: {repository_name}")
-            return {
-                "error": "Invalid repository name format. Please provide the full repository name (e.g., 'GitGuardian/gg-mcp')."
-            }
-
-        # Log the filter values
-        filters = {
-            "repository_name": repository_name,
-            "from_date": from_date,
-            "to_date": to_date,
-            "presence": presence,
-            "tags": tags,
-            "ordering": ordering,
-            "per_page": per_page,
-            "cursor": cursor,
-            "get_all": get_all,
-            "mine": mine,
-        }
-
-        logger.info(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None and k != 'tags'})}")
-
-        if tags:
-            logger.info(f"Tags filter: {tags}")
-
-        # Make the API call
-        result = await client.list_repo_incidents(
-            repository_name=repository_name,
-            from_date=from_date,
-            to_date=to_date,
-            presence=presence,
-            tags=tags,
-            ordering=ordering,
-            per_page=per_page,
-            cursor=cursor,
-            get_all=get_all,
-            mine=mine,
-        )
-
-        logger.info(f"Successfully listed incidents for repository {repository_name}")
-        return result
-    except Exception as e:
-        logger.error(f"Error listing repository incidents: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
 
 

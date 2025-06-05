@@ -24,6 +24,7 @@ ALL_SCOPES = [
 # Scopes needed for the developer MCP server (minimal)
 DEVELOPER_SCOPES = [
     "incidents:read",
+    "scan",
 ]
 
 # Scopes needed for the SecOps MCP server (full access)

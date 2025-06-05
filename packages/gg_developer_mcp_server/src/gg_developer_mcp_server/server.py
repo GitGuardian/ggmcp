@@ -1,5 +1,6 @@
 """GitGuardian MCP server for developers with remediation tools."""
 
+import json
 import logging
 import os
 from typing import Any
@@ -48,7 +49,7 @@ logger.info("Created Developer GitGuardianFastMCP instance")
 
 @mcp.tool(
     description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
-    required_scopes=["incidents:read", "incidents:write"],
+    required_scopes=["incidents:read"],
 )
 async def remediate_secret_incidents(
     repository_name: str = Field(
@@ -209,6 +210,177 @@ async def remediate_secret_incidents(
     except Exception as e:
         logger.error(f"Error remediating secret incidents: {str(e)}")
         return {"error": f"Error: {str(e)}"}
+
+
+@mcp.tool(
+    description="""
+    Scan multiple content items for secrets and policy breaks.
+    
+    This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
+    Each document must have a 'document' field and can optionally include a 'filename' field for better context.
+    Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+    Do not send documents that are in the .gitignore file.
+    """,
+    required_scopes=["scan"],
+)
+async def scan_secrets(
+    documents: list[dict[str, str]] = Field(
+        description="""
+        List of documents to scan, each with 'document' and optional 'filename'.
+        Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
+        IMPORTANT:
+        - document is the content of the file, not the filename, is a string and is mandatory.
+        - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+        - Do not send documents that are in the .gitignore file.
+        """
+    ),
+):
+    """
+    Scan multiple content items for secrets and policy breaks.
+
+    This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
+    Each document must have a 'document' field and can optionally include a 'filename' field for better context.
+
+    Args:
+        documents: List of documents to scan, each with 'document' and optional 'filename'
+                  Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
+
+    Returns:
+        Scan results for all documents, including any detected secrets or policy breaks
+    """
+    try:
+        client = mcp.get_client()
+
+        # Validate input documents
+        if not documents or not isinstance(documents, list):
+            raise ValueError("Documents parameter must be a non-empty list")
+
+        for i, doc in enumerate(documents):
+            if not isinstance(doc, dict) or "document" not in doc:
+                raise ValueError(f"Document at index {i} must be a dictionary with a 'document' field")
+
+        # Log the scan request (without exposing the full document contents)
+        safe_docs_log = []
+        for doc in documents:
+            doc_preview = (
+                doc.get("document", "")[:20] + "..." if len(doc.get("document", "")) > 20 else doc.get("document", "")
+            )
+            safe_docs_log.append(
+                {"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview}
+            )
+
+        logger.info(f"Scanning {len(documents)} documents for secrets")
+        logger.debug(f"Documents to scan: {safe_docs_log}")
+
+        # Make the API call
+        result = await client.scan_content(documents)
+        logger.info(f"Successfully scanned {len(documents)} documents")
+
+        return result
+    except Exception as e:
+        logger.error(f"Error scanning for secrets: {str(e)}")
+        raise
+
+
+@mcp.tool(
+    description="""
+    List secret incidents or occurrences related to a specific repository. This tool allows you
+    to list secret incidents by filtering them based on a repository name.
+    
+    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
+    """,
+    required_scopes=["incidents:read"],
+)
+async def list_repo_incidents(
+    repository_name: str = Field(
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+    ),
+    from_date: str | None = Field(
+        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    presence: str | None = Field(default=None, description="Filter by presence status"),
+    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+    mine: bool = Field(
+        default=True,
+        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+    ),
+):
+    """
+    List secret incidents or occurrences related to a specific repository.
+
+    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
+
+    Args:
+        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
+        from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
+        presence: Filter by presence status
+        tags: Filter by tags (list of tag IDs)
+        ordering: Sort field (e.g., 'date', '-date' for descending)
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        cursor: Pagination cursor for fetching next page of results
+        get_all: If True, fetch all results using cursor-based pagination
+        mine: If True (default), fetch only incidents assigned to the current user. Set to False to get all incidents.
+
+    Returns:
+        List of incidents and occurrences matching the specified criteria
+    """
+    try:
+        client = mcp.get_client()
+
+        # Handle repository name validation
+        if not repository_name or "/" not in repository_name:
+            logger.error("Repository name is invalid - must be in format 'owner/repo'")
+            raise ValueError(
+                "Repository name must be in the format 'owner/repo'. "
+                "For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp"
+            )
+
+        # Log the filter values
+        filters = {
+            "repository_name": repository_name,
+            "from_date": from_date,
+            "to_date": to_date,
+            "presence": presence,
+            "tags": tags,
+            "ordering": ordering,
+            "per_page": per_page,
+            "cursor": cursor,
+            "get_all": get_all,
+            "mine": mine,
+        }
+
+        logger.info(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None and k != 'tags'})}")
+
+        if tags:
+            logger.info(f"Tags filter: {tags}")
+
+        # Make the API call
+        result = await client.list_repo_incidents(
+            repository_name=repository_name,
+            from_date=from_date,
+            to_date=to_date,
+            presence=presence,
+            tags=tags,
+            ordering=ordering,
+            per_page=per_page,
+            cursor=cursor,
+            get_all=get_all,
+            mine=mine,
+        )
+
+        logger.info(f"Successfully listed incidents for repository {repository_name}")
+        return result
+    except Exception as e:
+        logger.error(f"Error listing repository incidents: {str(e)}")
+        raise
 
 
 if __name__ == "__main__":
