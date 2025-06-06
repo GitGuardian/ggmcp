@@ -1,6 +1,5 @@
 """GitGuardian MCP server for developers with remediation tools."""
 
-import json
 import logging
 import os
 from typing import Any
@@ -64,7 +63,7 @@ logger.info("Created Developer GitGuardianFastMCP instance")
 
 @mcp.tool(
     description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
-    required_scopes=["incidents:read"],
+    required_scopes=["incidents:read", "sources:read"],
 )
 async def remediate_secret_incidents(
     repository_name: str = Field(
@@ -298,13 +297,10 @@ async def scan_secrets(
 
 
 @mcp.tool(
-    description="""
-    List secret incidents or occurrences related to a specific repository. This tool allows you
-    to list secret incidents by filtering them based on a repository name.
-    
-    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
-    """,
-    required_scopes=["incidents:read"],
+    description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
+    "By default, this tool only shows incidents assigned to the current user. "
+    "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+    required_scopes=["incidents:read", "sources:read"],
 )
 async def list_repo_incidents(
     repository_name: str = Field(
@@ -326,7 +322,7 @@ async def list_repo_incidents(
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     ),
-):
+) -> dict[str, Any]:
     """
     List secret incidents or occurrences related to a specific repository.
 
@@ -347,55 +343,31 @@ async def list_repo_incidents(
     Returns:
         List of incidents and occurrences matching the specified criteria
     """
+    client = mcp.get_client()
+    logger.info(f"Listing incidents for repository: {repository_name}")
+
+    # Use the new direct approach using the GitGuardian Sources API
     try:
-        client = mcp.get_client()
-
-        # Handle repository name validation
-        if not repository_name or "/" not in repository_name:
-            logger.error("Repository name is invalid - must be in format 'owner/repo'")
-            raise ValueError(
-                "Repository name must be in the format 'owner/repo'. "
-                "For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp"
-            )
-
-        # Log the filter values
-        filters = {
-            "repository_name": repository_name,
-            "from_date": from_date,
-            "to_date": to_date,
-            "presence": presence,
-            "tags": tags,
-            "ordering": ordering,
-            "per_page": per_page,
-            "cursor": cursor,
-            "get_all": get_all,
-            "mine": mine,
-        }
-
-        logger.info(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None and k != 'tags'})}")
-
-        if tags:
-            logger.info(f"Tags filter: {tags}")
-
-        # Make the API call
-        result = await client.list_repo_incidents(
+        # This optimized approach gets incidents directly from the source API
+        # without needing to first fetch occurrences and then incidents separately
+        result = await client.list_repo_incidents_directly(
             repository_name=repository_name,
             from_date=from_date,
             to_date=to_date,
             presence=presence,
             tags=tags,
-            ordering=ordering,
             per_page=per_page,
             cursor=cursor,
+            ordering=ordering,
             get_all=get_all,
             mine=mine,
         )
 
-        logger.info(f"Successfully listed incidents for repository {repository_name}")
         return result
+
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")
-        raise
+        return {"error": f"Failed to list repository incidents: {str(e)}"}
 
 
 if __name__ == "__main__":

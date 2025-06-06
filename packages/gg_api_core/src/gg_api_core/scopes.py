@@ -15,7 +15,7 @@ ALL_SCOPES = [
     "ip_allowlist:read",
     "ip_allowlist:write",
     # Uncomment if needed and available
-    # "sources:read",
+    "sources:read",
     # "sources:write",
     # "custom_tags:read",
     # "custom_tags:write",
@@ -25,6 +25,7 @@ ALL_SCOPES = [
 DEVELOPER_SCOPES = [
     "incidents:read",
     "scan",
+    "sources:read",
 ]
 
 # Scopes needed for the SecOps MCP server (full access)
