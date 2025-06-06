@@ -1,5 +1,5 @@
 [project]
-name = "gg-secops-mcp-server"
+name = "secops-mcp-server"
 version = "0.1.0"
 description = "GitGuardian MCP server for SecOps with comprehensive security tools"
 authors = [
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-server = "gg_secops_mcp_server.server:mcp.run"
+mcp-server = "secops_mcp_server.server:mcp.run"
 
 [build-system]
 requires = ["hatchling"]

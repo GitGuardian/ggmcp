@@ -14,7 +14,7 @@ This package provides a focused MCP server for developers, containing only the r
 ### Installation
 
 ```bash
-uv sync -g packages/gg_developer_mcp_server
+uv sync -g packages/developer_mcp_server
 ```
 
 ### Running the server

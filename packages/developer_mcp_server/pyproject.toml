@@ -1,5 +1,5 @@
 [project]
-name = "gg-developer-mcp-server"
+name = "developer-mcp-server"
 version = "0.1.0"
 description = "GitGuardian MCP server for developers with remediation tools"
 authors = [
@@ -16,7 +16,7 @@ dependencies = [
 
 
 [project.scripts]
-mcp-server = "gg_developer_mcp_server.server:mcp.run"
+mcp-server = "developer_mcp_server.server:mcp.run"
 
 [build-system]
 requires = ["hatchling"]

@@ -31,7 +31,7 @@ Below are instructions for installing the GitGuardian MCP servers with various A
 For developers who only need the remediation tool:
 
 ```bash
-uv sync -g packages/gg_developer_mcp_server
+uv sync -g packages/developer_mcp_server
 gg-developer-mcp
 ```
 
@@ -40,7 +40,7 @@ gg-developer-mcp
 For security teams who need the full suite of tools:
 
 ```bash
-uv sync -g packages/gg_secops_mcp_server
+uv sync -g packages/secops_mcp_server
 gg-secops-mcp
 ```
 
@@ -207,13 +207,13 @@ If you want to run the server from a local clone of the repository:
 
 3. Run the server:
    ```bash
-   python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+   python -m packages.developer_mcp_server.src.developer_mcp_server.server
    ```
 
    or
 
    ```bash
-   python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
+   python -m packages.secops_mcp_server.src.secops_mcp_server.server
    ```
 
 #### Local Installation with Cursor
@@ -231,7 +231,7 @@ To use a local clone with Cursor:
         "run",
         "--env-file",
         ".env",
-        "packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server"
+        "packages.developer_mcp_server.src.developer_mcp_server.server"
       ]
     },
     "GitGuardianSecOpsLocal": {
@@ -242,7 +242,7 @@ To use a local clone with Cursor:
         "run",
         "--env-file",
         ".env",
-        "packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server"
+        "packages.secops_mcp_server.src.secops_mcp_server.server"
       ]
     }
   }
@@ -256,13 +256,13 @@ Replace `/path/to/your/workspace/gg-mcp-server` with the absolute path to your l
 To run the MCP server:
 
 ```bash
-python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+python -m packages.developer_mcp_server.src.developer_mcp_server.server
 ```
 
 or
 
 ```bash
-python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
+python -m packages.secops_mcp_server.src.secops_mcp_server.server
 ```
 
 ### Authentication Process
@@ -303,13 +303,13 @@ If you want to contribute to the MCP server development, follow these steps:
 
 4. Run the server in development mode:
    ```bash
-   python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server
+   python -m packages.developer_mcp_server.src.developer_mcp_server.server
    ```
 
    or
 
    ```bash
-   python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server
+   python -m packages.secops_mcp_server.src.secops_mcp_server.server
    ```
 
 By default, the server will use OAuth authentication, automatically opening a browser window for you to authenticate with GitGuardian. No configuration file is needed for the basic setup.
@@ -333,13 +333,13 @@ The server works out-of-the-box without any configuration. However, you might wa
 In these cases, you would use the `--env-file` option when running the server:
 
 ```bash
-python -m packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server --env-file /path/to/.env
+python -m packages.developer_mcp_server.src.developer_mcp_server.server --env-file /path/to/.env
 ```
 
 or
 
 ```bash
-python -m packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server --env-file /path/to/.env
+python -m packages.secops_mcp_server.src.secops_mcp_server.server --env-file /path/to/.env
 ```
 
 Or when using with `uvx`:
@@ -471,13 +471,13 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
 Start the MCP server:
 
 ```bash
-mcp dev packages.gg_developer_mcp_server.src.gg_developer_mcp_server.server.py
+mcp dev packages.developer_mcp_server.src.developer_mcp_server.server.py
 ```
 
 or
 
 ```bash
-mcp dev packages.gg_secops_mcp_server.src.gg_secops_mcp_server.server.py
+mcp dev packages.secops_mcp_server.src.secops_mcp_server.server.py
 ```
 
 This runs the server using MCP's native server capabilities (no external web server needed).

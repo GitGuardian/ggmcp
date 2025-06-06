@@ -78,9 +78,9 @@ def test_imports():
         # Core package
         ("gg_api_core", ["gg_api_core.client", "gg_api_core.mcp_server", "gg_api_core.utils", "gg_api_core.oauth"]),
         # Developer MCP server
-        ("gg_developer_mcp_server", ["gg_developer_mcp_server.server"]),
+        ("developer_mcp_server", ["developer_mcp_server.server"]),
         # SecOps MCP server
-        ("gg_secops_mcp_server", ["gg_secops_mcp_server.server"]),
+        ("secops_mcp_server", ["secops_mcp_server.server"]),
     ]
 
     failures = []
@@ -146,11 +146,11 @@ def verify_package_structure():
     print("\n== Verifying Package Structure ==")
 
     # Define expected structure
-    expected_packages = ["gg_api_core", "gg_developer_mcp_server", "gg_secops_mcp_server"]
+    expected_packages = ["gg_api_core", "developer_mcp_server", "secops_mcp_server"]
     expected_files = {
         "gg_api_core": ["client.py", "mcp_server.py", "utils.py", "oauth.py"],
-        "gg_developer_mcp_server": ["server.py"],
-        "gg_secops_mcp_server": ["server.py"],
+        "developer_mcp_server": ["server.py"],
+        "secops_mcp_server": ["server.py"],
     }
 
     all_found = True

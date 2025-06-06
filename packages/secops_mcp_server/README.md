@@ -15,7 +15,7 @@ This package provides a comprehensive MCP server for security operations teams, 
 ### Installation
 
 ```bash
-uv sync -g packages/gg_secops_mcp_server
+uv sync -g packages/secops_mcp_server
 ```
 
 ### Running the server
