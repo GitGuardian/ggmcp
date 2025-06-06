@@ -2,18 +2,13 @@
 
 A specialized MCP server workspace that brings GitGuardian API features to your AI assistants, enabling powerful security capabilities wherever you use MCP.
 
-## New Workspace Structure
+## Available Servers
 
-This project has been refactored into a multi-workspace structure using [uv workspaces](https://docs.astral.sh/uv/concepts/projects/workspaces/):
+This project provides two specialized MCP servers:
 
-- **gg-api-core**: Core functionality shared across all servers (authentication, client, utilities)
-- **gg-developer-mcp-server**: Focused server for developers with only the remediation tool
-- **gg-secops-mcp-server**: Comprehensive server for security teams with all security tools
+- **Developer MCP Server**: A lightweight server focused on developer needs, providing remediation tools without the full security suite
+- **SecOps MCP Server**: A comprehensive server for security teams with the complete set of security tools
 
-This structure allows you to choose the right server for your needs:
-- Developers can use the lightweight developer server
-- Security teams can use the full-featured SecOps server
-- Both share the same core code for consistency and maintainability
 
 ## Key Features
 
@@ -26,23 +21,8 @@ This structure allows you to choose the right server for your needs:
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
 
-### Developer MCP Server
 
-For developers who only need the remediation tool:
 
-```bash
-uv sync -g packages/developer_mcp_server
-gg-developer-mcp
-```
-
-### SecOps MCP Server
-
-For security teams who need the full suite of tools:
-
-```bash
-uv sync -g packages/secops_mcp_server
-gg-secops-mcp
-```
 
 ### Installation with Claude Desktop
 
@@ -61,7 +41,7 @@ gg-secops-mcp
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-developer-mcp"
+           "developer-mcp"
          ]
        },
        "GitGuardianSecOps": {
@@ -69,7 +49,32 @@ gg-secops-mcp
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-secops-mcp"
+           "secops-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+   **Alternative package-based configuration**:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardianDeveloper": {
+         "command": "/path/to/uvx",
+         "args": [
+           "--package",
+           "developer_mcp_server",
+           "mcp-server"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "/path/to/uvx",
+         "args": [
+           "--package",
+           "secops_mcp_server",
+           "mcp-server"
          ]
        }
      }
@@ -104,7 +109,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
            "/path/to/.env",
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-developer-mcp"
+           "developer-mcp"
          ]
        },
        "GitGuardianSecOps": {
@@ -114,7 +119,36 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
            "/path/to/.env",
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-secops-mcp"
+           "secops-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+   **Alternative package-based configuration**:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardianDeveloper": {
+         "command": "uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--package",
+           "developer_mcp_server",
+           "mcp-server"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--env-file",
+           "/path/to/.env",
+           "--package",
+           "secops_mcp_server",
+           "mcp-server"
          ]
        }
      }
@@ -139,7 +173,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-developer-mcp"
+           "developer-mcp"
          ]
        },
        "GitGuardianSecOps": {
@@ -147,7 +181,32 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-secops-mcp"
+           "secops-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+   **Alternative package-based configuration**:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardianDeveloper": {
+         "command": "uvx",
+         "args": [
+           "--package",
+           "developer_mcp_server",
+           "mcp-server"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--package",
+           "secops_mcp_server",
+           "mcp-server"
          ]
        }
      }
@@ -173,7 +232,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-developer-mcp"
+           "developer-mcp"
          ]
        },
        "GitGuardianSecOps": {
@@ -181,7 +240,32 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "gg-secops-mcp"
+           "secops-mcp"
+         ]
+       }
+     }
+   }
+   ```
+
+   **Alternative package-based configuration**:
+
+   ```json
+   {
+     "mcpServers": {
+       "GitGuardianDeveloper": {
+         "command": "uvx",
+         "args": [
+           "--package",
+           "developer_mcp_server",
+           "mcp-server"
+         ]
+       },
+       "GitGuardianSecOps": {
+         "command": "uvx",
+         "args": [
+           "--package",
+           "secops_mcp_server",
+           "mcp-server"
          ]
        }
      }
@@ -345,13 +429,13 @@ python -m packages.secops_mcp_server.src.secops_mcp_server.server --env-file /pa
 Or when using with `uvx`:
 
 ```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-developer-mcp
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git developer-mcp
 ```
 
 or
 
 ```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git gg-secops-mcp
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git secops-mcp
 ```
 
 This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
@@ -421,13 +505,13 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
 
 5. Run the MCP server locally:
    ```bash
-   uv run --env-file .env gg-developer-mcp-server
+   uv run --env-file .env developer-mcp-server
    ```
 
    or
 
    ```bash
-   uv run --env-file .env gg-secops-mcp-server
+   uv run --env-file .env secops-mcp-server
    ```
 
    If using OAuth authentication, the server will open a browser window for you to log in to GitGuardian.
@@ -444,7 +528,7 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
            "run",
            "--env-file",
            ".env",
-           "gg-developer-mcp-server"
+           "developer-mcp-server"
          ]
        },
        "GitGuardianSecOpsLocal": {
@@ -455,7 +539,7 @@ GITGUARDIAN_REQUESTED_SCOPES=scan,incidents:read,incidents:write
            "run",
            "--env-file",
            ".env",
-           "gg-secops-mcp-server"
+           "secops-mcp-server"
          ]
        }
      }

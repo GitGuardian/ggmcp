@@ -20,7 +20,7 @@ uv sync -g packages/developer_mcp_server
 ### Running the server
 
 ```bash
-gg-developer-mcp
+developer-mcp
 ```
 
 ## Authentication
