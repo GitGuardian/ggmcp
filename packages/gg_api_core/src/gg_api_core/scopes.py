@@ -25,7 +25,8 @@ ALL_SCOPES = [
 DEVELOPER_SCOPES = [
     "incidents:read",
     "scan",
-    "sources:read",
+    # Removing sources:read from default developer scopes due to API reliability issues
+    # "sources:read",
 ]
 
 # Scopes needed for the SecOps MCP server (full access)
