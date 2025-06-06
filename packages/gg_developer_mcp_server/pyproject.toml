@@ -16,7 +16,7 @@ dependencies = [
 
 
 [project.scripts]
-gg-developer-mcp = "gg_developer_mcp_server.server:mcp.run"
+mcp-server = "gg_developer_mcp_server.server:mcp.run"
 
 [build-system]
 requires = ["hatchling"]
