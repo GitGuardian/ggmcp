@@ -14,7 +14,7 @@ dependencies = [
 
 [project.scripts]
 developer-mcp-server = "developer_mcp_server.server:mcp.run"
-secops-mcp-server = "secops_mcp_server.server:mcp.run"
+# secops-mcp-server = "secops_mcp_server.server:mcp.run"
 
 
 [tool.uv.workspace]
