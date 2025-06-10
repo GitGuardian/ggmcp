@@ -1,5 +1,9 @@
 # GitGuardian SecOps MCP Server
 
+> **⚠️ BETA WARNING ⚠️**
+> 
+> This SecOps MCP Server is currently in **BETA** status. While functional, it may contain bugs, have incomplete features, or undergo breaking changes. Use with caution in production environments and expect potential issues or API changes.
+
 This package provides a comprehensive MCP server for security operations teams, containing a full suite of GitGuardian security tools. It enables security teams to manage incidents, monitor honeytokens, scan for secrets, and manage custom tags.
 
 ## Features

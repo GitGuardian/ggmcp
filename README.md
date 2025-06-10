@@ -9,6 +9,9 @@ This project provides two specialized MCP servers:
 - **Developer MCP Server**: A lightweight server focused on developer needs, providing remediation tools without the full security suite
 - **SecOps MCP Server**: A comprehensive server for security teams with the complete set of security tools
 
+> **⚠️ BETA WARNING - SecOps MCP Server ⚠️**
+> 
+> The **SecOps MCP Server** is currently in **BETA** status. While functional, it may contain bugs, have incomplete features, or undergo breaking changes. Use with caution in production environments and expect potential issues or API changes.
 
 ## Key Features
 
@@ -161,6 +164,16 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
 ### Installation with Cursor
 
+**Quick Install with One-Click Buttons** (Cursor >= 1.0):
+
+For Developer MCP Server:
+[![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcCJ9)
+
+For SecOps MCP Server (BETA):
+[![Install SecOps MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianSecOps&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgc2Vjb3BzLW1jcCJ9)
+
+**Manual Configuration**:
+
 1. Edit your Cursor MCP configuration file located at `~/.cursor/mcp.json`
 
 2. Add the GitGuardian MCP server configuration:
@@ -188,6 +201,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    }
    ```
 
+
    **Alternative package-based configuration**:
 
    ```json
@@ -214,6 +228,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    ```
 
 3. Restart Cursor to apply the changes.
+
 
 ### Installation with Zed Editor
 
