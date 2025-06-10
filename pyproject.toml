@@ -7,6 +7,14 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.13"
+dependencies = [
+    "developer-mcp-server",
+    "secops-mcp-server"
+]
+
+[project.scripts]
+developer-mcp-server = "developer_mcp_server.server:mcp.run"
+secops-mcp-server = "secops_mcp_server.server:mcp.run"
 
 
 [tool.uv.workspace]

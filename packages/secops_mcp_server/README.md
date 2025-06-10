@@ -25,7 +25,7 @@ uv sync -g packages/secops_mcp_server
 ### Running the server
 
 ```bash
-secops-mcp
+secops-mcp-server
 ```
 
 ## Authentication

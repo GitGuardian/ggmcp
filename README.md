@@ -44,7 +44,7 @@ Below are instructions for installing the GitGuardian MCP servers with various A
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "developer-mcp"
+           "developer-mcp-server"
          ]
        },
        "GitGuardianSecOps": {
@@ -52,37 +52,14 @@ Below are instructions for installing the GitGuardian MCP servers with various A
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "secops-mcp"
+           "secops-mcp-server"
          ]
        }
      }
    }
    ```
 
-   **Alternative package-based configuration**:
 
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardianDeveloper": {
-         "command": "/path/to/uvx",
-         "args": [
-           "--package",
-           "developer_mcp_server",
-           "mcp-server"
-         ]
-       },
-       "GitGuardianSecOps": {
-         "command": "/path/to/uvx",
-         "args": [
-           "--package",
-           "secops_mcp_server",
-           "mcp-server"
-         ]
-       }
-     }
-   }
-   ```
 
 3. Replace `/path/to/uvx` with the **absolute path** to the uvx executable on your system.
    
@@ -112,7 +89,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
            "/path/to/.env",
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "developer-mcp"
+           "developer-mcp-server"
          ]
        },
        "GitGuardianSecOps": {
@@ -122,41 +99,14 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
            "/path/to/.env",
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "secops-mcp"
+           "secops-mcp-server"
          ]
        }
      }
    }
    ```
 
-   **Alternative package-based configuration**:
 
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardianDeveloper": {
-         "command": "uvx",
-         "args": [
-           "--env-file",
-           "/path/to/.env",
-           "--package",
-           "developer_mcp_server",
-           "mcp-server"
-         ]
-       },
-       "GitGuardianSecOps": {
-         "command": "uvx",
-         "args": [
-           "--env-file",
-           "/path/to/.env",
-           "--package",
-           "secops_mcp_server",
-           "mcp-server"
-         ]
-       }
-     }
-   }
-   ```
 
 3. Replace `/path/to/.env` with the absolute path to your `.env` file if you're using one.
 
@@ -167,10 +117,10 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 **Quick Install with One-Click Buttons** (Cursor >= 1.0):
 
 For Developer MCP Server:
-[![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcCJ9)
+[![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcC1zZXJ2ZXIifQ==)
 
 For SecOps MCP Server (BETA):
-[![Install SecOps MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianSecOps&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgc2Vjb3BzLW1jcCJ9)
+[![Install SecOps MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=GitGuardianSecOps&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgc2Vjb3BzLW1jcC1zZXJ2ZXIifQ==)
 
 **Manual Configuration**:
 
@@ -186,7 +136,7 @@ For SecOps MCP Server (BETA):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "developer-mcp"
+           "developer-mcp-server"
          ]
        },
        "GitGuardianSecOps": {
@@ -194,33 +144,7 @@ For SecOps MCP Server (BETA):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "secops-mcp"
-         ]
-       }
-     }
-   }
-   ```
-
-
-   **Alternative package-based configuration**:
-
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardianDeveloper": {
-         "command": "uvx",
-         "args": [
-           "--package",
-           "developer_mcp_server",
-           "mcp-server"
-         ]
-       },
-       "GitGuardianSecOps": {
-         "command": "uvx",
-         "args": [
-           "--package",
-           "secops_mcp_server",
-           "mcp-server"
+           "secops-mcp-server"
          ]
        }
      }
@@ -247,7 +171,7 @@ For SecOps MCP Server (BETA):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "developer-mcp"
+           "developer-mcp-server"
          ]
        },
        "GitGuardianSecOps": {
@@ -255,37 +179,14 @@ For SecOps MCP Server (BETA):
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
-           "secops-mcp"
+           "secops-mcp-server"
          ]
        }
      }
    }
    ```
 
-   **Alternative package-based configuration**:
 
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardianDeveloper": {
-         "command": "uvx",
-         "args": [
-           "--package",
-           "developer_mcp_server",
-           "mcp-server"
-         ]
-       },
-       "GitGuardianSecOps": {
-         "command": "uvx",
-         "args": [
-           "--package",
-           "secops_mcp_server",
-           "mcp-server"
-         ]
-       }
-     }
-   }
-   ```
 
 3. Restart Zed to apply the changes.
 
@@ -444,13 +345,13 @@ python -m packages.secops_mcp_server.src.secops_mcp_server.server --env-file /pa
 Or when using with `uvx`:
 
 ```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git developer-mcp
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git developer-mcp-server
 ```
 
 or
 
 ```bash
-uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git secops-mcp
+uvx --env-file /path/to/.env --from=git+https://github.com/GitGuardian/gg-mcp.git secops-mcp-server
 ```
 
 This approach keeps sensitive API keys separate from your configuration files and follows security best practices.
