@@ -49,6 +49,9 @@ class IncidentValidity(str, Enum):
 class GitGuardianClient:
     """Client for interacting with the GitGuardian API."""
 
+    # Define User-Agent as a class constant
+    USER_AGENT = "GitGuardian-MCP-Server/1.0"
+
     def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
         """Initialize the GitGuardian client.
 
@@ -155,31 +158,15 @@ class GitGuardianClient:
 
         if self._oauth_token is None:
             # Import here to avoid circular imports
-            from gg_api_mcp_server.oauth import GitGuardianOAuthClient
-
-            # Get the requested scopes from environment or use all available scopes as default
-            # Only include scopes listed in the official documentation: https://docs.gitguardian.com/api-docs/authentication#scopes
-            ALL_SCOPES = [
-                "scan",
-                "incidents:read",
-                "incidents:write",
-                "incidents:share",
-                "audit_logs:read",
-                "honeytokens:read",
-                "honeytokens:write",
-                "api_tokens:write",
-                "api_tokens:read",
-                "ip_allowlist:read",
-                "ip_allowlist:write",
-                # "sources:read",
-                # "sources:write",
-                # "custom_tags:read",
-                # "custom_tags:write",
-            ]
+            from .oauth import GitGuardianOAuthClient
+            from .scopes import ALL_SCOPES
 
             # Default to all scopes, but allow restriction via environment variable
             default_scopes = ",".join(ALL_SCOPES)
-            scopes_str = os.environ.get("GITGUARDIAN_REQUESTED_SCOPES", default_scopes)
+            # Check for both GITGUARDIAN_SCOPES and GITGUARDIAN_REQUESTED_SCOPES for backward compatibility
+            scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
+                "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
+            )
             scopes = [scope.strip() for scope in scopes_str.split(",")]
 
             # Get custom login path if specified
@@ -190,6 +177,18 @@ class GitGuardianClient:
 
             # Create OAuth client and run the OAuth flow
             # The dashboard_url is used for OAuth, not the API URL
+            # Use server name in token name if available with proper prefixes
+            if not token_name and hasattr(self, "server_name") and self.server_name:
+                # Use distinct token names for different MCP server types
+                if "secops" in self.server_name.lower():
+                    token_name = "SecOps MCP Token"
+                elif "developer" in self.server_name.lower():
+                    token_name = "Developer MCP Token"
+                else:
+                    token_name = f"{self.server_name} MCP Token"
+            else:
+                token_name = token_name or "MCP Token"
+
             oauth_client = GitGuardianOAuthClient(
                 api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
             )
@@ -250,12 +249,14 @@ class GitGuardianClient:
             headers = {
                 "Authorization": f"Token {self._oauth_token}",
                 "Content-Type": "application/json",
+                "User-Agent": self.USER_AGENT,
             }
             logger.debug("Using OAuth token for authorization")
         else:  # Token-based auth
             headers = {
                 "Authorization": f"Token {self.api_key}",
                 "Content-Type": "application/json",
+                "User-Agent": self.USER_AGENT,
             }
             logger.debug("Using API key for authorization")
 
@@ -658,6 +659,38 @@ class GitGuardianClient:
         """
         logger.info(f"Getting details for incident ID: {incident_id}")
         return await self._request("GET", f"/incidents/secrets/{incident_id}")
+
+    async def get_incidents(self, incident_ids: list[str]) -> list[dict[str, Any]]:
+        """Get detailed information about multiple incidents in a single batch.
+
+        This method optimizes API usage by fetching multiple incidents in parallel
+        rather than making separate serial requests for each one.
+
+        Args:
+            incident_ids: List of incident IDs to retrieve
+
+        Returns:
+            List of detailed incident data objects
+        """
+        logger.info(f"Batch fetching {len(incident_ids)} incidents")
+
+        # Use asyncio.gather to fetch incidents in parallel
+        tasks = []
+        for incident_id in incident_ids:
+            tasks.append(self.get_incident(incident_id))
+
+        # Wait for all requests to complete
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Filter out any exceptions that occurred
+        incidents = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.warning(f"Failed to fetch incident {incident_ids[i]}: {str(result)}")
+            else:
+                incidents.append(result)
+
+        return incidents
 
     async def update_incident(self, incident_id: str, status: str = None, custom_tags: list = None) -> dict[str, Any]:
         """Update a secret incident.
@@ -1200,3 +1233,138 @@ class GitGuardianClient:
             endpoint = f"{endpoint}?{query_params}"
 
         return await self._request("GET", endpoint)
+
+    async def get_source_by_name(self, source_name: str) -> dict[str, Any] | None:
+        """Get a source by its name (repository name).
+
+        Args:
+            source_name: Name of the source/repository to find
+
+        Returns:
+            Source object if found, None otherwise
+        """
+        logger.info(f"Looking up source ID for repository name: {source_name}")
+
+        # The API provides a search parameter to filter sources by name
+        params = {
+            "search": source_name,
+            "per_page": 10,  # Small number to avoid excessive data transfer
+        }
+
+        try:
+            # Get sources matching the search term
+            response = await self._request("GET", "/sources", params=params)
+
+            # Extract sources from the response
+            if isinstance(response, dict) and "data" in response:
+                sources = response["data"]
+            else:
+                sources = response
+
+            # Find exact match by name
+            for source in sources:
+                # Check for both the full name (org/repo) and just the repo name
+                if source.get("name") == source_name or source.get("full_name") == source_name:
+                    logger.info(f"Found source ID {source.get('id')} for {source_name}")
+                    return source
+
+            logger.warning(f"No source found with name: {source_name}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Error getting source by name: {str(e)}")
+            return None
+
+    async def list_repo_incidents_directly(
+        self,
+        repository_name: str,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        presence: str | None = None,
+        tags: list[str] | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
+        mine: bool = True,
+    ) -> dict[str, Any]:
+        """List incidents for a repository in a single API call.
+
+        This method offers better performance than the two-step process of
+        getting occurrences first and then incidents separately.
+
+        Args:
+            repository_name: Name of the repository
+            from_date: Filter incidents created after this date (ISO format)
+            to_date: Filter incidents created before this date (ISO format)
+            presence: Filter by presence status
+            tags: Filter by tags
+            per_page: Number of results per page
+            cursor: Pagination cursor
+            ordering: Sort field
+            get_all: Whether to fetch all results using pagination
+            mine: If True, only show incidents assigned to the current user
+
+        Returns:
+            Dictionary containing the incidents and pagination info
+        """
+        logger.info(f"Directly listing incidents for repository: {repository_name}")
+
+        # First get the source ID for the repository name
+        source = await self.get_source_by_name(repository_name)
+
+        if not source:
+            return {
+                "repository_info": {"name": repository_name},
+                "incidents": [],
+                "message": f"Repository '{repository_name}' not found or not accessible",
+            }
+
+        source_id = source.get("id")
+        logger.info(f"Found source ID {source_id} for repository {repository_name}")
+
+        # Prepare parameters for the API call
+        params = {}
+        if from_date:
+            params["from_date"] = from_date
+        if to_date:
+            params["to_date"] = to_date
+        if presence:
+            params["presence"] = presence
+        if tags:
+            params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
+        if per_page:
+            params["per_page"] = per_page
+        if cursor:
+            params["cursor"] = cursor
+        if ordering:
+            params["ordering"] = ordering
+        if mine:
+            params["assigned_to_me"] = "true"
+
+        try:
+            if get_all:
+                # Use pagination to get all results
+                incidents_result = await self.paginate_all(f"/sources/{source_id}/secret-incidents", params)
+                if isinstance(incidents_result, list):
+                    return {
+                        "repository_info": source,
+                        "incidents": incidents_result,
+                        "total_count": len(incidents_result),
+                    }
+                # If it's already a dict with structure, return it
+                return incidents_result
+
+            # Get a single page of results
+            incidents_result = await self.list_source_incidents(source_id, **params)
+
+            return {
+                "repository_info": source,
+                "incidents": incidents_result.get("data", []),
+                "next_cursor": incidents_result.get("next_cursor"),
+                "total_count": incidents_result.get("total_count", 0),
+            }
+
+        except Exception as e:
+            logger.error(f"Error listing repository incidents directly: {str(e)}")
+            return {"error": f"Failed to list repository incidents: {str(e)}"}

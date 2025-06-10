@@ -1,35 +1,23 @@
 [project]
-name = "gg-api-mcp-server"
+name = "gg-mcp-server-workspace"
 version = "0.1.0"
-description = "MCP server for GitGuardian"
+description = "MCP server workspace for GitGuardian"
 authors = [
     {name = "Author", email = "author@example.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "httpx>=0.28.1",
-    "mcp[cli]>=1.9.0",
-    "python-dotenv>=1.0.0",
-    "pydantic-settings>=2.0.0",
-]
 
-[dependency-groups]
-dev = [
-    "pytest>=8.3.5",
-    "pytest-asyncio>=0.26.0",
-]
 
-[project.scripts]
-gg-mcp-server = "gg_api_mcp_server.server:mcp.run"
-gg-mcp = "gg_api_mcp_server.server:mcp.run"
+[tool.uv.workspace]
+members = ["packages/*"]
 
-[build-system]
-requires = [ "hatchling" ]
-build-backend = "hatchling.build"
+[tool.uv.sources]
+"gg-api-core" = { workspace = true }
+"developer-mcp-server" = { workspace = true }
+"secops-mcp-server" = { workspace = true }
 
 [tool.ruff]
-
 line-length = 120
 exclude = [
     ".bzr",

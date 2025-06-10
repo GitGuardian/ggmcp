@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from mcp.server.fastmcp import FastMCP
 from mcp.types import Tool as MCPTool
 
-from gg_api_mcp_server.utils import get_gitguardian_client
+from gg_api_core.utils import get_gitguardian_client
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -140,8 +140,7 @@ class GitGuardianFastMCP(FastMCP):
         return wrapped_decorator
 
     async def list_tools(self) -> list[MCPTool]:
-        """Return all tools, with scope information added to those requiring unavailable scopes."""
-        # Get all tools from parent implementation
+        """Return all tools, filtering out those requiring unavailable scopes."""
         all_tools = await super().list_tools()
 
         # Log token scopes for debugging
@@ -156,23 +155,47 @@ class GitGuardianFastMCP(FastMCP):
             except Exception as e:
                 logger.warning(f"Could not fetch token scopes: {str(e)}")
 
-        # Add information to tools that require unavailable scopes
+        # Special handling for optimized tools
+        # We want to show either the optimized version (with _optimized suffix) or
+        # the fallback version (without suffix) based on available scopes
+        has_sources_read = "sources:read" in self._token_scopes
+        logger.info(f"User has sources:read scope: {has_sources_read}")
+
+        # Keep track of which optimized tools we've seen to avoid showing both versions
+        optimized_tool_base_names = set()
+
+        # Tools filtered by scopes and optimized vs fallback version selection
+        final_tools = []
         for tool in all_tools:
             tool_name = tool.name
             required_scopes = self._tool_scopes.get(tool_name, set())
 
-            # Check if this tool has required scopes that the user doesn't have
-            if required_scopes and not required_scopes.issubset(self._token_scopes):
-                missing_scopes = required_scopes - self._token_scopes
-                scope_warning = (
-                    f"⚠️ DO NOT USE THIS TOOL - Missing required scopes: {', '.join(missing_scopes)}. "
-                    f"This tool requires GitGuardian API permissions that your token doesn't have."
-                )
+            # Special handling for optimized tools (with _optimized suffix)
+            if tool_name.endswith("_optimized"):
+                base_name = tool_name.replace("_optimized", "")
+                optimized_tool_base_names.add(base_name)
 
-                # Add warning to the tool description
-                if tool.description:
-                    tool.description = f"{scope_warning}\n\n{tool.description}"
+                # Only include optimized version if we have sources:read scope
+                if has_sources_read and required_scopes.issubset(self._token_scopes):
+                    # Modify the tool name to remove the _optimized suffix for display
+                    # This makes it appear as the regular tool to consumers
+                    tool.name = base_name
+                    final_tools.append(tool)
+                    logger.info(f"Using optimized version for tool: {base_name}")
                 else:
-                    tool.description = scope_warning
+                    logger.info(f"Skipping optimized tool {tool_name} due to missing sources:read scope")
+            else:
+                # For regular (non-optimized) tools, check if we have an optimized version
+                # If this is a fallback version and we already have the optimized version, skip it
+                if tool_name in optimized_tool_base_names and has_sources_read:
+                    logger.info(f"Skipping fallback version of {tool_name} as optimized version will be used")
+                    continue
 
-        return all_tools
+                # Otherwise, include the tool if we have the required scopes
+                if not required_scopes or required_scopes.issubset(self._token_scopes):
+                    final_tools.append(tool)
+                else:
+                    missing_scopes = required_scopes - self._token_scopes
+                    logger.info(f"Hiding tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
+
+        return final_tools

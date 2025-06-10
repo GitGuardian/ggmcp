@@ -2,7 +2,7 @@ import logging
 import os
 from urllib.parse import urljoin as urllib_urljoin
 
-from gg_api_mcp_server.client import GitGuardianClient
+from .client import GitGuardianClient
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def urljoin(base: str, url: str) -> str:
 
 
 # Initialize GitGuardian client
-def get_gitguardian_client() -> GitGuardianClient:
+def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
     The authentication method is determined by the GITGUARDIAN_AUTH_METHOD environment variable.
@@ -22,6 +22,9 @@ def get_gitguardian_client() -> GitGuardianClient:
 
     For token auth, the GITGUARDIAN_API_KEY environment variable must be set.
     For web auth, the OAuth flow will be triggered.
+
+    Args:
+        server_name: Name of the MCP server for server-specific token storage
     """
     logger.info("Attempting to initialize GitGuardian client")
 
@@ -48,7 +51,9 @@ def get_gitguardian_client() -> GitGuardianClient:
             raise ValueError("GITGUARDIAN_API_KEY environment variable must be set for token authentication")
 
         try:
+            # Store server_name as an attribute after initialization since it's not in the constructor anymore
             client = GitGuardianClient(api_key=api_key, api_url=api_url)
+            client.server_name = server_name
             logger.info("GitGuardian client initialized successfully using token authentication")
             return client
         except Exception as e:
@@ -59,7 +64,9 @@ def get_gitguardian_client() -> GitGuardianClient:
     elif auth_method == "web":
         logger.info("Using web-based OAuth authentication")
         try:
+            # Store server_name as an attribute after initialization since it's not in the constructor anymore
             client = GitGuardianClient(api_key=None, api_url=api_url, use_oauth=True)
+            client.server_name = server_name
             logger.info("GitGuardian client initialized successfully using OAuth authentication")
             return client
         except Exception as e:
