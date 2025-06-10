@@ -209,6 +209,46 @@ class GitGuardianClient:
                 logger.error(f"OAuth authentication failed: {e}")
                 raise
 
+    async def _clear_invalid_oauth_token(self):
+        """Clear invalid OAuth token from memory and storage, forcing a new OAuth flow."""
+        if not self.use_oauth:
+            return
+
+        logger.info("Clearing invalid OAuth token from memory and storage")
+
+        # Clear in-memory token
+        self._oauth_token = None
+        self._token_info = None
+
+        # Clear token from file storage
+        try:
+            from .oauth import FileTokenStorage
+
+            file_storage = FileTokenStorage()
+            tokens = file_storage.load_tokens()
+
+            # Remove the token for this instance
+            if self.dashboard_url in tokens:
+                del tokens[self.dashboard_url]
+                logger.info(f"Removed invalid token for {self.dashboard_url} from storage")
+
+                # Save the updated tokens (without the invalid one)
+                try:
+                    with open(file_storage.token_file, "w") as f:
+                        json.dump(tokens, f, indent=2)
+                    file_storage.token_file.chmod(0o600)
+                    logger.info(f"Updated token storage file: {file_storage.token_file}")
+                except Exception as e:
+                    logger.warning(f"Could not update token file: {str(e)}")
+            else:
+                logger.info("No token found in storage for current instance")
+
+        except Exception as e:
+            logger.warning(f"Could not clean up token storage: {str(e)}")
+
+        # Force new OAuth flow on next request
+        await self._ensure_oauth_token()
+
     async def _request(
         self, method: str, endpoint: str, return_headers: bool = False, **kwargs
     ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
@@ -336,6 +376,30 @@ class GitGuardianClient:
                     raise
 
             except httpx.HTTPStatusError as e:
+                # Special handling for 401 errors when using OAuth - token might be invalid/expired
+                if e.response.status_code == 401 and self.use_oauth and self._oauth_token is not None:
+                    logger.warning("Received 401 Unauthorized - OAuth token may be invalid or expired")
+
+                    # Check if this is an "Invalid API key" error
+                    try:
+                        error_response = e.response.json()
+                        if error_response.get("detail") == "Invalid API key.":
+                            logger.info("Detected invalid OAuth token, attempting to refresh...")
+
+                            # Clear the invalid token and remove it from storage
+                            await self._clear_invalid_oauth_token()
+
+                            # If this is the first retry attempt, try to get a new token
+                            if retry_count == 0:
+                                logger.info("Retrying request with fresh OAuth token...")
+                                retry_count += 1
+                                continue
+                            else:
+                                logger.error("Failed to authenticate even after token refresh")
+                    except (json.JSONDecodeError, AttributeError):
+                        # If we can't parse the error response, continue with normal error handling
+                        pass
+
                 logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 logger.error(f"Error response content: {e.response.text}")
                 logger.error(f"Failed URL: {url}")
@@ -817,6 +881,18 @@ class GitGuardianClient:
         """
         logger.info("Listing API tokens")
         return await self._request("GET", "/api_tokens")
+
+    async def revoke_current_token(self) -> dict[str, Any]:
+        """Revoke the current API token.
+
+        This endpoint revokes the API token being used for the current request,
+        effectively invalidating it immediately.
+
+        Returns:
+            Dictionary containing the revocation status
+        """
+        logger.info("Revoking current API token")
+        return await self._request("DELETE", "/api_tokens/self")
 
     async def multiple_scan(self, documents: list[dict[str, str]]) -> dict[str, Any]:
         """Scan multiple documents for secrets and policy breaks.

@@ -115,6 +115,18 @@ class GitGuardianFastMCP(FastMCP):
         """Return the token info dictionary."""
         return self._token_info
 
+    async def revoke_current_token(self) -> dict:
+        """Revoke the current API token via GitGuardian API."""
+        try:
+            logger.info("Revoking current API token")
+            # Call the DELETE /api_tokens/self endpoint
+            result = await self._client._request("DELETE", "/api_tokens/self")
+            logger.info("Successfully revoked current API token")
+            return result
+        except Exception as e:
+            logger.error(f"Error revoking current API token: {str(e)}")
+            raise
+
     def tool(self, name: str = None, description: str = None, required_scopes: list[str] = None, **kwargs):
         """Extended tool decorator that tracks required scopes."""
         # Get the actual name that will be used for the tool
@@ -199,3 +211,155 @@ class GitGuardianFastMCP(FastMCP):
                     logger.info(f"Hiding tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
 
         return final_tools
+
+
+# Common MCP tools for user information and token management
+def register_common_tools(mcp_instance: GitGuardianFastMCP):
+    """Register common MCP tools for user information and token management."""
+
+    logger.info("Registering common MCP tools...")
+
+    # Simple approach - just register the tools and let the scope filtering handle visibility
+    # The tool names are different enough that conflicts should be rare
+
+    @mcp_instance.tool(
+        name="get_authenticated_user_info",
+        description="Get comprehensive information about the authenticated user and current API token including scopes and authentication method",
+    )
+    async def get_authenticated_user_info() -> dict:
+        """
+        Get information about the authenticated user and current API token.
+
+        Returns comprehensive information about the current user including:
+        - Token details (name, ID, creation date, expiration)
+        - Token scopes and permissions
+        - User/member information
+        - Authentication method being used
+
+        Returns:
+            dict: Dictionary containing user and token information
+        """
+        logger.info("Getting authenticated user information")
+
+        # Get token info (either from stored cache or fetch fresh)
+        token_info = mcp_instance.get_token_info()
+
+        if not token_info:
+            # Try to fetch token info if not already cached
+            try:
+                client = mcp_instance.get_client()
+                token_info = await client.get_current_token_info()
+            except Exception as e:
+                logger.error(f"Error fetching user info: {str(e)}")
+                return {
+                    "error": f"Unable to fetch user information: {str(e)}",
+                    "authentication_method": mcp_instance._auth_method,
+                }
+
+        # Prepare response with all available information
+        user_info = {
+            "authentication_method": mcp_instance._auth_method,
+            "token_scopes": list(mcp_instance._token_scopes),
+            "token_info": token_info,
+        }
+
+        logger.info(f"Retrieved user info for token ID: {token_info.get('id', 'unknown')}")
+        return user_info
+
+    @mcp_instance.tool(
+        name="revoke_current_token",
+        description="Revoke the current API token and clean up stored credentials",
+    )
+    async def revoke_current_token() -> dict:
+        """
+        Revoke the current API token and clean up stored credentials.
+
+        This tool will:
+        1. Call the GitGuardian API to revoke the current token
+        2. Remove the token from local storage files
+        3. Clear cached token information
+
+        After calling this tool, you will need to re-authenticate to continue using the MCP server.
+
+        Returns:
+            dict: Status of the revocation operation
+        """
+        logger.info("Starting token revocation process")
+
+        try:
+            # Step 1: Revoke token via API
+            revocation_result = await mcp_instance.revoke_current_token()
+            logger.info("Token successfully revoked via API")
+
+            # Step 2: Clean up stored token files
+            cleanup_results = []
+
+            # For OAuth tokens, clean up the stored OAuth token file
+            if mcp_instance._auth_method == "web":
+                try:
+                    from .oauth import FileTokenStorage
+
+                    # Get the token storage instance
+                    file_storage = FileTokenStorage()
+
+                    # Get the instance URL from client
+                    client = mcp_instance.get_client()
+                    instance_url = client._get_dashboard_url()
+
+                    # Load current tokens
+                    tokens = file_storage.load_tokens()
+
+                    # Remove the token for this instance
+                    if instance_url in tokens:
+                        del tokens[instance_url]
+
+                        # Save the updated tokens (without the revoked one)
+                        import json
+
+                        try:
+                            with open(file_storage.token_file, "w") as f:
+                                json.dump(tokens, f, indent=2)
+                            file_storage.token_file.chmod(0o600)
+                            cleanup_results.append(f"Removed OAuth token from {file_storage.token_file}")
+                            logger.info(f"Cleaned up OAuth token file: {file_storage.token_file}")
+                        except Exception as e:
+                            cleanup_results.append(f"Warning: Could not update token file: {str(e)}")
+                            logger.warning(f"Could not update OAuth token file: {str(e)}")
+                    else:
+                        cleanup_results.append("No OAuth token found in storage for current instance")
+
+                except Exception as e:
+                    cleanup_results.append(f"Warning: Could not clean up OAuth token storage: {str(e)}")
+                    logger.warning(f"Could not clean up OAuth token storage: {str(e)}")
+
+            # Step 3: Clear cached token information in the MCP server
+            mcp_instance._token_info = None
+            mcp_instance._token_scopes = set()
+            cleanup_results.append("Cleared cached token information from MCP server")
+
+            result = {
+                "status": "success",
+                "message": "Token successfully revoked and credentials cleaned up",
+                "api_revocation": revocation_result,
+                "cleanup_actions": cleanup_results,
+                "next_steps": [
+                    "The MCP server will need to re-authenticate for future requests",
+                    "Restart the MCP server to initiate a new authentication flow",
+                ],
+            }
+
+            logger.info("Token revocation and cleanup completed successfully")
+            return result
+
+        except Exception as e:
+            logger.error(f"Error during token revocation: {str(e)}")
+            return {
+                "status": "error",
+                "message": f"Failed to revoke token: {str(e)}",
+                "next_steps": [
+                    "You may need to manually revoke the token via the GitGuardian dashboard",
+                    "Check the GitGuardian API documentation for manual token management",
+                ],
+            }
+
+    logger.info("Successfully registered common MCP tools: get_authenticated_user_info, revoke_current_token")

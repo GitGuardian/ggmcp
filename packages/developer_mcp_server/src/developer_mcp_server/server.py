@@ -616,6 +616,41 @@ async def list_repo_incidents(
 
 
 if __name__ == "__main__":
+    # Register common tools for user information and token management
+    logger.info("About to register common tools...")
+    try:
+        from gg_api_core.mcp_server import register_common_tools
+
+        logger.info("Successfully imported register_common_tools")
+        register_common_tools(mcp)
+        logger.info("Successfully called register_common_tools")
+    except Exception as e:
+        logger.error(f"Failed to register common tools: {str(e)}")
+        import traceback
+
+        logger.error(f"Traceback: {traceback.format_exc()}")
+
+    # Log all registered tools
+    logger.info("Starting Developer MCP server...")
+    mcp.run()
+
+
+# Register common tools for user information and token management
+logger.info("About to register common tools...")
+try:
+    from gg_api_core.mcp_server import register_common_tools
+
+    logger.info("Successfully imported register_common_tools")
+    register_common_tools(mcp)
+    logger.info("Successfully called register_common_tools")
+except Exception as e:
+    logger.error(f"Failed to register common tools: {str(e)}")
+    import traceback
+
+    logger.error(f"Traceback: {traceback.format_exc()}")
+
+
+if __name__ == "__main__":
     # Log all registered tools
     logger.info("Starting Developer MCP server...")
     mcp.run()
