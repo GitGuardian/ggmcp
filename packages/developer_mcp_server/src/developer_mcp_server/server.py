@@ -357,7 +357,7 @@ async def scan_secrets(
         logger.debug(f"Documents to scan: {safe_docs_log}")
 
         # Make the API call
-        result = await client.scan_content(documents)
+        result = await client.multiple_scan(documents)
         logger.debug(f"Scanned {len(documents)} documents")
 
         return result
