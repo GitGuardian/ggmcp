@@ -89,7 +89,7 @@ class GitGuardianClient:
                 logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
                 raise ValueError("GitGuardian API key is required for token authentication")
 
-            logger.info("GitGuardian client initialized successfully with token authentication")
+            logger.debug("GitGuardian client initialized with token authentication")
         else:
             # For OAuth authentication
             self.api_key = None

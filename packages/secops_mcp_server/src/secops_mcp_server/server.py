@@ -1,4 +1,4 @@
-"""GitGuardian MCP server for SecOps with comprehensive security tools."""
+"""GitGuardian MCP server for SecOps teams with incident management tools."""
 
 import json
 import logging
@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import SECOPS_SCOPES
-from mcp.server.fastmcp.exceptions import ToolError
+from mcp.server.fastmcp import ToolError
 from pydantic import Field
 
 # Configure more detailed logging
@@ -20,12 +20,12 @@ gitguardian_api_key = os.environ.get("GITGUARDIAN_API_KEY")
 gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
 
 logger.info("Starting SecOps MCP Server")
-logger.info(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
-logger.info(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
+logger.debug(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
+logger.debug(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
 
-# Set specific environment variable for this server to request full SecOps scopes
+# Set specific environment variable for this server to request only SecOps-specific scopes
 os.environ["GITGUARDIAN_SCOPES"] = ",".join(SECOPS_SCOPES)
-logger.info(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
+logger.debug(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
 
 # Use our custom GitGuardianFastMCP from the core package
 mcp = GitGuardianFastMCP(
@@ -61,7 +61,7 @@ mcp = GitGuardianFastMCP(
     - For example, if a prompt is asking: "list incidents assigned to me", or "list my incident", or "list my honeytokens", you MUST use the `mine` parameter.
     """,
 )
-logger.info("Created SecOps GitGuardianFastMCP instance")
+logger.debug("Created SecOps GitGuardianFastMCP instance")
 
 
 @mcp.tool(
@@ -80,22 +80,15 @@ async def generate_honeytoken(
         description: Description of what the honeytoken is used for
 
     Returns:
-        dict[str, Any]: Dictionary containing:
-            - id: ID of the created honeytoken
-            - name: Name of the honeytoken
-            - description: Description of the honeytoken
-            - token: The generated honeytoken value
-            - created_at: Creation timestamp
-            - expires_at: Expiration timestamp
-            - type: Type of honeytoken (e.g., 'aws')
-            - injection_help: Suggestions for injecting the honeytoken
+        Honeytoken data and injection recommendations
     """
     client = mcp.get_client()
-    logger.info(f"Generating honeytoken with name: {name}")
+    logger.debug(f"Generating honeytoken with name: {name}")
 
     try:
+        # Generate the honeytoken
         result = await client.generate_honeytoken(name=name, description=description)
-        logger.info(f"Successfully generated honeytoken with ID: {result.get('id')}")
+        logger.debug(f"Generated honeytoken with ID: {result.get('id')}")
         return result
     except Exception as e:
         logger.error(f"Error generating honeytoken: {str(e)}")
@@ -133,19 +126,18 @@ async def list_incidents(
     mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user"),
 ) -> list[dict[str, Any]]:
     """
-    List secret incidents detected by the GitGuardian dashboard with filtering options.
+    List secret incidents detected by the GitGuardian dashboard.
 
     Args:
-        severity: Filter by severity level (critical, high, medium, low)
-        status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+        severity: Filter incidents by severity (critical, high, medium, low)
+        status: Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
         from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
-        assignee_email: Filter incidents assigned to a specific email address
-        assignee_id: Filter incidents assigned to a specific member ID
-        validity: Filter by validity status (valid, invalid, failed_to_check, no_checker, unknown)
-        ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
-                Default is ASC, DESC if preceded by '-'
-        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        assignee_email: Filter incidents assigned to this email
+        assignee_id: Filter incidents assigned to this user id
+        validity: Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)
+        ordering: Sort field and direction (prefix with '-' for descending order)
+        per_page: Number of results per page (1-100)
         get_all: If True, fetch all results using cursor-based pagination
         mine: If True, fetch incidents assigned to the current user
 
@@ -153,44 +145,36 @@ async def list_incidents(
         List of incidents matching the specified criteria
     """
     client = mcp.get_client()
-    logger.info("Listing incidents with filters")
+    logger.debug("Listing incidents with filters")
+
+    # Build filters dictionary
+    filters = {
+        "severity": severity,
+        "status": status,
+        "from_date": from_date,
+        "to_date": to_date,
+        "assignee_email": assignee_email,
+        "assignee_id": assignee_id,
+        "validity": validity,
+        "per_page": per_page,
+        "ordering": ordering,
+        "get_all": get_all,
+        "mine": mine,
+    }
+
+    logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
 
     try:
-        # Log the filter values
-        filters = {
-            "severity": severity,
-            "status": status,
-            "from_date": from_date,
-            "to_date": to_date,
-            "assignee_email": assignee_email,
-            "assignee_id": assignee_id,
-            "validity": validity,
-            "ordering": ordering,
-            "per_page": per_page,
-            "get_all": get_all,
-            "mine": mine,
-        }
+        result = await client.list_incidents(**filters)
 
-        logger.info(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
+        # Handle both response formats: either a dict with 'incidents' key or a list directly
+        if isinstance(result, dict):
+            incidents = result.get("incidents", [])
+        else:
+            # If the result is already a list, use it directly
+            incidents = result
 
-        # Make the API call
-        result = await client.list_incidents(
-            severity=severity,
-            status=status,
-            from_date=from_date,
-            to_date=to_date,
-            assignee_email=assignee_email,
-            assignee_id=assignee_id,
-            validity=validity,
-            ordering=ordering,
-            per_page=per_page,
-            get_all=get_all,
-            mine=mine,
-        )
-
-        incidents = result.get("incidents", [])
-        logger.info(f"Found {len(incidents)} incidents")
-
+        logger.debug(f"Found {len(incidents)} incidents")
         return incidents
     except Exception as e:
         logger.error(f"Error listing incidents: {str(e)}")
@@ -203,26 +187,22 @@ async def list_incidents(
 )
 async def get_current_token_info() -> dict[str, Any]:
     """
-    Get information about the current API token. Use this to get information about current user token information.
+    Get information about the current API token.
 
-    Args:
-        None
+    Returns comprehensive information including:
+    - Token details (name, ID, creation date, expiration)
+    - Token scopes and permissions
+    - Associated member information
 
     Returns:
-        dict[str, Any]: Dictionary containing token information including:
-            - id: ID of the API token
-            - name: Name of the token
-            - scopes: List of scopes the token has access to
-            - member_id: ID of the member who owns the token
-            - created_at: Creation timestamp
-            - expiration_date: When the token expires (if applicable)
+        Token information dictionary
     """
     client = mcp.get_client()
-    logger.info("Getting current token info")
+    logger.debug("Getting current token information")
 
     try:
         result = await client.get_current_token_info()
-        logger.info(f"Successfully retrieved token info for token ID: {result.get('id')}")
+        logger.debug(f"Retrieved token info for token ID: {result.get('id')}")
         return result
     except Exception as e:
         logger.error(f"Error getting token info: {str(e)}")
@@ -248,7 +228,6 @@ async def list_honeytokens(
 ) -> list[dict[str, Any]]:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
-    This can be used to get a honeytoken and inject it in the codebase.
 
     Args:
         status: Filter by status (ACTIVE or REVOKED)
@@ -257,47 +236,42 @@ async def list_honeytokens(
         show_token: Whether to include token details in the response
         creator_id: Filter by creator ID
         creator_api_token_id: Filter by creator API token ID
-        per_page: Number of results per page (default: 20)
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
         get_all: If True, fetch all results using cursor-based pagination
         mine: If True, fetch honeytokens created by the current user
+
     Returns:
         List of honeytokens matching the specified criteria
     """
     client = mcp.get_client()
-    logger.info("Listing honeytokens with filters")
+    logger.debug("Listing honeytokens with filters")
+
+    # Build filters dictionary, removing None values
+    filters = {
+        "status": status,
+        "search": search,
+        "ordering": ordering,
+        "show_token": show_token,
+        "creator_id": creator_id,
+        "creator_api_token_id": creator_api_token_id,
+        "per_page": per_page,
+        "get_all": get_all,
+        "mine": mine,
+    }
+
+    logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
 
     try:
-        # Log the filter values
-        filters = {
-            "status": status,
-            "search": search,
-            "ordering": ordering,
-            "show_token": show_token,
-            "creator_id": creator_id,
-            "creator_api_token_id": creator_api_token_id,
-            "per_page": per_page,
-            "get_all": get_all,
-            "mine": mine,
-        }
+        result = await client.list_honeytokens(**filters)
 
-        logger.info(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
+        # Handle both response formats: either a dict with 'honeytokens' key or a list directly
+        if isinstance(result, dict):
+            honeytokens = result.get("honeytokens", [])
+        else:
+            # If the result is already a list, use it directly
+            honeytokens = result
 
-        # Make the API call
-        result = await client.list_honeytokens(
-            status=status,
-            search=search,
-            ordering=ordering,
-            show_token=show_token,
-            creator_id=creator_id,
-            creator_api_token_id=creator_api_token_id,
-            per_page=per_page,
-            get_all=get_all,
-            mine=mine,
-        )
-
-        honeytokens = result.get("honeytokens", [])
-        logger.info(f"Found {len(honeytokens)} honeytokens")
-
+        logger.debug(f"Found {len(honeytokens)} honeytokens")
         return honeytokens
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
@@ -323,46 +297,32 @@ async def manage_incident(
     mine: bool = Field(default=False, description="If True, use the current user's ID for the assignee_id"),
 ) -> dict[str, Any]:
     """
-    Manage a secret incident with various actions.
+    Manage a secret incident (assign, unassign, resolve, ignore, reopen).
 
     Args:
         incident_id: ID of the secret incident to manage
-        action: Action to perform on the incident (assign, unassign, resolve, ignore, reopen)
+        action: Action to perform on the incident
         assignee_id: ID of the member to assign the incident to (required for 'assign' action)
         ignore_reason: Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)
         mine: If True, use the current user's ID for the assignee_id
+
     Returns:
-        Status of the operation
+        Updated incident data
     """
     client = mcp.get_client()
-    logger.info(f"Managing incident {incident_id} with action: {action}")
+    logger.debug(f"Managing incident {incident_id} with action: {action}")
 
     try:
-        # If 'mine' is True and this is an 'assign' action, we need to get the current user's ID
-        if mine and action == "assign" and not assignee_id:
-            logger.info("Getting current token info to use current user's ID")
-            token_info = await client.get_current_token_info()
-            assignee_id = token_info.get("member_id")
-            logger.info(f"Using current user's ID for assignment: {assignee_id}")
-
-        # Validate required parameters
-        if action == "assign" and not assignee_id:
-            error_msg = "assignee_id is required for 'assign' action"
-            logger.error(error_msg)
-            raise ToolError(error_msg)
-
-        if action == "ignore" and not ignore_reason:
-            logger.warning("No ignore_reason provided for 'ignore' action")
-
         # Make the API call
         result = await client.manage_incident(
             incident_id=incident_id,
             action=action,
             assignee_id=assignee_id,
             ignore_reason=ignore_reason,
+            mine=mine,
         )
 
-        logger.info(f"Successfully managed incident {incident_id}")
+        logger.debug(f"Managed incident {incident_id}")
         return result
     except Exception as e:
         logger.error(f"Error managing incident: {str(e)}")
@@ -390,7 +350,7 @@ async def update_or_create_incident_custom_tags(
         Updated incident data
     """
     client = mcp.get_client()
-    logger.info(f"Updating custom tags for incident {incident_id}")
+    logger.debug(f"Updating custom tags for incident {incident_id}")
 
     try:
         # Make the API call
@@ -399,7 +359,7 @@ async def update_or_create_incident_custom_tags(
             custom_tags=custom_tags,
         )
 
-        logger.info(f"Successfully updated custom tags for incident {incident_id}")
+        logger.debug(f"Updated custom tags for incident {incident_id}")
         return result
     except Exception as e:
         logger.error(f"Error updating custom tags: {str(e)}")
@@ -425,11 +385,11 @@ async def update_incident_status(
         Updated incident data
     """
     client = mcp.get_client()
-    logger.info(f"Updating incident {incident_id} status to {status}")
+    logger.debug(f"Updating incident {incident_id} status to {status}")
 
     try:
         result = await client.update_incident_status(incident_id=incident_id, status=status)
-        logger.info(f"Successfully updated incident {incident_id} status to {status}")
+        logger.debug(f"Updated incident {incident_id} status to {status}")
         return result
     except Exception as e:
         logger.error(f"Error updating incident status: {str(e)}")
@@ -460,12 +420,12 @@ async def read_custom_tags(
         client = mcp.get_client()
 
         if action == "list_tags":
-            logger.info("Listing all custom tags")
+            logger.debug("Listing all custom tags")
             return await client.custom_tags_list()
         elif action == "get_tag":
             if not tag_id:
                 raise ValueError("tag_id is required when action is 'get_tag'")
-            logger.info(f"Getting custom tag with ID: {tag_id}")
+            logger.debug(f"Getting custom tag with ID: {tag_id}")
             return await client.custom_tags_get(tag_id)
         else:
             raise ValueError(f"Invalid action: {action}. Must be one of ['list_tags', 'get_tag']")
@@ -506,14 +466,14 @@ async def write_custom_tags(
                 raise ValueError("key is required when action is 'create_tag'")
 
             # Value is optional for label-only tags
-            logger.info(f"Creating custom tag with key: {key}, value: {value or 'None (label only)'}")
+            logger.debug(f"Creating custom tag with key: {key}, value: {value or 'None (label only)'}")
             return await client.custom_tags_create(key, value)
 
         elif action == "delete_tag":
             if not tag_id:
                 raise ValueError("tag_id is required when action is 'delete_tag'")
 
-            logger.info(f"Deleting custom tag with ID: {tag_id}")
+            logger.debug(f"Deleting custom tag with ID: {tag_id}")
             return await client.custom_tags_delete(tag_id)
         else:
             raise ValueError(f"Invalid action: {action}. Must be one of ['create_tag', 'delete_tag']")
@@ -522,34 +482,11 @@ async def write_custom_tags(
         raise ToolError(f"Error: {str(e)}")
 
 
-if __name__ == "__main__":
-    # Register common tools for user information and token management
-    logger.info("About to register common tools...")
-    try:
-        from gg_api_core.mcp_server import register_common_tools
-
-        logger.info("Successfully imported register_common_tools")
-        register_common_tools(mcp)
-        logger.info("Successfully called register_common_tools")
-    except Exception as e:
-        logger.error(f"Failed to register common tools: {str(e)}")
-        import traceback
-
-        logger.error(f"Traceback: {traceback.format_exc()}")
-
-    # Log all registered tools
-    logger.info("Starting SecOps MCP server...")
-    mcp.run()
-
-
 # Register common tools for user information and token management
-logger.info("About to register common tools...")
 try:
     from gg_api_core.mcp_server import register_common_tools
 
-    logger.info("Successfully imported register_common_tools")
     register_common_tools(mcp)
-    logger.info("Successfully called register_common_tools")
 except Exception as e:
     logger.error(f"Failed to register common tools: {str(e)}")
     import traceback
@@ -558,6 +495,5 @@ except Exception as e:
 
 
 if __name__ == "__main__":
-    # Log all registered tools
     logger.info("Starting SecOps MCP server...")
     mcp.run()

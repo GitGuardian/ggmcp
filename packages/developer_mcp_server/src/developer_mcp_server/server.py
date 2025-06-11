@@ -18,12 +18,12 @@ gitguardian_api_key = os.environ.get("GITGUARDIAN_API_KEY")
 gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
 
 logger.info("Starting Developer MCP Server")
-logger.info(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
-logger.info(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
+logger.debug(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
+logger.debug(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
 
 # Set specific environment variable for this server to request only developer-specific scopes
 os.environ["GITGUARDIAN_SCOPES"] = ",".join(DEVELOPER_SCOPES)
-logger.info(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
+logger.debug(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
 
 # Use our custom GitGuardianFastMCP from the core package
 mcp = GitGuardianFastMCP(
@@ -109,7 +109,7 @@ async def remediate_secret_incidents_optimized(
         - remediation_steps: Steps to remediate the incidents
         - git_commands: Git commands to fix history (if requested)
     """
-    logger.info(f"Using optimized remediate_secret_incidents with sources API for: {repository_name}")
+    logger.debug(f"Using optimized remediate_secret_incidents with sources API for: {repository_name}")
 
     # Step 1: Get incidents for this repository using the optimized method with sources API
     client = mcp.get_client()
@@ -194,7 +194,7 @@ async def remediate_secret_incidents(
         - remediation_steps: Steps to remediate the incidents
         - git_commands: Git commands to fix history (if requested)
     """
-    logger.info(f"Using fallback remediate_secret_incidents implementation for: {repository_name}")
+    logger.debug(f"Using fallback remediate_secret_incidents implementation for: {repository_name}")
 
     # Get incidents for this repository using the fallback method (without sources:read scope)
     # We'll reuse our list_repo_incidents implementation since it already handles all the filtering
@@ -329,12 +329,12 @@ async def scan_secrets(
                 {"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview}
             )
 
-        logger.info(f"Scanning {len(documents)} documents for secrets")
+        logger.debug(f"Scanning {len(documents)} documents for secrets")
         logger.debug(f"Documents to scan: {safe_docs_log}")
 
         # Make the API call
         result = await client.scan_content(documents)
-        logger.info(f"Successfully scanned {len(documents)} documents")
+        logger.debug(f"Scanned {len(documents)} documents")
 
         return result
     except Exception as e:
@@ -390,7 +390,7 @@ async def list_repo_incidents_optimized(
         List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
-    logger.info(f"Using optimized list_repo_incidents_optimized with sources API for repository: {repository_name}")
+    logger.debug(f"Using optimized list_repo_incidents_optimized with sources API for repository: {repository_name}")
 
     # Use the new direct approach using the GitGuardian Sources API
     try:
@@ -464,10 +464,10 @@ async def list_repo_incidents(
         List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
-    logger.info(f"Using fallback list_repo_incidents implementation for repository: {repository_name}")
+    logger.debug(f"Using fallback list_repo_incidents implementation for repository: {repository_name}")
 
     # Step 1: Get occurrences filtered by repository name
-    logger.info(f"Getting occurrences for repository: {repository_name}")
+    logger.debug(f"Getting occurrences for repository: {repository_name}")
 
     occurrence_params = {
         "source_name": repository_name,
@@ -495,7 +495,7 @@ async def list_repo_incidents(
             # If the result is already a list, use it directly
             occurrences = occurrences_result
 
-        logger.info(f"Found {len(occurrences)} occurrences for repository {repository_name}")
+        logger.debug(f"Found {len(occurrences)} occurrences for repository {repository_name}")
 
         if not occurrences:
             return {
@@ -507,7 +507,7 @@ async def list_repo_incidents(
 
         # Extract incident IDs from occurrences
         incident_ids = {occurrence.get("incident_id") for occurrence in occurrences if occurrence.get("incident_id")}
-        logger.info(f"Occurrences belong to {len(incident_ids)} unique incidents")
+        logger.debug(f"Occurrences belong to {len(incident_ids)} unique incidents")
 
         # Step 2: Get detailed incident information - optimized to fetch in bulk
         incidents = []
@@ -516,7 +516,7 @@ async def list_repo_incidents(
         if hasattr(client, "get_incidents") and callable(getattr(client, "get_incidents")):
             # Use bulk fetch if available
             try:
-                logger.info(f"Using bulk fetch for {len(incident_ids)} incidents")
+                logger.debug(f"Using bulk fetch for {len(incident_ids)} incidents")
                 incidents_data = await client.get_incidents(list(incident_ids))
 
                 # Process all incidents data
@@ -563,7 +563,7 @@ async def list_repo_incidents(
                         logger.warning(f"Error retrieving incident {incident_id}: {str(e)}")
         else:
             # Fall back to individual fetches if bulk fetch isn't available
-            logger.warning("Bulk fetch not available, using individual fetches for incidents")
+            logger.debug("Bulk fetch not available, using individual fetches for incidents")
             for incident_id in incident_ids:
                 try:
                     # Get the detailed incident information
@@ -587,7 +587,7 @@ async def list_repo_incidents(
                 except Exception as e:
                     logger.warning(f"Error retrieving incident {incident_id}: {str(e)}")
 
-        logger.info(f"Retrieved {len(incidents)} incidents for repository {repository_name}")
+        logger.debug(f"Retrieved {len(incidents)} incidents for repository {repository_name}")
 
         # Apply pagination to the results if not get_all
         if not get_all and len(incidents) > per_page:
@@ -615,34 +615,11 @@ async def list_repo_incidents(
         return {"error": f"Failed to list repository incidents: {str(e)}"}
 
 
-if __name__ == "__main__":
-    # Register common tools for user information and token management
-    logger.info("About to register common tools...")
-    try:
-        from gg_api_core.mcp_server import register_common_tools
-
-        logger.info("Successfully imported register_common_tools")
-        register_common_tools(mcp)
-        logger.info("Successfully called register_common_tools")
-    except Exception as e:
-        logger.error(f"Failed to register common tools: {str(e)}")
-        import traceback
-
-        logger.error(f"Traceback: {traceback.format_exc()}")
-
-    # Log all registered tools
-    logger.info("Starting Developer MCP server...")
-    mcp.run()
-
-
 # Register common tools for user information and token management
-logger.info("About to register common tools...")
 try:
     from gg_api_core.mcp_server import register_common_tools
 
-    logger.info("Successfully imported register_common_tools")
     register_common_tools(mcp)
-    logger.info("Successfully called register_common_tools")
 except Exception as e:
     logger.error(f"Failed to register common tools: {str(e)}")
     import traceback
@@ -651,6 +628,5 @@ except Exception as e:
 
 
 if __name__ == "__main__":
-    # Log all registered tools
     logger.info("Starting Developer MCP server...")
     mcp.run()

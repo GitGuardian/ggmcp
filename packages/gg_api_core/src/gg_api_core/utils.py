@@ -26,15 +26,15 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
     Args:
         server_name: Name of the MCP server for server-specific token storage
     """
-    logger.info("Attempting to initialize GitGuardian client")
+    logger.debug("Attempting to initialize GitGuardian client")
 
     auth_method = os.environ.get("GITGUARDIAN_AUTH_METHOD", "web").lower()
     api_url = os.environ.get("GITGUARDIAN_API_URL")
 
     if api_url:
-        logger.info(f"GITGUARDIAN_API_URL environment variable is set: {api_url}")
+        logger.debug(f"GITGUARDIAN_API_URL environment variable is set: {api_url}")
     else:
-        logger.info("GITGUARDIAN_API_URL not set, will use default")
+        logger.debug("GITGUARDIAN_API_URL not set, will use default")
 
     # Token-based authentication (default)
     if auth_method == "token":
@@ -42,7 +42,7 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
 
         # Log environment variable status
         if api_key:
-            logger.info("GITGUARDIAN_API_KEY environment variable is set")
+            logger.debug("GITGUARDIAN_API_KEY environment variable is set")
             # Only show first 4 chars for logging
             key_preview = api_key[:4] + "..." if len(api_key) > 4 else "***"
             logger.debug(f"API key starts with: {key_preview}")
@@ -54,7 +54,7 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
             # Store server_name as an attribute after initialization since it's not in the constructor anymore
             client = GitGuardianClient(api_key=api_key, api_url=api_url)
             client.server_name = server_name
-            logger.info("GitGuardian client initialized successfully using token authentication")
+            logger.debug("GitGuardian client initialized using token authentication")
             return client
         except Exception as e:
             logger.exception(f"Failed to initialize GitGuardian client with token auth: {str(e)}")
@@ -62,12 +62,12 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
 
     # OAuth-based authentication
     elif auth_method == "web":
-        logger.info("Using web-based OAuth authentication")
+        logger.debug("Using web-based OAuth authentication")
         try:
             # Store server_name as an attribute after initialization since it's not in the constructor anymore
             client = GitGuardianClient(api_key=None, api_url=api_url, use_oauth=True)
             client.server_name = server_name
-            logger.info("GitGuardian client initialized successfully using OAuth authentication")
+            logger.debug("GitGuardian client initialized using OAuth authentication")
             return client
         except Exception as e:
             logger.exception(f"Failed to initialize GitGuardian client with OAuth auth: {str(e)}")
