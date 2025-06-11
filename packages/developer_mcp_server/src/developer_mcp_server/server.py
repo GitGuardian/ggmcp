@@ -111,13 +111,19 @@ async def remediate_secret_incidents_optimized(
     """
     logger.debug(f"Using optimized remediate_secret_incidents with sources API for: {repository_name}")
 
-    # Step 1: Get incidents for this repository using the optimized method with sources API
-    client = mcp.get_client()
-
     try:
-        # Use our optimized direct approach that requires sources:read scope
-        incidents_result = await client.list_repo_incidents_directly(
-            repository_name=repository_name, get_all=get_all, mine=mine
+        incidents_result = await list_repo_incidents_optimized(
+            repository_name=repository_name,
+            get_all=get_all,
+            mine=mine,
+            # Explicitly pass None for optional parameters to avoid FieldInfo objects
+            from_date=None,
+            to_date=None,
+            presence=None,
+            tags=None,
+            ordering=None,
+            per_page=20,
+            cursor=None,
         )
 
         if "error" in incidents_result:
@@ -134,12 +140,17 @@ async def remediate_secret_incidents_optimized(
 
         # Continue with remediation logic using the incidents...
         # This part is common between the optimized and fallback versions, so we can call a helper function
-        return await _process_incidents_for_remediation(
+        logger.debug(f"Processing {len(incidents)} incidents for remediation")
+        result = await _process_incidents_for_remediation(
             incidents=incidents,
             repository_name=repository_name,
             include_git_commands=include_git_commands,
             create_env_example=create_env_example,
         )
+        logger.debug(
+            f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
+        )
+        return result
 
     except Exception as e:
         logger.error(f"Error remediating incidents: {str(e)}")
@@ -196,12 +207,23 @@ async def remediate_secret_incidents(
     """
     logger.debug(f"Using fallback remediate_secret_incidents implementation for: {repository_name}")
 
-    # Get incidents for this repository using the fallback method (without sources:read scope)
-    # We'll reuse our list_repo_incidents implementation since it already handles all the filtering
+    # Use the same logic as list_repo_incidents to ensure consistency
 
     try:
-        # First get incidents via the fallback method that doesn't require sources:read
-        repo_incidents_result = await list_repo_incidents(repository_name=repository_name, get_all=get_all, mine=mine)
+        # Use the same logic as list_repo_incidents to ensure consistency
+        repo_incidents_result = await list_repo_incidents(
+            repository_name=repository_name,
+            get_all=get_all,
+            mine=mine,
+            # Explicitly pass None for optional parameters to avoid FieldInfo objects
+            from_date=None,
+            to_date=None,
+            presence=None,
+            tags=None,
+            ordering=None,
+            per_page=20,
+            cursor=None,
+        )
 
         if "error" in repo_incidents_result:
             return {"error": repo_incidents_result["error"]}
@@ -252,23 +274,25 @@ async def _process_incidents_for_remediation(
     """
     # For now, we'll just return the incidents list
     # In a real implementation, this would analyze the incidents and provide remediation steps
+    remediation_steps = []
+    for incident in incidents:
+        step = {
+            "incident_id": incident.get("id"),
+            "secret_type": incident.get("type"),
+            "recommendations": [
+                f"Remove the secret from {len(incident.get('repository_occurrences', []))} files",
+                "Use environment variables instead of hardcoded secrets",
+            ],
+            "include_git_commands": include_git_commands,
+            "create_env_example": create_env_example,
+        }
+        remediation_steps.append(step)
+
     return {
         "repository_info": {"name": repository_name},
         "incidents_count": len(incidents),
         "incidents": incidents,
-        "remediation_steps": [
-            {
-                "incident_id": incident.get("id"),
-                "secret_type": incident.get("type"),
-                "recommendations": [
-                    f"Remove the secret from {len(incident.get('repository_occurrences', []))} files",
-                    "Use environment variables instead of hardcoded secrets",
-                ],
-                "include_git_commands": include_git_commands,
-                "create_env_example": create_env_example,
-            }
-            for incident in incidents
-        ],
+        "remediation_steps": remediation_steps,
     }
 
 
@@ -512,80 +536,47 @@ async def list_repo_incidents(
         # Step 2: Get detailed incident information - optimized to fetch in bulk
         incidents = []
 
-        # Check if the client has a bulk fetch method
-        if hasattr(client, "get_incidents") and callable(getattr(client, "get_incidents")):
-            # Use bulk fetch if available
+        # Skip bulk fetch entirely to avoid the FieldInfo bug and always use individual fetches
+        # This is a workaround for a bug in the client library
+        logger.debug(
+            f"Using individual fetches for {len(incident_ids)} incidents (skipping bulk fetch due to FieldInfo bug)"
+        )
+        for incident_id in incident_ids:
             try:
-                logger.debug(f"Using bulk fetch for {len(incident_ids)} incidents")
-                incidents_data = await client.get_incidents(list(incident_ids))
+                # Get the detailed incident information
+                logger.debug(f"Fetching individual incident {incident_id}")
+                incident_data = await client.get_incident(incident_id)
 
-                # Process all incidents data
-                for incident_data in incidents_data:
-                    incident_id = incident_data.get("id")
+                # Validate that we got a proper dict response
+                if not isinstance(incident_data, dict):
+                    logger.warning(f"Unexpected incident data type for {incident_id}: {type(incident_data)}")
+                    continue
 
-                    # Filter by "mine" parameter if requested
-                    if mine and incident_data.get("assignee", {}).get("is_current_user") is False:
-                        continue
+                # Filter by "mine" parameter if requested
+                if mine and incident_data.get("assignee", {}).get("is_current_user") is False:
+                    logger.debug(f"Skipping incident {incident_id} - not assigned to current user")
+                    continue
 
-                    # Apply tag filtering if needed
-                    if tags and not any(tag in incident_data.get("tags", []) for tag in tags):
-                        continue
+                # Apply tag filtering if needed
+                if tags and not any(tag in incident_data.get("tags", []) for tag in tags):
+                    logger.debug(f"Skipping incident {incident_id} - doesn't match tag filter")
+                    continue
 
-                    # For each incident, find its related occurrences in this repository
-                    incident_occurrences = [occ for occ in occurrences if occ.get("incident_id") == incident_id]
+                # For each incident, find its related occurrences in this repository
+                incident_occurrences = [occ for occ in occurrences if occ.get("incident_id") == incident_id]
+                logger.debug(f"Found {len(incident_occurrences)} occurrences for incident {incident_id}")
 
-                    # Add occurrences to the incident data
-                    incident_data["repository_occurrences"] = incident_occurrences
-                    incidents.append(incident_data)
+                # Add occurrences to the incident data
+                incident_data["repository_occurrences"] = incident_occurrences
+                incidents.append(incident_data)
+                logger.debug(f"Successfully processed incident {incident_id}")
 
             except Exception as e:
-                logger.warning(f"Bulk fetch failed, falling back to individual fetches: {str(e)}")
-                # Fall back to individual fetches if bulk fetch fails
-                for incident_id in incident_ids:
-                    try:
-                        incident_data = await client.get_incident(incident_id)
+                logger.error(f"Error retrieving incident {incident_id}: {str(e)}")
+                import traceback
 
-                        # Apply filters
-                        if mine and incident_data.get("assignee", {}).get("is_current_user") is False:
-                            continue
-
-                        if tags and not any(tag in incident_data.get("tags", []) for tag in tags):
-                            continue
-
-                        # Find occurrences for this incident
-                        incident_occurrences = [occ for occ in occurrences if occ.get("incident_id") == incident_id]
-
-                        # Add occurrences to the incident data
-                        incident_data["repository_occurrences"] = incident_occurrences
-                        incidents.append(incident_data)
-
-                    except Exception as e:
-                        logger.warning(f"Error retrieving incident {incident_id}: {str(e)}")
-        else:
-            # Fall back to individual fetches if bulk fetch isn't available
-            logger.debug("Bulk fetch not available, using individual fetches for incidents")
-            for incident_id in incident_ids:
-                try:
-                    # Get the detailed incident information
-                    incident_data = await client.get_incident(incident_id)
-
-                    # Filter by "mine" parameter if requested
-                    if mine and incident_data.get("assignee", {}).get("is_current_user") is False:
-                        continue
-
-                    # Apply tag filtering if needed
-                    if tags and not any(tag in incident_data.get("tags", []) for tag in tags):
-                        continue
-
-                    # For each incident, find its related occurrences in this repository
-                    incident_occurrences = [occ for occ in occurrences if occ.get("incident_id") == incident_id]
-
-                    # Add occurrences to the incident data
-                    incident_data["repository_occurrences"] = incident_occurrences
-                    incidents.append(incident_data)
-
-                except Exception as e:
-                    logger.warning(f"Error retrieving incident {incident_id}: {str(e)}")
+                logger.error(f"Traceback: {traceback.format_exc()}")
+                # Continue with other incidents even if one fails
 
         logger.debug(f"Retrieved {len(incidents)} incidents for repository {repository_name}")
 
