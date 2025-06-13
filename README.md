@@ -14,7 +14,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 
 ## Prompts examples
 
-`Show me my recent security incidents and help me resolve the critical ones`
+`Remediate all incidents related to my project`
 
 `Scan this codebase for any leaked secrets or credentials`
 
