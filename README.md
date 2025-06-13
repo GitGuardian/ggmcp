@@ -22,6 +22,14 @@ Resolve security incidents without context switching to the GitGuardian console.
 
 `Help me understand this security incident and provide remediation steps`
 
+`List all my active honeytokens`
+
+`Generate a new honeytoken for monitoring AWS credential access`
+
+`Show me my most recent honeytoken and help me embed it in my codebase`
+
+`Create a honeytoken named 'dev-database' and hide it in config files`
+
 ## Installation
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.

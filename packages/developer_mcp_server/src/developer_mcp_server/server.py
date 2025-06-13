@@ -1,5 +1,6 @@
 """GitGuardian MCP server for developers with remediation tools."""
 
+import json
 import logging
 import os
 from typing import Any
@@ -7,6 +8,7 @@ from typing import Any
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import DEVELOPER_SCOPES
 from pydantic import Field
+from starlette.exceptions import HTTPException as ToolError
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -54,6 +56,12 @@ mcp = GitGuardianFastMCP(
        - Replace hardcoded secrets with environment variables
        - Create .env.example files with placeholders for detected secrets
        - Get optional git commands to repair git history containing secrets
+    
+    4. **Generate and hide honey tokens**:
+       - Use `generate_honey_tokens` to generate and hide honey tokens
+       - If you want to create a new token, you must pass new_token=True to generate_honey_tokens
+       - hide the generated token in the codebase
+
 
     All tools operate within your IDE environment to provide immediate feedback and remediation steps for secret management.
     """,
@@ -408,7 +416,7 @@ async def list_repo_incidents_optimized(
         per_page: Number of results per page (default: 20, min: 1, max: 100)
         cursor: Pagination cursor for fetching next page of results
         get_all: If True, fetch all results using cursor-based pagination
-        mine: If True (default), fetch only incidents assigned to the current user. Set to False to get all incidents.
+        mine: If True, fetch only incidents assigned to the current user. Set to False to get all incidents.
 
     Returns:
         List of incidents and occurrences matching the specified criteria
@@ -604,6 +612,171 @@ async def list_repo_incidents(
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")
         return {"error": f"Failed to list repository incidents: {str(e)}"}
+
+
+@mcp.tool(
+    description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
+    required_scopes=["honeytokens:write"],
+)
+async def generate_honeytoken(
+    name: str = Field(description="Name for the honeytoken"),
+    description: str = Field(default="", description="Description of what the honeytoken is used for"),
+    new_token: bool = Field(
+        default=False,
+        description="If False, retrieves an existing active honeytoken created by you instead of generating a new one. "
+        "If no existing token is found, a new one will be created. "
+        "To generate a new token, set this to True.",
+    ),
+) -> dict[str, Any]:
+    """
+    Generate an AWS GitGuardian honeytoken and get injection recommendations.
+
+    Args:
+        name: Name for the honeytoken
+        description: Description of what the honeytoken is used for
+        new_token: If False, retrieves an existing active honeytoken created by you instead of generating a new one.
+                  If no existing token is found, a new one will be created.
+                  IMPORTANT: If you want to generate a new token, set this to True.
+
+    Returns:
+        Honeytoken data and injection recommendations
+    """
+    client = mcp.get_client()
+    logger.debug(f"Processing honeytoken request with name: {name}, new_token: {new_token}")
+
+    # If new_token is False, try to find an existing honeytoken created by the current user
+    if not new_token:
+        try:
+            # Get current user's info
+            token_info = await client.get_current_token_info()
+            if token_info and "user_id" in token_info:
+                current_user_id = token_info["user_id"]
+
+                # List honeytokens created by the current user
+                filters = {
+                    "status": "ACTIVE",  # Only get active tokens
+                    "creator_id": current_user_id,
+                    "per_page": 10,  # Fetch just a few recent ones
+                    "ordering": "-created_at",  # Get newest first
+                }
+
+                logger.debug(f"Looking for existing honeytokens for user {current_user_id}")
+                result = await client.list_honeytokens(**filters)
+
+                # Process the result to get the list of tokens
+                if isinstance(result, dict):
+                    honeytokens = result.get("honeytokens", [])
+                else:
+                    honeytokens = result
+
+                # Find the most recent active token
+                if honeytokens:
+                    logger.debug(f"Found {len(honeytokens)} existing honeytokens, using the most recent one")
+                    # Get the full honeytoken with token details
+                    honeytoken_id = honeytokens[0].get("id")
+                    if honeytoken_id:
+                        detailed_token = await client.get_honeytoken(honeytoken_id, show_token=True)
+                        logger.debug(f"Retrieved existing honeytoken with ID: {honeytoken_id}")
+                        return detailed_token
+
+                logger.debug("No suitable existing honeytokens found, creating a new one")
+            else:
+                logger.warning("Could not determine current user ID, creating a new honeytoken instead")
+        except Exception as e:
+            logger.warning(f"Error while looking for existing honeytokens: {str(e)}. Creating a new one instead.")
+
+    # Create a new honeytoken if requested or if we couldn't find an existing one
+    try:
+        # Generate the honeytoken
+        result = await client.create_honeytoken(name=name, description=description)
+        logger.debug(f"Generated new honeytoken with ID: {result.get('id')}")
+        return result
+    except Exception as e:
+        logger.error(f"Error generating honeytoken: {str(e)}")
+        raise ToolError(f"Error: {str(e)}")
+
+
+@mcp.tool(
+    description="List honeytokens from the GitGuardian dashboard with filtering options",
+    required_scopes=["honeytokens:read"],
+)
+async def list_honeytokens(
+    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)"),
+    search: str | None = Field(default=None, description="Search string to filter results by name or description"),
+    ordering: str | None = Field(
+        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+    ),
+    show_token: bool = Field(default=False, description="Whether to include token details in the response"),
+    creator_id: str | None = Field(default=None, description="Filter by creator ID"),
+    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID"),
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user"),
+) -> list[dict[str, Any]]:
+    """
+    List honeytokens from the GitGuardian dashboard with filtering options.
+
+    Args:
+        status: Filter by status (ACTIVE or REVOKED)
+        search: Search string to filter results by name or description
+        ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
+        show_token: Whether to include token details in the response
+        creator_id: Filter by creator ID
+        creator_api_token_id: Filter by creator API token ID
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        get_all: If True, fetch all results using cursor-based pagination
+        mine: If True, fetch honeytokens created by the current user
+
+    Returns:
+        List of honeytokens matching the specified criteria
+    """
+    client = mcp.get_client()
+    logger.debug("Listing honeytokens with filters")
+
+    # Handle mine parameter separately - if mine=True, we'll need to get
+    # the current user's info first and set creator_id accordingly
+    if mine:
+        try:
+            # Get current token info to identify the user
+            token_info = await client.get_current_token_info()
+            if token_info and "user_id" in token_info:
+                # If we have user_id, use it as creator_id
+                creator_id = token_info["user_id"]
+                logger.debug(f"Setting creator_id to current user: {creator_id}")
+            else:
+                logger.warning("Could not determine current user ID for 'mine' filter")
+        except Exception as e:
+            logger.warning(f"Failed to get current user info for 'mine' filter: {str(e)}")
+
+    # Build filters dictionary with parameters supported by the client API
+    filters = {
+        "status": status,
+        "search": search,
+        "ordering": ordering,
+        "show_token": show_token,
+        "creator_id": creator_id,
+        "creator_api_token_id": creator_api_token_id,
+        "per_page": per_page,
+        "get_all": get_all,
+    }
+
+    logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
+
+    try:
+        result = await client.list_honeytokens(**filters)
+
+        # Handle both response formats: either a dict with 'honeytokens' key or a list directly
+        if isinstance(result, dict):
+            honeytokens = result.get("honeytokens", [])
+        else:
+            # If the result is already a list, use it directly
+            honeytokens = result
+
+        logger.debug(f"Found {len(honeytokens)} honeytokens")
+        return honeytokens
+    except Exception as e:
+        logger.error(f"Error listing honeytokens: {str(e)}")
+        raise ToolError(f"Error: {str(e)}")
 
 
 # Register common tools for user information and token management

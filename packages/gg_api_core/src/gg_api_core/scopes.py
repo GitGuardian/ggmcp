@@ -27,6 +27,8 @@ DEVELOPER_SCOPES = [
     "scan",
     # Removing sources:read from default developer scopes due to API reliability issues
     # "sources:read",
+    "honeytokens:read",
+    "honeytokens:write",
 ]
 
 # Scopes needed for the SecOps MCP server (full access)
