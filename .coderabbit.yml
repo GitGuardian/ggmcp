@@ -1,0 +1,174 @@
+reviews:
+  auto_review:
+    labels: ['coderabbit', 'needs-review']
+  path_instructions:
+    - path: '**/*.py'
+      instructions: |
+        Review this Python code following best practices for MCP server implementations:
+
+        1. CODE QUALITY:
+           - Check for adherence to Python PEP 8 style guidelines.
+           - Verify proper type annotations are used consistently.
+           - Look for well-structured docstrings (Google style as specified in ruff config).
+           - Ensure code follows DRY principles (Don't Repeat Yourself).
+           - Check for appropriate error handling and logging.
+
+        2. SECURITY PRACTICES:
+           - Given this is a GitGuardian tool focused on secret detection, ensure no secrets are hardcoded.
+           - Verify appropriate use of environment variables for sensitive data.
+           - Check for proper API key handling practices.
+           - Look for security vulnerabilities in code execution paths.
+           - Ensure proper input validation for user-provided data.
+
+        3. API & MCP IMPLEMENTATION:
+           - Verify proper use of the GitGuardianFastMCP framework.
+           - Ensure API endpoints have proper parameter validation.
+           - Check for appropriate return types and error responses.
+           - Look for consistent API patterns across different functions.
+           - Ensure proper scoping of API endpoints.
+
+        4. PERFORMANCE:
+           - Identify potential performance bottlenecks.
+           - Look for inefficient operations that could be optimized.
+           - Check for proper pagination and resource limiting.
+           - Verify appropriate use of asynchronous patterns where needed.
+           - Look for redundant API calls or operations.
+
+        5. LOGGING AND OBSERVABILITY:
+           - Ensure appropriate logging levels are used.
+           - Check that sensitive information is not logged.
+           - Verify error cases include useful diagnostic information.
+           - Look for consistent logging patterns across the codebase.
+
+        6. CODE STRUCTURE:
+           - Verify proper separation of concerns.
+           - Check that imports are organized and unnecessary imports are removed.
+           - Look for appropriate modular design.
+           - Ensure tool implementations follow a consistent pattern.
+
+        7. MCP TOOL IMPLEMENTATION:
+           - Ensure all tools are defined using the `@mcp.tool()` decorator.
+           - Check that all tool methods are defined as async functions (using `async def`).
+           - Verify proper use of async libraries and patterns (e.g., httpx.AsyncClient instead of requests).
+           - Ensure each tool has clear, descriptive docstrings explaining functionality and parameters.
+
+        8. PYTHON 3.13 BEST PRACTICES:
+           - Ensure code uses Python 3.13's built-in type annotations (`dict[str, Any]` instead of importing `Dict`).
+           - Verify use of pipe operator for union types (`str | None` instead of `Optional[str]`).
+           - Check that unnecessary typing imports are removed (many are now in standard builtins).
+           - Look for proper use of modern Python features.
+
+        9. HTTP CLIENT USAGE:
+           - Ensure httpx is used for HTTP requests instead of requests.
+           - Verify async patterns are used with httpx (async with httpx.AsyncClient() as client).
+           - Check for proper error handling in HTTP requests.
+
+    - path: '**/server.py'
+      instructions: |
+        When reviewing MCP server implementation files, pay extra attention to:
+
+        1. SERVER CONFIGURATION:
+           - Ensure proper environment variable handling.
+           - Check for appropriate scopes configuration.
+           - Verify proper error handling and logging setup.
+           - Look for security headers and configurations.
+           - IMPORTANT: Ensure the code uses MCP's native server capabilities (mcp.run()) and NOT external web servers like uvicorn or fastapi.
+           - Verify FastMCP imports use the correct package path (from mcp.server.fastmcp import FastMCP).
+
+        2. TOOL DEFINITIONS:
+           - Check that tools are properly defined with clear parameter descriptions.
+           - Verify appropriate type annotations for parameters.
+           - Ensure proper error handling and reporting in tool implementations.
+           - Look for consistent documentation patterns across tools.
+           - Check for proper Field usage with descriptive help text.
+           - Ensure all tools are implemented as async functions with the @mcp.tool() decorator.
+
+        3. AUTHENTICATION AND AUTHORIZATION:
+           - Verify proper scoping of API endpoints.
+           - Ensure authentication mechanisms are secure.
+           - Look for appropriate permission checks.
+           - Check for proper handling of API keys and tokens.
+
+    - path: '**/*_mcp_server/**/*.py'
+      instructions: |
+        When reviewing MCP server modules:
+
+        1. API INTEGRATION:
+           - Verify proper integration with GitGuardian APIs.
+           - Check for appropriate error handling for API failures.
+           - Ensure API responses are properly parsed and validated.
+           - Look for proper rate limiting and retry mechanisms.
+           - Check for appropriate caching strategies.
+           - Verify use of httpx for HTTP requests instead of requests.
+
+        2. FUNCTION DESIGN:
+           - Ensure functions follow single responsibility principle.
+           - Check for proper documentation of parameters and return types.
+           - Verify functions handle edge cases appropriately.
+           - Look for consistent error handling patterns.
+           - Ensure all MCP tools are implemented as async functions.
+
+        3. SECURITY CONSIDERATIONS:
+           - Check that sensitive data is properly handled and not leaked.
+           - Verify proper validation of inputs and outputs.
+           - Ensure appropriate logging of security-relevant events.
+           - Look for potential injection vulnerabilities.
+
+    - path: '**/tests/**/*.py'
+      instructions: |
+        When reviewing test modules:
+
+        1. TEST COVERAGE:
+           - Ensure tests cover both success and failure paths.
+           - Check for appropriate edge case testing.
+           - Verify mock usage is appropriate and realistic.
+           - Look for test isolation to prevent interdependencies.
+
+        2. TEST STRUCTURE:
+           - Ensure tests follow pytest conventions.
+           - Check for proper use of fixtures and parametrization.
+           - Verify tests are well-documented with clear purposes.
+           - Look for appropriate test naming conventions.
+           
+        3. MOCK USAGE:
+           - Verify mocks accurately represent real behavior.
+           - Check that API responses are realistically mocked.
+           - Ensure mocks don't hide actual bugs or problems.
+
+    - path: '**/pyproject.toml'
+      instructions: |
+        When reviewing project configuration:
+
+        1. DEPENDENCY MANAGEMENT:
+           - Check for appropriate version constraints on dependencies.
+           - Verify development dependencies are properly separated using dependency-groups.
+           - Look for potential security issues in dependencies.
+           - Ensure Python 3.13 is specified as the minimum required version.
+           - Verify no unnecessary dependencies are included (especially no uvicorn or fastapi).
+
+        2. TOOL CONFIGURATION:
+           - Ensure ruff and other linting tools are properly configured.
+           - Verify pytest configuration is appropriate.
+           - Check for consistent naming conventions in configurations.
+           - Verify dependency groups are properly defined (using [dependency-groups] not [project.optional-dependencies]).
+
+        3. PACKAGE STRUCTURE:
+           - Ensure the package structure follows best practices with a src directory.
+           - Check that package metadata is complete and accurate.
+
+    - path: '**/*.md'
+      instructions: |
+        When reviewing documentation:
+
+        1. COMPLETENESS:
+           - Check for clear installation and setup instructions.
+           - Verify usage examples are provided and accurate.
+           - Look for appropriate API documentation.
+           - Ensure configuration options are documented.
+           - Verify installation instructions use uv instead of pip.
+
+        2. ACCURACY:
+           - Verify documentation matches actual code behavior.
+           - Check that command examples work as documented.
+           - Ensure environment setup instructions are complete.
+           - Verify examples follow modern Python 3.13 practices.
