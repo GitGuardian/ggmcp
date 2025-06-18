@@ -30,6 +30,13 @@ Resolve security incidents without context switching to the GitGuardian console.
 
 `Create a honeytoken named 'dev-database' and hide it in config files`
 
+## Prerequisites
+
+Before installing the GitGuardian MCP servers, ensure you have the following prerequisites:
+
+- **uv**: This project uses uv for package installation and dependency management. 
+  Install uv by following the instructions at: https://docs.astral.sh/uv/getting-started/installation/
+
 ## Installation
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
