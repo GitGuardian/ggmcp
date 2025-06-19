@@ -141,9 +141,9 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
    ```json
    {
-     "mcpServers": {
-       "GitGuardianDeveloper": {
-         "command": "uvx",
+     "GitGuardianDeveloper": {
+       "command": {
+         "path": "uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/gg-mcp.git",
