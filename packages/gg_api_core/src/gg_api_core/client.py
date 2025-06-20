@@ -1284,7 +1284,7 @@ class GitGuardianClient:
 
         # Convert kwargs to query parameters
         query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
-        endpoint = f"/sources/{source_id}/secret-incidents"
+        endpoint = f"/sources/{source_id}/incidents/secrets"
         if query_params:
             endpoint = f"{endpoint}?{query_params}"
 
@@ -1421,7 +1421,7 @@ class GitGuardianClient:
         try:
             if get_all:
                 # Use pagination to get all results
-                incidents_result = await self.paginate_all(f"/sources/{source_id}/secret-incidents", params)
+                incidents_result = await self.paginate_all(f"/sources/{source_id}/incidents/secrets", params)
                 if isinstance(incidents_result, list):
                     return {
                         "repository_info": source,
