@@ -120,7 +120,7 @@ async def remediate_secret_incidents_optimized(
     logger.debug(f"Using optimized remediate_secret_incidents with sources API for: {repository_name}")
 
     try:
-        incidents_result = await list_repo_incidents_optimized(
+        incidents_result = await list_repo_incidents(
             repository_name=repository_name,
             get_all=get_all,
             mine=mine,
@@ -219,7 +219,7 @@ async def remediate_secret_incidents(
 
     try:
         # Use the same logic as list_repo_incidents to ensure consistency
-        repo_incidents_result = await list_repo_incidents_optimized(
+        repo_incidents_result = await list_repo_incidents(
             repository_name=repository_name,
             get_all=get_all,
             mine=mine,
@@ -380,7 +380,7 @@ async def scan_secrets(
     "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
     required_scopes=["incidents:read", "sources:read"],
 )
-async def list_repo_incidents_optimized(
+async def list_repo_incidents(
     repository_name: str = Field(
         description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
     ),
@@ -422,7 +422,7 @@ async def list_repo_incidents_optimized(
         List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
-    logger.debug(f"Using optimized list_repo_incidents_optimized with sources API for repository: {repository_name}")
+    logger.debug(f"Using optimized list_repo_incidents with sources API for repository: {repository_name}")
 
     # Use the new direct approach using the GitGuardian Sources API
     try:
