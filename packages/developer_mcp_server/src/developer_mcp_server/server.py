@@ -73,102 +73,6 @@ logger.info("Created Developer GitGuardianFastMCP instance")
     description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
     required_scopes=["incidents:read", "sources:read"],
 )
-async def remediate_secret_incidents_optimized(
-    repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
-    ),
-    include_git_commands: bool = Field(
-        default=True, description="Whether to include git commands to fix incidents in git history"
-    ),
-    create_env_example: bool = Field(
-        default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
-    ),
-    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page"),
-    mine: bool = Field(
-        default=True,
-        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
-    ),
-) -> dict[str, Any]:
-    """
-    Find and remediate secret incidents in the current repository.
-
-    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
-
-    This tool follows a workflow to:
-    1. Use the provided repository name to search for incidents
-    2. List secret occurrences for the repository
-    3. Analyze and provide recommendations to remove secrets from the codebase
-    4. IMPORTANT:Make the changes to the codebase to remove the secrets from the code using best practices for the language. All occurrences must not appear in the codebase anymore.
-       IMPORTANT: If the repository is using a package manager like npm, cargo, uv or others, use it to install the required packages.
-    5. Only optional: propose to rewrite git history
-
-
-    Args:
-        repository_name: The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp
-        include_git_commands: Whether to include git commands to fix incidents in git history
-        create_env_example: Whether to create a .env.example file with placeholders for detected secrets
-        get_all: Whether to get all incidents or just the first page
-        mine: If True, fetch only incidents assigned to the current user. Set to False to get all incidents.
-
-    Returns:
-        A dictionary containing:
-        - repository_info: Information about the detected repository
-        - incidents: List of detected incidents
-        - remediation_steps: Steps to remediate the incidents
-        - git_commands: Git commands to fix history (if requested)
-    """
-    logger.debug(f"Using optimized remediate_secret_incidents with sources API for: {repository_name}")
-
-    try:
-        incidents_result = await list_repo_incidents(
-            repository_name=repository_name,
-            get_all=get_all,
-            mine=mine,
-            # Explicitly pass None for optional parameters to avoid FieldInfo objects
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-        )
-
-        if "error" in incidents_result:
-            return {"error": incidents_result["error"]}
-
-        incidents = incidents_result.get("incidents", [])
-
-        if not incidents:
-            return {
-                "repository_info": {"name": repository_name},
-                "message": "No secret incidents found for this repository that match the criteria.",
-                "remediation_steps": [],
-            }
-
-        # Continue with remediation logic using the incidents...
-        # This part is common between the optimized and fallback versions, so we can call a helper function
-        logger.debug(f"Processing {len(incidents)} incidents for remediation")
-        result = await _process_incidents_for_remediation(
-            incidents=incidents,
-            repository_name=repository_name,
-            include_git_commands=include_git_commands,
-            create_env_example=create_env_example,
-        )
-        logger.debug(
-            f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
-        )
-        return result
-
-    except Exception as e:
-        logger.error(f"Error remediating incidents: {str(e)}")
-        return {"error": f"Failed to remediate incidents: {str(e)}"}
-
-
-@mcp.tool(
-    description="Find and fix secrets in the current repository by detecting incidents, removing them from code, and providing remediation steps. By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
-    required_scopes=["incidents:read"],
-)
 async def remediate_secret_incidents(
     repository_name: str = Field(
         description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
@@ -213,13 +117,10 @@ async def remediate_secret_incidents(
         - remediation_steps: Steps to remediate the incidents
         - git_commands: Git commands to fix history (if requested)
     """
-    logger.debug(f"Using fallback remediate_secret_incidents implementation for: {repository_name}")
-
-    # Use the same logic as list_repo_incidents to ensure consistency
+    logger.debug(f"Using remediate_secret_incidents with sources API for: {repository_name}")
 
     try:
-        # Use the same logic as list_repo_incidents to ensure consistency
-        repo_incidents_result = await list_repo_incidents(
+        incidents_result = await list_repo_incidents(
             repository_name=repository_name,
             get_all=get_all,
             mine=mine,
@@ -233,10 +134,10 @@ async def remediate_secret_incidents(
             cursor=None,
         )
 
-        if "error" in repo_incidents_result:
-            return {"error": repo_incidents_result["error"]}
+        if "error" in incidents_result:
+            return {"error": incidents_result["error"]}
 
-        incidents = repo_incidents_result.get("incidents", [])
+        incidents = incidents_result.get("incidents", [])
 
         if not incidents:
             return {
@@ -247,12 +148,17 @@ async def remediate_secret_incidents(
 
         # Continue with remediation logic using the incidents...
         # This part is common between the optimized and fallback versions, so we can call a helper function
-        return await _process_incidents_for_remediation(
+        logger.debug(f"Processing {len(incidents)} incidents for remediation")
+        result = await _process_incidents_for_remediation(
             incidents=incidents,
             repository_name=repository_name,
             include_git_commands=include_git_commands,
             create_env_example=create_env_example,
         )
+        logger.debug(
+            f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
+        )
+        return result
 
     except Exception as e:
         logger.error(f"Error remediating incidents: {str(e)}")
