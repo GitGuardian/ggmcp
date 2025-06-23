@@ -3,7 +3,7 @@ name = "gg-mcp-server-workspace"
 version = "0.1.0"
 description = "MCP server workspace for GitGuardian"
 authors = [
-    {name = "Author", email = "author@example.com"}
+    {name = "Clément Tourrière", email = "clement.tourriere@gitguardian.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"

@@ -3,7 +3,7 @@ name = "secops-mcp-server"
 version = "0.1.0"
 description = "GitGuardian MCP server for SecOps with comprehensive security tools"
 authors = [
-    {name = "Author", email = "author@example.com"}
+    {name = "Clément Tourrière", email = "clement.tourriere@gitguardian.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"

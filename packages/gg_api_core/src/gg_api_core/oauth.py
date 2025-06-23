@@ -302,18 +302,50 @@ class CallbackServer:
 
         return DataCallbackHandler
 
+    def is_port_available(self, port):
+        """Check if a port is available by attempting to bind to it.
+
+        Args:
+            port: Port number to check
+
+        Returns:
+            bool: True if the port is available, False otherwise
+        """
+        import errno
+        import socket
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.bind(("127.0.0.1", port))
+        except socket.error as e:
+            if e.errno == errno.EADDRINUSE:
+                return False
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.bind(("0.0.0.0", port))
+        except socket.error as e:
+            if e.errno == errno.EADDRINUSE:
+                return False
+
+        return True
+
     def start(self):
         """Start the callback server in a background thread."""
         handler_class = self._create_handler_with_data()
 
         # Try ports in the specified range until we find an available one
         for port in range(self.port_range[0], self.port_range[1] + 1):
+            if not self.is_port_available(port):
+                continue
+
             try:
                 self.server = HTTPServer(("localhost", port), handler_class)
                 self.port = port  # Save the successful port
                 break
-            except OSError:
-                # Port already in use, try the next one
+            except OSError as e:
+                # Port became unavailable between check and server creation
+                logger.debug(f"Failed to bind to port {port}: {e}")
                 continue
 
         if not self.server:

@@ -1434,12 +1434,27 @@ class GitGuardianClient:
             # Get a single page of results
             incidents_result = await self.list_source_incidents(source_id, **params)
 
-            return {
-                "repository_info": source,
-                "incidents": incidents_result.get("data", []),
-                "next_cursor": incidents_result.get("next_cursor"),
-                "total_count": incidents_result.get("total_count", 0),
-            }
+            # Make sure incidents_result is a dictionary before using .get()
+            if isinstance(incidents_result, dict):
+                return {
+                    "repository_info": source,
+                    "incidents": incidents_result.get("data", []),
+                    "next_cursor": incidents_result.get("next_cursor"),
+                    "total_count": incidents_result.get("total_count", 0),
+                }
+            elif isinstance(incidents_result, list):
+                return {
+                    "repository_info": source,
+                    "incidents": incidents_result,
+                    "total_count": len(incidents_result),
+                }
+            else:
+                return {
+                    "repository_info": source,
+                    "incidents": [],
+                    "total_count": 0,
+                    "error": "Unexpected response format from API",
+                }
 
         except Exception as e:
             logger.error(f"Error listing repository incidents directly: {str(e)}")
