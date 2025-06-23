@@ -26,7 +26,7 @@ DEVELOPER_SCOPES = [
     "incidents:read",
     "scan",
     # Removing sources:read from default developer scopes due to API reliability issues
-    # "sources:read",
+    "sources:read",
     "honeytokens:read",
     "honeytokens:write",
 ]
