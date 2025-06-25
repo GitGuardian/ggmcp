@@ -10,9 +10,13 @@ Resolve security incidents without context switching to the GitGuardian console.
 
 > [!CAUTION]
 > MCP servers are a rapidly evolving technology. While they can significantly boost productivity and improve the developer experience, their use with various agents and models should always be supervised.
+>
 > Agents act on your behalf and under your responsibility. Always use MCP servers from trusted sources (just as you would with any dependency), and carefully review agent actions when they interact with MCP server tools.
+>
 > In order to better assist you in a safe usage of we have :
+>
 > (1) Designed our MCP server to request only "read-only" permissions, limiting the power granted to your agent (in case it unintentionally attempts actions beyond its intended scope).
+>
 > (2) Ultimately decided to release this official MCP server to ensure you are using a legitimate and trusted implementation.
 
 ## Key Features
