@@ -9,7 +9,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 ## Disclaimer
 
 > [!CAUTION]
-> MCP servers are a emerging and rapidly evolving technology. While they can significantly boost productivity and improve the developer experience, their use with various agents and models should always be supervised.
+> MCP servers are an emerging and rapidly evolving technology. While they can significantly boost productivity and improve the developer experience, their use with various agents and models should always be supervised.
 >
 > Agents act on your behalf and under your responsibility. Always use MCP servers from trusted sources (just as you would with any dependency), and carefully review agent actions when they interact with MCP server tools.
 >
