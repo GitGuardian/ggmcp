@@ -15,7 +15,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 >
 > To better assist you in safely using this server, we have:
 >
-> (1) Designed our MCP server to request only "read-only" permissions, limiting the power granted to your agent (in case it unintentionally attempts actions beyond its intended scope).
+> (1) Designed our MCP server to operate with "read-only" permissions, minimizing the access level granted to your agent. This helps ensure that, even if the agent tries to perform unintended actions, its capabilities remain limited to safe, non-destructive operations.
 >
 > (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
 
