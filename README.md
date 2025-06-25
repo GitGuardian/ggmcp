@@ -13,11 +13,11 @@ Resolve security incidents without context switching to the GitGuardian console.
 >
 > Agents act on your behalf and under your responsibility. Always use MCP servers from trusted sources (just as you would with any dependency), and carefully review agent actions when they interact with MCP server tools.
 >
-> In order to better assist you in a safe usage of we have :
+> To better assist you in safely using this server, we have:
 >
 > (1) Designed our MCP server to request only "read-only" permissions, limiting the power granted to your agent (in case it unintentionally attempts actions beyond its intended scope).
 >
-> (2) Ultimately decided to release this official MCP server to ensure you are using a legitimate and trusted implementation.
+> (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
 
 ## Key Features
 
