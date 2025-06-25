@@ -6,6 +6,19 @@ This MCP server enables your AI agent to scan projects using GitGuardian's indus
 
 Resolve security incidents without context switching to the GitGuardian console. Take advantage of rich contextual data to enhance your agent's remediation capabilities, enabling rapid resolution and automated removal of hardcoded secrets.
 
+## Disclaimer
+
+> [!CAUTION]
+> MCP servers are an emerging and rapidly evolving technology. While they can significantly boost productivity and improve the developer experience, their use with various agents and models should always be supervised.
+>
+> Agents act on your behalf and under your responsibility. Always use MCP servers from trusted sources (just as you would with any dependency), and carefully review agent actions when they interact with MCP server tools.
+>
+> To better assist you in safely using this server, we have:
+>
+> (1) Designed our MCP server to operate with "read-only" permissions, minimizing the access level granted to your agent. This helps ensure that, even if the agent tries to perform unintended actions, its capabilities remain limited to safe, non-destructive operations.
+>
+> (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
+
 ## Key Features
 
 - **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
@@ -34,7 +47,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 
 Before installing the GitGuardian MCP servers, ensure you have the following prerequisites:
 
-- **uv**: This project uses uv for package installation and dependency management. 
+- **uv**: This project uses uv for package installation and dependency management.
   Install uv by following the instructions at: https://docs.astral.sh/uv/getting-started/installation/
 
 ## Installation
