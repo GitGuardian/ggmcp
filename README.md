@@ -54,6 +54,8 @@ Before installing the GitGuardian MCP servers, ensure you have the following pre
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
 
+Currently, the MCP server only works with SaaS GitGuardian workspaces, not self-hosted ones.
+
 ### Installation with Cursor
 
 **Quick Install with One-Click Buttons** (Cursor >= 1.0):
