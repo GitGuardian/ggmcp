@@ -53,6 +53,6 @@ The tools in this server require various API token scopes including:
 | `GITGUARDIAN_API_KEY` | Your GitGuardian API key (required for token auth) | - |
 | `GITGUARDIAN_CLIENT_ID` | Your OAuth client ID (required for web auth) | - |
 | `GITGUARDIAN_SCOPES` | Space-separated list of scopes (for OAuth) | All available scopes |
-| `GITGUARDIAN_API_URL` | GitGuardian base URL or API URL | `https://api.gitguardian.com/v1` (SaaS) `https://dashboard.gitguardian.mycorp.local` (Self-Hosted) |
+| `GITGUARDIAN_API_URL` | GitGuardian base URL or API URL | `https://api.gitguardian.com/v1` (SaaS US), `https://api.eu1.gitguardian.com/v1` (SaaS EU), `https://dashboard.gitguardian.mycorp.local` (Self-Hosted) |
 | `MCP_SERVER_HOST` | Host for the MCP server (used for OAuth redirect) | `localhost` |
 | `MCP_SERVER_PORT` | Port for the MCP server | `8000` |

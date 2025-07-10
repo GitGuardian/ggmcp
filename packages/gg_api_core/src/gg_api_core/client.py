@@ -58,9 +58,11 @@ class GitGuardianClient:
         Args:
             api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
             api_url: GitGuardian API URL or base URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
-                    For self-hosted instances, you can provide either:
-                    - Base URL: https://your-gitguardian.com (will auto-append /exposed/v1)
-                    - Full API URL: https://your-gitguardian.com/exposed/v1
+                    Supported formats:
+                    - SaaS US: https://api.gitguardian.com/v1 (default)
+                    - SaaS EU: https://api.eu1.gitguardian.com/v1
+                    - Self-hosted base URL: https://your-gitguardian.com (will auto-append /exposed/v1)
+                    - Self-hosted full API URL: https://your-gitguardian.com/exposed/v1
             use_oauth: Whether to use OAuth authentication instead of token auth
         """
         logger.info("Initializing GitGuardian client")
@@ -119,8 +121,8 @@ class GitGuardianClient:
         try:
             parsed = urlparse(api_url)
             
-            # Check if this is the SaaS API URL - keep as is
-            if "api.gitguardian.com" in parsed.netloc:
+            # Check if this is a SaaS API URL - keep as is
+            if "api.gitguardian.com" in parsed.netloc or "api.eu1.gitguardian.com" in parsed.netloc:
                 logger.debug(f"Detected SaaS API URL: {api_url}")
                 return api_url
             
@@ -161,10 +163,14 @@ class GitGuardianClient:
         # Default GitGuardian dashboard URL
         default_dashboard_url = "https://dashboard.gitguardian.com"
 
-        # If using the default SaaS API URL, return the default dashboard URL
+        # If using SaaS API URLs, return the corresponding dashboard URL
         if self.api_url == "https://api.gitguardian.com/v1":
             logger.info(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
+        elif self.api_url == "https://api.eu1.gitguardian.com/v1":
+            eu_dashboard_url = "https://dashboard.eu1.gitguardian.com"
+            logger.info(f"Using EU dashboard URL: {eu_dashboard_url}")
+            return eu_dashboard_url
 
         # For custom API URLs, derive the dashboard URL from the API URL
         try:
@@ -182,7 +188,10 @@ class GitGuardianClient:
                 hostname = parsed_url.netloc
                 
                 # Remove 'api.' prefix if it exists (e.g., api.example.com -> example.com)
-                if hostname.startswith("api."):
+                # Special handling for GitGuardian EU instance
+                if hostname == "api.eu1.gitguardian.com":
+                    derived_url = f"{parsed_url.scheme}://dashboard.eu1.gitguardian.com"
+                elif hostname.startswith("api."):
                     hostname = hostname[4:]  # Remove 'api.' prefix
                     derived_url = f"{parsed_url.scheme}://{hostname}"
                 else:
