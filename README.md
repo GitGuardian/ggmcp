@@ -19,11 +19,15 @@ Resolve security incidents without context switching to the GitGuardian console.
 >
 > (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
 
-## Key Features
+## Features supported
 
 - **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
 - **Incident Management**: View, assign, and resolve security incidents related to the project you are currently working.
 - **Honeytokens**: Create and manage honeytokens to detect unauthorized access
+- **Authentication Management**: Get authenticated user information and token details
+- **Token Management**: Revoke current API tokens
+
+> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback on our [GitGuardian Roadmap](https://roadmap.gitguardian.com/tabs/10-ongoing/submit-idea) to help us prioritize new MCP server capabilities.
 
 ## Prompts examples
 
