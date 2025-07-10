@@ -27,7 +27,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 - **Authentication Management**: Get authenticated user information and token details
 - **Token Management**: Revoke current API tokens
 
-> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback on our [GitGuardian Roadmap](https://roadmap.gitguardian.com/tabs/10-ongoing/submit-idea) to help us prioritize new MCP server capabilities.
+> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/gg-mcp/issues) to help us prioritize new MCP server capabilities.
 
 ## Prompts examples
 
