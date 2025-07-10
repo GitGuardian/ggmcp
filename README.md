@@ -54,7 +54,7 @@ Before installing the GitGuardian MCP servers, ensure you have the following pre
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
 
-Currently, the MCP server only works with SaaS GitGuardian workspaces, not self-hosted ones.
+The MCP server supports both GitGuardian SaaS and self-hosted instances. For self-hosted configurations, see the [Self-Hosted GitGuardian Configuration](#self-hosted-gitguardian-configuration) section below.
 
 ### Installation with Cursor
 
@@ -175,6 +175,98 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 2. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
 3. The authentication token will be securely stored for future use
 4. The next time you start the server, it will reuse the stored token without requiring re-authentication
+
+## Self-Hosted GitGuardian Configuration
+
+The MCP server supports self-hosted GitGuardian instances. To configure it for your self-hosted environment, you'll need to set additional environment variables.
+
+### Environment Variables for Self-Hosted Instances
+
+Set these environment variables in your MCP client configuration:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `GITGUARDIAN_API_URL` | Your self-hosted GitGuardian base URL | `https://dashboard.gitguardian.mycorp.local` |
+| `GITGUARDIAN_AUTH_METHOD` | Authentication method: `token` or `web` | `token` |
+| `GITGUARDIAN_API_KEY` | Your API key (required for token auth) | `your-api-key-here` |
+
+### Configuration Examples
+
+#### Cursor with Self-Hosted GitGuardian (Token Authentication)
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/GitGuardian/gg-mcp.git",
+        "developer-mcp-server"
+      ],
+      "env": {
+        "GITGUARDIAN_API_URL": "https://dashboard.gitguardian.mycorp.local",
+        "GITGUARDIAN_AUTH_METHOD": "token",
+        "GITGUARDIAN_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+#### Claude Desktop with Self-Hosted GitGuardian
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "/path/to/uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/GitGuardian/gg-mcp.git",
+        "developer-mcp-server"
+      ],
+      "env": {
+        "GITGUARDIAN_API_URL": "https://dashboard.gitguardian.mycorp.local",
+        "GITGUARDIAN_AUTH_METHOD": "token",
+        "GITGUARDIAN_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+### Authentication Methods for Self-Hosted Instances
+
+#### Token Authentication (Recommended)
+
+For self-hosted instances, token authentication is the most reliable method:
+
+1. Generate an API token in your GitGuardian dashboard
+2. Set `GITGUARDIAN_AUTH_METHOD=token`
+3. Set `GITGUARDIAN_API_KEY` to your API token
+4. Set `GITGUARDIAN_API_URL` to your API endpoint
+
+#### OAuth Authentication
+
+OAuth is also supported for self-hosted instances:
+
+1. Set `GITGUARDIAN_AUTH_METHOD=web`
+2. Set `GITGUARDIAN_API_URL` to your API endpoint
+
+### API URL Formats
+
+For self-hosted instances, you only need to provide the **base URL** of your GitGuardian instance:
+
+- `https://dashboard.gitguardian.mycorp.local` - Base URL (recommended)
+- `https://gitguardian.company.com` - Custom domain base URL
+- `https://gg.internal.corp` - Internal domain base URL
+
+The MCP server will **automatically** append the correct API path (`/exposed/v1`) for self-hosted instances. You can also provide the full API URL if preferred:
+
+- `https://dashboard.gitguardian.mycorp.local/exposed/v1` - Full API URL (also works)
+
+The dashboard URL (used for OAuth authentication) will be automatically derived from the API URL.
 
 ## Development
 

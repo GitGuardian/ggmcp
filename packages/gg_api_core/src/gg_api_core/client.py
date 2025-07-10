@@ -57,7 +57,10 @@ class GitGuardianClient:
 
         Args:
             api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
-            api_url: GitGuardian API URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
+            api_url: GitGuardian API URL or base URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
+                    For self-hosted instances, you can provide either:
+                    - Base URL: https://your-gitguardian.com (will auto-append /exposed/v1)
+                    - Full API URL: https://your-gitguardian.com/exposed/v1
             use_oauth: Whether to use OAuth authentication instead of token auth
         """
         logger.info("Initializing GitGuardian client")
@@ -67,7 +70,8 @@ class GitGuardianClient:
         self._token_info = None
 
         # Use provided API URL or get from environment with default fallback
-        self.api_url = api_url or os.environ.get("GITGUARDIAN_API_URL", "https://api.gitguardian.com/v1")
+        raw_api_url = api_url or os.environ.get("GITGUARDIAN_API_URL", "https://api.gitguardian.com/v1")
+        self.api_url = self._normalize_api_url(raw_api_url)
         logger.info(f"Using API URL: {self.api_url}")
 
         # Extract the base URL for dashboard (needed for OAuth)
@@ -97,14 +101,59 @@ class GitGuardianClient:
                 "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
             )
 
+    def _normalize_api_url(self, api_url: str) -> str:
+        """
+        Normalize the API URL for different GitGuardian instance types.
+        
+        Args:
+            api_url: Raw API URL or base URL
+            
+        Returns:
+            str: Normalized API URL
+        """
+        from urllib.parse import urlparse
+        
+        # Strip trailing slashes
+        api_url = api_url.rstrip("/")
+        
+        try:
+            parsed = urlparse(api_url)
+            
+            # Check if this is the SaaS API URL - keep as is
+            if "api.gitguardian.com" in parsed.netloc:
+                logger.debug(f"Detected SaaS API URL: {api_url}")
+                return api_url
+            
+            # Check if this already has the API path structure
+            path = parsed.path.lower()
+            if path.endswith('/v1') or path.endswith('/exposed/v1'):
+                logger.debug(f"API URL already has API path: {api_url}")
+                return api_url
+            
+            # This appears to be a self-hosted base URL - append the API path
+            if not path or path == '/' or not path.startswith('/exposed'):
+                normalized_url = f"{api_url}/exposed/v1"
+                logger.info(f"Normalized self-hosted base URL: {api_url} -> {normalized_url}")
+                return normalized_url
+            
+            # If it has /exposed but no /v1, append /v1
+            if path.startswith('/exposed') and not path.endswith('/v1'):
+                normalized_url = f"{api_url}/v1"
+                logger.info(f"Normalized self-hosted API URL: {api_url} -> {normalized_url}")
+                return normalized_url
+                
+            # Default: return as-is
+            logger.debug(f"Using API URL as provided: {api_url}")
+            return api_url
+            
+        except Exception as e:
+            logger.warning(f"Failed to parse API URL '{api_url}': {e}")
+            logger.warning("Using API URL as provided")
+            return api_url
+
     def _get_dashboard_url(self) -> str:
         """
-        Get the GitGuardian dashboard URL.
-
-        Prioritizes the following sources in order:
-        1. GITGUARDIAN_DASHBOARD_URL environment variable if set
-        2. Default dashboard URL for default API URL
-        3. Derived dashboard URL from custom API URL
+        Get the GitGuardian dashboard URL by deriving it from the API URL.
 
         Returns:
             str: The GitGuardian dashboard URL
@@ -112,22 +161,12 @@ class GitGuardianClient:
         # Default GitGuardian dashboard URL
         default_dashboard_url = "https://dashboard.gitguardian.com"
 
-        # Check if a custom dashboard URL is specified in the environment
-        dashboard_url = os.environ.get("GITGUARDIAN_DASHBOARD_URL")
-        if dashboard_url:
-            # Strip trailing slash for consistency
-            dashboard_url = dashboard_url.rstrip("/")
-            logger.info(f"Using dashboard URL from GITGUARDIAN_DASHBOARD_URL: {dashboard_url}")
-            return dashboard_url
-
-        # If using the default API URL, return the default dashboard URL
+        # If using the default SaaS API URL, return the default dashboard URL
         if self.api_url == "https://api.gitguardian.com/v1":
             logger.info(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
 
-        # If using a custom API URL, try to extract the base URL
-        # This assumes the API URL is in the format: https://api.example.com/v1
-        # and the dashboard URL would be: https://example.com or http://localhost:3000
+        # For custom API URLs, derive the dashboard URL from the API URL
         try:
             # Parse the URL to get the components
             from urllib.parse import urlparse
@@ -136,14 +175,20 @@ class GitGuardianClient:
 
             # For local development (localhost or 127.0.0.1)
             if parsed_url.netloc.startswith("localhost") or parsed_url.netloc.startswith("127.0.0.1"):
-                port = parsed_url.port or 80
-                derived_url = f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{port}"
+                # For localhost, use the base URL without any path
+                derived_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
             else:
-                # For custom domains, remove the 'api.' prefix if it exists
+                # For custom domains, handle different patterns
                 hostname = parsed_url.netloc
+                
+                # Remove 'api.' prefix if it exists (e.g., api.example.com -> example.com)
                 if hostname.startswith("api."):
                     hostname = hostname[4:]  # Remove 'api.' prefix
-                derived_url = f"{parsed_url.scheme}://{hostname}"
+                    derived_url = f"{parsed_url.scheme}://{hostname}"
+                else:
+                    # For self-hosted instances like dashboard.gitguardian.mycorp.local/exposed/v1
+                    # Use the base URL without the path
+                    derived_url = f"{parsed_url.scheme}://{hostname}"
 
             logger.info(f"Derived dashboard URL from API URL: {derived_url}")
             return derived_url
