@@ -575,11 +575,14 @@ class GitGuardianOAuthClient:
                 base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip("=")
             )
 
+            # Get OAuth client ID from environment variable or use default
+            client_id = os.environ.get("GITGUARDIAN_CLIENT_ID", "ggshield_oauth")
+
             # 2. Create the authorization URL with the appropriate parameters
             auth_url = f"{server_url}/auth/login?"
             params = {
                 "response_type": "code",
-                "client_id": "ggshield_oauth",  # Using the same client ID as ggshield
+                "client_id": client_id,
                 "redirect_uri": f"http://localhost:{callback_server.port}",
                 "scope": " ".join(self.scopes),
                 "state": state,
@@ -629,7 +632,7 @@ class GitGuardianOAuthClient:
                 "grant_type": "authorization_code",
                 "code": auth_code,
                 "redirect_uri": f"http://localhost:{callback_server.port}",
-                "client_id": "ggshield_oauth",
+                "client_id": client_id,
                 "code_verifier": code_verifier,  # Include the PKCE code verifier
                 "name": self.token_name,  # Include token name in token request
             }

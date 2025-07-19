@@ -39,4 +39,5 @@ async def my_custom_tool():
 This package uses OAuth authentication, configured via environment variables:
 
 - `GITGUARDIAN_URL`: Optional GitGuardian instance URL (defaults to `https://dashboard.gitguardian.com`)
+- `GITGUARDIAN_CLIENT_ID`: Optional OAuth client ID (defaults to `ggshield_oauth`)
 - `GITGUARDIAN_SCOPES`: Optional space-separated list of scopes for OAuth

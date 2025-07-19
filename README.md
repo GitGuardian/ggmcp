@@ -186,6 +186,18 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
 The MCP server uses OAuth authentication and defaults to GitGuardian SaaS (US region) at `https://dashboard.gitguardian.com`. For other instances, you'll need to specify the URL:
 
+### Environment Variables
+
+The following environment variables can be configured:
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `GITGUARDIAN_URL` | GitGuardian instance URL | `https://dashboard.gitguardian.com` | `https://dashboard.eu1.gitguardian.com` |
+| `GITGUARDIAN_CLIENT_ID` | OAuth client ID | `ggshield_oauth` | `my-custom-oauth-client` |
+| `GITGUARDIAN_SCOPES` | OAuth scopes to request | Auto-detected based on instance type | `scan,honeytokens:read,incidents:read` |
+| `GITGUARDIAN_TOKEN_NAME` | Name for the OAuth token | Auto-generated based on server type | `"Developer MCP Token"` |
+| `GITGUARDIAN_TOKEN_LIFETIME` | Token lifetime in days | `30` | `60` or `never` |
+
 ### Self-Hosted GitGuardian
 
 For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment variable to your MCP configuration:
@@ -235,6 +247,24 @@ For the GitGuardian EU instance, use:
       "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
+      }
+    }
+  }
+}
+```
+
+### Custom OAuth Client
+
+If you have your own OAuth application configured in GitGuardian, you can specify a custom client ID:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_CLIENT_ID": "my-custom-oauth-client"
       }
     }
   }
