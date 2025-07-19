@@ -8,9 +8,9 @@ from gg_api_mcp_server.client import GitGuardianClient
 
 @pytest.fixture
 def client():
-    """Fixture to create a client instance with test API key."""
+    """Fixture to create a client instance with OAuth authentication."""
     with patch.dict(
-        os.environ, {"GITGUARDIAN_API_KEY": "test_api_key", "GITGUARDIAN_API_URL": "https://test.gitguardian.com"}
+        os.environ, {"GITGUARDIAN_URL": "https://test.gitguardian.com"}
     ):
         return GitGuardianClient()
 
@@ -37,15 +37,15 @@ class TestGitGuardianClient:
         assert client.api_key == "custom_key"
         assert client.api_url == "https://custom.api.url"
 
-    def test_init_without_api_key(self):
+    def test_init_oauth_only(self):
         """
-        GIVEN no API key available
+        GIVEN OAuth authentication is used
         WHEN the GitGuardianClient is initialized
-        THEN it should raise a ValueError
+        THEN it should set OAuth mode and no API key
         """
-        with patch.dict(os.environ, {"GITGUARDIAN_API_KEY": ""}):
-            with pytest.raises(ValueError):
-                GitGuardianClient()
+        client = GitGuardianClient()
+        assert client.use_oauth is True
+        assert client.api_key is None
 
     @pytest.mark.asyncio
     async def test_request_success(self, client):

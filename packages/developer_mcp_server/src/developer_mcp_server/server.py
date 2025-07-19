@@ -6,7 +6,7 @@ import os
 from typing import Any
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import DEVELOPER_SCOPES
+from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
 from pydantic import Field
 from starlette.exceptions import HTTPException as ToolError
 
@@ -15,17 +15,37 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(leve
 
 logger = logging.getLogger(__name__)
 
-# Log environment variables (without exposing the full API key)
-gitguardian_api_key = os.environ.get("GITGUARDIAN_API_KEY")
-gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
+# Log environment variables
+gitguardian_url = os.environ.get("GITGUARDIAN_URL")
 
 logger.info("Starting Developer MCP Server")
-logger.debug(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
-logger.debug(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
+logger.debug(f"GitGuardian URL: {gitguardian_url or 'Using default'}")
 
 # Set specific environment variable for this server to request only developer-specific scopes
-os.environ["GITGUARDIAN_SCOPES"] = ",".join(DEVELOPER_SCOPES)
-logger.debug(f"Requesting scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
+# Use dynamic scope detection based on instance type (self-hosted vs SaaS)
+# But respect user-specified scopes if they exist
+is_self_hosted = is_self_hosted_instance(gitguardian_url)
+
+# Only override scopes if user hasn't specified them
+if not os.environ.get("GITGUARDIAN_SCOPES"):
+    developer_scopes = get_developer_scopes(gitguardian_url)
+    os.environ["GITGUARDIAN_SCOPES"] = ",".join(developer_scopes)
+    logger.debug(f"Auto-detected scopes for instance type: {'Self-hosted' if is_self_hosted else 'SaaS'}")
+    if is_self_hosted:
+        logger.info("Self-hosted instance detected - honeytokens:write scope omitted to avoid permission issues")
+else:
+    # Validate user-specified scopes
+    try:
+        user_scopes_str = os.environ.get("GITGUARDIAN_SCOPES")
+        validated_scopes = validate_scopes(user_scopes_str)
+        os.environ["GITGUARDIAN_SCOPES"] = ",".join(validated_scopes)
+        logger.info(f"Using validated user-specified scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
+    except ValueError as e:
+        logger.error(f"Invalid scopes configuration: {e}")
+        logger.error("Please check your GITGUARDIAN_SCOPES environment variable")
+        raise
+
+logger.debug(f"Final scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
 
 # Use our custom GitGuardianFastMCP from the core package
 mcp = GitGuardianFastMCP(

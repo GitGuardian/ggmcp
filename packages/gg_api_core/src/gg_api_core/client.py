@@ -12,6 +12,9 @@ import httpx
 # Setup logger
 logger = logging.getLogger(__name__)
 
+# Global OAuth lock to prevent parallel OAuth flows
+_oauth_lock = asyncio.Lock()
+
 
 class IncidentSeverity(str, Enum):
     """Enum for incident severity levels."""
@@ -52,27 +55,27 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
+    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = True):
         """Initialize the GitGuardian client.
 
         Args:
-            api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
-            api_url: GitGuardian API URL or base URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
+            api_key: Deprecated, OAuth authentication is used
+            api_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
                     Supported formats:
-                    - SaaS US: https://api.gitguardian.com/v1 (default)
-                    - SaaS EU: https://api.eu1.gitguardian.com/v1
-                    - Self-hosted base URL: https://your-gitguardian.com (will auto-append /exposed/v1)
-                    - Self-hosted full API URL: https://your-gitguardian.com/exposed/v1
-            use_oauth: Whether to use OAuth authentication instead of token auth
+                    - SaaS US: https://dashboard.gitguardian.com (default)
+                    - SaaS EU: https://dashboard.eu1.gitguardian.com
+                    - Self-hosted dashboard URL: https://dashboard.your-gitguardian.com
+                    - Legacy API URLs are also supported for backward compatibility
+            use_oauth: OAuth authentication is always used (parameter kept for backward compatibility)
         """
         logger.info("Initializing GitGuardian client")
 
-        self.use_oauth = use_oauth
+        self.use_oauth = True  # Always use OAuth
         self._oauth_token = None
         self._token_info = None
 
         # Use provided API URL or get from environment with default fallback
-        raw_api_url = api_url or os.environ.get("GITGUARDIAN_API_URL", "https://api.gitguardian.com/v1")
+        raw_api_url = api_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
         self.api_url = self._normalize_api_url(raw_api_url)
         logger.info(f"Using API URL: {self.api_url}")
 
@@ -80,28 +83,11 @@ class GitGuardianClient:
         self.dashboard_url = self._get_dashboard_url()
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
 
-        # For token-based authentication
-        if not use_oauth:
-            # Use provided API key or get from environment
-            self.api_key = api_key or os.environ.get("GITGUARDIAN_API_KEY")
-
-            # Log API key status (without exposing the actual key)
-            if self.api_key:
-                logger.info("API key found")
-                # Only show first 4 chars for logging
-                key_preview = self.api_key[:4] + "..." if len(self.api_key) > 4 else "***"
-                logger.debug(f"Using API key starting with: {key_preview}")
-            else:
-                logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
-                raise ValueError("GitGuardian API key is required for token authentication")
-
-            logger.debug("GitGuardian client initialized with token authentication")
-        else:
-            # For OAuth authentication
-            self.api_key = None
-            logger.info(
-                "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
-            )
+        # OAuth authentication (only supported method)
+        self.api_key = None
+        logger.info(
+            "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
+        )
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
@@ -121,10 +107,26 @@ class GitGuardianClient:
         try:
             parsed = urlparse(api_url)
             
-            # Check if this is a SaaS API URL - keep as is
-            if "api.gitguardian.com" in parsed.netloc or "api.eu1.gitguardian.com" in parsed.netloc:
-                logger.debug(f"Detected SaaS API URL: {api_url}")
-                return api_url
+            # Check if this is a SaaS URL (dashboard or API)
+            if ("dashboard.gitguardian.com" in parsed.netloc or 
+                "dashboard.eu1.gitguardian.com" in parsed.netloc or
+                "api.gitguardian.com" in parsed.netloc or 
+                "api.eu1.gitguardian.com" in parsed.netloc):
+                
+                # Convert dashboard URLs to API URLs with /v1 suffix
+                if "dashboard" in parsed.netloc:
+                    api_netloc = parsed.netloc.replace("dashboard", "api")
+                    normalized_url = f"{parsed.scheme}://{api_netloc}/v1"
+                    logger.debug(f"Normalized SaaS dashboard URL: {api_url} -> {normalized_url}")
+                    return normalized_url
+                # For API URLs, ensure they have /v1 suffix
+                elif not parsed.path.endswith('/v1'):
+                    normalized_url = f"{api_url}/v1"
+                    logger.debug(f"Normalized SaaS API URL: {api_url} -> {normalized_url}")
+                    return normalized_url
+                else:
+                    logger.debug(f"SaaS API URL already has /v1: {api_url}")
+                    return api_url
             
             # Check if this already has the API path structure
             path = parsed.path.lower()
@@ -210,10 +212,21 @@ class GitGuardianClient:
         if not self.use_oauth:
             return
 
-        if self._oauth_token is None:
+        # Use a global lock to prevent parallel OAuth flows across all client instances
+        async with _oauth_lock:
+            # Double-check pattern: another thread might have completed OAuth while we waited for the lock
+            if self._oauth_token is not None:
+                logger.debug("OAuth token already available after waiting for lock")
+                return
+
+            logger.warning(f"Acquired OAuth lock, proceeding with authentication")
+            logger.info(f"   Client API URL: {self.api_url}")
+            logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
+            logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
+            
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
-            from .scopes import ALL_SCOPES
+            from .scopes import ALL_SCOPES, validate_scopes
 
             # Default to all scopes, but allow restriction via environment variable
             default_scopes = ",".join(ALL_SCOPES)
@@ -221,7 +234,15 @@ class GitGuardianClient:
             scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
                 "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
             )
-            scopes = [scope.strip() for scope in scopes_str.split(",")]
+            
+            logger.info(f"   Using scopes: {scopes_str}")
+            
+            # Validate scopes to ensure only valid ones are used
+            try:
+                scopes = validate_scopes(scopes_str)
+            except ValueError as e:
+                logger.error(f"Invalid scopes in OAuth client: {e}")
+                raise
 
             # Get custom login path if specified
             login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
@@ -242,6 +263,8 @@ class GitGuardianClient:
                     token_name = f"{self.server_name} MCP Token"
             else:
                 token_name = token_name or "MCP Token"
+
+            logger.info(f"   Final token name: {token_name}")
 
             oauth_client = GitGuardianOAuthClient(
                 api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name

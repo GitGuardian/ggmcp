@@ -9,9 +9,9 @@ from gg_api_mcp_server.client import GitGuardianClient, IncidentSeverity, Incide
 
 @pytest.fixture
 def client():
-    """Fixture to create a client instance with test API key."""
+    """Fixture to create a client instance with OAuth authentication."""
     with patch.dict(
-        os.environ, {"GITGUARDIAN_API_KEY": "test_api_key", "GITGUARDIAN_API_URL": "https://test.gitguardian.com"}
+        os.environ, {"GITGUARDIAN_URL": "https://test.gitguardian.com"}
     ):
         return GitGuardianClient()
 
@@ -43,15 +43,16 @@ class TestGitGuardianClient:
 
     def test_init_with_params(self):
         """Test client initialization with parameters."""
-        client = GitGuardianClient(api_key="custom_key", api_url="https://custom.api.url")
-        assert client.api_key == "custom_key"
+        client = GitGuardianClient(api_url="https://custom.api.url")
+        assert client.api_key is None  # OAuth authentication, no API key
         assert client.api_url == "https://custom.api.url"
+        assert client.use_oauth is True
 
-    def test_init_without_api_key(self):
-        """Test client initialization without API key."""
-        with patch.dict(os.environ, {"GITGUARDIAN_API_KEY": ""}):
-            with pytest.raises(ValueError):
-                GitGuardianClient()
+    def test_init_oauth_authentication(self):
+        """Test client initialization with OAuth authentication."""
+        client = GitGuardianClient()
+        assert client.use_oauth is True
+        assert client.api_key is None
 
     @pytest.mark.asyncio
     async def test_request_success(self, client, mock_response, mock_httpx_client):

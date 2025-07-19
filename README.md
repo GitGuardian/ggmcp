@@ -184,11 +184,11 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
 ## Configuration for Different GitGuardian Instances
 
-The MCP server defaults to GitGuardian SaaS (US region). For other instances, you'll need to specify the URL:
+The MCP server uses OAuth authentication and defaults to GitGuardian SaaS (US region) at `https://dashboard.gitguardian.com`. For other instances, you'll need to specify the URL:
 
 ### Self-Hosted GitGuardian
 
-For self-hosted GitGuardian instances, add the `GITGUARDIAN_API_URL` environment variable to your MCP configuration:
+For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment variable to your MCP configuration:
 
 ```json
 {
@@ -197,9 +197,26 @@ For self-hosted GitGuardian instances, add the `GITGUARDIAN_API_URL` environment
       "command": "uvx",
       "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
       "env": {
-        "GITGUARDIAN_API_URL": "https://dashboard.gitguardian.mycorp.local",
-        "GITGUARDIAN_AUTH_METHOD": "token",
-        "GITGUARDIAN_API_KEY": "your-api-key-here"
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local"
+      }
+    }
+  }
+}
+```
+
+### Self-Hosted with Honeytoken Support
+
+If your self-hosted instance has honeytokens enabled and your user has the required permissions ("manager" role), you can explicitly request honeytoken scopes:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local",
+        "GITGUARDIAN_SCOPES": "scan,incidents:read,sources:read,honeytokens:read,honeytokens:write"
       }
     }
   }
@@ -217,38 +234,12 @@ For the GitGuardian EU instance, use:
       "command": "uvx",
       "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
       "env": {
-        "GITGUARDIAN_API_URL": "https://api.eu1.gitguardian.com/v1",
-        "GITGUARDIAN_AUTH_METHOD": "token",
-        "GITGUARDIAN_API_KEY": "your-api-key-here"
+        "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
       }
     }
   }
 }
 ```
-
-### OAuth Authentication (Alternative)
-
-For OAuth authentication instead of token authentication, omit the API key and set the auth method to `web`:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardianDeveloper": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
-      "env": {
-        "GITGUARDIAN_API_URL": "https://api.eu1.gitguardian.com/v1",
-        "GITGUARDIAN_AUTH_METHOD": "web"
-      }
-    }
-  }
-}
-```
-
-**Important Notes**:
-- The MCP server automatically derives the dashboard URL from the API URL, so you only need to set `GITGUARDIAN_API_URL`
-- For **token authentication** (default), you must provide your API key via `GITGUARDIAN_API_KEY`
-- For **OAuth authentication**, set `GITGUARDIAN_AUTH_METHOD=web` and the server will open a browser for authentication
 
 ## Development
 
