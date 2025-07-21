@@ -15,12 +15,10 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(leve
 
 logger = logging.getLogger(__name__)
 
-# Log environment variables (without exposing the full API key)
-gitguardian_api_key = os.environ.get("GITGUARDIAN_API_KEY")
+# Log environment variables
 gitguardian_api_url = os.environ.get("GITGUARDIAN_API_URL")
 
 logger.info("Starting Developer MCP Server")
-logger.debug(f"GitGuardian API Key present: {bool(gitguardian_api_key)}")
 logger.debug(f"GitGuardian API URL: {gitguardian_api_url or 'Using default'}")
 
 # Set specific environment variable for this server to request only developer-specific scopes

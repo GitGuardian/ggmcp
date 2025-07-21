@@ -2,14 +2,14 @@
 
 This package provides core functionality for GitGuardian MCP servers, including:
 
-- GitGuardian API client for both API key and OAuth authentication
+- GitGuardian API client with OAuth authentication
 - Base MCP server class with scope-aware tool registration
 - OAuth implementation for web-based authentication
 - Shared utilities and helper functions
 
 ## Features
 
-- Authentication support for both API key and OAuth 2.0 PKCE flows
+- Authentication support for OAuth 2.0 PKCE flows
 - Automatic token scope detection and tool availability management
 - Comprehensive GitGuardian API client with full endpoint coverage
 - Core utilities for common operations
@@ -36,10 +36,8 @@ async def my_custom_tool():
 
 ## Authentication
 
-This package supports both API key and OAuth authentication methods, configured via environment variables:
+This package supports OAuth 2.0 PKCE authentication, configured via environment variables:
 
-- `GITGUARDIAN_AUTH_METHOD`: Set to either 'token' (default) or 'web'
-- `GITGUARDIAN_API_KEY`: Required for token-based authentication
 - `GITGUARDIAN_CLIENT_ID`: Required for OAuth-based authentication
 - `GITGUARDIAN_SCOPES`: Optional space-separated list of scopes for OAuth
 - `GITGUARDIAN_INSTANCE_URL`: Optional custom instance URL

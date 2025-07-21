@@ -8,14 +8,22 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "developer-mcp-server",
-    "secops-mcp-server"
+    "developer-mcp-server"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "secops-mcp-server",
 ]
 
 [project.scripts]
 developer-mcp-server = "developer_mcp_server.server:mcp.run"
 # secops-mcp-server = "secops_mcp_server.server:mcp.run"
 
+[tool.uv]
+package = true
 
 [tool.uv.workspace]
 members = ["packages/*"]

@@ -30,11 +30,9 @@ secops-mcp-server
 
 ## Authentication
 
-This server supports both API key and OAuth 2.0 PKCE authentication methods:
+This server uses OAuth 2.0 PKCE authentication:
 
-1. **API Key Authentication**: Set `GITGUARDIAN_AUTH_METHOD=token` and provide your API key with `GITGUARDIAN_API_KEY=your-api-key`
-
-2. **OAuth Authentication**: Set `GITGUARDIAN_AUTH_METHOD=web` and provide your client ID with `GITGUARDIAN_CLIENT_ID=your-client-id`
+**OAuth Authentication**: Provide your client ID with `GITGUARDIAN_CLIENT_ID=your-client-id`
 
 The tools in this server require various API token scopes including:
 - `honeytokens:read`
@@ -49,10 +47,8 @@ The tools in this server require various API token scopes including:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `GITGUARDIAN_AUTH_METHOD` | Authentication method ('token' or 'web') | 'token' |
-| `GITGUARDIAN_API_KEY` | Your GitGuardian API key (required for token auth) | - |
-| `GITGUARDIAN_CLIENT_ID` | Your OAuth client ID (required for web auth) | - |
-| `GITGUARDIAN_SCOPES` | Space-separated list of scopes (for OAuth) | All available scopes |
+| `GITGUARDIAN_CLIENT_ID` | Your OAuth client ID | - |
+| `GITGUARDIAN_SCOPES` | Space-separated list of scopes | All available scopes |
 | `GITGUARDIAN_INSTANCE_URL` | Base URL for GitGuardian instance | `https://dashboard.gitguardian.com` |
 | `MCP_SERVER_HOST` | Host for the MCP server (used for OAuth redirect) | `localhost` |
 | `MCP_SERVER_PORT` | Port for the MCP server | `8000` |

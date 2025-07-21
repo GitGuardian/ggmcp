@@ -8,7 +8,8 @@ import pytest
 def mock_env_vars():
     """Automatically mock environment variables for all tests."""
     with patch.dict(
-        os.environ, {"GITGUARDIAN_API_KEY": "test_api_key", "GITGUARDIAN_API_URL": "https://test.api.gitguardian.com"}
+        os.environ,
+        {"GITGUARDIAN_CLIENT_ID": "test_client_id", "GITGUARDIAN_API_URL": "https://test.api.gitguardian.com"},
     ):
         yield
 
@@ -19,7 +20,7 @@ def setup_test_env():
     original_env = os.environ.copy()
 
     # Set test environment variables
-    os.environ["GITGUARDIAN_API_KEY"] = "test_api_key"
+    os.environ["GITGUARDIAN_CLIENT_ID"] = "test_client_id"
     os.environ["GITGUARDIAN_API_URL"] = "https://test.api.gitguardian.com"
 
     yield

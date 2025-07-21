@@ -52,17 +52,17 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
+    def __init__(self, api_url: str | None = None, use_oauth: bool = True):
         """Initialize the GitGuardian client.
 
         Args:
-            api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
             api_url: GitGuardian API URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
-            use_oauth: Whether to use OAuth authentication instead of token auth
+            use_oauth: Whether to use OAuth authentication (always True, kept for compatibility)
         """
         logger.info("Initializing GitGuardian client")
 
-        self.use_oauth = use_oauth
+        # OAuth is now the only supported authentication method
+        self.use_oauth = True
         self._oauth_token = None
         self._token_info = None
 
@@ -74,28 +74,9 @@ class GitGuardianClient:
         self.dashboard_url = self._get_dashboard_url()
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
 
-        # For token-based authentication
-        if not use_oauth:
-            # Use provided API key or get from environment
-            self.api_key = api_key or os.environ.get("GITGUARDIAN_API_KEY")
-
-            # Log API key status (without exposing the actual key)
-            if self.api_key:
-                logger.info("API key found")
-                # Only show first 4 chars for logging
-                key_preview = self.api_key[:4] + "..." if len(self.api_key) > 4 else "***"
-                logger.debug(f"Using API key starting with: {key_preview}")
-            else:
-                logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
-                raise ValueError("GitGuardian API key is required for token authentication")
-
-            logger.debug("GitGuardian client initialized with token authentication")
-        else:
-            # For OAuth authentication
-            self.api_key = None
-            logger.info(
-                "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
-            )
+        # OAuth authentication is the only supported method
+        self.api_key = None
+        logger.info("GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)")
 
     def _get_dashboard_url(self) -> str:
         """
@@ -283,22 +264,14 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        # If using OAuth, ensure we have a token
-        if self.use_oauth:
-            await self._ensure_oauth_token()
-            headers = {
-                "Authorization": f"Token {self._oauth_token}",
-                "Content-Type": "application/json",
-                "User-Agent": self.USER_AGENT,
-            }
-            logger.debug("Using OAuth token for authorization")
-        else:  # Token-based auth
-            headers = {
-                "Authorization": f"Token {self.api_key}",
-                "Content-Type": "application/json",
-                "User-Agent": self.USER_AGENT,
-            }
-            logger.debug("Using API key for authorization")
+        # Ensure we have an OAuth token
+        await self._ensure_oauth_token()
+        headers = {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self.USER_AGENT,
+        }
+        logger.debug("Using OAuth token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
         logger.debug(
