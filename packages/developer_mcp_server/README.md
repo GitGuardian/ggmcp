@@ -26,28 +26,32 @@ developer-mcp-server
 
 ## Authentication
 
-This server supports both API key and OAuth 2.0 PKCE authentication methods:
+This server uses OAuth 2.0 PKCE authentication. No API key is required - the server will automatically open a browser for authentication when needed.
 
-1. **API Key Authentication**: Set `GITGUARDIAN_AUTH_METHOD=token` and provide your API key with `GITGUARDIAN_API_KEY=your-api-key`
+A Personal Access Token (PAT) called "Developer MCP Token" will be created automatically with scopes appropriate for your GitGuardian instance:
 
-2. **OAuth Authentication**: Set `GITGUARDIAN_AUTH_METHOD=web` and provide your client ID with `GITGUARDIAN_CLIENT_ID=your-client-id`
+- `scan` - Core scanning functionality
+- `incidents:read` - Read incidents
+- `sources:read` - Read source repositories
+- `honeytokens:read` - Read honeytokens (only if Honeytoken is activated when Self-Hosted)
+- `honeytokens:write` - Manage honeytokens (same as honeytokens:read)
 
-The required API token scopes for this tool are:
-- `incidents:read`
-- `incidents:write`
-- `honeytokens:read`
-- `honeytokens:write`
+Note: Honeytoken scopes are omitted for self-hosted instances as they require the honeytoken module to be enabled and minimum "manager" role, which often causes permission issues.
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `GITGUARDIAN_AUTH_METHOD` | Authentication method ('token' or 'web') | 'token' |
-| `GITGUARDIAN_API_KEY` | Your GitGuardian API key (required for token auth) | - |
-| `GITGUARDIAN_CLIENT_ID` | Your OAuth client ID (required for web auth) | - |
-| `GITGUARDIAN_INSTANCE_URL` | Base URL for GitGuardian instance | `https://dashboard.gitguardian.com` |
+| `GITGUARDIAN_URL` | GitGuardian base URL | `https://dashboard.gitguardian.com` (SaaS US), `https://dashboard.eu1.gitguardian.com` (SaaS EU), `https://dashboard.gitguardian.mycorp.local` (Self-Hosted) |
+| `GITGUARDIAN_SCOPES` | Comma-separated list of OAuth scopes | Auto-detected based on instance type |
 | `MCP_SERVER_HOST` | Host for the MCP server (used for OAuth redirect) | `localhost` |
 | `MCP_SERVER_PORT` | Port for the MCP server | `8000` |
+
+**Scope Auto-detection**: The server automatically detects appropriate scopes based on your GitGuardian instance:
+- **SaaS instances**: `scan,incidents:read,sources:read,honeytokens:read,honeytokens:write`
+- **Self-hosted instances**: `scan,incidents:read,sources:read`
+
+To override auto-detection, set `GITGUARDIAN_SCOPES` explicitly in your MCP configuration.
 
 ## Honeytoken Management
 

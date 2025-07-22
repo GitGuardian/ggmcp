@@ -34,8 +34,8 @@ class GitGuardianFastMCP(FastMCP):
         # Store the complete token info
         self._token_info = None
 
-        # Store the authentication method
-        self._auth_method = os.environ.get("GITGUARDIAN_AUTH_METHOD", "token").lower()
+        # Store the authentication method (OAuth only)
+        self._auth_method = "web"  # Always use OAuth authentication
         logger.debug(f"Using authentication method: {self._auth_method}")
 
         # Set default scopes for demonstration or development
@@ -92,10 +92,7 @@ class GitGuardianFastMCP(FastMCP):
                 self._token_scopes = set(scopes)
 
                 # Log authentication method used
-                if self._auth_method == "web":
-                    logger.debug("Using OAuth authentication")
-                else:
-                    logger.debug("Using token authentication")
+                logger.debug("Using OAuth authentication")
 
             except Exception as e:
                 logger.warning(f"Error fetching token scopes from /api_tokens/self endpoint: {str(e)}")
@@ -287,8 +284,8 @@ def register_common_tools(mcp_instance: GitGuardianFastMCP):
             await client._request("DELETE", "/api_tokens/self")
             logger.debug("Token revoked via API")
 
-            # If using OAuth, clean up stored tokens
-            if mcp_instance._auth_method == "web" and hasattr(client, "oauth_handler") and client.oauth_handler:
+            # Clean up stored OAuth tokens
+            if hasattr(client, "oauth_handler") and client.oauth_handler:
                 try:
                     oauth_handler = client.oauth_handler
                     dashboard_url = oauth_handler.dashboard_url

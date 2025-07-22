@@ -19,11 +19,15 @@ Resolve security incidents without context switching to the GitGuardian console.
 >
 > (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
 
-## Key Features
+## Features supported
 
 - **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
 - **Incident Management**: View, assign, and resolve security incidents related to the project you are currently working.
 - **Honeytokens**: Create and manage honeytokens to detect unauthorized access
+- **Authentication Management**: Get authenticated user information and token details
+- **Token Management**: Revoke current API tokens
+
+> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/gg-mcp/issues) to help us prioritize new MCP server capabilities.
 
 ## Prompts examples
 
@@ -54,7 +58,7 @@ Before installing the GitGuardian MCP servers, ensure you have the following pre
 
 Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
 
-Currently, the MCP server only works with SaaS GitGuardian workspaces, not self-hosted ones.
+The MCP server supports both GitGuardian SaaS and self-hosted instances.
 
 ### Installation with Cursor
 
@@ -63,6 +67,8 @@ Currently, the MCP server only works with SaaS GitGuardian workspaces, not self-
 For Developer MCP Server:
 
 [![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcC1zZXJ2ZXIifQ%3D%3D)
+
+> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS, self-hosted instances, or token authentication, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances).
 
 **Manual Configuration**:
 
@@ -175,6 +181,95 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 2. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
 3. The authentication token will be securely stored for future use
 4. The next time you start the server, it will reuse the stored token without requiring re-authentication
+
+## Configuration for Different GitGuardian Instances
+
+The MCP server uses OAuth authentication and defaults to GitGuardian SaaS (US region) at `https://dashboard.gitguardian.com`. For other instances, you'll need to specify the URL:
+
+### Environment Variables
+
+The following environment variables can be configured:
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `GITGUARDIAN_URL` | GitGuardian instance URL | `https://dashboard.gitguardian.com` | `https://dashboard.eu1.gitguardian.com` |
+| `GITGUARDIAN_CLIENT_ID` | OAuth client ID | `ggshield_oauth` | `my-custom-oauth-client` |
+| `GITGUARDIAN_SCOPES` | OAuth scopes to request | Auto-detected based on instance type | `scan,incidents:read,sources:read,honeytokens:read,honeytokens:write` |
+| `GITGUARDIAN_TOKEN_NAME` | Name for the OAuth token | Auto-generated based on server type | `"Developer MCP Token"` |
+| `GITGUARDIAN_TOKEN_LIFETIME` | Token lifetime in days | `30` | `60` or `never` |
+
+### Self-Hosted GitGuardian
+
+For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment variable to your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local"
+      }
+    }
+  }
+}
+```
+
+### Self-Hosted with Honeytoken Support
+
+If your self-hosted instance has honeytokens enabled and your user has the required permissions ("manager" role), you can explicitly request honeytoken scopes:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local",
+        "GITGUARDIAN_SCOPES": "scan,incidents:read,sources:read,honeytokens:read,honeytokens:write"
+      }
+    }
+  }
+}
+```
+
+### GitGuardian EU Instance
+
+For the GitGuardian EU instance, use:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
+      }
+    }
+  }
+}
+```
+
+### Custom OAuth Client
+
+If you have your own OAuth application configured in GitGuardian, you can specify a custom client ID:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "env": {
+        "GITGUARDIAN_CLIENT_ID": "my-custom-oauth-client"
+      }
+    }
+  }
+}
+```
 
 ## Development
 

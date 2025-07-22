@@ -12,6 +12,9 @@ import httpx
 # Setup logger
 logger = logging.getLogger(__name__)
 
+# Global OAuth lock to prevent parallel OAuth flows
+_oauth_lock = asyncio.Lock()
+
 
 class IncidentSeverity(str, Enum):
     """Enum for incident severity levels."""
@@ -52,59 +55,109 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = False):
+    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = True):
         """Initialize the GitGuardian client.
 
         Args:
-            api_key: GitGuardian API key, defaults to GITGUARDIAN_API_KEY env var
-            api_url: GitGuardian API URL, defaults to GITGUARDIAN_API_URL env var or https://api.gitguardian.com/v1
-            use_oauth: Whether to use OAuth authentication instead of token auth
+            api_key: Deprecated, OAuth authentication is used
+            api_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
+                    Supported formats:
+                    - SaaS US: https://dashboard.gitguardian.com (default)
+                    - SaaS EU: https://dashboard.eu1.gitguardian.com
+                    - Self-hosted dashboard URL: https://dashboard.your-gitguardian.com
+                    - Legacy API URLs are also supported for backward compatibility
+            use_oauth: OAuth authentication is always used (parameter kept for backward compatibility)
         """
         logger.info("Initializing GitGuardian client")
 
-        self.use_oauth = use_oauth
+        self.use_oauth = True  # Always use OAuth
         self._oauth_token = None
         self._token_info = None
 
         # Use provided API URL or get from environment with default fallback
-        self.api_url = api_url or os.environ.get("GITGUARDIAN_API_URL", "https://api.gitguardian.com/v1")
+        raw_api_url = api_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
+        self.api_url = self._normalize_api_url(raw_api_url)
         logger.info(f"Using API URL: {self.api_url}")
 
         # Extract the base URL for dashboard (needed for OAuth)
         self.dashboard_url = self._get_dashboard_url()
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
 
-        # For token-based authentication
-        if not use_oauth:
-            # Use provided API key or get from environment
-            self.api_key = api_key or os.environ.get("GITGUARDIAN_API_KEY")
+        # OAuth authentication (only supported method)
+        self.api_key = None
+        logger.info(
+            "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
+        )
 
-            # Log API key status (without exposing the actual key)
-            if self.api_key:
-                logger.info("API key found")
-                # Only show first 4 chars for logging
-                key_preview = self.api_key[:4] + "..." if len(self.api_key) > 4 else "***"
-                logger.debug(f"Using API key starting with: {key_preview}")
-            else:
-                logger.error("GitGuardian API key is missing - not found in parameters or environment variables")
-                raise ValueError("GitGuardian API key is required for token authentication")
-
-            logger.debug("GitGuardian client initialized with token authentication")
-        else:
-            # For OAuth authentication
-            self.api_key = None
-            logger.info(
-                "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
-            )
+    def _normalize_api_url(self, api_url: str) -> str:
+        """
+        Normalize the API URL for different GitGuardian instance types.
+        
+        Args:
+            api_url: Raw API URL or base URL
+            
+        Returns:
+            str: Normalized API URL
+        """
+        from urllib.parse import urlparse
+        
+        # Strip trailing slashes
+        api_url = api_url.rstrip("/")
+        
+        try:
+            parsed = urlparse(api_url)
+            
+            # Check if this is a SaaS URL (dashboard or API)
+            if ("dashboard.gitguardian.com" in parsed.netloc or 
+                "dashboard.eu1.gitguardian.com" in parsed.netloc or
+                "api.gitguardian.com" in parsed.netloc or 
+                "api.eu1.gitguardian.com" in parsed.netloc):
+                
+                # Convert dashboard URLs to API URLs with /v1 suffix
+                if "dashboard" in parsed.netloc:
+                    api_netloc = parsed.netloc.replace("dashboard", "api")
+                    normalized_url = f"{parsed.scheme}://{api_netloc}/v1"
+                    logger.debug(f"Normalized SaaS dashboard URL: {api_url} -> {normalized_url}")
+                    return normalized_url
+                # For API URLs, ensure they have /v1 suffix
+                elif not parsed.path.endswith('/v1'):
+                    normalized_url = f"{api_url}/v1"
+                    logger.debug(f"Normalized SaaS API URL: {api_url} -> {normalized_url}")
+                    return normalized_url
+                else:
+                    logger.debug(f"SaaS API URL already has /v1: {api_url}")
+                    return api_url
+            
+            # Check if this already has the API path structure
+            path = parsed.path.lower()
+            if path.endswith('/v1') or path.endswith('/exposed/v1'):
+                logger.debug(f"API URL already has API path: {api_url}")
+                return api_url
+            
+            # This appears to be a self-hosted base URL - append the API path
+            if not path or path == '/' or not path.startswith('/exposed'):
+                normalized_url = f"{api_url}/exposed/v1"
+                logger.info(f"Normalized self-hosted base URL: {api_url} -> {normalized_url}")
+                return normalized_url
+            
+            # If it has /exposed but no /v1, append /v1
+            if path.startswith('/exposed') and not path.endswith('/v1'):
+                normalized_url = f"{api_url}/v1"
+                logger.info(f"Normalized self-hosted API URL: {api_url} -> {normalized_url}")
+                return normalized_url
+                
+            # Default: return as-is
+            logger.debug(f"Using API URL as provided: {api_url}")
+            return api_url
+            
+        except Exception as e:
+            logger.warning(f"Failed to parse API URL '{api_url}': {e}")
+            logger.warning("Using API URL as provided")
+            return api_url
 
     def _get_dashboard_url(self) -> str:
         """
-        Get the GitGuardian dashboard URL.
-
-        Prioritizes the following sources in order:
-        1. GITGUARDIAN_DASHBOARD_URL environment variable if set
-        2. Default dashboard URL for default API URL
-        3. Derived dashboard URL from custom API URL
+        Get the GitGuardian dashboard URL by deriving it from the API URL.
 
         Returns:
             str: The GitGuardian dashboard URL
@@ -112,22 +165,16 @@ class GitGuardianClient:
         # Default GitGuardian dashboard URL
         default_dashboard_url = "https://dashboard.gitguardian.com"
 
-        # Check if a custom dashboard URL is specified in the environment
-        dashboard_url = os.environ.get("GITGUARDIAN_DASHBOARD_URL")
-        if dashboard_url:
-            # Strip trailing slash for consistency
-            dashboard_url = dashboard_url.rstrip("/")
-            logger.info(f"Using dashboard URL from GITGUARDIAN_DASHBOARD_URL: {dashboard_url}")
-            return dashboard_url
-
-        # If using the default API URL, return the default dashboard URL
+        # If using SaaS API URLs, return the corresponding dashboard URL
         if self.api_url == "https://api.gitguardian.com/v1":
             logger.info(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
+        elif self.api_url == "https://api.eu1.gitguardian.com/v1":
+            eu_dashboard_url = "https://dashboard.eu1.gitguardian.com"
+            logger.info(f"Using EU dashboard URL: {eu_dashboard_url}")
+            return eu_dashboard_url
 
-        # If using a custom API URL, try to extract the base URL
-        # This assumes the API URL is in the format: https://api.example.com/v1
-        # and the dashboard URL would be: https://example.com or http://localhost:3000
+        # For custom API URLs, derive the dashboard URL from the API URL
         try:
             # Parse the URL to get the components
             from urllib.parse import urlparse
@@ -136,14 +183,23 @@ class GitGuardianClient:
 
             # For local development (localhost or 127.0.0.1)
             if parsed_url.netloc.startswith("localhost") or parsed_url.netloc.startswith("127.0.0.1"):
-                port = parsed_url.port or 80
-                derived_url = f"{parsed_url.scheme}://{parsed_url.netloc.split(':')[0]}:{port}"
+                # For localhost, use the base URL without any path
+                derived_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
             else:
-                # For custom domains, remove the 'api.' prefix if it exists
+                # For custom domains, handle different patterns
                 hostname = parsed_url.netloc
-                if hostname.startswith("api."):
+                
+                # Remove 'api.' prefix if it exists (e.g., api.example.com -> example.com)
+                # Special handling for GitGuardian EU instance
+                if hostname == "api.eu1.gitguardian.com":
+                    derived_url = f"{parsed_url.scheme}://dashboard.eu1.gitguardian.com"
+                elif hostname.startswith("api."):
                     hostname = hostname[4:]  # Remove 'api.' prefix
-                derived_url = f"{parsed_url.scheme}://{hostname}"
+                    derived_url = f"{parsed_url.scheme}://{hostname}"
+                else:
+                    # For self-hosted instances like dashboard.gitguardian.mycorp.local/exposed/v1
+                    # Use the base URL without the path
+                    derived_url = f"{parsed_url.scheme}://{hostname}"
 
             logger.info(f"Derived dashboard URL from API URL: {derived_url}")
             return derived_url
@@ -156,10 +212,21 @@ class GitGuardianClient:
         if not self.use_oauth:
             return
 
-        if self._oauth_token is None:
+        # Use a global lock to prevent parallel OAuth flows across all client instances
+        async with _oauth_lock:
+            # Double-check pattern: another thread might have completed OAuth while we waited for the lock
+            if self._oauth_token is not None:
+                logger.debug("OAuth token already available after waiting for lock")
+                return
+
+            logger.warning(f"Acquired OAuth lock, proceeding with authentication")
+            logger.info(f"   Client API URL: {self.api_url}")
+            logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
+            logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
+            
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
-            from .scopes import ALL_SCOPES
+            from .scopes import ALL_SCOPES, validate_scopes
 
             # Default to all scopes, but allow restriction via environment variable
             default_scopes = ",".join(ALL_SCOPES)
@@ -167,7 +234,15 @@ class GitGuardianClient:
             scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
                 "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
             )
-            scopes = [scope.strip() for scope in scopes_str.split(",")]
+            
+            logger.info(f"   Using scopes: {scopes_str}")
+            
+            # Validate scopes to ensure only valid ones are used
+            try:
+                scopes = validate_scopes(scopes_str)
+            except ValueError as e:
+                logger.error(f"Invalid scopes in OAuth client: {e}")
+                raise
 
             # Get custom login path if specified
             login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
@@ -188,6 +263,8 @@ class GitGuardianClient:
                     token_name = f"{self.server_name} MCP Token"
             else:
                 token_name = token_name or "MCP Token"
+
+            logger.info(f"   Final token name: {token_name}")
 
             oauth_client = GitGuardianOAuthClient(
                 api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name

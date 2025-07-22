@@ -36,10 +36,8 @@ async def my_custom_tool():
 
 ## Authentication
 
-This package supports both API key and OAuth authentication methods, configured via environment variables:
+This package uses OAuth authentication, configured via environment variables:
 
-- `GITGUARDIAN_AUTH_METHOD`: Set to either 'token' (default) or 'web'
-- `GITGUARDIAN_API_KEY`: Required for token-based authentication
-- `GITGUARDIAN_CLIENT_ID`: Required for OAuth-based authentication
+- `GITGUARDIAN_URL`: Optional GitGuardian instance URL (defaults to `https://dashboard.gitguardian.com`)
+- `GITGUARDIAN_CLIENT_ID`: Optional OAuth client ID (defaults to `ggshield_oauth`)
 - `GITGUARDIAN_SCOPES`: Optional space-separated list of scopes for OAuth
-- `GITGUARDIAN_INSTANCE_URL`: Optional custom instance URL

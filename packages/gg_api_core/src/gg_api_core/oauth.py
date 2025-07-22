@@ -24,6 +24,9 @@ CALLBACK_PORT_RANGE = (8000, 8999)
 # Default token expiry in days (if not specified in token info)
 DEFAULT_TOKEN_EXPIRY_DAYS = 30
 
+# Global counter for OAuth client instances (debugging)
+_oauth_client_counter = 0
+
 
 class FileTokenStorage:
     """File-based storage for OAuth tokens to enable token reuse."""
@@ -397,6 +400,11 @@ class GitGuardianOAuthClient:
             scopes: List of OAuth scopes to request (default: ["scan"])
             token_name: Custom name for the OAuth token (default: "mcp-server-token-YYYY-MM-DD")
         """
+        # Debug OAuth client creation
+        global _oauth_client_counter
+        _oauth_client_counter += 1
+        logger.debug(f"Creating OAuth client #{_oauth_client_counter} for {dashboard_url}")
+        
         self.api_url = api_url
         self.dashboard_url = dashboard_url
         self.scopes = scopes or ["scan"]
@@ -428,18 +436,21 @@ class GitGuardianOAuthClient:
                     )
                     self.token_lifetime = 30
 
+
+
         # Try to load a saved token first
         self._load_saved_token()
 
     def _load_saved_token(self):
         """Try to load a saved token from file storage."""
+        logger.debug(f"Attempting to load saved token for {self.dashboard_url}")
         try:
             # Load tokens from storage
             tokens = self.file_token_storage.load_tokens()
             token_data = tokens.get(self.dashboard_url)
 
             if not token_data:
-                logger.info(f"No saved token found for {self.dashboard_url}")
+                logger.debug(f"No saved token found for {self.dashboard_url}")
                 return
 
             # Check if token is expired
@@ -450,10 +461,10 @@ class GitGuardianOAuthClient:
                     expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if now >= expiry_date:
-                        logger.info(f"Token for {self.dashboard_url} has expired")
+                        logger.debug(f"Token for {self.dashboard_url} has expired")
                         return
                 except Exception as e:
-                    logger.warning(f"Failed to parse expiry date: {e}")
+                    logger.warning(f"Failed to parse expiry date '{expires_at}': {e}")
 
             # Set the access token and related info
             self.access_token = token_data.get("access_token")
@@ -466,6 +477,8 @@ class GitGuardianOAuthClient:
                 }
                 self.token_name = token_data.get("token_name", self.token_name)
                 logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url}")
+            else:
+                logger.warning(f"Token data found but no access_token field")
         except Exception as e:
             logger.warning(f"Failed to load saved token: {e}")
             # Continue without a saved token
@@ -482,6 +495,15 @@ class GitGuardianOAuthClient:
         Raises:
             Exception: If authentication fails
         """
+        logger.debug(f"oauth_process() called for token '{self.token_name}'")
+            
+        # Check if we already have a valid token loaded
+        if self.access_token and self.token_info:
+            logger.info(f"Using existing token '{self.token_name}' - skipping OAuth flow")
+            return self.access_token
+        
+        logger.info(f"No valid token found for '{self.token_name}', starting OAuth authentication flow")
+        
         # Handle the base URL correctly
         base_url = self.dashboard_url
         server_url = base_url.rstrip("/")
@@ -503,6 +525,7 @@ class GitGuardianOAuthClient:
         async def redirect_handler(authorization_url: str) -> None:
             """Opens the browser for authorization."""
             logger.info(f"Opening browser for authorization: {authorization_url}")
+            
             # Try to open the browser, but provide fallback instructions
             try:
                 browser_opened = webbrowser.open(authorization_url)
@@ -512,6 +535,8 @@ class GitGuardianOAuthClient:
                     print("Please open the following URL in your browser to authenticate:")
                     print(f"\n{authorization_url}\n")
                     print("-------------------------------------------------------------\n\n")
+                else:
+                    logger.debug(f"Browser window opened successfully for '{self.token_name}'")
             except Exception as e:
                 logger.error(f"Error opening browser: {e}")
                 print("\n\n-------------------------------------------------------------")
@@ -550,11 +575,14 @@ class GitGuardianOAuthClient:
                 base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip("=")
             )
 
+            # Get OAuth client ID from environment variable or use default
+            client_id = os.environ.get("GITGUARDIAN_CLIENT_ID", "ggshield_oauth")
+
             # 2. Create the authorization URL with the appropriate parameters
             auth_url = f"{server_url}/auth/login?"
             params = {
                 "response_type": "code",
-                "client_id": "ggshield_oauth",  # Using the same client ID as ggshield
+                "client_id": client_id,
                 "redirect_uri": f"http://localhost:{callback_server.port}",
                 "scope": " ".join(self.scopes),
                 "state": state,
@@ -604,7 +632,7 @@ class GitGuardianOAuthClient:
                 "grant_type": "authorization_code",
                 "code": auth_code,
                 "redirect_uri": f"http://localhost:{callback_server.port}",
-                "client_id": "ggshield_oauth",
+                "client_id": client_id,
                 "code_verifier": code_verifier,  # Include the PKCE code verifier
                 "name": self.token_name,  # Include token name in token request
             }
