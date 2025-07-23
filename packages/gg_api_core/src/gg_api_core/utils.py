@@ -35,7 +35,7 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
     logger.debug("Using OAuth authentication")
     try:
         # Store server_name as an attribute after initialization since it's not in the constructor anymore
-        client = GitGuardianClient(api_key=None, api_url=api_url, use_oauth=True)
+        client = GitGuardianClient(api_url=api_url)
         client.server_name = server_name
         logger.debug("GitGuardian client initialized using OAuth authentication")
         return client

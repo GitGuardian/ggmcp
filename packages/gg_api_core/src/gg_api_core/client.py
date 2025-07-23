@@ -55,22 +55,19 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, api_key: str | None = None, api_url: str | None = None, use_oauth: bool = True):
+    def __init__(self, api_url: str | None = None):
         """Initialize the GitGuardian client.
 
         Args:
-            api_key: Deprecated, OAuth authentication is used
             api_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
                     Supported formats:
                     - SaaS US: https://dashboard.gitguardian.com (default)
                     - SaaS EU: https://dashboard.eu1.gitguardian.com
                     - Self-hosted dashboard URL: https://dashboard.your-gitguardian.com
                     - Legacy API URLs are also supported for backward compatibility
-            use_oauth: OAuth authentication is always used (parameter kept for backward compatibility)
         """
         logger.info("Initializing GitGuardian client")
 
-        self.use_oauth = True  # Always use OAuth
         self._oauth_token = None
         self._token_info = None
 
@@ -83,36 +80,33 @@ class GitGuardianClient:
         self.dashboard_url = self._get_dashboard_url()
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
 
-        # OAuth authentication (only supported method)
-        self.api_key = None
-        logger.info(
-            "GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)"
-        )
+        logger.info("GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)")
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
         Normalize the API URL for different GitGuardian instance types.
-        
+
         Args:
             api_url: Raw API URL or base URL
-            
+
         Returns:
             str: Normalized API URL
         """
         from urllib.parse import urlparse
-        
+
         # Strip trailing slashes
         api_url = api_url.rstrip("/")
-        
+
         try:
             parsed = urlparse(api_url)
-            
+
             # Check if this is a SaaS URL (dashboard or API)
-            if ("dashboard.gitguardian.com" in parsed.netloc or 
-                "dashboard.eu1.gitguardian.com" in parsed.netloc or
-                "api.gitguardian.com" in parsed.netloc or 
-                "api.eu1.gitguardian.com" in parsed.netloc):
-                
+            if (
+                "dashboard.gitguardian.com" in parsed.netloc
+                or "dashboard.eu1.gitguardian.com" in parsed.netloc
+                or "api.gitguardian.com" in parsed.netloc
+                or "api.eu1.gitguardian.com" in parsed.netloc
+            ):
                 # Convert dashboard URLs to API URLs with /v1 suffix
                 if "dashboard" in parsed.netloc:
                     api_netloc = parsed.netloc.replace("dashboard", "api")
@@ -120,36 +114,36 @@ class GitGuardianClient:
                     logger.debug(f"Normalized SaaS dashboard URL: {api_url} -> {normalized_url}")
                     return normalized_url
                 # For API URLs, ensure they have /v1 suffix
-                elif not parsed.path.endswith('/v1'):
+                elif not parsed.path.endswith("/v1"):
                     normalized_url = f"{api_url}/v1"
                     logger.debug(f"Normalized SaaS API URL: {api_url} -> {normalized_url}")
                     return normalized_url
                 else:
                     logger.debug(f"SaaS API URL already has /v1: {api_url}")
                     return api_url
-            
+
             # Check if this already has the API path structure
             path = parsed.path.lower()
-            if path.endswith('/v1') or path.endswith('/exposed/v1'):
+            if path.endswith("/v1") or path.endswith("/exposed/v1"):
                 logger.debug(f"API URL already has API path: {api_url}")
                 return api_url
-            
+
             # This appears to be a self-hosted base URL - append the API path
-            if not path or path == '/' or not path.startswith('/exposed'):
+            if not path or path == "/" or not path.startswith("/exposed"):
                 normalized_url = f"{api_url}/exposed/v1"
                 logger.info(f"Normalized self-hosted base URL: {api_url} -> {normalized_url}")
                 return normalized_url
-            
+
             # If it has /exposed but no /v1, append /v1
-            if path.startswith('/exposed') and not path.endswith('/v1'):
+            if path.startswith("/exposed") and not path.endswith("/v1"):
                 normalized_url = f"{api_url}/v1"
                 logger.info(f"Normalized self-hosted API URL: {api_url} -> {normalized_url}")
                 return normalized_url
-                
+
             # Default: return as-is
             logger.debug(f"Using API URL as provided: {api_url}")
             return api_url
-            
+
         except Exception as e:
             logger.warning(f"Failed to parse API URL '{api_url}': {e}")
             logger.warning("Using API URL as provided")
@@ -188,7 +182,7 @@ class GitGuardianClient:
             else:
                 # For custom domains, handle different patterns
                 hostname = parsed_url.netloc
-                
+
                 # Remove 'api.' prefix if it exists (e.g., api.example.com -> example.com)
                 # Special handling for GitGuardian EU instance
                 if hostname == "api.eu1.gitguardian.com":
@@ -209,8 +203,6 @@ class GitGuardianClient:
 
     async def _ensure_oauth_token(self):
         """Ensure we have a valid OAuth token, initiating the OAuth flow if needed."""
-        if not self.use_oauth:
-            return
 
         # Use a global lock to prevent parallel OAuth flows across all client instances
         async with _oauth_lock:
@@ -219,11 +211,11 @@ class GitGuardianClient:
                 logger.debug("OAuth token already available after waiting for lock")
                 return
 
-            logger.warning(f"Acquired OAuth lock, proceeding with authentication")
+            logger.warning("Acquired OAuth lock, proceeding with authentication")
             logger.info(f"   Client API URL: {self.api_url}")
             logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
             logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
-            
+
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
             from .scopes import ALL_SCOPES, validate_scopes
@@ -234,9 +226,9 @@ class GitGuardianClient:
             scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
                 "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
             )
-            
+
             logger.info(f"   Using scopes: {scopes_str}")
-            
+
             # Validate scopes to ensure only valid ones are used
             try:
                 scopes = validate_scopes(scopes_str)
@@ -288,8 +280,6 @@ class GitGuardianClient:
 
     async def _clear_invalid_oauth_token(self):
         """Clear invalid OAuth token from memory and storage, forcing a new OAuth flow."""
-        if not self.use_oauth:
-            return
 
         logger.info("Clearing invalid OAuth token from memory and storage")
 
@@ -360,22 +350,14 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        # If using OAuth, ensure we have a token
-        if self.use_oauth:
-            await self._ensure_oauth_token()
-            headers = {
-                "Authorization": f"Token {self._oauth_token}",
-                "Content-Type": "application/json",
-                "User-Agent": self.USER_AGENT,
-            }
-            logger.debug("Using OAuth token for authorization")
-        else:  # Token-based auth
-            headers = {
-                "Authorization": f"Token {self.api_key}",
-                "Content-Type": "application/json",
-                "User-Agent": self.USER_AGENT,
-            }
-            logger.debug("Using API key for authorization")
+        # Ensure we have a valid OAuth token
+        await self._ensure_oauth_token()
+        headers = {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self.USER_AGENT,
+        }
+        logger.debug("Using OAuth token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
         logger.debug(
@@ -453,8 +435,8 @@ class GitGuardianClient:
                     raise
 
             except httpx.HTTPStatusError as e:
-                # Special handling for 401 errors when using OAuth - token might be invalid/expired
-                if e.response.status_code == 401 and self.use_oauth and self._oauth_token is not None:
+                # Special handling for 401 errors - OAuth token might be invalid/expired
+                if e.response.status_code == 401 and self._oauth_token is not None:
                     logger.warning("Received 401 Unauthorized - OAuth token may be invalid or expired")
 
                     # Check if this is an "Invalid API key" error
@@ -943,8 +925,8 @@ class GitGuardianClient:
         """
         logger.info("Getting current API token information")
 
-        # If using OAuth and we already have token info, return it
-        if self.use_oauth and self._token_info is not None:
+        # If we already have token info, return it
+        if self._token_info is not None:
             return self._token_info
 
         # Otherwise fetch from the API

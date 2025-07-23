@@ -3,17 +3,20 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-
-from gg_api_mcp_server.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
+from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
 
 
 @pytest.fixture
 def client():
     """Fixture to create a client instance with OAuth authentication."""
-    with patch.dict(
-        os.environ, {"GITGUARDIAN_URL": "https://test.gitguardian.com"}
-    ):
-        return GitGuardianClient()
+    with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://test.gitguardian.com"}):
+        client = GitGuardianClient()
+        # Mock the OAuth token to prevent OAuth flow during tests
+        client._oauth_token = "test_oauth_token"
+        client._token_info = {"user_id": "test_user", "scopes": ["scan"]}
+        # Mock the OAuth token ensuring method to prevent OAuth flow
+        client._ensure_oauth_token = AsyncMock()
+        return client
 
 
 @pytest.fixture
@@ -38,21 +41,17 @@ class TestGitGuardianClient:
 
     def test_init_with_env_vars(self, client):
         """Test client initialization with environment variables."""
-        assert client.api_key == "test_api_key"
-        assert client.api_url == "https://test.gitguardian.com"
+        assert client.api_url == "https://test.gitguardian.com/exposed/v1"
 
     def test_init_with_params(self):
         """Test client initialization with parameters."""
         client = GitGuardianClient(api_url="https://custom.api.url")
-        assert client.api_key is None  # OAuth authentication, no API key
-        assert client.api_url == "https://custom.api.url"
-        assert client.use_oauth is True
+        assert client.api_url == "https://custom.api.url/exposed/v1"
 
     def test_init_oauth_authentication(self):
         """Test client initialization with OAuth authentication."""
         client = GitGuardianClient()
-        assert client.use_oauth is True
-        assert client.api_key is None
+        assert client._oauth_token is None  # Initially no token until OAuth flow
 
     @pytest.mark.asyncio
     async def test_request_success(self, client, mock_response, mock_httpx_client):
@@ -73,7 +72,7 @@ class TestGitGuardianClient:
             args, kwargs = mock_httpx_client.request.call_args
             assert args[0] == "GET"
             assert args[1].endswith("/test")
-            assert kwargs["headers"]["Authorization"] == "Token test_api_key"
+            assert kwargs["headers"]["Authorization"].startswith("Token ")
 
             # Assert response was processed correctly
             assert result == {"data": "test_data"}

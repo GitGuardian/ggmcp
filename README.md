@@ -68,7 +68,7 @@ For Developer MCP Server:
 
 [![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcC1zZXJ2ZXIifQ%3D%3D)
 
-> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS, self-hosted instances, or token authentication, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances).
+> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS or self-hosted instances, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances).
 
 **Manual Configuration**:
 

@@ -1,15 +1,14 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from developer_mcp_server import server
 from mcp.server.fastmcp.exceptions import ToolError
-
-from gg_api_mcp_server import server
 
 
 @pytest.fixture
 def mock_gitguardian_client():
     """Fixture to create a mock GitGuardian client."""
-    with patch("gg_api_mcp_server.mcp_server.GitGuardianFastMCP.get_client") as mock_get_client:
+    with patch("gg_api_core.mcp_server.GitGuardianFastMCP.get_client") as mock_get_client:
         client = MagicMock()
         mock_get_client.return_value = client
         yield client
