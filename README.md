@@ -22,8 +22,8 @@ Resolve security incidents without context switching to the GitGuardian console.
 ## Features supported
 
 - **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
-- **Incident Management**: View, assign, and resolve security incidents related to the project you are currently working.
-- **Honeytokens**: Create and manage honeytokens to detect unauthorized access
+- **Incident Management**: View security incidents related to the project you are currently working.
+- **Honeytokens**: Create honeytokens to detect unauthorized access
 - **Authentication Management**: Get authenticated user information and token details
 - **Token Management**: Revoke current API tokens
 
