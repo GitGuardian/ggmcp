@@ -1,8 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
-from gg_api_mcp_server.mcp_server import GitGuardianFastMCP
+from gg_api_core.mcp_server import GitGuardianFastMCP
 
 
 @pytest.fixture
@@ -55,7 +54,7 @@ class TestGitGuardianFastMCP:
         mock_client.get_current_token_info = AsyncMock(return_value=token_info)
 
         # Patch the get_gitguardian_client function to return our mock client
-        with patch("gg_api_mcp_server.mcp_server.get_gitguardian_client", return_value=mock_client):
+        with patch("gg_api_core.mcp_server.get_gitguardian_client", return_value=mock_client):
             # Call the method
             await self.mcp._fetch_token_scopes()
 
@@ -108,7 +107,7 @@ class TestGitGuardianFastMCP:
     async def test_list_tools_all_scopes_available(self):
         """Test that list_tools returns all tools when all scopes are available."""
         # Set token scopes to include all required scopes
-        self.mcp.token_scopes = ["scan", "incidents:read", "honeytokens:read"]
+        self.mcp._token_scopes = {"scan", "incidents:read", "honeytokens:read"}
 
         # Create test tools
         @self.mcp.tool(required_scopes=["scan"])
@@ -133,7 +132,7 @@ class TestGitGuardianFastMCP:
     async def test_list_tools_missing_scopes(self):
         """Test that list_tools excludes tools with missing scopes."""
         # Set token scopes to include only some required scopes
-        self.mcp.token_scopes = ["scan", "incidents:read"]
+        self.mcp._token_scopes = {"scan", "incidents:read"}
 
         # Create test tools
         @self.mcp.tool(required_scopes=["scan"])

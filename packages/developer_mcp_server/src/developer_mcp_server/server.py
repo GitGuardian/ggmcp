@@ -7,8 +7,8 @@ from typing import Any
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
+from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import Field
-from starlette.exceptions import HTTPException as ToolError
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -447,13 +447,28 @@ async def generate_honeytoken(
 
     # Create a new honeytoken if requested or if we couldn't find an existing one
     try:
-        # Generate the honeytoken
-        result = await client.create_honeytoken(name=name, description=description)
+        # Generate the honeytoken with default tags
+        custom_tags = [
+            {"key": "source", "value": "auto-generated"},
+            {"key": "type", "value": "aws"},
+        ]
+        result = await client.create_honeytoken(name=name, description=description, custom_tags=custom_tags)
+
+        # Validate that we got an ID in the response
+        if not result.get("id"):
+            raise ToolError("Failed to get honeytoken ID from GitGuardian API")
+
         logger.debug(f"Generated new honeytoken with ID: {result.get('id')}")
+
+        # Add injection recommendations to the response
+        result["injection_recommendations"] = {
+            "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, or code comments to detect unauthorized access."
+        }
+
         return result
     except Exception as e:
         logger.error(f"Error generating honeytoken: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
+        raise ToolError(f"Failed to generate honeytoken: {str(e)}")
 
 
 @mcp.tool(
@@ -536,7 +551,7 @@ async def list_honeytokens(
         return honeytokens
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
+        raise ToolError(str(e))
 
 
 # Register common tools for user information and token management

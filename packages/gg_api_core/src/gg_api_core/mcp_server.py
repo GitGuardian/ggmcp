@@ -1,7 +1,6 @@
 """GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
-import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -205,7 +204,14 @@ class GitGuardianFastMCP(FastMCP):
                     final_tools.append(tool)
                 else:
                     missing_scopes = required_scopes - self._token_scopes
-                    logger.debug(f"Hiding tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
+                    logger.debug(
+                        f"Adding tool '{tool_name}' with warning due to missing scopes: {', '.join(missing_scopes)}"
+                    )
+                    # Add warning to tool description for missing scopes
+                    warning_msg = f"⚠️ DO NOT USE THIS TOOL - Missing required scopes: {', '.join(missing_scopes)}"
+                    original_description = tool.description or ""
+                    tool.description = f"{warning_msg}\n\n{original_description}".strip()
+                    final_tools.append(tool)
 
         return final_tools
 
