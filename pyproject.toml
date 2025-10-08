@@ -1,6 +1,6 @@
 [project]
-name = "gg-mcp-server-workspace"
-version = "0.1.0"
+name = "gg-mcp"
+version = "0.5.0"
 description = "MCP server workspace for GitGuardian"
 authors = [
     {name = "Clément Tourrière", email = "clement.tourriere@gitguardian.com"}
