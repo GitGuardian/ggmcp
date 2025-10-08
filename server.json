@@ -1,0 +1,58 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.gitguardian/gg-mcp",
+  "description": "GitGuardian MCP server that enables AI agents to scan projects for secrets using GitGuardian's API with 500+ secret detectors, manage security incidents, and create honeytokens",
+  "repository": {
+    "url": "https://github.com/GitGuardian/gg-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "gg-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "GitGuardian instance URL (defaults to https://dashboard.gitguardian.com for US SaaS)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "GITGUARDIAN_URL"
+        },
+        {
+          "description": "OAuth client ID for custom OAuth applications",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "GITGUARDIAN_CLIENT_ID"
+        },
+        {
+          "description": "OAuth scopes to request (auto-detected by default)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "GITGUARDIAN_SCOPES"
+        },
+        {
+          "description": "Name for the OAuth token",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "GITGUARDIAN_TOKEN_NAME"
+        },
+        {
+          "description": "Token lifetime in days (default: 30)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "GITGUARDIAN_TOKEN_LIFETIME"
+        }
+      ]
+    }
+  ]
+}
