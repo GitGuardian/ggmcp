@@ -1,0 +1,205 @@
+---
+name: Publish to PyPI and MCP Registry
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      publish_pypi:
+        description: 'Publish to PyPI'
+        type: boolean
+        default: true
+      publish_mcp_registry:
+        description: 'Publish to MCP Registry'
+        type: boolean
+        default: true
+
+jobs:
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_pypi)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      id-token: write  # Required for trusted publishing
+      contents: read
+    environment:
+      name: pypi
+      url: https://pypi.org/project/gg-mcp/
+    concurrency:
+      group: publish-pypi-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Build package
+        run: |
+          echo "Building gg-mcp package..."
+          uv build
+          echo "Build artifacts:"
+          ls -lh dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          print-hash: true
+
+      - name: Create summary
+        run: |
+          echo "## ✅ PyPI Publication Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Package published to: https://pypi.org/project/gg-mcp/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "uvx gg-mcp" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  publish-mcp-registry:
+    name: Publish to MCP Registry
+    needs: publish-pypi
+    if: |
+      always() &&
+      (needs.publish-pypi.result == 'success' || needs.publish-pypi.result == 'skipped') &&
+      (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_mcp_registry))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    concurrency:
+      group: publish-mcp-registry-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify server.json
+        run: |
+          echo "Validating server.json..."
+          if [ ! -f "server.json" ]; then
+            echo "❌ Error: server.json not found"
+            exit 1
+          fi
+
+          # Basic JSON validation
+          if ! python3 -m json.tool server.json > /dev/null; then
+            echo "❌ Error: server.json is not valid JSON"
+            exit 1
+          fi
+
+          echo "✅ server.json is valid"
+          echo ""
+          echo "Configuration:"
+          python3 -c "
+          import json
+          with open('server.json') as f:
+              config = json.load(f)
+          print(f\"  Name: {config['name']}\")
+          print(f\"  Version: {config['version']}\")
+          print(f\"  Description: {config['description']}\")
+          if config.get('packages'):
+              pkg = config['packages'][0]
+              print(f\"  Package: {pkg['identifier']} (via {pkg['registryType']})\")
+          "
+
+      - name: Install mcp-publisher
+        run: |
+          echo "Installing mcp-publisher..."
+
+          # Fetch the latest release version from GitHub API
+          echo "Fetching latest mcp-publisher version..."
+          PUBLISHER_VERSION=$(curl -sL https://api.github.com/repos/modelcontextprotocol/mcp-publisher/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+
+          if [ -z "$PUBLISHER_VERSION" ] || [ "$PUBLISHER_VERSION" = "null" ]; then
+            echo "❌ Error: Failed to fetch latest mcp-publisher version"
+            exit 1
+          fi
+
+          echo "Latest version: v${PUBLISHER_VERSION}"
+
+          # Download mcp-publisher CLI
+          DOWNLOAD_URL="https://github.com/modelcontextprotocol/mcp-publisher/releases/download/v${PUBLISHER_VERSION}/mcp-publisher-linux-amd64"
+          echo "Downloading from: ${DOWNLOAD_URL}"
+
+          if ! wget -q "$DOWNLOAD_URL" -O mcp-publisher; then
+            echo "❌ Error: Failed to download mcp-publisher"
+            exit 1
+          fi
+
+          # Verify download succeeded and file is not empty
+          if [ ! -s mcp-publisher ]; then
+            echo "❌ Error: Downloaded file is empty or does not exist"
+            exit 1
+          fi
+
+          chmod +x mcp-publisher
+
+          # Verify the binary works
+          if ! ./mcp-publisher --version; then
+            echo "❌ Error: mcp-publisher binary is not working"
+            exit 1
+          fi
+
+          echo "✅ Successfully installed mcp-publisher v${PUBLISHER_VERSION}"
+
+      - name: Authenticate with GitHub
+        run: |
+          echo "Authenticating with GitHub using OIDC..."
+          # mcp-publisher should support GitHub Actions OIDC
+          # The GITHUB_TOKEN is automatically available
+          echo "GITHUB_TOKEN is available: ${{ secrets.GITHUB_TOKEN != '' }}"
+
+      - name: Publish to MCP Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Publishing to MCP Registry..."
+
+          # Use GitHub Actions OIDC for authentication
+          # The mcp-publisher should detect we're in GitHub Actions
+          ./mcp-publisher publish --non-interactive
+
+          echo "✅ Successfully published to MCP Registry"
+
+      - name: Create summary
+        run: |
+          echo "## ✅ MCP Registry Publication Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Server registered in: https://github.com/modelcontextprotocol/registry" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Users can install with:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "uvx gg-mcp" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  create-release:
+    name: Create GitHub Release
+    needs: [publish-pypi, publish-mcp-registry]
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          generate_release_notes: true
+          make_latest: true
