@@ -5,12 +5,26 @@ from urllib.parse import urlparse
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
+DEFAULT_SCOPES = [
+    "scan",  # Core scanning functionality
+    "incidents:read",  # Read incidents
+    "sources:read",  # Read source repositories
+]
+
 ALL_SCOPES = [
-    "scan",
-    "incidents:read",
-    "sources:read",
+    *DEFAULT_SCOPES,
+    "incidents:write",
+    "incidents:share",
+    "audit_logs:read",
     "honeytokens:read",
     "honeytokens:write",
+    "api_tokens:write",
+    "api_tokens:read",
+    "ip_allowlist:read",
+    "ip_allowlist:write",
+    "sources:write",
+    "custom_tags:read",
+    "custom_tags:write",
 ]
 
 def validate_scopes(scopes_str: str) -> list[str]:
@@ -90,17 +104,6 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
         "sources:read",        # Basic source repository access
     ]
     
-    # For SaaS instances, include honeytoken scopes
-    if not is_self_hosted_instance(gitguardian_url):
-        base_scopes.extend([
-            "honeytokens:read",
-            "honeytokens:write",
-        ])
-    # For self-hosted, honeytokens are entirely optional since they require:
-    # 1. Honeytoken module to be enabled for the workspace
-    # 2. User role to be minimum "manager" for PAT
-    # We omit them completely to avoid permission issues
-    
     return base_scopes
 
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
@@ -116,20 +119,14 @@ def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     if not is_self_hosted_instance(gitguardian_url):
         # For SaaS, request comprehensive SecOps scopes
         return [
-            "scan",                # Core scanning functionality
-            "incidents:read",      # Read incidents
-            "sources:read",        # Read source repositories
+            *DEFAULT_SCOPES,
             "honeytokens:read",    # Read honeytokens
             "honeytokens:write",   # Manage honeytokens
         ]
     else:
         # For self-hosted, use conservative scopes that are most likely available
         # Avoid honeytokens as it may not be activated
-        return [
-            "scan",                # Core scanning functionality  
-            "incidents:read",      # Read incidents
-            "sources:read",        # Read source repositories
-        ]
+        return DEFAULT_SCOPES
 
 # Legacy constants for backward compatibility
 DEVELOPER_SCOPES = get_developer_scopes()
