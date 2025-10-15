@@ -1368,21 +1368,93 @@ class GitGuardianClient:
 
         return await self._request("GET", endpoint)
 
-    async def get_source_by_name(self, source_name: str) -> dict[str, Any] | None:
+    async def list_sources(
+        self,
+        search: str | None = None,
+        last_scan_status: str | None = None,
+        health: str | None = None,
+        type: str | None = None,
+        ordering: str | None = None,
+        visibility: str | None = None,
+        external_id: str | None = None,
+        source_criticality: str | None = None,
+        monitored: bool | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """List sources known by GitGuardian with optional filtering and cursor-based pagination.
+
+        Args:
+            search: Sources matching this search string
+            last_scan_status: Filter sources based on the status of their latest historical scan
+            health: Filter sources based on their health status
+            type: Filter by source type (e.g., 'github', 'gitlab')
+            ordering: Sort field (e.g., 'last_scan_date', '-last_scan_date' for descending)
+            visibility: Filter by visibility status ('public', 'private', 'internal')
+            external_id: Filter by specific external id
+            source_criticality: Filter by source criticality ('critical', 'high', 'medium', 'low', 'unknown')
+            monitored: Filter by monitored value (true/false)
+            per_page: Number of results per page (default: 20, min: 1, max: 100)
+            cursor: Pagination cursor (for cursor-based pagination)
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            List of sources matching the criteria or an empty dict/list if no results
+        """
+        logger.info("Listing sources with filters")
+
+        # Build query parameters
+        params = {}
+        if search:
+            params["search"] = search
+        if last_scan_status:
+            params["last_scan_status"] = last_scan_status
+        if health:
+            params["health"] = health
+        if type:
+            params["type"] = type
+        if ordering:
+            params["ordering"] = ordering
+        if visibility:
+            params["visibility"] = visibility
+        if external_id:
+            params["external_id"] = external_id
+        if source_criticality:
+            params["source_criticality"] = source_criticality
+        if monitored is not None:
+            params["monitored"] = str(monitored).lower()
+        if per_page:
+            params["per_page"] = str(per_page)
+        if cursor:
+            params["cursor"] = cursor
+
+        endpoint = "/sources"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request("GET", endpoint, params=params)
+
+    async def get_source_by_name(self, source_name: str, return_all_on_no_match: bool = False) -> dict[str, Any] | list[dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
             source_name: Name of the source/repository to find
+            return_all_on_no_match: If True and no exact match is found, return all search results
+                                   instead of None. This allows the caller to choose from candidates.
 
         Returns:
-            Source object if found, None otherwise
+            - If exact match found: Single source object (dict)
+            - If no exact match and return_all_on_no_match=True: List of all matching sources
+            - If no exact match and return_all_on_no_match=False: None
         """
         logger.info(f"Looking up source ID for repository name: {source_name}")
 
-        # The API provides a search parameter to filter sources by name
+        # Fetch all sources matching the search term
         params = {
             "search": source_name,
-            "per_page": 10,  # Small number to avoid excessive data transfer
+            "per_page": 50,  # Get more results for better matching
         }
 
         try:
@@ -1395,15 +1467,26 @@ class GitGuardianClient:
             else:
                 sources = response
 
-            # Find exact match by name
+            if not sources:
+                logger.warning(f"No sources found matching search term: {source_name}")
+                return None
+
+            # Try to find exact match by name
             for source in sources:
                 # Check for both the full name (org/repo) and just the repo name
                 if source.get("name") == source_name or source.get("full_name") == source_name:
-                    logger.info(f"Found source ID {source.get('id')} for {source_name}")
+                    logger.info(f"Found exact match - source ID {source.get('id')} for {source_name}")
                     return source
 
-            logger.warning(f"No source found with name: {source_name}")
-            return None
+            # No exact match found
+            logger.info(f"No exact match found for '{source_name}'. Found {len(sources)} potential matches.")
+
+            if return_all_on_no_match:
+                logger.info(f"Returning all {len(sources)} candidates for manual selection")
+                return sources
+            else:
+                logger.warning(f"No exact match found for: {source_name}")
+                return None
 
         except Exception as e:
             logger.error(f"Error getting source by name: {str(e)}")
