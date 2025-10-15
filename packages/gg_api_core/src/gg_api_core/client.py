@@ -5,7 +5,7 @@ import os
 import re
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, unquote
 
 import httpx
 
@@ -485,7 +485,7 @@ class GitGuardianClient:
             headers: Response headers containing Link header
 
         Returns:
-            Next cursor if available, None otherwise
+            Next cursor if available, None otherwise (URL-decoded)
         """
         link_header = headers.get("link")
         if not link_header:
@@ -503,7 +503,12 @@ class GitGuardianClient:
         if not cursor_match:
             return None
 
-        return cursor_match.group(1)
+        # URL-decode the cursor since it comes URL-encoded from the Link header
+        # This prevents double-encoding when it's used in the next request
+        cursor_encoded = cursor_match.group(1)
+        cursor_decoded = unquote(cursor_encoded)
+        logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
+        return cursor_decoded
 
     async def paginate_all(self, endpoint: str, params: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Fetch all pages of results using cursor-based pagination.
