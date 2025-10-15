@@ -218,10 +218,9 @@ class GitGuardianClient:
 
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
-            from .scopes import ALL_SCOPES, validate_scopes
+            from .scopes import DEFAULT_SCOPES, validate_scopes
 
-            # Default to all scopes, but allow restriction via environment variable
-            default_scopes = ",".join(ALL_SCOPES)
+            default_scopes = ",".join(DEFAULT_SCOPES)
             # Check for both GITGUARDIAN_SCOPES and GITGUARDIAN_REQUESTED_SCOPES for backward compatibility
             scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
                 "GITGUARDIAN_REQUESTED_SCOPES", default_scopes

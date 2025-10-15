@@ -373,11 +373,11 @@ async def list_repo_incidents(
         logger.error(f"Error listing repository incidents: {str(e)}")
         return {"error": f"Failed to list repository incidents: {str(e)}"}
 
-
-@mcp.tool(
-    description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
-    required_scopes=["honeytokens:write"],
-)
+# TODO(APPAI-28)
+# @mcp.tool(
+#     description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
+#     required_scopes=["honeytokens:write"],
+# )
 async def generate_honeytoken(
     name: str = Field(description="Name for the honeytoken"),
     description: str = Field(default="", description="Description of what the honeytoken is used for"),
@@ -470,11 +470,11 @@ async def generate_honeytoken(
         logger.error(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")
 
-
-@mcp.tool(
-    description="List honeytokens from the GitGuardian dashboard with filtering options",
-    required_scopes=["honeytokens:read"],
-)
+# TODO(APPAI-28)
+# @mcp.tool(
+#     description="List honeytokens from the GitGuardian dashboard with filtering options",
+#     required_scopes=["honeytokens:read"],
+# )
 async def list_honeytokens(
     status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)"),
     search: str | None = Field(default=None, description="Search string to filter results by name or description"),
