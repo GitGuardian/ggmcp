@@ -657,6 +657,7 @@ class GitGuardianClient:
         assignee_email: str | None = None,
         assignee_id: str | None = None,
         validity: IncidentValidity | str | None = None,
+        source_id: str | None = None,
         per_page: int = 20,
         cursor: str | None = None,
         ordering: str | None = None,
@@ -672,6 +673,7 @@ class GitGuardianClient:
             assignee_email: Filter incidents assigned to a specific email address
             assignee_id: Filter incidents assigned to a specific member ID
             validity: Filter by validity status (IncidentValidity enum or string: valid, invalid, failed_to_check, no_checker, unknown)
+            source_id: Filter by specific source ID
             per_page: Number of results per page (default: 20)
             cursor: Pagination cursor (for cursor-based pagination)
             ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
@@ -682,7 +684,7 @@ class GitGuardianClient:
             List of incidents matching the criteria or an empty dict/list if no results
         """
         logger.info(
-            f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, ordering={ordering}"
+            f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, source_id={source_id}, ordering={ordering}"
         )
 
         # Build query parameters
@@ -752,6 +754,8 @@ class GitGuardianClient:
             params["assignee_email"] = assignee_email
         if assignee_id:
             params["assignee_id"] = assignee_id
+        if source_id:
+            params["source_id"] = source_id
         if per_page:
             params["per_page"] = str(per_page)
         if cursor:
@@ -1272,6 +1276,7 @@ class GitGuardianClient:
         to_date: str | None = None,
         source_name: str | None = None,
         source_type: str | None = None,
+        source_id: str | None = None,
         presence: str | None = None,
         tags: list[str] | None = None,
         per_page: int = 20,
@@ -1286,6 +1291,7 @@ class GitGuardianClient:
             to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
             source_name: Filter by source name
             source_type: Filter by source type
+            source_id: Filter by specific source ID
             presence: Filter by presence status
             tags: Filter by tags (list of tag IDs)
             per_page: Number of results per page (default: 20)
@@ -1308,6 +1314,8 @@ class GitGuardianClient:
             params["source_name"] = source_name
         if source_type:
             params["source_type"] = source_type
+        if source_id:
+            params["source_id"] = source_id
         if presence:
             params["presence"] = presence
         if tags:

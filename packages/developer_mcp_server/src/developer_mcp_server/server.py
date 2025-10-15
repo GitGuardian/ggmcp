@@ -309,8 +309,13 @@ async def scan_secrets(
     required_scopes=["incidents:read", "sources:read"],
 )
 async def list_repo_incidents(
-    repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+    repository_name: str | None = Field(
+        default=None,
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+    ),
+    source_id: str | None = Field(
+        default=None,
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
     ),
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
@@ -336,6 +341,7 @@ async def list_repo_incidents(
 
     Args:
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
+        source_id: The GitGuardian source ID (alternative to repository_name)
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
         presence: Filter by presence status
@@ -350,26 +356,71 @@ async def list_repo_incidents(
         List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
-    logger.debug(f"Using optimized list_repo_incidents with sources API for repository: {repository_name}")
+
+    # Validate that at least one of repository_name or source_id is provided
+    if not repository_name and not source_id:
+        return {"error": "Either repository_name or source_id must be provided"}
+
+    logger.debug(f"Listing incidents with repository_name={repository_name}, source_id={source_id}")
 
     # Use the new direct approach using the GitGuardian Sources API
     try:
-        # This optimized approach gets incidents directly from the source API
-        # without needing to first fetch occurrences and then incidents separately
-        result = await client.list_repo_incidents_directly(
-            repository_name=repository_name,
-            from_date=from_date,
-            to_date=to_date,
-            presence=presence,
-            tags=tags,
-            per_page=per_page,
-            cursor=cursor,
-            ordering=ordering,
-            get_all=get_all,
-            mine=mine,
-        )
+        # If source_id is provided, use it directly; otherwise use repository_name lookup
+        if source_id:
+            # Prepare parameters for the API call
+            params = {}
+            if from_date:
+                params["from_date"] = from_date
+            if to_date:
+                params["to_date"] = to_date
+            if presence:
+                params["presence"] = presence
+            if tags:
+                params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
+            if per_page:
+                params["per_page"] = per_page
+            if cursor:
+                params["cursor"] = cursor
+            if ordering:
+                params["ordering"] = ordering
+            if mine:
+                params["assigned_to_me"] = "true"
 
-        return result
+            # Get incidents directly using source_id
+            if get_all:
+                incidents_result = await client.paginate_all(f"/sources/{source_id}/incidents/secrets", params)
+                if isinstance(incidents_result, list):
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result,
+                        "total_count": len(incidents_result),
+                    }
+                return incidents_result
+            else:
+                incidents_result = await client.list_source_incidents(source_id, **params)
+                if isinstance(incidents_result, dict):
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result.get("data", []),
+                        "next_cursor": incidents_result.get("next_cursor"),
+                        "total_count": incidents_result.get("total_count", 0),
+                    }
+                return incidents_result
+        else:
+            # Use repository_name lookup (legacy path)
+            result = await client.list_repo_incidents_directly(
+                repository_name=repository_name,
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+                mine=mine,
+            )
+            return result
 
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")
@@ -383,8 +434,13 @@ async def list_repo_incidents(
     required_scopes=["incidents:read"],
 )
 async def list_repo_occurrences(
-    repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+    repository_name: str | None = Field(
+        default=None,
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+    ),
+    source_id: str | None = Field(
+        default=None,
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
     ),
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
@@ -419,6 +475,7 @@ async def list_repo_occurrences(
 
     Args:
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
+        source_id: The GitGuardian source ID (alternative to repository_name)
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
         presence: Filter by presence status
@@ -432,26 +489,43 @@ async def list_repo_occurrences(
         List of secret occurrences with detailed match information including file locations and indices
     """
     client = mcp.get_client()
-    logger.debug(f"Listing secret occurrences for repository: {repository_name}")
+
+    # Validate that at least one of repository_name or source_id is provided
+    if not repository_name and not source_id:
+        return {"error": "Either repository_name or source_id must be provided"}
+
+    logger.debug(f"Listing occurrences with repository_name={repository_name}, source_id={source_id}")
 
     try:
-        # Parse repository name to extract source_name
-        # Format can be: "owner/repo" or just "repo"
-        source_name = repository_name.strip()
-
-        # Call the list_occurrences method with repository filter
-        result = await client.list_occurrences(
-            source_name=source_name,
-            source_type="github",  # Default to github, could be made configurable
-            from_date=from_date,
-            to_date=to_date,
-            presence=presence,
-            tags=tags,
-            per_page=per_page,
-            cursor=cursor,
-            ordering=ordering,
-            get_all=get_all,
-        )
+        # Call the list_occurrences method with appropriate filter
+        if source_id:
+            # Use source_id directly
+            result = await client.list_occurrences(
+                source_id=source_id,
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
+        else:
+            # Use source_name (legacy path)
+            source_name = repository_name.strip()
+            result = await client.list_occurrences(
+                source_name=source_name,
+                source_type="github",  # Default to github, could be made configurable
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
 
         # Handle the response format
         if isinstance(result, dict):
