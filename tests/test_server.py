@@ -1,19 +1,12 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 from developer_mcp_server import server
 from mcp.server.fastmcp.exceptions import ToolError
 
 
-@pytest.fixture
-def mock_gitguardian_client():
-    """Fixture to create a mock GitGuardian client."""
-    with patch("gg_api_core.mcp_server.GitGuardianFastMCP.get_client") as mock_get_client:
-        client = MagicMock()
-        mock_get_client.return_value = client
-        yield client
 
-
+@pytest.mark.skip(reason="generate_honeytoken is disabled (TODO: APPAI-28)")
 class TestGenerateHoneytoken:
     """Tests for the generate_honeytoken tool."""
 

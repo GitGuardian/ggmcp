@@ -41,28 +41,25 @@ class TestGitGuardianFastMCP:
         assert self.mcp._tool_scopes == {}
 
     @pytest.mark.asyncio
-    async def test_fetch_token_scopes(self):
+    async def test_fetch_token_scopes(self, mock_gitguardian_client):
         """Test fetching token scopes."""
+        # Use the conftest fixture's mock client and configure it for this test
+        test_scopes = ["scan", "incidents:read", "honeytokens:read", "honeytokens:write"]
+        mock_gitguardian_client.get_current_token_info = AsyncMock(
+            return_value={"scopes": test_scopes}
+        )
+
         # Create a test fixture for the GitGuardianFastMCP class
         self.mcp = GitGuardianFastMCP("TestMCP")
 
-        # Create mock token info response
-        token_info = {"scopes": ["scan", "incidents:read", "honeytokens:read", "honeytokens:write"]}
+        # Call the method
+        await self.mcp._fetch_token_scopes()
 
-        # Create a mock client with an async get_current_token_info method
-        mock_client = MagicMock()
-        mock_client.get_current_token_info = AsyncMock(return_value=token_info)
+        # Verify the client method was called
+        mock_gitguardian_client.get_current_token_info.assert_called_once()
 
-        # Patch the get_gitguardian_client function to return our mock client
-        with patch("gg_api_core.mcp_server.get_gitguardian_client", return_value=mock_client):
-            # Call the method
-            await self.mcp._fetch_token_scopes()
-
-            # Verify the client method was called
-            mock_client.get_current_token_info.assert_called_once()
-
-            # Verify scopes were set correctly - convert to set for comparison
-            assert self.mcp._token_scopes == set(["scan", "incidents:read", "honeytokens:read", "honeytokens:write"])
+        # Verify scopes were set correctly - convert to set for comparison
+        assert self.mcp._token_scopes == set(test_scopes)
 
     @pytest.mark.asyncio
     async def test_create_token_scope_lifespan(self):
