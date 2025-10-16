@@ -3,11 +3,12 @@
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from functools import cached_property
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import Tool as MCPTool, AnyFunction
 
-from gg_api_core.utils import get_gitguardian_client
+from gg_api_core.utils import get_gitguardian_client, get_client
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -28,8 +29,6 @@ class GitGuardianFastMCP(FastMCP):
         self._tool_scopes: dict[str, set[str]] = {}
         # Storage for token scopes
         self._token_scopes: set[str] = set()
-        # Store the GitGuardian client
-        self._client = None
         # Store the complete token info
         self._token_info = None
 
@@ -76,12 +75,11 @@ class GitGuardianFastMCP(FastMCP):
         try:
             logger.debug("Getting GitGuardian client for scope fetching")
             # Store the client in the instance variable
-            self._client = get_gitguardian_client()
 
             try:
                 logger.debug("Attempting to fetch token scopes from GitGuardian API")
                 # Store the complete token info
-                self._token_info = await self._client.get_current_token_info()
+                self._token_info = await self.client.get_current_token_info()
 
                 # Extract and store scopes
                 scopes = self._token_info.get("scopes", [])
@@ -101,11 +99,10 @@ class GitGuardianFastMCP(FastMCP):
             logger.error(f"Error fetching token scopes: {str(e)}")
             # Don't re-raise the exception, let the server start anyway
 
-    def get_client(self):
+    @cached_property
+    def client(self):
         """Return the GitGuardian client instance."""
-        if self._client is None:
-            self._client = get_gitguardian_client()
-        return self._client
+        return get_client()
 
     def get_token_info(self):
         """Return the token info dictionary."""
@@ -146,9 +143,11 @@ class GitGuardianFastMCP(FastMCP):
         fn: AnyFunction,
         name: str | None = None,
         description: str | None = None,
-        required_scopes: list[str] | None = None,) -> None:
+        required_scopes: list[str] | None = None,
+                 **kwargs) -> None:
+        name = name or fn.__name__
         self._store_tool_scopes(name, required_scopes)
-        super().add_tool(fn, name, description)
+        super().add_tool(fn=fn, name=name, **kwargs)
 
     async def list_tools(self) -> list[MCPTool]:
         """Return all tools, filtering out those requiring unavailable scopes."""
@@ -288,7 +287,7 @@ def register_common_tools(mcp_instance: GitGuardianFastMCP):
         logger.debug("Starting token revocation process")
 
         try:
-            client = mcp_instance.get_client()
+            client = mcp_instance.client
             # Revoke the token via API
             await client._request("DELETE", "/api_tokens/self")
             logger.debug("Token revoked via API")
