@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
+from gg_api_core.utils import get_gitguardian_client
 
 
 @pytest.fixture
@@ -239,3 +240,24 @@ class TestGitGuardianClient:
             assert len(result["data"]) == 1
             assert result["data"][0]["severity"] == "critical"
             assert result["data"][0]["validity"] == "VALID"
+
+class TestGetGitGuardianClient:
+    """Tests for the get_gitguardian_client function."""
+
+    def test_with_custom_url(self):
+        """Test client initialization with custom URL."""
+        # Mock environment variables
+        with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://custom.api.url"}):
+            # Mock GitGuardianClient class
+            with patch("gg_api_core.utils.GitGuardianClient") as mock_client_class:
+                mock_client_instance = MagicMock()
+                mock_client_class.return_value = mock_client_instance
+
+                # Call the function
+                client = get_gitguardian_client()
+
+                # Assertions
+                mock_client_class.assert_called_once()
+                call_args = mock_client_class.call_args[1]
+                assert call_args["api_url"] == "https://custom.api.url"
+                assert client == mock_client_instance
