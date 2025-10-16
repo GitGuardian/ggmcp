@@ -3,10 +3,12 @@
 import json
 import logging
 import os
+import subprocess
 from typing import Any
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
+from gg_api_core.utils import parse_repo_url
 from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import Field
 
@@ -307,8 +309,13 @@ async def scan_secrets(
     required_scopes=["incidents:read", "sources:read"],
 )
 async def list_repo_incidents(
-    repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+    repository_name: str | None = Field(
+        default=None,
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+    ),
+    source_id: str | None = Field(
+        default=None,
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
     ),
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
@@ -334,6 +341,7 @@ async def list_repo_incidents(
 
     Args:
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
+        source_id: The GitGuardian source ID (alternative to repository_name)
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
         presence: Filter by presence status
@@ -348,30 +356,347 @@ async def list_repo_incidents(
         List of incidents and occurrences matching the specified criteria
     """
     client = mcp.get_client()
-    logger.debug(f"Using optimized list_repo_incidents with sources API for repository: {repository_name}")
+
+    # Validate that at least one of repository_name or source_id is provided
+    if not repository_name and not source_id:
+        return {"error": "Either repository_name or source_id must be provided"}
+
+    logger.debug(f"Listing incidents with repository_name={repository_name}, source_id={source_id}")
 
     # Use the new direct approach using the GitGuardian Sources API
     try:
-        # This optimized approach gets incidents directly from the source API
-        # without needing to first fetch occurrences and then incidents separately
-        result = await client.list_repo_incidents_directly(
-            repository_name=repository_name,
-            from_date=from_date,
-            to_date=to_date,
-            presence=presence,
-            tags=tags,
-            per_page=per_page,
-            cursor=cursor,
-            ordering=ordering,
-            get_all=get_all,
-            mine=mine,
-        )
+        # If source_id is provided, use it directly; otherwise use repository_name lookup
+        if source_id:
+            # Prepare parameters for the API call
+            params = {}
+            if from_date:
+                params["from_date"] = from_date
+            if to_date:
+                params["to_date"] = to_date
+            if presence:
+                params["presence"] = presence
+            if tags:
+                params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
+            if per_page:
+                params["per_page"] = per_page
+            if cursor:
+                params["cursor"] = cursor
+            if ordering:
+                params["ordering"] = ordering
+            if mine:
+                params["assigned_to_me"] = "true"
 
-        return result
+            # Get incidents directly using source_id
+            if get_all:
+                incidents_result = await client.paginate_all(f"/sources/{source_id}/incidents/secrets", params)
+                if isinstance(incidents_result, list):
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result,
+                        "total_count": len(incidents_result),
+                    }
+                return incidents_result
+            else:
+                incidents_result = await client.list_source_incidents(source_id, **params)
+                if isinstance(incidents_result, dict):
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result.get("data", []),
+                        "next_cursor": incidents_result.get("next_cursor"),
+                        "total_count": incidents_result.get("total_count", 0),
+                    }
+                return incidents_result
+        else:
+            # Use repository_name lookup (legacy path)
+            result = await client.list_repo_incidents_directly(
+                repository_name=repository_name,
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+                mine=mine,
+            )
+            return result
 
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")
         return {"error": f"Failed to list repository incidents: {str(e)}"}
+
+
+@mcp.tool(
+    description="List secret occurrences for a specific repository with exact match locations. "
+    "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
+    "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
+    required_scopes=["incidents:read"],
+)
+async def list_repo_occurrences(
+    repository_name: str | None = Field(
+        default=None,
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+    ),
+    source_id: str | None = Field(
+        default=None,
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
+    ),
+    from_date: str | None = Field(
+        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
+    ),
+    to_date: str | None = Field(
+        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
+    ),
+    presence: str | None = Field(default=None, description="Filter by presence status"),
+    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
+) -> dict[str, Any]:
+    """
+    List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
+
+    This tool returns detailed occurrence data with EXACT match locations, including:
+    - File path where the secret was found
+    - Line number in the file
+    - Start and end character indices of the match
+    - The type of secret detected
+    - Match context and patterns
+
+    This is particularly useful for automated remediation workflows where the agent needs to:
+    1. Locate the exact position of secrets in files
+    2. Read the surrounding code context
+    3. Make precise edits to remove or replace secrets
+    4. Verify that secrets have been properly removed
+
+    Use list_repo_incidents for a higher-level view of incidents grouped by secret type.
+
+    Args:
+        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
+        source_id: The GitGuardian source ID (alternative to repository_name)
+        from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
+        to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
+        presence: Filter by presence status
+        tags: Filter by tags (list of tag IDs)
+        ordering: Sort field (e.g., 'date', '-date' for descending)
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        cursor: Pagination cursor for fetching next page of results
+        get_all: If True, fetch all results using cursor-based pagination
+
+    Returns:
+        List of secret occurrences with detailed match information including file locations and indices
+    """
+    client = mcp.get_client()
+
+    # Validate that at least one of repository_name or source_id is provided
+    if not repository_name and not source_id:
+        return {"error": "Either repository_name or source_id must be provided"}
+
+    logger.debug(f"Listing occurrences with repository_name={repository_name}, source_id={source_id}")
+
+    try:
+        # Call the list_occurrences method with appropriate filter
+        if source_id:
+            # Use source_id directly
+            result = await client.list_occurrences(
+                source_id=source_id,
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
+        else:
+            # Use source_name (legacy path)
+            source_name = repository_name.strip()
+            result = await client.list_occurrences(
+                source_name=source_name,
+                source_type="github",  # Default to github, could be made configurable
+                from_date=from_date,
+                to_date=to_date,
+                presence=presence,
+                tags=tags,
+                per_page=per_page,
+                cursor=cursor,
+                ordering=ordering,
+                get_all=get_all,
+            )
+
+        # Handle the response format
+        if isinstance(result, dict):
+            occurrences = result.get("occurrences", [])
+            return {
+                "repository": repository_name,
+                "occurrences_count": len(occurrences),
+                "occurrences": occurrences,
+                "cursor": result.get("cursor"),
+                "has_more": result.get("has_more", False),
+            }
+        elif isinstance(result, list):
+            # If get_all=True, we get a list directly
+            return {
+                "repository": repository_name,
+                "occurrences_count": len(result),
+                "occurrences": result,
+            }
+        else:
+            return {
+                "repository": repository_name,
+                "occurrences_count": 0,
+                "occurrences": [],
+            }
+
+    except Exception as e:
+        logger.error(f"Error listing repository occurrences: {str(e)}")
+        return {"error": f"Failed to list repository occurrences: {str(e)}"}
+
+
+@mcp.tool(
+    description="Find the GitGuardian source_id for the current repository. "
+    "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
+    "Useful when you need to reference the repository in other API calls.",
+    required_scopes=["sources:read"],
+)
+async def find_current_repo_source_id() -> dict[str, Any]:
+    """
+    Find the GitGuardian source_id for the current repository.
+
+    This tool:
+    1. Gets the current repository information from git
+    2. Extracts the repository name from the remote URL
+    3. Searches GitGuardian for matching sources
+    4. Returns the source_id if an exact match is found
+    5. If no exact match, returns all search results for the model to choose from
+
+    Returns:
+        A dictionary containing:
+        - repository_name: The detected repository name
+        - source_id: The GitGuardian source ID (if exact match found)
+        - source: Full source information from GitGuardian (if exact match found)
+        - candidates: List of candidate sources (if no exact match but potential matches found)
+        - error: Error message if something went wrong
+    """
+    client = mcp.get_client()
+    logger.debug("Finding source_id for current repository")
+
+    try:
+        # Get current repository remote URL
+        try:
+            result = subprocess.run(
+                ["git", "config", "--get", "remote.origin.url"],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=5,
+            )
+            remote_url = result.stdout.strip()
+            logger.debug(f"Found remote URL: {remote_url}")
+        except subprocess.CalledProcessError as e:
+            return {
+                "error": "Not a git repository or no remote 'origin' configured",
+                "details": str(e),
+            }
+        except subprocess.TimeoutExpired:
+            return {"error": "Git command timed out"}
+
+        # Parse repository name from remote URL
+        repository_name = parse_repo_url(remote_url)
+
+        if not repository_name:
+            return {
+                "error": f"Could not parse repository URL: {remote_url}",
+                "details": "The URL format is not recognized. Supported platforms: GitHub, GitLab (Cloud & Self-hosted), Bitbucket (Cloud & Data Center), Azure DevOps",
+            }
+
+        logger.info(f"Detected repository name: {repository_name}")
+
+        # Search for the source in GitGuardian with robust non-exact matching
+        result = await client.get_source_by_name(repository_name, return_all_on_no_match=True)
+
+        # Handle exact match (single dict result)
+        if isinstance(result, dict):
+            source_id = result.get("id")
+            logger.info(f"Found exact match with source_id: {source_id}")
+            return {
+                "repository_name": repository_name,
+                "source_id": source_id,
+                "source": result,
+                "message": f"Successfully found exact match for GitGuardian source: {repository_name}",
+            }
+
+        # Handle multiple candidates (list result)
+        elif isinstance(result, list) and len(result) > 0:
+            logger.info(f"Found {len(result)} candidate sources for repository: {repository_name}")
+            return {
+                "repository_name": repository_name,
+                "message": f"No exact match found for '{repository_name}', but found {len(result)} potential matches.",
+                "suggestion": "Review the candidates below and determine which source best matches the current repository based on the name and URL.",
+                "candidates": [
+                    {
+                        "id": source.get("id"),
+                        "url": source.get("url"),
+                        "name": source.get("full_name") or source.get("name"),
+                        "monitored": source.get("monitored"),
+                        "deleted_at": source.get("deleted_at"),
+                    }
+                    for source in result
+                ],
+            }
+
+        # No matches found at all
+        else:
+            # Try searching with just the repo name (without org) as fallback
+            if "/" in repository_name:
+                repo_only = repository_name.split("/")[-1]
+                logger.debug(f"Trying fallback search with repo name only: {repo_only}")
+                fallback_result = await client.get_source_by_name(repo_only, return_all_on_no_match=True)
+
+                # Handle fallback results
+                if isinstance(fallback_result, dict):
+                    source_id = fallback_result.get("id")
+                    logger.info(f"Found match using repo name only, source_id: {source_id}")
+                    return {
+                        "repository_name": repository_name,
+                        "source_id": source_id,
+                        "source": fallback_result,
+                        "message": f"Found match using repository name '{repo_only}' (without organization prefix)",
+                    }
+                elif isinstance(fallback_result, list) and len(fallback_result) > 0:
+                    logger.info(f"Found {len(fallback_result)} candidates using repo name only")
+                    return {
+                        "repository_name": repository_name,
+                        "message": f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'.",
+                        "suggestion": "Review the candidates below and determine which source best matches the current repository.",
+                        "candidates": [
+                            {
+                                "id": source.get("id"),
+                                "url": source.get("url"),
+                                "name": source.get("full_name") or source.get("name"),
+                                "monitored": source.get("monitored"),
+                                "deleted_at": source.get("deleted_at"),
+                            }
+                            for source in fallback_result
+                        ],
+                    }
+
+            # Absolutely no matches found
+            logger.warning(f"No sources found for repository: {repository_name}")
+            return {
+                "repository_name": repository_name,
+                "error": f"Repository '{repository_name}' not found in GitGuardian",
+                "message": "The repository may not be connected to GitGuardian, or you may not have access to it.",
+                "suggestion": "Check that the repository is properly connected to GitGuardian and that your account has access to it.",
+            }
+
+    except Exception as e:
+        logger.error(f"Error finding source_id: {str(e)}")
+        return {"error": f"Failed to find source_id: {str(e)}"}
+
 
 # TODO(APPAI-28)
 # @mcp.tool(

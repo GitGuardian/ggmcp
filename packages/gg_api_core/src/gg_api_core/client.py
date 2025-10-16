@@ -5,7 +5,7 @@ import os
 import re
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, unquote
 
 import httpx
 
@@ -485,7 +485,7 @@ class GitGuardianClient:
             headers: Response headers containing Link header
 
         Returns:
-            Next cursor if available, None otherwise
+            Next cursor if available, None otherwise (URL-decoded)
         """
         link_header = headers.get("link")
         if not link_header:
@@ -503,7 +503,12 @@ class GitGuardianClient:
         if not cursor_match:
             return None
 
-        return cursor_match.group(1)
+        # URL-decode the cursor since it comes URL-encoded from the Link header
+        # This prevents double-encoding when it's used in the next request
+        cursor_encoded = cursor_match.group(1)
+        cursor_decoded = unquote(cursor_encoded)
+        logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
+        return cursor_decoded
 
     async def paginate_all(self, endpoint: str, params: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Fetch all pages of results using cursor-based pagination.
@@ -657,6 +662,7 @@ class GitGuardianClient:
         assignee_email: str | None = None,
         assignee_id: str | None = None,
         validity: IncidentValidity | str | None = None,
+        source_id: str | None = None,
         per_page: int = 20,
         cursor: str | None = None,
         ordering: str | None = None,
@@ -672,6 +678,7 @@ class GitGuardianClient:
             assignee_email: Filter incidents assigned to a specific email address
             assignee_id: Filter incidents assigned to a specific member ID
             validity: Filter by validity status (IncidentValidity enum or string: valid, invalid, failed_to_check, no_checker, unknown)
+            source_id: Filter by specific source ID
             per_page: Number of results per page (default: 20)
             cursor: Pagination cursor (for cursor-based pagination)
             ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
@@ -682,7 +689,7 @@ class GitGuardianClient:
             List of incidents matching the criteria or an empty dict/list if no results
         """
         logger.info(
-            f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, ordering={ordering}"
+            f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, source_id={source_id}, ordering={ordering}"
         )
 
         # Build query parameters
@@ -752,6 +759,8 @@ class GitGuardianClient:
             params["assignee_email"] = assignee_email
         if assignee_id:
             params["assignee_id"] = assignee_id
+        if source_id:
+            params["source_id"] = source_id
         if per_page:
             params["per_page"] = str(per_page)
         if cursor:
@@ -1272,6 +1281,7 @@ class GitGuardianClient:
         to_date: str | None = None,
         source_name: str | None = None,
         source_type: str | None = None,
+        source_id: str | None = None,
         presence: str | None = None,
         tags: list[str] | None = None,
         per_page: int = 20,
@@ -1286,6 +1296,7 @@ class GitGuardianClient:
             to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
             source_name: Filter by source name
             source_type: Filter by source type
+            source_id: Filter by specific source ID
             presence: Filter by presence status
             tags: Filter by tags (list of tag IDs)
             per_page: Number of results per page (default: 20)
@@ -1308,6 +1319,8 @@ class GitGuardianClient:
             params["source_name"] = source_name
         if source_type:
             params["source_type"] = source_type
+        if source_id:
+            params["source_id"] = source_id
         if presence:
             params["presence"] = presence
         if tags:
@@ -1368,21 +1381,93 @@ class GitGuardianClient:
 
         return await self._request("GET", endpoint)
 
-    async def get_source_by_name(self, source_name: str) -> dict[str, Any] | None:
+    async def list_sources(
+        self,
+        search: str | None = None,
+        last_scan_status: str | None = None,
+        health: str | None = None,
+        type: str | None = None,
+        ordering: str | None = None,
+        visibility: str | None = None,
+        external_id: str | None = None,
+        source_criticality: str | None = None,
+        monitored: bool | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> dict[str, Any] | list[dict[str, Any]]:
+        """List sources known by GitGuardian with optional filtering and cursor-based pagination.
+
+        Args:
+            search: Sources matching this search string
+            last_scan_status: Filter sources based on the status of their latest historical scan
+            health: Filter sources based on their health status
+            type: Filter by source type (e.g., 'github', 'gitlab')
+            ordering: Sort field (e.g., 'last_scan_date', '-last_scan_date' for descending)
+            visibility: Filter by visibility status ('public', 'private', 'internal')
+            external_id: Filter by specific external id
+            source_criticality: Filter by source criticality ('critical', 'high', 'medium', 'low', 'unknown')
+            monitored: Filter by monitored value (true/false)
+            per_page: Number of results per page (default: 20, min: 1, max: 100)
+            cursor: Pagination cursor (for cursor-based pagination)
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            List of sources matching the criteria or an empty dict/list if no results
+        """
+        logger.info("Listing sources with filters")
+
+        # Build query parameters
+        params = {}
+        if search:
+            params["search"] = search
+        if last_scan_status:
+            params["last_scan_status"] = last_scan_status
+        if health:
+            params["health"] = health
+        if type:
+            params["type"] = type
+        if ordering:
+            params["ordering"] = ordering
+        if visibility:
+            params["visibility"] = visibility
+        if external_id:
+            params["external_id"] = external_id
+        if source_criticality:
+            params["source_criticality"] = source_criticality
+        if monitored is not None:
+            params["monitored"] = str(monitored).lower()
+        if per_page:
+            params["per_page"] = str(per_page)
+        if cursor:
+            params["cursor"] = cursor
+
+        endpoint = "/sources"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request("GET", endpoint, params=params)
+
+    async def get_source_by_name(self, source_name: str, return_all_on_no_match: bool = False) -> dict[str, Any] | list[dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
             source_name: Name of the source/repository to find
+            return_all_on_no_match: If True and no exact match is found, return all search results
+                                   instead of None. This allows the caller to choose from candidates.
 
         Returns:
-            Source object if found, None otherwise
+            - If exact match found: Single source object (dict)
+            - If no exact match and return_all_on_no_match=True: List of all matching sources
+            - If no exact match and return_all_on_no_match=False: None
         """
         logger.info(f"Looking up source ID for repository name: {source_name}")
 
-        # The API provides a search parameter to filter sources by name
+        # Fetch all sources matching the search term
         params = {
             "search": source_name,
-            "per_page": 10,  # Small number to avoid excessive data transfer
+            "per_page": 50,  # Get more results for better matching
         }
 
         try:
@@ -1395,15 +1480,26 @@ class GitGuardianClient:
             else:
                 sources = response
 
-            # Find exact match by name
+            if not sources:
+                logger.warning(f"No sources found matching search term: {source_name}")
+                return None
+
+            # Try to find exact match by name
             for source in sources:
                 # Check for both the full name (org/repo) and just the repo name
                 if source.get("name") == source_name or source.get("full_name") == source_name:
-                    logger.info(f"Found source ID {source.get('id')} for {source_name}")
+                    logger.info(f"Found exact match - source ID {source.get('id')} for {source_name}")
                     return source
 
-            logger.warning(f"No source found with name: {source_name}")
-            return None
+            # No exact match found
+            logger.info(f"No exact match found for '{source_name}'. Found {len(sources)} potential matches.")
+
+            if return_all_on_no_match:
+                logger.info(f"Returning all {len(sources)} candidates for manual selection")
+                return sources
+            else:
+                logger.warning(f"No exact match found for: {source_name}")
+                return None
 
         except Exception as e:
             logger.error(f"Error getting source by name: {str(e)}")
