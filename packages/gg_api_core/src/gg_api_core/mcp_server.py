@@ -5,7 +5,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Tool as MCPTool
+from mcp.types import Tool as MCPTool, AnyFunction
 
 from gg_api_core.utils import get_gitguardian_client
 
@@ -133,19 +133,22 @@ class GitGuardianFastMCP(FastMCP):
         # Wrap the original decorator to track scope requirements
         def wrapped_decorator(fn):
             nonlocal actual_name
-            result = decorator(fn)
-
-            # If name wasn't provided, it defaults to function name
-            if actual_name is None:
-                actual_name = fn.__name__
-
-            # Store required scopes for this tool
-            if required_scopes:
-                self._tool_scopes[actual_name] = set(required_scopes)
-
-            return result
+            self._store_tool_scopes(actual_name or fn.__name__, required_scopes)
+            return decorator(fn)
 
         return wrapped_decorator
+
+    def _store_tool_scopes(self, name: str, required_scopes: list[str]):
+        if required_scopes:
+            self._tool_scopes[name] = set(required_scopes)
+
+    def add_tool(self,
+        fn: AnyFunction,
+        name: str | None = None,
+        description: str | None = None,
+        required_scopes: list[str] | None = None,) -> None:
+        self._store_tool_scopes(name, required_scopes)
+        super().add_tool(fn, name, description)
 
     async def list_tools(self) -> list[MCPTool]:
         """Return all tools, filtering out those requiring unavailable scopes."""
