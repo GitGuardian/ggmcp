@@ -281,9 +281,24 @@ This project includes a comprehensive test suite to ensure functionality and pre
 
 ### Running Tests
 
-1. Run the test suite:
+1. Install development dependencies:
+   ```bash
+   uv sync --dev
+   ```
+
+2. Run the test suite:
    ```bash
    uv run pytest
+   ```
+
+3. Run tests with verbose output:
+   ```bash
+   uv run pytest -v
+   ```
+
+4. Run tests with coverage:
+   ```bash
+   uv run pytest --cov=packages --cov-report=html
    ```
 
 This will run all tests and generate a coverage report showing which parts of the codebase are covered by tests.
