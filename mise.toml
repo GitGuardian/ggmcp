@@ -1,4 +1,5 @@
 [tools]
+python = "3.13"
 node = "latest"
 "pipx:commitizen" = "latest"
 "pipx:pre-commit" = "latest"

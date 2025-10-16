@@ -13,7 +13,7 @@ This document provides instructions for developers who want to contribute to the
    ```
 4. Install dependencies:
    ```bash
-   uv sync --with dev
+   uv sync --dev
    ```
 
 ## Project Structure
@@ -104,10 +104,22 @@ for tool in example_tools:
 
 ## Testing
 
-Run tests using pytest:
+Run tests using uv:
 
 ```bash
-pytest
+uv run pytest
+```
+
+Run tests with verbose output:
+
+```bash
+uv run pytest -v
+```
+
+Run tests with coverage:
+
+```bash
+uv run pytest --cov=packages --cov-report=html
 ```
 
 Create test files in the `tests/` directory that match the pattern `test_*.py`.
