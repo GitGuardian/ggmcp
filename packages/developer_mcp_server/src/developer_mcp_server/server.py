@@ -381,123 +381,12 @@ async def _process_occurrences_for_remediation(
     "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
     required_scopes=["incidents:read", "sources:read"],
 )
-async def list_repo_incidents(
-    repository_name: str | None = Field(
-        default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
-    ),
-    source_id: str | None = Field(
-        default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
-    ),
-    from_date: str | None = Field(
-        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
-    ),
-    to_date: str | None = Field(
-        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
-    ),
-    presence: str | None = Field(default=None, description="Filter by presence status"),
-    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
-    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
-    mine: bool = Field(
-        default=True,
-        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
-    ),
-) -> dict[str, Any]:
-    """
-    List secret incidents or occurrences related to a specific repository.
-
-    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
-
-    Args:
-        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
-        source_id: The GitGuardian source ID (alternative to repository_name)
-        from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
-        to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
-        presence: Filter by presence status
-        tags: Filter by tags (list of tag IDs)
-        ordering: Sort field (e.g., 'date', '-date' for descending)
-        per_page: Number of results per page (default: 20, min: 1, max: 100)
-        cursor: Pagination cursor for fetching next page of results
-        get_all: If True, fetch all results using cursor-based pagination
-        mine: If True, fetch only incidents assigned to the current user. Set to False to get all incidents.
-
-    Returns:
-        List of incidents and occurrences matching the specified criteria
-    """
-    client = mcp.get_client()
-
-    # Validate that at least one of repository_name or source_id is provided
-    if not repository_name and not source_id:
-        return {"error": "Either repository_name or source_id must be provided"}
-
-    logger.debug(f"Listing incidents with repository_name={repository_name}, source_id={source_id}")
-
-    # Use the new direct approach using the GitGuardian Sources API
-    try:
-        # If source_id is provided, use it directly; otherwise use repository_name lookup
-        if source_id:
-            # Prepare parameters for the API call
-            params = {}
-            if from_date:
-                params["from_date"] = from_date
-            if to_date:
-                params["to_date"] = to_date
-            if presence:
-                params["presence"] = presence
-            if tags:
-                params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
-            if per_page:
-                params["per_page"] = per_page
-            if cursor:
-                params["cursor"] = cursor
-            if ordering:
-                params["ordering"] = ordering
-            if mine:
-                params["assigned_to_me"] = "true"
-
-            # Get incidents directly using source_id
-            if get_all:
-                incidents_result = await client.paginate_all(f"/sources/{source_id}/incidents/secrets", params)
-                if isinstance(incidents_result, list):
-                    return {
-                        "source_id": source_id,
-                        "incidents": incidents_result,
-                        "total_count": len(incidents_result),
-                    }
-                return incidents_result
-            else:
-                incidents_result = await client.list_source_incidents(source_id, **params)
-                if isinstance(incidents_result, dict):
-                    return {
-                        "source_id": source_id,
-                        "incidents": incidents_result.get("data", []),
-                        "next_cursor": incidents_result.get("next_cursor"),
-                        "total_count": incidents_result.get("total_count", 0),
-                    }
-                return incidents_result
-        else:
-            # Use repository_name lookup (legacy path)
-            result = await client.list_repo_incidents_directly(
-                repository_name=repository_name,
-                from_date=from_date,
-                to_date=to_date,
-                presence=presence,
-                tags=tags,
-                per_page=per_page,
-                cursor=cursor,
-                ordering=ordering,
-                get_all=get_all,
-                mine=mine,
-            )
-            return result
-
-    except Exception as e:
-        logger.error(f"Error listing repository incidents: {str(e)}")
-        return {"error": f"Failed to list repository incidents: {str(e)}"}
+mcp.add_tool(list_repo_incidents,
+    description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
+    "By default, this tool only shows incidents assigned to the current user. "
+    "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+    required_scopes=["incidents:read", "sources:read"],
+)
 
 
 @mcp.tool(
