@@ -15,7 +15,7 @@ async def list_repo_occurrences(
     ),
     source_id: str | None = Field(
         default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using find_current_repo_source_id. If provided, repository_name is not required."
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
     ),
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
