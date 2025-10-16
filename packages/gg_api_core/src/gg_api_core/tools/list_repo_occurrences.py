@@ -24,7 +24,11 @@ async def list_repo_occurrences(
         default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
     ),
     presence: str | None = Field(default=None, description="Filter by presence status"),
-    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
+    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)"),
+    exclude_tags: list[str] | None = Field(
+        default=["TEST_FILE", "FALSE_POSITIVE"],
+        description="Exclude occurrences with these tag names (default: TEST_FILE, FALSE_POSITIVE). Pass empty list to disable filtering."
+    ),
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
@@ -48,13 +52,16 @@ async def list_repo_occurrences(
 
     Use list_repo_incidents for a higher-level view of incidents grouped by secret type.
 
+    By default, occurrences tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
+
     Args:
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
         source_id: The GitGuardian source ID (alternative to repository_name)
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
         presence: Filter by presence status
-        tags: Filter by tags (list of tag IDs)
+        tags: Filter by tags (list of tag names)
+        exclude_tags: Exclude occurrences with these tag names (default: TEST_FILE, FALSE_POSITIVE)
         ordering: Sort field (e.g., 'date', '-date' for descending)
         per_page: Number of results per page (default: 20, min: 1, max: 100)
         cursor: Pagination cursor for fetching next page of results
@@ -81,6 +88,7 @@ async def list_repo_occurrences(
                 to_date=to_date,
                 presence=presence,
                 tags=tags,
+                exclude_tags=exclude_tags,
                 per_page=per_page,
                 cursor=cursor,
                 ordering=ordering,
@@ -96,6 +104,7 @@ async def list_repo_occurrences(
                 to_date=to_date,
                 presence=presence,
                 tags=tags,
+                exclude_tags=exclude_tags,
                 per_page=per_page,
                 cursor=cursor,
                 ordering=ordering,
