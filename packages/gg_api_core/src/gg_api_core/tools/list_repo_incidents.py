@@ -94,7 +94,20 @@ async def list_repo_incidents(
                         "incidents": incidents_result,
                         "total_count": len(incidents_result),
                     }
-                return incidents_result
+                elif isinstance(incidents_result, dict):
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result.get("data", []),
+                        "total_count": incidents_result.get("total_count", len(incidents_result.get("data", []))),
+                    }
+                else:
+                    # Fallback for unexpected types
+                    return {
+                        "source_id": source_id,
+                        "incidents": [],
+                        "total_count": 0,
+                        "error": f"Unexpected response type: {type(incidents_result).__name__}",
+                    }
             else:
                 incidents_result = await client.list_source_incidents(source_id, **params)
                 if isinstance(incidents_result, dict):
@@ -104,7 +117,21 @@ async def list_repo_incidents(
                         "next_cursor": incidents_result.get("next_cursor"),
                         "total_count": incidents_result.get("total_count", 0),
                     }
-                return incidents_result
+                elif isinstance(incidents_result, list):
+                    # Handle case where API returns a list directly
+                    return {
+                        "source_id": source_id,
+                        "incidents": incidents_result,
+                        "total_count": len(incidents_result),
+                    }
+                else:
+                    # Fallback for unexpected types
+                    return {
+                        "source_id": source_id,
+                        "incidents": [],
+                        "total_count": 0,
+                        "error": f"Unexpected response type: {type(incidents_result).__name__}",
+                    }
         else:
             # Use repository_name lookup (legacy path)
             result = await client.list_repo_incidents_directly(
