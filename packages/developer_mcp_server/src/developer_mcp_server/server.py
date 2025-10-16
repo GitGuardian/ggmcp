@@ -1,6 +1,5 @@
 """GitGuardian MCP server for developers with remediation tools."""
 
-import json
 import logging
 import os
 import subprocess
@@ -9,7 +8,6 @@ from typing import Any
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
 from gg_api_core.utils import parse_repo_url
-from mcp.server.fastmcp.exceptions import ToolError
 from pydantic import Field
 
 # Configure more detailed logging
@@ -1007,18 +1005,6 @@ async def list_honeytokens(
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
         raise ToolError(str(e))
-
-
-# Register common tools for user information and token management
-try:
-    from gg_api_core.mcp_server import register_common_tools
-
-    register_common_tools(mcp)
-except Exception as e:
-    logger.error(f"Failed to register common tools: {str(e)}")
-    import traceback
-
-    logger.error(f"Traceback: {traceback.format_exc()}")
 
 
 if __name__ == "__main__":

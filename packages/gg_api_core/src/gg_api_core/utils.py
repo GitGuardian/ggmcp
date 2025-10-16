@@ -14,6 +14,25 @@ def urljoin(base: str, url: str) -> str:
     return urllib_urljoin(base, url)
 
 
+# Singleton client instance
+_client_singleton = None
+
+
+def get_client() -> GitGuardianClient:
+    """Get the cached GitGuardian client instance (singleton pattern).
+
+    This function maintains a single client instance across all tool calls,
+    preserving caching and memoization benefits.
+
+    Returns:
+        GitGuardianClient: The cached client instance
+    """
+    global _client_singleton
+    if _client_singleton is None:
+        _client_singleton = get_gitguardian_client()
+    return _client_singleton
+
+
 def parse_repo_url(remote_url: str) -> str | None:
     """Parse repository name from git remote URL.
 
