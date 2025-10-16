@@ -7,6 +7,7 @@ from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
+
 async def list_repo_incidents(
     repository_name: str | None = Field(
         default=None,
@@ -23,7 +24,11 @@ async def list_repo_incidents(
         default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
     ),
     presence: str | None = Field(default=None, description="Filter by presence status"),
-    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag IDs)"),
+    tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)"),
+    exclude_tags: list[str] | None = Field(
+        default=["TEST_FILE", "FALSE_POSITIVE"],
+        description="Exclude incidents with these tag names (default: TEST_FILE, FALSE_POSITIVE). Pass empty list to disable filtering."
+    ),
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
@@ -37,6 +42,7 @@ async def list_repo_incidents(
     List secret incidents or occurrences related to a specific repository.
 
     By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
+    By default, incidents tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
 
     Args:
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
@@ -44,7 +50,8 @@ async def list_repo_incidents(
         from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
         to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
         presence: Filter by presence status
-        tags: Filter by tags (list of tag IDs)
+        tags: Filter by tags (list of tag names)
+        exclude_tags: Exclude incidents with these tag names (default: TEST_FILE, FALSE_POSITIVE)
         ordering: Sort field (e.g., 'date', '-date' for descending)
         per_page: Number of results per page (default: 20, min: 1, max: 100)
         cursor: Pagination cursor for fetching next page of results
@@ -76,6 +83,8 @@ async def list_repo_incidents(
                 params["presence"] = presence
             if tags:
                 params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
+            if exclude_tags:
+                params["exclude_tags"] = ",".join(exclude_tags) if isinstance(exclude_tags, list) else exclude_tags
             if per_page:
                 params["per_page"] = per_page
             if cursor:
@@ -140,6 +149,7 @@ async def list_repo_incidents(
                 to_date=to_date,
                 presence=presence,
                 tags=tags,
+                exclude_tags=exclude_tags,
                 per_page=per_page,
                 cursor=cursor,
                 ordering=ordering,
