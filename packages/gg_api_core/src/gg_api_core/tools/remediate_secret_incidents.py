@@ -3,7 +3,8 @@ import logging
 
 from pydantic import Field
 
-from developer_mcp_server.server import list_repo_occurrences
+from gg_api_core.utils import get_client
+from .list_repo_occurrences import list_repo_occurrences
 from .list_repo_incidents import list_repo_incidents
 
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ async def remediate_secret_incidents(
         # Filter by assignee if mine=True
         if mine:
             # Get current user info to filter by assignee
-            client = mcp.get_client()
+            client = get_client()
             try:
                 token_info = await client.get_current_token_info()
                 current_user_id = token_info.get("user_id") if token_info else None
