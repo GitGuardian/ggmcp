@@ -80,3 +80,6 @@ poetry.lock
 *.so
 *.pyd
 *.dll
+
+# Agents
+.mcp.json
