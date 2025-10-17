@@ -6,9 +6,10 @@ from contextlib import asynccontextmanager
 from functools import cached_property
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Tool as MCPTool, AnyFunction
+from mcp.types import AnyFunction
+from mcp.types import Tool as MCPTool
 
-from gg_api_core.utils import get_gitguardian_client, get_client
+from gg_api_core.utils import get_client
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -139,12 +140,14 @@ class GitGuardianFastMCP(FastMCP):
         if required_scopes:
             self._tool_scopes[name] = set(required_scopes)
 
-    def add_tool(self,
+    def add_tool(
+        self,
         fn: AnyFunction,
         name: str | None = None,
         description: str | None = None,
         required_scopes: list[str] | None = None,
-                 **kwargs) -> None:
+        **kwargs,
+    ) -> None:
         name = name or fn.__name__
         self._store_tool_scopes(name, required_scopes)
         super().add_tool(fn=fn, name=name, **kwargs)
@@ -206,14 +209,7 @@ class GitGuardianFastMCP(FastMCP):
                     final_tools.append(tool)
                 else:
                     missing_scopes = required_scopes - self._token_scopes
-                    logger.debug(
-                        f"Adding tool '{tool_name}' with warning due to missing scopes: {', '.join(missing_scopes)}"
-                    )
-                    # Add warning to tool description for missing scopes
-                    warning_msg = f"⚠️ DO NOT USE THIS TOOL - Missing required scopes: {', '.join(missing_scopes)}"
-                    original_description = tool.description or ""
-                    tool.description = f"{warning_msg}\n\n{original_description}".strip()
-                    final_tools.append(tool)
+                    logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
 
         return final_tools
 
