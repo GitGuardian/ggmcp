@@ -567,6 +567,8 @@ class GitGuardianClient:
             # Add items to our collection
             if isinstance(data, dict) and "results" in data:
                 items = data.get("results", [])
+            elif isinstance(data, dict) and "data" in data:
+                items = data.get("data", [])
             elif isinstance(data, list):
                 items = data
             else:
