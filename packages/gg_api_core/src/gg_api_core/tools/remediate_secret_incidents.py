@@ -20,7 +20,7 @@ async def remediate_secret_incidents(
     create_env_example: bool = Field(
         default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
     ),
-    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page"),
+    get_all: bool = Field(default=False, description="Whether to get all incidents or just the first page. Set to True for comprehensive results."),
     mine: bool = Field(
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
@@ -29,9 +29,11 @@ async def remediate_secret_incidents(
     """
     Find and remediate secret incidents in the current repository using EXACT match locations.
 
-    By default, this tool only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.
+    By default, this tool:
+    - Only shows incidents assigned to the current user (pass mine=False for all incidents)
+    - Fetches only the first page of results (pass get_all=True for comprehensive results)
 
-    This tool now uses the occurrences API to get precise file locations, line numbers, and character indices,
+    This tool uses the occurrences API to get precise file locations, line numbers, and character indices,
     eliminating the need to search for secrets in files. The workflow is:
 
     1. Fetch secret occurrences with exact match locations (file path, line_start, line_end, index_start, index_end)
@@ -55,7 +57,7 @@ async def remediate_secret_incidents(
         repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
         include_git_commands: Whether to include git commands to fix incidents in git history
         create_env_example: Whether to create a .env.example file with placeholders for detected secrets
-        get_all: Whether to get all occurrences or just the first page
+        get_all: Whether to get all occurrences or just the first page. Defaults to False for token efficiency.
         mine: If True, fetch only occurrences for incidents assigned to the current user. Set to False to get all.
 
     Returns:

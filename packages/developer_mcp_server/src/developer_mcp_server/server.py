@@ -67,8 +67,9 @@ mcp = GitGuardianFastMCP(
 
     1. **Finding Existing Secret Incidents**:
        - Detect secrets already identified as GitGuardian incidents in your repository
-       - Use `list_repo_incidents` to view all secret incidents in a repository
+       - Use `list_repo_incidents` to view secret incidents in a repository (defaults to first page)
        - Filter incidents by various criteria including those assigned to you
+       - Pass get_all=True when you need comprehensive results
 
     2. **Proactive Secret Scanning**:
        - Use `scan_secrets` to detect secrets in code before they're committed
@@ -77,6 +78,7 @@ mcp = GitGuardianFastMCP(
 
     3. **Complete Secret Remediation**:
        - Use `remediate_secret_incidents` for guided secret removal
+       - By default fetches the first page of results for token efficiency; pass get_all=True for comprehensive results
        - Get best practice recommendations for different types of secrets
        - Replace hardcoded secrets with environment variables
        - Create .env.example files with placeholders for detected secrets
@@ -97,7 +99,8 @@ logger.info("Created Developer GitGuardianFastMCP instance")
 mcp.add_tool(remediate_secret_incidents,
     description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
     "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
-    "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
+    "By default, only shows incidents assigned to the current user and fetches the first page of results for token efficiency. "
+    "Pass mine=False to get all incidents. Pass get_all=True for comprehensive results when explicitly requested.",
     required_scopes=["incidents:read", "sources:read"],
 )
 
@@ -114,9 +117,9 @@ mcp.add_tool(scan_secrets,
 )
 
 mcp.add_tool(list_repo_incidents,
-    description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
-    "By default, this tool only shows incidents assigned to the current user. "
-    "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+    description="List secret incidents or occurrences related to a specific repository. "
+    "By default, only shows incidents assigned to the current user and fetches the first page of results for token efficiency. "
+    "Pass mine=False to get all incidents (even ones not assigned to you). Pass get_all=True for comprehensive results when explicitly requested.",
     required_scopes=["incidents:read", "sources:read"],
 )
 
@@ -125,6 +128,7 @@ mcp.add_tool(
     list_repo_occurrences,
     description="List secret occurrences for a specific repository with exact match locations. "
     "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
+    "By default fetches the first page of results for token efficiency; pass get_all=True for comprehensive results. "
     "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
     required_scopes=["incidents:read"],
 )
