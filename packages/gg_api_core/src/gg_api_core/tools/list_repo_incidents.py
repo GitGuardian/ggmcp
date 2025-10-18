@@ -7,6 +7,10 @@ from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_EXCLUDED_TAGS = ["TEST_FILE", "FALSE_POSITIVE", "CHECK_RUN_SKIP_FALSE_POSITIVE", "CHECK_RUN_SKIP_LOW_RISK", "CHECK_RUN_SKIP_TEST_CRED"]
+DEFAULT_SEVERITIES = ["critical", "high", "medium"]
+DEFAULT_STATUSES = ["TRIGGERED", "ASSIGNED", "RESOLVED"]  # We exclude "IGNORED" ones
+DEFAULT_VALIDITIES = ["valid", "failed_to_check", "no_checker", "unknown"]  # We exclude "invalid" ones
 
 async def list_repo_incidents(
     repository_name: str | None = Field(
@@ -26,9 +30,10 @@ async def list_repo_incidents(
     presence: str | None = Field(default=None, description="Filter by presence status"),
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)"),
     exclude_tags: list[str] | None = Field(
-        default=["TEST_FILE", "FALSE_POSITIVE"],
-        description="Exclude incidents with these tag names (default: TEST_FILE, FALSE_POSITIVE). Pass empty list to disable filtering."
+        default=DEFAULT_EXCLUDED_TAGS,
+        description="Exclude incidents with these tag names."
     ),
+    status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)"),
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)"),
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
@@ -37,6 +42,8 @@ async def list_repo_incidents(
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     ),
+    severity: list[str] | None = Field(DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"),
+    validity: list[str] | None = Field(DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"),
 ) -> dict[str, Any]:
     """
     List secret incidents or occurrences related to a specific repository.
@@ -57,6 +64,9 @@ async def list_repo_incidents(
         cursor: Pagination cursor for fetching next page of results
         get_all: If True, fetch all results using cursor-based pagination
         mine: If True, fetch only incidents assigned to the current user. Set to False to get all incidents.
+        status: Filter by status (list of status names)
+        severity: Filter by severity (list of severity names)
+        validity: Filter by validity (list of validity names)
 
     Returns:
         List of incidents and occurrences matching the specified criteria
@@ -93,6 +103,12 @@ async def list_repo_incidents(
                 params["ordering"] = ordering
             if mine:
                 params["assigned_to_me"] = "true"
+            if severity:
+                params["severity"] = severity
+            if status:
+                params["status"] = status
+            if validity:
+                params["validity"] = validity
 
             # Get incidents directly using source_id
             if get_all:
