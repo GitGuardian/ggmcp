@@ -24,6 +24,7 @@ def mock_gitguardian_client():
     mock_client.get_source_by_name = AsyncMock(return_value=None)
     mock_client.list_source_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.paginate_all = AsyncMock(return_value=[])
+    mock_client.list_honeytokens = AsyncMock(return_value={"honeytokens": []})
 
     # Patch get_client() to return our mock - this prevents the singleton from creating a real client
     with patch("gg_api_core.utils.get_client", return_value=mock_client):
