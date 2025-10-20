@@ -2,13 +2,12 @@
 
 import logging
 import os
-import subprocess
-from typing import Any
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
 from gg_api_core.tools.find_current_source_id import find_current_source_id
-from gg_api_core.utils import parse_repo_url
+from gg_api_core.tools.generate_honey_token import generate_honeytoken
+from gg_api_core.tools.list_honey_tokens import list_honeytokens
 
 from gg_api_core.tools.list_repo_incidents import list_repo_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
@@ -138,20 +137,18 @@ mcp.add_tool(
     required_scopes=["sources:read"],
 )
 
-# TODO(APPAI-28)
-# mcp.add_tool(
-#     generate_honeytoken,
-#     description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
-#     required_scopes=["honeytokens:write"],
-# )
+mcp.add_tool(
+    generate_honeytoken,
+    description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
+    required_scopes=["honeytokens:write"],
+)
 
 
-# TODO(APPAI-28)
-# mcp.add_tool(
-#     list_honeytokens,
-#     description="List honeytokens from the GitGuardian dashboard with filtering options",
-#     required_scopes=["honeytokens:read"],
-# )
+mcp.add_tool(
+    list_honeytokens,
+    description="List honeytokens from the GitGuardian dashboard with filtering options",
+    required_scopes=["honeytokens:read"],
+)
 
 
 if __name__ == "__main__":
