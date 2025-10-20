@@ -29,10 +29,10 @@ class IncidentSeverity(str, Enum):
 
 class IncidentStatus(str, Enum):
     """Enum for incident statuses."""
-    IGNORED = "IGNORED", "Ignored"
-    TRIGGERED = "TRIGGERED", "Triggered"
-    ASSIGNED = "ASSIGNED", "Assigned"
-    RESOLVED = "RESOLVED", "Resolved"
+    IGNORED = "IGNORED"
+    TRIGGERED = "TRIGGERED"
+    ASSIGNED = "ASSIGNED"
+    RESOLVED = "RESOLVED"
 
 
 class IncidentValidity(str, Enum):
