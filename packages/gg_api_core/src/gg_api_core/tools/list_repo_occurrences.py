@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_EXCLUDED_TAGS = ["TEST_FILE", "FALSE_POSITIVE", "CHECK_RUN_SKIP_FALSE_POSITIVE", "CHECK_RUN_SKIP_LOW_RISK", "CHECK_RUN_SKIP_TEST_CRED"]
+DEFAULT_SEVERITIES = ["critical", "high", "medium"]
 DEFAULT_STATUSES = ["TRIGGERED", "ASSIGNED", "RESOLVED"]  # We exclude "IGNORED" ones
 DEFAULT_VALIDITIES = ["valid", "failed_to_check", "no_checker", "unknown"]  # We exclude "invalid" ones
 
@@ -38,9 +39,9 @@ async def list_repo_occurrences(
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results"),
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
-    status: list[str] | None = Field(default=None, description="Filter by status (list of status names)"),
-    severity: list[str] | None = Field(default=None, description="Filter by severity (list of severity names)"),
-    validity: list[str] | None = Field(default=None, description="Filter by validity (list of validity names)"),
+    status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)"),
+    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"),
+    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"),
 ) -> dict[str, Any]:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
