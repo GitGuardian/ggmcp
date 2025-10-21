@@ -6,7 +6,7 @@ requires-python = ">=3.13"
 members = [
     "developer-mcp-server",
     "gg-api-core",
-    "gg-mcp-server-workspace",
+    "ggmcp-server-workspace",
     "secops-mcp-server",
 ]
 
@@ -162,7 +162,7 @@ requires-dist = [
 ]
 
 [[package]]
-name = "gg-mcp-server-workspace"
+name = "ggmcp-server-workspace"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

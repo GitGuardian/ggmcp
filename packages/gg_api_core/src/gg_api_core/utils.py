@@ -53,8 +53,8 @@ def parse_repo_url(remote_url: str) -> str | None:
         Returns None if URL format is not recognized
 
     Examples:
-        >>> parse_repo_url("https://github.com/GitGuardian/gg-mcp.git")
-        'GitGuardian/gg-mcp'
+        >>> parse_repo_url("https://github.com/GitGuardian/ggmcp.git")
+        'GitGuardian/ggmcp'
         >>> parse_repo_url("git@gitlab.company.com:team/project.git")
         'team/project'
         >>> parse_repo_url("https://dev.azure.com/org/proj/_git/repo")

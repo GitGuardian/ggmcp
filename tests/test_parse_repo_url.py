@@ -12,10 +12,10 @@ class TestParseRepoUrl:
     @pytest.mark.parametrize(
         "url,expected",
         [
-            ("https://github.com/GitGuardian/gg-mcp.git", "GitGuardian/gg-mcp"),
-            ("https://github.com/GitGuardian/gg-mcp", "GitGuardian/gg-mcp"),
-            ("git@github.com:GitGuardian/gg-mcp.git", "GitGuardian/gg-mcp"),
-            ("git@github.com:GitGuardian/gg-mcp", "GitGuardian/gg-mcp"),
+            ("https://github.com/GitGuardian/ggmcp.git", "GitGuardian/ggmcp"),
+            ("https://github.com/GitGuardian/ggmcp", "GitGuardian/ggmcp"),
+            ("git@github.com:GitGuardian/ggmcp.git", "GitGuardian/ggmcp"),
+            ("git@github.com:GitGuardian/ggmcp", "GitGuardian/ggmcp"),
         ],
     )
     def test_github_urls(self, url, expected):

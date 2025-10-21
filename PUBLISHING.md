@@ -1,6 +1,6 @@
 # Publishing Guide
 
-This document explains how to publish `gg-mcp` to PyPI and the MCP Registry using GitHub Actions.
+This document explains how to publish `ggmcp` to PyPI and the MCP Registry using GitHub Actions.
 
 ## Overview
 
@@ -22,9 +22,9 @@ PyPI trusted publishing allows GitHub Actions to publish without API tokens.
    - Or create the project first at https://pypi.org/manage/projects/
 
 2. **Add Publisher**:
-   - Project name: `gg-mcp`
+   - Project name: `ggmcp`
    - Owner: `GitGuardian`
-   - Repository: `gg-mcp`
+   - Repository: `ggmcp`
    - Workflow name: `publish.yml`
    - Environment name: `pypi`
 
@@ -36,7 +36,7 @@ That's it! No tokens to manage.
 
 For extra protection, create a deployment environment:
 
-1. Go to: https://github.com/GitGuardian/gg-mcp/settings/environments
+1. Go to: https://github.com/GitGuardian/ggmcp/settings/environments
 2. Click "New environment"
 3. Name it: `pypi`
 4. Add protection rules:
@@ -81,7 +81,7 @@ git push origin v0.5.1
 
 For testing or special cases:
 
-1. Go to: https://github.com/GitGuardian/gg-mcp/actions/workflows/publish.yml
+1. Go to: https://github.com/GitGuardian/ggmcp/actions/workflows/publish.yml
 2. Click "Run workflow"
 3. Choose options:
    - ✅ Publish to PyPI
@@ -104,8 +104,8 @@ For testing or special cases:
 ```
 ✓ Authenticate via OIDC (no token needed!)
 ✓ Upload package to PyPI
-  → Available at https://pypi.org/project/gg-mcp/
-✓ Users can install: uvx gg-mcp
+  → Available at https://pypi.org/project/ggmcp/
+✓ Users can install: uvx ggmcp
 ```
 
 ### Step 3: Register with MCP Registry (≈30 sec)
@@ -123,22 +123,22 @@ For testing or special cases:
 ✓ Create release with tag
 ✓ Generate release notes from commits
 ✓ Mark as latest release
-  → Visible at https://github.com/GitGuardian/gg-mcp/releases
+  → Visible at https://github.com/GitGuardian/ggmcp/releases
 ```
 
 ## Monitoring
 
 ### View Workflow Runs
-https://github.com/GitGuardian/gg-mcp/actions/workflows/publish.yml
+https://github.com/GitGuardian/ggmcp/actions/workflows/publish.yml
 
 ### Check PyPI Package
-https://pypi.org/project/gg-mcp/
+https://pypi.org/project/ggmcp/
 
 ### Check MCP Registry
 https://github.com/modelcontextprotocol/registry
 
 ### Check GitHub Releases
-https://github.com/GitGuardian/gg-mcp/releases
+https://github.com/GitGuardian/ggmcp/releases
 
 ## Troubleshooting
 
@@ -146,7 +146,7 @@ https://github.com/GitGuardian/gg-mcp/releases
 
 **Error: "Invalid or non-existent authentication information"**
 - Check PyPI trusted publishing configuration
-- Verify owner is `GitGuardian`, repository is `gg-mcp`
+- Verify owner is `GitGuardian`, repository is `ggmcp`
 - Ensure workflow name is `publish.yml`
 - Ensure environment name is `pypi`
 
@@ -217,4 +217,4 @@ mcp-publisher publish
 ## Support
 
 Issues with publishing? Open an issue:
-https://github.com/GitGuardian/gg-mcp/issues
+https://github.com/GitGuardian/ggmcp/issues

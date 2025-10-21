@@ -8,8 +8,8 @@ This document provides instructions for developers who want to contribute to the
 2. Install [uv](https://github.com/astral-sh/uv) (required for package management)
 3. Clone the repository:
    ```bash
-   git clone https://github.com/GitGuardian/gg-mcp.git
-   cd gg-mcp
+   git clone https://github.com/GitGuardian/ggmcp.git
+   cd ggmcp
    ```
 4. Install dependencies:
    ```bash
@@ -19,7 +19,7 @@ This document provides instructions for developers who want to contribute to the
 ## Project Structure
 
 ```
-gg-mcp/
+ggmcp/
 ├── src/
 │   ├── server.py            # Main MCP server entry point
 │   ├── gitguardian/         # GitGuardian Honeytoken tool

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RemediateSecretIncidentsParams(BaseModel):
     """Parameters for remediating secret incidents."""
     repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
+        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided."
     )
     include_git_commands: bool = Field(
         default=True, description="Whether to include git commands to fix incidents in git history"
