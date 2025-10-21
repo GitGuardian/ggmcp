@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
+from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 
 
 class TestListRepoOccurrences:
@@ -43,16 +43,18 @@ class TestListRepoOccurrences:
 
         # Call the function
         result = await list_repo_occurrences(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+            )
         )
 
         # Verify client was called
@@ -88,7 +90,9 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(source_id="source_123")
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(source_id="source_123")
+        )
 
         # Verify client was called with source_id
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -115,16 +119,18 @@ class TestListRepoOccurrences:
 
         # Call the function with filters
         result = await list_repo_occurrences(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date="2023-01-01",
-            to_date="2023-12-31",
-            presence="present",
-            tags=["tag1", "tag2"],
-            ordering="-date",
-            per_page=50,
-            cursor=None,
-            get_all=False,
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date="2023-01-01",
+                to_date="2023-12-31",
+                presence="present",
+                tags=["tag1", "tag2"],
+                ordering="-date",
+                per_page=50,
+                cursor=None,
+                get_all=False,
+            )
         )
 
         # Verify client was called with correct parameters
@@ -154,8 +160,10 @@ class TestListRepoOccurrences:
 
         # Call the function with get_all=True
         result = await list_repo_occurrences(
-            repository_name="GitGuardian/test-repo",
-            get_all=True,
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                get_all=True,
+            )
         )
 
         # Verify response
@@ -173,16 +181,18 @@ class TestListRepoOccurrences:
         """
         # Call the function without repository_name or source_id
         result = await list_repo_occurrences(
-            repository_name=None,
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
+            ListRepoOccurrencesParams(
+                repository_name=None,
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+            )
         )
 
         # Verify error response
@@ -203,7 +213,9 @@ class TestListRepoOccurrences:
         )
 
         # Call the function
-        result = await list_repo_occurrences(repository_name="GitGuardian/test-repo")
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
+        )
 
         # Verify error response
         assert "error" in result
@@ -226,16 +238,18 @@ class TestListRepoOccurrences:
 
         # Call the function with cursor
         result = await list_repo_occurrences(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor="cursor_abc",
-            get_all=False,
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor="cursor_abc",
+                get_all=False,
+            )
         )
 
         # Verify client was called with cursor
@@ -264,7 +278,9 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(repository_name="GitGuardian/test-repo")
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
+        )
 
         # Verify response
         assert result["occurrences_count"] == 0
@@ -284,7 +300,9 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(repository_name="GitGuardian/test-repo")
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
+        )
 
         # Verify response defaults to empty
         assert result["occurrences_count"] == 0

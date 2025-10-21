@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.list_repo_incidents import list_repo_incidents
+from gg_api_core.tools.list_repo_incidents import list_repo_incidents, ListRepoIncidentsParams
 
 
 class TestListRepoIncidents:
@@ -34,17 +34,19 @@ class TestListRepoIncidents:
 
         # Call the function
         result = await list_repo_incidents(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify client was called
@@ -79,17 +81,19 @@ class TestListRepoIncidents:
 
         # Call the function
         result = await list_repo_incidents(
-            repository_name=None,
-            source_id="source_123",
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name=None,
+                source_id="source_123",
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify client was called with correct parameters
@@ -118,17 +122,19 @@ class TestListRepoIncidents:
 
         # Call the function with filters
         result = await list_repo_incidents(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date="2023-01-01",
-            to_date="2023-12-31",
-            presence="present",
-            tags=["tag1", "tag2"],
-            ordering="-date",
-            per_page=50,
-            cursor=None,
-            get_all=False,
-            mine=False,
+            ListRepoIncidentsParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date="2023-01-01",
+                to_date="2023-12-31",
+                presence="present",
+                tags=["tag1", "tag2"],
+                ordering="-date",
+                per_page=50,
+                cursor=None,
+                get_all=False,
+                mine=False,
+            )
         )
 
         # Verify client was called with correct parameters
@@ -160,8 +166,10 @@ class TestListRepoIncidents:
 
         # Call the function with get_all=True
         result = await list_repo_incidents(
-            source_id="source_123",
-            get_all=True,
+            ListRepoIncidentsParams(
+                source_id="source_123",
+                get_all=True,
+            )
         )
 
         # Verify paginate_all was called
@@ -182,17 +190,19 @@ class TestListRepoIncidents:
         """
         # Call the function without repository_name or source_id
         result = await list_repo_incidents(
-            repository_name=None,
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name=None,
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify error response
@@ -214,17 +224,19 @@ class TestListRepoIncidents:
 
         # Call the function
         result = await list_repo_incidents(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify error response
@@ -250,17 +262,19 @@ class TestListRepoIncidents:
 
         # Call the function with cursor
         result = await list_repo_incidents(
-            repository_name="GitGuardian/test-repo",
-            source_id=None,
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor="cursor_abc",
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name="GitGuardian/test-repo",
+                source_id=None,
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor="cursor_abc",
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify client was called with cursor
@@ -286,17 +300,19 @@ class TestListRepoIncidents:
 
         # Call the function
         result = await list_repo_incidents(
-            repository_name=None,
-            source_id="source_123",
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=False,
-            mine=True,
+            ListRepoIncidentsParams(
+                repository_name=None,
+                source_id="source_123",
+                from_date=None,
+                to_date=None,
+                presence=None,
+                tags=None,
+                ordering=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=True,
+            )
         )
 
         # Verify response format
@@ -321,7 +337,9 @@ class TestListRepoIncidents:
         mock_gitguardian_client.paginate_all = AsyncMock(return_value=mock_response)
 
         # Call the function with get_all=True
-        result = await list_repo_incidents(source_id="source_123", get_all=True)
+        result = await list_repo_incidents(
+            ListRepoIncidentsParams(source_id="source_123", get_all=True)
+        )
 
         # Verify response
         assert result["source_id"] == "source_123"

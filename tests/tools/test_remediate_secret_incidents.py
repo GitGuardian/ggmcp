@@ -4,6 +4,7 @@ import pytest
 from gg_api_core.tools.remediate_secret_incidents import (
     remediate_secret_incidents,
     _process_occurrences_for_remediation,
+    RemediateSecretIncidentsParams,
 )
 
 
@@ -55,7 +56,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo"
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo"
+                )
             )
 
             # Verify response structure
@@ -94,7 +97,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo"
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo"
+                )
             )
 
             # Verify response
@@ -119,7 +124,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo"
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo"
+                )
             )
 
             # Verify error response
@@ -168,7 +175,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with mine=False
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo", mine=False
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo", mine=False
+                )
             )
 
             # Verify all occurrences are included (not filtered by assignee)
@@ -220,9 +229,11 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with include_git_commands=False
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo",
-                include_git_commands=False,
-                mine=False,
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo",
+                    include_git_commands=False,
+                    mine=False,
+                )
             )
 
             # Verify git commands are not included
@@ -274,9 +285,11 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo",
-                create_env_example=False,
-                mine=False,
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo",
+                    create_env_example=False,
+                    mine=False,
+                )
             )
 
             # Verify env example is not included
@@ -347,7 +360,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                repository_name="GitGuardian/test-repo", mine=False
+                RemediateSecretIncidentsParams(
+                    repository_name="GitGuardian/test-repo", mine=False
+                )
             )
 
             # Verify response
