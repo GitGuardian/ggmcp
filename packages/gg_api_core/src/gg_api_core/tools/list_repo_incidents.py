@@ -104,11 +104,11 @@ async def list_repo_incidents(
             if mine:
                 params["assigned_to_me"] = "true"
             if severity:
-                params["severity"] = severity
+                params["severity"] = ",".join(severity) if isinstance(severity, list) else severity
             if status:
-                params["status"] = status
+                params["status"] = ",".join(status) if isinstance(status, list) else status
             if validity:
-                params["validity"] = validity
+                params["validity"] = ",".join(validity) if isinstance(validity, list) else validity
 
             # Get incidents directly using source_id
             if get_all:
