@@ -282,6 +282,11 @@ class GitGuardianClient:
 
         logger.info("Clearing invalid OAuth token from memory and storage")
 
+        # Get account_id from token_info if available
+        account_id = None
+        if self._token_info and "account_id" in self._token_info:
+            account_id = self._token_info["account_id"]
+
         # Clear in-memory token
         self._oauth_token = None
         self._token_info = None
@@ -291,23 +296,29 @@ class GitGuardianClient:
             from .oauth import FileTokenStorage
 
             file_storage = FileTokenStorage()
-            tokens = file_storage.load_tokens()
 
-            # Remove the token for this instance
-            if self.dashboard_url in tokens:
-                del tokens[self.dashboard_url]
-                logger.info(f"Removed invalid token for {self.dashboard_url} from storage")
-
-                # Save the updated tokens (without the invalid one)
-                try:
-                    with open(file_storage.token_file, "w") as f:
-                        json.dump(tokens, f, indent=2)
-                    file_storage.token_file.chmod(0o600)
-                    logger.info(f"Updated token storage file: {file_storage.token_file}")
-                except Exception as e:
-                    logger.warning(f"Could not update token file: {str(e)}")
+            if account_id:
+                # Delete specific account token using the new method
+                file_storage.delete_token(self.dashboard_url, account_id)
+                logger.info(f"Removed invalid token for {self.dashboard_url} (account {account_id}) from storage")
             else:
-                logger.info("No token found in storage for current instance")
+                # Fallback: If we don't know the account_id, try to delete any token we can find
+                # This handles backward compatibility with old code paths
+                tokens = file_storage.load_tokens()
+                if self.dashboard_url in tokens:
+                    instance_tokens = tokens[self.dashboard_url]
+                    if isinstance(instance_tokens, dict):
+                        # New format - delete all accounts for this instance
+                        for acc_id in list(instance_tokens.keys()):
+                            file_storage.delete_token(self.dashboard_url, acc_id)
+                            logger.info(f"Removed invalid token for {self.dashboard_url} (account {acc_id})")
+                    else:
+                        # Old format - just delete the whole entry
+                        del tokens[self.dashboard_url]
+                        logger.info(f"Removed invalid token for {self.dashboard_url} from storage")
+                        with open(file_storage.token_file, "w") as f:
+                            json.dump(tokens, f, indent=2)
+                        file_storage.token_file.chmod(0o600)
 
         except Exception as e:
             logger.warning(f"Could not clean up token storage: {str(e)}")
