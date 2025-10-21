@@ -8,12 +8,112 @@ from typing import Any, Literal
 from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_secops_scopes, is_self_hosted_instance, validate_scopes
 from mcp.server.fastmcp import ToolError
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 logger = logging.getLogger(__name__)
+
+
+# ===== Pydantic Models for Tool Parameters =====
+
+class GenerateHoneytokenParams(BaseModel):
+    """Parameters for generating a honeytoken."""
+    name: str = Field(description="Name for the honeytoken")
+    description: str = Field(default="", description="Description of what the honeytoken is used for")
+
+
+class ListIncidentsParams(BaseModel):
+    """Parameters for listing incidents."""
+    severity: str | None = Field(
+        default=None, description="Filter incidents by severity (critical, high, medium, low)"
+    )
+    status: str | None = Field(
+        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
+    )
+    from_date: str | None = Field(
+        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
+    )
+    to_date: str | None = Field(
+        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
+    )
+    assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email")
+    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id")
+    validity: str | None = Field(
+        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
+    )
+    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
+        default=None,
+        description="Sort field and direction (prefix with '-' for descending order). If you need to get the latest incidents, use '-date'.",
+    )
+    per_page: int = Field(default=20, description="Number of results per page (1-100)")
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user")
+
+
+class ListHoneytokensParams(BaseModel):
+    """Parameters for listing honeytokens."""
+    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
+    search: str | None = Field(default=None, description="Search string to filter results by name or description")
+    ordering: str | None = Field(
+        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+    )
+    show_token: bool = Field(default=False, description="Whether to include token details in the response")
+    creator_id: str | None = Field(default=None, description="Filter by creator ID")
+    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID")
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
+
+
+class ManageIncidentParams(BaseModel):
+    """Parameters for managing an incident."""
+    incident_id: str = Field(description="ID of the secret incident to manage")
+    action: Literal["assign", "unassign", "resolve", "ignore", "reopen"] = Field(
+        description="Action to perform on the incident"
+    )
+    assignee_id: str | None = Field(
+        default=None, description="ID of the member to assign the incident to (required for 'assign' action)"
+    )
+    ignore_reason: str | None = Field(
+        default=None,
+        description="Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)",
+    )
+    mine: bool = Field(default=False, description="If True, use the current user's ID for the assignee_id")
+
+
+class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
+    """Parameters for updating or creating incident custom tags."""
+    incident_id: str = Field(description="ID of the secret incident")
+    custom_tags: list[str | dict[str, str]] = Field(description="List of custom tags to apply to the incident")
+
+
+class UpdateIncidentStatusParams(BaseModel):
+    """Parameters for updating incident status."""
+    incident_id: str = Field(description="ID of the secret incident")
+    status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)")
+
+
+class ReadCustomTagsParams(BaseModel):
+    """Parameters for reading custom tags."""
+    action: Literal["list_tags", "get_tag"] = Field(description="Action to perform related to reading custom tags")
+    tag_id: str | None = Field(
+        default=None, description="ID of the custom tag to retrieve (used with 'get_tag' action)"
+    )
+
+
+class WriteCustomTagsParams(BaseModel):
+    """Parameters for writing custom tags."""
+    action: Literal["create_tag", "delete_tag"] = Field(description="Action to perform related to writing custom tags")
+    key: str | None = Field(default=None, description="Key for the new tag (used with 'create_tag' action)")
+    value: str | None = Field(default=None, description="Value for the new tag (used with 'create_tag' action)")
+    tag_id: str | None = Field(
+        default=None, description="ID of the custom tag to delete (used with 'delete_tag' action)"
+    )
+
+
+# ===== End of Pydantic Models =====
 
 # Log environment variables
 gitguardian_url = os.environ.get("GITGUARDIAN_URL")
@@ -88,26 +188,22 @@ logger.debug("Created SecOps GitGuardianFastMCP instance")
     description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
     required_scopes=["honeytokens:write"],
 )
-async def generate_honeytoken(
-    name: str = Field(description="Name for the honeytoken"),
-    description: str = Field(default="", description="Description of what the honeytoken is used for"),
-) -> dict[str, Any]:
+async def generate_honeytoken(params: GenerateHoneytokenParams) -> dict[str, Any]:
     """
     Generate an AWS GitGuardian honeytoken and get injection recommendations.
 
     Args:
-        name: Name for the honeytoken
-        description: Description of what the honeytoken is used for
+        params: GenerateHoneytokenParams model containing honeytoken configuration
 
     Returns:
         Honeytoken data and injection recommendations
     """
     client = mcp.get_client()
-    logger.debug(f"Generating honeytoken with name: {name}")
+    logger.debug(f"Generating honeytoken with name: {params.name}")
 
     try:
         # Generate the honeytoken
-        result = await client.generate_honeytoken(name=name, description=description)
+        result = await client.generate_honeytoken(name=params.name, description=params.description)
         logger.debug(f"Generated honeytoken with ID: {result.get('id')}")
         return result
     except Exception as e:
@@ -119,47 +215,12 @@ async def generate_honeytoken(
     description="List secret incidents detected by the GitGuardian dashboard. When you need to retrieve personal incidents (mine, me or my), set the mine parameter to True.",
     required_scopes=["incidents:read"],
 )
-async def list_incidents(
-    severity: str | None = Field(
-        default=None, description="Filter incidents by severity (critical, high, medium, low)"
-    ),
-    status: str | None = Field(
-        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
-    ),
-    from_date: str | None = Field(
-        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
-    ),
-    to_date: str | None = Field(
-        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
-    ),
-    assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email"),
-    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id"),
-    validity: str | None = Field(
-        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
-    ),
-    ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
-        default=None,
-        description="Sort field and direction (prefix with '-' for descending order). If you need to get the latest incidents, use '-date'.",
-    ),
-    per_page: int = Field(default=20, description="Number of results per page (1-100)"),
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
-    mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user"),
-) -> list[dict[str, Any]]:
+async def list_incidents(params: ListIncidentsParams) -> list[dict[str, Any]]:
     """
     List secret incidents detected by the GitGuardian dashboard.
 
     Args:
-        severity: Filter incidents by severity (critical, high, medium, low)
-        status: Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
-        from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
-        to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
-        assignee_email: Filter incidents assigned to this email
-        assignee_id: Filter incidents assigned to this user id
-        validity: Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)
-        ordering: Sort field and direction (prefix with '-' for descending order)
-        per_page: Number of results per page (1-100)
-        get_all: If True, fetch all results using cursor-based pagination
-        mine: If True, fetch incidents assigned to the current user
+        params: ListIncidentsParams model containing filtering options
 
     Returns:
         List of incidents matching the specified criteria
@@ -169,17 +230,17 @@ async def list_incidents(
 
     # Build filters dictionary
     filters = {
-        "severity": severity,
-        "status": status,
-        "from_date": from_date,
-        "to_date": to_date,
-        "assignee_email": assignee_email,
-        "assignee_id": assignee_id,
-        "validity": validity,
-        "per_page": per_page,
-        "ordering": ordering,
-        "get_all": get_all,
-        "mine": mine,
+        "severity": params.severity,
+        "status": params.status,
+        "from_date": params.from_date,
+        "to_date": params.to_date,
+        "assignee_email": params.assignee_email,
+        "assignee_id": params.assignee_id,
+        "validity": params.validity,
+        "per_page": params.per_page,
+        "ordering": params.ordering,
+        "get_all": params.get_all,
+        "mine": params.mine,
     }
 
     logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
@@ -233,32 +294,12 @@ async def get_current_token_info() -> dict[str, Any]:
     description="List honeytokens from the GitGuardian dashboard with filtering options",
     required_scopes=["honeytokens:read"],
 )
-async def list_honeytokens(
-    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)"),
-    search: str | None = Field(default=None, description="Search string to filter results by name or description"),
-    ordering: str | None = Field(
-        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
-    ),
-    show_token: bool = Field(default=False, description="Whether to include token details in the response"),
-    creator_id: str | None = Field(default=None, description="Filter by creator ID"),
-    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID"),
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination"),
-    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user"),
-) -> list[dict[str, Any]]:
+async def list_honeytokens(params: ListHoneytokensParams) -> list[dict[str, Any]]:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
     Args:
-        status: Filter by status (ACTIVE or REVOKED)
-        search: Search string to filter results by name or description
-        ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
-        show_token: Whether to include token details in the response
-        creator_id: Filter by creator ID
-        creator_api_token_id: Filter by creator API token ID
-        per_page: Number of results per page (default: 20, min: 1, max: 100)
-        get_all: If True, fetch all results using cursor-based pagination
-        mine: If True, fetch honeytokens created by the current user
+        params: ListHoneytokensParams model containing filtering options
 
     Returns:
         List of honeytokens matching the specified criteria
@@ -268,15 +309,15 @@ async def list_honeytokens(
 
     # Build filters dictionary, removing None values
     filters = {
-        "status": status,
-        "search": search,
-        "ordering": ordering,
-        "show_token": show_token,
-        "creator_id": creator_id,
-        "creator_api_token_id": creator_api_token_id,
-        "per_page": per_page,
-        "get_all": get_all,
-        "mine": mine,
+        "status": params.status,
+        "search": params.search,
+        "ordering": params.ordering,
+        "show_token": params.show_token,
+        "creator_id": params.creator_id,
+        "creator_api_token_id": params.creator_api_token_id,
+        "per_page": params.per_page,
+        "get_all": params.get_all,
+        "mine": params.mine,
     }
 
     logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
@@ -302,47 +343,30 @@ async def list_honeytokens(
     description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
     required_scopes=["incidents:write"],
 )
-async def manage_incident(
-    incident_id: str = Field(description="ID of the secret incident to manage"),
-    action: Literal["assign", "unassign", "resolve", "ignore", "reopen"] = Field(
-        description="Action to perform on the incident"
-    ),
-    assignee_id: str | None = Field(
-        default=None, description="ID of the member to assign the incident to (required for 'assign' action)"
-    ),
-    ignore_reason: str | None = Field(
-        default=None,
-        description="Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)",
-    ),
-    mine: bool = Field(default=False, description="If True, use the current user's ID for the assignee_id"),
-) -> dict[str, Any]:
+async def manage_incident(params: ManageIncidentParams) -> dict[str, Any]:
     """
     Manage a secret incident (assign, unassign, resolve, ignore, reopen).
 
     Args:
-        incident_id: ID of the secret incident to manage
-        action: Action to perform on the incident
-        assignee_id: ID of the member to assign the incident to (required for 'assign' action)
-        ignore_reason: Reason for ignoring (test_credential, false_positive, etc.) (used with 'ignore' action)
-        mine: If True, use the current user's ID for the assignee_id
+        params: ManageIncidentParams model containing incident management configuration
 
     Returns:
         Updated incident data
     """
     client = mcp.get_client()
-    logger.debug(f"Managing incident {incident_id} with action: {action}")
+    logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")
 
     try:
         # Make the API call
         result = await client.manage_incident(
-            incident_id=incident_id,
-            action=action,
-            assignee_id=assignee_id,
-            ignore_reason=ignore_reason,
-            mine=mine,
+            incident_id=params.incident_id,
+            action=params.action,
+            assignee_id=params.assignee_id,
+            ignore_reason=params.ignore_reason,
+            mine=params.mine,
         )
 
-        logger.debug(f"Managed incident {incident_id}")
+        logger.debug(f"Managed incident {params.incident_id}")
         return result
     except Exception as e:
         logger.error(f"Error managing incident: {str(e)}")
@@ -353,33 +377,28 @@ async def manage_incident(
     description="Update or create custom tags for a secret incident",
     required_scopes=["incidents:write", "custom_tags:write"],
 )
-async def update_or_create_incident_custom_tags(
-    incident_id: str = Field(description="ID of the secret incident"),
-    custom_tags: list[str | dict[str, str]] = Field(description="List of custom tags to apply to the incident"),
-) -> dict[str, Any]:
+async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCustomTagsParams) -> dict[str, Any]:
     """
     Update a secret incident with status and/or custom tags.
     If a custom tag is a String, a label is created. For example "MCP": None will create a label "MCP" without a value.
 
     Args:
-        incident_id: ID of the secret incident
-        custom_tags: List of custom tags to apply to the incident
-                     Format: [{"key": "key1"}, "label"]
+        params: UpdateOrCreateIncidentCustomTagsParams model containing custom tags configuration
 
     Returns:
         Updated incident data
     """
     client = mcp.get_client()
-    logger.debug(f"Updating custom tags for incident {incident_id}")
+    logger.debug(f"Updating custom tags for incident {params.incident_id}")
 
     try:
         # Make the API call
         result = await client.update_or_create_incident_custom_tags(
-            incident_id=incident_id,
-            custom_tags=custom_tags,
+            incident_id=params.incident_id,
+            custom_tags=params.custom_tags,
         )
 
-        logger.debug(f"Updated custom tags for incident {incident_id}")
+        logger.debug(f"Updated custom tags for incident {params.incident_id}")
         return result
     except Exception as e:
         logger.error(f"Error updating custom tags: {str(e)}")
@@ -390,26 +409,22 @@ async def update_or_create_incident_custom_tags(
     description="Update a secret incident with status",
     required_scopes=["incidents:write"],
 )
-async def update_incident_status(
-    incident_id: str = Field(description="ID of the secret incident"),
-    status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"),
-) -> dict[str, Any]:
+async def update_incident_status(params: UpdateIncidentStatusParams) -> dict[str, Any]:
     """
     Update a secret incident with status and/or custom tags.
 
     Args:
-        incident_id: ID of the secret incident
-        status: New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
+        params: UpdateIncidentStatusParams model containing status update configuration
 
     Returns:
         Updated incident data
     """
     client = mcp.get_client()
-    logger.debug(f"Updating incident {incident_id} status to {status}")
+    logger.debug(f"Updating incident {params.incident_id} status to {params.status}")
 
     try:
-        result = await client.update_incident_status(incident_id=incident_id, status=status)
-        logger.debug(f"Updated incident {incident_id} status to {status}")
+        result = await client.update_incident_status(incident_id=params.incident_id, status=params.status)
+        logger.debug(f"Updated incident {params.incident_id} status to {params.status}")
         return result
     except Exception as e:
         logger.error(f"Error updating incident status: {str(e)}")
@@ -420,18 +435,12 @@ async def update_incident_status(
     description="Read custom tags from the GitGuardian dashboard.",
     required_scopes=["custom_tags:read"],
 )
-async def read_custom_tags(
-    action: Literal["list_tags", "get_tag"] = Field(description="Action to perform related to reading custom tags"),
-    tag_id: str | None = Field(
-        default=None, description="ID of the custom tag to retrieve (used with 'get_tag' action)"
-    ),
-):
+async def read_custom_tags(params: ReadCustomTagsParams):
     """
     Read custom tags from the GitGuardian dashboard.
 
     Args:
-        action: Action to perform (list_tags, get_tag)
-        tag_id: ID of the custom tag to retrieve (used with 'get_tag' action)
+        params: ReadCustomTagsParams model containing custom tags query configuration
 
     Returns:
         Custom tag data based on the action performed
@@ -439,16 +448,16 @@ async def read_custom_tags(
     try:
         client = mcp.get_client()
 
-        if action == "list_tags":
+        if params.action == "list_tags":
             logger.debug("Listing all custom tags")
             return await client.custom_tags_list()
-        elif action == "get_tag":
-            if not tag_id:
+        elif params.action == "get_tag":
+            if not params.tag_id:
                 raise ValueError("tag_id is required when action is 'get_tag'")
-            logger.debug(f"Getting custom tag with ID: {tag_id}")
-            return await client.custom_tags_get(tag_id)
+            logger.debug(f"Getting custom tag with ID: {params.tag_id}")
+            return await client.custom_tags_get(params.tag_id)
         else:
-            raise ValueError(f"Invalid action: {action}. Must be one of ['list_tags', 'get_tag']")
+            raise ValueError(f"Invalid action: {params.action}. Must be one of ['list_tags', 'get_tag']")
     except Exception as e:
         logger.error(f"Error reading custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
@@ -458,22 +467,12 @@ async def read_custom_tags(
     description="Create or delete custom tags in the GitGuardian dashboard.",
     required_scopes=["custom_tags:write"],
 )
-async def write_custom_tags(
-    action: Literal["create_tag", "delete_tag"] = Field(description="Action to perform related to writing custom tags"),
-    key: str | None = Field(default=None, description="Key for the new tag (used with 'create_tag' action)"),
-    value: str | None = Field(default=None, description="Value for the new tag (used with 'create_tag' action)"),
-    tag_id: str | None = Field(
-        default=None, description="ID of the custom tag to delete (used with 'delete_tag' action)"
-    ),
-):
+async def write_custom_tags(params: WriteCustomTagsParams):
     """
     Create or delete custom tags in the GitGuardian dashboard.
 
     Args:
-        action: Action to perform (create_tag, delete_tag)
-        key: Key for the new tag (used with 'create_tag' action)
-        value: Value for the new tag (used with 'create_tag' action)
-        tag_id: ID of the custom tag to delete (used with 'delete_tag' action)
+        params: WriteCustomTagsParams model containing custom tags write configuration
 
     Returns:
         Result based on the action performed
@@ -481,22 +480,22 @@ async def write_custom_tags(
     try:
         client = mcp.get_client()
 
-        if action == "create_tag":
-            if not key:
+        if params.action == "create_tag":
+            if not params.key:
                 raise ValueError("key is required when action is 'create_tag'")
 
             # Value is optional for label-only tags
-            logger.debug(f"Creating custom tag with key: {key}, value: {value or 'None (label only)'}")
-            return await client.custom_tags_create(key, value)
+            logger.debug(f"Creating custom tag with key: {params.key}, value: {params.value or 'None (label only)'}")
+            return await client.custom_tags_create(params.key, params.value)
 
-        elif action == "delete_tag":
-            if not tag_id:
+        elif params.action == "delete_tag":
+            if not params.tag_id:
                 raise ValueError("tag_id is required when action is 'delete_tag'")
 
-            logger.debug(f"Deleting custom tag with ID: {tag_id}")
-            return await client.custom_tags_delete(tag_id)
+            logger.debug(f"Deleting custom tag with ID: {params.tag_id}")
+            return await client.custom_tags_delete(params.tag_id)
         else:
-            raise ValueError(f"Invalid action: {action}. Must be one of ['create_tag', 'delete_tag']")
+            raise ValueError(f"Invalid action: {params.action}. Must be one of ['create_tag', 'delete_tag']")
     except Exception as e:
         logger.error(f"Error writing custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

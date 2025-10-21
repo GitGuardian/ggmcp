@@ -2,41 +2,40 @@ from typing import Any
 import logging
 
 from mcp.server.fastmcp.exceptions import ToolError
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-async def generate_honeytoken(
-    name: str = Field(description="Name for the honeytoken"),
-    description: str = Field(default="", description="Description of what the honeytoken is used for"),
+class GenerateHoneytokenParams(BaseModel):
+    """Parameters for generating a honeytoken."""
+    name: str = Field(description="Name for the honeytoken")
+    description: str = Field(default="", description="Description of what the honeytoken is used for")
     new_token: bool = Field(
         default=False,
         description="If False, retrieves an existing active honeytoken created by you instead of generating a new one. "
         "If no existing token is found, a new one will be created. "
         "To generate a new token, set this to True.",
-    ),
-) -> dict[str, Any]:
+    )
+
+
+async def generate_honeytoken(params: GenerateHoneytokenParams) -> dict[str, Any]:
     """
     Generate an AWS GitGuardian honeytoken and get injection recommendations.
 
     Args:
-        name: Name for the honeytoken
-        description: Description of what the honeytoken is used for
-        new_token: If False, retrieves an existing active honeytoken created by you instead of generating a new one.
-                  If no existing token is found, a new one will be created.
-                  IMPORTANT: If you want to generate a new token, set this to True.
+        params: GenerateHoneytokenParams model containing honeytoken configuration
 
     Returns:
         Honeytoken data and injection recommendations
     """
     client = get_client()
-    logger.debug(f"Processing honeytoken request with name: {name}, new_token: {new_token}")
+    logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")
 
     # If new_token is False, try to find an existing honeytoken created by the current user
-    if not new_token:
+    if not params.new_token:
         try:
             # Get current user's info
             token_info = await client.get_current_token_info()
@@ -83,7 +82,7 @@ async def generate_honeytoken(
             {"key": "source", "value": "auto-generated"},
             {"key": "type", "value": "aws"},
         ]
-        result = await client.create_honeytoken(name=name, description=description, custom_tags=custom_tags)
+        result = await client.create_honeytoken(name=params.name, description=params.description, custom_tags=custom_tags)
 
         # Validate that we got an ID in the response
         if not result.get("id"):
