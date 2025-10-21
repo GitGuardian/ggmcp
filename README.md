@@ -27,7 +27,7 @@ Resolve security incidents without context switching to the GitGuardian console.
 - **Authentication Management**: Get authenticated user information and token details
 - **Token Management**: Revoke current API tokens
 
-> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/gg-mcp/issues) to help us prioritize new MCP server capabilities.
+> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/ggmcp/issues) to help us prioritize new MCP server capabilities.
 
 ## Prompts examples
 
@@ -83,7 +83,7 @@ For Developer MCP Server:
          "command": "uvx",
          "args": [
            "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "git+https://github.com/GitGuardian/ggmcp.git",
            "developer-mcp-server"
          ]
        }
@@ -107,7 +107,7 @@ For Developer MCP Server:
          "command": "/path/to/uvx",
          "args": [
            "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "git+https://github.com/GitGuardian/ggmcp.git",
            "developer-mcp-server"
          ]
        }
@@ -142,7 +142,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
            "command": "uvx",
            "args": [
              "--from",
-             "git+https://github.com/GitGuardian/gg-mcp.git",
+             "git+https://github.com/GitGuardian/ggmcp.git",
              "developer-mcp-server"
            ]
          }
@@ -167,7 +167,7 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
          "path": "uvx",
          "args": [
            "--from",
-           "git+https://github.com/GitGuardian/gg-mcp.git",
+           "git+https://github.com/GitGuardian/ggmcp.git",
            "developer-mcp-server"
          ]
        }
@@ -207,7 +207,7 @@ For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment var
   "mcpServers": {
     "GitGuardianDeveloper": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local"
       }
@@ -225,7 +225,7 @@ If your self-hosted instance has honeytokens enabled and your user has the requi
   "mcpServers": {
     "GitGuardianDeveloper": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local",
         "GITGUARDIAN_SCOPES": "scan,incidents:read,sources:read,honeytokens:read,honeytokens:write"
@@ -244,7 +244,7 @@ For the GitGuardian EU instance, use:
   "mcpServers": {
     "GitGuardianDeveloper": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
       }
@@ -262,7 +262,7 @@ If you have your own OAuth application configured in GitGuardian, you can specif
   "mcpServers": {
     "GitGuardianDeveloper": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/gg-mcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
       "env": {
         "GITGUARDIAN_CLIENT_ID": "my-custom-oauth-client"
       }

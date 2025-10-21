@@ -1,9 +1,19 @@
 [project]
-name = "gg-mcp"
+name = "ggmcp"
 version = "0.5.0"
 description = "MCP server workspace for GitGuardian"
 authors = [
-    {name = "Clément Tourrière", email = "clement.tourriere@gitguardian.com"}
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+maintainers = [
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+keywords = [
+    "cli",
+    "devsecops",
+    "security-tools",
+    "gitguardian",
+    "mcp"
 ]
 readme = "README.md"
 requires-python = ">=3.13"

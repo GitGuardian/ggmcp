@@ -1,16 +1,16 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.gitguardian/gg-mcp",
+  "name": "io.github.gitguardian/ggmcp",
   "description": "GitGuardian MCP server that enables AI agents to scan projects for secrets using GitGuardian's API with 500+ secret detectors, manage security incidents, and create honeytokens",
   "repository": {
-    "url": "https://github.com/GitGuardian/gg-mcp",
+    "url": "https://github.com/GitGuardian/ggmcp",
     "source": "github"
   },
   "version": "0.5.0",
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "gg-mcp",
+      "identifier": "ggmcp",
       "version": "0.5.0",
       "runtimeHint": "uvx",
       "transport": {

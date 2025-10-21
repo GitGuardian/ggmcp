@@ -18,15 +18,15 @@ class TestFindCurrentSourceId:
         # Mock git command to return a remote URL
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
-                stdout="https://github.com/GitGuardian/gg-mcp.git\n",
+                stdout="https://github.com/GitGuardian/ggmcp.git\n",
                 returncode=0,
             )
 
             # Mock the client response with exact match
             mock_response = {
                 "id": "source_123",
-                "full_name": "GitGuardian/gg-mcp",
-                "url": "https://github.com/GitGuardian/gg-mcp",
+                "full_name": "GitGuardian/ggmcp",
+                "url": "https://github.com/GitGuardian/ggmcp",
                 "monitored": True,
             }
             mock_gitguardian_client.get_source_by_name = AsyncMock(
@@ -47,11 +47,11 @@ class TestFindCurrentSourceId:
 
             # Verify client was called with parsed repository name
             mock_gitguardian_client.get_source_by_name.assert_called_once_with(
-                "GitGuardian/gg-mcp", return_all_on_no_match=True
+                "GitGuardian/ggmcp", return_all_on_no_match=True
             )
 
             # Verify response
-            assert result["repository_name"] == "GitGuardian/gg-mcp"
+            assert result["repository_name"] == "GitGuardian/ggmcp"
             assert result["source_id"] == "source_123"
             assert "message" in result
 
@@ -269,14 +269,14 @@ class TestFindCurrentSourceId:
         # Mock git command with SSH URL
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
-                stdout="git@github.com:GitGuardian/gg-mcp.git\n",
+                stdout="git@github.com:GitGuardian/ggmcp.git\n",
                 returncode=0,
             )
 
             # Mock the client response
             mock_response = {
                 "id": "source_ssh",
-                "full_name": "GitGuardian/gg-mcp",
+                "full_name": "GitGuardian/ggmcp",
             }
             mock_gitguardian_client.get_source_by_name = AsyncMock(
                 return_value=mock_response
@@ -286,7 +286,7 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "GitGuardian/gg-mcp"
+            assert result["repository_name"] == "GitGuardian/ggmcp"
             assert result["source_id"] == "source_ssh"
 
     @pytest.mark.asyncio

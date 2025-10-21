@@ -27,7 +27,7 @@ jobs:
       contents: read
     environment:
       name: pypi
-      url: https://pypi.org/project/gg-mcp/
+      url: https://pypi.org/project/ggmcp/
     concurrency:
       group: publish-pypi-${{ github.ref_name }}
       cancel-in-progress: false
@@ -47,7 +47,7 @@ jobs:
 
       - name: Build package
         run: |
-          echo "Building gg-mcp package..."
+          echo "Building ggmcp package..."
           uv build
           echo "Build artifacts:"
           ls -lh dist/
@@ -62,11 +62,11 @@ jobs:
         run: |
           echo "## ✅ PyPI Publication Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Package published to: https://pypi.org/project/gg-mcp/" >> $GITHUB_STEP_SUMMARY
+          echo "Package published to: https://pypi.org/project/ggmcp/" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install with:" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "uvx gg-mcp" >> $GITHUB_STEP_SUMMARY
+          echo "uvx ggmcp" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   publish-mcp-registry:
@@ -183,7 +183,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Users can install with:" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "uvx gg-mcp" >> $GITHUB_STEP_SUMMARY
+          echo "uvx ggmcp" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   create-release:
