@@ -1,31 +1,34 @@
 from typing import Any
 import logging
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
-from .list_repo_occurrences import list_repo_occurrences
+from .list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 from .list_repo_incidents import list_repo_incidents
 
 logger = logging.getLogger(__name__)
 
 
-async def remediate_secret_incidents(
+class RemediateSecretIncidentsParams(BaseModel):
+    """Parameters for remediating secret incidents."""
     repository_name: str = Field(
         description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided."
-    ),
+    )
     include_git_commands: bool = Field(
         default=True, description="Whether to include git commands to fix incidents in git history"
-    ),
+    )
     create_env_example: bool = Field(
         default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
-    ),
-    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page"),
+    )
+    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page")
     mine: bool = Field(
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
-    ),
-) -> dict[str, Any]:
+    )
+
+
+async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> dict[str, Any]:
     """
     Find and remediate secret incidents in the current repository using EXACT match locations.
 
@@ -52,11 +55,7 @@ async def remediate_secret_incidents(
     - Sorted matches to enable safe sequential removal (bottom-to-top)
 
     Args:
-        repository_name: The full repository name (e.g., 'GitGuardian/gg-mcp')
-        include_git_commands: Whether to include git commands to fix incidents in git history
-        create_env_example: Whether to create a .env.example file with placeholders for detected secrets
-        get_all: Whether to get all occurrences or just the first page
-        mine: If True, fetch only occurrences for incidents assigned to the current user. Set to False to get all.
+        params: RemediateSecretIncidentsParams model containing remediation configuration
 
     Returns:
         A dictionary containing:
@@ -66,22 +65,15 @@ async def remediate_secret_incidents(
         - env_example_content: Suggested .env.example content (if requested)
         - git_commands: Git commands to fix history (if requested)
     """
-    logger.debug(f"Using remediate_secret_incidents with occurrences API for: {repository_name}")
+    logger.debug(f"Using remediate_secret_incidents with occurrences API for: {params.repository_name}")
 
     try:
         # Get detailed occurrences with exact match locations
-        occurrences_result = await list_repo_occurrences(
-            repository_name=repository_name,
-            get_all=get_all,
-            # Explicitly pass None for optional parameters to avoid FieldInfo objects
-            from_date=None,
-            to_date=None,
-            presence=None,
-            tags=None,
-            ordering=None,
-            per_page=20,
-            cursor=None,
+        occurrences_params = ListRepoOccurrencesParams(
+            repository_name=params.repository_name,
+            get_all=params.get_all,
         )
+        occurrences_result = await list_repo_occurrences(occurrences_params)
 
         if "error" in occurrences_result:
             return {"error": occurrences_result["error"]}
@@ -89,7 +81,7 @@ async def remediate_secret_incidents(
         occurrences = occurrences_result.get("occurrences", [])
 
         # Filter by assignee if mine=True
-        if mine:
+        if params.mine:
             # Get current user info to filter by assignee
             client = get_client()
             try:
@@ -108,7 +100,7 @@ async def remediate_secret_incidents(
 
         if not occurrences:
             return {
-                "repository_info": {"name": repository_name},
+                "repository_info": {"name": params.repository_name},
                 "message": "No secret occurrences found for this repository that match the criteria.",
                 "remediation_steps": [],
             }
@@ -117,9 +109,9 @@ async def remediate_secret_incidents(
         logger.debug(f"Processing {len(occurrences)} occurrences with exact locations for remediation")
         result = await _process_occurrences_for_remediation(
             occurrences=occurrences,
-            repository_name=repository_name,
-            include_git_commands=include_git_commands,
-            create_env_example=create_env_example,
+            repository_name=params.repository_name,
+            include_git_commands=params.include_git_commands,
+            create_env_example=params.create_env_example,
         )
         logger.debug(
             f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
