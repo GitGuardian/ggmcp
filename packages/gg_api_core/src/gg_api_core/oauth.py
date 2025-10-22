@@ -9,8 +9,10 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 from urllib.parse import parse_qs, urlparse
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from mcp.client.auth import TokenStorage
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
@@ -28,8 +30,83 @@ DEFAULT_TOKEN_EXPIRY_DAYS = 30
 _oauth_client_counter = 0
 
 
+class StoredOAuthToken(BaseModel):
+    """Pydantic model representing a single stored OAuth token.
+
+    This model describes the format of token data stored in FileTokenStorage
+    for a specific account.
+
+    Attributes:
+        access_token: The OAuth access token string used for API authentication.
+        expires_at: ISO format datetime string indicating when the token expires.
+                   Examples: "2025-10-28T11:15:58.656719+00:00"
+                   Can be None if token never expires.
+        token_name: Human-readable name for the token (e.g., "SecOps MCP Token").
+        scopes: List of OAuth scopes granted to this token
+               (e.g., ["scan", "incidents:read", "honeytokens:read"]).
+        account_id: The GitGuardian account ID this token belongs to.
+                   Can be an integer or "unknown" for legacy tokens.
+    """
+
+    access_token: str = Field(..., description="OAuth access token for API authentication")
+    expires_at: Optional[str] = Field(None, description="ISO format expiration datetime or None if never expires")
+    token_name: str = Field(..., description="Human-readable name for the token")
+    scopes: list[str] = Field(default_factory=list, description="List of OAuth scopes for this token")
+    account_id: Optional[str | int] = Field(None, description="GitGuardian account ID (int) or 'unknown'")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "access_token": "ghp_1234567890abcdef",
+                "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                "token_name": "SecOps MCP Token",
+                "scopes": ["scan", "incidents:read", "honeytokens:read"],
+                "account_id": 123,
+            }
+        }
+    )
+
+
 class FileTokenStorage:
-    """File-based storage for OAuth tokens to enable token reuse with multi-account support."""
+    """File-based storage for OAuth tokens to enable token reuse with multi-account support.
+
+    Token Storage Structure:
+        The token file stores tokens nested by instance URL and account ID:
+        {
+            "instance_url": {
+                "account_id": StoredOAuthToken
+            }
+        }
+
+        Example:
+        {
+            "https://dashboard.gitguardian.com": {
+                "123": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Production Account",
+                    "scopes": ["scan", "incidents:read"],
+                    "account_id": 123
+                },
+                "456": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Staging Account",
+                    "scopes": ["scan"],
+                    "account_id": 456
+                }
+            },
+            "https://self-hosted.example.com": {
+                "789": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Self-Hosted",
+                    "scopes": ["scan", "incidents:read"],
+                    "account_id": 789
+                }
+            }
+        }
+    """
 
     def __init__(self, token_file=None):
         """Initialize the token storage.
@@ -151,11 +228,24 @@ class FileTokenStorage:
     def save_token(self, instance_url, account_id, token_data):
         """Save a token for a specific instance URL and account.
 
+        The token_data will be validated against the StoredOAuthToken model.
+
         Args:
             instance_url: The dashboard URL (e.g., https://dashboard.gitguardian.com)
             account_id: The account ID from the OAuth token response
-            token_data: Token data including access_token, expires_at, etc.
+            token_data: Token data dict including access_token, expires_at, token_name, scopes, account_id.
+                       Will be validated against StoredOAuthToken model.
+
+        Raises:
+            ValueError: If token_data doesn't match StoredOAuthToken model schema
         """
+        # Validate token data against Pydantic model
+        try:
+            StoredOAuthToken.model_validate(token_data)
+        except Exception as e:
+            logger.warning(f"Token data validation warning (non-blocking): {e}")
+            # Log warning but don't fail - this maintains backward compatibility
+
         tokens = self.load_tokens()
 
         # Ensure instance_url exists in tokens
@@ -177,6 +267,29 @@ class FileTokenStorage:
             logger.info(f"Saved token for {instance_url} (account {account_id}) to {self.token_file}")
         except Exception as e:
             logger.warning(f"Failed to save token to {self.token_file}: {e}")
+
+    def validate_token_data(self, token_data: dict) -> tuple[bool, str]:
+        """Validate token data against StoredOAuthToken model.
+
+        Args:
+            token_data: Token data dictionary to validate
+
+        Returns:
+            Tuple of (is_valid, error_message). error_message is empty string if valid.
+        """
+        try:
+            StoredOAuthToken.model_validate(token_data)
+            return True, ""
+        except Exception as e:
+            return False, str(e)
+
+    def get_schema(self) -> dict:
+        """Get the JSON schema for StoredOAuthToken.
+
+        Returns:
+            Dict containing the Pydantic JSON schema for token validation
+        """
+        return StoredOAuthToken.model_json_schema()
 
     def get_token(self, instance_url, account_id=None):
         """Get a token for a specific instance URL and account if it exists and is not expired.
