@@ -1,1 +1,1 @@
-@../cursor_rules.md
+Rules for Claude are in @AGENTS.md
