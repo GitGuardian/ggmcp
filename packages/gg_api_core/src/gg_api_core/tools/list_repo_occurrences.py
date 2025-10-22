@@ -35,22 +35,8 @@ DEFAULT_VALIDITIES = [
 ]  # We exclude "INVALID" ones
 
 
-class ListRepoOccurrencesParams(BaseModel):
-    """Parameters for listing repository occurrences."""
-    repository_name: str | None = Field(
-        default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided."
-    )
-    source_id: str | None = Field(
-        default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
-    )
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
-    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
-
-    # Filters
+class ListRepoOccurrencesFilters(BaseModel):
+    """Filters for listing repository occurrences."""
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
     )
@@ -66,6 +52,26 @@ class ListRepoOccurrencesParams(BaseModel):
     status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
     severity: list[str] | None = Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)")
     validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)")
+
+
+class ListRepoOccurrencesBaseParams(BaseModel):
+    """Parameters for listing repository occurrences."""
+    repository_name: str | None = Field(
+        default=None,
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+    )
+    source_id: str | None = Field(
+        default=None,
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
+    )
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+
+
+class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesBaseParams):
+    pass
 
 
 def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
