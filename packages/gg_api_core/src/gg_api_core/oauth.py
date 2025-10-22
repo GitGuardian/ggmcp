@@ -19,7 +19,10 @@ from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 logger = logging.getLogger(__name__)
 
 # Port range for callback server
-CALLBACK_PORT_RANGE = (8000, 8999)
+# Using the same port range as ggshield (29170-29998) to ensure compatibility
+# with self-hosted GitGuardian instances where the ggshield_oauth client
+# is registered with specific redirect URI port ranges
+CALLBACK_PORT_RANGE = (29170, 29998)
 
 # Default token expiry in days (if not specified in token info)
 DEFAULT_TOKEN_EXPIRY_DAYS = 30

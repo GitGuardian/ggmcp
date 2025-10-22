@@ -44,8 +44,8 @@ Note: Honeytoken scopes are omitted for self-hosted instances as they require th
 |----------|-------------|---------|
 | `GITGUARDIAN_URL` | GitGuardian base URL | `https://dashboard.gitguardian.com` (SaaS US), `https://dashboard.eu1.gitguardian.com` (SaaS EU), `https://dashboard.gitguardian.mycorp.local` (Self-Hosted) |
 | `GITGUARDIAN_SCOPES` | Comma-separated list of OAuth scopes | Auto-detected based on instance type |
-| `MCP_SERVER_HOST` | Host for the MCP server (used for OAuth redirect) | `localhost` |
-| `MCP_SERVER_PORT` | Port for the MCP server | `8000` |
+
+**OAuth Callback Server**: The OAuth authentication flow uses a local callback server on port range 29170-29998 (same as ggshield). This ensures compatibility with self-hosted GitGuardian instances where the `ggshield_oauth` client is pre-configured with these redirect URIs.
 
 **Scope Auto-detection**: The server automatically detects appropriate scopes based on your GitGuardian instance:
 - **SaaS instances**: `scan,incidents:read,sources:read,honeytokens:read,honeytokens:write`
