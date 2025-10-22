@@ -97,6 +97,8 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
+            "applied_filters": {},
+            "suggestion": "",
         }
 
         # Mock get_current_token_info for filtering by assignee
@@ -143,7 +145,11 @@ class TestRemediateSecretIncidents:
         THEN: A message indicating no occurrences is returned
         """
         # Mock list_repo_occurrences to return empty occurrences
-        mock_occurrences = {"occurrences": []}
+        mock_occurrences = {
+            "occurrences": [],
+            "applied_filters": {"tags_exclude": ["TEST_FILE"]},
+            "suggestion": "No occurrences matched the applied filters.",
+        }
 
         # Patch list_repo_occurrences
         with patch(
@@ -161,6 +167,8 @@ class TestRemediateSecretIncidents:
             assert "message" in result
             assert "No secret occurrences found" in result["message"]
             assert result["remediation_steps"] == []
+            assert "applied_filters" in result
+            assert "suggestion" in result
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_error(self, mock_gitguardian_client):
@@ -221,6 +229,8 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
+            "applied_filters": {},
+            "suggestion": "",
         }
 
         # Patch list_repo_occurrences
@@ -270,6 +280,8 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
+            "applied_filters": {},
+            "suggestion": "",
         }
 
         # Mock get_current_token_info
@@ -326,6 +338,8 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
+            "applied_filters": {},
+            "suggestion": "",
         }
 
         # Mock get_current_token_info
@@ -401,6 +415,8 @@ class TestRemediateSecretIncidents:
                     },
                 },
             ],
+            "applied_filters": {},
+            "suggestion": "",
         }
 
         # Mock get_current_token_info

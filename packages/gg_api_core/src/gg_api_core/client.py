@@ -10,7 +10,6 @@ from urllib.parse import quote_plus, unquote
 import httpx
 
 from gg_api_core.host import is_self_hosted_instance
-from gg_api_core.scopes import DEVELOPER_SCOPES
 from urllib.parse import urlparse
 
 # Setup logger
@@ -50,7 +49,7 @@ class IncidentValidity(str, Enum):
 
 
 class TagNames(str, Enum):
-    REGRESSION = "REGRESSION" # Issue is a regression
+    REGRESSION = "REGRESSION"  # Issue is a regression
     HIST = (
         "HIST"
     )  # Occurrence is visible and its Kind is history
@@ -237,7 +236,7 @@ class GitGuardianClient:
                 return
 
             logger.warning("Acquired OAuth lock, proceeding with authentication")
-            logger.info(f"   Client API URL: {self.public_api_url}")
+            logger.info(f"   Client API URL: {self.public_api_url}")  # TODO(TIM)
             logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
             logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
 

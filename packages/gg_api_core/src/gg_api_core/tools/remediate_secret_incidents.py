@@ -5,13 +5,20 @@ from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import TagNames
 from gg_api_core.utils import get_client
-from .list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
+from .list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams, ListRepoOccurrencesFilters
 from .list_repo_incidents import list_repo_incidents
 
 logger = logging.getLogger(__name__)
 
 
-class RemediateSecretIncidentsParams(BaseModel):
+class RemediateOccurrencesFilters(ListRepoOccurrencesFilters):
+    tags: list[str] = Field(
+        default=[TagNames.DEFAULT_BRANCH.value],
+        description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
+    )
+
+
+class RemediateSecretIncidentsParams(RemediateOccurrencesFilters):
     """Parameters for remediating secret incidents."""
     repository_name: str = Field(
         description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided.",
@@ -21,20 +28,24 @@ class RemediateSecretIncidentsParams(BaseModel):
         description="The source ID of the repository. Pass the current repository source ID if not provided.",
         default=None
     )
+    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page")
+    mine: bool = Field(
+        default=False,
+        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+    )
+
+    # Behaviour
     include_git_commands: bool = Field(
         default=True, description="Whether to include git commands to fix incidents in git history"
     )
     create_env_example: bool = Field(
         default=True, description="Whether to create a .env.example file with placeholders for detected secrets"
     )
-    get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page")
-    mine: bool = Field(
-        default=False,
-        description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
-    )
-    tags: list[str] = Field(
-        default=[TagNames.DEFAULT_BRANCH.value],
-        description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
+
+    # sub tools
+    list_repo_occurrences_params: RemediateOccurrencesFilters = Field(
+        default_factory=RemediateOccurrencesFilters,
+        description="Parameters for listing repository occurrences",
     )
 
     @model_validator(mode="after")
@@ -86,11 +97,14 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
 
     try:
         # Get detailed occurrences with exact match locations
+        # Extract filter parameters from list_repo_occurrences_params
+        filter_params = params.list_repo_occurrences_params.model_dump(exclude_none=True)
+
         occurrences_params = ListRepoOccurrencesParams(
             repository_name=params.repository_name,
             source_id=params.source_id,
             get_all=params.get_all,
-            tags=params.tags,
+            **filter_params,  # Spread the filter parameters
         )
         occurrences_result = await list_repo_occurrences(occurrences_params)
 
