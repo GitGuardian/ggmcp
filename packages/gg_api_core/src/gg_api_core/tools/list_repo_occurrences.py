@@ -45,6 +45,12 @@ class ListRepoOccurrencesParams(BaseModel):
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
     )
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+
+    # Filters
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
     )
@@ -57,13 +63,62 @@ class ListRepoOccurrencesParams(BaseModel):
         default=DEFAULT_EXCLUDED_TAGS,
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering."
     )
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
-    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
     status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
     severity: list[str] | None = Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)")
     validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)")
+
+
+def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
+    """Build a dictionary describing the filters applied to the query."""
+    filters = {}
+
+    # Include all active filters
+    if params.from_date:
+        filters["from_date"] = params.from_date
+    if params.to_date:
+        filters["to_date"] = params.to_date
+    if params.presence:
+        filters["presence"] = params.presence
+    if params.tags:
+        filters["tags"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.tags]
+    if params.exclude_tags:
+        filters["exclude_tags"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.exclude_tags]
+    if params.status:
+        filters["status"] = [st.value if hasattr(st, 'value') else st for st in params.status]
+    if params.severity:
+        filters["severity"] = [sev.value if hasattr(sev, 'value') else sev for sev in params.severity]
+    if params.validity:
+        filters["validity"] = [v.value if hasattr(v, 'value') else v for v in params.validity]
+
+    return filters
+
+
+def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int) -> str:
+    """Build a suggestion message based on applied filters and results."""
+    suggestions = []
+
+    # Explain what's being filtered
+    if params.exclude_tags:
+        excluded_tag_names = [tag.name if hasattr(tag, 'name') else tag for tag in params.exclude_tags]
+        suggestions.append(f"Occurrences were filtered to exclude tags: {', '.join(excluded_tag_names)}")
+
+    if params.status:
+        status_names = [st.name if hasattr(st, 'name') else st for st in params.status]
+        suggestions.append(f"Filtered by status: {', '.join(status_names)}")
+
+    if params.severity:
+        sev_names = [sev.name if hasattr(sev, 'name') else sev for sev in params.severity]
+        suggestions.append(f"Filtered by severity: {', '.join(sev_names)}")
+
+    if params.validity:
+        val_names = [v.name if hasattr(v, 'name') else v for v in params.validity]
+        suggestions.append(f"Filtered by validity: {', '.join(val_names)}")
+
+    # If no results, suggest how to get more
+    if occurrences_count == 0 and suggestions:
+        suggestions.append("No occurrences matched the applied filters. Try with exclude_tags=[] or different status/severity/validity filters to see all occurrences.")
+
+    return "\n".join(suggestions) if suggestions else ""
 
 
 async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, Any]:
@@ -91,7 +146,8 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
         params: ListRepoOccurrencesParams model containing all filtering options
 
     Returns:
-        List of secret occurrences with detailed match information including file locations and indices
+        List of secret occurrences with detailed match information including file locations and indices.
+        Also includes applied filters and suggestions for interpreting the results.
     """
     client = get_client()
 
@@ -145,25 +201,33 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
         # Handle the response format
         if isinstance(result, dict):
             occurrences = result.get("occurrences", [])
+            count = len(occurrences)
             return {
                 "repository": params.repository_name,
-                "occurrences_count": len(occurrences),
+                "occurrences_count": count,
                 "occurrences": occurrences,
                 "cursor": result.get("cursor"),
                 "has_more": result.get("has_more", False),
+                "applied_filters": _build_filter_info(params),
+                "suggestion": _build_suggestion(params, count),
             }
         elif isinstance(result, list):
             # If get_all=True, we get a list directly
+            count = len(result)
             return {
                 "repository": params.repository_name,
-                "occurrences_count": len(result),
+                "occurrences_count": count,
                 "occurrences": result,
+                "applied_filters": _build_filter_info(params),
+                "suggestion": _build_suggestion(params, count),
             }
         else:
             return {
                 "repository": params.repository_name,
                 "occurrences_count": 0,
                 "occurrences": [],
+                "applied_filters": _build_filter_info(params),
+                "suggestion": _build_suggestion(params, 0),
             }
 
     except Exception as e:

@@ -33,6 +33,64 @@ DEFAULT_VALIDITIES = [
 ]  # We exclude "INVALID" ones
 
 
+def _build_filter_info(params: "ListRepoIncidentsParams") -> dict[str, Any]:
+    """Build a dictionary describing the filters applied to the query."""
+    filters = {}
+
+    # Include all active filters
+    if params.from_date:
+        filters["from_date"] = params.from_date
+    if params.to_date:
+        filters["to_date"] = params.to_date
+    if params.presence:
+        filters["presence"] = params.presence
+    if params.tags:
+        filters["tags_include"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.tags]
+    if params.exclude_tags:
+        filters["exclude_tags"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.exclude_tags]
+    if params.status:
+        filters["status"] = [st.value if hasattr(st, 'value') else st for st in params.status]
+    if params.severity:
+        filters["severity"] = [sev.value if hasattr(sev, 'value') else sev for sev in params.severity]
+    if params.validity:
+        filters["validity"] = [v.value if hasattr(v, 'value') else v for v in params.validity]
+    if not params.mine:
+        filters["assigned_to_me"] = False
+
+    return filters
+
+
+def _build_suggestion(params: "ListRepoIncidentsParams", incidents_count: int) -> str:
+    """Build a suggestion message based on applied filters and results."""
+    suggestions = []
+
+    # Explain what's being filtered
+    if params.mine:
+        suggestions.append("Filtering to incidents assigned to current user")
+
+    if params.exclude_tags:
+        excluded_tag_names = [tag.name if hasattr(tag, 'name') else tag for tag in params.exclude_tags]
+        suggestions.append(f"Incidents are filtered to exclude tags: {', '.join(excluded_tag_names)}")
+
+    if params.status:
+        status_names = [st.name if hasattr(st, 'name') else st for st in params.status]
+        suggestions.append(f"Filtered by status: {', '.join(status_names)}")
+
+    if params.severity:
+        sev_names = [sev.name if hasattr(sev, 'name') else sev for sev in params.severity]
+        suggestions.append(f"Filtered by severity: {', '.join(sev_names)}")
+
+    if params.validity:
+        val_names = [v.name if hasattr(v, 'name') else v for v in params.validity]
+        suggestions.append(f"Filtered by validity: {', '.join(val_names)}")
+
+    # If no results, suggest how to get more
+    if incidents_count == 0 and suggestions:
+        suggestions.append("No incidents matched the applied filters. Try with mine=False, exclude_tags=[], or different status/severity/validity filters to see all incidents.")
+
+    return "\n".join(suggestions) if suggestions else ""
+
+
 class ListRepoIncidentsParams(BaseModel):
     """Parameters for listing repository incidents."""
     repository_name: str | None = Field(
@@ -43,6 +101,12 @@ class ListRepoIncidentsParams(BaseModel):
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
     )
+    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
+    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+
+    # Filters
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
     )
@@ -56,10 +120,6 @@ class ListRepoIncidentsParams(BaseModel):
         description="Exclude incidents with these tag names."
     )
     status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
-    cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
     mine: bool = Field(
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
@@ -124,16 +184,22 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
             if params.get_all:
                 incidents_result = await client.paginate_all(f"/sources/{params.source_id}/incidents/secrets", api_params)
                 if isinstance(incidents_result, list):
+                    count = len(incidents_result)
                     return {
                         "source_id": params.source_id,
                         "incidents": incidents_result,
-                        "total_count": len(incidents_result),
+                        "total_count": count,
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, count),
                     }
                 elif isinstance(incidents_result, dict):
+                    count = incidents_result.get("total_count", len(incidents_result.get("data", [])))
                     return {
                         "source_id": params.source_id,
                         "incidents": incidents_result.get("data", []),
-                        "total_count": incidents_result.get("total_count", len(incidents_result.get("data", []))),
+                        "total_count": count,
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, count),
                     }
                 else:
                     # Fallback for unexpected types
@@ -142,22 +208,30 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
                         "incidents": [],
                         "total_count": 0,
                         "error": f"Unexpected response type: {type(incidents_result).__name__}",
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, 0),
                     }
             else:
                 incidents_result = await client.list_source_incidents(params.source_id, **api_params)
                 if isinstance(incidents_result, dict):
+                    count = incidents_result.get("total_count", 0)
                     return {
                         "source_id": params.source_id,
                         "incidents": incidents_result.get("data", []),
                         "next_cursor": incidents_result.get("next_cursor"),
-                        "total_count": incidents_result.get("total_count", 0),
+                        "total_count": count,
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, count),
                     }
                 elif isinstance(incidents_result, list):
                     # Handle case where API returns a list directly
+                    count = len(incidents_result)
                     return {
                         "source_id": params.source_id,
                         "incidents": incidents_result,
-                        "total_count": len(incidents_result),
+                        "total_count": count,
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, count),
                     }
                 else:
                     # Fallback for unexpected types
@@ -166,6 +240,8 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
                         "incidents": [],
                         "total_count": 0,
                         "error": f"Unexpected response type: {type(incidents_result).__name__}",
+                        "applied_filters": _build_filter_info(params),
+                        "suggestion": _build_suggestion(params, 0),
                     }
         else:
             # Use repository_name lookup (legacy path)
@@ -182,6 +258,13 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
                 get_all=params.get_all,
                 mine=params.mine,
             )
+
+            # Enrich result with filter info
+            if isinstance(result, dict):
+                count = result.get("total_count", len(result.get("incidents", [])))
+                result["applied_filters"] = _build_filter_info(params)
+                result["suggestion"] = _build_suggestion(params, count)
+
             return result
 
     except Exception as e:
