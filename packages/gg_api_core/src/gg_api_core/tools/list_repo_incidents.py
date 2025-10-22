@@ -3,14 +3,34 @@ import logging
 
 from pydantic import BaseModel, Field
 
+from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, TagNames
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_EXCLUDED_TAGS = ["TEST_FILE", "FALSE_POSITIVE", "CHECK_RUN_SKIP_FALSE_POSITIVE", "CHECK_RUN_SKIP_LOW_RISK", "CHECK_RUN_SKIP_TEST_CRED"]
-DEFAULT_SEVERITIES = ["critical", "high", "medium"]
-DEFAULT_STATUSES = ["TRIGGERED", "ASSIGNED", "RESOLVED"]  # We exclude "IGNORED" ones
-DEFAULT_VALIDITIES = ["valid", "failed_to_check", "no_checker", "unknown"]  # We exclude "invalid" ones
+DEFAULT_EXCLUDED_TAGS = [
+    TagNames.TEST_FILE,
+    TagNames.FALSE_POSITIVE,
+    TagNames.CHECK_RUN_SKIP_FALSE_POSITIVE,
+    TagNames.CHECK_RUN_SKIP_LOW_RISK,
+    TagNames.CHECK_RUN_SKIP_TEST_CRED,
+]
+DEFAULT_SEVERITIES = [
+    IncidentSeverity.CRITICAL,
+    IncidentSeverity.HIGH,
+    IncidentSeverity.MEDIUM,
+]
+DEFAULT_STATUSES = [
+    IncidentStatus.TRIGGERED,
+    IncidentStatus.ASSIGNED,
+    IncidentStatus.RESOLVED,
+]  # We exclude "IGNORED" ones
+DEFAULT_VALIDITIES = [
+    IncidentValidity.VALID,
+    IncidentValidity.FAILED_TO_CHECK,
+    IncidentValidity.NO_CHECKER,
+    IncidentValidity.UNKNOWN,
+]  # We exclude "INVALID" ones
 
 
 class ListRepoIncidentsParams(BaseModel):

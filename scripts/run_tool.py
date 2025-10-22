@@ -6,7 +6,7 @@ from gg_api_core.tools.remediate_secret_incidents import RemediateSecretIncident
 
 async def fetch_repo_occurrences():
     result = await list_repo_occurrences(
-        ListRepoOccurrencesParams(source_id="9036019")
+        ListRepoOccurrencesParams(source_id="9036019", get_all=False, status=None, severity=["critical", "high", "medium", "low", "info", "unknown"])
     )
     print(result)
 
