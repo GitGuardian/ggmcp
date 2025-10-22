@@ -122,6 +122,8 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
                 "repository_info": {"name": params.repository_name},
                 "message": "No secret occurrences found for this repository that match the criteria.",
                 "remediation_steps": [],
+                "applied_filters": occurrences_result.get("applied_filters", {}),
+                "suggestion": occurrences_result.get("suggestion", ""),
             }
 
         # Process occurrences for remediation with exact location data
