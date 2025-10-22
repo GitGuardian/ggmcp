@@ -1,11 +1,66 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from pydantic import ValidationError
 from gg_api_core.tools.remediate_secret_incidents import (
     remediate_secret_incidents,
     _process_occurrences_for_remediation,
     RemediateSecretIncidentsParams,
 )
+
+
+class TestRemediateSecretIncidentsParams:
+    """Tests for RemediateSecretIncidentsParams validation."""
+
+    def test_params_with_repository_name(self):
+        """
+        GIVEN: RemediateSecretIncidentsParams with repository_name provided
+        WHEN: Creating the params
+        THEN: Validation should pass
+        """
+        params = RemediateSecretIncidentsParams(
+            repository_name="GitGuardian/test-repo"
+        )
+        assert params.repository_name == "GitGuardian/test-repo"
+        assert params.source_id is None
+
+    def test_params_with_source_id(self):
+        """
+        GIVEN: RemediateSecretIncidentsParams with source_id provided
+        WHEN: Creating the params
+        THEN: Validation should pass
+        """
+        params = RemediateSecretIncidentsParams(source_id="source_123")
+        assert params.source_id == "source_123"
+        assert params.repository_name is None
+
+    def test_params_with_both_repository_name_and_source_id(self):
+        """
+        GIVEN: RemediateSecretIncidentsParams with both repository_name and source_id provided
+        WHEN: Creating the params
+        THEN: Validation should pass
+        """
+        params = RemediateSecretIncidentsParams(
+            repository_name="GitGuardian/test-repo", source_id="source_123"
+        )
+        assert params.repository_name == "GitGuardian/test-repo"
+        assert params.source_id == "source_123"
+
+    def test_params_with_neither_repository_name_nor_source_id(self):
+        """
+        GIVEN: RemediateSecretIncidentsParams with neither repository_name nor source_id provided
+        WHEN: Creating the params
+        THEN: Validation should fail with ValueError
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            RemediateSecretIncidentsParams()
+
+        # Verify the error message
+        errors = exc_info.value.errors()
+        assert len(errors) == 1
+        assert "Either 'source_id' or 'repository_name' must be provided" in str(
+            errors[0]
+        )
 
 
 class TestRemediateSecretIncidents:

@@ -49,6 +49,48 @@ class IncidentValidity(str, Enum):
     UNKNOWN = "unknown"
 
 
+class TagNames(str, Enum):
+    REGRESSION = "REGRESSION" # Issue is a regression
+    HIST = (
+        "HIST"
+    )  # Occurrence is visible and its Kind is history
+    PUBLICLY_EXPOSED = (
+        "PUBLICLY_EXPOSED"
+    )  # Occurrence is visible and source is a public GitHub
+    TEST_FILE = (
+        "TEST_FILE"
+    )  # Occurrence is visible and one of its insights is `test_file`
+    SENSITIVE_FILE = (
+        "SENSITIVE_FILE"
+    )  # Occurrence is visible and one of its insights is `sensitive_filepath`
+    # DEPRECATED: Replaced by CHECK_RUN_SKIP_FALSE_POSITIVE but still there until we
+    # remove it from the public_api
+    DEPRECATED_IGNORED_IN_CHECK_RUN = (
+        "IGNORED_IN_CHECK_RUN"
+    )  # Occurrence is visible and its GitHub check run a ignored
+    CHECK_RUN_SKIP_FALSE_POSITIVE = (
+        "CHECK_RUN_SKIP_FALSE_POSITIVE"
+    )
+    CHECK_RUN_SKIP_LOW_RISK = (
+        "CHECK_RUN_SKIP_LOW_RISK"
+    )
+    CHECK_RUN_SKIP_TEST_CRED = (
+        "CHECK_RUN_SKIP_TEST_CRED"
+    )
+    DEFAULT_BRANCH = (
+        "DEFAULT_BRANCH"
+    )  # Occurrence is on the default branch of the repository
+    PUBLICLY_LEAKED = (
+        "PUBLICLY_LEAKED"
+    )  # Issue's secret is publicly leaked outside the account perimeter
+    FALSE_POSITIVE = (
+        "FALSE_POSITIVE"
+    )
+    REVOCABLE_BY_GG = (
+        "REVOCABLE_BY_GG"
+    )
+
+
 class GitGuardianClient:
     """Client for interacting with the GitGuardian API."""
 
