@@ -27,7 +27,7 @@ jobs:
       contents: read
     environment:
       name: pypi
-      url: https://pypi.org/project/ggmcp/
+      url: https://test.pypi.org/project/ggmcp/
     concurrency:
       group: publish-pypi-${{ github.ref_name }}
       cancel-in-progress: false
@@ -55,18 +55,19 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
           print-hash: true
 
       - name: Create summary
         run: |
-          echo "## ✅ PyPI Publication Successful" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Test PyPI Publication Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Package published to: https://pypi.org/project/ggmcp/" >> $GITHUB_STEP_SUMMARY
+          echo "Package published to: https://test.pypi.org/project/ggmcp/" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install with:" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "uvx ggmcp" >> $GITHUB_STEP_SUMMARY
+          echo "pip install --index-url https://test.pypi.org/simple/ ggmcp" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   publish-mcp-registry:
