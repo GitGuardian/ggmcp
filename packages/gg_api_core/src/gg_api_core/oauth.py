@@ -14,9 +14,34 @@ from urllib.parse import parse_qs, urlparse
 
 from mcp.client.auth import TokenStorage
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
+from pydantic import BaseModel, Field
 
 # Configure logger
 logger = logging.getLogger(__name__)
+
+
+class APITokenInfo(BaseModel):
+    """Pydantic model representing the /api_tokens/self endpoint response."""
+
+    id: str = Field(description="Unique identifier for the API token")
+    name: str = Field(description="Name of the API token")
+    workspace_id: int = Field(description="ID of the workspace this token belongs to")
+    type: str = Field(description="Type of token (e.g., 'personal_access_token')")
+    status: str = Field(description="Status of the token (e.g., 'active', 'revoked')")
+    created_at: datetime.datetime = Field(description="Timestamp when the token was created")
+    last_used_at: Optional[datetime.datetime] = Field(
+        default=None, description="Timestamp of last usage, or None if never used"
+    )
+    expire_at: Optional[datetime.datetime] = Field(
+        default=None, description="Expiration timestamp, or None if token never expires"
+    )
+    revoked_at: Optional[datetime.datetime] = Field(
+        default=None, description="Timestamp when the token was revoked, or None if active"
+    )
+    member_id: int = Field(description="ID of the member associated with this token")
+    creator_id: int = Field(description="ID of the user who created this token")
+    scopes: list[str] = Field(default_factory=list, description="List of scopes granted to this token")
+
 
 # Port range for callback server
 # Using the same port range as ggshield (29170-29998) to ensure compatibility
@@ -474,14 +499,10 @@ class GitGuardianOAuthClient:
             # Set the access token and related info
             self.access_token = token_data.get("access_token")
             if self.access_token:
-                # Store other token information
-                self.token_info = {
-                    "expires_at": token_data.get("expires_at"),
-                    "scopes": token_data.get("scopes"),
-                    "token_name": token_data.get("token_name"),
-                }
+                # Update token name from saved data if available
                 self.token_name = token_data.get("token_name", self.token_name)
                 logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url}")
+                # Note: self.token_info will be populated when _fetch_token_info() is called
             else:
                 logger.warning(f"Token data found but no access_token field")
         except Exception as e:
@@ -501,13 +522,20 @@ class GitGuardianOAuthClient:
             Exception: If authentication fails
         """
         logger.debug(f"oauth_process() called for token '{self.token_name}'")
-            
+
         # Check if we already have a valid token loaded
-        if self.access_token and self.token_info:
-            logger.info(f"Using existing token '{self.token_name}' - skipping OAuth flow")
-            return self.access_token
-        
-        logger.info(f"No valid token found for '{self.token_name}', starting OAuth authentication flow")
+        if self.access_token:
+            # Try to fetch token info to verify the token is still valid
+            token_info = await self._fetch_token_info()
+            if token_info:
+                self.token_info = token_info
+                logger.info(f"Using existing token '{self.token_name}' - skipping OAuth flow")
+                return self.access_token
+            else:
+                logger.info(f"Saved token for '{self.token_name}' is no longer valid, starting OAuth authentication flow")
+                self.access_token = None
+        else:
+            logger.info(f"No valid token found for '{self.token_name}', starting OAuth authentication flow")
         
         # Handle the base URL correctly
         base_url = self.dashboard_url
@@ -682,7 +710,7 @@ class GitGuardianOAuthClient:
             # Save the token for future reuse
             if self.access_token and self.token_info:
                 # Get expiry date from token info or set based on configured lifetime
-                expires_at = self.token_info.get("expires_at")
+                expires_at = self.token_info.expire_at.isoformat() if self.token_info.expire_at else None
 
                 # If no expiry date was returned from the API but we have a token lifetime
                 if not expires_at and self.token_lifetime is not None:
@@ -708,7 +736,7 @@ class GitGuardianOAuthClient:
                     "access_token": self.access_token,
                     "expires_at": expires_at,
                     "token_name": self.token_name,
-                    "scopes": self.token_info.get("scopes", self.scopes),
+                    "scopes": self.token_info.scopes or self.scopes,
                 }
 
                 # Save to file storage
@@ -722,10 +750,14 @@ class GitGuardianOAuthClient:
             logger.error(f"OAuth authentication failed: {e}")
             raise
 
-    async def _fetch_token_info(self) -> None:
-        """Fetch token information from the GitGuardian API."""
+    async def _fetch_token_info(self) -> APITokenInfo | None:
+        """Fetch token information from the GitGuardian API.
+
+        Returns:
+            APITokenInfo: Pydantic model containing the API token information, or None if failed
+        """
         if not self.access_token:
-            return
+            return None
 
         try:
             import httpx  # Import here to avoid circular imports
@@ -738,16 +770,24 @@ class GitGuardianOAuthClient:
                 )
 
                 if response.status_code == 200:
-                    self.token_info = response.json()
-                    logger.info(f"Retrieved token info with scopes: {self.token_info.get('scopes', [])}")
+                    token_data = response.json()
+                    self.token_info = APITokenInfo(**token_data)
+                    logger.info(f"Retrieved token info with scopes: {self.token_info.scopes}")
+                    return self.token_info
                 else:
                     # Log the error but don't raise an exception
                     logger.warning(f"Failed to retrieve token info: HTTP {response.status_code}")
                     if response.content:
                         logger.debug(f"Response content: {response.text}")
+                    return None
         except Exception as e:
             logger.warning(f"Failed to retrieve token info: {e}")
+            return None
 
-    def get_token_info(self) -> dict | None:
-        """Return the token information."""
+    def get_token_info(self) -> APITokenInfo | None:
+        """Return the token information.
+
+        Returns:
+            APITokenInfo: The API token information, or None if not available
+        """
         return self.token_info
