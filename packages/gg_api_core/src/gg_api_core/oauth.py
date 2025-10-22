@@ -346,7 +346,9 @@ class CallbackServer:
                 continue
 
             try:
-                self.server = HTTPServer(("localhost", port), handler_class)
+                # Bind to 127.0.0.1 explicitly (not "localhost") to avoid IPv4/IPv6 ambiguity
+                # This ensures consistent behavior across different OS and network configurations
+                self.server = HTTPServer(("127.0.0.1", port), handler_class)
                 self.port = port  # Save the successful port
                 break
             except OSError as e:
