@@ -96,8 +96,14 @@ class TestListRepoIncidents:
             )
         )
 
-        # Verify client was called with correct parameters
+        # Verify client was called with correct parameters including with_sources=false
         mock_gitguardian_client.list_source_incidents.assert_called_once()
+        call_args = mock_gitguardian_client.list_source_incidents.call_args
+        # Check positional arg (source_id)
+        assert call_args[0][0] == "source_123"
+        # Check keyword args include with_sources
+        assert "with_sources" in call_args[1]
+        assert call_args[1]["with_sources"] == "false"
 
         # Verify response
         assert "source_id" in result

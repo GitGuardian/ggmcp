@@ -74,7 +74,7 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
         # If source_id is provided, use it directly; otherwise use repository_name lookup
         if params.source_id:
             # Prepare parameters for the API call
-            api_params = {}
+            api_params = {"with_sources": "false"}
             if params.from_date:
                 api_params["from_date"] = params.from_date
             if params.to_date:

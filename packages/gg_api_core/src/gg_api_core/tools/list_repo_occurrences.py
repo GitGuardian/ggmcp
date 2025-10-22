@@ -98,6 +98,7 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
                 status=params.status,
                 severity=params.severity,
                 validity=params.validity,
+                with_sources=False,
             )
         else:
             # Use source_name (legacy path)
@@ -117,6 +118,7 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
                 status=params.status,
                 severity=params.severity,
                 validity=params.validity,
+                with_sources=False,
             )
 
         # Handle the response format

@@ -14,7 +14,7 @@ class TestListRepoOccurrences:
         """
         GIVEN: A repository name
         WHEN: Listing occurrences for the repository
-        THEN: The API returns occurrences with exact match locations
+        THEN: The API returns occurrences with exact match locations and with_sources=False
         """
         # Mock the client response
         mock_response = {
@@ -57,11 +57,12 @@ class TestListRepoOccurrences:
             )
         )
 
-        # Verify client was called
+        # Verify client was called with with_sources=False
         mock_gitguardian_client.list_occurrences.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
         assert call_kwargs["source_name"] == "GitGuardian/test-repo"
         assert call_kwargs["source_type"] == "github"
+        assert call_kwargs["with_sources"] is False
 
         # Verify response
         assert result["repository"] == "GitGuardian/test-repo"
@@ -73,7 +74,7 @@ class TestListRepoOccurrences:
         """
         GIVEN: A GitGuardian source ID
         WHEN: Listing occurrences for the source
-        THEN: The API returns occurrences for that source
+        THEN: The API returns occurrences for that source with with_sources=False
         """
         # Mock the client response
         mock_response = {
@@ -94,10 +95,11 @@ class TestListRepoOccurrences:
             ListRepoOccurrencesParams(source_id="source_123")
         )
 
-        # Verify client was called with source_id
+        # Verify client was called with source_id and with_sources=False
         mock_gitguardian_client.list_occurrences.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
         assert call_kwargs["source_id"] == "source_123"
+        assert call_kwargs["with_sources"] is False
 
         # Verify response
         assert result["occurrences_count"] == 1
