@@ -1,8 +1,9 @@
 from typing import Any
 import logging
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
+from gg_api_core.client import TagNames
 from gg_api_core.utils import get_client
 from .list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 from .list_repo_incidents import list_repo_incidents
@@ -13,7 +14,12 @@ logger = logging.getLogger(__name__)
 class RemediateSecretIncidentsParams(BaseModel):
     """Parameters for remediating secret incidents."""
     repository_name: str = Field(
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided."
+        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided.",
+        default = None
+    )
+    source_id: str = Field(
+        description="The source ID of the repository. Pass the current repository source ID if not provided.",
+        default=None
     )
     include_git_commands: bool = Field(
         default=True, description="Whether to include git commands to fix incidents in git history"
@@ -23,9 +29,20 @@ class RemediateSecretIncidentsParams(BaseModel):
     )
     get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page")
     mine: bool = Field(
-        default=True,
+        default=False,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     )
+    tags: list[str] = Field(
+        default=[TagNames.DEFAULT_BRANCH.value],
+        description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
+    )
+
+    @model_validator(mode="after")
+    def validate_source_or_repository(self) -> "RemediateSecretIncidentsParams":
+        """Validate that either source_id or repository_name is provided."""
+        if not self.source_id and not self.repository_name:
+            raise ValueError("Either 'source_id' or 'repository_name' must be provided")
+        return self
 
 
 async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> dict[str, Any]:
@@ -71,7 +88,9 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
         # Get detailed occurrences with exact match locations
         occurrences_params = ListRepoOccurrencesParams(
             repository_name=params.repository_name,
+            source_id=params.source_id,
             get_all=params.get_all,
+            tags=params.tags,
         )
         occurrences_result = await list_repo_occurrences(occurrences_params)
 
