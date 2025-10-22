@@ -1290,6 +1290,7 @@ class GitGuardianClient:
         severity: list[str] | None = None,
         validity: list[str] | None = None,
         status: list[str] | None = None,
+        with_sources: bool | None = None,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
@@ -1309,6 +1310,7 @@ class GitGuardianClient:
             severity: Filter by severity (list of severity names)
             validity: Filter by validity (list of validity names)
             status: Filter by status (list of status names)
+            with_sources: Whether to include source details in the response
 
         Returns:
             List of occurrences matching the criteria or an empty dict/list if no results
@@ -1345,6 +1347,8 @@ class GitGuardianClient:
             params["validity"] = ",".join(validity)
         if status:
             params["status"] = ",".join(status)
+        if with_sources is not None:
+            params["with_sources"] = str(with_sources).lower()
 
         # If get_all is True, use paginate_all to get all results
         if get_all:
