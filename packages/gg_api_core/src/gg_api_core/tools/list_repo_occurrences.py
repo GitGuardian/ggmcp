@@ -74,6 +74,22 @@ class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesB
     pass
 
 
+class ListRepoOccurrencesResult(BaseModel):
+    """Result from listing repository occurrences."""
+    repository: str | None = Field(default=None, description="Repository name")
+    occurrences_count: int = Field(description="Number of occurrences returned")
+    occurrences: list[dict[str, Any]] = Field(default_factory=list, description="List of occurrence objects")
+    cursor: str | None = Field(default=None, description="Pagination cursor for next page")
+    has_more: bool = Field(default=False, description="Whether more results are available")
+    applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
+    suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
+
+
+class ListRepoOccurrencesError(BaseModel):
+    """Error result from listing repository occurrences."""
+    error: str = Field(description="Error message")
+
+
 def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     """Build a dictionary describing the filters applied to the query."""
     filters = {}
@@ -127,7 +143,7 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
     return "\n".join(suggestions) if suggestions else ""
 
 
-async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, Any]:
+async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
 
@@ -159,7 +175,7 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
 
     # Validate that at least one of repository_name or source_id is provided
     if not params.repository_name and not params.source_id:
-        return {"error": "Either repository_name or source_id must be provided"}
+        return ListRepoOccurrencesError(error="Either repository_name or source_id must be provided")
 
     logger.debug(f"Listing occurrences with repository_name={params.repository_name}, source_id={params.source_id}")
 
@@ -208,34 +224,34 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> dict[str, 
         if isinstance(result, dict):
             occurrences = result.get("occurrences", [])
             count = len(occurrences)
-            return {
-                "repository": params.repository_name,
-                "occurrences_count": count,
-                "occurrences": occurrences,
-                "cursor": result.get("cursor"),
-                "has_more": result.get("has_more", False),
-                "applied_filters": _build_filter_info(params),
-                "suggestion": _build_suggestion(params, count),
-            }
+            return ListRepoOccurrencesResult(
+                repository=params.repository_name,
+                occurrences_count=count,
+                occurrences=occurrences,
+                cursor=result.get("cursor"),
+                has_more=result.get("has_more", False),
+                applied_filters=_build_filter_info(params),
+                suggestion=_build_suggestion(params, count),
+            )
         elif isinstance(result, list):
             # If get_all=True, we get a list directly
             count = len(result)
-            return {
-                "repository": params.repository_name,
-                "occurrences_count": count,
-                "occurrences": result,
-                "applied_filters": _build_filter_info(params),
-                "suggestion": _build_suggestion(params, count),
-            }
+            return ListRepoOccurrencesResult(
+                repository=params.repository_name,
+                occurrences_count=count,
+                occurrences=result,
+                applied_filters=_build_filter_info(params),
+                suggestion=_build_suggestion(params, count),
+            )
         else:
-            return {
-                "repository": params.repository_name,
-                "occurrences_count": 0,
-                "occurrences": [],
-                "applied_filters": _build_filter_info(params),
-                "suggestion": _build_suggestion(params, 0),
-            }
+            return ListRepoOccurrencesResult(
+                repository=params.repository_name,
+                occurrences_count=0,
+                occurrences=[],
+                applied_filters=_build_filter_info(params),
+                suggestion=_build_suggestion(params, 0),
+            )
 
     except Exception as e:
         logger.error(f"Error listing repository occurrences: {str(e)}")
-        return {"error": f"Failed to list repository occurrences: {str(e)}"}
+        return ListRepoOccurrencesError(error=f"Failed to list repository occurrences: {str(e)}")

@@ -56,7 +56,25 @@ class RemediateSecretIncidentsParams(RemediateOccurrencesFilters):
         return self
 
 
-async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> dict[str, Any]:
+class RemediateSecretIncidentsResult(BaseModel):
+    """Result from remediating secret incidents."""
+    repository_info: dict[str, Any] = Field(description="Information about the repository")
+    summary: dict[str, Any] | None = Field(default=None, description="Summary of occurrences, files, and secret types")
+    remediation_steps: list[dict[str, Any]] = Field(default_factory=list, description="Steps for remediating each file")
+    message: str | None = Field(default=None, description="Message when no occurrences found")
+    env_example_content: str | None = Field(default=None, description="Suggested .env.example content")
+    env_example_instructions: list[str] | None = Field(default=None, description="Instructions for .env.example")
+    git_commands: dict[str, Any] | None = Field(default=None, description="Git commands to fix history")
+    applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters applied when querying occurrences")
+    suggestion: str = Field(default="", description="Suggestions for interpreting results")
+
+
+class RemediateSecretIncidentsError(BaseModel):
+    """Error result from remediating secret incidents."""
+    error: str = Field(description="Error message")
+
+
+async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
     """
     Find and remediate secret incidents in the current repository using EXACT match locations.
 
@@ -108,10 +126,17 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
         )
         occurrences_result = await list_repo_occurrences(occurrences_params)
 
-        if "error" in occurrences_result:
-            return {"error": occurrences_result["error"]}
+        # Check if list_repo_occurrences returned an error
+        if isinstance(occurrences_result, dict) and "error" in occurrences_result:
+            return RemediateSecretIncidentsError(error=occurrences_result["error"])
 
-        occurrences = occurrences_result.get("occurrences", [])
+        # Since list_repo_occurrences now returns Pydantic models, handle both old dict and new model formats
+        if hasattr(occurrences_result, 'model_dump'):
+            occurrences_dict = occurrences_result.model_dump()
+        else:
+            occurrences_dict = occurrences_result
+
+        occurrences = occurrences_dict.get("occurrences", [])
 
         # Filter by assignee if mine=True
         if params.mine:
@@ -132,13 +157,13 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
                 logger.warning(f"Could not filter by assignee: {str(e)}")
 
         if not occurrences:
-            return {
-                "repository_info": {"name": params.repository_name},
-                "message": "No secret occurrences found for this repository that match the criteria.",
-                "remediation_steps": [],
-                "applied_filters": occurrences_result.get("applied_filters", {}),
-                "suggestion": occurrences_result.get("suggestion", ""),
-            }
+            return RemediateSecretIncidentsResult(
+                repository_info={"name": params.repository_name},
+                message="No secret occurrences found for this repository that match the criteria.",
+                remediation_steps=[],
+                applied_filters=occurrences_dict.get("applied_filters", {}),
+                suggestion=occurrences_dict.get("suggestion", ""),
+            )
 
         # Process occurrences for remediation with exact location data
         logger.debug(f"Processing {len(occurrences)} occurrences with exact locations for remediation")
@@ -151,11 +176,12 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
         logger.debug(
             f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
         )
-        return result
+        # Convert dict result to Pydantic model
+        return RemediateSecretIncidentsResult(**result)
 
     except Exception as e:
         logger.error(f"Error remediating incidents: {str(e)}")
-        return {"error": f"Failed to remediate incidents: {str(e)}"}
+        return RemediateSecretIncidentsError(error=f"Failed to remediate incidents: {str(e)}")
 
 
 async def _process_occurrences_for_remediation(

@@ -128,7 +128,22 @@ class ListRepoIncidentsParams(BaseModel):
     validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)")
 
 
-async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]:
+class ListRepoIncidentsResult(BaseModel):
+    """Result from listing repository incidents."""
+    source_id: str | None = Field(default=None, description="Source ID of the repository")
+    incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of incident objects")
+    total_count: int = Field(description="Total number of incidents")
+    next_cursor: str | None = Field(default=None, description="Pagination cursor for next page")
+    applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
+    suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
+
+
+class ListRepoIncidentsError(BaseModel):
+    """Error result from listing repository incidents."""
+    error: str = Field(description="Error message")
+
+
+async def list_repo_incidents(params: ListRepoIncidentsParams) -> ListRepoIncidentsResult | ListRepoIncidentsError:
     """
     List secret incidents or occurrences related to a specific repository.
 
@@ -145,7 +160,7 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
 
     # Validate that at least one of repository_name or source_id is provided
     if not params.repository_name and not params.source_id:
-        return {"error": "Either repository_name or source_id must be provided"}
+        return ListRepoIncidentsError(error="Either repository_name or source_id must be provided")
 
     logger.debug(f"Listing incidents with repository_name={params.repository_name}, source_id={params.source_id}")
 
@@ -185,64 +200,54 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
                 incidents_result = await client.paginate_all(f"/sources/{params.source_id}/incidents/secrets", api_params)
                 if isinstance(incidents_result, list):
                     count = len(incidents_result)
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": incidents_result,
-                        "total_count": count,
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, count),
-                    }
+                    return ListRepoIncidentsResult(
+                        source_id=params.source_id,
+                        incidents=incidents_result,
+                        total_count=count,
+                        applied_filters=_build_filter_info(params),
+                        suggestion=_build_suggestion(params, count),
+                    )
                 elif isinstance(incidents_result, dict):
                     count = incidents_result.get("total_count", len(incidents_result.get("data", [])))
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": incidents_result.get("data", []),
-                        "total_count": count,
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, count),
-                    }
+                    return ListRepoIncidentsResult(
+                        source_id=params.source_id,
+                        incidents=incidents_result.get("data", []),
+                        total_count=count,
+                        applied_filters=_build_filter_info(params),
+                        suggestion=_build_suggestion(params, count),
+                    )
                 else:
                     # Fallback for unexpected types
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": [],
-                        "total_count": 0,
-                        "error": f"Unexpected response type: {type(incidents_result).__name__}",
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, 0),
-                    }
+                    return ListRepoIncidentsError(
+                        error=f"Unexpected response type: {type(incidents_result).__name__}",
+                    )
             else:
                 incidents_result = await client.list_source_incidents(params.source_id, **api_params)
                 if isinstance(incidents_result, dict):
                     count = incidents_result.get("total_count", 0)
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": incidents_result.get("data", []),
-                        "next_cursor": incidents_result.get("next_cursor"),
-                        "total_count": count,
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, count),
-                    }
+                    return ListRepoIncidentsResult(
+                        source_id=params.source_id,
+                        incidents=incidents_result.get("data", []),
+                        next_cursor=incidents_result.get("next_cursor"),
+                        total_count=count,
+                        applied_filters=_build_filter_info(params),
+                        suggestion=_build_suggestion(params, count),
+                    )
                 elif isinstance(incidents_result, list):
                     # Handle case where API returns a list directly
                     count = len(incidents_result)
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": incidents_result,
-                        "total_count": count,
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, count),
-                    }
+                    return ListRepoIncidentsResult(
+                        source_id=params.source_id,
+                        incidents=incidents_result,
+                        total_count=count,
+                        applied_filters=_build_filter_info(params),
+                        suggestion=_build_suggestion(params, count),
+                    )
                 else:
                     # Fallback for unexpected types
-                    return {
-                        "source_id": params.source_id,
-                        "incidents": [],
-                        "total_count": 0,
-                        "error": f"Unexpected response type: {type(incidents_result).__name__}",
-                        "applied_filters": _build_filter_info(params),
-                        "suggestion": _build_suggestion(params, 0),
-                    }
+                    return ListRepoIncidentsError(
+                        error=f"Unexpected response type: {type(incidents_result).__name__}",
+                    )
         else:
             # Use repository_name lookup (legacy path)
             result = await client.list_repo_incidents_directly(
@@ -259,14 +264,20 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> dict[str, Any]
                 mine=params.mine,
             )
 
-            # Enrich result with filter info
+            # Enrich result with filter info and convert to Pydantic model
             if isinstance(result, dict):
                 count = result.get("total_count", len(result.get("incidents", [])))
-                result["applied_filters"] = _build_filter_info(params)
-                result["suggestion"] = _build_suggestion(params, count)
-
-            return result
+                return ListRepoIncidentsResult(
+                    source_id=result.get("source_id"),
+                    incidents=result.get("incidents", []),
+                    total_count=count,
+                    next_cursor=result.get("next_cursor"),
+                    applied_filters=_build_filter_info(params),
+                    suggestion=_build_suggestion(params, count),
+                )
+            else:
+                return ListRepoIncidentsError(error="Unexpected result format from legacy path")
 
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")
-        return {"error": f"Failed to list repository incidents: {str(e)}"}
+        return ListRepoIncidentsError(error=f"Failed to list repository incidents: {str(e)}")
