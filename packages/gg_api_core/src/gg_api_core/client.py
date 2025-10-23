@@ -9,6 +9,8 @@ from urllib.parse import quote_plus, unquote
 
 import httpx
 
+from gg_api_core.scopes import DEVELOPER_SCOPES
+
 # Setup logger
 logger = logging.getLogger(__name__)
 
@@ -214,9 +216,9 @@ class GitGuardianClient:
 
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
-            from .scopes import DEFAULT_SCOPES, validate_scopes
+            from .scopes import DEVELOPER_SCOPES, validate_scopes
 
-            default_scopes = ",".join(DEFAULT_SCOPES)
+            default_scopes = ",".join(DEVELOPER_SCOPES)
             # Check for both GITGUARDIAN_SCOPES and GITGUARDIAN_REQUESTED_SCOPES for backward compatibility
             scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
                 "GITGUARDIAN_REQUESTED_SCOPES", default_scopes

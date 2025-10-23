@@ -5,19 +5,23 @@ from urllib.parse import urlparse
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
-DEFAULT_SCOPES = [
+MINIMAL_SCOPES = [
     "scan",  # Core scanning functionality
     "incidents:read",  # Read incidents
     "sources:read",  # Read source repositories
 ]
 
+HONEYTOKEN_SCOPES = [
+    "honeytokens:read",
+    "honeytokens:write",
+]
+
 ALL_SCOPES = [
-    *DEFAULT_SCOPES,
+    *MINIMAL_SCOPES,
+    *HONEYTOKEN_SCOPES,
     "incidents:write",
     "incidents:share",
     "audit_logs:read",
-    "honeytokens:read",
-    "honeytokens:write",
     "api_tokens:write",
     "api_tokens:read",
     "ip_allowlist:read",
@@ -37,14 +41,7 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     Returns:
         list[str]: List of appropriate scopes
     """
-    # Core scopes that are most likely to be available on all instances
-    base_scopes = [
-        "scan",                # Core scanning functionality
-        "incidents:read",      # Basic incident access
-        "sources:read",        # Basic source repository access
-    ]
-    
-    return base_scopes
+    return get_secops_scopes(gitguardian_url=gitguardian_url)
 
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     """
@@ -59,14 +56,13 @@ def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     if not is_self_hosted_instance(gitguardian_url):
         # For SaaS, request comprehensive SecOps scopes
         return [
-            *DEFAULT_SCOPES,
-            "honeytokens:read",    # Read honeytokens
-            "honeytokens:write",   # Manage honeytokens
+            *MINIMAL_SCOPES,
+            *HONEYTOKEN_SCOPES,
         ]
     else:
         # For self-hosted, use conservative scopes that are most likely available
         # Avoid honeytokens as it may not be activated
-        return DEFAULT_SCOPES
+        return MINIMAL_SCOPES
 
 def validate_scopes(scopes_str: str) -> list[str]:
     """
