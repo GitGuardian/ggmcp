@@ -9,8 +9,10 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 from urllib.parse import parse_qs, urlparse
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from mcp.client.auth import TokenStorage
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
@@ -31,8 +33,83 @@ DEFAULT_TOKEN_EXPIRY_DAYS = 30
 _oauth_client_counter = 0
 
 
+class StoredOAuthToken(BaseModel):
+    """Pydantic model representing a single stored OAuth token.
+
+    This model describes the format of token data stored in FileTokenStorage
+    for a specific account.
+
+    Attributes:
+        access_token: The OAuth access token string used for API authentication.
+        expires_at: ISO format datetime string indicating when the token expires.
+                   Examples: "2025-10-28T11:15:58.656719+00:00"
+                   Can be None if token never expires.
+        token_name: Human-readable name for the token (e.g., "SecOps MCP Token").
+        scopes: List of OAuth scopes granted to this token
+               (e.g., ["scan", "incidents:read", "honeytokens:read"]).
+        account_id: The GitGuardian account ID this token belongs to.
+                   Can be an integer or "unknown" for legacy tokens.
+    """
+
+    access_token: str = Field(..., description="OAuth access token for API authentication")
+    expires_at: Optional[str] = Field(None, description="ISO format expiration datetime or None if never expires")
+    token_name: str = Field(..., description="Human-readable name for the token")
+    scopes: list[str] = Field(default_factory=list, description="List of OAuth scopes for this token")
+    account_id: Optional[str | int] = Field(None, description="GitGuardian account ID (int) or 'unknown'")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "access_token": "ghp_1234567890abcdef",
+                "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                "token_name": "SecOps MCP Token",
+                "scopes": ["scan", "incidents:read", "honeytokens:read"],
+                "account_id": 123,
+            }
+        }
+    )
+
+
 class FileTokenStorage:
-    """File-based storage for OAuth tokens to enable token reuse."""
+    """File-based storage for OAuth tokens to enable token reuse with multi-account support.
+
+    Token Storage Structure:
+        The token file stores tokens nested by instance URL and account ID:
+        {
+            "instance_url": {
+                "account_id": StoredOAuthToken
+            }
+        }
+
+        Example:
+        {
+            "https://dashboard.gitguardian.com": {
+                "123": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Production Account",
+                    "scopes": ["scan", "incidents:read"],
+                    "account_id": 123
+                },
+                "456": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Staging Account",
+                    "scopes": ["scan"],
+                    "account_id": 456
+                }
+            },
+            "https://self-hosted.example.com": {
+                "789": {
+                    "access_token": "...",
+                    "expires_at": "2025-10-28T11:15:58.656719+00:00",
+                    "token_name": "Self-Hosted",
+                    "scopes": ["scan", "incidents:read"],
+                    "account_id": 789
+                }
+            }
+        }
+    """
 
     def __init__(self, token_file=None):
         """Initialize the token storage.
@@ -74,36 +151,195 @@ class FileTokenStorage:
         try:
             if self.token_file.exists():
                 with open(self.token_file, "r") as f:
-                    return json.load(f)
+                    tokens = json.load(f)
+                    # Migrate old format to new format if needed
+                    return self._migrate_token_format(tokens)
         except Exception as e:
             logger.warning(f"Failed to load tokens from {self.token_file}: {e}")
         return {}
 
-    def save_token(self, instance_url, token_data):
-        """Save a token for a specific instance URL."""
+    def _migrate_token_format(self, tokens):
+        """Migrate old token format to new multi-account format.
+
+        Old format:
+        {
+          "https://dashboard.gitguardian.com": {
+            "access_token": "...",
+            "expires_at": "...",
+            ...
+          }
+        }
+
+        New format:
+        {
+          "https://dashboard.gitguardian.com": {
+            "account_123": {
+              "access_token": "...",
+              "expires_at": "...",
+              "account_id": 123,
+              ...
+            }
+          }
+        }
+        """
+        migrated = {}
+        needs_migration = False
+
+        for instance_url, data in tokens.items():
+            # Check if this is old format (has access_token directly)
+            if isinstance(data, dict) and "access_token" in data:
+                # Old format - migrate to new format
+                needs_migration = True
+                account_id = data.get("account_id", "unknown")
+                migrated[instance_url] = {
+                    str(account_id): data
+                }
+                logger.info(f"Migrated token for {instance_url} to new multi-account format")
+            elif isinstance(data, dict):
+                # New format or nested structure - check if it's already properly nested
+                # If all values are dicts with access_token, it's already new format
+                is_new_format = all(
+                    isinstance(v, dict) and "access_token" in v
+                    for v in data.values()
+                    if isinstance(v, dict)
+                )
+                if is_new_format:
+                    migrated[instance_url] = data
+                else:
+                    # Ambiguous format, treat as old format for safety
+                    needs_migration = True
+                    account_id = data.get("account_id", "unknown")
+                    migrated[instance_url] = {
+                        str(account_id): data
+                    }
+            else:
+                # Unknown format, keep as is
+                migrated[instance_url] = data
+
+        # Save migrated format back to file if migration occurred
+        if needs_migration:
+            try:
+                with open(self.token_file, "w") as f:
+                    json.dump(migrated, f, indent=2)
+                self.token_file.chmod(0o600)
+                logger.info(f"Saved migrated token format to {self.token_file}")
+            except Exception as e:
+                logger.warning(f"Failed to save migrated tokens: {e}")
+
+        return migrated
+
+    def save_token(self, instance_url, account_id, token_data):
+        """Save a token for a specific instance URL and account.
+
+        The token_data will be validated against the StoredOAuthToken model.
+
+        Args:
+            instance_url: The dashboard URL (e.g., https://dashboard.gitguardian.com)
+            account_id: The account ID from the OAuth token response
+            token_data: Token data dict including access_token, expires_at, token_name, scopes, account_id.
+                       Will be validated against StoredOAuthToken model.
+
+        Raises:
+            ValueError: If token_data doesn't match StoredOAuthToken model schema
+        """
+        # Validate token data against Pydantic model
+        try:
+            StoredOAuthToken.model_validate(token_data)
+        except Exception as e:
+            logger.warning(f"Token data validation warning (non-blocking): {e}")
+            # Log warning but don't fail - this maintains backward compatibility
+
         tokens = self.load_tokens()
 
-        # Use the instance URL as the key
-        tokens[instance_url] = token_data
+        # Ensure instance_url exists in tokens
+        if instance_url not in tokens:
+            tokens[instance_url] = {}
+
+        # Ensure the instance_url entry is a dict (for migrated formats)
+        if not isinstance(tokens[instance_url], dict):
+            tokens[instance_url] = {}
+
+        # Store token nested by account_id
+        tokens[instance_url][str(account_id)] = token_data
 
         try:
             with open(self.token_file, "w") as f:
                 json.dump(tokens, f, indent=2)
             # Set file permissions to user-only read/write
             self.token_file.chmod(0o600)
-            logger.info(f"Saved token for {instance_url} to {self.token_file}")
+            logger.info(f"Saved token for {instance_url} (account {account_id}) to {self.token_file}")
         except Exception as e:
             logger.warning(f"Failed to save token to {self.token_file}: {e}")
 
-    def get_token(self, instance_url):
-        """Get a token for a specific instance URL if it exists and is not expired."""
+    def validate_token_data(self, token_data: dict) -> tuple[bool, str]:
+        """Validate token data against StoredOAuthToken model.
+
+        Args:
+            token_data: Token data dictionary to validate
+
+        Returns:
+            Tuple of (is_valid, error_message). error_message is empty string if valid.
+        """
+        try:
+            StoredOAuthToken.model_validate(token_data)
+            return True, ""
+        except Exception as e:
+            return False, str(e)
+
+    def get_schema(self) -> dict:
+        """Get the JSON schema for StoredOAuthToken.
+
+        Returns:
+            Dict containing the Pydantic JSON schema for token validation
+        """
+        return StoredOAuthToken.model_json_schema()
+
+    def get_token(self, instance_url, account_id=None):
+        """Get a token for a specific instance URL and account if it exists and is not expired.
+
+        Args:
+            instance_url: The dashboard URL
+            account_id: Optional account ID. If None, uses GITGUARDIAN_ACCOUNT_ID env var,
+                       or returns the first available valid token
+
+        Returns:
+            Tuple of (access_token, full_token_data) or (None, None) if not found
+        """
         tokens = self.load_tokens()
-        token_data = tokens.get(instance_url)
+        instance_tokens = tokens.get(instance_url)
 
-        if not token_data:
-            return None
+        if not instance_tokens:
+            return None, None
 
-        # Check if token is expired
+        # Determine which account to use
+        if account_id is None:
+            # Check environment variable
+            account_id = os.environ.get("GITGUARDIAN_ACCOUNT_ID")
+
+        if account_id:
+            # Try to get token for specific account
+            token_data = instance_tokens.get(str(account_id))
+            if token_data:
+                # Check if token is expired
+                if self._is_token_valid(token_data, instance_url, account_id):
+                    return token_data.get("access_token"), token_data
+                else:
+                    return None, None
+            else:
+                logger.warning(f"No token found for account {account_id} at {instance_url}")
+                return None, None
+        else:
+            # No specific account requested, return first valid token
+            for acc_id, token_data in instance_tokens.items():
+                if self._is_token_valid(token_data, instance_url, acc_id):
+                    logger.info(f"Using token for account {acc_id} at {instance_url}")
+                    return token_data.get("access_token"), token_data
+
+            logger.info(f"No valid tokens found for {instance_url}")
+            return None, None
+
+    def _is_token_valid(self, token_data, instance_url, account_id):
+        """Check if a token is valid (not expired)."""
         expires_at = token_data.get("expires_at")
         if expires_at:
             # Parse ISO format date
@@ -111,13 +347,62 @@ class FileTokenStorage:
                 expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
                 now = datetime.datetime.now(datetime.timezone.utc)
                 if now >= expiry_date:
-                    logger.info(f"Token for {instance_url} has expired")
-                    return None
+                    logger.debug(f"Token for {instance_url} (account {account_id}) has expired")
+                    return False
             except Exception as e:
                 logger.warning(f"Failed to parse expiry date: {e}")
                 # If we can't parse the date, assume it's still valid
 
-        return token_data.get("access_token")
+        return True
+
+    def list_accounts(self, instance_url):
+        """List all accounts with tokens for a specific instance URL.
+
+        Args:
+            instance_url: The dashboard URL
+
+        Returns:
+            List of dicts with account information
+        """
+        tokens = self.load_tokens()
+        instance_tokens = tokens.get(instance_url, {})
+
+        accounts = []
+        for account_id, token_data in instance_tokens.items():
+            is_valid = self._is_token_valid(token_data, instance_url, account_id)
+            accounts.append({
+                "account_id": account_id,
+                "token_name": token_data.get("token_name"),
+                "expires_at": token_data.get("expires_at"),
+                "scopes": token_data.get("scopes", []),
+                "is_valid": is_valid,
+            })
+
+        return accounts
+
+    def delete_token(self, instance_url, account_id):
+        """Delete a token for a specific instance URL and account.
+
+        Args:
+            instance_url: The dashboard URL
+            account_id: The account ID
+        """
+        tokens = self.load_tokens()
+
+        if instance_url in tokens and str(account_id) in tokens[instance_url]:
+            del tokens[instance_url][str(account_id)]
+
+            # Clean up empty instance entries
+            if not tokens[instance_url]:
+                del tokens[instance_url]
+
+            try:
+                with open(self.token_file, "w") as f:
+                    json.dump(tokens, f, indent=2)
+                self.token_file.chmod(0o600)
+                logger.info(f"Deleted token for {instance_url} (account {account_id})")
+            except Exception as e:
+                logger.warning(f"Failed to delete token: {e}")
 
 
 class InMemoryTokenStorage(TokenStorage):
@@ -418,6 +703,7 @@ class GitGuardianOAuthClient:
         self.oauth_provider = None
         self.access_token = None
         self.token_info = None
+        self._account_id = None  # Will be populated from OAuth response
 
         # Use provided token name or use the default "MCP server token"
         self.token_name = token_name
@@ -450,40 +736,25 @@ class GitGuardianOAuthClient:
         """Try to load a saved token from file storage."""
         logger.debug(f"Attempting to load saved token for {self.dashboard_url}")
         try:
-            # Load tokens from storage
-            tokens = self.file_token_storage.load_tokens()
-            token_data = tokens.get(self.dashboard_url)
+            # Use the new get_token method which handles account selection
+            access_token, token_data = self.file_token_storage.get_token(self.dashboard_url)
 
-            if not token_data:
+            if not access_token or not token_data:
                 logger.debug(f"No saved token found for {self.dashboard_url}")
                 return
 
-            # Check if token is expired
-            expires_at = token_data.get("expires_at")
-            if expires_at:
-                try:
-                    # Parse ISO format date
-                    expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
-                    now = datetime.datetime.now(datetime.timezone.utc)
-                    if now >= expiry_date:
-                        logger.debug(f"Token for {self.dashboard_url} has expired")
-                        return
-                except Exception as e:
-                    logger.warning(f"Failed to parse expiry date '{expires_at}': {e}")
-
             # Set the access token and related info
-            self.access_token = token_data.get("access_token")
-            if self.access_token:
-                # Store other token information
-                self.token_info = {
-                    "expires_at": token_data.get("expires_at"),
-                    "scopes": token_data.get("scopes"),
-                    "token_name": token_data.get("token_name"),
-                }
-                self.token_name = token_data.get("token_name", self.token_name)
-                logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url}")
-            else:
-                logger.warning(f"Token data found but no access_token field")
+            self.access_token = access_token
+            self._account_id = token_data.get("account_id", "unknown")
+            self.token_info = {
+                "expires_at": token_data.get("expires_at"),
+                "scopes": token_data.get("scopes"),
+                "token_name": token_data.get("token_name"),
+                "account_id": self._account_id,
+            }
+            self.token_name = token_data.get("token_name", self.token_name)
+
+            logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url} (account {self._account_id})")
         except Exception as e:
             logger.warning(f"Failed to load saved token: {e}")
             # Continue without a saved token
@@ -665,11 +936,23 @@ class GitGuardianOAuthClient:
                 response = await client.post(token_url, data=token_params, headers=headers)
 
                 if response.status_code == 200:
-                    token_data = response.json()
-                    self.access_token = token_data.get("access_token") or token_data.get("key")
+                    oauth_token_response = response.json()
+                    self.access_token = oauth_token_response.get("access_token") or oauth_token_response.get("key")
                     if not self.access_token:
-                        logger.error(f"No access token in response: {token_data}")
+                        logger.error(f"No access token in response: {oauth_token_response}")
                         raise Exception("No access token in response")
+
+                    # Extract account_id from OAuth token response
+                    # According to GGShieldPublicAPITokenCreateOutputSerializer schema
+                    account_id = oauth_token_response.get("account_id")
+                    if account_id:
+                        logger.info(f"Received token for account {account_id}")
+                    else:
+                        logger.warning("No account_id in OAuth token response, using 'unknown'")
+                        account_id = "unknown"
+
+                    # Store account_id for later use
+                    self._account_id = account_id
                 else:
                     logger.error(f"Failed to get token: {response.status_code} {response.text}")
                     raise Exception(f"Failed to get token: {response.status_code}")
@@ -704,16 +987,17 @@ class GitGuardianOAuthClient:
                     expires_at = expiry_date.isoformat()
 
                 # Prepare token data for storage
-                token_data = {
+                token_storage_data = {
                     "access_token": self.access_token,
                     "expires_at": expires_at,
                     "token_name": self.token_name,
                     "scopes": self.token_info.get("scopes", self.scopes),
+                    "account_id": self._account_id,
                 }
 
-                # Save to file storage
-                self.file_token_storage.save_token(self.dashboard_url, token_data)
-                logger.info(f"Saved token '{self.token_name}' for future use")
+                # Save to file storage with account_id
+                self.file_token_storage.save_token(self.dashboard_url, self._account_id, token_storage_data)
+                logger.info(f"Saved token '{self.token_name}' for account {self._account_id}")
                 return self.access_token
             else:
                 raise Exception("Failed to obtain access token during OAuth flow")
