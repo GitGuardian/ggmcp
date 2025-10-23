@@ -25,15 +25,26 @@ class ListHoneytokensParams(BaseModel):
     mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
 
 
-async def list_honeytokens(params: ListHoneytokensParams) -> list[dict[str, Any]]:
+class ListHoneytokensResult(BaseModel):
+    """Result from listing honeytokens."""
+    honeytokens: list[dict[str, Any]] = Field(description="List of honeytoken objects")
+
+
+async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
+
+    If mine=True, filters honeytokens to show only those created by the current user.
 
     Args:
         params: ListHoneytokensParams model containing all filtering options
 
     Returns:
-        List of honeytokens matching the specified criteria
+        ListHoneytokensResult: Pydantic model containing:
+            - honeytokens: List of honeytoken objects matching the specified criteria
+
+    Raises:
+        ToolError: If the listing operation fails
     """
     client = get_client()
     logger.debug("Listing honeytokens with filters")
@@ -79,7 +90,7 @@ async def list_honeytokens(params: ListHoneytokensParams) -> list[dict[str, Any]
             honeytokens = result
 
         logger.debug(f"Found {len(honeytokens)} honeytokens")
-        return honeytokens
+        return ListHoneytokensResult(honeytokens=honeytokens)
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
         raise ToolError(str(e))

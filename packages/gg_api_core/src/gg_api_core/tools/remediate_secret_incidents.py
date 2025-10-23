@@ -11,22 +11,25 @@ from .list_repo_incidents import list_repo_incidents
 logger = logging.getLogger(__name__)
 
 
-class RemediateOccurrencesFilters(ListRepoOccurrencesFilters):
+class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesFilters):
+    """Filter parameters for remediation - repository_name and source_id are provided separately."""
+    # Overriding the tags one to add a default filter : for remediation, we're more interested in occurrences that
+    # are in the branch the developer is currently on. And occurrences on DEFAULT_BRANCH are a heuristic for that
     tags: list[str] = Field(
         default=[TagNames.DEFAULT_BRANCH.value],
         description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
     )
 
 
-class RemediateSecretIncidentsParams(RemediateOccurrencesFilters):
+class RemediateSecretIncidentsParams(BaseModel):
     """Parameters for remediating secret incidents."""
-    repository_name: str = Field(
+    repository_name: str | None = Field(
+        default=None,
         description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided.",
-        default = None
     )
-    source_id: str = Field(
+    source_id: str | None = Field(
+        default=None,
         description="The source ID of the repository. Pass the current repository source ID if not provided.",
-        default=None
     )
     get_all: bool = Field(default=True, description="Whether to get all incidents or just the first page")
     mine: bool = Field(
@@ -43,8 +46,8 @@ class RemediateSecretIncidentsParams(RemediateOccurrencesFilters):
     )
 
     # sub tools
-    list_repo_occurrences_params: RemediateOccurrencesFilters = Field(
-        default_factory=RemediateOccurrencesFilters,
+    list_repo_occurrences_params: ListRepoOccurrencesParamsForRemediate = Field(
+        default_factory=ListRepoOccurrencesParamsForRemediate,
         description="Parameters for listing repository occurrences",
     )
 
@@ -104,39 +107,30 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
         params: RemediateSecretIncidentsParams model containing remediation configuration
 
     Returns:
-        A dictionary containing:
-        - repository_info: Information about the repository
-        - summary: Overview of occurrences, files affected, and secret types
-        - remediation_steps: Detailed steps with exact locations for each file
-        - env_example_content: Suggested .env.example content (if requested)
-        - git_commands: Git commands to fix history (if requested)
+        RemediateSecretIncidentsResult: Pydantic model containing:
+            - repository_info: Information about the repository
+            - summary: Overview of occurrences, files affected, and secret types
+            - remediation_steps: Detailed steps with exact locations for each file
+            - message: Message when no occurrences are found
+            - env_example_content: Suggested .env.example content (if requested)
+            - env_example_instructions: Instructions for .env.example (if created)
+            - git_commands: Git commands to fix history (if requested)
+            - applied_filters: Filters that were applied when querying occurrences
+            - suggestion: Suggestions for interpreting or modifying results
+
+        RemediateSecretIncidentsError: Pydantic model with error message if the operation fails
     """
     logger.debug(f"Using remediate_secret_incidents with occurrences API for: {params.repository_name}")
 
     try:
         # Get detailed occurrences with exact match locations
         # Extract filter parameters from list_repo_occurrences_params
-        filter_params = params.list_repo_occurrences_params.model_dump(exclude_none=True)
-
-        occurrences_params = ListRepoOccurrencesParams(
-            repository_name=params.repository_name,
-            source_id=params.source_id,
-            get_all=params.get_all,
-            **filter_params,  # Spread the filter parameters
-        )
-        occurrences_result = await list_repo_occurrences(occurrences_params)
+        occurrences_result = await list_repo_occurrences(params.list_repo_occurrences_params)
 
         # Check if list_repo_occurrences returned an error
-        if isinstance(occurrences_result, dict) and "error" in occurrences_result:
-            return RemediateSecretIncidentsError(error=occurrences_result["error"])
-
-        # Since list_repo_occurrences now returns Pydantic models, handle both old dict and new model formats
-        if hasattr(occurrences_result, 'model_dump'):
-            occurrences_dict = occurrences_result.model_dump()
-        else:
-            occurrences_dict = occurrences_result
-
-        occurrences = occurrences_dict.get("occurrences", [])
+        if getattr(occurrences_result, "error"):
+            return RemediateSecretIncidentsError(error=occurrences_result.error)
+        occurrences = occurrences_result.occurrences
 
         # Filter by assignee if mine=True
         if params.mine:
@@ -161,8 +155,8 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
                 repository_info={"name": params.repository_name},
                 message="No secret occurrences found for this repository that match the criteria.",
                 remediation_steps=[],
-                applied_filters=occurrences_dict.get("applied_filters", {}),
-                suggestion=occurrences_dict.get("suggestion", ""),
+                applied_filters=occurrences_result.applied_filters or {},
+                suggestion=occurrences_result.suggestion or "",
             )
 
         # Process occurrences for remediation with exact location data

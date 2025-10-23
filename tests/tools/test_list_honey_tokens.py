@@ -53,9 +53,9 @@ class TestListHoneytokens:
         mock_gitguardian_client.list_honeytokens.assert_called_once()
 
         # Verify response
-        assert len(result) == 2
-        assert result[0]["name"] == "test_token_1"
-        assert result[1]["status"] == "REVOKED"
+        assert len(result.honeytokens) == 2
+        assert result.honeytokens[0]["name"] == "test_token_1"
+        assert result.honeytokens[1]["status"] == "REVOKED"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_list_format(self, mock_gitguardian_client):
@@ -90,8 +90,8 @@ class TestListHoneytokens:
         )
 
         # Verify response
-        assert len(result) == 1
-        assert result[0]["id"] == "honeytoken_1"
+        assert len(result.honeytokens) == 1
+        assert result.honeytokens[0]["id"] == "honeytoken_1"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_with_filters(self, mock_gitguardian_client):
@@ -136,8 +136,8 @@ class TestListHoneytokens:
         assert call_kwargs["per_page"] == 50
 
         # Verify response
-        assert len(result) == 1
-        assert result[0]["status"] == "ACTIVE"
+        assert len(result.honeytokens) == 1
+        assert result.honeytokens[0]["status"] == "ACTIVE"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_mine_true(self, mock_gitguardian_client):
@@ -187,8 +187,8 @@ class TestListHoneytokens:
         assert call_kwargs["creator_id"] == "user_123"
 
         # Verify response
-        assert len(result) == 1
-        assert result[0]["creator_id"] == "user_123"
+        assert len(result.honeytokens) == 1
+        assert result.honeytokens[0]["creator_id"] == "user_123"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_mine_true_no_user_id(
@@ -264,7 +264,7 @@ class TestListHoneytokens:
         assert call_kwargs["get_all"] is True
 
         # Verify response
-        assert len(result) == 3
+        assert len(result.honeytokens) == 3
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_empty_response(self, mock_gitguardian_client):
@@ -293,7 +293,7 @@ class TestListHoneytokens:
         )
 
         # Verify response is empty
-        assert len(result) == 0
+        assert len(result.honeytokens) == 0
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_client_error(self, mock_gitguardian_client):
@@ -425,7 +425,7 @@ class TestListHoneytokens:
         assert call_kwargs["show_token"] is True
 
         # Verify response includes token
-        assert result[0]["token"] == "secret_value"
+        assert result.honeytokens[0]["token"] == "secret_value"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_mine_true_token_info_error(
@@ -461,4 +461,4 @@ class TestListHoneytokens:
         )
 
         # Verify function completes without error
-        assert result == []
+        assert result.honeytokens == []

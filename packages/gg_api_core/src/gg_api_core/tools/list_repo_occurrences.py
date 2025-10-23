@@ -1,7 +1,7 @@
 from typing import Any
 import logging
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, TagNames
 from gg_api_core.utils import get_client
@@ -68,6 +68,13 @@ class ListRepoOccurrencesBaseParams(BaseModel):
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+
+    @model_validator(mode="after")
+    def validate_source_or_repository(self) -> "ListRepoOccurrencesBaseParams":
+        """Validate that either source_id or repository_name is provided."""
+        if not self.source_id and not self.repository_name:
+            raise ValueError("Either 'source_id' or 'repository_name' must be provided")
+        return self
 
 
 class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesBaseParams):
@@ -165,18 +172,22 @@ async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> ListRepoOc
     By default, occurrences tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
 
     Args:
-        params: ListRepoOccurrencesParams model containing all filtering options
+        params: ListRepoOccurrencesParams model containing all filtering options.
+               Either repository_name or source_id must be provided (validated by model).
 
     Returns:
-        List of secret occurrences with detailed match information including file locations and indices.
-        Also includes applied filters and suggestions for interpreting the results.
+        ListRepoOccurrencesResult: Pydantic model containing:
+            - repository: Repository name
+            - occurrences_count: Number of occurrences returned
+            - occurrences: List of occurrence objects with exact match locations
+            - cursor: Pagination cursor (if applicable)
+            - has_more: Whether more results are available
+            - applied_filters: Dictionary of filters that were applied
+            - suggestion: Suggestions for interpreting or modifying results
+
+        ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
     client = get_client()
-
-    # Validate that at least one of repository_name or source_id is provided
-    if not params.repository_name and not params.source_id:
-        return ListRepoOccurrencesError(error="Either repository_name or source_id must be provided")
-
     logger.debug(f"Listing occurrences with repository_name={params.repository_name}, source_id={params.source_id}")
 
     try:

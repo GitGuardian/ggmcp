@@ -21,15 +21,42 @@ class GenerateHoneytokenParams(BaseModel):
     )
 
 
-async def generate_honeytoken(params: GenerateHoneytokenParams) -> dict[str, Any]:
+class GenerateHoneytokenResult(BaseModel):
+    """Result from generating or retrieving a honeytoken."""
+    model_config = {"extra": "allow"}  # Allow additional fields from API
+
+    id: str = Field(description="Honeytoken ID")
+    name: str | None = Field(default=None, description="Honeytoken name")
+    description: str | None = Field(default=None, description="Honeytoken description")
+    type: str | None = Field(default=None, description="Honeytoken type")
+    status: str | None = Field(default=None, description="Honeytoken status")
+    token: dict[str, Any] | None = Field(default=None, description="Token details if show_token=True")
+    injection_recommendations: dict[str, Any] | None = Field(default=None, description="Injection recommendations")
+
+
+async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoneytokenResult:
     """
     Generate an AWS GitGuardian honeytoken and get injection recommendations.
+
+    If new_token is False, attempts to retrieve an existing active honeytoken created by the current user
+    instead of generating a new one. If no existing token is found, a new one will be created.
 
     Args:
         params: GenerateHoneytokenParams model containing honeytoken configuration
 
     Returns:
-        Honeytoken data and injection recommendations
+        GenerateHoneytokenResult: Pydantic model containing:
+            - id: Honeytoken ID
+            - name: Honeytoken name
+            - description: Honeytoken description
+            - type: Honeytoken type
+            - status: Honeytoken status
+            - token: Token details (if show_token=True was used)
+            - injection_recommendations: Instructions for injecting the honeytoken
+            - Additional fields from the API response
+
+    Raises:
+        ToolError: If the honeytoken generation or retrieval fails
     """
     client = get_client()
     logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")
@@ -67,7 +94,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> dict[str, Any
                     if honeytoken_id:
                         detailed_token = await client.get_honeytoken(honeytoken_id, show_token=True)
                         logger.debug(f"Retrieved existing honeytoken with ID: {honeytoken_id}")
-                        return detailed_token
+                        return GenerateHoneytokenResult(**detailed_token)
 
                 logger.debug("No suitable existing honeytokens found, creating a new one")
             else:
@@ -95,7 +122,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> dict[str, Any
             "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, or code comments to detect unauthorized access."
         }
 
-        return result
+        return GenerateHoneytokenResult(**result)
     except Exception as e:
         logger.error(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")

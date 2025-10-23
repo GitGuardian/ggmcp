@@ -38,10 +38,10 @@ class TestGenerateHoneytoken:
         )
 
         # Verify response
-        assert result["id"] == "honeytoken_id"
-        assert result["token"] == "fake_token_value"
-        assert "injection_recommendations" in result
-        assert "instructions" in result["injection_recommendations"]
+        assert result.id == "honeytoken_id"
+        assert result.token == "fake_token_value"
+        assert hasattr(result, "injection_recommendations")
+        assert "instructions" in result.injection_recommendations
 
     @pytest.mark.asyncio
     async def test_generate_honeytoken_missing_id(self, mock_gitguardian_client):
