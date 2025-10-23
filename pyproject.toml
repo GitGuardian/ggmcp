@@ -1,7 +1,7 @@
 [project]
 name = "ggmcp"
 version = "0.5.0"
-description = "MCP server workspace for GitGuardian"
+description = "MCP server for GitGuardian"
 authors = [
     {name = "GitGuardian", email = "support@gitguardian.com"},
 ]
@@ -15,12 +15,28 @@ keywords = [
     "gitguardian",
     "mcp"
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "developer-mcp-server",
     "secops-mcp-server"
 ]
+
+[project.urls]
+Homepage = "https://github.com/GitGuardian/ggmcp"
 
 [dependency-groups]
 dev = [
