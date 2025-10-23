@@ -65,11 +65,11 @@ class TestListRepoOccurrences:
         assert call_kwargs["with_sources"] is False
 
         # Verify response
-        assert result["repository"] == "GitGuardian/test-repo"
-        assert result["occurrences_count"] == 1
-        assert len(result["occurrences"]) == 1
-        assert "applied_filters" in result
-        assert "suggestion" in result
+        assert result.repository == "GitGuardian/test-repo"
+        assert result.occurrences_count == 1
+        assert len(result.occurrences) == 1
+        assert result.applied_filters is not None
+        assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_source_id(self, mock_gitguardian_client):
@@ -104,9 +104,9 @@ class TestListRepoOccurrences:
         assert call_kwargs["with_sources"] is False
 
         # Verify response
-        assert result["occurrences_count"] == 1
-        assert "applied_filters" in result
-        assert "suggestion" in result
+        assert result.occurrences_count == 1
+        assert result.applied_filters is not None
+        assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_filters(self, mock_gitguardian_client):
@@ -173,10 +173,10 @@ class TestListRepoOccurrences:
         )
 
         # Verify response
-        assert result["occurrences_count"] == 2
-        assert len(result["occurrences"]) == 2
-        assert "applied_filters" in result
-        assert "suggestion" in result
+        assert result.occurrences_count == 2
+        assert len(result.occurrences) == 2
+        assert result.applied_filters is not None
+        assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_no_repository_or_source(
@@ -204,8 +204,8 @@ class TestListRepoOccurrences:
         )
 
         # Verify error response
-        assert "error" in result
-        assert "Either repository_name or source_id must be provided" in result["error"]
+        assert hasattr(result, "error")
+        assert "Either repository_name or source_id must be provided" in result.error
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):
@@ -226,8 +226,8 @@ class TestListRepoOccurrences:
         )
 
         # Verify error response
-        assert "error" in result
-        assert "Failed to list repository occurrences" in result["error"]
+        assert hasattr(result, "error")
+        assert "Failed to list repository occurrences" in result.error
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_cursor(self, mock_gitguardian_client):
@@ -267,8 +267,8 @@ class TestListRepoOccurrences:
         assert call_kwargs["source_name"] == "GitGuardian/test-repo"
 
         # Verify response includes cursor
-        assert result["cursor"] == "next_cursor_123"
-        assert result["has_more"] is True
+        assert result.cursor == "next_cursor_123"
+        assert result.has_more is True
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_empty_response(self, mock_gitguardian_client):
@@ -291,10 +291,10 @@ class TestListRepoOccurrences:
         )
 
         # Verify response
-        assert result["occurrences_count"] == 0
-        assert len(result["occurrences"]) == 0
-        assert "applied_filters" in result
-        assert "suggestion" in result
+        assert result.occurrences_count == 0
+        assert len(result.occurrences) == 0
+        assert result.applied_filters is not None
+        assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_unexpected_response_type(
@@ -315,7 +315,7 @@ class TestListRepoOccurrences:
         )
 
         # Verify response defaults to empty
-        assert result["occurrences_count"] == 0
-        assert result["occurrences"] == []
-        assert "applied_filters" in result
-        assert "suggestion" in result
+        assert result.occurrences_count == 0
+        assert result.occurrences == []
+        assert result.applied_filters is not None
+        assert result.suggestion is not None

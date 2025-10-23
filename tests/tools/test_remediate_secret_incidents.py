@@ -119,21 +119,21 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify response structure
-            assert "repository_info" in result
-            assert "summary" in result
-            assert "remediation_steps" in result
-            assert "env_example_content" in result
-            assert "git_commands" in result
+            assert result.repository_info is not None
+            assert result.summary is not None
+            assert result.remediation_steps is not None
+            assert result.env_example_content is not None
+            assert result.git_commands is not None
 
             # Verify summary
-            assert result["summary"]["total_occurrences"] == 1
-            assert result["summary"]["affected_files"] == 1
-            assert "AWS Access Key" in result["summary"]["secret_types"]
+            assert result.summary["total_occurrences"] == 1
+            assert result.summary["affected_files"] == 1
+            assert "AWS Access Key" in result.summary["secret_types"]
 
             # Verify remediation steps
-            assert len(result["remediation_steps"]) == 1
-            assert result["remediation_steps"][0]["file"] == "config.py"
-            assert len(result["remediation_steps"][0]["matches"]) == 1
+            assert len(result.remediation_steps) == 1
+            assert result.remediation_steps[0]["file"] == "config.py"
+            assert len(result.remediation_steps[0]["matches"]) == 1
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_occurrences(
@@ -164,11 +164,11 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify response
-            assert "message" in result
-            assert "No secret occurrences found" in result["message"]
-            assert result["remediation_steps"] == []
-            assert "applied_filters" in result
-            assert "suggestion" in result
+            assert result.message is not None
+            assert "No secret occurrences found" in result.message
+            assert result.remediation_steps == []
+            assert result.applied_filters is not None
+            assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_error(self, mock_gitguardian_client):
@@ -193,8 +193,8 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify error response
-            assert "error" in result
-            assert "API connection failed" in result["error"]
+            assert hasattr(result, "error")
+            assert "API connection failed" in result.error
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_mine_false(
@@ -246,7 +246,7 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify all occurrences are included (not filtered by assignee)
-            assert result["summary"]["total_occurrences"] == 1
+            assert result.summary["total_occurrences"] == 1
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_git_commands(
@@ -304,7 +304,7 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify git commands are not included
-            assert "git_commands" not in result
+            assert result.git_commands is None
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_env_example(
@@ -362,7 +362,7 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify env example is not included
-            assert "env_example_content" not in result
+            assert result.env_example_content is None
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_multiple_files(
@@ -437,9 +437,9 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify response
-            assert result["summary"]["total_occurrences"] == 2
-            assert result["summary"]["affected_files"] == 2
-            assert len(result["remediation_steps"]) == 2
+            assert result.summary["total_occurrences"] == 2
+            assert result.summary["affected_files"] == 2
+            assert len(result.remediation_steps) == 2
 
     @pytest.mark.asyncio
     async def test_process_occurrences_for_remediation(self):
