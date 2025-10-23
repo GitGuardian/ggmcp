@@ -9,7 +9,9 @@ from urllib.parse import quote_plus, unquote
 
 import httpx
 
+from gg_api_core.host import is_self_hosted_instance
 from gg_api_core.scopes import DEVELOPER_SCOPES
+from urllib.parse import urlparse
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -53,11 +55,11 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, api_url: str | None = None):
+    def __init__(self, gitguardian_url: str | None = None):
         """Initialize the GitGuardian client.
 
         Args:
-            api_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
+            gitguardian_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
                     Supported formats:
                     - SaaS US: https://dashboard.gitguardian.com (default)
                     - SaaS EU: https://dashboard.eu1.gitguardian.com
@@ -66,19 +68,20 @@ class GitGuardianClient:
         """
         logger.info("Initializing GitGuardian client")
 
-        self._oauth_token = None
-        self._token_info = None
+        # Use provided raw URL or get from environment with default fallback
+        raw_url = gitguardian_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
 
-        # Use provided API URL or get from environment with default fallback
-        raw_api_url = api_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
-        self.api_url = self._normalize_api_url(raw_api_url)
-        logger.info(f"Using API URL: {self.api_url}")
+        self.public_api_url = self._normalize_api_url(raw_url)
+        logger.info(f"Using API URL: {self.public_api_url}")
 
         # Extract the base URL for dashboard (needed for OAuth)
         self.dashboard_url = self._get_dashboard_url()
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
+        self.private_api_url = f"{self.dashboard_url}/api/v1"
+        logger.info(f"Using private API URL: {self.private_api_url}")
 
-        logger.info("GitGuardian client initialized for OAuth authentication (token will be obtained via OAuth flow)")
+        self._oauth_token = None
+        self._token_info = None
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
@@ -99,12 +102,7 @@ class GitGuardianClient:
             parsed = urlparse(api_url)
 
             # Check if this is a SaaS URL (dashboard or API)
-            if (
-                "dashboard.gitguardian.com" in parsed.netloc
-                or "dashboard.eu1.gitguardian.com" in parsed.netloc
-                or "api.gitguardian.com" in parsed.netloc
-                or "api.eu1.gitguardian.com" in parsed.netloc
-            ):
+            if not is_self_hosted_instance(api_url):
                 # Convert dashboard URLs to API URLs with /v1 suffix
                 if "dashboard" in parsed.netloc:
                     api_netloc = parsed.netloc.replace("dashboard", "api")
@@ -158,20 +156,16 @@ class GitGuardianClient:
         default_dashboard_url = "https://dashboard.gitguardian.com"
 
         # If using SaaS API URLs, return the corresponding dashboard URL
-        if self.api_url == "https://api.gitguardian.com/v1":
+        if self.public_api_url == "https://api.gitguardian.com/v1":
             logger.info(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
-        elif self.api_url == "https://api.eu1.gitguardian.com/v1":
+        elif self.public_api_url == "https://api.eu1.gitguardian.com/v1":
             eu_dashboard_url = "https://dashboard.eu1.gitguardian.com"
             logger.info(f"Using EU dashboard URL: {eu_dashboard_url}")
             return eu_dashboard_url
 
-        # For custom API URLs, derive the dashboard URL from the API URL
         try:
-            # Parse the URL to get the components
-            from urllib.parse import urlparse
-
-            parsed_url = urlparse(self.api_url)
+            parsed_url = urlparse(self.public_api_url)
 
             # For local development (localhost or 127.0.0.1)
             if parsed_url.netloc.startswith("localhost") or parsed_url.netloc.startswith("127.0.0.1"):
@@ -180,20 +174,11 @@ class GitGuardianClient:
             else:
                 # For custom domains, handle different patterns
                 hostname = parsed_url.netloc
-
-                # Remove 'api.' prefix if it exists (e.g., api.example.com -> example.com)
-                # Special handling for GitGuardian EU instance
-                if hostname == "api.eu1.gitguardian.com":
-                    derived_url = f"{parsed_url.scheme}://dashboard.eu1.gitguardian.com"
-                elif hostname.startswith("api."):
-                    hostname = hostname[4:]  # Remove 'api.' prefix
-                    derived_url = f"{parsed_url.scheme}://{hostname}"
-                else:
-                    # For self-hosted instances like dashboard.gitguardian.mycorp.local/exposed/v1
-                    # Use the base URL without the path
-                    derived_url = f"{parsed_url.scheme}://{hostname}"
-
-            logger.info(f"Derived dashboard URL from API URL: {derived_url}")
+                # Replace 'api.' prefix with 'dashboard.' if it exists
+                if hostname.startswith("api."):
+                    # Replace 'api.' with 'dashboard.' (e.g., api.staging.gitguardian.tech -> dashboard.staging.gitguardian.tech)
+                    hostname = "dashboard." + hostname[4:]
+                derived_url = f"{parsed_url.scheme}://{hostname}"
             return derived_url
         except Exception as e:
             logger.warning(f"Failed to extract dashboard URL from API URL: {e}")
@@ -210,7 +195,7 @@ class GitGuardianClient:
                 return
 
             logger.warning("Acquired OAuth lock, proceeding with authentication")
-            logger.info(f"   Client API URL: {self.api_url}")
+            logger.info(f"   Client API URL: {self.public_api_url}")
             logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
             logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
 
@@ -256,7 +241,7 @@ class GitGuardianClient:
             logger.info(f"   Final token name: {token_name}")
 
             oauth_client = GitGuardianOAuthClient(
-                api_url=self.api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
+                api_url=self.public_api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
             )
 
             try:
@@ -314,7 +299,7 @@ class GitGuardianClient:
         await self._ensure_oauth_token()
 
     async def _request(
-        self, method: str, endpoint: str, return_headers: bool = False, **kwargs
+            self, method: str, endpoint: str, return_headers: bool = False, **kwargs
     ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
         """Make a request to the GitGuardian API.
 
@@ -330,7 +315,7 @@ class GitGuardianClient:
         Raises:
             requests.HTTPError: If the API returns an error
         """
-        url = f"{self.api_url}/{endpoint.lstrip('/')}"
+        url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making {method} request to {url}")
 
         # Log params if present for easier debugging
@@ -587,7 +572,7 @@ class GitGuardianClient:
         return all_items
 
     async def create_honeytoken(
-        self, name: str, description: str = "", custom_tags: list | None = None
+            self, name: str, description: str = "", custom_tags: list | None = None
     ) -> dict[str, Any]:
         """Create a new honeytoken in GitGuardian.
 
@@ -605,13 +590,13 @@ class GitGuardianClient:
         return await self._request("POST", "/honeytokens", json=data)
 
     async def create_honeytoken_with_context(
-        self,
-        name: str,
-        description: str = "",
-        custom_tags: list | None = None,
-        language: str | None = None,
-        filename: str | None = None,
-        project_extensions: str | None = None,
+            self,
+            name: str,
+            description: str = "",
+            custom_tags: list | None = None,
+            language: str | None = None,
+            filename: str | None = None,
+            project_extensions: str | None = None,
     ) -> dict[str, Any]:
         """Create a honeytoken with context for smart injection into code.
 
@@ -654,19 +639,19 @@ class GitGuardianClient:
         return await self._request("GET", f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}")
 
     async def list_incidents(
-        self,
-        severity: IncidentSeverity | str | None = None,
-        status: IncidentStatus | str | None = None,
-        from_date: str | None = None,
-        to_date: str | None = None,
-        assignee_email: str | None = None,
-        assignee_id: str | None = None,
-        validity: IncidentValidity | str | None = None,
-        source_id: str | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        ordering: str | None = None,
-        get_all: bool = False,
+            self,
+            severity: IncidentSeverity | str | None = None,
+            status: IncidentStatus | str | None = None,
+            from_date: str | None = None,
+            to_date: str | None = None,
+            assignee_email: str | None = None,
+            assignee_id: str | None = None,
+            validity: IncidentValidity | str | None = None,
+            source_id: str | None = None,
+            per_page: int = 20,
+            cursor: str | None = None,
+            ordering: str | None = None,
+            get_all: bool = False,
     ) -> dict[str, Any]:
         """List secrets incidents with optional filtering and cursor-based pagination.
 
@@ -849,16 +834,16 @@ class GitGuardianClient:
         return await self._request("PATCH", f"/incidents/secrets/{incident_id}", json=payload)
 
     async def list_honeytokens(
-        self,
-        status: str | None = None,
-        search: str | None = None,
-        ordering: str | None = None,
-        show_token: bool = False,
-        creator_id: str | None = None,
-        creator_api_token_id: str | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        get_all: bool = False,
+            self,
+            status: str | None = None,
+            search: str | None = None,
+            ordering: str | None = None,
+            show_token: bool = False,
+            creator_id: str | None = None,
+            creator_api_token_id: str | None = None,
+            per_page: int = 20,
+            cursor: str | None = None,
+            get_all: bool = False,
     ) -> dict[str, Any]:
         """List all honeytokens with optional filtering and cursor-based pagination.
 
@@ -1276,23 +1261,23 @@ class GitGuardianClient:
         return await self._request("GET", f"/incidents/{incident_id}/secret-occurrences")
 
     async def list_occurrences(
-        self,
-        from_date: str | None = None,
-        to_date: str | None = None,
-        source_name: str | None = None,
-        source_type: str | None = None,
-        source_id: str | None = None,
-        presence: str | None = None,
-        tags: list[str] | None = None,
-        exclude_tags: list[str] | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        ordering: str | None = None,
-        get_all: bool = False,
-        severity: list[str] | None = None,
-        validity: list[str] | None = None,
-        status: list[str] | None = None,
-        with_sources: bool | None = None,
+            self,
+            from_date: str | None = None,
+            to_date: str | None = None,
+            source_name: str | None = None,
+            source_type: str | None = None,
+            source_id: str | None = None,
+            presence: str | None = None,
+            tags: list[str] | None = None,
+            exclude_tags: list[str] | None = None,
+            per_page: int = 20,
+            cursor: str | None = None,
+            ordering: str | None = None,
+            get_all: bool = False,
+            severity: list[str] | None = None,
+            validity: list[str] | None = None,
+            status: list[str] | None = None,
+            with_sources: bool | None = None,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
@@ -1402,19 +1387,19 @@ class GitGuardianClient:
         return await self._request("GET", endpoint)
 
     async def list_sources(
-        self,
-        search: str | None = None,
-        last_scan_status: str | None = None,
-        health: str | None = None,
-        type: str | None = None,
-        ordering: str | None = None,
-        visibility: str | None = None,
-        external_id: str | None = None,
-        source_criticality: str | None = None,
-        monitored: bool | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        get_all: bool = False,
+            self,
+            search: str | None = None,
+            last_scan_status: str | None = None,
+            health: str | None = None,
+            type: str | None = None,
+            ordering: str | None = None,
+            visibility: str | None = None,
+            external_id: str | None = None,
+            source_criticality: str | None = None,
+            monitored: bool | None = None,
+            per_page: int = 20,
+            cursor: str | None = None,
+            get_all: bool = False,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """List sources known by GitGuardian with optional filtering and cursor-based pagination.
 
@@ -1469,7 +1454,8 @@ class GitGuardianClient:
 
         return await self._request("GET", endpoint, params=params)
 
-    async def get_source_by_name(self, source_name: str, return_all_on_no_match: bool = False) -> dict[str, Any] | list[dict[str, Any]] | None:
+    async def get_source_by_name(self, source_name: str, return_all_on_no_match: bool = False) -> dict[str, Any] | list[
+        dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
@@ -1526,18 +1512,18 @@ class GitGuardianClient:
             return None
 
     async def list_repo_incidents_directly(
-        self,
-        repository_name: str,
-        from_date: str | None = None,
-        to_date: str | None = None,
-        presence: str | None = None,
-        tags: list[str] | None = None,
-        exclude_tags: list[str] | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        ordering: str | None = None,
-        get_all: bool = False,
-        mine: bool = True,
+            self,
+            repository_name: str,
+            from_date: str | None = None,
+            to_date: str | None = None,
+            presence: str | None = None,
+            tags: list[str] | None = None,
+            exclude_tags: list[str] | None = None,
+            per_page: int = 20,
+            cursor: str | None = None,
+            ordering: str | None = None,
+            get_all: bool = False,
+            mine: bool = True,
     ) -> dict[str, Any]:
         """List incidents for a repository in a single API call.
 

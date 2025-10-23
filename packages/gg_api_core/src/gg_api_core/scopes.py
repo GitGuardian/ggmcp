@@ -1,7 +1,6 @@
 """GitGuardian API scope definitions for different server types."""
 
-import os
-from urllib.parse import urlparse
+from gg_api_core.host import is_self_hosted_instance
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -93,37 +92,6 @@ def validate_scopes(scopes_str: str) -> list[str]:
         )
 
     return requested_scopes
-
-
-def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
-    """
-    Determine if we're connecting to a self-hosted GitGuardian instance.
-
-    Args:
-        gitguardian_url: GitGuardian URL to check, defaults to GITGUARDIAN_URL env var
-
-    Returns:
-        bool: True if self-hosted, False if SaaS
-    """
-    if not gitguardian_url:
-        gitguardian_url = os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
-
-    try:
-        parsed = urlparse(gitguardian_url)
-        hostname = parsed.netloc.lower()
-
-        # SaaS instances
-        saas_hostnames = [
-            "dashboard.gitguardian.com",
-            "api.gitguardian.com",
-            "dashboard.eu1.gitguardian.com",
-            "api.eu1.gitguardian.com"
-        ]
-
-        return hostname not in saas_hostnames
-    except:
-        # If parsing fails, assume self-hosted to be safe
-        return True
 
 
 # Legacy constants for backward compatibility

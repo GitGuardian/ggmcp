@@ -149,8 +149,5 @@ class TestGitGuardianFastMCP:
         tool_names = [tool.name for tool in tools]
         assert "tool_with_scan" in tool_names
 
-        # The teams:write tool should still be in the list but with a warning in its description
-        teams_write_tool = next((t for t in tools if t.name == "tool_with_teams_write"), None)
-        assert teams_write_tool is not None
-        assert "⚠️ DO NOT USE THIS TOOL" in teams_write_tool.description
-        assert "Missing required scopes: teams:write" in teams_write_tool.description
+        # The teams:write tool should be excluded since the required scope is missing
+        assert "tool_with_teams_write" not in tool_names

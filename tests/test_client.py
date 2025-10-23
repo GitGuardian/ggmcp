@@ -42,12 +42,12 @@ class TestGitGuardianClient:
 
     def test_init_with_env_vars(self, client):
         """Test client initialization with environment variables."""
-        assert client.api_url == "https://test.gitguardian.com/exposed/v1"
+        assert client.public_api_url == "https://test.gitguardian.com/exposed/v1"
 
     def test_init_with_params(self):
         """Test client initialization with parameters."""
-        client = GitGuardianClient(api_url="https://custom.api.url")
-        assert client.api_url == "https://custom.api.url/exposed/v1"
+        client = GitGuardianClient(gitguardian_url="https://custom.api.url")
+        assert client.public_api_url == "https://custom.api.url/exposed/v1"
 
     def test_init_oauth_authentication(self):
         """Test client initialization with OAuth authentication."""
@@ -241,23 +241,76 @@ class TestGitGuardianClient:
             assert result["data"][0]["severity"] == "critical"
             assert result["data"][0]["validity"] == "VALID"
 
+
 class TestGetGitGuardianClient:
     """Tests for the get_gitguardian_client function."""
 
-    def test_with_custom_url(self):
-        """Test client initialization with custom URL."""
-        # Mock environment variables
-        with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://custom.api.url"}):
-            # Mock GitGuardianClient class
-            with patch("gg_api_core.utils.GitGuardianClient") as mock_client_class:
-                mock_client_instance = MagicMock()
-                mock_client_class.return_value = mock_client_instance
+    @pytest.mark.parametrize(
+        "url,expected",
+        [
+            ("https://api.gitguardian.com/", {
+                "dashboard_url": "https://dashboard.gitguardian.com",
+                "public_api_url": "https://api.gitguardian.com/v1",
+                "private_api_url": "https://dashboard.gitguardian.com/api/v1",
+            }
+             ),
+            ("https://dashboard.gitguardian.com/", {
+                "dashboard_url": "https://dashboard.gitguardian.com",
+                "public_api_url": "https://api.gitguardian.com/v1",
+                "private_api_url": "https://dashboard.gitguardian.com/api/v1",
+            }
+             ),
+            ("https://self-hosted.acme.com/", {
+                "dashboard_url": "https://self-hosted.acme.com",
+                "public_api_url": "https://self-hosted.acme.com/exposed/v1",
+                "private_api_url": "https://self-hosted.acme.com/api/v1",
+            }
+             ),
+            (
+                    "https://dashboard.staging.gitguardian.tech/whatever", {
+                    "dashboard_url": "https://dashboard.staging.gitguardian.tech",
+                    "public_api_url": "https://api.staging.gitguardian.tech/v1",
+                    "private_api_url": "https://dashboard.staging.gitguardian.tech/api/v1",
 
-                # Call the function
-                client = get_gitguardian_client()
+                }
+            ),
+            ("https://dashboard.eu1.gitguardian.com/", {
+                "dashboard_url": "https://dashboard.eu1.gitguardian.com",
+                "public_api_url": "https://api.eu1.gitguardian.com/v1",
+                "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
 
-                # Assertions
-                mock_client_class.assert_called_once()
-                call_args = mock_client_class.call_args[1]
-                assert call_args["api_url"] == "https://custom.api.url"
-                assert client == mock_client_instance
+            }
+             ),
+            ("https://api.eu1.gitguardian.com/", {
+                "dashboard_url": "https://dashboard.eu1.gitguardian.com",
+                "public_api_url": "https://api.eu1.gitguardian.com/v1",
+                "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
+            }),
+            ("https://dashboard.preprod.gitguardian.com/", {
+                "dashboard_url": "https://dashboard.preprod.gitguardian.com",
+                "public_api_url": "https://api.preprod.gitguardian.com/v1",
+                "private_api_url": "https://dashboard.preprod.gitguardian.com/api/v1",
+
+            }
+             ),
+            ("http://localhost:3000", {
+                "dashboard_url": "http://localhost:3000",
+                "public_api_url": "http://localhost:3000/exposed/v1",
+                "private_api_url": "http://localhost:3000/api/v1",
+            }
+             ),
+            ("http://127.0.0.1:3000", {
+                "dashboard_url": "http://127.0.0.1:3000",
+                "public_api_url": "http://127.0.0.1:3000/exposed/v1",
+                "private_api_url": "http://127.0.0.1:3000/api/v1",
+            })
+        ],
+    )
+    def test_computed_urls(self, url, expected):
+        """Test client initialization with URLs containing paths."""
+        with patch.dict(os.environ, {"GITGUARDIAN_URL": url}):
+            client = get_gitguardian_client()
+
+            assert client.public_api_url == expected["public_api_url"]
+            assert client.dashboard_url == expected["dashboard_url"]
+            assert client.private_api_url == expected["private_api_url"]

@@ -4,7 +4,8 @@ import logging
 import os
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import get_developer_scopes, is_self_hosted_instance, validate_scopes
+from gg_api_core.scopes import get_developer_scopes, validate_scopes
+from gg_api_core.host import is_self_hosted_instance
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honey_tokens import list_honeytokens
