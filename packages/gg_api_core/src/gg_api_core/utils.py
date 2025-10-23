@@ -103,7 +103,7 @@ def parse_repo_url(remote_url: str) -> str | None:
     # SSH: ssh://git@bitbucket.company.com:7999/project/repo.git
     # SSH: git@bitbucket.company.com:project/repo.git
     elif "/scm/" in repo_path or "/projects/" in repo_path or (
-        "bitbucket" in repo_path and ("ssh://" in remote_url or "@" in remote_url)
+            "bitbucket" in repo_path and ("ssh://" in remote_url or "@" in remote_url)
     ):
         # Bitbucket Data Center /scm/ format
         if "/scm/" in repo_path:
@@ -172,21 +172,10 @@ def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
         server_name: Name of the MCP server for server-specific token storage
     """
     logger.debug("Attempting to initialize GitGuardian client")
-
-    api_url = os.environ.get("GITGUARDIAN_URL")
-
-    if api_url:
-        logger.debug(f"GITGUARDIAN_URL environment variable is set: {api_url}")
-    else:
-        logger.debug("GITGUARDIAN_URL not set, will use default")
-
-    # OAuth-based authentication (only supported method)
-    logger.debug("Using OAuth authentication")
     try:
         # Store server_name as an attribute after initialization since it's not in the constructor anymore
-        client = GitGuardianClient(api_url=api_url)
+        client = GitGuardianClient()
         client.server_name = server_name
-        logger.debug("GitGuardian client initialized using OAuth authentication")
         return client
     except Exception as e:
         logger.exception(f"Failed to initialize GitGuardian client with OAuth auth: {str(e)}")

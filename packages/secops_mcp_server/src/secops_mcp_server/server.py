@@ -6,7 +6,8 @@ import os
 from typing import Any, Literal
 
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import get_secops_scopes, is_self_hosted_instance, validate_scopes
+from gg_api_core.scopes import get_secops_scopes, validate_scopes
+from gg_api_core.host import is_self_hosted_instance
 from mcp.server.fastmcp import ToolError
 from pydantic import BaseModel, Field
 
