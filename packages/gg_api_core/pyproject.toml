@@ -3,7 +3,22 @@ name = "gg-api-core"
 version = "0.1.0"
 description = "Core functionality for GitGuardian MCP servers"
 authors = [
-    {name = "Author", email = "author@example.com"}
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+maintainers = [
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
 ]
 readme = "README.md"
 requires-python = ">=3.13"
@@ -13,6 +28,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "pydantic-settings>=2.0.0",
 ]
+license = {text = "MIT"}
 
 [build-system]
 requires = ["hatchling"]

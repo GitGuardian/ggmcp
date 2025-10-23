@@ -3,7 +3,23 @@ name = "secops-mcp-server"
 version = "0.1.0"
 description = "GitGuardian MCP server for SecOps with comprehensive security tools"
 authors = [
-    {name = "Clément Tourrière", email = "clement.tourriere@gitguardian.com"}
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+maintainers = [
+    {name = "GitGuardian", email = "support@gitguardian.com"},
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: System Administrators",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
 ]
 readme = "README.md"
 requires-python = ">=3.13"
@@ -13,6 +29,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "gg-api-core"
 ]
+license = {text = "MIT"}
 
 [project.scripts]
 mcp-server = "secops_mcp_server.server:mcp.run"
