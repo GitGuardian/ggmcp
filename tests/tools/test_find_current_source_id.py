@@ -51,9 +51,9 @@ class TestFindCurrentSourceId:
             )
 
             # Verify response
-            assert result["repository_name"] == "GitGuardian/ggmcp"
-            assert result["source_id"] == "source_123"
-            assert "message" in result
+            assert result.repository_name == "GitGuardian/ggmcp"
+            assert result.source_id == "source_123"
+            assert hasattr(result, "message")
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_multiple_candidates(
@@ -94,11 +94,11 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "GitGuardian/test-repo"
-            assert "candidates" in result
-            assert len(result["candidates"]) == 2
-            assert "message" in result
-            assert "suggestion" in result
+            assert result.repository_name == "GitGuardian/test-repo"
+            assert hasattr(result, "candidates")
+            assert len(result.candidates) == 2
+            assert hasattr(result, "message")
+            assert hasattr(result, "suggestion")
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_no_match_with_fallback(
@@ -137,8 +137,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "OrgName/repo-name"
-            assert result["source_id"] == "source_fallback"
+            assert result.repository_name == "OrgName/repo-name"
+            assert result.source_id == "source_fallback"
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_no_match_at_all(
@@ -163,9 +163,9 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "Unknown/repo"
-            assert "error" in result
-            assert "not found in GitGuardian" in result["error"]
+            assert result.repository_name == "Unknown/repo"
+            assert hasattr(result, "error")
+            assert "not found in GitGuardian" in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_not_a_git_repo(
@@ -186,8 +186,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify error response
-            assert "error" in result
-            assert "Not a git repository" in result["error"]
+            assert hasattr(result, "error")
+            assert "Not a git repository" in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_git_timeout(self, mock_gitguardian_client):
@@ -204,8 +204,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify error response
-            assert "error" in result
-            assert "timed out" in result["error"]
+            assert hasattr(result, "error")
+            assert "timed out" in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_invalid_url(self, mock_gitguardian_client):
@@ -225,8 +225,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify error response
-            assert "error" in result
-            assert "Could not parse repository URL" in result["error"]
+            assert hasattr(result, "error")
+            assert "Could not parse repository URL" in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_gitlab_url(self, mock_gitguardian_client):
@@ -256,8 +256,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "company/project"
-            assert result["source_id"] == "source_gitlab"
+            assert result.repository_name == "company/project"
+            assert result.source_id == "source_gitlab"
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_ssh_url(self, mock_gitguardian_client):
@@ -286,8 +286,8 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result["repository_name"] == "GitGuardian/ggmcp"
-            assert result["source_id"] == "source_ssh"
+            assert result.repository_name == "GitGuardian/ggmcp"
+            assert result.source_id == "source_ssh"
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_client_error(self, mock_gitguardian_client):
@@ -312,5 +312,5 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify error response
-            assert "error" in result
-            assert "Failed to find source_id" in result["error"]
+            assert hasattr(result, "error")
+            assert "Failed to find source_id" in result.error

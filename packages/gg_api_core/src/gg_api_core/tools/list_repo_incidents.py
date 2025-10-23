@@ -151,10 +151,19 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> ListRepoIncide
     By default, incidents tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
 
     Args:
-        params: ListRepoIncidentsParams model containing all filtering options
+        params: ListRepoIncidentsParams model containing all filtering options.
+               Either repository_name or source_id must be provided.
 
     Returns:
-        List of incidents and occurrences matching the specified criteria
+        ListRepoIncidentsResult: Pydantic model containing:
+            - source_id: Source ID of the repository
+            - incidents: List of incident objects
+            - total_count: Total number of incidents
+            - next_cursor: Pagination cursor (if applicable)
+            - applied_filters: Dictionary of filters that were applied
+            - suggestion: Suggestions for interpreting or modifying results
+
+        ListRepoIncidentsError: Pydantic model with error message if the operation fails
     """
     client = get_client()
 

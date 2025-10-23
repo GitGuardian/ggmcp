@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel, Field
 import logging
 
@@ -20,18 +21,38 @@ class ScanSecretsParams(BaseModel):
     )
 
 
-async def scan_secrets(params: ScanSecretsParams):
+class ScanSecretsResult(BaseModel):
+    """Result from scanning secrets."""
+    model_config = {"extra": "allow"}  # Allow additional fields from API
+
+    scan_results: list[dict[str, Any]] = Field(default_factory=list, description="Scan results for each document")
+
+
+async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
     """
     Scan multiple content items for secrets and policy breaks.
 
     This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
     Each document must have a 'document' field and can optionally include a 'filename' field for better context.
 
+    IMPORTANT:
+    - Only send documents that are part of the codebase
+    - Do not send documents that are in .gitignore
+    - The 'document' field is the file content (string), not the filename
+
     Args:
         params: ScanSecretsParams model containing documents to scan
 
     Returns:
-        Scan results for all documents, including any detected secrets or policy breaks
+        ScanSecretsResult: Pydantic model containing:
+            - scan_results: List of scan result objects for each document, including:
+                - policy_break_count: Number of policy violations found
+                - policies: List of policies applied
+                - policy_breaks: Detailed information about each policy break/secret detected
+                - Additional fields from the API response
+
+    Raises:
+        Exception: If the scan operation fails or documents are invalid
     """
     try:
         client = get_client()
@@ -61,7 +82,15 @@ async def scan_secrets(params: ScanSecretsParams):
         result = await client.multiple_scan(params.documents)
         logger.debug(f"Scanned {len(params.documents)} documents")
 
-        return result
+        # Wrap the result in Pydantic model
+        if isinstance(result, list):
+            return ScanSecretsResult(scan_results=result)
+        elif isinstance(result, dict):
+            # If API returns a dict with scan_results key
+            return ScanSecretsResult(**result)
+        else:
+            # Fallback: wrap in scan_results
+            return ScanSecretsResult(scan_results=[result])
     except Exception as e:
         logger.error(f"Error scanning for secrets: {str(e)}")
         raise

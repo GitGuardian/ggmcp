@@ -48,8 +48,8 @@ class TestScanSecrets:
         mock_gitguardian_client.multiple_scan.assert_called_once_with(documents)
 
         # Verify response
-        assert result == mock_response
-        assert result[0]["policy_break_count"] == 1
+        assert result.scan_results == mock_response
+        assert result.scan_results[0]["policy_break_count"] == 1
 
     @pytest.mark.asyncio
     async def test_scan_secrets_no_secrets_found(self, mock_gitguardian_client):
@@ -73,8 +73,8 @@ class TestScanSecrets:
         result = await scan_secrets(ScanSecretsParams(documents=documents))
 
         # Verify response
-        assert result[0]["policy_break_count"] == 0
-        assert len(result[0]["policy_breaks"]) == 0
+        assert result.scan_results[0]["policy_break_count"] == 0
+        assert len(result.scan_results[0]["policy_breaks"]) == 0
 
     @pytest.mark.asyncio
     async def test_scan_secrets_multiple_documents(self, mock_gitguardian_client):
@@ -98,7 +98,7 @@ class TestScanSecrets:
         result = await scan_secrets(ScanSecretsParams(documents=documents))
 
         # Verify response
-        assert len(result) == 2
+        assert len(result.scan_results) == 2
 
     @pytest.mark.asyncio
     async def test_scan_secrets_without_filename(self, mock_gitguardian_client):
