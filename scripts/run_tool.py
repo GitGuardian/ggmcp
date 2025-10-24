@@ -4,7 +4,8 @@ from gg_api_core.tools.list_repo_incidents import ListRepoIncidentsParams, list_
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 import asyncio
 
-from gg_api_core.tools.remediate_secret_incidents import RemediateSecretIncidentsParams, remediate_secret_incidents
+from gg_api_core.tools.remediate_secret_incidents import RemediateSecretIncidentsParams, remediate_secret_incidents, \
+    ListRepoOccurrencesParamsForRemediate
 from gg_api_core.tools.scan_secret import scan_secrets, ScanSecretsParams
 
 
@@ -32,7 +33,10 @@ async def main():
     print(await run_find_current_source_id())
 
     # Remediate
-    print(await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="9036019")))
+    print(await remediate_secret_incidents(
+        RemediateSecretIncidentsParams(
+            list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(source_id="9036019")))
+          )
 
     # Occurrences
     print(await list_repo_occurrences(

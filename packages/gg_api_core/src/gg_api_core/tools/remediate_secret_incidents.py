@@ -58,13 +58,6 @@ class RemediateSecretIncidentsParams(BaseModel):
         description="Parameters for listing repository occurrences",
     )
 
-    @model_validator(mode="after")
-    def validate_source_or_repository(self) -> "RemediateSecretIncidentsParams":
-        """Validate that either source_id or repository_name is provided."""
-        if not self.source_id and not self.repository_name:
-            raise ValueError("Either 'source_id' or 'repository_name' must be provided")
-        return self
-
 
 class RemediateSecretIncidentsResult(BaseModel):
     """Result from remediating secret incidents."""
@@ -98,23 +91,12 @@ async def remediate_secret_incidents(
     logger.debug(f"Using remediate_secret_incidents for: {params.repository_name}")
 
     try:
-        # Build parameters for list_repo_occurrences
-        occurrences_params = ListRepoOccurrencesParams(
-            repository_name=params.repository_name,
-            source_id=params.source_id,
-            from_date=params.list_repo_occurrences_params.from_date,
-            to_date=params.list_repo_occurrences_params.to_date,
-            presence=params.list_repo_occurrences_params.presence,
-            tags=params.list_repo_occurrences_params.tags,
-            exclude_tags=params.list_repo_occurrences_params.exclude_tags,
-            status=params.list_repo_occurrences_params.status,
-            severity=params.list_repo_occurrences_params.severity,
-            validity=params.list_repo_occurrences_params.validity,
-            ordering=None,
-            per_page=20,
-            cursor=None,
-            get_all=params.get_all,
-        )
+        # Use the list_repo_occurrences_params and update with parent-level repository info
+        occurrences_params = params.list_repo_occurrences_params.model_copy(update={
+            "repository_name": params.repository_name or params.list_repo_occurrences_params.repository_name,
+            "source_id": params.source_id or params.list_repo_occurrences_params.source_id,
+            "get_all": params.get_all,
+        })
 
         occurrences_result = await list_repo_occurrences(occurrences_params)
         if hasattr(occurrences_result, "error") and occurrences_result.error:
