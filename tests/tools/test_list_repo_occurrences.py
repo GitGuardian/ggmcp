@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import ValidationError
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 
 
@@ -184,11 +185,11 @@ class TestListRepoOccurrences:
     ):
         """
         GIVEN: Neither repository_name nor source_id provided
-        WHEN: Attempting to list occurrences
-        THEN: An error is returned
+        WHEN: Attempting to create params
+        THEN: A ValidationError is raised
         """
-        # Call the function without repository_name or source_id
-        result = await list_repo_occurrences(
+        # Try to create params without repository_name or source_id
+        with pytest.raises(ValidationError) as exc_info:
             ListRepoOccurrencesParams(
                 repository_name=None,
                 source_id=None,
@@ -201,11 +202,11 @@ class TestListRepoOccurrences:
                 cursor=None,
                 get_all=False,
             )
-        )
 
-        # Verify error response
-        assert hasattr(result, "error")
-        assert "Either repository_name or source_id must be provided" in result.error
+        # Verify error message
+        errors = exc_info.value.errors()
+        assert len(errors) == 1
+        assert "Either 'source_id' or 'repository_name' must be provided" in str(errors[0])
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):

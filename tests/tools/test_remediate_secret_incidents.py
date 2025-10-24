@@ -7,6 +7,7 @@ from gg_api_core.tools.remediate_secret_incidents import (
     _process_occurrences_for_remediation,
     RemediateSecretIncidentsParams,
 )
+from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesResult, ListRepoOccurrencesError
 
 
 class TestRemediateSecretIncidentsParams:
@@ -74,8 +75,8 @@ class TestRemediateSecretIncidents:
         THEN: Detailed remediation steps with file locations are returned
         """
         # Mock list_repo_occurrences to return occurrences
-        mock_occurrences = {
-            "occurrences": [
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[
                 {
                     "id": "occ_1",
                     "matches": [
@@ -97,9 +98,10 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
-            "applied_filters": {},
-            "suggestion": "",
-        }
+            occurrences_count=1,
+            applied_filters={},
+            suggestion="",
+        )
 
         # Mock get_current_token_info for filtering by assignee
         mock_gitguardian_client.get_current_token_info = AsyncMock(
@@ -108,8 +110,8 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
@@ -126,18 +128,18 @@ class TestRemediateSecretIncidents:
             assert result.git_commands is not None
 
             # Verify summary
-            assert result.summary["total_occurrences"] == 1
-            assert result.summary["affected_files"] == 1
-            assert "AWS Access Key" in result.summary["secret_types"]
+            assert result.summary.get("total_occurrences") == 1
+            assert result.summary.get("affected_files") == 1
+            assert "AWS Access Key" in result.summary.get("secret_types", [])
 
             # Verify remediation steps
             assert len(result.remediation_steps) == 1
-            assert result.remediation_steps[0]["file"] == "config.py"
-            assert len(result.remediation_steps[0]["matches"]) == 1
+            assert result.remediation_steps[0].get("file") == "config.py"
+            assert len(result.remediation_steps[0].get("matches", [])) == 1
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_occurrences(
-        self, mock_gitguardian_client
+            self, mock_gitguardian_client
     ):
         """
         GIVEN: No occurrences found for the repository
@@ -145,16 +147,17 @@ class TestRemediateSecretIncidents:
         THEN: A message indicating no occurrences is returned
         """
         # Mock list_repo_occurrences to return empty occurrences
-        mock_occurrences = {
-            "occurrences": [],
-            "applied_filters": {"tags_exclude": ["TEST_FILE"]},
-            "suggestion": "No occurrences matched the applied filters.",
-        }
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[],
+            occurrences_count=0,
+            applied_filters={"tags_exclude": ["TEST_FILE"]},
+            suggestion="No occurrences matched the applied filters.",
+        )
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
@@ -178,12 +181,12 @@ class TestRemediateSecretIncidents:
         THEN: The error is propagated in the response
         """
         # Mock list_repo_occurrences to return error
-        mock_occurrences = {"error": "API connection failed"}
+        mock_occurrences = ListRepoOccurrencesError(error="API connection failed")
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
@@ -198,7 +201,7 @@ class TestRemediateSecretIncidents:
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_mine_false(
-        self, mock_gitguardian_client
+            self, mock_gitguardian_client
     ):
         """
         GIVEN: mine=False flag to include all incidents
@@ -206,8 +209,8 @@ class TestRemediateSecretIncidents:
         THEN: All occurrences are included regardless of assignee
         """
         # Mock list_repo_occurrences to return multiple occurrences
-        mock_occurrences = {
-            "occurrences": [
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[
                 {
                     "id": "occ_1",
                     "matches": [
@@ -229,14 +232,15 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
-            "applied_filters": {},
-            "suggestion": "",
-        }
+            occurrences_count=1,
+            applied_filters={},
+            suggestion="",
+        )
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with mine=False
             result = await remediate_secret_incidents(
@@ -246,11 +250,11 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify all occurrences are included (not filtered by assignee)
-            assert result.summary["total_occurrences"] == 1
+            assert result.summary.get("total_occurrences") == 1
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_git_commands(
-        self, mock_gitguardian_client
+            self, mock_gitguardian_client
     ):
         """
         GIVEN: include_git_commands=False
@@ -258,8 +262,8 @@ class TestRemediateSecretIncidents:
         THEN: Git commands are not included in the response
         """
         # Mock list_repo_occurrences to return occurrences
-        mock_occurrences = {
-            "occurrences": [
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[
                 {
                     "id": "occ_1",
                     "matches": [
@@ -280,9 +284,10 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
-            "applied_filters": {},
-            "suggestion": "",
-        }
+            occurrences_count=1,
+            applied_filters={},
+            suggestion="",
+        )
 
         # Mock get_current_token_info
         mock_gitguardian_client.get_current_token_info = AsyncMock(
@@ -291,8 +296,8 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with include_git_commands=False
             result = await remediate_secret_incidents(
@@ -308,7 +313,7 @@ class TestRemediateSecretIncidents:
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_no_env_example(
-        self, mock_gitguardian_client
+            self, mock_gitguardian_client
     ):
         """
         GIVEN: create_env_example=False
@@ -316,8 +321,8 @@ class TestRemediateSecretIncidents:
         THEN: Env example content is not included in the response
         """
         # Mock list_repo_occurrences to return occurrences
-        mock_occurrences = {
-            "occurrences": [
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[
                 {
                     "id": "occ_1",
                     "matches": [
@@ -338,9 +343,10 @@ class TestRemediateSecretIncidents:
                     },
                 }
             ],
-            "applied_filters": {},
-            "suggestion": "",
-        }
+            occurrences_count=1,
+            applied_filters={},
+            suggestion="",
+        )
 
         # Mock get_current_token_info
         mock_gitguardian_client.get_current_token_info = AsyncMock(
@@ -349,8 +355,8 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
@@ -366,7 +372,7 @@ class TestRemediateSecretIncidents:
 
     @pytest.mark.asyncio
     async def test_remediate_secret_incidents_multiple_files(
-        self, mock_gitguardian_client
+            self, mock_gitguardian_client
     ):
         """
         GIVEN: Occurrences across multiple files
@@ -374,8 +380,8 @@ class TestRemediateSecretIncidents:
         THEN: Remediation steps are provided for each file
         """
         # Mock list_repo_occurrences to return occurrences in different files
-        mock_occurrences = {
-            "occurrences": [
+        mock_occurrences = ListRepoOccurrencesResult(
+            occurrences=[
                 {
                     "id": "occ_1",
                     "matches": [
@@ -415,9 +421,10 @@ class TestRemediateSecretIncidents:
                     },
                 },
             ],
-            "applied_filters": {},
-            "suggestion": "",
-        }
+            occurrences_count=2,
+            applied_filters={},
+            suggestion="",
+        )
 
         # Mock get_current_token_info
         mock_gitguardian_client.get_current_token_info = AsyncMock(
@@ -426,8 +433,8 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-            AsyncMock(return_value=mock_occurrences),
+                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+                AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
@@ -437,8 +444,9 @@ class TestRemediateSecretIncidents:
             )
 
             # Verify response
-            assert result.summary["total_occurrences"] == 2
-            assert result.summary["affected_files"] == 2
+            sub_tool_result = result.sub_tools_results.get("list_repo_occurrences")
+            assert sub_tool_result.get("total_occurrences") == 2
+            assert sub_tool_result.get("affected_files") == 2
             assert len(result.remediation_steps) == 2
 
     @pytest.mark.asyncio
@@ -480,16 +488,16 @@ class TestRemediateSecretIncidents:
         )
 
         # Verify response structure
-        assert "repository_info" in result
-        assert "summary" in result
-        assert "remediation_steps" in result
-        assert "env_example_content" in result
-        assert "git_commands" in result
+        assert hasattr(result, "repository_info")
+        assert hasattr(result, "summary")
+        assert hasattr(result, "remediation_steps")
+        assert hasattr(result, "env_example_content")
+        assert hasattr(result, "git_commands")
 
         # Verify remediation steps are sorted bottom-to-top
-        step = result["remediation_steps"][0]
-        assert step["file"] == "config.py"
-        assert len(step["matches"]) == 1
+        step = result.remediation_steps[0]
+        assert step.get("file") == "config.py"
+        assert len(step.get("matches", [])) == 1
 
     @pytest.mark.asyncio
     async def test_process_occurrences_for_remediation_sorting(self):
@@ -549,6 +557,6 @@ class TestRemediateSecretIncidents:
         )
 
         # Verify matches are sorted bottom to top (line 15 before line 5)
-        step = result["remediation_steps"][0]
-        assert step["matches"][0]["line_start"] == 15
-        assert step["matches"][1]["line_start"] == 5
+        step = result.remediation_steps[0]
+        assert step.get("matches", [])[0].get("line_start") == 15
+        assert step.get("matches", [])[1].get("line_start") == 5

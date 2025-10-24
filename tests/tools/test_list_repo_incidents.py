@@ -18,7 +18,7 @@ class TestListRepoIncidents:
         """
         # Mock the client response
         mock_response = {
-            "data": [
+            "incidents": [
                 {
                     "id": "incident_1",
                     "detector": {"name": "AWS Access Key"},
@@ -56,7 +56,8 @@ class TestListRepoIncidents:
         assert call_kwargs["mine"] is True
 
         # Verify response
-        assert result == mock_response
+        assert result.total_count == mock_response["total_count"]
+        assert len(result.incidents) == len(mock_response["incidents"])
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_with_source_id(self, mock_gitguardian_client):
@@ -106,9 +107,9 @@ class TestListRepoIncidents:
         assert call_args[1]["with_sources"] == "false"
 
         # Verify response
-        assert "source_id" in result
-        assert result["source_id"] == "source_123"
-        assert len(result["incidents"]) == 1
+        assert hasattr(result, "source_id")
+        assert result.source_id == "source_123"
+        assert len(result.incidents) == 1
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_with_filters(self, mock_gitguardian_client):
@@ -182,8 +183,8 @@ class TestListRepoIncidents:
         mock_gitguardian_client.paginate_all.assert_called_once()
 
         # Verify response
-        assert result["total_count"] == 3
-        assert len(result["incidents"]) == 3
+        assert result.total_count == 3
+        assert len(result.incidents) == 3
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_no_repository_or_source(
@@ -212,8 +213,8 @@ class TestListRepoIncidents:
         )
 
         # Verify error response
-        assert "error" in result
-        assert "Either repository_name or source_id must be provided" in result["error"]
+        assert hasattr(result, "error")
+        assert "Either repository_name or source_id must be provided" in result.error
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_client_error(self, mock_gitguardian_client):
@@ -246,8 +247,8 @@ class TestListRepoIncidents:
         )
 
         # Verify error response
-        assert "error" in result
-        assert "Failed to list repository incidents" in result["error"]
+        assert hasattr(result, "error")
+        assert "Failed to list repository incidents" in result.error
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_with_cursor(self, mock_gitguardian_client):
@@ -322,9 +323,9 @@ class TestListRepoIncidents:
         )
 
         # Verify response format
-        assert result["source_id"] == "source_123"
-        assert result["total_count"] == 2
-        assert len(result["incidents"]) == 2
+        assert result.source_id == "source_123"
+        assert result.total_count == 2
+        assert len(result.incidents) == 2
 
     @pytest.mark.asyncio
     async def test_list_repo_incidents_get_all_dict_response(
@@ -348,6 +349,6 @@ class TestListRepoIncidents:
         )
 
         # Verify response
-        assert result["source_id"] == "source_123"
-        assert result["total_count"] == 2
-        assert len(result["incidents"]) == 2
+        assert result.source_id == "source_123"
+        assert result.total_count == 2
+        assert len(result.incidents) == 2

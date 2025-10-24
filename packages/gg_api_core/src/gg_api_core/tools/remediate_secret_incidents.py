@@ -68,16 +68,20 @@ class RemediateSecretIncidentsResult(BaseModel):
     env_example_content: str | None = Field(default=None, description="Suggested .env.example content")
     env_example_instructions: list[str] | None = Field(default=None, description="Instructions for .env.example")
     git_commands: dict[str, Any] | None = Field(default=None, description="Git commands to fix history")
-    applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters applied when querying occurrences")
+    applied_filters: dict[str, Any] = Field(default_factory=dict,
+                                            description="Filters applied when querying occurrences")
     suggestion: str = Field(default="", description="Suggestions for interpreting results")
+    sub_tools_results: dict[str, Any] = Field(default_factory=dict, description="Results from sub tools")
 
 
 class RemediateSecretIncidentsError(BaseModel):
     """Error result from remediating secret incidents."""
     error: str = Field(description="Error message")
+    sub_tools_results: dict[str, Any] = Field(default_factory=dict, description="Results from sub tools")
 
 
-async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
+async def remediate_secret_incidents(
+        params: RemediateSecretIncidentsParams) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
     """
     Find and remediate secret incidents in the current repository using EXACT match locations.
 
@@ -124,12 +128,31 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
 
     try:
         # Get detailed occurrences with exact match locations
-        # Extract filter parameters from list_repo_occurrences_params
-        occurrences_result = await list_repo_occurrences(params.list_repo_occurrences_params)
+        # Build ListRepoOccurrencesParams by combining repository info with filters
+        from .list_repo_occurrences import ListRepoOccurrencesParams
+
+        occurrences_params = ListRepoOccurrencesParams(
+            repository_name=params.repository_name,
+            source_id=params.source_id,
+            from_date=params.list_repo_occurrences_params.from_date,
+            to_date=params.list_repo_occurrences_params.to_date,
+            presence=params.list_repo_occurrences_params.presence,
+            tags=params.list_repo_occurrences_params.tags,
+            exclude_tags=params.list_repo_occurrences_params.exclude_tags,
+            status=params.list_repo_occurrences_params.status,
+            severity=params.list_repo_occurrences_params.severity,
+            validity=params.list_repo_occurrences_params.validity,
+            ordering=None,
+            per_page=20,
+            cursor=None,
+            get_all=params.get_all,
+        )
+        occurrences_result = await list_repo_occurrences(occurrences_params)
 
         # Check if list_repo_occurrences returned an error
-        if getattr(occurrences_result, "error"):
-            return RemediateSecretIncidentsError(error=occurrences_result.error)
+        if hasattr(occurrences_result, "error") and occurrences_result.error:
+            return RemediateSecretIncidentsError(error=occurrences_result.error,
+                                                 sub_tools_results={"list_repo_occurrences": occurrences_result})
         occurrences = occurrences_result.occurrences
 
         # Filter by assignee if mine=True
@@ -157,6 +180,7 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
                 remediation_steps=[],
                 applied_filters=occurrences_result.applied_filters or {},
                 suggestion=occurrences_result.suggestion or "",
+                sub_tools_results={"list_repo_occurrences": occurrences_result}
             )
 
         # Process occurrences for remediation with exact location data
@@ -168,10 +192,22 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
             create_env_example=params.create_env_example,
         )
         logger.debug(
-            f"Remediation processing complete, returning result with {len(result.get('remediation_steps', []))} steps"
+            f"Remediation processing complete, returning result with {len(result.remediation_steps)} steps"
         )
-        # Convert dict result to Pydantic model
-        return RemediateSecretIncidentsResult(**result)
+
+        # Add sub_tools_results and applied_filters/suggestion from occurrences_result
+        result_dict = result.model_dump()
+        result_dict["sub_tools_results"] = {
+            "list_repo_occurrences": {
+                "total_occurrences": result.summary.get("total_occurrences",
+                                                        len(occurrences)) if result.summary else len(occurrences),
+                "affected_files": result.summary.get("affected_files", 0) if result.summary else 0,
+            }
+        }
+        result_dict["applied_filters"] = occurrences_result.applied_filters or {}
+        result_dict["suggestion"] = occurrences_result.suggestion or ""
+
+        return RemediateSecretIncidentsResult(**result_dict)
 
     except Exception as e:
         logger.error(f"Error remediating incidents: {str(e)}")
@@ -179,11 +215,11 @@ async def remediate_secret_incidents(params: RemediateSecretIncidentsParams) -> 
 
 
 async def _process_occurrences_for_remediation(
-    occurrences: list[dict[str, Any]],
-    repository_name: str,
-    include_git_commands: bool = True,
-    create_env_example: bool = True,
-) -> dict[str, Any]:
+        occurrences: list[dict[str, Any]],
+        repository_name: str,
+        include_git_commands: bool = True,
+        create_env_example: bool = True,
+) -> RemediateSecretIncidentsResult:
     """
     Process occurrences for remediation using exact match locations.
 
@@ -319,4 +355,4 @@ async def _process_occurrences_for_remediation(
     if git_commands:
         result["git_commands"] = git_commands
 
-    return result
+    return RemediateSecretIncidentsResult(**result)
