@@ -16,8 +16,8 @@ class GenerateHoneytokenParams(BaseModel):
     new_token: bool = Field(
         default=False,
         description="If False, retrieves an existing active honeytoken created by you instead of generating a new one. "
-        "If no existing token is found, a new one will be created. "
-        "To generate a new token, set this to True.",
+                    "If no existing token is found, a new one will be created. "
+                    "To generate a new token, set this to True.",
     )
 
 
@@ -25,7 +25,7 @@ class GenerateHoneytokenResult(BaseModel):
     """Result from generating or retrieving a honeytoken."""
     model_config = {"extra": "allow"}  # Allow additional fields from API
 
-    id: str = Field(description="Honeytoken ID")
+    id: str | int = Field(description="Honeytoken ID")
     name: str | None = Field(default=None, description="Honeytoken name")
     description: str | None = Field(default=None, description="Honeytoken description")
     type: str | None = Field(default=None, description="Honeytoken type")
@@ -109,7 +109,8 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
             {"key": "source", "value": "auto-generated"},
             {"key": "type", "value": "aws"},
         ]
-        result = await client.create_honeytoken(name=params.name, description=params.description, custom_tags=custom_tags)
+        result = await client.create_honeytoken(name=params.name, description=params.description,
+                                                custom_tags=custom_tags)
 
         # Validate that we got an ID in the response
         if not result.get("id"):

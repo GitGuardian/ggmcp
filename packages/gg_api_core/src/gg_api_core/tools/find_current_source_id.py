@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class SourceCandidate(BaseModel):
     """A candidate source that might match the repository."""
-    id: str = Field(description="Source ID")
+    id: str | int = Field(description="Source ID")
     url: str | None = Field(default=None, description="Repository URL")
     name: str | None = Field(default=None, description="Repository name")
     monitored: bool | None = Field(default=None, description="Whether source is monitored")
@@ -19,11 +19,12 @@ class SourceCandidate(BaseModel):
 class FindCurrentSourceIdResult(BaseModel):
     """Successful result from finding source ID."""
     repository_name: str = Field(description="Detected repository name")
-    source_id: str | None = Field(default=None, description="GitGuardian source ID (if exact match)")
+    source_id: str | int | None = Field(default=None, description="GitGuardian source ID (if exact match)")
     source: dict[str, Any] | None = Field(default=None, description="Full source information (if exact match)")
     message: str | None = Field(default=None, description="Status or informational message")
     suggestion: str | None = Field(default=None, description="Suggestions for next steps")
-    candidates: list[SourceCandidate] | None = Field(default=None, description="List of candidate sources (if no exact match)")
+    candidates: list[SourceCandidate] | None = Field(default=None,
+                                                     description="List of candidate sources (if no exact match)")
 
 
 class FindCurrentSourceIdError(BaseModel):
