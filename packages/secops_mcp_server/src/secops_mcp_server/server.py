@@ -40,7 +40,7 @@ class ListIncidentsParams(BaseModel):
         default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
     )
     assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email")
-    assignee_id: str | None = Field(default=None, description="Filter incidents assigned to this user id")
+    assignee_id: str | int | None = Field(default=None, description="Filter incidents assigned to this user id")
     validity: str | None = Field(
         default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
     )
@@ -61,8 +61,8 @@ class ListHoneytokensParams(BaseModel):
         default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
     )
     show_token: bool = Field(default=False, description="Whether to include token details in the response")
-    creator_id: str | None = Field(default=None, description="Filter by creator ID")
-    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID")
+    creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
+    creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
     mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
@@ -70,11 +70,11 @@ class ListHoneytokensParams(BaseModel):
 
 class ManageIncidentParams(BaseModel):
     """Parameters for managing an incident."""
-    incident_id: str = Field(description="ID of the secret incident to manage")
+    incident_id: str | int = Field(description="ID of the secret incident to manage")
     action: Literal["assign", "unassign", "resolve", "ignore", "reopen"] = Field(
         description="Action to perform on the incident"
     )
-    assignee_id: str | None = Field(
+    assignee_id: str | int | None = Field(
         default=None, description="ID of the member to assign the incident to (required for 'assign' action)"
     )
     ignore_reason: str | None = Field(
@@ -86,20 +86,20 @@ class ManageIncidentParams(BaseModel):
 
 class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
     """Parameters for updating or creating incident custom tags."""
-    incident_id: str = Field(description="ID of the secret incident")
+    incident_id: str | int = Field(description="ID of the secret incident")
     custom_tags: list[str | dict[str, str]] = Field(description="List of custom tags to apply to the incident")
 
 
 class UpdateIncidentStatusParams(BaseModel):
     """Parameters for updating incident status."""
-    incident_id: str = Field(description="ID of the secret incident")
+    incident_id: str | int = Field(description="ID of the secret incident")
     status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)")
 
 
 class ReadCustomTagsParams(BaseModel):
     """Parameters for reading custom tags."""
     action: Literal["list_tags", "get_tag"] = Field(description="Action to perform related to reading custom tags")
-    tag_id: str | None = Field(
+    tag_id: str | int | None = Field(
         default=None, description="ID of the custom tag to retrieve (used with 'get_tag' action)"
     )
 
@@ -109,7 +109,7 @@ class WriteCustomTagsParams(BaseModel):
     action: Literal["create_tag", "delete_tag"] = Field(description="Action to perform related to writing custom tags")
     key: str | None = Field(default=None, description="Key for the new tag (used with 'create_tag' action)")
     value: str | None = Field(default=None, description="Value for the new tag (used with 'create_tag' action)")
-    tag_id: str | None = Field(
+    tag_id: str | int | None = Field(
         default=None, description="ID of the custom tag to delete (used with 'delete_tag' action)"
     )
 
@@ -512,7 +512,6 @@ except Exception as e:
     import traceback
 
     logger.error(f"Traceback: {traceback.format_exc()}")
-
 
 if __name__ == "__main__":
     logger.info("Starting SecOps MCP server...")

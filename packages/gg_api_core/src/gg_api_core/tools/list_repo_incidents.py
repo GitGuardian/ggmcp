@@ -86,7 +86,8 @@ def _build_suggestion(params: "ListRepoIncidentsParams", incidents_count: int) -
 
     # If no results, suggest how to get more
     if incidents_count == 0 and suggestions:
-        suggestions.append("No incidents matched the applied filters. Try with mine=False, exclude_tags=[], or different status/severity/validity filters to see all incidents.")
+        suggestions.append(
+            "No incidents matched the applied filters. Try with mine=False, exclude_tags=[], or different status/severity/validity filters to see all incidents.")
 
     return "\n".join(suggestions) if suggestions else ""
 
@@ -97,7 +98,7 @@ class ListRepoIncidentsParams(BaseModel):
         default=None,
         description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided."
     )
-    source_id: str | None = Field(
+    source_id: str | int | None = Field(
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
     )
@@ -124,13 +125,15 @@ class ListRepoIncidentsParams(BaseModel):
         default=True,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     )
-    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)")
-    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)")
+    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES,
+                                       description="Filter by severity (list of severity names)")
+    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES,
+                                       description="Filter by validity (list of validity names)")
 
 
 class ListRepoIncidentsResult(BaseModel):
     """Result from listing repository incidents."""
-    source_id: str | None = Field(default=None, description="Source ID of the repository")
+    source_id: str | int | None = Field(default=None, description="Source ID of the repository")
     incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of incident objects")
     total_count: int = Field(description="Total number of incidents")
     next_cursor: str | None = Field(default=None, description="Pagination cursor for next page")
@@ -188,7 +191,8 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> ListRepoIncide
             if params.tags:
                 api_params["tags"] = ",".join(params.tags) if isinstance(params.tags, list) else params.tags
             if params.exclude_tags:
-                api_params["exclude_tags"] = ",".join(params.exclude_tags) if isinstance(params.exclude_tags, list) else params.exclude_tags
+                api_params["exclude_tags"] = ",".join(params.exclude_tags) if isinstance(params.exclude_tags,
+                                                                                         list) else params.exclude_tags
             if params.per_page:
                 api_params["per_page"] = params.per_page
             if params.cursor:
@@ -198,15 +202,18 @@ async def list_repo_incidents(params: ListRepoIncidentsParams) -> ListRepoIncide
             if params.mine:
                 api_params["assigned_to_me"] = "true"
             if params.severity:
-                api_params["severity"] = ",".join(params.severity) if isinstance(params.severity, list) else params.severity
+                api_params["severity"] = ",".join(params.severity) if isinstance(params.severity,
+                                                                                 list) else params.severity
             if params.status:
                 api_params["status"] = ",".join(params.status) if isinstance(params.status, list) else params.status
             if params.validity:
-                api_params["validity"] = ",".join(params.validity) if isinstance(params.validity, list) else params.validity
+                api_params["validity"] = ",".join(params.validity) if isinstance(params.validity,
+                                                                                 list) else params.validity
 
             # Get incidents directly using source_id
             if params.get_all:
-                incidents_result = await client.paginate_all(f"/sources/{params.source_id}/incidents/secrets", api_params)
+                incidents_result = await client.paginate_all(f"/sources/{params.source_id}/incidents/secrets",
+                                                             api_params)
                 if isinstance(incidents_result, list):
                     count = len(incidents_result)
                     return ListRepoIncidentsResult(

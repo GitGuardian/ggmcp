@@ -18,8 +18,8 @@ class ListHoneytokensParams(BaseModel):
         default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
     )
     show_token: bool = Field(default=False, description="Whether to include token details in the response")
-    creator_id: str | None = Field(default=None, description="Filter by creator ID")
-    creator_api_token_id: str | None = Field(default=None, description="Filter by creator API token ID")
+    creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
+    creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
     mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")

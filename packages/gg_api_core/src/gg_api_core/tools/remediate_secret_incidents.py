@@ -27,7 +27,7 @@ class RemediateSecretIncidentsParams(BaseModel):
         default=None,
         description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided.",
     )
-    source_id: str | None = Field(
+    source_id: str | int | None = Field(
         default=None,
         description="The source ID of the repository. Pass the current repository source ID if not provided.",
     )

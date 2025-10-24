@@ -8,7 +8,6 @@ from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
-
 DEFAULT_EXCLUDED_TAGS = [
     TagNames.TEST_FILE,
     TagNames.FALSE_POSITIVE,
@@ -50,8 +49,10 @@ class ListRepoOccurrencesFilters(BaseModel):
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering."
     )
     status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
-    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)")
-    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)")
+    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES,
+                                       description="Filter by severity (list of severity names)")
+    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES,
+                                       description="Filter by validity (list of validity names)")
 
 
 class ListRepoOccurrencesBaseParams(BaseModel):
@@ -60,7 +61,7 @@ class ListRepoOccurrencesBaseParams(BaseModel):
         default=None,
         description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
     )
-    source_id: str | None = Field(
+    source_id: str | int | None = Field(
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
     )
@@ -145,12 +146,14 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 
     # If no results, suggest how to get more
     if occurrences_count == 0 and suggestions:
-        suggestions.append("No occurrences matched the applied filters. Try with exclude_tags=[] or different status/severity/validity filters to see all occurrences.")
+        suggestions.append(
+            "No occurrences matched the applied filters. Try with exclude_tags=[] or different status/severity/validity filters to see all occurrences.")
 
     return "\n".join(suggestions) if suggestions else ""
 
 
-async def list_repo_occurrences(params: ListRepoOccurrencesParams) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
+async def list_repo_occurrences(
+        params: ListRepoOccurrencesParams) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
 
