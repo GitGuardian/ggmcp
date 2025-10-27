@@ -3,10 +3,10 @@ name = "ggmcp"
 version = "0.5.0"
 description = "MCP server for GitGuardian"
 authors = [
-    {name = "GitGuardian", email = "support@gitguardian.com"},
+    { name = "GitGuardian", email = "support@gitguardian.com" },
 ]
 maintainers = [
-    {name = "GitGuardian", email = "support@gitguardian.com"},
+    { name = "GitGuardian", email = "support@gitguardian.com" },
 ]
 keywords = [
     "cli",
@@ -29,7 +29,7 @@ classifiers = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "developer-mcp-server",
     "secops-mcp-server"

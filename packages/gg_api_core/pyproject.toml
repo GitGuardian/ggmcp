@@ -3,10 +3,10 @@ name = "gg-api-core"
 version = "0.1.0"
 description = "Core functionality for GitGuardian MCP servers"
 authors = [
-    {name = "GitGuardian", email = "support@gitguardian.com"},
+    { name = "GitGuardian", email = "support@gitguardian.com"},
 ]
 maintainers = [
-    {name = "GitGuardian", email = "support@gitguardian.com"},
+    {name = "GitGuardian", email = "support@gitguardian.com" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Security",
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.0",
