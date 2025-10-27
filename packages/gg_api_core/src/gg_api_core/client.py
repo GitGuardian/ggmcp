@@ -96,7 +96,7 @@ class GitGuardianClient:
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, gitguardian_url: str | None = None):
+    def __init__(self, gitguardian_url: str | None = None, personal_access_token: str | None = None):
         """Initialize the GitGuardian client.
 
         Args:
@@ -109,6 +109,12 @@ class GitGuardianClient:
         """
         logger.info("Initializing GitGuardian client")
 
+        self._init_urls(gitguardian_url)
+        self._init_personal_access_token(personal_access_token)
+
+        self._token_info = None
+
+    def _init_urls(self, gitguardian_url: str | None = None):
         # Use provided raw URL or get from environment with default fallback
         raw_url = gitguardian_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
 
@@ -121,8 +127,18 @@ class GitGuardianClient:
         self.private_api_url = f"{self.dashboard_url}/api/v1"
         logger.info(f"Using private API URL: {self.private_api_url}")
 
-        self._oauth_token = None
-        self._token_info = None
+    def _init_personal_access_token(self, personal_access_token: str | None = None):
+
+        if personal_access_token:
+            logger.info("Using provided PAT")
+            self._oauth_token = personal_access_token
+        elif personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
+            logger.info("Using PAT from environment variable")
+            self._oauth_token = personal_access_token
+        else:
+            # TODO(APPAI): We should also locate here the retrieval from storage
+            logger.info("No PAT provided, falling back to OAuth")
+            self._oauth_token = None
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
@@ -228,6 +244,9 @@ class GitGuardianClient:
     async def _ensure_oauth_token(self):
         """Ensure we have a valid OAuth token, initiating the OAuth flow if needed."""
 
+        if self._oauth_token is not None:
+            return
+
         # Use a global lock to prevent parallel OAuth flows across all client instances
         async with _oauth_lock:
             # Double-check pattern: another thread might have completed OAuth while we waited for the lock
@@ -236,7 +255,7 @@ class GitGuardianClient:
                 return
 
             logger.warning("Acquired OAuth lock, proceeding with authentication")
-            logger.info(f"   Client API URL: {self.public_api_url}")  # TODO(TIM)
+            logger.info(f"   Client API URL: {self.public_api_url}")
             logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
             logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
 
