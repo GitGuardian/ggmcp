@@ -3,7 +3,7 @@ name = "developer-mcp-server"
 version = "0.1.0"
 description = "GitGuardian MCP server for developers"
 authors = [
-    {name = "GitGuardian", email = "support@gitguardian.com"},
+    { name = "GitGuardian", email = "support@gitguardian.com" },
 ]
 maintainers = [
     {name = "GitGuardian", email = "support@gitguardian.com"},
@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Security",
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "mcp[cli]>=0.2.0",
     "httpx>=0.24.0",
