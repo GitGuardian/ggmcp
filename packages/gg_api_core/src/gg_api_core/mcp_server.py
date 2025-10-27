@@ -9,6 +9,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.types import AnyFunction
 from mcp.types import Tool as MCPTool
 
+from gg_api_core.tools import manage_incident
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -141,12 +142,12 @@ class GitGuardianFastMCP(FastMCP):
             self._tool_scopes[name] = set(required_scopes)
 
     def add_tool(
-        self,
-        fn: AnyFunction,
-        name: str | None = None,
-        description: str | None = None,
-        required_scopes: list[str] | None = None,
-        **kwargs,
+            self,
+            fn: AnyFunction,
+            name: str | None = None,
+            description: str | None = None,
+            required_scopes: list[str] | None = None,
+            **kwargs,
     ) -> None:
         name = name or fn.__name__
         self._store_tool_scopes(name, required_scopes)
@@ -336,4 +337,59 @@ def register_common_tools(mcp_instance: GitGuardianFastMCP):
             logger.error(f"Error during token revocation: {str(e)}")
             return {"success": False, "error": f"Failed to revoke token: {str(e)}"}
 
-    logger.debug("Registered common MCP tools: get_authenticated_user_info, revoke_current_token")
+    @mcp_instance.tool(
+        name="list_users",
+        description="List all members/users in the GitGuardian workspace with filtering and pagination options",
+        required_scopes=["members:read"],
+    )
+    async def list_users_tool(
+            cursor: str | None = None,
+            per_page: int = 20,
+            role: str | None = None,
+            access_level: str | None = None,
+            active: bool | None = None,
+            search: str | None = None,
+            ordering: str | None = None,
+            get_all: bool = False,
+    ) -> dict:
+        """
+        List members/users in the GitGuardian workspace.
+
+        Returns information about workspace members including their ID, name, email, role,
+        access level, active status, creation date, and last login.
+
+        Args:
+            cursor: Pagination cursor for fetching next page of results
+            per_page: Number of results per page (default: 20, min: 1, max: 100)
+            role: Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead
+            access_level: Filter members based on their access level (owner, manager, member, restricted)
+            active: Filter members based on their active status
+            search: Search members based on their name or email
+            ordering: Sort results by field (created_at, -created_at, last_login, -last_login). Use '-' prefix for descending order
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            dict: Dictionary containing:
+                - members: List of member objects with user information
+                - total_count: Total number of members returned
+                - next_cursor: Pagination cursor for next page (if applicable)
+        """
+        from gg_api_core.tools.list_users import list_users, ListUsersParams
+
+        logger.debug("Calling list_users tool")
+
+        params = ListUsersParams(
+            cursor=cursor,
+            per_page=per_page,
+            role=role,
+            access_level=access_level,
+            active=active,
+            search=search,
+            ordering=ordering,
+            get_all=get_all,
+        )
+
+        result = await list_users(params)
+        return result.model_dump()
+
+    logger.debug("Registered common MCP tools: get_authenticated_user_info, revoke_current_token, list_users")

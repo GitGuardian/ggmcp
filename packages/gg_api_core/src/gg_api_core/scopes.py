@@ -28,7 +28,22 @@ ALL_SCOPES = [
     "sources:write",
     "custom_tags:read",
     "custom_tags:write",
+    "members:read",
+    "write:secret",
+    "read:secret"
 ]
+
+ALL_READ_SCOPES = [
+    *MINIMAL_SCOPES,
+    "honeytokens:read",
+    "members:read"
+    "audit_logs:read",
+    "api_tokens:read",
+    "ip_allowlist:read",
+    "custom_tags:read",
+    "read:secret"
+]
+
 
 def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     """
@@ -42,6 +57,7 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     """
     return get_secops_scopes(gitguardian_url=gitguardian_url)
 
+
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     """
     Get SecOps scopes appropriate for the GitGuardian instance type.
@@ -54,14 +70,12 @@ def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     """
     if not is_self_hosted_instance(gitguardian_url):
         # For SaaS, request comprehensive SecOps scopes
-        return [
-            *MINIMAL_SCOPES,
-            *HONEYTOKEN_SCOPES,
-        ]
+        return ALL_SCOPES
     else:
         # For self-hosted, use conservative scopes that are most likely available
         # Avoid honeytokens as it may not be activated
         return MINIMAL_SCOPES
+
 
 def validate_scopes(scopes_str: str) -> list[str]:
     """
