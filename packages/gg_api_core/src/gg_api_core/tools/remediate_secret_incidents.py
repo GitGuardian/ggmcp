@@ -53,10 +53,21 @@ class RemediateSecretIncidentsParams(BaseModel):
     )
 
     # sub tools
-    list_repo_occurrences_params: ListRepoOccurrencesParamsForRemediate = Field(
-        default_factory=ListRepoOccurrencesParamsForRemediate,
+    list_repo_occurrences_params: ListRepoOccurrencesParamsForRemediate | None = Field(
+        default=None,
         description="Parameters for listing repository occurrences",
     )
+
+    @model_validator(mode="after")
+    def populate_list_repo_occurrences_params(self) -> "RemediateSecretIncidentsParams":
+        """Populate list_repo_occurrences_params with repository info from parent if not provided."""
+        if self.list_repo_occurrences_params is None:
+            # Create with parent's repository info
+            self.list_repo_occurrences_params = ListRepoOccurrencesParamsForRemediate(
+                repository_name=self.repository_name,
+                source_id=self.source_id,
+            )
+        return self
 
 
 class RemediateSecretIncidentsResult(BaseModel):
