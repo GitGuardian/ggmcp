@@ -36,7 +36,7 @@ ALL_SCOPES = [
 ALL_READ_SCOPES = [
     *MINIMAL_SCOPES,
     "honeytokens:read",
-    "members:read"
+    "members:read",
     "audit_logs:read",
     "api_tokens:read",
     "ip_allowlist:read",
@@ -55,7 +55,13 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     Returns:
         list[str]: List of appropriate scopes
     """
-    return get_secops_scopes(gitguardian_url=gitguardian_url)
+    if not is_self_hosted_instance():
+        return [
+            *ALL_READ_SCOPES,
+            "honeytokens:write",
+        ]
+    else:
+        return MINIMAL_SCOPES
 
 
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
