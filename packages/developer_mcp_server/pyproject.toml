@@ -26,13 +26,14 @@ dependencies = [
     "mcp[cli]>=0.2.0",
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
-    "gg-api-core"
+    "gg-api-core",
+    "uvicorn>=0.27.0"
 ]
 license = {text = "MIT"}
 
 
 [project.scripts]
-mcp-server = "developer_mcp_server.server:mcp.run"
+developer-mcp-server = "developer_mcp_server.server:run_mcp_server"
 
 [build-system]
 requires = ["hatchling"]

@@ -513,6 +513,24 @@ except Exception as e:
 
     logger.error(f"Traceback: {traceback.format_exc()}")
 
-if __name__ == "__main__":
+def run_mcp_server():
     logger.info("Starting SecOps MCP server...")
-    mcp.run()
+
+    # Check if HTTP/SSE transport is requested via environment variables
+    mcp_port = os.environ.get("MCP_PORT")
+    mcp_host = os.environ.get("MCP_HOST", "127.0.0.1")
+
+    if mcp_port:
+        # Use HTTP/SSE transport
+        import uvicorn
+        logger.info(f"Starting MCP server with HTTP/SSE transport on {mcp_host}:{mcp_port}")
+        # Get the SSE ASGI app from FastMCP
+        uvicorn.run(mcp.sse_app(), host=mcp_host, port=int(mcp_port))
+    else:
+        # Use default stdio transport
+        logger.info("Starting MCP server with stdio transport (default)")
+        mcp.run()
+
+
+if __name__ == "__main__":
+    run_mcp_server()
