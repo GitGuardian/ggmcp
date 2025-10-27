@@ -93,13 +93,12 @@ mcp = GitGuardianFastMCP(
 )
 logger.info("Created Developer GitGuardianFastMCP instance")
 
-
 mcp.add_tool(remediate_secret_incidents,
-    description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
-    "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
-    "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
-    required_scopes=["incidents:read", "sources:read"],
-)
+             description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
+                         "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
+                         "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
+             required_scopes=["incidents:read", "sources:read"],
+             )
 
 mcp.add_tool(scan_secrets,
              description="""
@@ -111,30 +110,28 @@ mcp.add_tool(scan_secrets,
     Do not send documents that are in the .gitignore file.
     """,
              required_scopes=["scan"],
-)
+             )
 
 mcp.add_tool(list_repo_incidents,
-    description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
-    "By default, this tool only shows incidents assigned to the current user. "
-    "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
-    required_scopes=["incidents:read", "sources:read"],
-)
-
+             description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
+                         "By default, this tool only shows incidents assigned to the current user. "
+                         "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+             required_scopes=["incidents:read", "sources:read"],
+             )
 
 mcp.add_tool(
     list_repo_occurrences,
     description="List secret occurrences for a specific repository with exact match locations. "
-    "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
-    "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
+                "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
+                "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
     required_scopes=["incidents:read"],
 )
-
 
 mcp.add_tool(
     find_current_source_id,
     description="Find the GitGuardian source_id for the current repository. "
-    "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
-    "Useful when you need to reference the repository in other API calls.",
+                "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
+                "Useful when you need to reference the repository in other API calls.",
     required_scopes=["sources:read"],
 )
 
@@ -144,7 +141,6 @@ mcp.add_tool(
     required_scopes=["honeytokens:write"],
 )
 
-
 mcp.add_tool(
     list_honeytokens,
     description="List honeytokens from the GitGuardian dashboard with filtering options",
@@ -152,6 +148,24 @@ mcp.add_tool(
 )
 
 
-if __name__ == "__main__":
+def run_mcp_server():
     logger.info("Starting Developer MCP server...")
-    mcp.run()
+
+    # Check if HTTP/SSE transport is requested via environment variables
+    mcp_port = os.environ.get("MCP_PORT")
+    mcp_host = os.environ.get("MCP_HOST", "127.0.0.1")
+
+    if mcp_port:
+        # Use HTTP/SSE transport
+        import uvicorn
+        logger.info(f"Starting MCP server with HTTP/SSE transport on {mcp_host}:{mcp_port}")
+        # Get the SSE ASGI app from FastMCP
+        uvicorn.run(mcp.sse_app(), host=mcp_host, port=int(mcp_port))
+    else:
+        # Use default stdio transport
+        logger.info("Starting MCP server with stdio transport (default)")
+        mcp.run()
+
+
+if __name__ == "__main__":
+    run_mcp_server()

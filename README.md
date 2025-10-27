@@ -197,6 +197,52 @@ The following environment variables can be configured:
 | `GITGUARDIAN_SCOPES` | OAuth scopes to request | Auto-detected based on instance type | `scan,incidents:read,sources:read,honeytokens:read,honeytokens:write` |
 | `GITGUARDIAN_TOKEN_NAME` | Name for the OAuth token | Auto-generated based on server type | `"Developer MCP Token"` |
 | `GITGUARDIAN_TOKEN_LIFETIME` | Token lifetime in days | `30` | `60` or `never` |
+| `MCP_PORT` | Port for HTTP/SSE transport (when set, enables HTTP transport instead of stdio) | Not set (uses stdio) | `8000` |
+| `MCP_HOST` | Host address for HTTP/SSE transport | `127.0.0.1` | `0.0.0.0` |
+
+### HTTP/SSE Transport
+
+By default, the MCP server uses **stdio transport** for local IDE integrations. If you need to expose the MCP server over HTTP (for remote access or custom integrations), you can use the `MCP_PORT` and `MCP_HOST` environment variables.
+
+#### Enabling HTTP Transport
+
+To enable HTTP/SSE transport, set the `MCP_PORT` environment variable:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardianDeveloper": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/GitGuardian/ggmcp.git",
+        "developer-mcp-server"
+      ],
+      "env": {
+        "MCP_PORT": "8000",
+        "MCP_HOST": "127.0.0.1"
+      }
+    }
+  }
+}
+```
+
+#### Running the server directly with HTTP transport
+
+You can also run the server directly with HTTP transport:
+
+```bash
+# Run with HTTP transport
+MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git developer-mcp-server
+```
+
+The server will automatically start on `http://127.0.0.1:8000` and be accessible for remote integrations.
+
+**Notes:**
+- `uvicorn` is included as a dependency - no additional installation needed.
+- When `MCP_PORT` is not set, the server uses stdio transport (default behavior).
+- `MCP_HOST` defaults to `127.0.0.1` (localhost only). Use `0.0.0.0` to allow connections from any network interface.
+- The HTTP/SSE transport is useful for remote access, but stdio is recommended for local IDE integrations.
 
 ### Self-Hosted GitGuardian
 
