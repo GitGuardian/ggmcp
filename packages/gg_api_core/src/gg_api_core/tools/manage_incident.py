@@ -25,7 +25,7 @@ class ManageIncidentParams(BaseModel):
     mine: bool = Field(default=False, description="If True, use the current user's ID for the assignee_id")
 
 
-async def manage_incident(params: ManageIncidentParams) -> dict[str, Any]:
+async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any]:
     """
     Manage a secret incident (assign, unassign, resolve, ignore, reopen).
 
