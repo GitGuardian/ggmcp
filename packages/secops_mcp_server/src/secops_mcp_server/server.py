@@ -14,7 +14,7 @@ from mcp.server.fastmcp.exceptions import ToolError
 
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.list_users import list_users
-from gg_api_core.tools.manage_incident import manage_incident, update_incident_status
+from gg_api_core.tools.manage_incident import manage_private_incident, update_incident_status
 from gg_api_core.tools.read_custom_tags import read_custom_tags
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.write_custom_tags import write_custom_tags, update_or_create_incident_custom_tags
@@ -204,7 +204,7 @@ mcp.add_tool(
 )
 
 mcp.add_tool(
-    manage_incident,
+    manage_private_incident,
     description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
     required_scopes=["incidents:write"],
 )
@@ -235,6 +235,7 @@ except Exception as e:
     import traceback
 
     logger.error(f"Traceback: {traceback.format_exc()}")
+
 
 def run_mcp_server():
     logger.info("Starting SecOps MCP server...")
