@@ -12,6 +12,8 @@ import httpx
 from gg_api_core.host import is_self_hosted_instance
 from urllib.parse import urlparse
 
+from gg_api_core.scopes import get_scopes_from_env_var
+
 # Setup logger
 logger = logging.getLogger(__name__)
 
@@ -158,8 +160,12 @@ class GitGuardianClient:
         try:
             parsed = urlparse(api_url)
 
+            # Special handling for localhost and 127.0.0.1 - always treat as self-hosted
+            # regardless of SAAS_HOSTNAMES list (used for local development)
+            is_localhost = parsed.netloc.startswith("localhost") or parsed.netloc.startswith("127.0.0.1")
+
             # Check if this is a SaaS URL (dashboard or API)
-            if not is_self_hosted_instance(api_url):
+            if not is_localhost and not is_self_hosted_instance(api_url):
                 # Convert dashboard URLs to API URLs with /v1 suffix
                 if "dashboard" in parsed.netloc:
                     api_netloc = parsed.netloc.replace("dashboard", "api")
@@ -261,22 +267,8 @@ class GitGuardianClient:
 
             # Import here to avoid circular imports
             from .oauth import GitGuardianOAuthClient
-            from .scopes import DEVELOPER_SCOPES, validate_scopes
 
-            default_scopes = ",".join(DEVELOPER_SCOPES)
-            # Check for both GITGUARDIAN_SCOPES and GITGUARDIAN_REQUESTED_SCOPES for backward compatibility
-            scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get(
-                "GITGUARDIAN_REQUESTED_SCOPES", default_scopes
-            )
-
-            logger.info(f"   Using scopes: {scopes_str}")
-
-            # Validate scopes to ensure only valid ones are used
-            try:
-                scopes = validate_scopes(scopes_str)
-            except ValueError as e:
-                logger.error(f"Invalid scopes in OAuth client: {e}")
-                raise
+            scopes = get_scopes_from_env_var()
 
             # Get custom login path if specified
             login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")

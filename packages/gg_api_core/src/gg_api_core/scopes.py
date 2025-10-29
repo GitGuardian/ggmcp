@@ -1,6 +1,6 @@
 """GitGuardian API scope definitions for different server types."""
-
-from gg_api_core.host import is_self_hosted_instance
+import os
+from gg_api_core.host import is_self_hosted_instance, is_local_instance
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -29,8 +29,8 @@ ALL_SCOPES = [
     "custom_tags:read",
     "custom_tags:write",
     "members:read",
-    "write:secret",
-    "read:secret"
+    "secrets:write",
+    "secrets:read"
 ]
 
 ALL_READ_SCOPES = [
@@ -41,7 +41,7 @@ ALL_READ_SCOPES = [
     "api_tokens:read",
     "ip_allowlist:read",
     "custom_tags:read",
-    "read:secret"
+    "secrets:read"
 ]
 
 
@@ -55,13 +55,14 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     Returns:
         list[str]: List of appropriate scopes
     """
-    if not is_self_hosted_instance():
+    if is_self_hosted_instance(gitguardian_url) and not is_local_instance(gitguardian_url):
+        # For non-local self-hosted instances, return minimal scopes
+        return MINIMAL_SCOPES
+    else:
         return [
             *ALL_READ_SCOPES,
             "honeytokens:write",
         ]
-    else:
-        return MINIMAL_SCOPES
 
 
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
@@ -74,13 +75,11 @@ def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     Returns:
         list[str]: List of appropriate scopes
     """
-    if not is_self_hosted_instance(gitguardian_url):
-        # For SaaS, request comprehensive SecOps scopes
-        return ALL_SCOPES
-    else:
-        # For self-hosted, use conservative scopes that are most likely available
-        # Avoid honeytokens as it may not be activated
+    if is_self_hosted_instance(gitguardian_url) and not is_local_instance(gitguardian_url):
+        # For non-local self-hosted instances, return minimal scopes
         return MINIMAL_SCOPES
+    else:
+        return ALL_SCOPES
 
 
 def validate_scopes(scopes_str: str) -> list[str]:
@@ -114,6 +113,29 @@ def validate_scopes(scopes_str: str) -> list[str]:
     return requested_scopes
 
 
-# Legacy constants for backward compatibility
+def get_scopes_from_env_var() -> list[str]:
+    # Support GITGUARDIAN_REQUESTED_SCOPES for backward compatibility from previous versions
+    scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get("GITGUARDIAN_REQUESTED_SCOPES")
+    if not scopes_str:
+        return []
+    return validate_scopes(scopes_str)
+
+
 DEVELOPER_SCOPES = get_developer_scopes()
 SECOPS_SCOPES = get_secops_scopes()
+
+
+def set_secops_scopes():
+    # Filter the GITGUARDIAN_SCOPES env variable to only include secops scopes. If empty, use default secops scopes.
+    # Write again the result on the env variable
+    scopes_from_env_var = set(get_scopes_from_env_var())
+    scopes = set(SECOPS_SCOPES) & scopes_from_env_var if scopes_from_env_var else set(SECOPS_SCOPES)
+    os.environ["GITGUARDIAN_SCOPES"] = ",".join(scopes)
+
+
+def set_developer_scopes():
+    # Filter the GITGUARDIAN_SCOPES env variable to only include secops scopes. If empty, use default secops scopes.
+    # Write again the result on the env variable
+    scopes_from_env_var = set(get_scopes_from_env_var())
+    scopes = set(DEVELOPER_SCOPES) & scopes_from_env_var if scopes_from_env_var else set(DEVELOPER_SCOPES)
+    os.environ["GITGUARDIAN_SCOPES"] = ",".join(scopes)

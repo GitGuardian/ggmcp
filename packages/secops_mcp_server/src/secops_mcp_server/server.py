@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from developer_mcp_server.register_tools import register_developer_tools
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import get_secops_scopes, validate_scopes
+from gg_api_core.scopes import get_secops_scopes, validate_scopes, set_secops_scopes
 from gg_api_core.host import is_self_hosted_instance
 from pydantic import BaseModel, Field
 from mcp.server.fastmcp.exceptions import ToolError
@@ -78,37 +78,7 @@ class ListHoneytokensParams(BaseModel):
 
 # ===== End of Pydantic Models =====
 
-# Log environment variables
-gitguardian_url = os.environ.get("GITGUARDIAN_URL")
-
-logger.info("Starting GitGuardian MCP Server")
-logger.debug(f"GitGuardian URL: {gitguardian_url or 'Using default'}")
-
-# Set specific environment variable for this server to request only SecOps-specific scopes
-# Use dynamic scope detection based on instance type (self-hosted vs SaaS)
-# But respect user-specified scopes if they exist
-is_self_hosted = is_self_hosted_instance(gitguardian_url)
-
-# Only override scopes if user hasn't specified them
-if not os.environ.get("GITGUARDIAN_SCOPES"):
-    secops_scopes = get_secops_scopes(gitguardian_url)
-    os.environ["GITGUARDIAN_SCOPES"] = ",".join(secops_scopes)
-    logger.debug(f"Auto-detected scopes for instance type: {'Self-hosted' if is_self_hosted else 'SaaS'}")
-    if is_self_hosted:
-        logger.info("Self-hosted instance detected - honeytokens:write scope omitted to avoid permission issues")
-else:
-    # Validate user-specified scopes
-    try:
-        user_scopes_str = os.environ.get("GITGUARDIAN_SCOPES")
-        validated_scopes = validate_scopes(user_scopes_str)
-        os.environ["GITGUARDIAN_SCOPES"] = ",".join(validated_scopes)
-        logger.info(f"Using validated user-specified scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
-    except ValueError as e:
-        logger.error(f"Invalid scopes configuration: {e}")
-        logger.error("Please check your GITGUARDIAN_SCOPES environment variable")
-        raise
-
-logger.debug(f"Final scopes: {os.environ.get('GITGUARDIAN_SCOPES')}")
+set_secops_scopes()
 
 SECOPS_INSTRUCTIONS = """
 # GitGuardian SecOps Tools
