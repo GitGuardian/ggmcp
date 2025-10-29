@@ -2,13 +2,20 @@ import os
 from urllib.parse import urlparse
 
 SAAS_HOSTNAMES = [
-            "dashboard.gitguardian.com",
-            "api.gitguardian.com",
-            "dashboard.eu1.gitguardian.com",
-            "api.eu1.gitguardian.com",
-            "dashboard.staging.gitguardian.tech",
-            "dashboard.preprod.gitguardian.com"
-        ]
+    "dashboard.gitguardian.com",
+    "api.gitguardian.com",
+    "dashboard.eu1.gitguardian.com",
+    "api.eu1.gitguardian.com",
+    "dashboard.staging.gitguardian.tech",
+    "dashboard.preprod.gitguardian.com",
+]
+
+LOCAL_HOSTNAMES = [
+    "localhost",
+    "127.0.0.1",
+    "localhost:3000",
+    "127.0.0.1:3000"
+]
 
 
 def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
@@ -27,7 +34,20 @@ def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
     try:
         parsed = urlparse(gitguardian_url)
         hostname = parsed.netloc.lower()
-        return hostname not in SAAS_HOSTNAMES
+        return hostname not in [*SAAS_HOSTNAMES, *LOCAL_HOSTNAMES]
     except:
         # If parsing fails, assume self-hosted to be safe
         return True
+
+
+def is_local_instance(gitguardian_url: str = None) -> bool:
+    if not gitguardian_url:
+        return False
+
+    parsed = urlparse(gitguardian_url)
+    hostname = parsed.netloc.lower()
+    return hostname in LOCAL_HOSTNAMES
+
+
+def has_exposed_prefix_for_api(gitguardian_url):
+    return is_self_hosted_instance(gitguardian_url) or is_local_instance(gitguardian_url)
