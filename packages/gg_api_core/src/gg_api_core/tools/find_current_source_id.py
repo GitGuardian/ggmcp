@@ -87,7 +87,7 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
             return FindCurrentSourceIdError(error="Git command timed out")
 
         # Parse repository name from remote URL
-        repository_name = parse_repo_url(remote_url)
+        repository_name = parse_repo_url(remote_url).split("/")[-1]
 
         if not repository_name:
             return FindCurrentSourceIdError(

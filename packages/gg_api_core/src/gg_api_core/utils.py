@@ -59,11 +59,13 @@ def parse_repo_url(remote_url: str) -> str | None:
         'team/project'
         >>> parse_repo_url("https://dev.azure.com/org/proj/_git/repo")
         'org/proj/repo'
+        >>> parse_repo_url("GitGuardian/ggmcp")
+        'GitGuardian/ggmcp'
     """
     # Remove .git suffix if present
     repo_path = remote_url.replace(".git", "")
 
-    repository_name = None
+    repository_name = remote_url
 
     # Azure DevOps patterns
     # HTTPS: https://dev.azure.com/organization/project/_git/repo

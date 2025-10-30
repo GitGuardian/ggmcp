@@ -97,31 +97,91 @@ class TestParseRepoUrl:
         """Test Azure DevOps URL parsing"""
         assert parse_repo_url(url) == expected
 
-    # Edge cases and invalid URLs
+    # Edge cases with .git suffix
+    @pytest.mark.parametrize(
+        "url_with_git,url_without_git,expected",
+        [
+            ("https://github.com/org/repo.git", "https://github.com/org/repo", "org/repo"),
+            ("git@github.com:org/repo.git", "git@github.com:org/repo", "org/repo"),
+            ("https://gitlab.com/org/repo.git", "https://gitlab.com/org/repo", "org/repo"),
+            ("https://bitbucket.org/org/repo.git", "https://bitbucket.org/org/repo", "org/repo"),
+        ],
+    )
+    def test_urls_with_and_without_git_suffix(self, url_with_git, url_without_git, expected):
+        """Test that URLs work both with and without .git suffix"""
+        assert parse_repo_url(url_with_git) == expected
+        assert parse_repo_url(url_without_git) == expected
+
+    # SSH URLs with port numbers
+    @pytest.mark.parametrize(
+        "url,expected",
+        [
+            # Standard SSH with port
+            ("git@github.com:22:org/repo.git", "org/repo"),
+            ("git@gitlab.com:2222:team/project.git", "team/project"),
+            # Bitbucket Data Center SSH with port (already tested above but adding more)
+            ("ssh://git@bitbucket.server.com:7999/PROJ/repo.git", "PROJ/repo"),
+        ],
+    )
+    def test_ssh_urls_with_ports(self, url, expected):
+        """Test SSH URLs with port numbers"""
+        assert parse_repo_url(url) == expected
+
+    # Nested paths (GitLab groups/subgroups)
+    @pytest.mark.parametrize(
+        "url,expected",
+        [
+            ("https://gitlab.com/group/subgroup/repo.git", "group/subgroup/repo"),
+            ("git@gitlab.com:org/team/project.git", "org/team/project"),
+            ("https://gitlab.self-hosted.com/top/mid/bottom/repo", "top/mid/bottom/repo"),
+        ],
+    )
+    def test_nested_paths(self, url, expected):
+        """Test URLs with nested paths (e.g., GitLab groups)"""
+        assert parse_repo_url(url) == expected
+
+    # URLs with trailing slashes
+    @pytest.mark.parametrize(
+        "url,expected",
+        [
+            ("https://github.com/org/repo/", "org/repo/"),
+            ("https://gitlab.com/org/repo.git/", "org/repo/"),
+            ("https://bitbucket.company.com/projects/PROJ/repos/repo/", "PROJ/repo"),
+        ],
+    )
+    def test_urls_with_trailing_slashes(self, url, expected):
+        """Test URLs with trailing slashes"""
+        assert parse_repo_url(url) == expected
+
+    # Unusual protocol URLs
+    @pytest.mark.parametrize(
+        "url,expected",
+        [
+            ("ftp://invalid.com/repo", "repo"),
+            ("http://custom-git.com/org/repo", "org/repo"),
+        ],
+    )
+    def test_unusual_protocol_urls(self, url, expected):
+        """Test that URLs with unusual protocols still get parsed (even if not valid Git URLs)"""
+        # The parser is permissive and will extract the path part from any ://-style URL
+        assert parse_repo_url(url) == expected
+
+    # Invalid/edge case URLs that return the original input
     @pytest.mark.parametrize(
         "url",
         [
             "not-a-valid-url",
             "http://",
             "",
+            "just-text",
+            "GitGuardian/ggmcp",
+            "gg-code/prm/ward-runs-app"
         ],
     )
-    def test_invalid_urls(self, url):
-        """Test that invalid URLs return None"""
-        assert parse_repo_url(url) is None
-
-    def test_unusual_protocol_urls(self):
-        """Test that URLs with unusual protocols still get parsed (even if not valid Git URLs)"""
-        # The parser is permissive and will extract the path part from any ://-style URL
-        # This is acceptable since Git config shouldn't contain FTP URLs anyway
-        result = parse_repo_url("ftp://invalid.com/repo")
-        assert result == "repo"  # Parser extracts the path, even if protocol is unusual
-
-    def test_urls_without_git_suffix(self):
-        """Test that URLs work both with and without .git suffix"""
-        with_git = parse_repo_url("https://github.com/org/repo.git")
-        without_git = parse_repo_url("https://github.com/org/repo")
-        assert with_git == without_git == "org/repo"
+    def test_unrecognized_urls_return_original(self, url):
+        """Test that unrecognized URLs return the original input"""
+        # The function returns the original URL if no pattern matches
+        assert parse_repo_url(url) == url
 
 
 # For running this test file directly
