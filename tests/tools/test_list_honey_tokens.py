@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from mcp.server.fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError
 from gg_api_core.tools.list_honey_tokens import list_honeytokens, ListHoneytokensParams
 
 

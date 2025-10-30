@@ -18,15 +18,29 @@ def urljoin(base: str, url: str) -> str:
 _client_singleton = None
 
 
-def get_client() -> GitGuardianClient:
+def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
     """Get the cached GitGuardian client instance (singleton pattern).
 
     This function maintains a single client instance across all tool calls,
     preserving caching and memoization benefits.
 
+    When a personal_access_token is provided, a new client instance is created
+    with that token (not cached). This is useful for per-request authentication
+    via HTTP Authorization headers.
+
+    Args:
+        personal_access_token: Optional Personal Access Token to use for authentication.
+            If provided, a new client instance is created with this token.
+
     Returns:
-        GitGuardianClient: The cached client instance
+        GitGuardianClient: The cached client instance or a new instance with the provided PAT
     """
+    # If a PAT is provided, create a new client instance (don't use singleton)
+    if personal_access_token:
+        logger.debug("Creating new GitGuardian client with provided Personal Access Token")
+        return get_gitguardian_client(personal_access_token=personal_access_token)
+
+    # Otherwise, use the singleton pattern
     global _client_singleton
     if _client_singleton is None:
         _client_singleton = get_gitguardian_client()
@@ -165,20 +179,27 @@ def parse_repo_url(remote_url: str) -> str | None:
 
 
 # Initialize GitGuardian client
-def get_gitguardian_client(server_name: str = None) -> GitGuardianClient:
+def get_gitguardian_client(
+    server_name: str = None,
+    personal_access_token: str | None = None
+) -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
-    Uses OAuth authentication flow.
+    Uses OAuth authentication flow by default, or a provided Personal Access Token.
 
     Args:
         server_name: Name of the MCP server for server-specific token storage
+        personal_access_token: Optional Personal Access Token to use for authentication
+
+    Returns:
+        GitGuardianClient: Initialized client instance
     """
     logger.debug("Attempting to initialize GitGuardian client")
     try:
         # Store server_name as an attribute after initialization since it's not in the constructor anymore
-        client = GitGuardianClient()
+        client = GitGuardianClient(personal_access_token=personal_access_token)
         client.server_name = server_name
         return client
     except Exception as e:
-        logger.exception(f"Failed to initialize GitGuardian client with OAuth auth: {str(e)}")
+        logger.exception(f"Failed to initialize GitGuardian client: {str(e)}")
         raise

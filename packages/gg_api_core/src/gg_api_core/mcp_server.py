@@ -1,11 +1,13 @@
-"""GitGuardian MCP Server with scope-based tool filtering."""
+"""Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from functools import cached_property
+from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_http_headers
+from fastmcp.server.middleware import MiddlewareContext
 from mcp.types import AnyFunction
 from mcp.types import Tool as MCPTool
 
@@ -20,6 +22,9 @@ class GitGuardianFastMCP(FastMCP):
     """FastMCP extension with GitGuardian API scope-based tool filtering."""
 
     def __init__(self, *args, **kwargs):
+        # Extract our custom parameters before passing to parent
+        default_scopes = kwargs.pop("default_scopes", None)
+
         # Add a custom lifespan that fetches token scopes
         original_lifespan = kwargs.get("lifespan")
         kwargs["lifespan"] = self._create_token_scope_lifespan(original_lifespan)
@@ -39,9 +44,12 @@ class GitGuardianFastMCP(FastMCP):
         logger.debug(f"Using authentication method: {self._auth_method}")
 
         # Set default scopes for demonstration or development
-        if kwargs.get("default_scopes"):
-            self._token_scopes = set(kwargs.get("default_scopes"))
+        if default_scopes:
+            self._token_scopes = set(default_scopes)
             logger.debug(f"Using default scopes: {self._token_scopes}")
+
+        # Register scope filtering middleware
+        self.add_middleware(self._scope_filtering_middleware)
 
     def _create_token_scope_lifespan(self, original_lifespan=None):
         """Create a lifespan context manager that fetches token scopes."""
@@ -101,10 +109,56 @@ class GitGuardianFastMCP(FastMCP):
             logger.error(f"Error fetching token scopes: {str(e)}")
             # Don't re-raise the exception, let the server start anyway
 
-    @cached_property
-    def client(self):
-        """Return the GitGuardian client instance."""
+    def get_client(self):
+        """
+        Return the GitGuardian client instance.
+
+        This method checks for a Personal Access Token in the Authorization header
+        of the current HTTP request using FastMCP 2.0's get_http_headers().
+        If found, it extracts and uses that token. Otherwise, it returns the
+        default singleton client.
+
+        Returns:
+            GitGuardianClient: A client instance configured with the appropriate auth
+        """
+        # Use FastMCP 2.0's get_http_headers() to access HTTP headers
+        try:
+            headers = get_http_headers()
+            if headers:
+                # Look for Authorization header
+                auth_header = headers.get("authorization") or headers.get("Authorization")
+                if auth_header:
+                    # Extract token from Authorization header
+                    token = self._extract_token_from_header(auth_header)
+                    if token:
+                        logger.debug("Using Personal Access Token from Authorization header")
+                        return get_client(personal_access_token=token)
+        except Exception as e:
+            # get_http_headers() will return None if not in HTTP context
+            # This is expected for stdio transport
+            logger.debug(f"No HTTP headers available (expected for stdio transport): {e}")
+
         return get_client()
+
+    def _extract_token_from_header(self, auth_header: str) -> str | None:
+        """Extract token from Authorization header."""
+        auth_header = auth_header.strip()
+
+        if auth_header.lower().startswith("bearer "):
+            return auth_header[7:].strip()
+
+        if auth_header.lower().startswith("token "):
+            return auth_header[6:].strip()
+
+        if auth_header:
+            return auth_header
+
+        return None
+
+    @property
+    def client(self):
+        """Property for backward compatibility."""
+        return self.get_client()
 
     def get_token_info(self):
         """Return the token info dictionary."""
@@ -122,40 +176,52 @@ class GitGuardianFastMCP(FastMCP):
             logger.error(f"Error revoking current API token: {str(e)}")
             raise
 
-    def tool(self, name: str = None, description: str = None, required_scopes: list[str] = None, **kwargs):
-        """Extended tool decorator that tracks required scopes."""
-        # Get the actual name that will be used for the tool
-        actual_name = name
+    def tool(self, *args, required_scopes: list[str] = None, **kwargs):
+        """
+        Extended tool decorator that tracks required scopes.
 
-        decorator = super().tool(name=name, description=description, **kwargs)
+        Usage:
+            @mcp.tool(required_scopes=["scan"])
+            def my_tool():
+                pass
 
-        # Wrap the original decorator to track scope requirements
-        def wrapped_decorator(fn):
-            nonlocal actual_name
-            self._store_tool_scopes(actual_name or fn.__name__, required_scopes)
-            return decorator(fn)
+            # Or with function passed directly
+            mcp.tool(my_func, required_scopes=["scan"])
+        """
+        # Call parent's tool decorator
+        result = super().tool(*args, **kwargs)
 
-        return wrapped_decorator
+        # Store scopes if this is a tool instance (not a decorator)
+        if hasattr(result, 'name') and required_scopes:
+            self._tool_scopes[result.name] = set(required_scopes)
+            return result
 
-    def _store_tool_scopes(self, name: str, required_scopes: list[str]):
-        if required_scopes:
-            self._tool_scopes[name] = set(required_scopes)
+        # If it's a decorator, wrap it to track scopes
+        if callable(result):
+            def wrapper(fn):
+                tool = result(fn)
+                if required_scopes:
+                    self._tool_scopes[tool.name] = set(required_scopes)
+                return tool
+            return wrapper
 
-    def add_tool(
-            self,
-            fn: AnyFunction,
-            name: str | None = None,
-            description: str | None = None,
-            required_scopes: list[str] | None = None,
-            **kwargs,
-    ) -> None:
-        name = name or fn.__name__
-        self._store_tool_scopes(name, required_scopes)
-        super().add_tool(fn=fn, name=name, **kwargs)
+        return result
 
-    async def list_tools(self) -> list[MCPTool]:
-        """Return all tools, filtering out those requiring unavailable scopes."""
-        all_tools = await super().list_tools()
+    async def _scope_filtering_middleware(
+        self, context: MiddlewareContext, call_next: Callable
+    ) -> Any:
+        """
+        Middleware to filter tools based on token scopes.
+
+        This middleware intercepts tools/list requests and filters the tools
+        based on the user's API token scopes.
+        """
+        # Only apply filtering to tools/list requests
+        if context.method != "tools/list":
+            return await call_next(context)
+
+        # Get all tools from the next middleware/handler
+        all_tools = await call_next(context)
 
         # Log token scopes for debugging
         if self._token_scopes:
@@ -169,95 +235,53 @@ class GitGuardianFastMCP(FastMCP):
             except Exception as e:
                 logger.warning(f"Could not fetch token scopes: {str(e)}")
 
-        # Special handling for optimized tools
-        # We want to show either the optimized version (with _optimized suffix) or
-        # the fallback version (without suffix) based on available scopes
-        has_sources_read = "sources:read" in self._token_scopes
-        logger.debug(f"User has sources:read scope: {has_sources_read}")
-
-        # Keep track of which optimized tools we've seen to avoid showing both versions
-        optimized_tool_base_names = set()
-
-        # Tools filtered by scopes and optimized vs fallback version selection
-        final_tools = []
+        # Filter tools by scopes
+        filtered_tools = []
         for tool in all_tools:
             tool_name = tool.name
             required_scopes = self._tool_scopes.get(tool_name, set())
 
-            # Special handling for optimized tools (with _optimized suffix)
-            if tool_name.endswith("_optimized"):
-                base_name = tool_name.replace("_optimized", "")
-                optimized_tool_base_names.add(base_name)
-
-                # Only include optimized version if we have sources:read scope
-                if has_sources_read and required_scopes.issubset(self._token_scopes):
-                    # Modify the tool name to remove the _optimized suffix for display
-                    # This makes it appear as the regular tool to consumers
-                    tool.name = base_name
-                    final_tools.append(tool)
-                    logger.debug(f"Using optimized version for tool: {base_name}")
-                else:
-                    logger.debug(f"Skipping optimized tool {tool_name} due to missing sources:read scope")
+            if not required_scopes or required_scopes.issubset(self._token_scopes):
+                filtered_tools.append(tool)
             else:
-                # For regular (non-optimized) tools, check if we have an optimized version
-                # If this is a fallback version and we already have the optimized version, skip it
-                if tool_name in optimized_tool_base_names and has_sources_read:
-                    logger.debug(f"Skipping fallback version of {tool_name} as optimized version will be used")
-                    continue
+                missing_scopes = required_scopes - self._token_scopes
+                logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
 
-                # Otherwise, include the tool if we have the required scopes
-                if not required_scopes or required_scopes.issubset(self._token_scopes):
-                    final_tools.append(tool)
-                else:
-                    missing_scopes = required_scopes - self._token_scopes
-                    logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
+        return filtered_tools
 
-        return final_tools
+    async def list_tools(self) -> list[MCPTool]:
+        """
+        Public method to list tools (for compatibility with tests and external code).
+
+        This calls _list_tools_mcp which applies middleware and converts to MCP format.
+        """
+        return await self._list_tools_mcp()
 
 
 # Common MCP tools for user information and token management
-def register_common_tools(mcp_instance: GitGuardianFastMCP):
+def register_common_tools(mcp_instance: "GitGuardianFastMCP"):
     """Register common MCP tools for user information and token management."""
 
     logger.debug("Registering common MCP tools...")
-
-    # Simple approach - just register the tools and let the scope filtering handle visibility
-    # The tool names are different enough that conflicts should be rare
 
     @mcp_instance.tool(
         name="get_authenticated_user_info",
         description="Get comprehensive information about the authenticated user and current API token including scopes and authentication method",
     )
     async def get_authenticated_user_info() -> dict:
-        """
-        Get information about the authenticated user and current API token.
-
-        Returns comprehensive information about the current user including:
-        - Token details (name, ID, creation date, expiration)
-        - Token scopes and permissions
-        - User/member information
-        - Authentication method being used
-
-        Returns:
-            dict: Dictionary containing user and token information
-        """
+        """Get information about the authenticated user and current API token."""
         logger.debug("Getting authenticated user information")
 
-        # Get token info (either from stored cache or fetch fresh)
         token_info = mcp_instance.get_token_info()
 
         if not token_info:
-            # Try to fetch token info if not already cached
             try:
                 client = mcp_instance.get_client()
                 token_info = await client.get_current_token_info()
-                # Cache it in the instance
                 mcp_instance._token_info = token_info
             except Exception as e:
                 logger.error(f"Error fetching token info: {str(e)}")
                 return {"error": f"Failed to fetch token info: {str(e)}"}
-
-        logger.debug(f"Retrieved user info for token ID: {token_info.get('id', 'unknown')}")
 
         return {
             "token_info": token_info,
@@ -270,62 +294,18 @@ def register_common_tools(mcp_instance: GitGuardianFastMCP):
         description="Revoke the current API token and clean up stored credentials",
     )
     async def revoke_current_token() -> dict:
-        """
-        Revoke the current API token and clean up stored credentials.
-
-        This tool will:
-        1. Revoke the current API token via the GitGuardian API
-        2. Clean up any stored OAuth tokens or credentials
-        3. Provide confirmation of successful revocation
-
-        Returns:
-            dict: Confirmation of token revocation and cleanup status
-        """
+        """Revoke the current API token and clean up stored credentials."""
         logger.debug("Starting token revocation process")
 
         try:
             client = mcp_instance.client
-            # Revoke the token via API
             await client._request("DELETE", "/api_tokens/self")
             logger.debug("Token revoked via API")
-
-            # Clean up stored OAuth tokens
-            if hasattr(client, "oauth_handler") and client.oauth_handler:
-                try:
-                    oauth_handler = client.oauth_handler
-                    dashboard_url = oauth_handler.dashboard_url
-
-                    # Clear from memory
-                    oauth_handler.token_info = None
-                    oauth_handler.token_name = None
-
-                    # Get file storage and clean up stored tokens
-                    file_storage = oauth_handler._get_file_storage()
-                    stored_tokens = file_storage.get_all_tokens()
-
-                    # Remove tokens for this dashboard URL
-                    tokens_to_remove = []
-                    for instance_url, tokens in stored_tokens.items():
-                        if instance_url == dashboard_url:
-                            tokens_to_remove.extend(tokens.keys())
-
-                    for token_name in tokens_to_remove:
-                        try:
-                            file_storage.remove_token(dashboard_url, token_name)
-                            logger.debug(f"Cleaned up OAuth token file: {file_storage.token_file}")
-                        except Exception as e:
-                            logger.warning(f"Could not clean up token file: {str(e)}")
-
-                except Exception as cleanup_error:
-                    logger.warning(f"OAuth token cleanup failed: {str(cleanup_error)}")
-                    # Don't fail the entire operation if cleanup fails
 
             # Clear cached client and token info
             mcp_instance._client = None
             mcp_instance._token_info = None
             mcp_instance._token_scopes = set()
-
-            logger.debug("Token revocation and cleanup completed")
 
             return {
                 "success": True,
@@ -337,59 +317,4 @@ def register_common_tools(mcp_instance: GitGuardianFastMCP):
             logger.error(f"Error during token revocation: {str(e)}")
             return {"success": False, "error": f"Failed to revoke token: {str(e)}"}
 
-    @mcp_instance.tool(
-        name="list_users",
-        description="List all members/users in the GitGuardian workspace with filtering and pagination options",
-        required_scopes=["members:read"],
-    )
-    async def list_users_tool(
-            cursor: str | None = None,
-            per_page: int = 20,
-            role: str | None = None,
-            access_level: str | None = None,
-            active: bool | None = None,
-            search: str | None = None,
-            ordering: str | None = None,
-            get_all: bool = False,
-    ) -> dict:
-        """
-        List members/users in the GitGuardian workspace.
-
-        Returns information about workspace members including their ID, name, email, role,
-        access level, active status, creation date, and last login.
-
-        Args:
-            cursor: Pagination cursor for fetching next page of results
-            per_page: Number of results per page (default: 20, min: 1, max: 100)
-            role: Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead
-            access_level: Filter members based on their access level (owner, manager, member, restricted)
-            active: Filter members based on their active status
-            search: Search members based on their name or email
-            ordering: Sort results by field (created_at, -created_at, last_login, -last_login). Use '-' prefix for descending order
-            get_all: If True, fetch all results using cursor-based pagination
-
-        Returns:
-            dict: Dictionary containing:
-                - members: List of member objects with user information
-                - total_count: Total number of members returned
-                - next_cursor: Pagination cursor for next page (if applicable)
-        """
-        from gg_api_core.tools.list_users import list_users, ListUsersParams
-
-        logger.debug("Calling list_users tool")
-
-        params = ListUsersParams(
-            cursor=cursor,
-            per_page=per_page,
-            role=role,
-            access_level=access_level,
-            active=active,
-            search=search,
-            ordering=ordering,
-            get_all=get_all,
-        )
-
-        result = await list_users(params)
-        return result.model_dump()
-
-    logger.debug("Registered common MCP tools: get_authenticated_user_info, revoke_current_token, list_users")
+    logger.debug("Registered common MCP tools")

@@ -1,6 +1,6 @@
 import logging
 
-from mcp.server.fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.utils import get_client

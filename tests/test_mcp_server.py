@@ -1,7 +1,8 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch, Mock
 
 import pytest
 from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.utils import get_client
 
 
 @pytest.fixture
@@ -151,3 +152,85 @@ class TestGitGuardianFastMCP:
 
         # The teams:write tool should be excluded since the required scope is missing
         assert "tool_with_teams_write" not in tool_names
+
+    def test_extract_token_from_header(self):
+        """Test extracting tokens from various Authorization header formats."""
+        # Test Bearer format
+        token = self.mcp._extract_token_from_header("Bearer test-token-123")
+        assert token == "test-token-123"
+
+        # Test Token format
+        token = self.mcp._extract_token_from_header("Token another-token-456")
+        assert token == "another-token-456"
+
+        # Test raw token (no prefix)
+        token = self.mcp._extract_token_from_header("raw-token-789")
+        assert token == "raw-token-789"
+
+        # Test case insensitivity
+        token = self.mcp._extract_token_from_header("bearer lowercase-token")
+        assert token == "lowercase-token"
+
+        # Test with extra whitespace
+        token = self.mcp._extract_token_from_header("Bearer   token-with-spaces   ")
+        assert token == "token-with-spaces"
+
+        # Test empty string
+        token = self.mcp._extract_token_from_header("")
+        assert token is None
+
+    @patch("gg_api_core.mcp_server.get_http_headers")
+    @patch("gg_api_core.mcp_server.get_client")
+    def test_get_client_with_authorization_header(self, mock_get_client, mock_get_http_headers):
+        """Test that get_client uses Authorization header when available."""
+        # Mock HTTP headers with Authorization header
+        mock_get_http_headers.return_value = {
+            "authorization": "Bearer test-pat-token-123"
+        }
+
+        # Mock the get_client function
+        mock_client_instance = MagicMock()
+        mock_get_client.return_value = mock_client_instance
+
+        # Call get_client
+        client = self.mcp.get_client()
+
+        # Verify get_client was called with the extracted token
+        mock_get_client.assert_called_once_with(personal_access_token="test-pat-token-123")
+        assert client == mock_client_instance
+
+    @patch("gg_api_core.mcp_server.get_http_headers")
+    @patch("gg_api_core.mcp_server.get_client")
+    def test_get_client_without_authorization_header(self, mock_get_client, mock_get_http_headers):
+        """Test that get_client falls back to default when no Authorization header."""
+        # Mock HTTP headers without Authorization header
+        mock_get_http_headers.return_value = {}
+
+        # Mock the get_client function
+        mock_client_instance = MagicMock()
+        mock_get_client.return_value = mock_client_instance
+
+        # Call get_client
+        client = self.mcp.get_client()
+
+        # Verify get_client was called without token (fallback)
+        mock_get_client.assert_called_once_with()
+        assert client == mock_client_instance
+
+    @patch("gg_api_core.mcp_server.get_http_headers")
+    @patch("gg_api_core.mcp_server.get_client")
+    def test_get_client_no_http_context(self, mock_get_client, mock_get_http_headers):
+        """Test that get_client handles missing HTTP context (stdio transport)."""
+        # Mock get_http_headers to raise exception (no HTTP context)
+        mock_get_http_headers.side_effect = RuntimeError("No HTTP context")
+
+        # Mock the get_client function
+        mock_client_instance = MagicMock()
+        mock_get_client.return_value = mock_client_instance
+
+        # Call get_client (should not raise, should fall back)
+        client = self.mcp.get_client()
+
+        # Verify get_client was called without token (fallback)
+        mock_get_client.assert_called_once_with()
+        assert client == mock_client_instance

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from developer_mcp_server import server
-from mcp.server.fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError
 
 
 

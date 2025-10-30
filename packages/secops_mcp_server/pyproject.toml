@@ -24,7 +24,7 @@ classifiers = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "mcp[cli]>=0.2.0",
+    "fastmcp>=2.0.0",
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
     "gg-api-core",
