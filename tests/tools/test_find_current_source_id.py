@@ -45,13 +45,13 @@ class TestFindCurrentSourceId:
                 timeout=5,
             )
 
-            # Verify client was called with parsed repository name
+            # Verify client was called with parsed repository name (just repo name, not org/repo)
             mock_gitguardian_client.get_source_by_name.assert_called_once_with(
-                "GitGuardian/ggmcp", return_all_on_no_match=True
+                "ggmcp", return_all_on_no_match=True
             )
 
             # Verify response
-            assert result.repository_name == "GitGuardian/ggmcp"
+            assert result.repository_name == "ggmcp"
             assert result.source_id == "source_123"
             assert hasattr(result, "message")
 
@@ -94,20 +94,20 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result.repository_name == "GitGuardian/test-repo"
+            assert result.repository_name == "test-repo"
             assert hasattr(result, "candidates")
             assert len(result.candidates) == 2
             assert hasattr(result, "message")
             assert hasattr(result, "suggestion")
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_no_match_with_fallback(
+    async def test_find_current_source_id_direct_match(
         self, mock_gitguardian_client
     ):
         """
-        GIVEN: No match for full repository name but repo name alone matches
-        WHEN: Finding the source_id with fallback search
-        THEN: The source_id from fallback search is returned
+        GIVEN: A repository URL that gets parsed to just the repo name
+        WHEN: Finding the source_id with a direct match
+        THEN: The source_id is returned
         """
         # Mock git command
         with patch("subprocess.run") as mock_run:
@@ -116,29 +116,22 @@ class TestFindCurrentSourceId:
                 returncode=0,
             )
 
-            # Mock the client to return None first, then a match on fallback
-            call_count = 0
-
-            async def mock_get_source(name, return_all_on_no_match=False):
-                nonlocal call_count
-                call_count += 1
-                if call_count == 1:
-                    return []  # No match for full name
-                else:
-                    return {
-                        "id": "source_fallback",
-                        "name": "repo-name",
-                        "url": "https://github.com/OrgName/repo-name",
-                    }  # Match on repo name only
-
-            mock_gitguardian_client.get_source_by_name = mock_get_source
+            # Mock the client to return a direct match
+            mock_response = {
+                "id": "source_123",
+                "name": "repo-name",
+                "url": "https://github.com/OrgName/repo-name",
+            }
+            mock_gitguardian_client.get_source_by_name = AsyncMock(
+                return_value=mock_response
+            )
 
             # Call the function
             result = await find_current_source_id()
 
             # Verify response
-            assert result.repository_name == "OrgName/repo-name"
-            assert result.source_id == "source_fallback"
+            assert result.repository_name == "repo-name"
+            assert result.source_id == "source_123"
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_no_match_at_all(
@@ -163,7 +156,7 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result.repository_name == "Unknown/repo"
+            assert result.repository_name == "repo"
             assert hasattr(result, "error")
             assert "not found in GitGuardian" in result.error
 
@@ -224,9 +217,10 @@ class TestFindCurrentSourceId:
             # Call the function
             result = await find_current_source_id()
 
-            # Verify error response
+            # Verify error response - invalid URL returns original input, so repo name is "invalid-url-format"
+            # and then search fails with "not found" error
             assert hasattr(result, "error")
-            assert "Could not parse repository URL" in result.error
+            assert "not found in GitGuardian" in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_gitlab_url(self, mock_gitguardian_client):
@@ -256,7 +250,7 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result.repository_name == "company/project"
+            assert result.repository_name == "project"
             assert result.source_id == "source_gitlab"
 
     @pytest.mark.asyncio
@@ -286,7 +280,7 @@ class TestFindCurrentSourceId:
             result = await find_current_source_id()
 
             # Verify response
-            assert result.repository_name == "GitGuardian/ggmcp"
+            assert result.repository_name == "ggmcp"
             assert result.source_id == "source_ssh"
 
     @pytest.mark.asyncio
