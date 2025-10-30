@@ -36,8 +36,8 @@ def run_mcp_server():
     if mcp_port:
         # Use HTTP/SSE transport
         import uvicorn
+
         logger.info(f"Starting MCP server with HTTP/SSE transport on {mcp_host}:{mcp_port}")
-        # Get the SSE ASGI app from FastMCP
         uvicorn.run(mcp.sse_app(), host=mcp_host, port=int(mcp_port))
     else:
         # Use default stdio transport

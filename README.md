@@ -238,11 +238,65 @@ MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/g
 
 The server will automatically start on `http://127.0.0.1:8000` and be accessible for remote integrations.
 
+#### Authentication via Authorization Header
+
+When using HTTP/SSE transport, you can authenticate using a Personal Access Token (PAT) via the `Authorization` header. This is useful for remote integrations where environment variables or OAuth flows are not practical.
+
+**Supported header formats:**
+- `Authorization: Bearer <token>`
+- `Authorization: Token <token>`
+- `Authorization: <token>`
+
+**Example using curl:**
+
+```bash
+# List available tools
+curl -X POST http://127.0.0.1:8000/tools/list \
+  -H "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+# Call a tool
+curl -X POST http://127.0.0.1:8000/tools/call \
+  -H "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "get_authenticated_user_info", "arguments": {}}'
+```
+
+**Example using Python:**
+
+```python
+import httpx
+
+headers = {
+    "Authorization": "Bearer YOUR_PERSONAL_ACCESS_TOKEN",
+    "Content-Type": "application/json"
+}
+
+async with httpx.AsyncClient() as client:
+    response = await client.post(
+        "http://127.0.0.1:8000/tools/list",
+        headers=headers,
+        json={}
+    )
+    tools = response.json()
+```
+
+**Authentication Priority:**
+
+When using HTTP transport, the authentication priority is:
+1. **Authorization header** (if present in the HTTP request)
+2. **GITGUARDIAN_PERSONAL_ACCESS_TOKEN** environment variable
+3. **OAuth flow** (default fallback)
+
+This allows different clients to use different authentication methods when connecting to the same HTTP server instance.
+
 **Notes:**
 - `uvicorn` is included as a dependency - no additional installation needed.
 - When `MCP_PORT` is not set, the server uses stdio transport (default behavior).
 - `MCP_HOST` defaults to `127.0.0.1` (localhost only). Use `0.0.0.0` to allow connections from any network interface.
 - The HTTP/SSE transport is useful for remote access, but stdio is recommended for local IDE integrations.
+- Each HTTP request can have its own Authorization header, allowing multi-tenant use cases.
 
 ### Self-Hosted GitGuardian
 

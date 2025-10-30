@@ -10,7 +10,7 @@ from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.scopes import get_secops_scopes, validate_scopes, set_secops_scopes
 from gg_api_core.host import is_self_hosted_instance
 from pydantic import BaseModel, Field
-from mcp.server.fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError
 
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.list_users import list_users
@@ -149,47 +149,47 @@ async def get_current_token_info() -> dict[str, Any]:
         raise ToolError(f"Error: {str(e)}")
 
 
-mcp.add_tool(
+mcp.tool(
     update_or_create_incident_custom_tags,
     description="Update or create custom tags for a secret incident",
     required_scopes=["incidents:write", "custom_tags:write"],
 )
 
-mcp.add_tool(
+mcp.tool(
     update_incident_status,
     description="Update a secret incident with status",
     required_scopes=["incidents:write"],
 )
 
-mcp.add_tool(
+mcp.tool(
     read_custom_tags,
     description="Read custom tags from the GitGuardian dashboard.",
     required_scopes=["custom_tags:read"],
 )
 
-mcp.add_tool(
+mcp.tool(
     write_custom_tags,
     description="Create or delete custom tags in the GitGuardian dashboard.",
     required_scopes=["custom_tags:write"],
 )
 
-mcp.add_tool(
+mcp.tool(
     manage_private_incident,
     description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
     required_scopes=["incidents:write"],
 )
 
-mcp.add_tool(list_users,
+mcp.tool(list_users,
              description="List users on the workspace/account",
              required_scopes=["members:read"], )
 
-mcp.add_tool(
+mcp.tool(
     revoke_secret,
     description="Revoke a secret by its ID through the GitGuardian API",
     required_scopes=["write:secret"],
 )
 
-mcp.add_tool(
+mcp.tool(
     assign_incident,
     description="Assign a secret incident to a specific member or to the current user",
     required_scopes=["incidents:write"],
@@ -217,8 +217,8 @@ def run_mcp_server():
     if mcp_port:
         # Use HTTP/SSE transport
         import uvicorn
+
         logger.info(f"Starting MCP server with HTTP/SSE transport on {mcp_host}:{mcp_port}")
-        # Get the SSE ASGI app from FastMCP
         uvicorn.run(mcp.sse_app(), host=mcp_host, port=int(mcp_port))
     else:
         # Use default stdio transport

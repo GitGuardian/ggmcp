@@ -1,4 +1,4 @@
-from mcp.server import FastMCP
+from fastmcp import FastMCP
 
 from gg_api_core.scopes import DEVELOPER_SCOPES
 from gg_api_core.tools.find_current_source_id import find_current_source_id
@@ -48,15 +48,17 @@ All tools operate within your IDE environment to provide immediate feedback and 
 
 
 def register_developer_tools(mcp: FastMCP):
-    mcp.add_tool(remediate_secret_incidents,
-                 description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
-                             "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
-                             "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
-                 required_scopes=["incidents:read", "sources:read"],
-                 )
+    mcp.tool(
+        remediate_secret_incidents,
+        description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
+                    "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
+                    "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
+        required_scopes=["incidents:read", "sources:read"],
+    )
 
-    mcp.add_tool(scan_secrets,
-                 description="""
+    mcp.tool(
+        scan_secrets,
+        description="""
         Scan multiple content items for secrets and policy breaks.
 
         This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
@@ -64,17 +66,17 @@ def register_developer_tools(mcp: FastMCP):
         Do not send documents that are not related to the codebase, only send files that are part of the codebase.
         Do not send documents that are in the .gitignore file.
         """,
-                 required_scopes=["scan"],
-                 )
+        required_scopes=["scan"],
+    )
 
-    mcp.add_tool(list_repo_incidents,
+    mcp.tool(list_repo_incidents,
                  description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
                              "By default, this tool only shows incidents assigned to the current user. "
                              "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
                  required_scopes=["incidents:read", "sources:read"],
                  )
 
-    mcp.add_tool(
+    mcp.tool(
         list_repo_occurrences,
         description="List secret occurrences for a specific repository with exact match locations. "
                     "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
@@ -82,7 +84,7 @@ def register_developer_tools(mcp: FastMCP):
         required_scopes=["incidents:read"],
     )
 
-    mcp.add_tool(
+    mcp.tool(
         find_current_source_id,
         description="Find the GitGuardian source_id for the current repository. "
                     "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
@@ -90,19 +92,19 @@ def register_developer_tools(mcp: FastMCP):
         required_scopes=["sources:read"],
     )
 
-    mcp.add_tool(
+    mcp.tool(
         generate_honeytoken,
         description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
         required_scopes=["honeytokens:write"],
     )
 
-    mcp.add_tool(
+    mcp.tool(
         list_honeytokens,
         description="List honeytokens from the GitGuardian dashboard with filtering options",
         required_scopes=["honeytokens:read"],
     )
 
-    mcp.add_tool(
+    mcp.tool(
         list_users,
         description="List users on the workspace/account",
         required_scopes=["members:read"],

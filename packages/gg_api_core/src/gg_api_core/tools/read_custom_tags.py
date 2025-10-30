@@ -1,6 +1,6 @@
 from typing import Literal
 
-from mcp.server.fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
