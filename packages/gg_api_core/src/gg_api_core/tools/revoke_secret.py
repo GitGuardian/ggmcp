@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -11,13 +10,17 @@ logger = logging.getLogger(__name__)
 
 class RevokeSecretParams(BaseModel):
     """Parameters for revoking a secret."""
+
     secret_id: str | int = Field(description="ID of the secret to revoke")
 
 
 class RevokeSecretResult(BaseModel):
     """Result from revoking a secret."""
+
     success: bool = Field(description="Whether the revocation was successful")
-    reason: str | None = Field(default=None, description="Reason for the revocation result (e.g., error message if failed)")
+    reason: str | None = Field(
+        default=None, description="Reason for the revocation result (e.g., error message if failed)"
+    )
     is_async: bool | None = Field(default=None, description="Whether the revocation is being processed asynchronously")
 
 

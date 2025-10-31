@@ -5,13 +5,11 @@ import os
 import re
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import quote_plus, unquote
+from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
 
 from gg_api_core.host import is_self_hosted_instance
-from urllib.parse import urlparse
-
 from gg_api_core.scopes import get_scopes_from_env_var
 
 # Setup logger
@@ -34,6 +32,7 @@ class IncidentSeverity(str, Enum):
 
 class IncidentStatus(str, Enum):
     """Enum for incident statuses."""
+
     IGNORED = "IGNORED"
     TRIGGERED = "TRIGGERED"
     ASSIGNED = "ASSIGNED"
@@ -52,44 +51,20 @@ class IncidentValidity(str, Enum):
 
 class TagNames(str, Enum):
     REGRESSION = "REGRESSION"  # Issue is a regression
-    HIST = (
-        "HIST"
-    )  # Occurrence is visible and its Kind is history
-    PUBLICLY_EXPOSED = (
-        "PUBLICLY_EXPOSED"
-    )  # Occurrence is visible and source is a public GitHub
-    TEST_FILE = (
-        "TEST_FILE"
-    )  # Occurrence is visible and one of its insights is `test_file`
-    SENSITIVE_FILE = (
-        "SENSITIVE_FILE"
-    )  # Occurrence is visible and one of its insights is `sensitive_filepath`
+    HIST = "HIST"  # Occurrence is visible and its Kind is history
+    PUBLICLY_EXPOSED = "PUBLICLY_EXPOSED"  # Occurrence is visible and source is a public GitHub
+    TEST_FILE = "TEST_FILE"  # Occurrence is visible and one of its insights is `test_file`
+    SENSITIVE_FILE = "SENSITIVE_FILE"  # Occurrence is visible and one of its insights is `sensitive_filepath`
     # DEPRECATED: Replaced by CHECK_RUN_SKIP_FALSE_POSITIVE but still there until we
     # remove it from the public_api
-    DEPRECATED_IGNORED_IN_CHECK_RUN = (
-        "IGNORED_IN_CHECK_RUN"
-    )  # Occurrence is visible and its GitHub check run a ignored
-    CHECK_RUN_SKIP_FALSE_POSITIVE = (
-        "CHECK_RUN_SKIP_FALSE_POSITIVE"
-    )
-    CHECK_RUN_SKIP_LOW_RISK = (
-        "CHECK_RUN_SKIP_LOW_RISK"
-    )
-    CHECK_RUN_SKIP_TEST_CRED = (
-        "CHECK_RUN_SKIP_TEST_CRED"
-    )
-    DEFAULT_BRANCH = (
-        "DEFAULT_BRANCH"
-    )  # Occurrence is on the default branch of the repository
-    PUBLICLY_LEAKED = (
-        "PUBLICLY_LEAKED"
-    )  # Issue's secret is publicly leaked outside the account perimeter
-    FALSE_POSITIVE = (
-        "FALSE_POSITIVE"
-    )
-    REVOCABLE_BY_GG = (
-        "REVOCABLE_BY_GG"
-    )
+    DEPRECATED_IGNORED_IN_CHECK_RUN = "IGNORED_IN_CHECK_RUN"  # Occurrence is visible and its GitHub check run a ignored
+    CHECK_RUN_SKIP_FALSE_POSITIVE = "CHECK_RUN_SKIP_FALSE_POSITIVE"
+    CHECK_RUN_SKIP_LOW_RISK = "CHECK_RUN_SKIP_LOW_RISK"
+    CHECK_RUN_SKIP_TEST_CRED = "CHECK_RUN_SKIP_TEST_CRED"
+    DEFAULT_BRANCH = "DEFAULT_BRANCH"  # Occurrence is on the default branch of the repository
+    PUBLICLY_LEAKED = "PUBLICLY_LEAKED"  # Issue's secret is publicly leaked outside the account perimeter
+    FALSE_POSITIVE = "FALSE_POSITIVE"
+    REVOCABLE_BY_GG = "REVOCABLE_BY_GG"
 
 
 class GitGuardianClient:
@@ -130,7 +105,6 @@ class GitGuardianClient:
         logger.info(f"Using private API URL: {self.private_api_url}")
 
     def _init_personal_access_token(self, personal_access_token: str | None = None):
-
         if personal_access_token:
             logger.info("Using provided PAT")
             self._oauth_token = personal_access_token
@@ -351,7 +325,7 @@ class GitGuardianClient:
         await self._ensure_oauth_token()
 
     async def _request(
-            self, method: str, endpoint: str, return_headers: bool = False, **kwargs
+        self, method: str, endpoint: str, return_headers: bool = False, **kwargs
     ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
         """Make a request to the GitGuardian API.
 
@@ -624,7 +598,7 @@ class GitGuardianClient:
         return all_items
 
     async def create_honeytoken(
-            self, name: str, description: str = "", custom_tags: list | None = None
+        self, name: str, description: str = "", custom_tags: list | None = None
     ) -> dict[str, Any]:
         """Create a new honeytoken in GitGuardian.
 
@@ -642,13 +616,13 @@ class GitGuardianClient:
         return await self._request("POST", "/honeytokens", json=data)
 
     async def create_honeytoken_with_context(
-            self,
-            name: str,
-            description: str = "",
-            custom_tags: list | None = None,
-            language: str | None = None,
-            filename: str | None = None,
-            project_extensions: str | None = None,
+        self,
+        name: str,
+        description: str = "",
+        custom_tags: list | None = None,
+        language: str | None = None,
+        filename: str | None = None,
+        project_extensions: str | None = None,
     ) -> dict[str, Any]:
         """Create a honeytoken with context for smart injection into code.
 
@@ -691,19 +665,19 @@ class GitGuardianClient:
         return await self._request("GET", f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}")
 
     async def list_incidents(
-            self,
-            severity: IncidentSeverity | str | None = None,
-            status: IncidentStatus | str | None = None,
-            from_date: str | None = None,
-            to_date: str | None = None,
-            assignee_email: str | None = None,
-            assignee_id: str | None = None,
-            validity: IncidentValidity | str | None = None,
-            source_id: str | None = None,
-            per_page: int = 20,
-            cursor: str | None = None,
-            ordering: str | None = None,
-            get_all: bool = False,
+        self,
+        severity: IncidentSeverity | str | None = None,
+        status: IncidentStatus | str | None = None,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        assignee_email: str | None = None,
+        assignee_id: str | None = None,
+        validity: IncidentValidity | str | None = None,
+        source_id: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
     ) -> dict[str, Any]:
         """List secrets incidents with optional filtering and cursor-based pagination.
 
@@ -886,16 +860,16 @@ class GitGuardianClient:
         return await self._request("PATCH", f"/incidents/secrets/{incident_id}", json=payload)
 
     async def list_honeytokens(
-            self,
-            status: str | None = None,
-            search: str | None = None,
-            ordering: str | None = None,
-            show_token: bool = False,
-            creator_id: str | None = None,
-            creator_api_token_id: str | None = None,
-            per_page: int = 20,
-            cursor: str | None = None,
-            get_all: bool = False,
+        self,
+        status: str | None = None,
+        search: str | None = None,
+        ordering: str | None = None,
+        show_token: bool = False,
+        creator_id: str | None = None,
+        creator_api_token_id: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
     ) -> dict[str, Any]:
         """List all honeytokens with optional filtering and cursor-based pagination.
 
@@ -1313,23 +1287,23 @@ class GitGuardianClient:
         return await self._request("GET", f"/incidents/{incident_id}/secret-occurrences")
 
     async def list_occurrences(
-            self,
-            from_date: str | None = None,
-            to_date: str | None = None,
-            source_name: str | None = None,
-            source_type: str | None = None,
-            source_id: str | None = None,
-            presence: str | None = None,
-            tags: list[str] | None = None,
-            exclude_tags: list[str] | None = None,
-            per_page: int = 20,
-            cursor: str | None = None,
-            ordering: str | None = None,
-            get_all: bool = False,
-            severity: list[str] | None = None,
-            validity: list[str] | None = None,
-            status: list[str] | None = None,
-            with_sources: bool | None = None,
+        self,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        source_name: str | None = None,
+        source_type: str | None = None,
+        source_id: str | None = None,
+        presence: str | None = None,
+        tags: list[str] | None = None,
+        exclude_tags: list[str] | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
+        severity: list[str] | None = None,
+        validity: list[str] | None = None,
+        status: list[str] | None = None,
+        with_sources: bool | None = None,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
@@ -1439,19 +1413,19 @@ class GitGuardianClient:
         return await self._request("GET", endpoint)
 
     async def list_sources(
-            self,
-            search: str | None = None,
-            last_scan_status: str | None = None,
-            health: str | None = None,
-            type: str | None = None,
-            ordering: str | None = None,
-            visibility: str | None = None,
-            external_id: str | None = None,
-            source_criticality: str | None = None,
-            monitored: bool | None = None,
-            per_page: int = 20,
-            cursor: str | None = None,
-            get_all: bool = False,
+        self,
+        search: str | None = None,
+        last_scan_status: str | None = None,
+        health: str | None = None,
+        type: str | None = None,
+        ordering: str | None = None,
+        visibility: str | None = None,
+        external_id: str | None = None,
+        source_criticality: str | None = None,
+        monitored: bool | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
     ) -> dict[str, Any] | list[dict[str, Any]]:
         """List sources known by GitGuardian with optional filtering and cursor-based pagination.
 
@@ -1506,8 +1480,9 @@ class GitGuardianClient:
 
         return await self._request("GET", endpoint, params=params)
 
-    async def get_source_by_name(self, source_name: str, return_all_on_no_match: bool = False) -> dict[str, Any] | list[
-        dict[str, Any]] | None:
+    async def get_source_by_name(
+        self, source_name: str, return_all_on_no_match: bool = False
+    ) -> dict[str, Any] | list[dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
@@ -1564,18 +1539,18 @@ class GitGuardianClient:
             return None
 
     async def list_repo_incidents_directly(
-            self,
-            repository_name: str,
-            from_date: str | None = None,
-            to_date: str | None = None,
-            presence: str | None = None,
-            tags: list[str] | None = None,
-            exclude_tags: list[str] | None = None,
-            per_page: int = 20,
-            cursor: str | None = None,
-            ordering: str | None = None,
-            get_all: bool = False,
-            mine: bool = True,
+        self,
+        repository_name: str,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        presence: str | None = None,
+        tags: list[str] | None = None,
+        exclude_tags: list[str] | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
+        mine: bool = True,
     ) -> dict[str, Any]:
         """List incidents for a repository in a single API call.
 
@@ -1676,10 +1651,7 @@ class GitGuardianClient:
             logger.error(f"Error listing repository incidents directly: {str(e)}")
             return {"error": f"Failed to list repository incidents: {str(e)}"}
 
-    async def create_code_fix_request(
-        self,
-        locations: list[dict[str, Any]]
-    ) -> dict[str, Any]:
+    async def create_code_fix_request(self, locations: list[dict[str, Any]]) -> dict[str, Any]:
         """Create code fix requests for multiple secret incidents with their locations.
 
         This will generate pull requests to automatically remediate the detected secrets.

@@ -1,24 +1,21 @@
 """GitGuardian MCP server for SecOps teams with incident management tools."""
 
-import json
 import logging
 import os
 from typing import Any, Literal
 
 from developer_mcp_server.register_tools import register_developer_tools
-from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import get_secops_scopes, validate_scopes, set_secops_scopes
-from gg_api_core.host import is_self_hosted_instance
-from pydantic import BaseModel, Field
 from fastmcp.exceptions import ToolError
-
+from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.manage_incident import manage_private_incident, update_incident_status
 from gg_api_core.tools.read_custom_tags import read_custom_tags
 from gg_api_core.tools.revoke_secret import revoke_secret
-from gg_api_core.tools.write_custom_tags import write_custom_tags, update_or_create_incident_custom_tags
+from gg_api_core.tools.write_custom_tags import update_or_create_incident_custom_tags, write_custom_tags
+from pydantic import BaseModel, Field
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -28,17 +25,18 @@ logger = logging.getLogger(__name__)
 
 # ===== Pydantic Models for Tool Parameters =====
 
+
 class GenerateHoneytokenParams(BaseModel):
     """Parameters for generating a honeytoken."""
+
     name: str = Field(description="Name for the honeytoken")
     description: str = Field(default="", description="Description of what the honeytoken is used for")
 
 
 class ListIncidentsParams(BaseModel):
     """Parameters for listing incidents."""
-    severity: str | None = Field(
-        default=None, description="Filter incidents by severity (critical, high, medium, low)"
-    )
+
+    severity: str | None = Field(default=None, description="Filter incidents by severity (critical, high, medium, low)")
     status: str | None = Field(
         default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
     )
@@ -64,6 +62,7 @@ class ListIncidentsParams(BaseModel):
 
 class ListHoneytokensParams(BaseModel):
     """Parameters for listing honeytokens."""
+
     status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
     search: str | None = Field(default=None, description="Search string to filter results by name or description")
     ordering: str | None = Field(
@@ -180,9 +179,11 @@ mcp.tool(
     required_scopes=["incidents:write"],
 )
 
-mcp.tool(list_users,
-             description="List users on the workspace/account",
-             required_scopes=["members:read"], )
+mcp.tool(
+    list_users,
+    description="List users on the workspace/account",
+    required_scopes=["members:read"],
+)
 
 mcp.tool(
     revoke_secret,

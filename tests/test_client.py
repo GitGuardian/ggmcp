@@ -248,62 +248,78 @@ class TestGetGitGuardianClient:
     @pytest.mark.parametrize(
         "url,expected",
         [
-            ("https://api.gitguardian.com/", {
-                "dashboard_url": "https://dashboard.gitguardian.com",
-                "public_api_url": "https://api.gitguardian.com/v1",
-                "private_api_url": "https://dashboard.gitguardian.com/api/v1",
-            }
-             ),
-            ("https://dashboard.gitguardian.com/", {
-                "dashboard_url": "https://dashboard.gitguardian.com",
-                "public_api_url": "https://api.gitguardian.com/v1",
-                "private_api_url": "https://dashboard.gitguardian.com/api/v1",
-            }
-             ),
-            ("https://self-hosted.acme.com/", {
-                "dashboard_url": "https://self-hosted.acme.com",
-                "public_api_url": "https://self-hosted.acme.com/exposed/v1",
-                "private_api_url": "https://self-hosted.acme.com/api/v1",
-            }
-             ),
             (
-                    "https://dashboard.staging.gitguardian.tech/whatever", {
+                "https://api.gitguardian.com/",
+                {
+                    "dashboard_url": "https://dashboard.gitguardian.com",
+                    "public_api_url": "https://api.gitguardian.com/v1",
+                    "private_api_url": "https://dashboard.gitguardian.com/api/v1",
+                },
+            ),
+            (
+                "https://dashboard.gitguardian.com/",
+                {
+                    "dashboard_url": "https://dashboard.gitguardian.com",
+                    "public_api_url": "https://api.gitguardian.com/v1",
+                    "private_api_url": "https://dashboard.gitguardian.com/api/v1",
+                },
+            ),
+            (
+                "https://self-hosted.acme.com/",
+                {
+                    "dashboard_url": "https://self-hosted.acme.com",
+                    "public_api_url": "https://self-hosted.acme.com/exposed/v1",
+                    "private_api_url": "https://self-hosted.acme.com/api/v1",
+                },
+            ),
+            (
+                "https://dashboard.staging.gitguardian.tech/whatever",
+                {
                     "dashboard_url": "https://dashboard.staging.gitguardian.tech",
                     "public_api_url": "https://api.staging.gitguardian.tech/v1",
                     "private_api_url": "https://dashboard.staging.gitguardian.tech/api/v1",
-
-                }
+                },
             ),
-            ("https://dashboard.eu1.gitguardian.com/", {
-                "dashboard_url": "https://dashboard.eu1.gitguardian.com",
-                "public_api_url": "https://api.eu1.gitguardian.com/v1",
-                "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
-
-            }
-             ),
-            ("https://api.eu1.gitguardian.com/", {
-                "dashboard_url": "https://dashboard.eu1.gitguardian.com",
-                "public_api_url": "https://api.eu1.gitguardian.com/v1",
-                "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
-            }),
-            ("https://dashboard.preprod.gitguardian.com/", {
-                "dashboard_url": "https://dashboard.preprod.gitguardian.com",
-                "public_api_url": "https://api.preprod.gitguardian.com/v1",
-                "private_api_url": "https://dashboard.preprod.gitguardian.com/api/v1",
-
-            }
-             ),
-            ("http://localhost:3000", {
-                "dashboard_url": "http://localhost:3000",
-                "public_api_url": "http://localhost:3000/exposed/v1",
-                "private_api_url": "http://localhost:3000/api/v1",
-            }
-             ),
-            ("http://127.0.0.1:3000", {
-                "dashboard_url": "http://127.0.0.1:3000",
-                "public_api_url": "http://127.0.0.1:3000/exposed/v1",
-                "private_api_url": "http://127.0.0.1:3000/api/v1",
-            })
+            (
+                "https://dashboard.eu1.gitguardian.com/",
+                {
+                    "dashboard_url": "https://dashboard.eu1.gitguardian.com",
+                    "public_api_url": "https://api.eu1.gitguardian.com/v1",
+                    "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
+                },
+            ),
+            (
+                "https://api.eu1.gitguardian.com/",
+                {
+                    "dashboard_url": "https://dashboard.eu1.gitguardian.com",
+                    "public_api_url": "https://api.eu1.gitguardian.com/v1",
+                    "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
+                },
+            ),
+            (
+                "https://dashboard.preprod.gitguardian.com/",
+                {
+                    "dashboard_url": "https://dashboard.preprod.gitguardian.com",
+                    "public_api_url": "https://api.preprod.gitguardian.com/v1",
+                    "private_api_url": "https://dashboard.preprod.gitguardian.com/api/v1",
+                },
+            ),
+            (
+                "http://localhost:3000",
+                {
+                    "dashboard_url": "http://localhost:3000",
+                    "public_api_url": "http://localhost:3000/exposed/v1",
+                    "private_api_url": "http://localhost:3000/api/v1",
+                },
+            ),
+            (
+                "http://127.0.0.1:3000",
+                {
+                    "dashboard_url": "http://127.0.0.1:3000",
+                    "public_api_url": "http://127.0.0.1:3000/exposed/v1",
+                    "private_api_url": "http://127.0.0.1:3000/api/v1",
+                },
+            ),
         ],
     )
     def test_computed_urls(self, url, expected):

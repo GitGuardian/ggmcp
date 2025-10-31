@@ -1,16 +1,17 @@
-from typing import Literal, Any
+import logging
+from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 class WriteCustomTagsParams(BaseModel):
     """Parameters for writing custom tags."""
+
     action: Literal["create_tag", "delete_tag"] = Field(description="Action to perform related to writing custom tags")
     key: str | None = Field(default=None, description="Key for the new tag (used with 'create_tag' action)")
     value: str | None = Field(default=None, description="Value for the new tag (used with 'create_tag' action)")
@@ -55,6 +56,7 @@ async def write_custom_tags(params: WriteCustomTagsParams):
 
 class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
     """Parameters for updating or creating incident custom tags."""
+
     incident_id: str | int = Field(description="ID of the secret incident")
     custom_tags: list[str | dict[str, str]] = Field(description="List of custom tags to apply to the incident")
 

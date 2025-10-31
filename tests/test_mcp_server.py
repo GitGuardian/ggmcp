@@ -1,8 +1,7 @@
-from unittest.mock import AsyncMock, MagicMock, patch, Mock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.utils import get_client
 
 
 @pytest.fixture
@@ -46,9 +45,7 @@ class TestGitGuardianFastMCP:
         """Test fetching token scopes."""
         # Use the conftest fixture's mock client and configure it for this test
         test_scopes = ["scan", "incidents:read", "honeytokens:read", "honeytokens:write"]
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"scopes": test_scopes}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"scopes": test_scopes})
 
         # Create a test fixture for the GitGuardianFastMCP class
         self.mcp = GitGuardianFastMCP("TestMCP")
@@ -184,9 +181,7 @@ class TestGitGuardianFastMCP:
     def test_get_client_with_authorization_header(self, mock_get_client, mock_get_http_headers):
         """Test that get_client uses Authorization header when available."""
         # Mock HTTP headers with Authorization header
-        mock_get_http_headers.return_value = {
-            "authorization": "Bearer test-pat-token-123"
-        }
+        mock_get_http_headers.return_value = {"authorization": "Bearer test-pat-token-123"}
 
         # Mock the get_client function
         mock_client_instance = MagicMock()

@@ -5,7 +5,6 @@ from developer_mcp_server import server
 from fastmcp.exceptions import ToolError
 
 
-
 @pytest.mark.skip(reason="generate_honeytoken is disabled (TODO: APPAI-28)")
 class TestGenerateHoneytoken:
     """Tests for the generate_honeytoken tool."""

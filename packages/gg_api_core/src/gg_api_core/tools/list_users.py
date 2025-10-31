@@ -1,6 +1,6 @@
 import json
-from typing import Any
 import logging
+from typing import Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -12,11 +12,12 @@ logger = logging.getLogger(__name__)
 
 class ListUsersParams(BaseModel):
     """Parameters for listing workspace members/users."""
+
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     role: str | None = Field(
         default=None,
-        description="Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead"
+        description="Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead",
     )
     access_level: str | None = Field(
         default=None, description="Filter members based on their access level (owner, manager, member, restricted)"
@@ -25,13 +26,14 @@ class ListUsersParams(BaseModel):
     search: str | None = Field(default=None, description="Search members based on their name or email")
     ordering: str | None = Field(
         default=None,
-        description="Sort results by field (created_at, -created_at, last_login, -last_login). Use '-' prefix for descending order"
+        description="Sort results by field (created_at, -created_at, last_login, -last_login). Use '-' prefix for descending order",
     )
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
 
 
 class ListUsersResult(BaseModel):
     """Result from listing workspace members/users."""
+
     members: list[dict[str, Any]] = Field(description="List of workspace member objects")
     total_count: int = Field(description="Total number of members returned")
     next_cursor: str | None = Field(default=None, description="Pagination cursor for next page (if applicable)")

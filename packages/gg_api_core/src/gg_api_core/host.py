@@ -10,12 +10,7 @@ SAAS_HOSTNAMES = [
     "dashboard.preprod.gitguardian.com",
 ]
 
-LOCAL_HOSTNAMES = [
-    "localhost",
-    "127.0.0.1",
-    "localhost:3000",
-    "127.0.0.1:3000"
-]
+LOCAL_HOSTNAMES = ["localhost", "127.0.0.1", "localhost:3000", "127.0.0.1:3000"]
 
 
 def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
@@ -35,7 +30,7 @@ def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
         parsed = urlparse(gitguardian_url)
         hostname = parsed.netloc.lower()
         return hostname not in [*SAAS_HOSTNAMES, *LOCAL_HOSTNAMES]
-    except:
+    except Exception:
         # If parsing fails, assume self-hosted to be safe
         return True
 

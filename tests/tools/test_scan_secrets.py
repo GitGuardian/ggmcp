@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
 from pydantic import ValidationError
-from gg_api_core.tools.scan_secret import scan_secrets, ScanSecretsParams
 
 
 class TestScanSecrets:
@@ -39,9 +39,7 @@ class TestScanSecrets:
         mock_gitguardian_client.multiple_scan = AsyncMock(return_value=mock_response)
 
         # Call the function
-        documents = [
-            {"document": "API_KEY=AKIAIOSFODNN7EXAMPLE", "filename": "test.env"}
-        ]
+        documents = [{"document": "API_KEY=AKIAIOSFODNN7EXAMPLE", "filename": "test.env"}]
         result = await scan_secrets(ScanSecretsParams(documents=documents))
 
         # Verify client was called with correct parameters
@@ -113,7 +111,7 @@ class TestScanSecrets:
 
         # Call the function without filename
         documents = [{"document": "print('test')"}]
-        result = await scan_secrets(ScanSecretsParams(documents=documents))
+        await scan_secrets(ScanSecretsParams(documents=documents))
 
         # Verify client was called
         mock_gitguardian_client.multiple_scan.assert_called_once()
@@ -169,17 +167,11 @@ class TestScanSecrets:
         """
         # Mock the client to raise an exception
         error_message = "API error"
-        mock_gitguardian_client.multiple_scan = AsyncMock(
-            side_effect=Exception(error_message)
-        )
+        mock_gitguardian_client.multiple_scan = AsyncMock(side_effect=Exception(error_message))
 
         # Call the function and expect an error
         with pytest.raises(Exception) as excinfo:
-            await scan_secrets(
-                ScanSecretsParams(
-                    documents=[{"document": "test", "filename": "test.txt"}]
-                )
-            )
+            await scan_secrets(ScanSecretsParams(documents=[{"document": "test", "filename": "test.txt"}]))
 
         # Verify error message
         assert error_message in str(excinfo.value)

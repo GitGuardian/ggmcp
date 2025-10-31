@@ -1,10 +1,7 @@
 from fastmcp import FastMCP
-
-from gg_api_core.scopes import DEVELOPER_SCOPES
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honey_tokens import list_honeytokens
-
 from gg_api_core.tools.list_repo_incidents import list_repo_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_users import list_users
@@ -51,8 +48,8 @@ def register_developer_tools(mcp: FastMCP):
     mcp.tool(
         remediate_secret_incidents,
         description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
-                    "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
-                    "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
+        "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
+        "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
         required_scopes=["incidents:read", "sources:read"],
     )
 
@@ -69,26 +66,27 @@ def register_developer_tools(mcp: FastMCP):
         required_scopes=["scan"],
     )
 
-    mcp.tool(list_repo_incidents,
-                 description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
-                             "By default, this tool only shows incidents assigned to the current user. "
-                             "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
-                 required_scopes=["incidents:read", "sources:read"],
-                 )
+    mcp.tool(
+        list_repo_incidents,
+        description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
+        "By default, this tool only shows incidents assigned to the current user. "
+        "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+        required_scopes=["incidents:read", "sources:read"],
+    )
 
     mcp.tool(
         list_repo_occurrences,
         description="List secret occurrences for a specific repository with exact match locations. "
-                    "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
-                    "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
+        "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
+        "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
         required_scopes=["incidents:read"],
     )
 
     mcp.tool(
         find_current_source_id,
         description="Find the GitGuardian source_id for the current repository. "
-                    "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
-                    "Useful when you need to reference the repository in other API calls.",
+        "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
+        "Useful when you need to reference the repository in other API calls.",
         required_scopes=["sources:read"],
     )
 

@@ -1,6 +1,6 @@
 import json
-from typing import Any
 import logging
+from typing import Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 class ListHoneytokensParams(BaseModel):
     """Parameters for listing honeytokens."""
+
     status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
     search: str | None = Field(default=None, description="Search string to filter results by name or description")
     ordering: str | None = Field(
@@ -27,6 +28,7 @@ class ListHoneytokensParams(BaseModel):
 
 class ListHoneytokensResult(BaseModel):
     """Result from listing honeytokens."""
+
     honeytokens: list[dict[str, Any]] = Field(description="List of honeytoken objects")
 
 

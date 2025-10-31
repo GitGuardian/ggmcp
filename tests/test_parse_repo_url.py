@@ -1,7 +1,6 @@
 """Tests for parse_repo_url function - Git URL parsing for multiple hosting platforms"""
 
 import pytest
-
 from gg_api_core.utils import parse_repo_url
 
 
@@ -169,14 +168,7 @@ class TestParseRepoUrl:
     # Invalid/edge case URLs that return the original input
     @pytest.mark.parametrize(
         "url",
-        [
-            "not-a-valid-url",
-            "http://",
-            "",
-            "just-text",
-            "GitGuardian/ggmcp",
-            "gg-code/prm/ward-runs-app"
-        ],
+        ["not-a-valid-url", "http://", "", "just-text", "GitGuardian/ggmcp", "gg-code/prm/ward-runs-app"],
     )
     def test_unrecognized_urls_return_original(self, url):
         """Test that unrecognized URLs return the original input"""

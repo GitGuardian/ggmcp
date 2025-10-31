@@ -1,6 +1,7 @@
-from typing import Any
-from pydantic import BaseModel, Field
 import logging
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 class ScanSecretsParams(BaseModel):
     """Parameters for scanning secrets."""
+
     documents: list[dict[str, str]] = Field(
         description="""
         List of documents to scan, each with 'document' and optional 'filename'.
@@ -23,6 +25,7 @@ class ScanSecretsParams(BaseModel):
 
 class ScanSecretsResult(BaseModel):
     """Result from scanning secrets."""
+
     model_config = {"extra": "allow"}  # Allow additional fields from API
 
     scan_results: list[dict[str, Any]] = Field(default_factory=list, description="Scan results for each document")
