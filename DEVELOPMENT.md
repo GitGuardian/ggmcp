@@ -15,6 +15,33 @@ This document provides instructions for developers who want to contribute to the
    ```bash
    uv sync --dev
    ```
+5. Install pre-commit hooks:
+   ```bash
+   pre-commit install && pre-commit install --hook-type pre-push
+   ```
+
+### Pre-commit Hooks
+
+This project uses [pre-commit](https://pre-commit.com/) to ensure code quality and security standards. The hooks are configured in `.pre-commit-config.yaml` and include:
+
+**On every commit:**
+- **Ruff** - Automatically lints and formats Python code
+- **Commitizen** - Validates commit message format
+- **GitGuardian ggshield** - Scans for secrets in staged files
+
+**On every push:**
+- **Commitizen-branch** - Validates branch naming conventions
+- **GitGuardian ggshield-push** - Scans all commits being pushed for secrets
+
+The hooks will automatically run before commits/pushes and will block the operation if any issues are found. You can also run the hooks manually:
+
+```bash
+# Run all hooks on all files
+pre-commit run --all-files
+
+# Run a specific hook
+pre-commit run ruff --all-files
+```
 
 ## Project Structure
 
@@ -126,11 +153,20 @@ Create test files in the `tests/` directory that match the pattern `test_*.py`.
 
 ## Code Style
 
-This project uses `ruff` for linting and formatting. You can run the linter with:
+This project uses `ruff` for linting and formatting. While pre-commit hooks will automatically run ruff on your staged files, you can also run it manually:
 
 ```bash
+# Check for linting issues
 ruff check src tests
+
+# Auto-fix linting issues
+ruff check --fix src tests
+
+# Format code
+ruff format src tests
 ```
+
+**Note:** Pre-commit hooks will automatically run ruff on your staged files when you commit, so you usually don't need to run it manually.
 
 ## Cursor Rules
 
@@ -155,10 +191,14 @@ When adding a new tool, please document it in the README.md following the same s
 
 ## Pull Request Process
 
-1. Create a new branch for your feature or fix
+1. Create a new branch for your feature or fix (ensure it follows the naming convention enforced by commitizen-branch)
 2. Make your changes, adding tests and documentation
 3. Ensure all tests pass and linting issues are fixed
-4. Submit a pull request with a clear description of your changes
+4. Commit your changes with properly formatted commit messages (enforced by commitizen pre-commit hook)
+5. Push your changes (pre-push hooks will scan for secrets and validate branch names)
+6. Submit a pull request with a clear description of your changes
+
+**Note:** The pre-commit and pre-push hooks will automatically check your code quality, commit messages, and scan for secrets before allowing commits and pushes.
 
 ## Releasing
 
