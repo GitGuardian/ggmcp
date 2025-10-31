@@ -3,8 +3,6 @@
 import os
 from unittest.mock import patch
 
-import pytest
-
 from gg_api_core.host import SAAS_HOSTNAMES, is_self_hosted_instance
 
 

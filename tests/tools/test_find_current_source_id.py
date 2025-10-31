@@ -1,5 +1,5 @@
-from unittest.mock import AsyncMock, patch, MagicMock
 import subprocess
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from gg_api_core.tools.find_current_source_id import find_current_source_id
@@ -29,9 +29,7 @@ class TestFindCurrentSourceId:
                 "url": "https://github.com/GitGuardian/ggmcp",
                 "monitored": True,
             }
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                return_value=mock_response
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
@@ -46,9 +44,7 @@ class TestFindCurrentSourceId:
             )
 
             # Verify client was called with parsed repository name (just repo name, not org/repo)
-            mock_gitguardian_client.get_source_by_name.assert_called_once_with(
-                "ggmcp", return_all_on_no_match=True
-            )
+            mock_gitguardian_client.get_source_by_name.assert_called_once_with("ggmcp", return_all_on_no_match=True)
 
             # Verify response
             assert result.repository_name == "ggmcp"
@@ -56,9 +52,7 @@ class TestFindCurrentSourceId:
             assert hasattr(result, "message")
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_multiple_candidates(
-        self, mock_gitguardian_client
-    ):
+    async def test_find_current_source_id_multiple_candidates(self, mock_gitguardian_client):
         """
         GIVEN: A git repository URL that matches multiple sources
         WHEN: Finding the source_id
@@ -86,9 +80,7 @@ class TestFindCurrentSourceId:
                     "monitored": False,
                 },
             ]
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                return_value=mock_response
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
@@ -101,9 +93,7 @@ class TestFindCurrentSourceId:
             assert hasattr(result, "suggestion")
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_direct_match(
-        self, mock_gitguardian_client
-    ):
+    async def test_find_current_source_id_direct_match(self, mock_gitguardian_client):
         """
         GIVEN: A repository URL that gets parsed to just the repo name
         WHEN: Finding the source_id with a direct match
@@ -122,9 +112,7 @@ class TestFindCurrentSourceId:
                 "name": "repo-name",
                 "url": "https://github.com/OrgName/repo-name",
             }
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                return_value=mock_response
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
@@ -134,9 +122,7 @@ class TestFindCurrentSourceId:
             assert result.source_id == "source_123"
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_no_match_at_all(
-        self, mock_gitguardian_client
-    ):
+    async def test_find_current_source_id_no_match_at_all(self, mock_gitguardian_client):
         """
         GIVEN: No sources match the repository in GitGuardian
         WHEN: Finding the source_id
@@ -161,9 +147,7 @@ class TestFindCurrentSourceId:
             assert "not found in GitGuardian" in result.error
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_not_a_git_repo(
-        self, mock_gitguardian_client
-    ):
+    async def test_find_current_source_id_not_a_git_repo(self, mock_gitguardian_client):
         """
         GIVEN: The current directory is not a git repository
         WHEN: Attempting to find the source_id
@@ -171,9 +155,7 @@ class TestFindCurrentSourceId:
         """
         # Mock git command to raise an error
         with patch("subprocess.run") as mock_run:
-            mock_run.side_effect = subprocess.CalledProcessError(
-                128, "git", stderr="not a git repository"
-            )
+            mock_run.side_effect = subprocess.CalledProcessError(128, "git", stderr="not a git repository")
 
             # Call the function
             result = await find_current_source_id()
@@ -242,9 +224,7 @@ class TestFindCurrentSourceId:
                 "full_name": "company/project",
                 "url": "https://gitlab.com/company/project",
             }
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                return_value=mock_response
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
@@ -272,9 +252,7 @@ class TestFindCurrentSourceId:
                 "id": "source_ssh",
                 "full_name": "GitGuardian/ggmcp",
             }
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                return_value=mock_response
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
@@ -298,9 +276,7 @@ class TestFindCurrentSourceId:
             )
 
             # Mock the client to raise an exception
-            mock_gitguardian_client.get_source_by_name = AsyncMock(
-                side_effect=Exception("API error")
-            )
+            mock_gitguardian_client.get_source_by_name = AsyncMock(side_effect=Exception("API error"))
 
             # Call the function
             result = await find_current_source_id()

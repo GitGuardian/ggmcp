@@ -1,8 +1,7 @@
 import logging
-from typing import Any
 
 from mcp.server.fastmcp.exceptions import ToolError
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
 
@@ -11,23 +10,23 @@ logger = logging.getLogger(__name__)
 
 class LocationToFix(BaseModel):
     """Represents a single issue with locations to fix."""
+
     issue_id: int = Field(description="The ID of the secret incident")
-    location_ids: list[int] = Field(
-        min_length=1,
-        description="List of location IDs to fix for this issue"
-    )
+    location_ids: list[int] = Field(min_length=1, description="List of location IDs to fix for this issue")
 
 
 class CreateCodeFixRequestParams(BaseModel):
     """Parameters for creating code fix requests."""
+
     locations: list[LocationToFix] = Field(
         min_length=1,
-        description="List of issues with their location IDs to fix. Each item must include an issue_id and a list of location_ids."
+        description="List of issues with their location IDs to fix. Each item must include an issue_id and a list of location_ids.",
     )
 
 
 class CreateCodeFixRequestResult(BaseModel):
     """Result from creating code fix requests."""
+
     model_config = {"extra": "allow"}  # Allow additional fields from API response
 
     message: str = Field(description="Success message with count of created requests and locations")
@@ -65,9 +64,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
         Single issue with multiple locations:
         ```python
         params = CreateCodeFixRequestParams(
-            locations=[
-                LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])
-            ]
+            locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
         )
         ```
 
@@ -76,7 +73,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
         params = CreateCodeFixRequestParams(
             locations=[
                 LocationToFix(issue_id=12345, location_ids=[67890]),
-                LocationToFix(issue_id=12346, location_ids=[67893, 67894])
+                LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
             ]
         )
         ```
@@ -84,13 +81,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
     client = get_client()
 
     # Convert Pydantic models to dict format expected by API
-    locations_data = [
-        {
-            "issue_id": loc.issue_id,
-            "location_ids": loc.location_ids
-        }
-        for loc in params.locations
-    ]
+    locations_data = [{"issue_id": loc.issue_id, "location_ids": loc.location_ids} for loc in params.locations]
 
     total_locations = sum(len(loc.location_ids) for loc in params.locations)
     logger.debug(f"Creating code fix request for {len(params.locations)} issue(s) with {total_locations} location(s)")
@@ -99,7 +90,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
         # Call the client method
         result = await client.create_code_fix_request(locations=locations_data)
 
-        logger.debug(f"Successfully created code fix request")
+        logger.debug("Successfully created code fix request")
 
         # Parse the response
         if isinstance(result, dict):
@@ -107,16 +98,11 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
             message = result.get("message", f"Created code fix requests for {len(params.locations)} issue(s)")
             # Remove message from result to avoid duplicate when unpacking
             result_copy = {k: v for k, v in result.items() if k != "message"}
-            return CreateCodeFixRequestResult(
-                message=message,
-                success=True,
-                **result_copy
-            )
+            return CreateCodeFixRequestResult(message=message, success=True, **result_copy)
         else:
             # Fallback response
             return CreateCodeFixRequestResult(
-                message=f"Created code fix requests for {len(params.locations)} issue(s)",
-                success=True
+                message=f"Created code fix requests for {len(params.locations)} issue(s)", success=True
             )
 
     except Exception as e:
@@ -127,7 +113,9 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
         if "not enabled" in error_message.lower():
             raise ToolError("Code fixing feature is not enabled for this workspace")
         elif "permission" in error_message.lower() or "403" in error_message:
-            raise ToolError("Insufficient permissions. You must have Manager access level and the 'incidents:write' scope")
+            raise ToolError(
+                "Insufficient permissions. You must have Manager access level and the 'incidents:write' scope"
+            )
         elif "404" in error_message or "not set" in error_message.lower():
             raise ToolError("Code fixing API key is not configured (on-premises only)")
         elif "too many" in error_message.lower():

@@ -10,28 +10,25 @@ logger = logging.getLogger(__name__)
 
 class AssignIncidentParams(BaseModel):
     """Parameters for assigning an incident to a member."""
+
     incident_id: str | int = Field(description="ID of the secret incident to assign")
     assignee_member_id: str | int | None = Field(
         default=None,
-        description="ID of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided"
+        description="ID of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
     )
     email: str | None = Field(
         default=None,
-        description="Email address of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided"
+        description="Email address of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
     )
     mine: bool = Field(
         default=False,
-        description="If True, assign the incident to the current user (will fetch current user's ID automatically). One of assignee_member_id, email, or mine must be provided"
+        description="If True, assign the incident to the current user (will fetch current user's ID automatically). One of assignee_member_id, email, or mine must be provided",
     )
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def validate_exactly_one_assignee_option(self):
         """Validate that exactly one of assignee_member_id, email, or mine is provided."""
-        provided_options = sum([
-            self.assignee_member_id is not None,
-            self.email is not None,
-            self.mine
-        ])
+        provided_options = sum([self.assignee_member_id is not None, self.email is not None, self.mine])
 
         if provided_options == 0:
             raise ValueError("One of assignee_member_id, email, or mine must be provided")
@@ -43,6 +40,7 @@ class AssignIncidentParams(BaseModel):
 
 class AssignIncidentResult(BaseModel):
     """Result from assigning an incident."""
+
     model_config = {"extra": "allow"}  # Allow additional fields from API response
 
     incident_id: str | int = Field(description="ID of the incident that was assigned")
@@ -150,28 +148,16 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
 
     try:
         # Call the client method
-        result = await client.assign_incident(
-            incident_id=str(params.incident_id),
-            assignee_id=str(assignee_id)
-        )
+        result = await client.assign_incident(incident_id=str(params.incident_id), assignee_id=str(assignee_id))
 
         logger.debug(f"Successfully assigned incident {params.incident_id} to member {assignee_id}")
 
         # Parse the response
         if isinstance(result, dict):
-            return AssignIncidentResult(
-                incident_id=params.incident_id,
-                assignee_id=assignee_id,
-                success=True,
-                **result
-            )
+            return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True, **result)
         else:
             # Fallback response
-            return AssignIncidentResult(
-                incident_id=params.incident_id,
-                assignee_id=assignee_id,
-                success=True
-            )
+            return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True)
 
     except Exception as e:
         logger.error(f"Error assigning incident {params.incident_id}: {str(e)}")

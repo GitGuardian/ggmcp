@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_honey_tokens import list_honeytokens, ListHoneytokensParams
+from gg_api_core.tools.list_honey_tokens import ListHoneytokensParams, list_honeytokens
 
 
 class TestListHoneytokens:
@@ -147,9 +147,7 @@ class TestListHoneytokens:
         THEN: Only honeytokens created by current user are returned
         """
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"user_id": "user_123"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user_123"})
 
         # Mock the client response
         mock_response = {
@@ -191,25 +189,21 @@ class TestListHoneytokens:
         assert result.honeytokens[0]["creator_id"] == "user_123"
 
     @pytest.mark.asyncio
-    async def test_list_honeytokens_mine_true_no_user_id(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_honeytokens_mine_true_no_user_id(self, mock_gitguardian_client):
         """
         GIVEN: mine=True but user_id is not available
         WHEN: Listing honeytokens
         THEN: The request proceeds without user filtering
         """
         # Mock get_current_token_info to return None user_id
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"other_field": "value"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"other_field": "value"})
 
         # Mock the client response
         mock_response = {"honeytokens": []}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with mine=True
-        result = await list_honeytokens(
+        await list_honeytokens(
             ListHoneytokensParams(
                 status=None,
                 search=None,
@@ -300,9 +294,7 @@ class TestListHoneytokens:
         """Test error handling when client raises an exception."""
         # Mock the client to raise an exception
         error_message = "API connection failed"
-        mock_gitguardian_client.list_honeytokens = AsyncMock(
-            side_effect=Exception(error_message)
-        )
+        mock_gitguardian_client.list_honeytokens = AsyncMock(side_effect=Exception(error_message))
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
@@ -335,7 +327,7 @@ class TestListHoneytokens:
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with explicit creator_id
-        result = await list_honeytokens(
+        await list_honeytokens(
             ListHoneytokensParams(
                 status=None,
                 search=None,
@@ -354,9 +346,7 @@ class TestListHoneytokens:
         assert call_kwargs["creator_id"] == "specific_user_123"
 
     @pytest.mark.asyncio
-    async def test_list_honeytokens_with_creator_api_token_id(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_honeytokens_with_creator_api_token_id(self, mock_gitguardian_client):
         """
         GIVEN: A creator_api_token_id parameter
         WHEN: Listing honeytokens
@@ -367,7 +357,7 @@ class TestListHoneytokens:
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with creator_api_token_id
-        result = await list_honeytokens(
+        await list_honeytokens(
             ListHoneytokensParams(
                 status=None,
                 search=None,
@@ -428,18 +418,14 @@ class TestListHoneytokens:
         assert result.honeytokens[0]["token"] == "secret_value"
 
     @pytest.mark.asyncio
-    async def test_list_honeytokens_mine_true_token_info_error(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_honeytokens_mine_true_token_info_error(self, mock_gitguardian_client):
         """
         GIVEN: get_current_token_info raises an exception
         WHEN: Listing honeytokens with mine=True
         THEN: The function continues without user filtering
         """
         # Mock get_current_token_info to raise exception
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            side_effect=Exception("Token info failed")
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(side_effect=Exception("Token info failed"))
 
         # Mock the client response
         mock_response = {"honeytokens": []}

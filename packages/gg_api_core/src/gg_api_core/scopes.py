@@ -1,6 +1,8 @@
 """GitGuardian API scope definitions for different server types."""
+
 import os
-from gg_api_core.host import is_self_hosted_instance, is_local_instance
+
+from gg_api_core.host import is_local_instance, is_self_hosted_instance
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -30,7 +32,7 @@ ALL_SCOPES = [
     "custom_tags:write",
     "members:read",
     "secrets:write",
-    "secrets:read"
+    "secrets:read",
 ]
 
 ALL_READ_SCOPES = [
@@ -41,17 +43,17 @@ ALL_READ_SCOPES = [
     "api_tokens:read",
     "ip_allowlist:read",
     "custom_tags:read",
-    "secrets:read"
+    "secrets:read",
 ]
 
 
 def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
     """
     Get developer scopes appropriate for the GitGuardian instance type.
-    
+
     Args:
         gitguardian_url: GitGuardian URL to check instance type
-        
+
     Returns:
         list[str]: List of appropriate scopes
     """
@@ -68,10 +70,10 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
 def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
     """
     Get SecOps scopes appropriate for the GitGuardian instance type.
-    
+
     Args:
         gitguardian_url: GitGuardian URL to check instance type
-        
+
     Returns:
         list[str]: List of appropriate scopes
     """
@@ -106,8 +108,7 @@ def validate_scopes(scopes_str: str) -> list[str]:
 
     if invalid_scopes:
         raise ValueError(
-            f"Invalid scopes provided: {', '.join(invalid_scopes)}. "
-            f"Valid scopes are: {', '.join(ALL_SCOPES)}"
+            f"Invalid scopes provided: {', '.join(invalid_scopes)}. Valid scopes are: {', '.join(ALL_SCOPES)}"
         )
 
     return requested_scopes

@@ -1,16 +1,17 @@
-from typing import Literal, Any
+import logging
+from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 class ManageIncidentParams(BaseModel):
     """Parameters for managing an incident."""
+
     incident_id: str | int = Field(description="ID of the secret incident to manage")
     action: Literal["assign", "unassign", "resolve", "ignore", "reopen"] = Field(
         description="Action to perform on the incident"
@@ -57,6 +58,7 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
 
 class UpdateIncidentStatusParams(BaseModel):
     """Parameters for updating incident status."""
+
     incident_id: str | int = Field(description="ID of the secret incident")
     status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)")
 

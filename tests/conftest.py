@@ -32,6 +32,7 @@ def mock_gitguardian_client():
         with patch("gg_api_core.utils.get_gitguardian_client", return_value=mock_client):
             # Reset the singleton to None before each test to ensure clean state
             import gg_api_core.utils
+
             gg_api_core.utils._client_singleton = None
             yield mock_client
             # Clean up singleton after test
@@ -41,9 +42,7 @@ def mock_gitguardian_client():
 @pytest.fixture(autouse=True)
 def mock_env_vars():
     """Automatically mock environment variables for all tests."""
-    with patch.dict(
-        os.environ, {"GITGUARDIAN_URL": "https://test.api.gitguardian.com"}
-    ):
+    with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://test.api.gitguardian.com"}):
         yield
 
 

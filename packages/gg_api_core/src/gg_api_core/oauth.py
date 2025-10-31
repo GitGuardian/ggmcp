@@ -434,7 +434,7 @@ class GitGuardianOAuthClient:
         global _oauth_client_counter
         _oauth_client_counter += 1
         logger.debug(f"Creating OAuth client #{_oauth_client_counter} for {dashboard_url}")
-        
+
         self.api_url = api_url
         self.dashboard_url = dashboard_url
         self.scopes = scopes or ["scan"]
@@ -465,8 +465,6 @@ class GitGuardianOAuthClient:
                         f"Invalid GITGUARDIAN_TOKEN_LIFETIME value: {lifetime_env}. Using default of 30 days."
                     )
                     self.token_lifetime = 30
-
-
 
         # Try to load a saved token first
         self._load_saved_token()
@@ -504,7 +502,7 @@ class GitGuardianOAuthClient:
                 logger.info(f"Loaded saved token '{self.token_name}' for {self.dashboard_url}")
                 # Note: self.token_info will be populated when _fetch_token_info() is called
             else:
-                logger.warning(f"Token data found but no access_token field")
+                logger.warning("Token data found but no access_token field")
         except Exception as e:
             logger.warning(f"Failed to load saved token: {e}")
             # Continue without a saved token
@@ -532,11 +530,13 @@ class GitGuardianOAuthClient:
                 logger.info(f"Using existing token '{self.token_name}' - skipping OAuth flow")
                 return self.access_token
             else:
-                logger.info(f"Saved token for '{self.token_name}' is no longer valid, starting OAuth authentication flow")
+                logger.info(
+                    f"Saved token for '{self.token_name}' is no longer valid, starting OAuth authentication flow"
+                )
                 self.access_token = None
         else:
             logger.info(f"No valid token found for '{self.token_name}', starting OAuth authentication flow")
-        
+
         # Handle the base URL correctly
         base_url = self.dashboard_url
         server_url = base_url.rstrip("/")
@@ -558,7 +558,7 @@ class GitGuardianOAuthClient:
         async def redirect_handler(authorization_url: str) -> None:
             """Opens the browser for authorization."""
             logger.info(f"Opening browser for authorization: {authorization_url}")
-            
+
             # Try to open the browser, but provide fallback instructions
             try:
                 browser_opened = webbrowser.open(authorization_url)

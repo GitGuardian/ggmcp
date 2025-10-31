@@ -1,5 +1,5 @@
-from typing import Any
 import logging
+from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -36,6 +36,7 @@ DEFAULT_VALIDITIES = [
 
 class ListRepoOccurrencesFilters(BaseModel):
     """Filters for listing repository occurrences."""
+
     from_date: str | None = Field(
         default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
     )
@@ -46,24 +47,27 @@ class ListRepoOccurrencesFilters(BaseModel):
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
     exclude_tags: list[str] | None = Field(
         default=DEFAULT_EXCLUDED_TAGS,
-        description="Exclude occurrences with these tag names. Pass empty list to disable filtering."
+        description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
     )
     status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
-    severity: list[str] | None = Field(default=DEFAULT_SEVERITIES,
-                                       description="Filter by severity (list of severity names)")
-    validity: list[str] | None = Field(default=DEFAULT_VALIDITIES,
-                                       description="Filter by validity (list of validity names)")
+    severity: list[str] | None = Field(
+        default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
+    )
+    validity: list[str] | None = Field(
+        default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
+    )
 
 
 class ListRepoOccurrencesBaseParams(BaseModel):
     """Parameters for listing repository occurrences."""
+
     repository_name: str | None = Field(
         default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided."
+        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided.",
     )
     source_id: str | int | None = Field(
         default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required."
+        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required.",
     )
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
@@ -84,6 +88,7 @@ class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesB
 
 class ListRepoOccurrencesResult(BaseModel):
     """Result from listing repository occurrences."""
+
     repository: str | None = Field(default=None, description="Repository name")
     occurrences_count: int = Field(description="Number of occurrences returned")
     occurrences: list[dict[str, Any]] = Field(default_factory=list, description="List of occurrence objects")
@@ -95,6 +100,7 @@ class ListRepoOccurrencesResult(BaseModel):
 
 class ListRepoOccurrencesError(BaseModel):
     """Error result from listing repository occurrences."""
+
     error: str = Field(description="Error message")
 
 
@@ -110,15 +116,15 @@ def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     if params.presence:
         filters["presence"] = params.presence
     if params.tags:
-        filters["tags"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.tags]
+        filters["tags"] = [tag.value if hasattr(tag, "value") else tag for tag in params.tags]
     if params.exclude_tags:
-        filters["exclude_tags"] = [tag.value if hasattr(tag, 'value') else tag for tag in params.exclude_tags]
+        filters["exclude_tags"] = [tag.value if hasattr(tag, "value") else tag for tag in params.exclude_tags]
     if params.status:
-        filters["status"] = [st.value if hasattr(st, 'value') else st for st in params.status]
+        filters["status"] = [st.value if hasattr(st, "value") else st for st in params.status]
     if params.severity:
-        filters["severity"] = [sev.value if hasattr(sev, 'value') else sev for sev in params.severity]
+        filters["severity"] = [sev.value if hasattr(sev, "value") else sev for sev in params.severity]
     if params.validity:
-        filters["validity"] = [v.value if hasattr(v, 'value') else v for v in params.validity]
+        filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
 
     return filters
 
@@ -129,31 +135,33 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 
     # Explain what's being filtered
     if params.exclude_tags:
-        excluded_tag_names = [tag.name if hasattr(tag, 'name') else tag for tag in params.exclude_tags]
+        excluded_tag_names = [tag.name if hasattr(tag, "name") else tag for tag in params.exclude_tags]
         suggestions.append(f"Occurrences were filtered to exclude tags: {', '.join(excluded_tag_names)}")
 
     if params.status:
-        status_names = [st.name if hasattr(st, 'name') else st for st in params.status]
+        status_names = [st.name if hasattr(st, "name") else st for st in params.status]
         suggestions.append(f"Filtered by status: {', '.join(status_names)}")
 
     if params.severity:
-        sev_names = [sev.name if hasattr(sev, 'name') else sev for sev in params.severity]
+        sev_names = [sev.name if hasattr(sev, "name") else sev for sev in params.severity]
         suggestions.append(f"Filtered by severity: {', '.join(sev_names)}")
 
     if params.validity:
-        val_names = [v.name if hasattr(v, 'name') else v for v in params.validity]
+        val_names = [v.name if hasattr(v, "name") else v for v in params.validity]
         suggestions.append(f"Filtered by validity: {', '.join(val_names)}")
 
     # If no results, suggest how to get more
     if occurrences_count == 0 and suggestions:
         suggestions.append(
-            "No occurrences matched the applied filters. Try with exclude_tags=[] or different status/severity/validity filters to see all occurrences.")
+            "No occurrences matched the applied filters. Try with exclude_tags=[] or different status/severity/validity filters to see all occurrences."
+        )
 
     return "\n".join(suggestions) if suggestions else ""
 
 
 async def list_repo_occurrences(
-        params: ListRepoOccurrencesParams) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
+    params: ListRepoOccurrencesParams,
+) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
 

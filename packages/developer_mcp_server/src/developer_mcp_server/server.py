@@ -3,10 +3,10 @@
 import logging
 import os
 
-from developer_mcp_server.register_tools import register_developer_tools, DEVELOPER_INSTRUCTIONS
 from gg_api_core.mcp_server import GitGuardianFastMCP
-from gg_api_core.scopes import get_developer_scopes, validate_scopes, set_developer_scopes
-from gg_api_core.host import is_self_hosted_instance
+from gg_api_core.scopes import set_developer_scopes
+
+from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools
 
 # Configure more detailed logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")

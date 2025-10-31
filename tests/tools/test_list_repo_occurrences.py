@@ -1,17 +1,15 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
 from pydantic import ValidationError
-from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 
 
 class TestListRepoOccurrences:
     """Tests for the list_repo_occurrences tool."""
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_with_repository_name(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_occurrences_with_repository_name(self, mock_gitguardian_client):
         """
         GIVEN: A repository name
         WHEN: Listing occurrences for the repository
@@ -94,9 +92,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(source_id="source_123")
-        )
+        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
 
         # Verify client was called with source_id and with_sources=False
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -125,7 +121,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function with filters
-        result = await list_repo_occurrences(
+        await list_repo_occurrences(
             ListRepoOccurrencesParams(
                 repository_name="GitGuardian/test-repo",
                 source_id=None,
@@ -180,9 +176,7 @@ class TestListRepoOccurrences:
         assert result.suggestion is not None
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_no_repository_or_source(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_occurrences_no_repository_or_source(self, mock_gitguardian_client):
         """
         GIVEN: Neither repository_name nor source_id provided
         WHEN: Attempting to create params
@@ -217,14 +211,10 @@ class TestListRepoOccurrences:
         """
         # Mock the client to raise an exception
         error_message = "API connection failed"
-        mock_gitguardian_client.list_occurrences = AsyncMock(
-            side_effect=Exception(error_message)
-        )
+        mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception(error_message))
 
         # Call the function
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
-        )
+        result = await list_repo_occurrences(ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo"))
 
         # Verify error response
         assert hasattr(result, "error")
@@ -287,9 +277,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
-        )
+        result = await list_repo_occurrences(ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo"))
 
         # Verify response
         assert result.occurrences_count == 0
@@ -298,9 +286,7 @@ class TestListRepoOccurrences:
         assert result.suggestion is not None
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_unexpected_response_type(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_occurrences_unexpected_response_type(self, mock_gitguardian_client):
         """
         GIVEN: The API returns an unexpected response type
         WHEN: Processing the response
@@ -311,9 +297,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo")
-        )
+        result = await list_repo_occurrences(ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo"))
 
         # Verify response defaults to empty
         assert result.occurrences_count == 0

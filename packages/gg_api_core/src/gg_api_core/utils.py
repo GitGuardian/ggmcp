@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 from urllib.parse import urljoin as urllib_urljoin
 
@@ -118,8 +117,10 @@ def parse_repo_url(remote_url: str) -> str | None:
     # HTTPS: https://bitbucket.company.com/projects/PROJECT/repos/repo
     # SSH: ssh://git@bitbucket.company.com:7999/project/repo.git
     # SSH: git@bitbucket.company.com:project/repo.git
-    elif "/scm/" in repo_path or "/projects/" in repo_path or (
-            "bitbucket" in repo_path and ("ssh://" in remote_url or "@" in remote_url)
+    elif (
+        "/scm/" in repo_path
+        or "/projects/" in repo_path
+        or ("bitbucket" in repo_path and ("ssh://" in remote_url or "@" in remote_url))
     ):
         # Bitbucket Data Center /scm/ format
         if "/scm/" in repo_path:
@@ -179,10 +180,7 @@ def parse_repo_url(remote_url: str) -> str | None:
 
 
 # Initialize GitGuardian client
-def get_gitguardian_client(
-    server_name: str = None,
-    personal_access_token: str | None = None
-) -> GitGuardianClient:
+def get_gitguardian_client(server_name: str = None, personal_access_token: str | None = None) -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
     Uses OAuth authentication flow by default, or a provided Personal Access Token.

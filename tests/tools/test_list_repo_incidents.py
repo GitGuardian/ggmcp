@@ -1,16 +1,14 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.list_repo_incidents import list_repo_incidents, ListRepoIncidentsParams
+from gg_api_core.tools.list_repo_incidents import ListRepoIncidentsParams, list_repo_incidents
 
 
 class TestListRepoIncidents:
     """Tests for the list_repo_incidents tool."""
 
     @pytest.mark.asyncio
-    async def test_list_repo_incidents_with_repository_name(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_incidents_with_repository_name(self, mock_gitguardian_client):
         """
         GIVEN: A repository name
         WHEN: Listing incidents for the repository
@@ -28,9 +26,7 @@ class TestListRepoIncidents:
             ],
             "total_count": 1,
         }
-        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(
-            return_value=mock_response
-        )
+        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(return_value=mock_response)
 
         # Call the function
         result = await list_repo_incidents(
@@ -76,9 +72,7 @@ class TestListRepoIncidents:
             ],
             "total_count": 1,
         }
-        mock_gitguardian_client.list_source_incidents = AsyncMock(
-            return_value=mock_response
-        )
+        mock_gitguardian_client.list_source_incidents = AsyncMock(return_value=mock_response)
 
         # Call the function
         result = await list_repo_incidents(
@@ -123,12 +117,10 @@ class TestListRepoIncidents:
             "data": [],
             "total_count": 0,
         }
-        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(
-            return_value=mock_response
-        )
+        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(return_value=mock_response)
 
         # Call the function with filters
-        result = await list_repo_incidents(
+        await list_repo_incidents(
             ListRepoIncidentsParams(
                 repository_name="GitGuardian/test-repo",
                 source_id=None,
@@ -187,9 +179,7 @@ class TestListRepoIncidents:
         assert len(result.incidents) == 3
 
     @pytest.mark.asyncio
-    async def test_list_repo_incidents_no_repository_or_source(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_incidents_no_repository_or_source(self, mock_gitguardian_client):
         """
         GIVEN: Neither repository_name nor source_id provided
         WHEN: Attempting to list incidents
@@ -225,9 +215,7 @@ class TestListRepoIncidents:
         """
         # Mock the client to raise an exception
         error_message = "API connection failed"
-        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(
-            side_effect=Exception(error_message)
-        )
+        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(side_effect=Exception(error_message))
 
         # Call the function
         result = await list_repo_incidents(
@@ -263,12 +251,10 @@ class TestListRepoIncidents:
             "total_count": 1,
             "next_cursor": "cursor_abc",
         }
-        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(
-            return_value=mock_response
-        )
+        mock_gitguardian_client.list_repo_incidents_directly = AsyncMock(return_value=mock_response)
 
         # Call the function with cursor
-        result = await list_repo_incidents(
+        await list_repo_incidents(
             ListRepoIncidentsParams(
                 repository_name="GitGuardian/test-repo",
                 source_id=None,
@@ -291,9 +277,7 @@ class TestListRepoIncidents:
         assert call_kwargs["repository_name"] == "GitGuardian/test-repo"
 
     @pytest.mark.asyncio
-    async def test_list_repo_incidents_source_id_list_response(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_incidents_source_id_list_response(self, mock_gitguardian_client):
         """
         GIVEN: The API returns a list directly
         WHEN: Listing incidents by source_id
@@ -301,9 +285,7 @@ class TestListRepoIncidents:
         """
         # Mock the client to return a list directly
         mock_response = [{"id": "incident_1"}, {"id": "incident_2"}]
-        mock_gitguardian_client.list_source_incidents = AsyncMock(
-            return_value=mock_response
-        )
+        mock_gitguardian_client.list_source_incidents = AsyncMock(return_value=mock_response)
 
         # Call the function
         result = await list_repo_incidents(
@@ -328,9 +310,7 @@ class TestListRepoIncidents:
         assert len(result.incidents) == 2
 
     @pytest.mark.asyncio
-    async def test_list_repo_incidents_get_all_dict_response(
-        self, mock_gitguardian_client
-    ):
+    async def test_list_repo_incidents_get_all_dict_response(self, mock_gitguardian_client):
         """
         GIVEN: paginate_all returns a dict response
         WHEN: Listing all incidents with get_all=True
@@ -344,9 +324,7 @@ class TestListRepoIncidents:
         mock_gitguardian_client.paginate_all = AsyncMock(return_value=mock_response)
 
         # Call the function with get_all=True
-        result = await list_repo_incidents(
-            ListRepoIncidentsParams(source_id="source_123", get_all=True)
-        )
+        result = await list_repo_incidents(ListRepoIncidentsParams(source_id="source_123", get_all=True))
 
         # Verify response
         assert result.source_id == "source_123"

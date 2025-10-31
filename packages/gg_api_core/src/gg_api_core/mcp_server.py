@@ -8,10 +8,8 @@ from typing import Any
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import MiddlewareContext
-from mcp.types import AnyFunction
 from mcp.types import Tool as MCPTool
 
-from gg_api_core.tools import manage_incident
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -192,24 +190,24 @@ class GitGuardianFastMCP(FastMCP):
         result = super().tool(*args, **kwargs)
 
         # Store scopes if this is a tool instance (not a decorator)
-        if hasattr(result, 'name') and required_scopes:
+        if hasattr(result, "name") and required_scopes:
             self._tool_scopes[result.name] = set(required_scopes)
             return result
 
         # If it's a decorator, wrap it to track scopes
         if callable(result):
+
             def wrapper(fn):
                 tool = result(fn)
                 if required_scopes:
                     self._tool_scopes[tool.name] = set(required_scopes)
                 return tool
+
             return wrapper
 
         return result
 
-    async def _scope_filtering_middleware(
-        self, context: MiddlewareContext, call_next: Callable
-    ) -> Any:
+    async def _scope_filtering_middleware(self, context: MiddlewareContext, call_next: Callable) -> Any:
         """
         Middleware to filter tools based on token scopes.
 

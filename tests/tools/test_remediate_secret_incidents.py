@@ -1,13 +1,13 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from pydantic import ValidationError
+from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesError, ListRepoOccurrencesResult
 from gg_api_core.tools.remediate_secret_incidents import (
-    remediate_secret_incidents,
-    RemediateSecretIncidentsParams,
     ListRepoOccurrencesParamsForRemediate,
+    RemediateSecretIncidentsParams,
+    remediate_secret_incidents,
 )
-from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesResult, ListRepoOccurrencesError
+from pydantic import ValidationError
 
 
 class TestRemediateSecretIncidentsParams:
@@ -19,9 +19,7 @@ class TestRemediateSecretIncidentsParams:
         WHEN: Creating the params
         THEN: Validation should pass
         """
-        params = RemediateSecretIncidentsParams(
-            repository_name="GitGuardian/test-repo"
-        )
+        params = RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
         assert params.repository_name == "GitGuardian/test-repo"
         assert params.source_id is None
 
@@ -41,9 +39,7 @@ class TestRemediateSecretIncidentsParams:
         WHEN: Creating the params
         THEN: Validation should pass
         """
-        params = RemediateSecretIncidentsParams(
-            repository_name="GitGuardian/test-repo", source_id="source_123"
-        )
+        params = RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", source_id="source_123")
         assert params.repository_name == "GitGuardian/test-repo"
         assert params.source_id == "source_123"
 
@@ -59,9 +55,7 @@ class TestRemediateSecretIncidentsParams:
         # Verify the error message comes from the nested ListRepoOccurrencesParamsForRemediate
         errors = exc_info.value.errors()
         assert len(errors) == 1
-        assert "Either 'source_id' or 'repository_name' must be provided" in str(
-            errors[0]
-        )
+        assert "Either 'source_id' or 'repository_name' must be provided" in str(errors[0])
 
     def test_params_with_nested_list_repo_occurrences_params(self):
         """
@@ -72,9 +66,8 @@ class TestRemediateSecretIncidentsParams:
         params = RemediateSecretIncidentsParams(
             repository_name="GitGuardian/test-repo",
             list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(
-                repository_name="GitGuardian/test-repo",
-                per_page=50
-            )
+                repository_name="GitGuardian/test-repo", per_page=50
+            ),
         )
         assert params.list_repo_occurrences_params.per_page == 50
         assert params.list_repo_occurrences_params.repository_name == "GitGuardian/test-repo"
@@ -120,20 +113,16 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info for filtering by assignee
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"user_id": "user1"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo"
-                )
+                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
             )
 
             # Verify response structure
@@ -149,9 +138,7 @@ class TestRemediateSecretIncidents:
             assert len(sub_result.occurrences) == 1
 
     @pytest.mark.asyncio
-    async def test_remediate_secret_incidents_no_occurrences(
-            self, mock_gitguardian_client
-    ):
+    async def test_remediate_secret_incidents_no_occurrences(self, mock_gitguardian_client):
         """
         GIVEN: No occurrences found for the repository
         WHEN: Attempting to remediate
@@ -167,14 +154,12 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo"
-                )
+                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
             )
 
             # Verify response
@@ -196,14 +181,12 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo"
-                )
+                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
             )
 
             # Verify error response
@@ -212,9 +195,7 @@ class TestRemediateSecretIncidents:
             assert "list_repo_occurrences" in result.sub_tools_results
 
     @pytest.mark.asyncio
-    async def test_remediate_secret_incidents_mine_false(
-            self, mock_gitguardian_client
-    ):
+    async def test_remediate_secret_incidents_mine_false(self, mock_gitguardian_client):
         """
         GIVEN: mine=False flag to include all incidents
         WHEN: Remediating secret incidents
@@ -251,14 +232,12 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with mine=False
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo", mine=False
-                )
+                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", mine=False)
             )
 
             # Verify all occurrences are included (not filtered by assignee)
@@ -266,9 +245,7 @@ class TestRemediateSecretIncidents:
             assert result.suggested_occurrences_for_remediation_count == 1
 
     @pytest.mark.asyncio
-    async def test_remediate_secret_incidents_no_git_commands(
-            self, mock_gitguardian_client
-    ):
+    async def test_remediate_secret_incidents_no_git_commands(self, mock_gitguardian_client):
         """
         GIVEN: git_commands=False
         WHEN: Remediating secret incidents
@@ -303,14 +280,12 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"user_id": "user1"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with git_commands=False
             result = await remediate_secret_incidents(
@@ -326,9 +301,7 @@ class TestRemediateSecretIncidents:
             assert result.occurrences_count == 1
 
     @pytest.mark.asyncio
-    async def test_remediate_secret_incidents_no_env_example(
-            self, mock_gitguardian_client
-    ):
+    async def test_remediate_secret_incidents_no_env_example(self, mock_gitguardian_client):
         """
         GIVEN: create_env_example=False
         WHEN: Remediating secret incidents
@@ -363,14 +336,12 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"user_id": "user1"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
@@ -386,9 +357,7 @@ class TestRemediateSecretIncidents:
             assert result.occurrences_count == 1
 
     @pytest.mark.asyncio
-    async def test_remediate_secret_incidents_multiple_files(
-            self, mock_gitguardian_client
-    ):
+    async def test_remediate_secret_incidents_multiple_files(self, mock_gitguardian_client):
         """
         GIVEN: Occurrences across multiple files
         WHEN: Remediating secret incidents
@@ -442,20 +411,16 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(
-            return_value={"user_id": "user1"}
-        )
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
-                "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
-                AsyncMock(return_value=mock_occurrences),
+            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo", mine=False
-                )
+                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", mine=False)
             )
 
             # Verify response
