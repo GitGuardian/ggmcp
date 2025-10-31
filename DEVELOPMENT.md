@@ -129,6 +129,45 @@ for tool in example_tools:
     mcp.add_tool(tool)
 ```
 
+## Optional Dependencies
+
+The project supports optional dependencies (extras) for additional features:
+
+### Installing Optional Dependencies
+
+```bash
+# Install with specific extras during development
+uv sync --extra sentry
+
+# Install all optional dependencies
+uv sync --all-extras
+
+# Add an optional dependency to the project
+uv add --optional sentry sentry-sdk
+```
+
+### Using Optional Dependencies with uvx
+
+When running the server with `uvx` from Git, you can include optional dependencies:
+
+```bash
+# Include extras using the #egg syntax
+uvx --from 'git+https://github.com/GitGuardian/ggmcp.git@main#egg=secops-mcp-server[sentry]' secops-mcp-server
+
+# Or install the optional dependency separately
+uv pip install sentry-sdk
+uvx --from git+https://github.com/GitGuardian/ggmcp.git@main secops-mcp-server
+```
+
+### Current Optional Dependencies
+
+- **sentry**: Adds Sentry SDK for error tracking and performance monitoring
+  - Core package: `gg-api-core[sentry]`
+  - Available in: `developer-mcp-server[sentry]`, `secops-mcp-server[sentry]`
+  - Implementation: `gg_api_core/src/gg_api_core/sentry_integration.py`
+  - Used for: Production error monitoring and alerting
+  - See individual package READMEs for configuration details
+
 ## Testing
 
 Run tests using uv:
