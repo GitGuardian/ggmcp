@@ -44,6 +44,7 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "pytest-mock>=3.12.0",
     "pytest-cov>=4.1.0",
+    "ruff>=0.8.0",
 ]
 
 [project.scripts]
@@ -83,6 +84,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "scripts",
 ]
 
 [tool.ruff.lint.pydocstyle]
