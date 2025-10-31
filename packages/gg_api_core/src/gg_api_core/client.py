@@ -1675,3 +1675,30 @@ class GitGuardianClient:
         except Exception as e:
             logger.error(f"Error listing repository incidents directly: {str(e)}")
             return {"error": f"Failed to list repository incidents: {str(e)}"}
+
+    async def create_code_fix_request(
+        self,
+        locations: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Create code fix requests for multiple secret incidents with their locations.
+
+        This will generate pull requests to automatically remediate the detected secrets.
+        Each request must include one or more issues (by issue_id) and one or more
+        location IDs for each issue.
+
+        The system will group locations by source repository and create one pull request per source.
+
+        Args:
+            locations: List of issues with their location IDs to fix. Each item should have:
+                - issue_id (int): The ID of the secret incident
+                - location_ids (list[int]): List of location IDs to fix for this issue
+
+        Returns:
+            dict with success message containing count of created requests and locations
+
+        Raises:
+            Exception: If the request fails (400: invalid input, 403: insufficient permissions,
+                      404: API key not configured)
+        """
+        logger.info(f"Creating code fix request for {len(locations)} issue(s)")
+        return await self._request("POST", "/v1/code-fix-requests", json={"locations": locations})
