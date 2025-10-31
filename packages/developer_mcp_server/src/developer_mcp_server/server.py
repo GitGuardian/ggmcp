@@ -5,6 +5,7 @@ import os
 
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.scopes import set_developer_scopes
+from gg_api_core.sentry_integration import init_sentry
 
 from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools
 
@@ -28,6 +29,13 @@ set_developer_scopes()
 
 def run_mcp_server():
     logger.info("Starting Developer MCP server...")
+
+    # Initialize Sentry if configured (optional)
+    sentry_enabled = init_sentry()
+    if sentry_enabled:
+        logger.info("Sentry monitoring is enabled")
+    else:
+        logger.debug("Sentry monitoring is not configured")
 
     # Check if HTTP/SSE transport is requested via environment variables
     mcp_port = os.environ.get("MCP_PORT")

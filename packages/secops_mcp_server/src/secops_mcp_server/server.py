@@ -8,6 +8,7 @@ from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.scopes import set_secops_scopes
+from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.list_users import list_users
@@ -217,6 +218,13 @@ except Exception as e:
 
 def run_mcp_server():
     logger.info("Starting SecOps MCP server...")
+
+    # Initialize Sentry if configured (optional)
+    sentry_enabled = init_sentry()
+    if sentry_enabled:
+        logger.info("Sentry monitoring is enabled")
+    else:
+        logger.debug("Sentry monitoring is not configured")
 
     # Check if HTTP/SSE transport is requested via environment variables
     mcp_port = os.environ.get("MCP_PORT")
