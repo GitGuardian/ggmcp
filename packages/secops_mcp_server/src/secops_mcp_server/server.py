@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from fastmcp.exceptions import ToolError
 
 from gg_api_core.tools.assign_incident import assign_incident
+from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.manage_incident import manage_private_incident, update_incident_status
 from gg_api_core.tools.read_custom_tags import read_custom_tags
@@ -192,6 +193,12 @@ mcp.tool(
 mcp.tool(
     assign_incident,
     description="Assign a secret incident to a specific member or to the current user",
+    required_scopes=["incidents:write"],
+)
+
+mcp.add_tool(
+    create_code_fix_request,
+    description="Create code fix requests for multiple secret incidents with their locations. This will generate pull requests to automatically remediate the detected secrets.",
     required_scopes=["incidents:write"],
 )
 
