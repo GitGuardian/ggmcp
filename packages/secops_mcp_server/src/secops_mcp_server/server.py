@@ -197,7 +197,7 @@ mcp.tool(
     required_scopes=["incidents:write"],
 )
 
-mcp.add_tool(
+mcp.tool(
     create_code_fix_request,
     description="Create code fix requests for multiple secret incidents with their locations. This will generate pull requests to automatically remediate the detected secrets.",
     required_scopes=["incidents:write"],

@@ -22,18 +22,22 @@ This document provides instructions for developers who want to contribute to the
 
 ### Pre-commit Hooks
 
-This project uses [pre-commit](https://pre-commit.com/) to ensure code quality and security standards. The hooks are configured in `.pre-commit-config.yaml` and include:
+This project uses [pre-commit](https://pre-commit.com/) to ensure code quality and security standards. The hooks are
+configured in `.pre-commit-config.yaml` and include:
 
 **On every commit:**
+
 - **Ruff** - Automatically lints and formats Python code
 - **Commitizen** - Validates commit message format
 - **GitGuardian ggshield** - Scans for secrets in staged files
 
 **On every push:**
+
 - **Commitizen-branch** - Validates branch naming conventions
 - **GitGuardian ggshield-push** - Scans all commits being pushed for secrets
 
-The hooks will automatically run before commits/pushes and will block the operation if any issues are found. You can also run the hooks manually:
+The hooks will automatically run before commits/pushes and will block the operation if any issues are found. You can
+also run the hooks manually:
 
 ```bash
 # Run all hooks on all files
@@ -79,6 +83,7 @@ To add a new tool to the MCP server:
 from fastmcp import Request, Response, Tool
 from typing import Dict, Any
 
+
 class ExampleTool(Tool):
     """Example tool implementation."""
 
@@ -114,6 +119,7 @@ class ExampleTool(Tool):
             data={"result": result}
         )
 
+
 # List of tools to be exported
 tools = [ExampleTool()]
 ```
@@ -126,7 +132,7 @@ from example.tools import tools as example_tools
 
 # Register the tools
 for tool in example_tools:
-    mcp.add_tool(tool)
+    mcp.tool(tool)
 ```
 
 ## Testing
@@ -153,7 +159,8 @@ Create test files in the `tests/` directory that match the pattern `test_*.py`.
 
 ## Code Style
 
-This project uses `ruff` for linting and formatting. While pre-commit hooks will automatically run ruff on your staged files, you can also run it manually:
+This project uses `ruff` for linting and formatting. While pre-commit hooks will automatically run ruff on your staged
+files, you can also run it manually:
 
 ```bash
 # Check for linting issues
@@ -166,13 +173,15 @@ ruff check --fix src tests
 ruff format src tests
 ```
 
-**Note:** Pre-commit hooks will automatically run ruff on your staged files when you commit, so you usually don't need to run it manually.
+**Note:** Pre-commit hooks will automatically run ruff on your staged files when you commit, so you usually don't need
+to run it manually.
 
 ## Cursor Rules
 
 This project includes Cursor IDE rules in the `.cursor/rules` directory that enforce coding standards:
 
-1. **Don't use uvicorn or fastapi with MCP** - MCP has its own server implementation, external web servers are not needed
+1. **Don't use uvicorn or fastapi with MCP** - MCP has its own server implementation, external web servers are not
+   needed
 2. **Use pyproject.toml with uv** - Modern Python projects should use pyproject.toml with uv for dependency management
 
 These rules help maintain consistent code quality and follow best practices for MCP development.
@@ -198,7 +207,8 @@ When adding a new tool, please document it in the README.md following the same s
 5. Push your changes (pre-push hooks will scan for secrets and validate branch names)
 6. Submit a pull request with a clear description of your changes
 
-**Note:** The pre-commit and pre-push hooks will automatically check your code quality, commit messages, and scan for secrets before allowing commits and pushes.
+**Note:** The pre-commit and pre-push hooks will automatically check your code quality, commit messages, and scan for
+secrets before allowing commits and pushes.
 
 ## Releasing
 
