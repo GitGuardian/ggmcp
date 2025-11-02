@@ -116,7 +116,7 @@ def test_server_classes():
         from gg_api_core.mcp_server import GitGuardianFastMCP
 
         # Just instantiate the class to test it
-        GitGuardianFastMCP("Test Core")
+        get_mcp_server("Test Core")
         print("✅ Successfully created GitGuardianFastMCP instance")
     except Exception as e:
         print(f"❌ Failed to create GitGuardianFastMCP instance: {e}")

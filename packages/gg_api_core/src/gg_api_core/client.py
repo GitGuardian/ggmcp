@@ -67,6 +67,20 @@ class TagNames(str, Enum):
     REVOCABLE_BY_GG = "REVOCABLE_BY_GG"
 
 
+def is_oauth_enabled() -> bool:
+    """
+    Check if OAuth authentication is enabled via environment variable.
+    """
+    if os.environ.get("ENABLE_LOCAL_OAUTH") is None:
+        # Default value is True
+        return True
+    return os.environ.get("ENABLE_LOCAL_OAUTH", "").lower() == "true"
+
+
+def get_personal_access_token_from_env() -> str | None:
+    return os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
+
+
 class GitGuardianClient:
     """Client for interacting with the GitGuardian API."""
 
@@ -105,16 +119,33 @@ class GitGuardianClient:
         logger.info(f"Using private API URL: {self.private_api_url}")
 
     def _init_personal_access_token(self, personal_access_token: str | None = None):
+        # Validate OAuth configuration
+        mcp_port = os.environ.get("MCP_PORT")
+        enable_local_oauth = is_oauth_enabled()
+
         if personal_access_token:
             logger.info("Using provided PAT")
             self._oauth_token = personal_access_token
-        elif personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
-            logger.info("Using PAT from environment variable")
-            self._oauth_token = personal_access_token
+            return
+
+        if mcp_port:
+            if enable_local_oauth:
+                raise ValueError(
+                    "Invalid configuration: Cannot use ENABLE_LOCAL_OAUTH=true with MCP_PORT set. "
+                    "HTTP/SSE mode requires per-request authentication via Authorization headers. "
+                    "For local OAuth authentication, use stdio transport (unset MCP_PORT)."
+                )
         else:
-            # TODO(APPAI): We should also locate here the retrieval from storage
-            logger.info("No PAT provided, falling back to OAuth")
-            self._oauth_token = None
+            if personal_access_token:
+                logger.info("Using provided PAT")
+                self._oauth_token = personal_access_token
+            elif personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
+                logger.info("Using PAT from environment variable")
+                self._oauth_token = personal_access_token
+            else:
+                # TODO(APPAI): We should also locate here the retrieval from storage
+                logger.info("No PAT provided, falling back to OAuth")
+                self._oauth_token = None
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
@@ -221,11 +252,19 @@ class GitGuardianClient:
             logger.warning(f"Failed to extract dashboard URL from API URL: {e}")
             return default_dashboard_url
 
-    async def _ensure_oauth_token(self):
-        """Ensure we have a valid OAuth token, initiating the OAuth flow if needed."""
+    async def _ensure_api_token(self):
+        """Ensure we have a valid token, initiating the OAuth flow if needed.
+
+        OAuth flow is only enabled when ENABLE_LOCAL_OAUTH=true.
+        This prevents OAuth prompts in HTTP/SSE mode (which uses per-request PATs)
+        and in test environments.
+        """
 
         if self._oauth_token is not None:
             return
+
+        if not is_oauth_enabled():
+            raise RuntimeError("OAuth is not enabled")
 
         # Use a global lock to prevent parallel OAuth flows across all client instances
         async with _oauth_lock:
@@ -322,7 +361,7 @@ class GitGuardianClient:
             logger.warning(f"Could not clean up token storage: {str(e)}")
 
         # Force new OAuth flow on next request
-        await self._ensure_oauth_token()
+        await self._ensure_api_token()
 
     async def _request(
         self, method: str, endpoint: str, return_headers: bool = False, **kwargs
@@ -359,7 +398,7 @@ class GitGuardianClient:
             logger.debug(f"Request body: {safe_json}")
 
         # Ensure we have a valid OAuth token
-        await self._ensure_oauth_token()
+        await self._ensure_api_token()
         headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",

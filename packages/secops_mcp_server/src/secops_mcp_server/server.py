@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
-from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
@@ -111,7 +111,7 @@ IMPORTANT:
 """
 
 # Use our custom GitGuardianFastMCP from the core package
-mcp = GitGuardianFastMCP(
+mcp = get_mcp_server(
     "GitGuardian SecOps",
     log_level="DEBUG",
     instructions=SECOPS_INSTRUCTIONS,

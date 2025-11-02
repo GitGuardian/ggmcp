@@ -13,8 +13,11 @@ import pytest
 
 @pytest.fixture
 def mock_env_no_http():
-    """Mock environment variables to prevent HTTP server from starting."""
-    with patch.dict("os.environ", {"MCP_PORT": ""}, clear=False):
+    """Mock environment variables to prevent HTTP server from starting.
+
+    Sets ENABLE_LOCAL_OAUTH=true to use cached scope mode (stdio mode).
+    """
+    with patch.dict("os.environ", {"MCP_PORT": "", "ENABLE_LOCAL_OAUTH": "true"}, clear=False):
         yield
 
 
@@ -22,7 +25,7 @@ def mock_env_no_http():
 def mock_gitguardian_modules():
     """Mock GitGuardian API modules to avoid actual API calls during import."""
     with (
-        patch("gg_api_core.mcp_server.get_client") as mock_get_client,
+        patch("gg_api_core.utils.get_client") as mock_get_client,
         patch("gg_api_core.scopes.set_developer_scopes") as mock_set_dev_scopes,
         patch("gg_api_core.scopes.set_secops_scopes") as mock_set_secops_scopes,
     ):
@@ -67,10 +70,10 @@ class TestServerProfiles:
             assert hasattr(dev_server, "mcp")
             assert dev_server.mcp is not None
 
-            # Verify it's a GitGuardianFastMCP instance
-            from gg_api_core.mcp_server import GitGuardianFastMCP
+            # Verify it's a GitGuardian MCP server (uses the abstract base class)
+            from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 
-            assert isinstance(dev_server.mcp, GitGuardianFastMCP)
+            assert isinstance(dev_server.mcp, AbstractGitGuardianFastMCP)
 
             # Verify the server has the expected name
             assert dev_server.mcp.name == "GitGuardian Developer"
@@ -101,10 +104,10 @@ class TestServerProfiles:
             assert hasattr(secops_server, "mcp")
             assert secops_server.mcp is not None
 
-            # Verify it's a GitGuardianFastMCP instance
-            from gg_api_core.mcp_server import GitGuardianFastMCP
+            # Verify it's a GitGuardian MCP server (uses the abstract base class)
+            from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 
-            assert isinstance(secops_server.mcp, GitGuardianFastMCP)
+            assert isinstance(secops_server.mcp, AbstractGitGuardianFastMCP)
 
             # Verify the server has the expected name
             assert secops_server.mcp.name == "GitGuardian SecOps"
@@ -124,8 +127,8 @@ class TestServerProfiles:
 
         import developer_mcp_server.server as dev_server
 
-        # Mock the _fetch_token_scopes to avoid actual API calls
-        dev_server.mcp._fetch_token_scopes = AsyncMock()
+        # Mock the _fetch_token_scopes_from_api to avoid actual API calls
+        dev_server.mcp._fetch_token_scopes_from_api = AsyncMock()
         dev_server.mcp._token_scopes = {"scan", "incidents:read"}
 
         # List tools - this would fail if any tool was registered incorrectly
@@ -142,8 +145,8 @@ class TestServerProfiles:
 
         import secops_mcp_server.server as secops_server
 
-        # Mock the _fetch_token_scopes to avoid actual API calls
-        secops_server.mcp._fetch_token_scopes = AsyncMock()
+        # Mock the _fetch_token_scopes_from_api to avoid actual API calls
+        secops_server.mcp._fetch_token_scopes_from_api = AsyncMock()
         secops_server.mcp._token_scopes = {"scan", "incidents:read", "incidents:write"}
 
         # List tools - this would fail if any tool was registered incorrectly

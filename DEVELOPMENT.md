@@ -135,18 +135,55 @@ for tool in example_tools:
     mcp.tool(tool)
 ```
 
-## Testing
+## Authentication Modes
 
-Run tests using uv:
+The GitGuardian MCP server supports two authentication modes:
+
+### 1. Local OAuth (stdio transport)
+For desktop applications using stdio transport, OAuth authentication is available:
 
 ```bash
-uv run pytest
+ENABLE_LOCAL_OAUTH=true developer-mcp-server
+```
+
+This will:
+- Open a browser for OAuth authentication
+- Store the token locally in `~/.gitguardian/`
+- Reuse the token across sessions
+
+### 2. Per-Request Authentication (HTTP/SSE transport)
+For server deployments using HTTP/SSE transport, use per-request PAT authentication:
+
+```bash
+MCP_PORT=8080 MCP_HOST=127.0.0.1 developer-mcp-server
+```
+
+Clients must provide authentication via the Authorization header:
+```
+Authorization: Bearer <your-personal-access-token>
+```
+
+**Important:** You cannot use both modes simultaneously. The server will raise an error if both `MCP_PORT` and `ENABLE_LOCAL_OAUTH=true` are set.
+
+### 3. Environment Variable PAT
+For all transport modes, you can provide a PAT via environment variable:
+
+```bash
+GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> developer-mcp-server
+```
+
+## Testing
+
+Run tests using uv (OAuth is disabled by default in tests):
+
+```bash
+ENABLE_LOCAL_OAUTH=false uv run pytest
 ```
 
 Run tests with verbose output:
 
 ```bash
-uv run pytest -v
+ENABLE_LOCAL_OAUTH=false uv run pytest -v
 ```
 
 Run tests with coverage:
