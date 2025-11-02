@@ -1,14 +1,14 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.mcp_server import get_mcp_server
 
 
 @pytest.fixture
 def mcp_server():
     """Fixture to create a GitGuardianFastMCP instance."""
-    server = GitGuardianFastMCP("test_server")
-    server._fetch_token_scopes = AsyncMock()
+    server = get_mcp_server("test_server")
+    server._fetch_token_scopes_from_api = AsyncMock()
     return server
 
 
@@ -25,9 +25,9 @@ class TestGitGuardianFastMCP:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mcp = GitGuardianFastMCP("test_server")
+        self.mcp = get_mcp_server("test_server")
         # Mock the token scopes fetching to avoid actual API calls
-        self.mcp._fetch_token_scopes = AsyncMock()
+        self.mcp._fetch_token_scopes_from_api = AsyncMock()
         # Set token scopes directly for testing
         self.mcp.token_scopes = ["scan", "incidents:read"]
 
@@ -41,48 +41,74 @@ class TestGitGuardianFastMCP:
         assert self.mcp._tool_scopes == {}
 
     @pytest.mark.asyncio
-    async def test_fetch_token_scopes(self, mock_gitguardian_client):
+    async def test_fetch_token_scopes_from_api(self, mock_gitguardian_client):
         """Test fetching token scopes."""
+        import os
+        from unittest.mock import patch
+
         # Use the conftest fixture's mock client and configure it for this test
         test_scopes = ["scan", "incidents:read", "honeytokens:read", "honeytokens:write"]
         mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"scopes": test_scopes})
 
-        # Create a test fixture for the GitGuardianFastMCP class
-        self.mcp = GitGuardianFastMCP("TestMCP")
+        # Create a test fixture using OAuth mode (which doesn't need Authorization header)
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+            mcp = get_mcp_server("TestMCP")
 
-        # Call the method
-        await self.mcp._fetch_token_scopes()
+            # Call the method - it now returns scopes instead of setting them
+            returned_scopes = await mcp._fetch_token_scopes_from_api()
 
-        # Verify the client method was called
-        mock_gitguardian_client.get_current_token_info.assert_called_once()
+            # Verify the client method was called
+            mock_gitguardian_client.get_current_token_info.assert_called_once()
 
-        # Verify scopes were set correctly - convert to set for comparison
-        assert self.mcp._token_scopes == set(test_scopes)
+            # Verify scopes were returned correctly - convert to set for comparison
+            assert returned_scopes == set(test_scopes)
 
     @pytest.mark.asyncio
     async def test_create_token_scope_lifespan(self):
-        """Test creating token scope lifespan."""
-        # Create a mock lifespan
-        mock_original_lifespan = MagicMock()
-        mock_context_manager = MagicMock()
-        mock_original_lifespan.return_value = mock_context_manager
-        mock_context_manager.__aenter__ = AsyncMock(return_value={})
-        mock_context_manager.__aexit__ = AsyncMock(return_value=None)
+        """Test that cached scopes mode (OAuth/PAT env) has lifespan for fetching scopes."""
+        import os
+        from unittest.mock import patch
 
-        # Mock the fetch_token_scopes method
-        self.mcp._fetch_token_scopes = AsyncMock()
+        from gg_api_core.mcp_server import CachedTokenInfoMixin, GitGuardianLocalOAuthMCP
 
-        # Create the lifespan
-        lifespan = self.mcp._create_token_scope_lifespan(mock_original_lifespan)
+        # Create OAuth MCP instance
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+            mcp = GitGuardianLocalOAuthMCP("test_server_lifespan")
 
-        # Use the lifespan
-        async with lifespan(self.mcp) as context:
-            # Verify fetch_token_scopes was called
-            self.mcp._fetch_token_scopes.assert_called_once()
-            # Verify the original lifespan was used
-            mock_original_lifespan.assert_called_once_with(self.mcp)
-            # Verify the context is passed through
-            assert context == {}
+            # Verify it has the CachedTokenInfoMixin
+            assert isinstance(mcp, CachedTokenInfoMixin)
+
+            # Verify it has the _create_token_scope_lifespan method
+            assert hasattr(mcp, "_create_token_scope_lifespan")
+
+            # Mock the fetch method
+            mcp._fetch_token_scopes_from_api = AsyncMock(return_value={"scan", "incidents:read"})
+
+            # Create and test the lifespan
+            lifespan = mcp._create_token_scope_lifespan()
+            async with lifespan(mcp):
+                # Verify fetch_token_scopes_from_api was called
+                mcp._fetch_token_scopes_from_api.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_create_token_scope_lifespan_oauth_disabled(self):
+        """Test creating token scope lifespan with non-caching mode (HTTP mode)."""
+        import os
+        from unittest.mock import patch
+
+        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+
+        # Create MCP server using AuthorizationHeader mode (non-caching)
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "false"}):
+            mcp = GitGuardianAuthorizationHeaderMCP("test_server")
+
+            # Verify it doesn't have the CachedTokenInfoMixin methods
+            assert not hasattr(mcp, "_create_token_scope_lifespan")
+
+            # Verify it's not an instance of CachedTokenInfoMixin
+            from gg_api_core.mcp_server import CachedTokenInfoMixin
+
+            assert not isinstance(mcp, CachedTokenInfoMixin)
 
     @pytest.mark.asyncio
     async def test_tool_decorator(self):
@@ -101,131 +127,144 @@ class TestGitGuardianFastMCP:
     @pytest.mark.asyncio
     async def test_list_tools_all_scopes_available(self):
         """Test that list_tools returns all tools when all scopes are available."""
-        # Set token scopes to include all required scopes
-        self.mcp._token_scopes = {"scan", "incidents:read", "honeytokens:read"}
+        import os
+        from unittest.mock import patch
 
-        # Create test tools
-        @self.mcp.tool(required_scopes=["scan"])
-        async def tool_with_scan():
-            """Tool requiring scan scope."""
-            return "scan_result"
+        # Test in OAuth mode (cached scopes)
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+            # Set token scopes to include all required scopes
+            self.mcp._token_scopes = {"scan", "incidents:read", "honeytokens:read"}
 
-        @self.mcp.tool(required_scopes=["incidents:read"])
-        async def tool_with_incidents_read():
-            """Tool requiring incidents:read scope."""
-            return "incidents_read_result"
+            # Create test tools
+            @self.mcp.tool(required_scopes=["scan"])
+            async def tool_with_scan():
+                """Tool requiring scan scope."""
+                return "scan_result"
 
-        # List tools
-        tools = await self.mcp.list_tools()
-        tool_names = [tool.name for tool in tools]
+            @self.mcp.tool(required_scopes=["incidents:read"])
+            async def tool_with_incidents_read():
+                """Tool requiring incidents:read scope."""
+                return "incidents_read_result"
 
-        # Check that both tools are included
-        assert "tool_with_scan" in tool_names
-        assert "tool_with_incidents_read" in tool_names
+            # List tools
+            tools = await self.mcp.list_tools()
+            tool_names = [tool.name for tool in tools]
+
+            # Check that both tools are included
+            assert "tool_with_scan" in tool_names
+            assert "tool_with_incidents_read" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_missing_scopes(self):
-        """Test that list_tools excludes tools with missing scopes."""
-        # Set token scopes to include only some required scopes
-        self.mcp._token_scopes = {"scan", "incidents:read"}
+        """Test that list_tools excludes tools with missing scopes in cached mode."""
+        import os
+        from unittest.mock import patch
 
-        # Create test tools
-        @self.mcp.tool(required_scopes=["scan"])
-        async def tool_with_scan():
-            """Tool requiring scan scope."""
-            return "scan_result"
+        from gg_api_core.mcp_server import GitGuardianLocalOAuthMCP
 
-        @self.mcp.tool(required_scopes=["teams:write"])
-        async def tool_with_teams_write():
-            """Tool requiring teams:write scope."""
-            return "teams_write_result"
+        # Test in OAuth mode (cached scopes) - create a new instance
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+            mcp = GitGuardianLocalOAuthMCP("test_server_scopes")
 
-        # List tools
-        tools = await self.mcp.list_tools()
+            # Set token scopes to include only some required scopes
+            mcp._token_scopes = {"scan", "incidents:read"}
 
-        # Get tool names and check that the scan tool is included
-        tool_names = [tool.name for tool in tools]
-        assert "tool_with_scan" in tool_names
+            # Create test tools
+            @mcp.tool(required_scopes=["scan"])
+            async def tool_with_scan():
+                """Tool requiring scan scope."""
+                return "scan_result"
 
-        # The teams:write tool should be excluded since the required scope is missing
-        assert "tool_with_teams_write" not in tool_names
+            @mcp.tool(required_scopes=["teams:write"])
+            async def tool_with_teams_write():
+                """Tool requiring teams:write scope."""
+                return "teams_write_result"
+
+            # List tools
+            tools = await mcp.list_tools()
+
+            # Get tool names and check that the scan tool is included
+            tool_names = [tool.name for tool in tools]
+            assert "tool_with_scan" in tool_names
+
+            # The teams:write tool should be excluded since the required scope is missing
+            assert "tool_with_teams_write" not in tool_names
 
     def test_extract_token_from_header(self):
         """Test extracting tokens from various Authorization header formats."""
+        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+
         # Test Bearer format
-        token = self.mcp._extract_token_from_header("Bearer test-token-123")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Bearer test-token-123")
         assert token == "test-token-123"
 
         # Test Token format
-        token = self.mcp._extract_token_from_header("Token another-token-456")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Token another-token-456")
         assert token == "another-token-456"
 
         # Test raw token (no prefix)
-        token = self.mcp._extract_token_from_header("raw-token-789")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("raw-token-789")
         assert token == "raw-token-789"
 
         # Test case insensitivity
-        token = self.mcp._extract_token_from_header("bearer lowercase-token")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("bearer lowercase-token")
         assert token == "lowercase-token"
 
         # Test with extra whitespace
-        token = self.mcp._extract_token_from_header("Bearer   token-with-spaces   ")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Bearer   token-with-spaces   ")
         assert token == "token-with-spaces"
 
         # Test empty string
-        token = self.mcp._extract_token_from_header("")
+        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("")
         assert token is None
 
     @patch("gg_api_core.mcp_server.get_http_headers")
     @patch("gg_api_core.mcp_server.get_client")
     def test_get_client_with_authorization_header(self, mock_get_client, mock_get_http_headers):
-        """Test that get_client uses Authorization header when available."""
+        """Test that get_personal_access_token extracts token from Authorization header."""
+        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+
         # Mock HTTP headers with Authorization header
         mock_get_http_headers.return_value = {"authorization": "Bearer test-pat-token-123"}
 
-        # Mock the get_client function
-        mock_client_instance = MagicMock()
-        mock_get_client.return_value = mock_client_instance
+        # Create MCP with Authorization header mode
+        mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
-        # Call get_client
-        client = self.mcp.get_client()
+        # Call get_personal_access_token
+        token = mcp.get_personal_access_token()
 
-        # Verify get_client was called with the extracted token
-        mock_get_client.assert_called_once_with(personal_access_token="test-pat-token-123")
-        assert client == mock_client_instance
+        # Verify token was extracted correctly
+        assert token == "test-pat-token-123"
 
     @patch("gg_api_core.mcp_server.get_http_headers")
     @patch("gg_api_core.mcp_server.get_client")
     def test_get_client_without_authorization_header(self, mock_get_client, mock_get_http_headers):
-        """Test that get_client falls back to default when no Authorization header."""
+        """Test that get_personal_access_token raises ValidationError when no Authorization header."""
+        from fastmcp.exceptions import ValidationError
+        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+
         # Mock HTTP headers without Authorization header
         mock_get_http_headers.return_value = {}
 
-        # Mock the get_client function
-        mock_client_instance = MagicMock()
-        mock_get_client.return_value = mock_client_instance
+        # Create MCP with Authorization header mode
+        mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
-        # Call get_client
-        client = self.mcp.get_client()
-
-        # Verify get_client was called without token (fallback)
-        mock_get_client.assert_called_once_with()
-        assert client == mock_client_instance
+        # Call get_personal_access_token - should raise ValidationError
+        with pytest.raises(ValidationError, match="Authorization header required"):
+            mcp.get_personal_access_token()
 
     @patch("gg_api_core.mcp_server.get_http_headers")
     @patch("gg_api_core.mcp_server.get_client")
     def test_get_client_no_http_context(self, mock_get_client, mock_get_http_headers):
-        """Test that get_client handles missing HTTP context (stdio transport)."""
+        """Test that get_personal_access_token propagates RuntimeError when no HTTP context."""
+        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+
         # Mock get_http_headers to raise exception (no HTTP context)
         mock_get_http_headers.side_effect = RuntimeError("No HTTP context")
 
-        # Mock the get_client function
-        mock_client_instance = MagicMock()
-        mock_get_client.return_value = mock_client_instance
+        # Create MCP with Authorization header mode
+        mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
-        # Call get_client (should not raise, should fall back)
-        client = self.mcp.get_client()
-
-        # Verify get_client was called without token (fallback)
-        mock_get_client.assert_called_once_with()
-        assert client == mock_client_instance
+        # Call get_personal_access_token - should raise RuntimeError
+        with pytest.raises(RuntimeError, match="No HTTP context"):
+            mcp.get_personal_access_token()

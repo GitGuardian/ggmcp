@@ -23,7 +23,8 @@ from gg_api_core.mcp_server import GitGuardianFastMCP
 from gg_api_core.client import GitGuardianClient
 
 # Create a custom MCP server
-mcp = GitGuardianFastMCP("My Custom Server")
+mcp = get_mcp_server("My Custom Server")
+
 
 # Register tools that use the GitGuardian API
 @mcp.tool(required_scopes=["honeytokens:read"])

@@ -3,7 +3,7 @@
 import logging
 import os
 
-from gg_api_core.mcp_server import GitGuardianFastMCP
+from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.scopes import set_developer_scopes
 
 from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # Use our custom GitGuardianFastMCP from the core package
-mcp = GitGuardianFastMCP(
+mcp = get_mcp_server(
     "GitGuardian Developer",
     log_level="DEBUG",
     instructions=DEVELOPER_INSTRUCTIONS,

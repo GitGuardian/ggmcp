@@ -16,7 +16,7 @@ def client():
         client._oauth_token = "test_oauth_token"
         client._token_info = {"user_id": "test_user", "scopes": ["scan"]}
         # Mock the OAuth token ensuring method to prevent OAuth flow
-        client._ensure_oauth_token = AsyncMock()
+        client._ensure_api_token = AsyncMock()
         return client
 
 
