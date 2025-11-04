@@ -1,5 +1,7 @@
 import logging
+import os
 import subprocess
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -42,16 +44,23 @@ class FindCurrentSourceIdError(BaseModel):
     suggestion: str | None = Field(default=None, description="Suggestions for resolving the error")
 
 
-async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSourceIdError:
+async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourceIdResult | FindCurrentSourceIdError:
     """
-    Find the GitGuardian source_id for the current repository.
+    Find the GitGuardian source_id for a repository.
 
     This tool:
-    1. Gets the current repository information from git
-    2. Extracts the repository name from the remote URL
+    1. Attempts to get the repository name from git remote URL
+    2. If git fails, falls back to using the directory name
     3. Searches GitGuardian for matching sources
     4. Returns the source_id if an exact match is found
     5. If no exact match, returns all search results for the model to choose from
+
+    Args:
+        repository_path: Path to the repository directory. Defaults to "." (current directory).
+                        If you're working in a specific repository, provide the full path to ensure
+                        the correct repository is analyzed (e.g., "/home/user/my-project").
+                        Note: If the directory is not a git repository, the tool will use the
+                        directory name as the repository name.
 
     Returns:
         FindCurrentSourceIdResult: Pydantic model containing:
@@ -70,10 +79,14 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
             - suggestion: Suggestions for resolving the error
     """
     client = get_client()
-    logger.debug("Finding source_id for current repository")
+    logger.debug(f"Finding source_id for repository at path: {repository_path}")
+
+    repository_name = None
+    remote_url = None
+    detection_method = None
 
     try:
-        # Get current repository remote URL
+        # Try Method 1: Get repository name from git remote URL
         try:
             result = subprocess.run(
                 ["git", "config", "--get", "remote.origin.url"],
@@ -81,27 +94,29 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
                 text=True,
                 check=True,
                 timeout=5,
+                cwd=repository_path,
             )
             remote_url = result.stdout.strip()
-            logger.debug(f"Found remote URL: {remote_url}")
-        except subprocess.CalledProcessError as e:
-            return FindCurrentSourceIdError(
-                error="Not a git repository or no remote 'origin' configured",
-                details=str(e),
-            )
-        except subprocess.TimeoutExpired:
-            return FindCurrentSourceIdError(error="Git command timed out")
+            repository_name = parse_repo_url(remote_url).split("/")[-1]
+            detection_method = "git remote URL"
+            logger.debug(f"Found remote URL: {remote_url}, parsed repository name: {repository_name}")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Git remote detection failed: {e}, falling back to directory name")
 
-        # Parse repository name from remote URL
-        repository_name = parse_repo_url(remote_url).split("/")[-1]
+            # Fallback Method 2: Use the directory name as repository name
+            abs_path = os.path.abspath(repository_path)
+            repository_name = Path(abs_path).name
+            detection_method = "directory name"
+            logger.info(f"Using directory name as repository name: {repository_name}")
 
         if not repository_name:
             return FindCurrentSourceIdError(
-                error=f"Could not parse repository URL: {remote_url}",
-                details="The URL format is not recognized. Supported platforms: GitHub, GitLab (Cloud & Self-hosted), Bitbucket (Cloud & Data Center), Azure DevOps",
+                error="Could not determine repository name",
+                message="Failed to determine repository name from both git remote and directory name.",
+                suggestion="Please ensure you're in a valid directory or provide a valid repository_path parameter.",
             )
 
-        logger.info(f"Detected repository name: {repository_name}")
+        logger.info(f"Detected repository name: {repository_name} (method: {detection_method})")
 
         # Search for the source in GitGuardian with robust non-exact matching
         result = await client.get_source_by_name(repository_name, return_all_on_no_match=True)
@@ -110,19 +125,29 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
         if isinstance(result, dict):
             source_id = result.get("id")
             logger.info(f"Found exact match with source_id: {source_id}")
+
+            message = f"Successfully found exact match for GitGuardian source: {repository_name}"
+            if detection_method == "directory name":
+                message += f" (repository name inferred from {detection_method})"
+
             return FindCurrentSourceIdResult(
                 repository_name=repository_name,
                 source_id=source_id,
                 source=result,
-                message=f"Successfully found exact match for GitGuardian source: {repository_name}",
+                message=message,
             )
 
         # Handle multiple candidates (list result)
         elif isinstance(result, list) and len(result) > 0:
             logger.info(f"Found {len(result)} candidate sources for repository: {repository_name}")
+
+            message = f"No exact match found for '{repository_name}', but found {len(result)} potential matches."
+            if detection_method == "directory name":
+                message += f" (repository name inferred from {detection_method})"
+
             return FindCurrentSourceIdResult(
                 repository_name=repository_name,
-                message=f"No exact match found for '{repository_name}', but found {len(result)} potential matches.",
+                message=message,
                 suggestion="Review the candidates below and determine which source best matches the current repository based on the name and URL.",
                 candidates=[
                     SourceCandidate(
@@ -148,17 +173,27 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
                 if isinstance(fallback_result, dict):
                     source_id = fallback_result.get("id")
                     logger.info(f"Found match using repo name only, source_id: {source_id}")
+
+                    message = f"Found match using repository name '{repo_only}' (without organization prefix)"
+                    if detection_method == "directory name":
+                        message += f" (repository name inferred from {detection_method})"
+
                     return FindCurrentSourceIdResult(
                         repository_name=repository_name,
                         source_id=source_id,
                         source=fallback_result,
-                        message=f"Found match using repository name '{repo_only}' (without organization prefix)",
+                        message=message,
                     )
                 elif isinstance(fallback_result, list) and len(fallback_result) > 0:
                     logger.info(f"Found {len(fallback_result)} candidates using repo name only")
+
+                    message = f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'."
+                    if detection_method == "directory name":
+                        message += f" (repository name inferred from {detection_method})"
+
                     return FindCurrentSourceIdResult(
                         repository_name=repository_name,
-                        message=f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'.",
+                        message=message,
                         suggestion="Review the candidates below and determine which source best matches the current repository.",
                         candidates=[
                             SourceCandidate(
@@ -174,10 +209,15 @@ async def find_current_source_id() -> FindCurrentSourceIdResult | FindCurrentSou
 
             # Absolutely no matches found
             logger.warning(f"No sources found for repository: {repository_name}")
+
+            message = "The repository may not be connected to GitGuardian, or you may not have access to it."
+            if detection_method == "directory name":
+                message += f" Note: repository name was inferred from {detection_method}, which may not match the actual GitGuardian source name."
+
             return FindCurrentSourceIdError(
                 repository_name=repository_name,
                 error=f"Repository '{repository_name}' not found in GitGuardian",
-                message="The repository may not be connected to GitGuardian, or you may not have access to it.",
+                message=message,
                 suggestion="Check that the repository is properly connected to GitGuardian and that your account has access to it.",
             )
 

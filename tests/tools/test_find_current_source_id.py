@@ -41,6 +41,7 @@ class TestFindCurrentSourceId:
                 text=True,
                 check=True,
                 timeout=5,
+                cwd=".",
             )
 
             # Verify client was called with parsed repository name (just repo name, not org/repo)
@@ -147,40 +148,78 @@ class TestFindCurrentSourceId:
             assert "not found in GitGuardian" in result.error
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_not_a_git_repo(self, mock_gitguardian_client):
+    async def test_find_current_source_id_not_a_git_repo_fallback_to_dir_name(self, mock_gitguardian_client):
         """
         GIVEN: The current directory is not a git repository
         WHEN: Attempting to find the source_id
-        THEN: An error is returned
+        THEN: The tool falls back to using the directory name and searches GitGuardian
         """
         # Mock git command to raise an error
-        with patch("subprocess.run") as mock_run:
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("os.path.abspath") as mock_abspath,
+            patch("pathlib.Path") as mock_path,
+        ):
             mock_run.side_effect = subprocess.CalledProcessError(128, "git", stderr="not a git repository")
+            mock_abspath.return_value = "/some/path/my-repo-name"
+
+            # Mock Path to return the directory name
+            mock_path_instance = MagicMock()
+            mock_path_instance.name = "my-repo-name"
+            mock_path.return_value = mock_path_instance
+
+            # Mock GitGuardian client to return a match
+            mock_response = {
+                "id": "source_fallback",
+                "full_name": "org/my-repo-name",
+                "url": "https://github.com/org/my-repo-name",
+            }
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
 
-            # Verify error response
-            assert hasattr(result, "error")
-            assert "Not a git repository" in result.error
+            # Verify it used directory name and found a match
+            assert result.repository_name == "my-repo-name"
+            assert result.source_id == "source_fallback"
+            assert "directory name" in result.message
 
     @pytest.mark.asyncio
-    async def test_find_current_source_id_git_timeout(self, mock_gitguardian_client):
+    async def test_find_current_source_id_git_timeout_fallback(self, mock_gitguardian_client):
         """
         GIVEN: The git command times out
         WHEN: Attempting to find the source_id
-        THEN: An error is returned
+        THEN: The tool falls back to using the directory name
         """
         # Mock git command to timeout
-        with patch("subprocess.run") as mock_run:
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("os.path.abspath") as mock_abspath,
+            patch("pathlib.Path") as mock_path,
+        ):
             mock_run.side_effect = subprocess.TimeoutExpired("git", 5)
+            mock_abspath.return_value = "/some/path/timeout-repo"
+
+            # Mock Path to return the directory name
+            mock_path_instance = MagicMock()
+            mock_path_instance.name = "timeout-repo"
+            mock_path.return_value = mock_path_instance
+
+            # Mock GitGuardian client to return a match
+            mock_response = {
+                "id": "source_timeout",
+                "full_name": "org/timeout-repo",
+                "url": "https://github.com/org/timeout-repo",
+            }
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
 
             # Call the function
             result = await find_current_source_id()
 
-            # Verify error response
-            assert hasattr(result, "error")
-            assert "timed out" in result.error
+            # Verify it used directory name fallback
+            assert result.repository_name == "timeout-repo"
+            assert result.source_id == "source_timeout"
+            assert "directory name" in result.message
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_invalid_url(self, mock_gitguardian_client):
@@ -284,3 +323,77 @@ class TestFindCurrentSourceId:
             # Verify error response
             assert hasattr(result, "error")
             assert "Failed to find source_id" in result.error
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_custom_path(self, mock_gitguardian_client):
+        """
+        GIVEN: A custom repository path is provided
+        WHEN: Finding the source_id
+        THEN: The git command runs in the specified directory
+        """
+        custom_path = "/path/to/custom/repo"
+
+        # Mock git command
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(
+                stdout="https://github.com/GitGuardian/custom-repo.git\n",
+                returncode=0,
+            )
+
+            # Mock the client response
+            mock_response = {
+                "id": "source_custom",
+                "full_name": "GitGuardian/custom-repo",
+                "url": "https://github.com/GitGuardian/custom-repo",
+            }
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
+
+            # Call the function with custom path
+            result = await find_current_source_id(repository_path=custom_path)
+
+            # Verify git command was called with custom path
+            mock_run.assert_called_once_with(
+                ["git", "config", "--get", "remote.origin.url"],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=5,
+                cwd=custom_path,
+            )
+
+            # Verify response
+            assert result.repository_name == "custom-repo"
+            assert result.source_id == "source_custom"
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_fallback_no_match(self, mock_gitguardian_client):
+        """
+        GIVEN: The directory is not a git repo and the directory name doesn't match any source
+        WHEN: Attempting to find the source_id
+        THEN: An error is returned with helpful information about the fallback
+        """
+        # Mock git command to raise an error
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("os.path.abspath") as mock_abspath,
+            patch("pathlib.Path") as mock_path,
+        ):
+            mock_run.side_effect = subprocess.CalledProcessError(128, "git", stderr="not a git repository")
+            mock_abspath.return_value = "/some/path/unknown-repo"
+
+            # Mock Path to return the directory name
+            mock_path_instance = MagicMock()
+            mock_path_instance.name = "unknown-repo"
+            mock_path.return_value = mock_path_instance
+
+            # Mock GitGuardian client to return no matches
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=[])
+
+            # Call the function
+            result = await find_current_source_id()
+
+            # Verify error response with fallback info
+            assert result.repository_name == "unknown-repo"
+            assert hasattr(result, "error")
+            assert "not found in GitGuardian" in result.error
+            assert "directory name" in result.message
