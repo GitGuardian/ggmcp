@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mcp-server.fullname" . }}
+  labels:
+    {{- include "mcp-server.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mcp-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mcp-server.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mcp-server.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: {{ include "mcp-server.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.image.useDockerImage }}
+        command:
+          - "secops-mcp-server"
+        {{- else }}
+        command:
+          - "uvx"
+          - "--from"
+          - "git+https://github.com/GitGuardian/gg-mcp.git"
+          - "secops-mcp-server"
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.mcp.port }}
+          protocol: TCP
+        env:
+        # MCP Server configuration
+        - name: MCP_PORT
+          value: {{ .Values.mcp.port | quote }}
+        - name: MCP_HOST
+          value: {{ .Values.mcp.host | quote }}
+        # OAuth must be disabled in HTTP mode
+        - name: ENABLE_LOCAL_OAUTH
+          value: "false"
+        # GitGuardian configuration
+        - name: GITGUARDIAN_URL
+          value: {{ .Values.gitguardian.url | quote }}
+        {{- if .Values.gitguardian.clientId }}
+        - name: GITGUARDIAN_CLIENT_ID
+          value: {{ .Values.gitguardian.clientId | quote }}
+        {{- end }}
+        {{- if .Values.gitguardian.scopes }}
+        - name: GITGUARDIAN_SCOPES
+          value: {{ .Values.gitguardian.scopes | quote }}
+        {{- end }}
+        {{- if .Values.gitguardian.tokenName }}
+        - name: GITGUARDIAN_TOKEN_NAME
+          value: {{ .Values.gitguardian.tokenName | quote }}
+        {{- end }}
+        {{- if .Values.gitguardian.tokenLifetime }}
+        - name: GITGUARDIAN_TOKEN_LIFETIME
+          value: {{ .Values.gitguardian.tokenLifetime | quote }}
+        {{- end }}
+        {{- with .Values.extraEnv }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+        {{- end }}
+        {{- if .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        {{- with .Values.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

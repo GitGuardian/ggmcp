@@ -63,7 +63,7 @@ class ListRepoOccurrencesBaseParams(BaseModel):
 
     repository_name: str | None = Field(
         default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/gg-mcp.git the full name is GitGuardian/gg-mcp. Pass the current repository name if not provided. Not required if source_id is provided.",
+        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided.",
     )
     source_id: str | int | None = Field(
         default=None,
