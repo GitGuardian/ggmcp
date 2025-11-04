@@ -135,11 +135,13 @@ class GitGuardianClient:
                     "HTTP/SSE mode requires per-request authentication via Authorization headers. "
                     "For local OAuth authentication, use stdio transport (unset MCP_PORT)."
                 )
+            else:
+                # HTTP mode and no personal access token provided
+                # Token will be extracted from Authorization header per-request via get_client()
+                logger.info("HTTP/SSE mode: token will be provided via Authorization header per-request")
+                self._oauth_token = None
         else:
-            if personal_access_token:
-                logger.info("Using provided PAT")
-                self._oauth_token = personal_access_token
-            elif personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
+            if personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
                 logger.info("Using PAT from environment variable")
                 self._oauth_token = personal_access_token
             else:
@@ -260,7 +262,7 @@ class GitGuardianClient:
         and in test environments.
         """
 
-        if self._oauth_token is not None:
+        if getattr(self, "_oauth_token", None) is not None:
             return
 
         if not is_oauth_enabled():
@@ -269,7 +271,7 @@ class GitGuardianClient:
         # Use a global lock to prevent parallel OAuth flows across all client instances
         async with _oauth_lock:
             # Double-check pattern: another thread might have completed OAuth while we waited for the lock
-            if self._oauth_token is not None:
+            if getattr(self, "_oauth_token", None) is not None:
                 logger.debug("OAuth token already available after waiting for lock")
                 return
 

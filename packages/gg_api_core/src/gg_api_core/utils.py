@@ -1,6 +1,10 @@
 import logging
+import os
 import re
 from urllib.parse import urljoin as urllib_urljoin
+
+from fastmcp.server.dependencies import get_http_headers
+from mcp.server.fastmcp.exceptions import ValidationError
 
 from .client import GitGuardianClient
 
@@ -27,6 +31,9 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
     with that token (not cached). This is useful for per-request authentication
     via HTTP Authorization headers.
 
+    In HTTP/SSE mode (when MCP_PORT is set), this function automatically extracts
+    the token from the Authorization header of the current request.
+
     Args:
         personal_access_token: Optional Personal Access Token to use for authentication.
             If provided, a new client instance is created with this token.
@@ -34,16 +41,88 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
     Returns:
         GitGuardianClient: The cached client instance or a new instance with the provided PAT
     """
-    # If a PAT is provided, create a new client instance (don't use singleton)
+    # Check if we're in HTTP/SSE mode (MCP_PORT is set)
+    mcp_port = os.environ.get("MCP_PORT")
+
+    logger.debug(
+        f"get_client() called: mcp_port={mcp_port}, personal_access_token={'provided' if personal_access_token else 'None'}"
+    )
+
+    if mcp_port and not personal_access_token:
+        # In HTTP mode, get token from Authorization header or raise
+        logger.debug("HTTP mode detected, extracting token from request headers")
+        try:
+            personal_access_token = get_personal_access_token_from_request()
+            logger.info("Successfully extracted token from HTTP request headers")
+        except ValidationError as e:
+            logger.error(f"Failed to extract token from HTTP headers: {e}")
+            raise
+
+    # If a PAT is provided (or extracted from headers), create a new client instance (don't use singleton)
     if personal_access_token:
         logger.debug("Creating new GitGuardian client with provided Personal Access Token")
         return get_gitguardian_client(personal_access_token=personal_access_token)
 
     # Otherwise, use the singleton pattern
+    logger.debug("Using singleton client (no PAT provided)")
     global _client_singleton
     if _client_singleton is None:
+        logger.info("Creating singleton client instance")
         _client_singleton = get_gitguardian_client()
     return _client_singleton
+
+
+def get_personal_access_token_from_request():
+    """Extract personal access token from HTTP request headers.
+
+    Raises:
+        ValidationError: If headers are missing or invalid
+    """
+    try:
+        headers = get_http_headers()
+        logger.debug(f"Retrieved HTTP headers: {list(headers.keys()) if headers else 'None'}")
+    except Exception as e:
+        logger.error(f"Failed to get HTTP headers: {e}")
+        raise ValidationError(f"Failed to retrieve HTTP headers: {e}")
+
+    if not headers:
+        logger.error("No HTTP headers available in current context")
+        raise ValidationError("No HTTP headers available - Authorization header required in HTTP mode")
+
+    auth_header = headers.get("authorization") or headers.get("Authorization")
+    if not auth_header:
+        logger.error(f"Missing Authorization header. Available headers: {list(headers.keys())}")
+        raise ValidationError("Missing Authorization header - required in HTTP mode")
+
+    token = _extract_token_from_auth_header(auth_header)
+    if not token:
+        logger.error("Failed to extract token from Authorization header")
+        raise ValidationError("Invalid Authorization header format")
+
+    logger.debug("Successfully extracted token from Authorization header")
+    return token
+
+
+def _extract_token_from_auth_header(auth_header: str) -> str | None:
+    """Extract token from Authorization header.
+
+    Supports formats:
+    - Bearer <token>
+    - Token <token>
+    - <token> (raw)
+    """
+    auth_header = auth_header.strip()
+
+    if auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
+
+    if auth_header.lower().startswith("token "):
+        return auth_header[6:].strip()
+
+    if auth_header:
+        return auth_header
+
+    return None
 
 
 def parse_repo_url(remote_url: str) -> str | None:
