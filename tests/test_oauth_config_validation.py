@@ -22,9 +22,10 @@ class TestOAuthConfigValidation:
     def test_allows_mcp_port_without_oauth(self):
         """Test that MCP_PORT can be set without ENABLE_LOCAL_OAUTH."""
         with patch.dict(os.environ, {"MCP_PORT": "8080", "ENABLE_LOCAL_OAUTH": "false"}, clear=False):
-            # Should not raise
+            # Should not raise - HTTP mode allows client creation (token provided per-request)
             client = GitGuardianClient()
             assert client is not None
+            assert client._oauth_token is None  # Token will be provided per-request
 
     def test_allows_oauth_without_mcp_port(self):
         """Test that ENABLE_LOCAL_OAUTH can be set without MCP_PORT."""
@@ -66,6 +67,7 @@ class TestOAuthConfigValidation:
             # Should not raise - empty string is treated as false
             client = GitGuardianClient()
             assert client is not None
+            assert client._oauth_token is None  # Token will be provided per-request
 
     def test_unset_defaults_to_true_and_conflicts_with_mcp_port(self):
         """Test that unset ENABLE_LOCAL_OAUTH defaults to true, which conflicts with MCP_PORT."""
