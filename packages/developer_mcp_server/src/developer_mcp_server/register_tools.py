@@ -2,7 +2,6 @@ from fastmcp import FastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honey_tokens import list_honeytokens
-from gg_api_core.tools.list_repo_incidents import list_repo_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
@@ -66,13 +65,13 @@ def register_developer_tools(mcp: FastMCP):
         required_scopes=["scan"],
     )
 
-    mcp.tool(
-        list_repo_incidents,
-        description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
-        "By default, this tool only shows incidents assigned to the current user. "
-        "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
-        required_scopes=["incidents:read", "sources:read"],
-    )
+    # mcp.tool(
+    #     list_repo_incidents,
+    #     description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
+    #     "By default, this tool only shows incidents assigned to the current user. "
+    #     "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+    #     required_scopes=["incidents:read", "sources:read"],
+    # )
 
     mcp.tool(
         list_repo_occurrences,
