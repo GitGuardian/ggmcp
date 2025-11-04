@@ -84,9 +84,10 @@ def register_developer_tools(mcp: FastMCP):
 
     mcp.tool(
         find_current_source_id,
-        description="Find the GitGuardian source_id for the current repository. "
-        "This tool automatically detects the current git repository and searches for its source_id in GitGuardian. "
-        "Useful when you need to reference the repository in other API calls.",
+        description="Find the GitGuardian source_id for a repository. "
+        "This tool attempts to detect the repository name from git remote URL, or falls back to using the directory name. "
+        "By default it uses the current directory ('.'), but you can specify a custom repository_path parameter "
+        "to analyze a different repository. Useful when you need to reference the repository in other API calls.",
         required_scopes=["sources:read"],
     )
 
