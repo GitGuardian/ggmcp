@@ -6,6 +6,7 @@ from typing import Any, Literal
 from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
+from gg_api_core.schema_utils import compress_pydantic_model_schema
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
@@ -150,59 +151,70 @@ async def get_current_token_info() -> dict[str, Any]:
         raise ToolError(f"Error: {str(e)}")
 
 
-mcp.tool(
+# Register SecOps tools with schema compression for Pydantic model parameters
+
+update_tags_tool = mcp.tool(
     update_or_create_incident_custom_tags,
     description="Update or create custom tags for a secret incident",
     required_scopes=["incidents:write", "custom_tags:write"],
 )
+update_tags_tool.parameters = compress_pydantic_model_schema(update_tags_tool.parameters)
 
-mcp.tool(
+update_status_tool = mcp.tool(
     update_incident_status,
     description="Update a secret incident with status",
     required_scopes=["incidents:write"],
 )
+update_status_tool.parameters = compress_pydantic_model_schema(update_status_tool.parameters)
 
-mcp.tool(
+read_tags_tool = mcp.tool(
     read_custom_tags,
     description="Read custom tags from the GitGuardian dashboard.",
     required_scopes=["custom_tags:read"],
 )
+read_tags_tool.parameters = compress_pydantic_model_schema(read_tags_tool.parameters)
 
-mcp.tool(
+write_tags_tool = mcp.tool(
     write_custom_tags,
     description="Create or delete custom tags in the GitGuardian dashboard.",
     required_scopes=["custom_tags:write"],
 )
+write_tags_tool.parameters = compress_pydantic_model_schema(write_tags_tool.parameters)
 
-mcp.tool(
+manage_incident_tool = mcp.tool(
     manage_private_incident,
     description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
     required_scopes=["incidents:write"],
 )
+manage_incident_tool.parameters = compress_pydantic_model_schema(manage_incident_tool.parameters)
 
-mcp.tool(
+list_users_tool = mcp.tool(
     list_users,
     description="List users on the workspace/account",
     required_scopes=["members:read"],
 )
+list_users_tool.parameters = compress_pydantic_model_schema(list_users_tool.parameters)
 
-mcp.tool(
+revoke_secret_tool = mcp.tool(
     revoke_secret,
     description="Revoke a secret by its ID through the GitGuardian API",
     required_scopes=["write:secret"],
 )
+revoke_secret_tool.parameters = compress_pydantic_model_schema(revoke_secret_tool.parameters)
 
-mcp.tool(
+assign_incident_tool = mcp.tool(
     assign_incident,
     description="Assign a secret incident to a specific member or to the current user",
     required_scopes=["incidents:write"],
 )
+assign_incident_tool.parameters = compress_pydantic_model_schema(assign_incident_tool.parameters)
 
-mcp.tool(
+create_fix_tool = mcp.tool(
     create_code_fix_request,
     description="Create code fix requests for multiple secret incidents with their locations. This will generate pull requests to automatically remediate the detected secrets.",
     required_scopes=["incidents:write"],
 )
+create_fix_tool.parameters = compress_pydantic_model_schema(create_fix_tool.parameters)
 
 register_common_tools(mcp)
 
