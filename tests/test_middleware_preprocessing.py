@@ -47,9 +47,6 @@ class TestMiddlewareParameterPreprocessing:
     def test_middleware_converts_stringified_json_params(self):
         """Test that middleware converts JSON strings to dicts."""
         import asyncio
-        import os
-
-        from fastmcp.server.middleware import MiddlewareContext
 
         from gg_api_core.mcp_server import GitGuardianPATEnvMCP
 
@@ -76,8 +73,6 @@ class TestMiddlewareParameterPreprocessing:
     def test_middleware_preserves_dict_params(self):
         """Test that middleware doesn't modify already-valid dict params."""
         import asyncio
-
-        from fastmcp.server.middleware import MiddlewareContext
 
         from gg_api_core.mcp_server import GitGuardianPATEnvMCP
 
@@ -146,5 +141,3 @@ class TestMiddlewareParameterPreprocessing:
         # Run the middleware
         result = asyncio.run(mcp._parameter_preprocessing_middleware(context, mock_call_next))
         assert result == "success"
-
-
