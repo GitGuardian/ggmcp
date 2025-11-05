@@ -272,30 +272,44 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         params = context.params
         arguments = params.get("arguments", {})
 
+        # Log what we received for debugging
+        logger.debug(f"Middleware received arguments: {arguments} (type: {type(arguments)})")
+
         # If arguments is empty or not a dict, nothing to preprocess
         if not isinstance(arguments, dict):
+            logger.debug(f"Arguments is not a dict, skipping preprocessing")
             return await call_next(context)
 
         # Look for stringified JSON in parameter values
         preprocessed_arguments = {}
+        modified = False
+
         for key, value in arguments.items():
+            logger.debug(f"Processing parameter '{key}': {repr(value)} (type: {type(value)})")
             if isinstance(value, str) and value.strip().startswith("{"):
                 # Looks like stringified JSON, try to parse it
                 try:
                     parsed = json.loads(value)
                     if isinstance(parsed, dict):
-                        logger.debug(f"Preprocessing parameter '{key}': converted JSON string to dict")
+                        logger.info(f"Preprocessed parameter '{key}': converted JSON string to dict")
                         preprocessed_arguments[key] = parsed
+                        modified = True
                     else:
                         preprocessed_arguments[key] = value
-                except (json.JSONDecodeError, ValueError):
+                except (json.JSONDecodeError, ValueError) as e:
                     # Not valid JSON, keep original value
+                    logger.debug(f"Failed to parse '{key}' as JSON: {e}")
                     preprocessed_arguments[key] = value
             else:
                 preprocessed_arguments[key] = value
 
-        # Update context with preprocessed arguments
-        context.params["arguments"] = preprocessed_arguments
+        # Update context with preprocessed arguments if we modified anything
+        if modified:
+            context.params["arguments"] = preprocessed_arguments
+            # Also update context.message.arguments which FastMCP uses
+            if hasattr(context, "message") and hasattr(context.message, "arguments"):
+                context.message.arguments = preprocessed_arguments
+            logger.debug(f"Updated arguments: {preprocessed_arguments}")
 
         return await call_next(context)
 

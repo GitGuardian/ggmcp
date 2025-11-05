@@ -52,16 +52,29 @@ class TestMiddlewareParameterPreprocessing:
 
         mcp = GitGuardianPATEnvMCP("test", personal_access_token="test_token")
 
-        # Create a mock context with stringified JSON parameters
+        # Create a mock context with stringified JSON parameters that mirrors FastMCP structure
+        class MockMessage:
+            def __init__(self):
+                self.name = "list_repo_occurrences"
+                self.arguments = {"params": '{"source_id": 9036019, "get_all": true}'}
+
         class MockContext:
             method = "tools/call"
-            params = {"arguments": {"params": '{"source_id": 9036019, "get_all": true}'}}
+
+            def __init__(self):
+                self.message = MockMessage()
+                self.params = {"arguments": {"params": '{"source_id": 9036019, "get_all": true}'}}
 
         async def mock_call_next(ctx):
-            # Verify the params were preprocessed
+            # Verify both context.params and context.message.arguments were preprocessed
             assert isinstance(ctx.params["arguments"]["params"], dict)
             assert ctx.params["arguments"]["params"]["source_id"] == 9036019
             assert ctx.params["arguments"]["params"]["get_all"] is True
+
+            # FastMCP uses context.message.arguments, so verify that's updated too
+            assert isinstance(ctx.message.arguments["params"], dict)
+            assert ctx.message.arguments["params"]["source_id"] == 9036019
+            assert ctx.message.arguments["params"]["get_all"] is True
             return "success"
 
         context = MockContext()
