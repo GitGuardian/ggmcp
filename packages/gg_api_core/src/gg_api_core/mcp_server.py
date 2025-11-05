@@ -141,6 +141,8 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
 
+        # Add middleware for parameter preprocessing (must be first to preprocess before validation)
+        self.add_middleware(self._parameter_preprocessing_middleware)
         self.add_middleware(ScopeFilteringMiddleware(self))
 
     def clear_cache(self) -> None:
@@ -247,6 +249,86 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         scopes = await self._fetch_token_scopes_from_api()
         logger.debug(f"scopes: {scopes}")
         return scopes
+
+    async def _parameter_preprocessing_middleware(self, context: MiddlewareContext, call_next: Callable) -> Any:
+        """Middleware to preprocess tool parameters to handle Claude Code bug.
+
+        Claude Code has a bug where it serializes Pydantic model parameters as JSON strings
+        instead of proper dictionaries. This middleware intercepts tools/call requests and
+        converts stringified JSON parameters back to dictionaries before validation.
+
+        See: https://github.com/anthropics/claude-code/issues/3084
+        """
+        import json
+
+        # Only apply to tools/call requests
+        if context.method != "tools/call":
+            return await call_next(context)
+
+        # Check if we have arguments to preprocess
+        if not hasattr(context, "params") or not context.params:
+            return await call_next(context)
+
+        params = context.params
+        arguments = params.get("arguments", {})
+
+        # If arguments is empty or not a dict, nothing to preprocess
+        if not isinstance(arguments, dict):
+            return await call_next(context)
+
+        # Look for stringified JSON in parameter values
+        preprocessed_arguments = {}
+        for key, value in arguments.items():
+            if isinstance(value, str) and value.strip().startswith("{"):
+                # Looks like stringified JSON, try to parse it
+                try:
+                    parsed = json.loads(value)
+                    if isinstance(parsed, dict):
+                        logger.debug(f"Preprocessing parameter '{key}': converted JSON string to dict")
+                        preprocessed_arguments[key] = parsed
+                    else:
+                        preprocessed_arguments[key] = value
+                except (json.JSONDecodeError, ValueError):
+                    # Not valid JSON, keep original value
+                    preprocessed_arguments[key] = value
+            else:
+                preprocessed_arguments[key] = value
+
+        # Update context with preprocessed arguments
+        context.params["arguments"] = preprocessed_arguments
+
+        return await call_next(context)
+
+    async def _scope_filtering_middleware(self, context: MiddlewareContext, call_next: Callable) -> Any:
+        """Middleware to filter tools based on token scopes.
+
+        This middleware intercepts tools/list requests and filters the tools
+        based on the user's API token scopes.
+
+        The authentication strategy determines whether to use cached scopes
+        or fetch them per-request.
+        """
+        # Only apply filtering to tools/list requests
+        if context.method != "tools/list":
+            return await call_next(context)
+
+        # Get all tools from the next middleware/handler
+        all_tools = await call_next(context)
+
+        # Filter tools by scopes
+        scopes = await self.get_scopes()
+        filtered_tools = []
+        for tool in all_tools:
+            tool_name = tool.name
+            required_scopes = self._tool_scopes.get(tool_name, set())
+
+            if not required_scopes or required_scopes.issubset(scopes):
+                filtered_tools.append(tool)
+            else:
+                missing_scopes = required_scopes - scopes
+                logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
+
+        return filtered_tools
 
     async def list_tools(self) -> list[MCPTool]:
         """

@@ -1,5 +1,4 @@
 from fastmcp import FastMCP
-from gg_api_core.schema_utils import compress_pydantic_model_schema
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honeytokens import list_honeytokens
@@ -46,19 +45,15 @@ All tools operate within your IDE environment to provide immediate feedback and 
 
 
 def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
-    # Register tools with Pydantic model parameters and compress their schemas
-    # to work around Claude Code bug that serializes params as JSON strings
-
-    remediate_tool = mcp.tool(
+    mcp.tool(
         remediate_secret_incidents,
         description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
         "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
         "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
         required_scopes=["incidents:read", "sources:read"],
     )
-    remediate_tool.parameters = compress_pydantic_model_schema(remediate_tool.parameters)
 
-    scan_tool = mcp.tool(
+    mcp.tool(
         scan_secrets,
         description="""
         Scan multiple content items for secrets and policy breaks.
@@ -70,26 +65,22 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         """,
         required_scopes=["scan"],
     )
-    scan_tool.parameters = compress_pydantic_model_schema(scan_tool.parameters)
 
-    list_incidents_tool = mcp.tool(
+    mcp.tool(
         list_incidents,
         description="List secret incidents or occurrences related to a specific repository"
         "With mine=True, this tool only shows incidents assigned to the current user.",
         required_scopes=["incidents:read", "sources:read"],
     )
-    list_incidents_tool.parameters = compress_pydantic_model_schema(list_incidents_tool.parameters)
 
-    list_occurrences_tool = mcp.tool(
+    mcp.tool(
         list_repo_occurrences,
         description="List secret occurrences for a specific repository with exact match locations. "
         "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
         "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
         required_scopes=["incidents:read"],
     )
-    list_occurrences_tool.parameters = compress_pydantic_model_schema(list_occurrences_tool.parameters)
 
-    # find_current_source_id doesn't use a Pydantic model parameter, so no compression needed
     mcp.tool(
         find_current_source_id,
         description="Find the GitGuardian source_id for the current repository. "
@@ -98,23 +89,20 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         required_scopes=["sources:read"],
     )
 
-    generate_token_tool = mcp.tool(
+    mcp.tool(
         generate_honeytoken,
         description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
         required_scopes=["honeytokens:write"],
     )
-    generate_token_tool.parameters = compress_pydantic_model_schema(generate_token_tool.parameters)
 
-    list_tokens_tool = mcp.tool(
+    mcp.tool(
         list_honeytokens,
         description="List honeytokens from the GitGuardian dashboard with filtering options",
         required_scopes=["honeytokens:read"],
     )
-    list_tokens_tool.parameters = compress_pydantic_model_schema(list_tokens_tool.parameters)
 
-    list_users_tool = mcp.tool(
+    mcp.tool(
         list_users,
         description="List users on the workspace/account",
         required_scopes=["members:read"],
     )
-    list_users_tool.parameters = compress_pydantic_model_schema(list_users_tool.parameters)
