@@ -129,8 +129,8 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         # Get current user's ID from token info
         try:
             token_info = await client.get_current_token_info()
-            if token_info and "member" in token_info and "id" in token_info["member"]:
-                assignee_id = token_info["member"]["id"]
+            if token_info and "member_id" in token_info:
+                assignee_id = token_info["member_id"]
                 logger.debug(f"Using current user ID for assignment: {assignee_id}")
             else:
                 raise ToolError("Could not determine current user ID from token info")
