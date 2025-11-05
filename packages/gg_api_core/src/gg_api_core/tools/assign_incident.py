@@ -154,7 +154,12 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
 
         # Parse the response
         if isinstance(result, dict):
-            return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True, **result)
+            # Remove assignee_id from result dict to avoid conflict with our explicit parameter
+            result_copy = result.copy()
+            result_copy.pop("assignee_id", None)
+            return AssignIncidentResult(
+                incident_id=params.incident_id, assignee_id=assignee_id, success=True, **result_copy
+            )
         else:
             # Fallback response
             return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True)
