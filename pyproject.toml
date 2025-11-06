@@ -40,10 +40,11 @@ Homepage = "https://github.com/GitGuardian/ggmcp"
 
 [dependency-groups]
 dev = [
+    "mypy>=1.0.0",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.24.0",
-    "pytest-mock>=3.12.0",
     "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
     "ruff>=0.8.0",
 ]
 
@@ -111,6 +112,19 @@ markers = [
     "asyncio" # mark a test as an asynchronous test
 ]
 
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = false  # Start lenient, can be enabled later
+check_untyped_defs = true
+no_implicit_optional = true
+strict_optional = true
+ignore_missing_imports = true  # For packages without type stubs
+show_error_codes = true
+pretty = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
