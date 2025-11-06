@@ -9,3 +9,31 @@ uv = "0.7"
 
 [env]
 _.python.venv = ".venv"
+
+[tasks."format:check"]
+alias = "formatcheck"
+raw = true
+run = ["uv run ruff check --select I", "uv run ruff format --check --diff"]
+description = "Check code format and imports sorting"
+
+[tasks."format:fix"]
+alias = "format"
+raw = true
+run = ["uv run ruff check --select I --fix", "uv run ruff format"]
+description = "Format code and sort imports"
+
+[tasks."lint:check"]
+run = "uv run ruff check"
+description = "Lint code using Flake8 rules via ruff"
+
+[tasks."lint:fix"]
+run = ["uv run ruff check --fix"]
+
+[tasks."type:check"]
+alias = "typecheck"
+run = "uv run mypy packages/"
+description = "Check type hints with mypy"
+
+[tasks.check]
+depends = ["format:check", "lint:check", "type:check"]
+description = "Run all checks (format, lint, type)"
