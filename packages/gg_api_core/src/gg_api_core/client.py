@@ -1152,12 +1152,12 @@ class GitGuardianClient:
         logger.info(f"Resolving incident {incident_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/resolve")
 
-    async def ignore_incident(self, incident_id: str, ignore_reason: str = None) -> dict[str, Any]:
+    async def ignore_incident(self, incident_id: str, ignore_reason: str | None = None) -> dict[str, Any]:
         """Ignore a secret incident.
 
         Args:
             incident_id: ID of the secret incident
-            ignore_reason: Reason for ignoring (test_credential, false_positive, etc.)
+            ignore_reason: Reason for ignoring (test_credential, false_positive, low_risk, invalid)
 
         Returns:
             Status of the operation
