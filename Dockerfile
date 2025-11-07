@@ -48,10 +48,6 @@ COPY --from=builder /dist/*.whl /tmp/wheels/
 RUN uv pip install --system /tmp/wheels/*.whl && \
     rm -rf /tmp/wheels
 
-# Create directory for OAuth tokens (if needed, though disabled in HTTP mode)
-RUN mkdir -p /home/mcpserver/.gitguardian && \
-    chown -R mcpserver:mcpserver /home/mcpserver/.gitguardian
-
 # Switch to non-root user
 USER mcpserver
 
