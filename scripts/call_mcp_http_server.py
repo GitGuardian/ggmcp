@@ -13,6 +13,9 @@ async def main():
         tools = await client.list_tools()
         print(tools)
 
+        users = await client.call_tool("list_users", {"params": {}})
+        print(users)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
