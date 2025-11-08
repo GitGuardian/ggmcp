@@ -89,7 +89,7 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
             return ListUsersResult(members=members, total_count=len(members), next_cursor=None)
         else:
             # Single page request
-            result, headers = await client._request("GET", "/members", params=query_params, return_headers=True)
+            result, headers = await client.list_members(params=query_params)
 
             # Handle response format
             if isinstance(result, dict):

@@ -749,56 +749,37 @@ class GitGuardianClient:
 
         # Process severity parameter
         if severity:
-            # If it's already an enum, use its value
+            # If it's an enum, get its value
             if isinstance(severity, IncidentSeverity):
                 params["severity"] = severity.value
-            # If it's a string, validate and convert
+            # If it's a string, pass it through directly
+            # The API will handle validation and support comma-separated values
             elif isinstance(severity, str):
-                try:
-                    # Convert to enum to validate, then get the value
-                    params["severity"] = IncidentSeverity(severity.lower()).value
-                except ValueError:
-                    valid_values = [e.value for e in IncidentSeverity]
-                    logger.warning(f"Invalid severity value: {severity}. Must be one of {valid_values}")
-                    raise ValueError(f"Invalid severity value: {severity}. Must be one of {valid_values}")
+                params["severity"] = severity
             else:
                 raise TypeError("severity must be a string or IncidentSeverity enum")
 
         # Process status parameter
         if status:
-            # If it's already an enum, use its value
+            # If it's an enum, get its value
             if isinstance(status, IncidentStatus):
                 params["status"] = status.value
-            # If it's a string, validate and convert
+            # If it's a string, pass it through directly
+            # The API will handle validation and support comma-separated values
             elif isinstance(status, str):
-                try:
-                    # For status, we need to check if it's uppercase already
-                    if status in [e.value for e in IncidentStatus]:
-                        params["status"] = status
-                    else:
-                        # Try with uppercase for compatibility
-                        params["status"] = IncidentStatus(status.upper()).value
-                except ValueError:
-                    valid_values = [e.value for e in IncidentStatus]
-                    logger.warning(f"Invalid status value: {status}. Must be one of {valid_values}")
-                    raise ValueError(f"Invalid status value: {status}. Must be one of {valid_values}")
+                params["status"] = status
             else:
                 raise TypeError("status must be a string or IncidentStatus enum")
 
         # Process validity parameter
         if validity:
-            # If it's already an enum, use its value
+            # If it's an enum, get its value
             if isinstance(validity, IncidentValidity):
                 params["validity"] = validity.value
-            # If it's a string, validate and convert
+            # If it's a string, pass it through directly
+            # The API will handle validation and support comma-separated values
             elif isinstance(validity, str):
-                try:
-                    # Convert to enum to validate, then get the value
-                    params["validity"] = IncidentValidity(validity.lower()).value
-                except ValueError:
-                    valid_values = [e.value for e in IncidentValidity]
-                    logger.warning(f"Invalid validity value: {validity}. Must be one of {valid_values}")
-                    raise ValueError(f"Invalid validity value: {validity}. Must be one of {valid_values}")
+                params["validity"] = validity
             else:
                 raise TypeError("validity must be a string or IncidentValidity enum")
 
@@ -987,7 +968,13 @@ class GitGuardianClient:
 
         # If we already have token info, return it
         if self._token_info is not None:
-            return self._token_info
+            # Convert Pydantic model to dict if needed
+            if hasattr(self._token_info, "model_dump"):
+                return self._token_info.model_dump()
+            elif isinstance(self._token_info, dict):
+                return self._token_info
+            else:
+                return await self._request("GET", "/api_tokens/self")
 
         # Otherwise fetch from the API
         return await self._request("GET", "/api_tokens/self")
@@ -1579,119 +1566,6 @@ class GitGuardianClient:
             logger.error(f"Error getting source by name: {str(e)}")
             return None
 
-    async def list_repo_incidents_directly(
-        self,
-        repository_name: str,
-        from_date: str | None = None,
-        to_date: str | None = None,
-        presence: str | None = None,
-        tags: list[str] | None = None,
-        exclude_tags: list[str] | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        ordering: str | None = None,
-        get_all: bool = False,
-        mine: bool = True,
-    ) -> dict[str, Any]:
-        """List incidents for a repository in a single API call.
-
-        This method offers better performance than the two-step process of
-        getting occurrences first and then incidents separately.
-
-        Args:
-            repository_name: Name of the repository
-            from_date: Filter incidents created after this date (ISO format)
-            to_date: Filter incidents created before this date (ISO format)
-            presence: Filter by presence status
-            tags: Filter by tags
-            exclude_tags: Exclude incidents with these tag names
-            per_page: Number of results per page
-            cursor: Pagination cursor
-            ordering: Sort field
-            get_all: Whether to fetch all results using pagination
-            mine: If True, only show incidents assigned to the current user
-
-        Returns:
-            Dictionary containing the incidents and pagination info
-        """
-        logger.info(f"Directly listing incidents for repository: {repository_name}")
-
-        # First get the source ID for the repository name
-        source = await self.get_source_by_name(repository_name)
-
-        if not source:
-            return {
-                "repository_info": {"name": repository_name},
-                "incidents": [],
-                "message": f"Repository '{repository_name}' not found or not accessible",
-            }
-
-        source_id = source.get("id")
-        logger.info(f"Found source ID {source_id} for repository {repository_name}")
-
-        # Prepare parameters for the API call
-        params = {}
-        if from_date:
-            params["from_date"] = from_date
-        if to_date:
-            params["to_date"] = to_date
-        if presence:
-            params["presence"] = presence
-        if tags:
-            params["tags"] = ",".join(tags) if isinstance(tags, list) else tags
-        if exclude_tags:
-            params["exclude_tags"] = ",".join(exclude_tags) if isinstance(exclude_tags, list) else exclude_tags
-        if per_page:
-            params["per_page"] = per_page
-        if cursor:
-            params["cursor"] = cursor
-        if ordering:
-            params["ordering"] = ordering
-        if mine:
-            params["assigned_to_me"] = "true"
-
-        try:
-            if get_all:
-                # Use pagination to get all results
-                incidents_result = await self.paginate_all(f"/sources/{source_id}/incidents/secrets", params)
-                if isinstance(incidents_result, list):
-                    return {
-                        "repository_info": source,
-                        "incidents": incidents_result,
-                        "total_count": len(incidents_result),
-                    }
-                # If it's already a dict with structure, return it
-                return incidents_result
-
-            # Get a single page of results
-            incidents_result = await self.list_source_incidents(source_id, **params)
-
-            # Make sure incidents_result is a dictionary before using .get()
-            if isinstance(incidents_result, dict):
-                return {
-                    "repository_info": source,
-                    "incidents": incidents_result.get("data", []),
-                    "next_cursor": incidents_result.get("next_cursor"),
-                    "total_count": incidents_result.get("total_count", 0),
-                }
-            elif isinstance(incidents_result, list):
-                return {
-                    "repository_info": source,
-                    "incidents": incidents_result,
-                    "total_count": len(incidents_result),
-                }
-            else:
-                return {
-                    "repository_info": source,
-                    "incidents": [],
-                    "total_count": 0,
-                    "error": "Unexpected response format from API",
-                }
-
-        except Exception as e:
-            logger.error(f"Error listing repository incidents directly: {str(e)}")
-            return {"error": f"Failed to list repository incidents: {str(e)}"}
-
     async def create_code_fix_request(self, locations: list[dict[str, Any]]) -> dict[str, Any]:
         """Create code fix requests for multiple secret incidents with their locations.
 
@@ -1714,4 +1588,18 @@ class GitGuardianClient:
                       404: API key not configured)
         """
         logger.info(f"Creating code fix request for {len(locations)} issue(s)")
-        return await self._request("POST", "/v1/code-fix-requests", json={"locations": locations})
+        return await self._request("POST", "/code-fix-requests", json={"locations": locations})
+
+    async def list_members(self, params):
+        """List all users in the account."""
+        return await self._request("GET", "/members", params=params, return_headers=True)
+
+    async def get_member(self, member_id):
+        """Get a specific user's information."""
+        return await self._request("GET", f"/members/{member_id}")
+
+    async def get_current_member(self):
+        """Get the current user's information."""
+        data = await self.get_current_token_info()
+        member_id = data["member_id"]
+        return await self.get_member(member_id)

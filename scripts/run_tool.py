@@ -1,7 +1,7 @@
 from gg_api_core.tools.assign_incident import assign_incident, AssignIncidentParams
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.list_honey_tokens import ListHoneytokensParams, list_honeytokens
-from gg_api_core.tools.list_repo_incidents import ListRepoIncidentsParams, list_repo_incidents
+from gg_api_core.tools.list_incidents import ListIncidentsParams, list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 import asyncio
 
@@ -48,11 +48,11 @@ async def main():
     ))
 
     # Incidents
-    print(await list_repo_incidents(
-        ListRepoIncidentsParams(source_id="9036019", get_all=False, status=None,
+    print(await list_incidents(
+        ListIncidentsParams(source_id="9036019", get_all=False, status=None,
                                 severity=["critical", "high", "medium", "low", "info", "unknown"], tags=["TEST_FILE"])))
 
-    print(await list_repo_incidents(ListRepoIncidentsParams(source_id="9036019")))
+    print(await list_incidents(ListIncidentsParams(source_id="9036019")))
 
     # Honey Tokens
     print(await list_honeytokens(ListHoneytokensParams()))
@@ -75,6 +75,9 @@ async def main():
     # Or assign to current user:
     # print(await assign_incident(AssignIncidentParams(incident_id="67890", mine=True)))
 
+
+async def main():
+    print(await list_incidents(params=ListIncidentsParams()))
 
 async def init_secops_server():
     from secops_mcp_server.server import mcp
