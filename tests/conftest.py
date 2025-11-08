@@ -18,25 +18,34 @@ def mock_gitguardian_client():
     )
 
     # Mock other common methods that tests might use
-    mock_client.list_repo_incidents_directly = AsyncMock(return_value={"incidents": [], "total_count": 0})
+    mock_client.list_incidents_directly = AsyncMock(return_value={"incidents": [], "total_count": 0})
     mock_client.list_occurrences = AsyncMock(return_value={"occurrences": [], "total_count": 0})
     mock_client.multiple_scan = AsyncMock(return_value=[])
     mock_client.get_source_by_name = AsyncMock(return_value=None)
     mock_client.list_source_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.paginate_all = AsyncMock(return_value=[])
     mock_client.list_honeytokens = AsyncMock(return_value={"honeytokens": []})
+    mock_client.list_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
+    mock_client.get_current_member = AsyncMock(return_value={"email": "test@example.com"})
 
     # Patch get_client() to return our mock - this prevents the singleton from creating a real client
     with patch("gg_api_core.utils.get_client", return_value=mock_client):
         # Also patch get_gitguardian_client to prevent any direct calls
         with patch("gg_api_core.utils.get_gitguardian_client", return_value=mock_client):
-            # Reset the singleton to None before each test to ensure clean state
-            import gg_api_core.utils
+            # Patch find_current_source_id to avoid real GitHub calls
+            mock_find_source = MagicMock()
+            mock_find_source.source_id = "source_123"
+            with patch(
+                "gg_api_core.tools.list_incidents.find_current_source_id",
+                new_callable=lambda: AsyncMock(return_value=mock_find_source),
+            ):
+                # Reset the singleton to None before each test to ensure clean state
+                import gg_api_core.utils
 
-            gg_api_core.utils._client_singleton = None
-            yield mock_client
-            # Clean up singleton after test
-            gg_api_core.utils._client_singleton = None
+                gg_api_core.utils._client_singleton = None
+                yield mock_client
+                # Clean up singleton after test
+                gg_api_core.utils._client_singleton = None
 
 
 @pytest.fixture(autouse=True)

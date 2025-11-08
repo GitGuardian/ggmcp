@@ -178,7 +178,7 @@ async def list_repo_occurrences(
     3. Make precise edits to remove or replace secrets
     4. Verify that secrets have been properly removed
 
-    Use list_repo_incidents for a higher-level view of incidents grouped by secret type.
+    Use list_incidents for a higher-level view of incidents grouped by secret type.
 
     By default, occurrences tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
 

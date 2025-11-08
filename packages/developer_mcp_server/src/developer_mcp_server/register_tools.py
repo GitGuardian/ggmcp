@@ -2,7 +2,7 @@ from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honey_tokens import list_honeytokens
-from gg_api_core.tools.list_repo_incidents import list_repo_incidents
+from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
@@ -19,7 +19,7 @@ This server focuses on helping developers manage secrets in their repositories t
 
 1. **Finding Existing Secret Incidents**:
    - Detect secrets already identified as GitGuardian incidents in your repository
-   - Use `list_repo_incidents` to view all secret incidents in a repository
+   - Use `list_incidents` to view all secret incidents in a repository
    - Filter incidents by various criteria including those assigned to you
 
 2. **Proactive Secret Scanning**:
@@ -67,10 +67,9 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
     )
 
     mcp.tool(
-        list_repo_incidents,
-        description="List secret incidents or occurrences related to a specific repository, and assigned to the current user."
-        "By default, this tool only shows incidents assigned to the current user. "
-        "Only pass mine=False to get all incidents related to this repo if the user explicitly asks for all incidents even the ones not assigned to him.",
+        list_incidents,
+        description="List secret incidents or occurrences related to a specific repository"
+        "With mine=True, this tool only shows incidents assigned to the current user.",
         required_scopes=["incidents:read", "sources:read"],
     )
 
