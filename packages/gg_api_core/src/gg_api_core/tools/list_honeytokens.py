@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 class ListHoneytokensParams(BaseModel):
     """Parameters for listing honeytokens."""
 
+    mine: bool = Field(
+        default=False,
+        description="If True, fetch honeytokens created by the current user. Set to False to get all honeytokens in the workspace.",
+    )
     status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
     search: str | None = Field(default=None, description="Search string to filter results by name or description")
     ordering: str | None = Field(
@@ -23,7 +27,6 @@ class ListHoneytokensParams(BaseModel):
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
-    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
 
 
 class ListHoneytokensResult(BaseModel):
@@ -36,7 +39,9 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
-    If mine=True, filters honeytokens to show only those created by the current user.
+    IMPORTANT: When the user asks for "my honeytokens", "my tokens", "honeytokens I created", 
+    "honeytokens created by me", or similar possessive/personal references, you MUST set mine=True 
+    to filter to only the current user's honeytokens.
 
     Args:
         params: ListHoneytokensParams model containing all filtering options
@@ -58,9 +63,10 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
         try:
             # Get current token info to identify the user
             token_info = await client.get_current_token_info()
-            if token_info and "user_id" in token_info:
-                # If we have user_id, use it as creator_id
-                creator_id = token_info["user_id"]
+            logger.debug(f"Token info: {token_info}")
+            if token_info and "member_id" in token_info:
+                # If we have member_id, use it as creator_id
+                creator_id = token_info["member_id"]
                 logger.debug(f"Setting creator_id to current user: {creator_id}")
             else:
                 logger.warning("Could not determine current user ID for 'mine' filter")
