@@ -1038,9 +1038,9 @@ class GitGuardianClient:
             List of custom tags
         """
         logger.info("Listing custom tags")
-        return await self._request("GET", "/custom-tags")
+        return await self._request("GET", "/custom_tags")
 
-    async def create_custom_tag(self, key: str, value: str) -> dict[str, Any]:
+    async def create_custom_tag(self, key: str, value: str | None = None) -> dict[str, Any]:
         """Create a custom tag.
 
         Args:
@@ -1051,7 +1051,7 @@ class GitGuardianClient:
             Created custom tag data
         """
         logger.info(f"Creating custom tag with key={key}, value={value}")
-        return await self._request("POST", "/custom-tags", json={"key": key, "value": value})
+        return await self._request("POST", "/custom_tags", json={"key": key, "value": value})
 
     async def update_custom_tag(self, tag_id: str, key: str = None, value: str = None) -> dict[str, Any]:
         """Update a custom tag.
@@ -1075,7 +1075,7 @@ class GitGuardianClient:
         if not payload:
             raise ValueError("At least one of key or value must be provided")
 
-        return await self._request("PATCH", f"/custom-tags/{tag_id}", json=payload)
+        return await self._request("PATCH", f"/custom_tags/{tag_id}", json=payload)
 
     async def delete_custom_tag(self, tag_id: str) -> dict[str, Any]:
         """Delete a custom tag.
@@ -1087,7 +1087,7 @@ class GitGuardianClient:
             Empty dict on success
         """
         logger.info(f"Deleting custom tag {tag_id}")
-        return await self._request("DELETE", f"/custom-tags/{tag_id}")
+        return await self._request("DELETE", f"/custom_tags/{tag_id}")
 
     async def get_custom_tag(self, tag_id: str) -> dict[str, Any]:
         """Get a specific custom tag by ID.
@@ -1099,7 +1099,7 @@ class GitGuardianClient:
             Custom tag data
         """
         logger.info(f"Getting custom tag {tag_id}")
-        return await self._request("GET", f"/custom-tags/{tag_id}")
+        return await self._request("GET", f"/custom_tags/{tag_id}")
 
     # Secret Incident management endpoints
     async def assign_incident(self, incident_id: str, assignee_id: str) -> dict[str, Any]:
