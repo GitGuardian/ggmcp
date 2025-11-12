@@ -81,30 +81,25 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
 
     logger.debug(f"Query parameters: {json.dumps(query_params)}")
 
-    try:
-        if params.get_all:
-            # Use paginate_all for fetching all results
-            members = await client.paginate_all("/members", query_params)
-            logger.debug(f"Retrieved all {len(members)} members using pagination")
-            return ListUsersResult(members=members, total_count=len(members), next_cursor=None)
+    if params.get_all:
+        # Use paginate_all for fetching all results
+        members = await client.paginate_all("/members", query_params)
+        logger.debug(f"Retrieved all {len(members)} members using pagination")
+        return ListUsersResult(members=members, total_count=len(members), next_cursor=None)
+    else:
+        # Single page request
+        result, headers = await client.list_members(params=query_params)
+
+        # Handle response format
+        if isinstance(result, dict):
+            members = result.get("results", result.get("data", []))
+            next_cursor = client._extract_next_cursor(headers) if headers else None
+        elif isinstance(result, list):
+            members = result
+            next_cursor = None
         else:
-            # Single page request
-            result, headers = await client.list_members(params=query_params)
+            logger.error(f"Unexpected result type: {type(result)}")
+            raise ToolError(f"Unexpected response format: {type(result).__name__}")
 
-            # Handle response format
-            if isinstance(result, dict):
-                members = result.get("results", result.get("data", []))
-                next_cursor = client._extract_next_cursor(headers) if headers else None
-            elif isinstance(result, list):
-                members = result
-                next_cursor = None
-            else:
-                logger.error(f"Unexpected result type: {type(result)}")
-                raise ToolError(f"Unexpected response format: {type(result).__name__}")
-
-            logger.debug(f"Found {len(members)} members")
-            return ListUsersResult(members=members, total_count=len(members), next_cursor=next_cursor)
-
-    except Exception as e:
-        logger.error(f"Error listing workspace members: {str(e)}")
-        raise ToolError(str(e))
+        logger.debug(f"Found {len(members)} members")
+        return ListUsersResult(members=members, total_count=len(members), next_cursor=next_cursor)
