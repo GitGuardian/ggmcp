@@ -1,0 +1,68 @@
+suite: test ingress
+templates:
+  - ingress.yaml
+tests:
+  - it: should not create ingress by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create ingress when enabled
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: mcp-server.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-gitguardian-secops-mcp-server
+      - equal:
+          path: spec.rules[0].host
+          value: mcp-server.example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+
+  - it: should support ingress annotations
+    set:
+      ingress.enabled: true
+      ingress.annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      ingress.hosts:
+        - host: mcp-server.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: metadata.annotations.cert-manager\.io/cluster-issuer
+          value: letsencrypt-prod
+      - equal:
+          path: metadata.annotations.nginx\.ingress\.kubernetes\.io/ssl-redirect
+          value: "true"
+
+  - it: should support TLS configuration
+    set:
+      ingress.enabled: true
+      ingress.tls:
+        - secretName: mcp-server-tls
+          hosts:
+            - mcp-server.example.com
+      ingress.hosts:
+        - host: mcp-server.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.tls[0].secretName
+          value: mcp-server-tls
+      - equal:
+          path: spec.tls[0].hosts[0]
+          value: mcp-server.example.com

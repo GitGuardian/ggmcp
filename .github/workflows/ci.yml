@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint with Ruff
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run ruff check
+        run: uv run ruff check .
+
+      - name: Run ruff format check
+        run: uv run ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run tests
+        run: uv run pytest tests/
+
+  helm-validate:
+    runs-on: ubuntu-latest
+    name: Validate Helm Chart
+    if: contains(github.event.pull_request.files.*.path, 'helm/') || github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: Validate default values
+        run: |
+          echo "Validating helm/mcp-server/values.yaml..."
+          helm template mcp-server ./helm/mcp-server \
+            --values ./helm/mcp-server/values.yaml
+
+      - name: Validate production values
+        run: |
+          echo "Validating helm/mcp-server/examples/values-production.yaml..."
+          helm template mcp-server ./helm/mcp-server \
+            --values ./helm/mcp-server/examples/values-production.yaml
+
+      - name: Validate secops values
+        run: |
+          echo "Validating helm/mcp-server/examples/values-secops.yaml..."
+          helm template mcp-server ./helm/mcp-server \
+            --values ./helm/mcp-server/examples/values-secops.yaml
+
+      - name: Lint Helm Chart
+        run: |
+          echo "Linting Helm chart..."
+          helm lint ./helm/mcp-server \
+            --strict
+
+  helm-unittest:
+    runs-on: ubuntu-latest
+    name: Run Helm Unit Tests
+    if: contains(github.event.pull_request.files.*.path, 'helm/') || github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: Install Helm Unittest Plugin
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git
+
+      - name: Run Helm unit tests
+        run: |
+          echo "Running Helm unit tests..."
+          helm unittest ./helm/mcp-server
+
+  docker-build:
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
