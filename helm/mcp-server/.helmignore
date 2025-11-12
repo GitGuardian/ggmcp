@@ -26,6 +26,3 @@
 .github/
 *.test
 *.md
-!Chart.yaml
-!values.yaml
-!README.md

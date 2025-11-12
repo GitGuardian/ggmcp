@@ -10,9 +10,9 @@ keywords:
   - security
   - secrets-detection
   - secops
-home: https://github.com/GitGuardian/gg-mcp
+home: https://github.com/GitGuardian/ggmcp
 sources:
-  - https://github.com/GitGuardian/gg-mcp
+  - https://github.com/GitGuardian/ggmcp
 maintainers:
   - name: GitGuardian
     email: support@gitguardian.com

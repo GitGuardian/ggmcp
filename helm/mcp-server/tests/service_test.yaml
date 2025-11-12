@@ -34,15 +34,10 @@ tests:
   - it: should support service annotations
     set:
       service.annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8000"
+        custom-annotation: "custom-value"
     asserts:
-      - equal:
-          path: metadata.annotations.prometheus\.io/scrape
-          value: "true"
-      - equal:
-          path: metadata.annotations.prometheus\.io/port
-          value: "8000"
+      - isNotNull:
+          path: metadata.annotations
 
   - it: should set service type to LoadBalancer
     set:

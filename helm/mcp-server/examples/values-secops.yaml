@@ -5,9 +5,6 @@
 gitguardian:
   url: "https://dashboard.gitguardian.com"
 
-  # SecOps typically requires additional scopes
-  scopes: "scan,incidents:read,incidents:write,sources:read,honeytokens:read,honeytokens:write"
-
 service:
   type: ClusterIP
   port: 8000
