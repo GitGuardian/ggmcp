@@ -73,10 +73,10 @@ tests:
   - it: should have security context
     asserts:
       - equal:
-          path: spec.template.spec.podSecurityContext.runAsUser
+          path: spec.template.spec.securityContext.runAsUser
           value: 1000
       - equal:
-          path: spec.template.spec.podSecurityContext.runAsNonRoot
+          path: spec.template.spec.securityContext.runAsNonRoot
           value: true
       - equal:
           path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation

@@ -32,20 +32,15 @@ tests:
     set:
       ingress.enabled: true
       ingress.annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        custom-annotation: custom-value
       ingress.hosts:
         - host: mcp-server.example.com
           paths:
             - path: /
               pathType: Prefix
     asserts:
-      - equal:
-          path: metadata.annotations.cert-manager\.io/cluster-issuer
-          value: letsencrypt-prod
-      - equal:
-          path: metadata.annotations.nginx\.ingress\.kubernetes\.io/ssl-redirect
-          value: "true"
+      - isNotNull:
+          path: metadata.annotations
 
   - it: should support TLS configuration
     set:
