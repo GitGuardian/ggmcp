@@ -7,6 +7,7 @@ from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.scopes import set_developer_scopes
 from gg_api_core.sentry_integration import init_sentry
 
+from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools
 
 # Configure more detailed logging
@@ -23,6 +24,8 @@ mcp = get_mcp_server(
 logger.info("Created Developer GitGuardianFastMCP instance")
 
 register_developer_tools(mcp)
+add_health_check(mcp)
+
 
 set_developer_scopes()
 

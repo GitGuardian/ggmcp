@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Any, Literal
 
+from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
 from gg_api_core.mcp_server import get_mcp_server
@@ -120,6 +121,7 @@ mcp = get_mcp_server(
 logger.debug("Created SecOps GitGuardianFastMCP instance")
 
 register_developer_tools(mcp)
+add_health_check(mcp)
 
 
 @mcp.tool(
