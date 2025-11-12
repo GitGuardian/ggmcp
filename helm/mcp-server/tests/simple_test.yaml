@@ -1,0 +1,8 @@
+suite: test simple
+templates:
+  - deployment.yaml
+tests:
+  - it: should render
+    asserts:
+      - isKind:
+          of: Deployment
