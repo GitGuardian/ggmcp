@@ -9,54 +9,10 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: secops-mcp-server
+  IMAGE_NAME: mcp-server
   REGISTRY: ghcr.io
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    name: Detect Changes
-    outputs:
-      chart-changed: ${{ steps.detect.outputs.chart-changed }}
-      version-bump: ${{ steps.detect.outputs.version-bump }}
-      release-type: ${{ steps.detect.outputs.release-type }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Detect changes
-        id: detect
-        run: |
-          # Check if chart files have changed
-          if git diff HEAD~1 HEAD --name-only | grep -q "^helm/"; then
-            echo "chart-changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "chart-changed=false" >> $GITHUB_OUTPUT
-          fi
-
-          # Determine release type based on commit message or tag
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "release-type=tag" >> $GITHUB_OUTPUT
-            TAG="${{ github.ref_name }}"
-            if [[ $TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-              echo "version-bump=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
-            fi
-          else
-            # Check commit message for semver directives
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            if echo "$COMMIT_MSG" | grep -qi "BREAKING\|major"; then
-              echo "release-type=major" >> $GITHUB_OUTPUT
-            elif echo "$COMMIT_MSG" | grep -qi "feat\|minor"; then
-              echo "release-type=minor" >> $GITHUB_OUTPUT
-            elif echo "$COMMIT_MSG" | grep -qi "fix\|patch"; then
-              echo "release-type=patch" >> $GITHUB_OUTPUT
-            else
-              echo "release-type=patch" >> $GITHUB_OUTPUT
-            fi
-          fi
-
   build-and-push-docker:
     runs-on: ubuntu-latest
     name: Build and Push Docker Image
@@ -108,11 +64,7 @@ jobs:
   publish-helm-chart:
     runs-on: ubuntu-latest
     name: Publish Helm Chart
-    needs: [detect-changes, build-and-push-docker]
-    if: |
-      always() &&
-      (github.event_name == 'push' && (github.ref_type == 'tag' || github.ref == 'refs/heads/main')) &&
-      (needs.detect-changes.outputs.chart-changed == 'true' || github.ref_type == 'tag')
+    needs: [ build-and-push-docker ]
     permissions:
       contents: read
       packages: write
@@ -168,14 +120,14 @@ jobs:
           CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
           echo "## ✅ Helm Chart Released" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Chart: gitguardian-secops-mcp-server" >> $GITHUB_STEP_SUMMARY
+          echo "Chart: mcp-server" >> $GITHUB_STEP_SUMMARY
           echo "Version: ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Published to: \`oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install with:" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "helm pull oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts/gitguardian-secops-mcp-server --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "helm pull oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts/mcp-server --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   publish-to-pypi:
@@ -235,7 +187,7 @@ jobs:
   publish-to-mcp-registry:
     runs-on: ubuntu-latest
     name: Publish to MCP Registry
-    needs: [publish-to-pypi]
+    needs: [ publish-to-pypi ]
     if: |
       false &&
       always() &&
@@ -302,7 +254,7 @@ jobs:
   create-github-release:
     runs-on: ubuntu-latest
     name: Create GitHub Release
-    needs: [publish-helm-chart, publish-to-pypi]
+    needs: [ publish-helm-chart, publish-to-pypi ]
     if: |
       always() &&
       github.event_name == 'push' &&

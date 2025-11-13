@@ -59,7 +59,7 @@ jobs:
   helm-validate:
     runs-on: ubuntu-latest
     name: Validate Helm Chart
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
   helm-unittest:
     runs-on: ubuntu-latest
     name: Run Helm Unit Tests
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
@@ -108,7 +108,7 @@ jobs:
 
       - name: Install Helm Unittest Plugin
         run: |
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false
 
       - name: Run Helm unit tests
         run: |
@@ -118,7 +118,6 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     name: Build Docker Image
-    if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout repository
