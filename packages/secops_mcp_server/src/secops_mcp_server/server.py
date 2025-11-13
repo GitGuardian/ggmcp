@@ -142,6 +142,7 @@ async def get_current_token_info() -> dict[str, Any]:
 
     try:
         result = await client.get_current_token_info()
+        assert isinstance(result, dict)
         logger.debug(f"Retrieved token info for token ID: {result.get('id')}")
         return result
     except Exception as e:
