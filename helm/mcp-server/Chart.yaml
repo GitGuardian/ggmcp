@@ -1,6 +1,6 @@
 apiVersion: v2
-name: gitguardian-secops-mcp-server
-description: A Helm chart for GitGuardian SecOps MCP Server in HTTP mode
+name: mcp-server
+description: A Helm chart for GitGuardian MCP Server in HTTP mode
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
@@ -9,7 +9,6 @@ keywords:
   - mcp
   - security
   - secrets-detection
-  - secops
 home: https://github.com/GitGuardian/ggmcp
 sources:
   - https://github.com/GitGuardian/ggmcp

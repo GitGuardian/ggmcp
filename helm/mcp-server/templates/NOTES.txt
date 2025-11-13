@@ -1,6 +1,6 @@
 Thank you for installing {{ .Chart.Name }}!
 
-Your GitGuardian SecOps MCP Server has been deployed.
+Your GitGuardian MCP Server has been deployed.
 
 1. Get the application URL:
 {{- if .Values.ingress.enabled }}
