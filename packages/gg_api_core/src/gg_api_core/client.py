@@ -560,7 +560,7 @@ class GitGuardianClient:
         logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
         return cursor_decoded
 
-    async def paginate_all(self, endpoint: str, params: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+    async def paginate_all(self, endpoint: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]] | dict[str, Any]:
         """Fetch all pages of results using cursor-based pagination.
 
         Args:

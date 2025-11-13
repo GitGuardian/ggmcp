@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel, Field
 
@@ -37,7 +37,7 @@ DEFAULT_VALIDITIES = [
 
 def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
     """Build a dictionary describing the filters applied to the query."""
-    filters = {}
+    filters: dict[str, Any] = {}
 
     # Include all active filters
     if params.from_date:
@@ -118,19 +118,19 @@ class ListIncidentsParams(BaseModel):
     )
     presence: str | None = Field(default=None, description="Filter by presence status")
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
-    exclude_tags: list[str] | None = Field(
-        default=DEFAULT_EXCLUDED_TAGS, description="Exclude incidents with these tag names."
+    exclude_tags: list[str | TagNames] | None = Field(
+        default=cast(list[str | TagNames], DEFAULT_EXCLUDED_TAGS), description="Exclude incidents with these tag names."
     )
-    status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
+    status: list[str | IncidentStatus] | None = Field(default=cast(list[str | IncidentStatus], DEFAULT_STATUSES), description="Filter by status (list of status names)")
     mine: bool = Field(
         default=False,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     )
-    severity: list[str] | None = Field(
-        default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
+    severity: list[str | IncidentSeverity] | None = Field(
+        default=cast(list[str | IncidentSeverity], DEFAULT_SEVERITIES), description="Filter by severity (list of severity names)"
     )
-    validity: list[str] | None = Field(
-        default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
+    validity: list[str | IncidentValidity] | None = Field(
+        default=cast(list[str | IncidentValidity], DEFAULT_VALIDITIES), description="Filter by validity (list of validity names)"
     )
 
 
@@ -179,11 +179,14 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
     # Use the new direct approach using the GitGuardian Sources API
     try:
         # If source_id or repository_name is provided, use them to filter by source_id
-        api_params = {}
+        api_params: dict[str, Any] = {}
         if params.source_id:
             api_params["source_id"] = params.source_id
         elif params.repository_name:
             result = await find_current_source_id(params.repository_name)
+            if hasattr(result, "error"):
+                # Handle error case from find_current_source_id
+                return ListIncidentsError(error=result.error)
             api_params["source_id"] = result.source_id
 
         if params.mine:
