@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   lint:
@@ -59,7 +59,7 @@ jobs:
   helm-validate:
     runs-on: ubuntu-latest
     name: Validate Helm Chart
-    if: contains(github.event.pull_request.files.*.path, 'helm/') || github.event_name == 'push'
+    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
   helm-unittest:
     runs-on: ubuntu-latest
     name: Run Helm Unit Tests
-    if: contains(github.event.pull_request.files.*.path, 'helm/') || github.event_name == 'push'
+    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v4
