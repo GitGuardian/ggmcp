@@ -109,25 +109,27 @@ jobs:
             -p ${{ secrets.GITHUB_TOKEN }}
 
           CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
+          REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
 
           helm push "${{ steps.package.outputs.chart-path }}" \
-            oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts
+            oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts
 
-          echo "✅ Chart published to: ${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts:${CHART_VERSION}"
+          echo "✅ Chart published to: ${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts:${CHART_VERSION}"
 
       - name: Create summary
         run: |
           CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
+          REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
           echo "## ✅ Helm Chart Released" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Chart: mcp-server" >> $GITHUB_STEP_SUMMARY
           echo "Version: ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Published to: \`oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts\`" >> $GITHUB_STEP_SUMMARY
+          echo "Published to: \`oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Install with:" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "helm pull oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/helm-charts/mcp-server --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "helm pull oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts/mcp-server --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   publish-to-pypi:

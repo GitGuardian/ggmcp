@@ -8,7 +8,7 @@ tests:
           of: Service
       - equal:
           path: metadata.name
-          value: RELEASE-NAME-gitguardian-secops-mcp-server
+          value: RELEASE-NAME-mcp-server
       - equal:
           path: spec.type
           value: ClusterIP

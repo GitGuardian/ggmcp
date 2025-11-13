@@ -27,7 +27,7 @@ nameOverride: ""
 # Override the full name of the resources
 fullnameOverride: ""
 
-# This chart deploys the SecOps MCP Server only
+# This chart deploys the MCP Server
 
 # MCP Server configuration
 mcp:

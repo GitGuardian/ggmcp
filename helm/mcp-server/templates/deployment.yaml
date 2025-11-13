@@ -38,13 +38,13 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- if .Values.image.useDockerImage }}
         command:
-          - "secops-mcp-server"
+          - "developer-mcp-server"
         {{- else }}
         command:
           - "uvx"
           - "--from"
           - "git+https://github.com/GitGuardian/gg-mcp.git"
-          - "secops-mcp-server"
+          - "developer-mcp-server"
         {{- end }}
         ports:
         - name: http

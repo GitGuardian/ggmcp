@@ -1,4 +1,4 @@
-# Production configuration example for GitGuardian SecOps MCP Server
+# Production configuration example for GitGuardian MCP Server
 # This example shows a production-ready setup with ingress, TLS, and autoscaling
 # Authentication is done per-request via Authorization header
 
