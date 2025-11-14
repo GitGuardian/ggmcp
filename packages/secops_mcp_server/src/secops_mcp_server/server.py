@@ -7,7 +7,7 @@ from typing import Any, Literal
 from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
-from gg_api_core.mcp_server import get_mcp_server
+from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.tools.assign_incident import assign_incident
@@ -206,16 +206,7 @@ mcp.tool(
     required_scopes=["incidents:write"],
 )
 
-# Register common tools for user information and token management
-try:
-    from gg_api_core.mcp_server import register_common_tools
-
-    register_common_tools(mcp)
-except Exception as e:
-    logger.error(f"Failed to register common tools: {str(e)}")
-    import traceback
-
-    logger.error(f"Traceback: {traceback.format_exc()}")
+register_common_tools(mcp)
 
 
 def run_mcp_server():
@@ -242,6 +233,11 @@ def run_mcp_server():
         # Use default stdio transport
         logger.info("Starting MCP server with stdio transport (default)")
         mcp.run()
+
+
+# Entrypoint for the Docker container and Kubernetes deployment
+def run_mcp_server_over_http():
+    run_mcp_server()
 
 
 if __name__ == "__main__":

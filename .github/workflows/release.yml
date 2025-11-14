@@ -60,77 +60,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
-
-  publish-helm-chart:
-    runs-on: ubuntu-latest
-    name: Publish Helm Chart
-    needs: [ build-and-push-docker ]
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: latest
-
-      - name: Update Chart.yaml with image info
-        if: github.event_name == 'push' && github.ref_type == 'tag'
-        run: |
-          TAG="${{ github.ref_name }}"
-          # Update appVersion in Chart.yaml
-          sed -i "s/appVersion:.*/appVersion: \"${TAG#v}\"/" ./helm/mcp-server/Chart.yaml
-          sed -i "s/version:.*/version: \"${TAG#v}\"/" ./helm/mcp-server/Chart.yaml
-          echo "Updated Chart.yaml with version ${TAG#v}"
-          cat ./helm/mcp-server/Chart.yaml
-
-      - name: Validate Helm Chart
-        run: |
-          helm lint ./helm/mcp-server --strict
-          helm template mcp-server ./helm/mcp-server --values ./helm/mcp-server/values.yaml
-
-      - name: Package Helm Chart
-        id: package
-        run: |
-          helm package ./helm/mcp-server --destination /tmp/helm-charts
-          CHART_FILE=$(ls /tmp/helm-charts/*.tgz | head -1)
-          echo "chart-file=$(basename $CHART_FILE)" >> $GITHUB_OUTPUT
-          echo "chart-path=$CHART_FILE" >> $GITHUB_OUTPUT
-          echo "Chart packaged: $(basename $CHART_FILE)"
-
-      - name: Push Helm Chart to OCI Registry
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ${{ env.REGISTRY }} \
-            -u ${{ github.actor }} \
-            --password-stdin
-
-          CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
-          REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
-
-          helm push "${{ steps.package.outputs.chart-path }}" \
-            oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts
-
-          echo "✅ Chart published to: ${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts:${CHART_VERSION}"
-
-      - name: Create summary
-        run: |
-          CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
-          REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
-          echo "## ✅ Helm Chart Released" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Chart: mcp-server" >> $GITHUB_STEP_SUMMARY
-          echo "Version: ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Published to: \`oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Install with:" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "helm pull oci://${{ env.REGISTRY }}/${REPO_OWNER}/helm-charts/mcp-server --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          build-args: |
+            PYTHON_VERSION=3.13
 
   publish-to-pypi:
     runs-on: ubuntu-latest
@@ -256,12 +187,12 @@ jobs:
   create-github-release:
     runs-on: ubuntu-latest
     name: Create GitHub Release
-    needs: [ publish-helm-chart, publish-to-pypi ]
+    needs: [ build-and-push-docker, publish-to-pypi ]
     if: |
       always() &&
       github.event_name == 'push' &&
       github.ref_type == 'tag' &&
-      (needs.publish-helm-chart.result == 'success' || needs.publish-helm-chart.result == 'skipped') &&
+      (needs.build-and-push-docker.result == 'success' || needs.build-and-push-docker.result == 'skipped') &&
       (needs.publish-to-pypi.result == 'success' || needs.publish-to-pypi.result == 'skipped')
     permissions:
       contents: write

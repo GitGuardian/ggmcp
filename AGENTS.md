@@ -121,3 +121,24 @@ simple loop counter.
 
 - Use typing for function signatures and return values
 - Don't use `from typing import List` but rather `list`
+
+## MCP Tool Definition Guidelines
+
+1. **Methods must be async**
+    - All tool methods should be defined as async functions
+    - Use `async def` for all tool definitions
+    - Use appropriate async libraries and patterns (e.g., httpx.AsyncClient instead of requests)
+
+2. **Include descriptive docstrings**
+    - Each tool must have a clear, descriptive docstring
+    - Docstrings should explain what the tool does and describe parameters
+
+## Common Mistakes to Avoid
+
+1. **Don't use synchronous functions**
+    - Incorrect: `def my_tool():`
+    - Correct: `async def my_tool():`
+
+2. **Don't use blocking HTTP libraries**
+    - Incorrect: `requests.get(...)`
+    - Correct: `async with httpx.AsyncClient() as client: await client.get(...)`

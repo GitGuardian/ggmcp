@@ -13,8 +13,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 WORKDIR /app
 
 # Copy project files needed for building
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock README.md ./
 COPY packages ./packages
+COPY src ./src
 
 # Build wheels for all workspace packages
 # This creates distributable .whl files that can be installed anywhere
@@ -34,8 +35,9 @@ RUN apt-get update && \
 # Copy uv from builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Create non-root user
-RUN useradd -m -u 1000 -s /bin/bash mcpserver
+# Create non-root user with UID 65532 (consistent with ward-runs-app)
+RUN groupadd -g 65532 nonroot && \
+    useradd -u 65532 -g nonroot -m -s /bin/bash nonroot
 
 # Set working directory
 WORKDIR /app
@@ -43,13 +45,22 @@ WORKDIR /app
 # Copy built wheels from builder stage
 COPY --from=builder /dist/*.whl /tmp/wheels/
 
+# Copy root package files (for entry point installation)
+COPY --chown=65532:65532 pyproject.toml uv.lock README.md ./
+COPY --chown=65532:65532 packages ./packages
+COPY --chown=65532:65532 src ./src
+
 # Install all packages from wheels
 # Using --system to install globally (not in a venv) since this is a container
 RUN uv pip install --system /tmp/wheels/*.whl && \
     rm -rf /tmp/wheels
 
-# Switch to non-root user
-USER mcpserver
+# Install root package to get entry points (http-mcp-server, etc.)
+# This is a metadata-only package that provides entry point scripts
+RUN uv pip install --system --no-deps .
+
+# Use numeric ID of nonroot, so that security check acknowledges it's not root
+USER 65532
 
 # Expose MCP server port
 EXPOSE 8000
@@ -64,5 +75,5 @@ ENV PYTHONUNBUFFERED=1 \
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8000/health', timeout=5.0)" || exit 1
 
-# Default to secops server, can be overridden
-CMD ["secops-mcp-server"]
+# Empty entrypoint - command is specified in Kubernetes deployment
+ENTRYPOINT [""]
