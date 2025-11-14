@@ -104,9 +104,9 @@ jobs:
 
       - name: Push Helm Chart to OCI Registry
         run: |
-          helm registry login ${{ env.REGISTRY }} \
+          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ${{ env.REGISTRY }} \
             -u ${{ github.actor }} \
-            -p ${{ secrets.GITHUB_TOKEN }}
+            --password-stdin
 
           CHART_VERSION=$(grep "^version:" ./helm/mcp-server/Chart.yaml | cut -d' ' -f2 | tr -d '"')
           REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
