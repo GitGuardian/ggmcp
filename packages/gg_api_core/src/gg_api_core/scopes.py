@@ -47,7 +47,7 @@ ALL_READ_SCOPES = [
 ]
 
 
-def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
+def get_developer_scopes(gitguardian_url: str | None = None) -> list[str]:
     """
     Get developer scopes appropriate for the GitGuardian instance type.
 
@@ -67,7 +67,7 @@ def get_developer_scopes(gitguardian_url: str = None) -> list[str]:
         ]
 
 
-def get_secops_scopes(gitguardian_url: str = None) -> list[str]:
+def get_secops_scopes(gitguardian_url: str | None = None) -> list[str]:
     """
     Get SecOps scopes appropriate for the GitGuardian instance type.
 

@@ -74,21 +74,37 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
             logger.warning(f"Failed to get current user info for 'mine' filter: {str(e)}")
 
     # Build filters dictionary with parameters supported by the client API
-    filters = {
-        "status": params.status,
-        "search": params.search,
-        "ordering": params.ordering,
-        "show_token": params.show_token,
-        "creator_id": creator_id,
-        "creator_api_token_id": params.creator_api_token_id,
-        "per_page": params.per_page,
-        "get_all": params.get_all,
-    }
+    filters: dict[str, Any] = {}
+    if params.status is not None:
+        filters["status"] = params.status
+    if params.search is not None:
+        filters["search"] = params.search
+    if params.ordering is not None:
+        filters["ordering"] = params.ordering
+    if params.show_token is not None:
+        filters["show_token"] = params.show_token
+    if creator_id is not None:
+        filters["creator_id"] = creator_id
+    if params.creator_api_token_id is not None:
+        filters["creator_api_token_id"] = params.creator_api_token_id
+    if params.per_page is not None:
+        filters["per_page"] = params.per_page
+    if params.get_all is not None:
+        filters["get_all"] = params.get_all
 
     logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
 
     try:
-        result = await client.list_honeytokens(**filters)
+        result = await client.list_honeytokens(
+            status=params.status,
+            search=params.search,
+            ordering=params.ordering,
+            show_token=params.show_token,
+            creator_id=creator_id,
+            creator_api_token_id=params.creator_api_token_id,
+            per_page=params.per_page,
+            get_all=params.get_all,
+        )
 
         # Handle both response formats: either a dict with 'honeytokens' key or a list directly
         if isinstance(result, dict):

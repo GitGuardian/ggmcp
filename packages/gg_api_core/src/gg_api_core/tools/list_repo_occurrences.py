@@ -45,15 +45,15 @@ class ListRepoOccurrencesFilters(BaseModel):
     )
     presence: str | None = Field(default=None, description="Filter by presence status")
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
-    exclude_tags: list[str] | None = Field(
+    exclude_tags: list[TagNames | str] | None = Field(
         default=DEFAULT_EXCLUDED_TAGS,
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
     )
-    status: list[str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
-    severity: list[str] | None = Field(
+    status: list[IncidentStatus | str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
+    severity: list[IncidentSeverity | str] | None = Field(
         default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
     )
-    validity: list[str] | None = Field(
+    validity: list[IncidentValidity | str] | None = Field(
         default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
     )
 
@@ -106,7 +106,7 @@ class ListRepoOccurrencesError(BaseModel):
 
 def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     """Build a dictionary describing the filters applied to the query."""
-    filters = {}
+    filters: dict[str, Any] = {}
 
     # Include all active filters
     if params.from_date:
@@ -223,6 +223,8 @@ async def list_repo_occurrences(
             )
         else:
             # Use source_name (legacy path)
+            if not params.repository_name:
+                return ListRepoOccurrencesError(error="repository_name is required when source_id is not provided")
             source_name = params.repository_name.strip()
             result = await client.list_occurrences(
                 source_name=source_name,

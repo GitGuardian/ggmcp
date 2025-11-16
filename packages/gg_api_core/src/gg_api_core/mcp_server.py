@@ -87,7 +87,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
     Subclasses implement authentication-specific behavior.
     """
 
-    def __init__(self, *args, default_scopes: list[str] = None, **kwargs):
+    def __init__(self, *args, default_scopes: list[str] | None = None, **kwargs):
         """
         Initialize the GitGuardian MCP server.
         """
@@ -124,7 +124,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             logger.error(f"Error revoking current API token: {str(e)}")
             raise
 
-    def tool(self, *args, required_scopes: list[str] = None, **kwargs):
+    def tool(self, *args, required_scopes: list[str] | None = None, **kwargs):
         """
         Extended tool decorator that tracks required scopes.
 

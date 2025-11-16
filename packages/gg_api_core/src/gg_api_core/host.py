@@ -13,7 +13,7 @@ SAAS_HOSTNAMES = [
 LOCAL_HOSTNAMES = ["localhost", "127.0.0.1", "localhost:3000", "127.0.0.1:3000"]
 
 
-def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
+def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
     """
     Determine if we're connecting to a self-hosted GitGuardian instance.
 
@@ -35,7 +35,7 @@ def is_self_hosted_instance(gitguardian_url: str = None) -> bool:
         return True
 
 
-def is_local_instance(gitguardian_url: str = None) -> bool:
+def is_local_instance(gitguardian_url: str | None = None) -> bool:
     if not gitguardian_url:
         return False
 

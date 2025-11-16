@@ -1,4 +1,6 @@
 import logging
+from typing import Any
+from typing_extensions import cast
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
@@ -97,14 +99,14 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
 
             # Handle response format
             if isinstance(result, dict):
-                members = result.get("results", result.get("data", []))
+                members = cast(list[dict[str, Any]], result.get("results", result.get("data", [])))
             elif isinstance(result, list):
                 members = result
             else:
                 raise ToolError(f"Unexpected response format when searching for member: {type(result).__name__}")
 
             # Find exact email match
-            matching_member = None
+            matching_member: dict[str, Any] | None = None
             for member in members:
                 if member.get("email", "").lower() == params.email.lower():
                     matching_member = member

@@ -259,7 +259,7 @@ def parse_repo_url(remote_url: str) -> str | None:
 
 
 # Initialize GitGuardian client
-def get_gitguardian_client(server_name: str = None, personal_access_token: str | None = None) -> GitGuardianClient:
+def get_gitguardian_client(server_name: str | None = None, personal_access_token: str | None = None) -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
     Uses OAuth authentication flow by default, or a provided Personal Access Token.
@@ -275,7 +275,7 @@ def get_gitguardian_client(server_name: str = None, personal_access_token: str |
     try:
         # Store server_name as an attribute after initialization since it's not in the constructor anymore
         client = GitGuardianClient(personal_access_token=personal_access_token)
-        client.server_name = server_name
+        client.server_name = server_name  # type: ignore[attr-defined]
         return client
     except Exception as e:
         logger.exception(f"Failed to initialize GitGuardian client: {str(e)}")

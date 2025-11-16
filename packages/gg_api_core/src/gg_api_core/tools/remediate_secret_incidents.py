@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 from gg_api_core.client import TagNames
 from gg_api_core.utils import get_client
 
-from .list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
+from .list_repo_occurrences import ListRepoOccurrencesError, ListRepoOccurrencesParams, list_repo_occurrences
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +106,11 @@ async def remediate_secret_incidents(
 
     try:
         # Use the list_repo_occurrences_params and update with parent-level repository info
+        if params.list_repo_occurrences_params is None:
+            return RemediateSecretIncidentsError(
+                error="list_repo_occurrences_params is required", sub_tools_results={}
+            )
+        
         occurrences_params = params.list_repo_occurrences_params.model_copy(
             update={
                 "repository_name": params.repository_name or params.list_repo_occurrences_params.repository_name,
@@ -115,7 +120,7 @@ async def remediate_secret_incidents(
         )
 
         occurrences_result = await list_repo_occurrences(occurrences_params)
-        if hasattr(occurrences_result, "error") and occurrences_result.error:
+        if isinstance(occurrences_result, ListRepoOccurrencesError):
             return RemediateSecretIncidentsError(
                 error=occurrences_result.error, sub_tools_results={"list_repo_occurrences": occurrences_result}
             )
