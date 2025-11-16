@@ -4,7 +4,7 @@ import logging
 import os
 import re
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast, overload
 from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
@@ -103,7 +103,8 @@ class GitGuardianClient:
         self._init_urls(gitguardian_url)
         self._init_personal_access_token(personal_access_token)
 
-        self._token_info = None
+        self._token_info: Any | None = None
+        self._oauth_token: str | None = None
 
     def _init_urls(self, gitguardian_url: str | None = None):
         # Use provided raw URL or get from environment with default fallback
@@ -365,6 +366,18 @@ class GitGuardianClient:
         # Force new OAuth flow on next request
         await self._ensure_api_token()
 
+    @overload
+    async def _request(
+        self, method: str, endpoint: str, return_headers: Literal[False] = False, **kwargs
+    ) -> Dict[str, Any]:
+        ...
+
+    @overload
+    async def _request(
+        self, method: str, endpoint: str, return_headers: Literal[True], **kwargs
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        ...
+
     async def _request(
         self, method: str, endpoint: str, return_headers: bool = False, **kwargs
     ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
@@ -454,12 +467,12 @@ class GitGuardianClient:
 
                 if response.status_code == 204:  # No content
                     logger.debug("Received 204 No Content response")
-                    return ({}, response.headers) if return_headers else {}
+                    return ({}, dict(response.headers)) if return_headers else {}
 
                 try:
                     if not response.content or response.content.strip() == b"":
                         logger.debug("Received empty response content")
-                        return ({}, response.headers) if return_headers else {}
+                        return ({}, dict(response.headers)) if return_headers else {}
 
                     data = response.json()
 
@@ -475,12 +488,12 @@ class GitGuardianClient:
                     # Handle empty array responses properly
                     if data == [] and return_headers:
                         logger.debug("Received empty array response")
-                        return ([], response.headers)
+                        return ([], dict(response.headers))
 
-                    return (data, response.headers) if return_headers else data
+                    return (data, dict(response.headers)) if return_headers else data
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to parse JSON response: {str(e)}")
-                    logger.error(f"Raw response content: {response.content}")
+                    logger.error(f"Raw response content: {response.content!r}")
                     raise
 
             except httpx.HTTPStatusError as e:
@@ -521,14 +534,13 @@ class GitGuardianClient:
                 logger.error(f"Failed URL: {url}")
                 raise
 
-            # If we got here with no exceptions, break out of the retry loop
+            # If we got here with no exceptions, break out of the retry loop (should have returned above)
             break
 
-        # If we exhausted all retries and still have issues
-        if retry_count > max_retries:
-            logger.error(f"Exhausted all {max_retries} retries for {url}")
+        # This should never be reached, but required for type checking
+        raise Exception(f"Request loop exited unexpectedly for {url}")
 
-    def _extract_next_cursor(self, headers: Dict[str, str]) -> Optional[str]:
+    def _extract_next_cursor(self, headers: Dict[str, Any]) -> Optional[str]:
         """Extract the next cursor from the Link header.
 
         Args:
@@ -847,16 +859,16 @@ class GitGuardianClient:
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Filter out any exceptions that occurred
-        incidents = []
+        incidents: list[dict[str, Any]] = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
                 logger.warning(f"Failed to fetch incident {incident_ids[i]}: {str(result)}")
-            else:
+            elif isinstance(result, dict):
                 incidents.append(result)
 
         return incidents
 
-    async def update_incident(self, incident_id: str, status: str = None, custom_tags: list = None) -> dict[str, Any]:
+    async def update_incident(self, incident_id: str, status: str | None = None, custom_tags: list | None = None) -> dict[str, Any]:
         """Update a secret incident.
 
         Args:
@@ -870,7 +882,7 @@ class GitGuardianClient:
         """
         logger.info(f"Updating incident {incident_id} with status={status}, custom_tags={custom_tags}")
 
-        payload = {}
+        payload: dict[str, Any] = {}
         if status:
             payload["status"] = status
         if custom_tags:
@@ -970,7 +982,7 @@ class GitGuardianClient:
         if self._token_info is not None:
             # Convert Pydantic model to dict if needed
             if hasattr(self._token_info, "model_dump"):
-                return self._token_info.model_dump()
+                return dict(self._token_info.model_dump())
             elif isinstance(self._token_info, dict):
                 return self._token_info
             else:
@@ -1053,7 +1065,7 @@ class GitGuardianClient:
         logger.info(f"Creating custom tag with key={key}, value={value}")
         return await self._request("POST", "/custom_tags", json={"key": key, "value": value})
 
-    async def update_custom_tag(self, tag_id: str, key: str = None, value: str = None) -> dict[str, Any]:
+    async def update_custom_tag(self, tag_id: str, key: str | None = None, value: str | None = None) -> dict[str, Any]:
         """Update a custom tag.
 
         Args:
@@ -1066,7 +1078,7 @@ class GitGuardianClient:
         """
         logger.info(f"Updating custom tag {tag_id} with key={key}, value={value}")
 
-        payload = {}
+        payload: dict[str, Any] = {}
         if key is not None:
             payload["key"] = key
         if value is not None:
@@ -1191,7 +1203,7 @@ class GitGuardianClient:
         logger.info(f"Removing share link for incident {incident_id}")
         return await self._request("POST", f"/incidents/secrets/{incident_id}/unshare")
 
-    async def grant_incident_access(self, incident_id: str, member_id: str = None) -> dict[str, Any]:
+    async def grant_incident_access(self, incident_id: str, member_id: str | None = None) -> dict[str, Any]:
         """Grant access to a secret incident to a member.
 
         Args:
@@ -1359,7 +1371,7 @@ class GitGuardianClient:
         logger.info("Listing secret occurrences with filters")
 
         # Build parameters
-        params = {}
+        params: dict[str, Any] = {}
         if from_date:
             params["from_date"] = from_date
         if to_date:
@@ -1510,7 +1522,7 @@ class GitGuardianClient:
 
     async def get_source_by_name(
         self, source_name: str, return_all_on_no_match: bool = False
-    ) -> dict[str, Any] | list[dict[str, Any]] | None:
+    ) -> list[dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
@@ -1533,31 +1545,23 @@ class GitGuardianClient:
 
         try:
             # Get sources matching the search term
-            response = await self._request("GET", "/sources", params=params)
+            sources_data = cast(list[dict[str, Any]], await self._request("GET", "/sources", params=params))
 
             # Extract sources from the response
-            if isinstance(response, dict) and "data" in response:
-                sources = response["data"]
-            else:
-                sources = response
-
-            if not sources:
-                logger.warning(f"No sources found matching search term: {source_name}")
-                return None
 
             # Try to find exact match by name
-            for source in sources:
+            for source in sources_data:
                 # Check for both the full name (org/repo) and just the repo name
                 if source.get("name") == source_name or source.get("full_name") == source_name:
                     logger.info(f"Found exact match - source ID {source.get('id')} for {source_name}")
                     return source
 
             # No exact match found
-            logger.info(f"No exact match found for '{source_name}'. Found {len(sources)} potential matches.")
+            logger.info(f"No exact match found for '{source_name}'. Found {len(sources_data)} potential matches.")
 
             if return_all_on_no_match:
-                logger.info(f"Returning all {len(sources)} candidates for manual selection")
-                return sources
+                logger.info(f"Returning all {len(sources_data)} candidates for manual selection")
+                return sources_data
             else:
                 logger.warning(f"No exact match found for: {source_name}")
                 return None

@@ -683,9 +683,10 @@ class GitGuardianOAuthClient:
             import httpx
 
             # Prepare headers with token name information
-            headers = {
+            # Note: self.token_name is always a string (set in __init__), so it's safe to cast
+            headers: dict[str, str] = {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "X-Token-Name": self.token_name,  # Custom header with token name
+                "X-Token-Name": str(self.token_name),  # Custom header with token name
                 "User-Agent": f"MCP-Server/{self.token_name}",  # Include in user agent
             }
 

@@ -97,7 +97,11 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
                 cwd=repository_path,
             )
             remote_url = result.stdout.strip()
-            repository_name = parse_repo_url(remote_url).split("/")[-1]
+            parsed_url = parse_repo_url(remote_url)
+            if parsed_url:
+                repository_name = parsed_url.split("/")[-1]
+            else:
+                repository_name = None
             detection_method = "git remote URL"
             logger.debug(f"Found remote URL: {remote_url}, parsed repository name: {repository_name}")
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
@@ -119,11 +123,11 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
         logger.info(f"Detected repository name: {repository_name} (method: {detection_method})")
 
         # Search for the source in GitGuardian with robust non-exact matching
-        result = await client.get_source_by_name(repository_name, return_all_on_no_match=True)
+        source_result: dict[str, Any] | list[dict[str, Any]] | None = await client.get_source_by_name(repository_name, return_all_on_no_match=True)
 
         # Handle exact match (single dict result)
-        if isinstance(result, dict):
-            source_id = result.get("id")
+        if isinstance(source_result, dict):
+            source_id: str | int | None = source_result.get("id")
             logger.info(f"Found exact match with source_id: {source_id}")
 
             message = f"Successfully found exact match for GitGuardian source: {repository_name}"
@@ -132,16 +136,16 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
 
             return FindCurrentSourceIdResult(
                 repository_name=repository_name,
-                source_id=source_id,
-                source=result,
+                source_id=source_id if source_id is not None else "",
+                source=source_result,
                 message=message,
             )
 
         # Handle multiple candidates (list result)
-        elif isinstance(result, list) and len(result) > 0:
-            logger.info(f"Found {len(result)} candidate sources for repository: {repository_name}")
+        elif isinstance(source_result, list) and len(source_result) > 0:
+            logger.info(f"Found {len(source_result)} candidate sources for repository: {repository_name}")
 
-            message = f"No exact match found for '{repository_name}', but found {len(result)} potential matches."
+            message = f"No exact match found for '{repository_name}', but found {len(source_result)} potential matches."
             if detection_method == "directory name":
                 message += f" (repository name inferred from {detection_method})"
 
@@ -151,13 +155,13 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
                 suggestion="Review the candidates below and determine which source best matches the current repository based on the name and URL.",
                 candidates=[
                     SourceCandidate(
-                        id=source.get("id"),
+                        id=source.get("id", -1),
                         url=source.get("url"),
                         name=source.get("full_name") or source.get("name"),
                         monitored=source.get("monitored"),
                         deleted_at=source.get("deleted_at"),
                     )
-                    for source in result
+                    for source in source_result
                 ],
             )
 
@@ -171,8 +175,8 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
 
                 # Handle fallback results
                 if isinstance(fallback_result, dict):
-                    source_id = fallback_result.get("id")
-                    logger.info(f"Found match using repo name only, source_id: {source_id}")
+                    fallback_source_id: str | int | None = fallback_result.get("id")
+                    logger.info(f"Found match using repo name only, source_id: {fallback_source_id}")
 
                     message = f"Found match using repository name '{repo_only}' (without organization prefix)"
                     if detection_method == "directory name":
@@ -180,7 +184,7 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
 
                     return FindCurrentSourceIdResult(
                         repository_name=repository_name,
-                        source_id=source_id,
+                        source_id=fallback_source_id if fallback_source_id is not None else "",
                         source=fallback_result,
                         message=message,
                     )
@@ -190,20 +194,20 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
                     message = f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'."
                     if detection_method == "directory name":
                         message += f" (repository name inferred from {detection_method})"
-
+                    
                     return FindCurrentSourceIdResult(
                         repository_name=repository_name,
                         message=message,
                         suggestion="Review the candidates below and determine which source best matches the current repository.",
                         candidates=[
                             SourceCandidate(
-                                id=source.get("id"),
+                                id=source.get("id", -1),
                                 url=source.get("url"),
                                 name=source.get("full_name") or source.get("name"),
                                 monitored=source.get("monitored"),
                                 deleted_at=source.get("deleted_at"),
                             )
-                            for source in fallback_result
+                            for source in fallback_result if source.get("id") is not None
                         ],
                     )
 

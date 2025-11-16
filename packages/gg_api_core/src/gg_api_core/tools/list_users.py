@@ -62,7 +62,7 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
     logger.debug("Listing workspace members")
 
     # Build query parameters
-    query_params = {}
+    query_params: dict[str, Any] = {}
 
     if params.cursor:
         query_params["cursor"] = params.cursor
@@ -83,23 +83,25 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
 
     if params.get_all:
         # Use paginate_all for fetching all results
-        members = await client.paginate_all("/members", query_params)
-        logger.debug(f"Retrieved all {len(members)} members using pagination")
-        return ListUsersResult(members=members, total_count=len(members), next_cursor=None)
+        members_raw = await client.paginate_all("/members", query_params)
+        members_list = members_raw if isinstance(members_raw, list) else []
+        logger.debug(f"Retrieved all {len(members_list)} members using pagination")
+        return ListUsersResult(members=members_list, total_count=len(members_list), next_cursor=None)
     else:
         # Single page request
         result, headers = await client.list_members(params=query_params)
 
         # Handle response format
+        members_list: list[dict[str, Any]]
         if isinstance(result, dict):
-            members = result.get("results", result.get("data", []))
+            members_list = result.get("results", result.get("data", []))
             next_cursor = client._extract_next_cursor(headers) if headers else None
         elif isinstance(result, list):
-            members = result
+            members_list = result
             next_cursor = None
         else:
             logger.error(f"Unexpected result type: {type(result)}")
             raise ToolError(f"Unexpected response format: {type(result).__name__}")
 
-        logger.debug(f"Found {len(members)} members")
-        return ListUsersResult(members=members, total_count=len(members), next_cursor=next_cursor)
+        logger.debug(f"Found {len(members_list)} members")
+        return ListUsersResult(members=members_list, total_count=len(members_list), next_cursor=next_cursor)
