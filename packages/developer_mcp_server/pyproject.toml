@@ -38,7 +38,7 @@ sentry = [
 
 
 [project.scripts]
-developer-mcp-server = "developer_mcp_server.server:run_mcp_server"
+developer-mcp-server = "developer_mcp_server.run:run_mcp_server"
 
 [build-system]
 requires = ["hatchling"]
