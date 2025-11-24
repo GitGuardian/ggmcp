@@ -9,6 +9,7 @@ For local development, use the run_http_with_uvicorn() function instead.
 
 import logging
 
+from fastmcp.server.http import create_sse_app
 from gg_api_core.sentry_integration import init_sentry
 
 from secops_mcp_server.server import mcp
@@ -18,8 +19,10 @@ logger = logging.getLogger(__name__)
 # Initialize Sentry for production deployment
 init_sentry()
 
-# Export the ASGI application
-# This will be used by gunicorn as: secops_mcp_server.sse_app:app
-app = mcp.sse_app()
+app = create_sse_app(
+    server=mcp,
+    message_path="/messages/",
+    sse_path="/sse",
+)
 
 logger.info("MCP SSE application initialized for HTTP/SSE transport")
