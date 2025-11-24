@@ -1,7 +1,6 @@
 """GitGuardian MCP server for SecOps teams with incident management tools."""
 
 import logging
-import os
 from typing import Any, Literal
 
 from developer_mcp_server.add_health_check import add_health_check
@@ -9,7 +8,6 @@ from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
-from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.list_users import list_users
@@ -118,7 +116,6 @@ mcp = get_mcp_server(
     log_level="DEBUG",
     instructions=SECOPS_INSTRUCTIONS,
 )
-logger.debug("Created SecOps GitGuardianFastMCP instance")
 
 register_developer_tools(mcp)
 add_health_check(mcp)
@@ -208,37 +205,4 @@ mcp.tool(
 
 register_common_tools(mcp)
 
-
-def run_mcp_server():
-    logger.info("Starting SecOps MCP server...")
-
-    # Initialize Sentry if configured (optional)
-    sentry_enabled = init_sentry()
-    if sentry_enabled:
-        logger.info("Sentry monitoring is enabled")
-    else:
-        logger.debug("Sentry monitoring is not configured")
-
-    # Check if HTTP/SSE transport is requested via environment variables
-    mcp_port = os.environ.get("MCP_PORT")
-    mcp_host = os.environ.get("MCP_HOST", "127.0.0.1")
-
-    if mcp_port:
-        # Use HTTP/SSE transport
-        import uvicorn
-
-        logger.info(f"Starting MCP server with HTTP/SSE transport on {mcp_host}:{mcp_port}")
-        uvicorn.run(mcp.sse_app(), host=mcp_host, port=int(mcp_port))
-    else:
-        # Use default stdio transport
-        logger.info("Starting MCP server with stdio transport (default)")
-        mcp.run()
-
-
-# Entrypoint for the Docker container and Kubernetes deployment
-def run_mcp_server_over_http():
-    run_mcp_server()
-
-
-if __name__ == "__main__":
-    run_mcp_server()
+logger.info("SecOps MCP server instance created and configured")
