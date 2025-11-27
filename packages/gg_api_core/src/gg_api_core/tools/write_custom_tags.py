@@ -28,11 +28,11 @@ class WriteCustomTagsParams(BaseModel):
 async def write_custom_tags(params: WriteCustomTagsParams):
     """
     Create or delete custom tags in the GitGuardian dashboard.
-    
+
     For creating tags, use the "key" or "key:value" format:
     - "env" creates a label without a value
     - "env:prod" creates a label with key="env" and value="prod"
-    
+
     For deleting tags:
     1. First call read_custom_tags to list all available tags and get their IDs
     2. Then call this function with action="delete_tag" and the specific tag_id
@@ -89,11 +89,11 @@ class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
 async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCustomTagsParams) -> dict[str, Any]:
     """
     Update a secret incident with custom tags, creating tags if they don't exist.
-    
+
     Custom tags can be in two formats:
     - "key" (creates a label without a value)
     - "key:value" (creates a label with a value)
-    
+
     Args:
         params: UpdateOrCreateIncidentCustomTagsParams model containing custom tags configuration
 
@@ -114,7 +114,7 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
                 # Tag is just a key with no value
                 key = tag
                 value = None
-            
+
             # Create the tag if it doesn't exist
             try:
                 await client.create_custom_tag(key, value)
@@ -122,10 +122,10 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
             except Exception as e:
                 # Tag might already exist, which is fine
                 logger.debug(f"Tag {key}={value} may already exist: {str(e)}")
-            
+
             # Add to parsed tags list in the format expected by update_incident
             parsed_tags.append({"key": key, "value": value})
-        
+
         # Update the incident with the custom tags
         result = await client.update_incident(
             incident_id=str(params.incident_id),

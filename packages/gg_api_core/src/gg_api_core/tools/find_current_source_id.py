@@ -123,7 +123,9 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
         logger.info(f"Detected repository name: {repository_name} (method: {detection_method})")
 
         # Search for the source in GitGuardian with robust non-exact matching
-        source_result: dict[str, Any] | list[dict[str, Any]] | None = await client.get_source_by_name(repository_name, return_all_on_no_match=True)
+        source_result: dict[str, Any] | list[dict[str, Any]] | None = await client.get_source_by_name(
+            repository_name, return_all_on_no_match=True
+        )
 
         # Handle exact match (single dict result)
         if isinstance(source_result, dict):
@@ -194,7 +196,7 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
                     message = f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'."
                     if detection_method == "directory name":
                         message += f" (repository name inferred from {detection_method})"
-                    
+
                     return FindCurrentSourceIdResult(
                         repository_name=repository_name,
                         message=message,
@@ -207,7 +209,8 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
                                 monitored=source.get("monitored"),
                                 deleted_at=source.get("deleted_at"),
                             )
-                            for source in fallback_result if source.get("id") is not None
+                            for source in fallback_result
+                            if source.get("id") is not None
                         ],
                     )
 

@@ -25,11 +25,11 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
     """Get the GitGuardian client instance.
 
     Authentication behavior depends on transport mode:
-    
+
     **stdio mode** (no MCP_PORT): Uses singleton pattern with cached client.
     - Token comes from: OAuth flow OR GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
     - Single identity for entire server lifetime
-    
+
     **HTTP mode** (MCP_PORT set): Per-request authentication.
     - Token MUST come from Authorization header in each request
     - Multi-tenant: different users can authenticate per-request
@@ -41,7 +41,7 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
 
     Returns:
         GitGuardianClient: Client instance configured with appropriate authentication
-        
+
     Raises:
         ValidationError: In HTTP mode, if Authorization header is missing/invalid
     """
@@ -59,7 +59,7 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
             logger.debug("Successfully extracted token from HTTP request headers")
         except ValidationError as e:
             logger.error(f"Failed to extract token from HTTP headers: {e}")
-            raise 
+            raise
 
     # If a PAT is provided (explicitly or from headers), create per-request client (no caching)
     if personal_access_token:
@@ -262,7 +262,9 @@ def parse_repo_url(remote_url: str) -> str | None:
 
 
 # Initialize GitGuardian client
-def get_gitguardian_client(server_name: str | None = None, personal_access_token: str | None = None) -> GitGuardianClient:
+def get_gitguardian_client(
+    server_name: str | None = None, personal_access_token: str | None = None
+) -> GitGuardianClient:
     """Get or initialize the GitGuardian client.
 
     Uses OAuth authentication flow by default, or a provided Personal Access Token.

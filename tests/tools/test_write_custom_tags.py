@@ -1,5 +1,3 @@
-import pytest
-
 from gg_api_core.tools.write_custom_tags import (
     UpdateOrCreateIncidentCustomTagsParams,
     WriteCustomTagsParams,
@@ -130,4 +128,3 @@ class TestUpdateOrCreateIncidentCustomTagsParams:
         """
         params = UpdateOrCreateIncidentCustomTagsParams(incident_id="123", custom_tags=["env:prod"])
         assert params.incident_id == "123"
-

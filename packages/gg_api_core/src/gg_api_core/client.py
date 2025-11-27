@@ -129,7 +129,7 @@ class GitGuardianClient:
 
     def _init_personal_access_token(self, personal_access_token: str | None = None):
         """Initialize authentication token based on transport mode.
-        
+
         Authentication architecture:
         - stdio mode: OAuth (interactive) OR PAT from env var (non-interactive)
         - HTTP mode: Per-request Authorization header ONLY (multi-tenant capable)
@@ -958,7 +958,9 @@ class GitGuardianClient:
 
         return incidents
 
-    async def update_incident(self, incident_id: str, status: str | None = None, custom_tags: list | None = None) -> dict[str, Any]:
+    async def update_incident(
+        self, incident_id: str, status: str | None = None, custom_tags: list | None = None
+    ) -> dict[str, Any]:
         """Update a secret incident.
 
         Args:
@@ -1392,9 +1394,7 @@ class GitGuardianClient:
             Updated note details
         """
         logger.info(f"Updating note {note_id} for incident {incident_id}")
-        return await self._request_patch(
-            f"/incidents/secrets/{incident_id}/notes/{note_id}", json={"content": content}
-        )
+        return await self._request_patch(f"/incidents/secrets/{incident_id}/notes/{note_id}", json={"content": content})
 
     async def delete_incident_note(self, incident_id: str, note_id: str) -> dict[str, Any]:
         """Delete a note from a secret incident.

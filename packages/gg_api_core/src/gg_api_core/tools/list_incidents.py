@@ -121,16 +121,21 @@ class ListIncidentsParams(BaseModel):
     exclude_tags: list[str | TagNames] | None = Field(
         default=cast(list[str | TagNames], DEFAULT_EXCLUDED_TAGS), description="Exclude incidents with these tag names."
     )
-    status: list[str | IncidentStatus] | None = Field(default=cast(list[str | IncidentStatus], DEFAULT_STATUSES), description="Filter by status (list of status names)")
+    status: list[str | IncidentStatus] | None = Field(
+        default=cast(list[str | IncidentStatus], DEFAULT_STATUSES),
+        description="Filter by status (list of status names)",
+    )
     mine: bool = Field(
         default=False,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     )
     severity: list[str | IncidentSeverity] | None = Field(
-        default=cast(list[str | IncidentSeverity], DEFAULT_SEVERITIES), description="Filter by severity (list of severity names)"
+        default=cast(list[str | IncidentSeverity], DEFAULT_SEVERITIES),
+        description="Filter by severity (list of severity names)",
     )
     validity: list[str | IncidentValidity] | None = Field(
-        default=cast(list[str | IncidentValidity], DEFAULT_VALIDITIES), description="Filter by validity (list of validity names)"
+        default=cast(list[str | IncidentValidity], DEFAULT_VALIDITIES),
+        description="Filter by validity (list of validity names)",
     )
 
 
@@ -220,7 +225,7 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
         response = await client.list_incidents(**api_params)
         incidents_data = response["data"]
         next_cursor = response["cursor"]
-        
+
         count = len(incidents_data)
         return ListIncidentsResult(
             source_id=params.source_id,

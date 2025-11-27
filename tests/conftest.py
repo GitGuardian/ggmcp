@@ -16,7 +16,7 @@ def mock_gitguardian_client():
             "name": "Test Token",
         }
     )
-    
+
     # Set dashboard_url for self-hosted detection - use SaaS by default for tests
     mock_client.dashboard_url = "https://dashboard.gitguardian.com"
 

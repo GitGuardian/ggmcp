@@ -51,7 +51,9 @@ class TestGitGuardianFastMCP:
         mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"scopes": test_scopes})
 
         # Use a SaaS URL instead of test/localhost URL
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true", "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"}):
+        with patch.dict(
+            os.environ, {"ENABLE_LOCAL_OAUTH": "true", "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"}
+        ):
             mcp = get_mcp_server("TestMCP")
 
             # Call the method - it now returns scopes instead of setting them
