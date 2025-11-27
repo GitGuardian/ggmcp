@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Any
@@ -10,10 +10,11 @@ from typing import Any
 from fastmcp import FastMCP
 from fastmcp.exceptions import FastMCPError, ValidationError
 from fastmcp.server.dependencies import get_http_headers
-from fastmcp.server.middleware import MiddlewareContext
+from fastmcp.server.middleware import Middleware
+from fastmcp.tools import Tool
 from mcp.types import Tool as MCPTool
 
-from gg_api_core.client import get_personal_access_token_from_env, is_oauth_enabled
+from gg_api_core.client import GitGuardianClient, get_personal_access_token_from_env, is_oauth_enabled
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -32,7 +33,11 @@ class AuthenticationMode(Enum):
 
 
 class CachedTokenInfoMixin:
-    """Mixin for MCP servers that are mono-tenant (only one authenticated identity from startup to close of the server)"""
+    """Mixin for MCP servers that are mono-tenant (only one authenticated identity from startup to close of the server)
+
+    Note: This mixin expects to be used with AbstractGitGuardianFastMCP which provides
+    _fetch_token_scopes_from_api() and _fetch_token_info_from_api() methods.
+    """
 
     _token_scopes: set[str] = set()
     _token_info: dict[str, Any] | None = None
@@ -65,7 +70,7 @@ class CachedTokenInfoMixin:
 
             # Cache scopes at startup (single token throughout lifespan)
             try:
-                self._token_scopes = await self._fetch_token_scopes_from_api()
+                self._token_scopes = await self._fetch_token_scopes_from_api()  # type: ignore[attr-defined]
                 logger.debug(f"Retrieved token scopes: {self._token_scopes}")
             except Exception as e:
                 logger.warning(f"Failed to fetch token scopes during startup: {str(e)}")
@@ -82,9 +87,39 @@ class CachedTokenInfoMixin:
         if self._token_info is not None:
             return self._token_info
 
-        # Type ignore because this method will be available via MRO from AbstractGitGuardianFastMCP
         self._token_info = await self._fetch_token_info_from_api()  # type: ignore[attr-defined]
         return self._token_info
+
+
+class ScopeFilteringMiddleware(Middleware):
+    """Middleware to filter tools based on token scopes."""
+
+    def __init__(self, mcp_server: "AbstractGitGuardianFastMCP"):
+        self._mcp_server = mcp_server
+
+    async def on_list_tools(
+        self,
+        context,
+        call_next,
+    ) -> Sequence[Tool]:
+        """Filter tools based on the user's API token scopes."""
+        # Get all tools from the next middleware/handler
+        all_tools = await call_next(context)
+
+        # Filter tools by scopes
+        scopes = await self._mcp_server.get_scopes()
+        filtered_tools: list[Tool] = []
+        for tool in all_tools:
+            tool_name = tool.name
+            required_scopes = self._mcp_server._tool_scopes.get(tool_name, set())
+
+            if not required_scopes or required_scopes.issubset(scopes):
+                filtered_tools.append(tool)
+            else:
+                missing_scopes = required_scopes - scopes
+                logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
+
+        return filtered_tools
 
 
 class AbstractGitGuardianFastMCP(FastMCP, ABC):
@@ -106,7 +141,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
 
-        self.add_middleware(self._scope_filtering_middleware)
+        self.add_middleware(ScopeFilteringMiddleware(self))
 
     def clear_cache(self) -> None:
         """Clear cached data. Override in subclasses that cache."""
@@ -122,7 +157,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         """Return the token info dictionary."""
         pass
 
-    def get_client(self):
+    def get_client(self) -> GitGuardianClient:
         return get_client(personal_access_token=self.get_personal_access_token())
 
     async def revoke_current_token(self) -> dict[str, Any]:
@@ -199,9 +234,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
     async def _fetch_token_info_from_api(self) -> dict[str, Any]:
         try:
             client = self.get_client()
-            token_info = await client.get_current_token_info()
-            self._token_info = token_info
-            return token_info
+            return await client.get_current_token_info()
         except Exception as e:
             raise FastMCPError("Error fetching token info from /api_tokens/self endpoint") from e
 
@@ -214,37 +247,6 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         scopes = await self._fetch_token_scopes_from_api()
         logger.debug(f"scopes: {scopes}")
         return scopes
-
-    async def _scope_filtering_middleware(self, context: MiddlewareContext, call_next: Callable) -> Any:
-        """Middleware to filter tools based on token scopes.
-
-        This middleware intercepts tools/list requests and filters the tools
-        based on the user's API token scopes.
-
-        The authentication strategy determines whether to use cached scopes
-        or fetch them per-request.
-        """
-        # Only apply filtering to tools/list requests
-        if context.method != "tools/list":
-            return await call_next(context)
-
-        # Get all tools from the next middleware/handler
-        all_tools = await call_next(context)
-
-        # Filter tools by scopes
-        scopes = await self.get_scopes()
-        filtered_tools = []
-        for tool in all_tools:
-            tool_name = tool.name
-            required_scopes = self._tool_scopes.get(tool_name, set())
-
-            if not required_scopes or required_scopes.issubset(scopes):
-                filtered_tools.append(tool)
-            else:
-                missing_scopes = required_scopes - scopes
-                logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
-
-        return filtered_tools
 
     async def list_tools(self) -> list[MCPTool]:
         """
