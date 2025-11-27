@@ -95,15 +95,8 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         logger.debug(f"Looking up member ID for email: {params.email}")
         try:
             # Use the /members endpoint to search by email
-            result, _ = await client._request("GET", "/members", params={"search": params.email}, return_headers=True)
-
-            # Handle response format
-            if isinstance(result, dict):
-                members = cast(list[dict[str, Any]], result.get("results", result.get("data", [])))
-            elif isinstance(result, list):
-                members = result
-            else:
-                raise ToolError(f"Unexpected response format when searching for member: {type(result).__name__}")
+            result = await client._request_list("/members", params={"search": params.email})
+            members = result["data"]
 
             # Find exact email match
             matching_member: dict[str, Any] | None = None
@@ -150,14 +143,14 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
 
     try:
         # Call the client method
-        result = await client.assign_incident(incident_id=str(params.incident_id), assignee_id=str(assignee_id))
+        api_result = await client.assign_incident(incident_id=str(params.incident_id), assignee_id=str(assignee_id))
 
         logger.debug(f"Successfully assigned incident {params.incident_id} to member {assignee_id}")
 
         # Parse the response
-        if isinstance(result, dict):
+        if isinstance(api_result, dict):
             # Remove assignee_id from result dict to avoid conflict with our explicit parameter
-            result_copy = result.copy()
+            result_copy = api_result.copy()
             result_copy.pop("assignee_id", None)
             return AssignIncidentResult(
                 incident_id=params.incident_id, assignee_id=assignee_id, success=True, **result_copy

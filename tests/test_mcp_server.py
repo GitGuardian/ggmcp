@@ -42,7 +42,7 @@ class TestGitGuardianFastMCP:
 
     @pytest.mark.asyncio
     async def test_fetch_token_scopes_from_api(self, mock_gitguardian_client):
-        """Test fetching token scopes."""
+        """Test fetching token scopes from SaaS instance."""
         import os
         from unittest.mock import patch
 
@@ -50,14 +50,14 @@ class TestGitGuardianFastMCP:
         test_scopes = ["scan", "incidents:read", "honeytokens:read", "honeytokens:write"]
         mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"scopes": test_scopes})
 
-        # Create a test fixture using OAuth mode (which doesn't need Authorization header)
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+        # Use a SaaS URL instead of test/localhost URL
+        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true", "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"}):
             mcp = get_mcp_server("TestMCP")
 
             # Call the method - it now returns scopes instead of setting them
             returned_scopes = await mcp._fetch_token_scopes_from_api()
 
-            # Verify the client method was called
+            # Verify the client method was called for SaaS
             mock_gitguardian_client.get_current_token_info.assert_called_once()
 
             # Verify scopes were returned correctly - convert to set for comparison

@@ -26,6 +26,7 @@ class ListHoneytokensParams(BaseModel):
     creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    cursor: str | None = Field(default=None, description="Pagination cursor from a previous response")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
 
 
@@ -33,6 +34,7 @@ class ListHoneytokensResult(BaseModel):
     """Result from listing honeytokens."""
 
     honeytokens: list[dict[str, Any]] = Field(description="List of honeytoken objects")
+    next_cursor: str | None = Field(default=None, description="Cursor for fetching the next page (null if no more results)")
 
 
 async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:
@@ -73,48 +75,25 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
         except Exception as e:
             logger.warning(f"Failed to get current user info for 'mine' filter: {str(e)}")
 
-    # Build filters dictionary with parameters supported by the client API
-    filters: dict[str, Any] = {}
-    if params.status is not None:
-        filters["status"] = params.status
-    if params.search is not None:
-        filters["search"] = params.search
-    if params.ordering is not None:
-        filters["ordering"] = params.ordering
-    if params.show_token is not None:
-        filters["show_token"] = params.show_token
-    if creator_id is not None:
-        filters["creator_id"] = creator_id
-    if params.creator_api_token_id is not None:
-        filters["creator_api_token_id"] = params.creator_api_token_id
-    if params.per_page is not None:
-        filters["per_page"] = params.per_page
-    if params.get_all is not None:
-        filters["get_all"] = params.get_all
-
-    logger.debug(f"Filters: {json.dumps({k: v for k, v in filters.items() if v is not None})}")
 
     try:
-        result = await client.list_honeytokens(
+        response = await client.list_honeytokens(
             status=params.status,
             search=params.search,
             ordering=params.ordering,
             show_token=params.show_token,
-            creator_id=creator_id,
-            creator_api_token_id=params.creator_api_token_id,
+            creator_id=str(creator_id) if creator_id is not None else None,
+            creator_api_token_id=str(params.creator_api_token_id) if params.creator_api_token_id is not None else None,
             per_page=params.per_page,
+            cursor=params.cursor,
             get_all=params.get_all,
         )
 
-        # Handle both response formats: either a dict with 'honeytokens' key or a list directly
-        if isinstance(result, dict):
-            honeytokens = result.get("honeytokens", [])
-        else:
-            # If the result is already a list, use it directly
-            honeytokens = result
-
-        logger.debug(f"Found {len(honeytokens)} honeytokens")
-        return ListHoneytokensResult(honeytokens=honeytokens)
+        honeytokens_data = response["data"]
+        next_cursor = response["cursor"]
+        
+        logger.debug(f"Found {len(honeytokens_data)} honeytokens")
+        return ListHoneytokensResult(honeytokens=honeytokens_data, next_cursor=next_cursor)
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
         raise ToolError(str(e))

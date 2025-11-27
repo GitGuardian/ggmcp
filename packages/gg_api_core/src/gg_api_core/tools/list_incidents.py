@@ -213,60 +213,23 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
             api_params["status"] = ",".join(params.status) if isinstance(params.status, list) else params.status
         if params.validity:
             api_params["validity"] = ",".join(params.validity) if isinstance(params.validity, list) else params.validity
-
-        # Get incidents directly using source_id
         if params.get_all:
-            incidents_result = await client.paginate_all("/incidents/secrets", api_params)
-            if isinstance(incidents_result, list):
-                count = len(incidents_result)
-                return ListIncidentsResult(
-                    source_id=params.source_id,
-                    incidents=incidents_result,
-                    total_count=count,
-                    applied_filters=_build_filter_info(params),
-                    suggestion=_build_suggestion(params, count),
-                )
-            elif isinstance(incidents_result, dict):
-                count = incidents_result.get("total_count", len(incidents_result.get("data", [])))
-                return ListIncidentsResult(
-                    source_id=params.source_id,
-                    incidents=incidents_result.get("data", []),
-                    total_count=count,
-                    applied_filters=_build_filter_info(params),
-                    suggestion=_build_suggestion(params, count),
-                )
-            else:
-                # Fallback for unexpected types
-                return ListIncidentsError(
-                    error=f"Unexpected response type: {type(incidents_result).__name__}",
-                )
-        else:
-            incidents_result = await client.list_incidents(**api_params)
-            if isinstance(incidents_result, dict):
-                count = incidents_result.get("total_count", 0)
-                return ListIncidentsResult(
-                    source_id=params.source_id,
-                    incidents=incidents_result.get("data", []),
-                    next_cursor=incidents_result.get("next_cursor"),
-                    total_count=count,
-                    applied_filters=_build_filter_info(params),
-                    suggestion=_build_suggestion(params, count),
-                )
-            elif isinstance(incidents_result, list):
-                # Handle case where API returns a list directly
-                count = len(incidents_result)
-                return ListIncidentsResult(
-                    source_id=params.source_id,
-                    incidents=incidents_result,
-                    total_count=count,
-                    applied_filters=_build_filter_info(params),
-                    suggestion=_build_suggestion(params, count),
-                )
-            else:
-                # Fallback for unexpected types
-                return ListIncidentsError(
-                    error=f"Unexpected response type: {type(incidents_result).__name__}",
-                )
+            api_params["get_all"] = params.get_all
+
+        # Get incidents using list_incidents which returns ListResponse
+        response = await client.list_incidents(**api_params)
+        incidents_data = response["data"]
+        next_cursor = response["cursor"]
+        
+        count = len(incidents_data)
+        return ListIncidentsResult(
+            source_id=params.source_id,
+            incidents=incidents_data,
+            total_count=count,
+            next_cursor=next_cursor,
+            applied_filters=_build_filter_info(params),
+            suggestion=_build_suggestion(params, count),
+        )
 
     except Exception as e:
         logger.error(f"Error listing repository incidents: {str(e)}")

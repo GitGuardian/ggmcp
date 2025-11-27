@@ -4,7 +4,7 @@ import logging
 import os
 import re
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast, overload
+from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
@@ -67,6 +67,14 @@ class TagNames(str, Enum):
     REVOCABLE_BY_GG = "REVOCABLE_BY_GG"
 
 
+class ListResponse(TypedDict):
+    """Standardized response for list endpoints."""
+
+    data: list[dict[str, Any]]
+    cursor: str | None
+    has_more: bool
+
+
 def is_oauth_enabled() -> bool:
     """
     Check if OAuth authentication is enabled via environment variable.
@@ -120,7 +128,12 @@ class GitGuardianClient:
         logger.info(f"Using private API URL: {self.private_api_url}")
 
     def _init_personal_access_token(self, personal_access_token: str | None = None):
-        # Validate OAuth configuration
+        """Initialize authentication token based on transport mode.
+        
+        Authentication architecture:
+        - stdio mode: OAuth (interactive) OR PAT from env var (non-interactive)
+        - HTTP mode: Per-request Authorization header ONLY (multi-tenant capable)
+        """
         mcp_port = os.environ.get("MCP_PORT")
         enable_local_oauth = is_oauth_enabled()
 
@@ -366,34 +379,19 @@ class GitGuardianClient:
         # Force new OAuth flow on next request
         await self._ensure_api_token()
 
-    @overload
-    async def _request(
-        self, method: str, endpoint: str, return_headers: Literal[False] = False, **kwargs
-    ) -> Dict[str, Any]:
-        ...
-
-    @overload
-    async def _request(
-        self, method: str, endpoint: str, return_headers: Literal[True], **kwargs
-    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        ...
-
-    async def _request(
-        self, method: str, endpoint: str, return_headers: bool = False, **kwargs
-    ) -> Union[Dict[str, Any], Tuple[Dict[str, Any], Dict[str, Any]]]:
-        """Make a request to the GitGuardian API.
+    async def _request(self, method: str, endpoint: str, **kwargs) -> Any:
+        """Make a request to the GitGuardian API (generic method).
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
-            return_headers: Whether to return headers along with data
             **kwargs: Additional arguments to pass to requests
 
         Returns:
-            Response data as dictionary, or tuple of (data, headers) if return_headers=True
+            Response data (typically dict[str, Any] or list[dict[str, Any]])
 
         Raises:
-            requests.HTTPError: If the API returns an error
+            httpx.HTTPStatusError: If the API returns an error
         """
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making {method} request to {url}")
@@ -467,12 +465,12 @@ class GitGuardianClient:
 
                 if response.status_code == 204:  # No content
                     logger.debug("Received 204 No Content response")
-                    return ({}, dict(response.headers)) if return_headers else {}
+                    return {}
 
                 try:
                     if not response.content or response.content.strip() == b"":
                         logger.debug("Received empty response content")
-                        return ({}, dict(response.headers)) if return_headers else {}
+                        return {}
 
                     data = response.json()
 
@@ -485,12 +483,7 @@ class GitGuardianClient:
                     else:
                         logger.debug(f"Parsed JSON response as {type(data).__name__}")
 
-                    # Handle empty array responses properly
-                    if data == [] and return_headers:
-                        logger.debug("Received empty array response")
-                        return ([], dict(response.headers))
-
-                    return (data, dict(response.headers)) if return_headers else data
+                    return data
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to parse JSON response: {str(e)}")
                     logger.error(f"Raw response content: {response.content!r}")
@@ -572,7 +565,118 @@ class GitGuardianClient:
         logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
         return cursor_decoded
 
-    async def paginate_all(self, endpoint: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]] | dict[str, Any]:
+    async def _request_get(self, endpoint: str, **kwargs) -> dict[str, Any]:
+        """Make a GET request to the GitGuardian API.
+
+        Args:
+            endpoint: API endpoint path
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response data as dictionary
+
+        Raises:
+            httpx.HTTPStatusError: If the API returns an error
+        """
+        return cast(dict[str, Any], await self._request("GET", endpoint, **kwargs))
+
+    async def _request_post(self, endpoint: str, **kwargs) -> dict[str, Any]:
+        """Make a POST request to the GitGuardian API.
+
+        Args:
+            endpoint: API endpoint path
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response data as dictionary
+
+        Raises:
+            httpx.HTTPStatusError: If the API returns an error
+        """
+        return cast(dict[str, Any], await self._request("POST", endpoint, **kwargs))
+
+    async def _request_patch(self, endpoint: str, **kwargs) -> dict[str, Any]:
+        """Make a PATCH request to the GitGuardian API.
+
+        Args:
+            endpoint: API endpoint path
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response data as dictionary
+
+        Raises:
+            httpx.HTTPStatusError: If the API returns an error
+        """
+        return cast(dict[str, Any], await self._request("PATCH", endpoint, **kwargs))
+
+    async def _request_delete(self, endpoint: str, **kwargs) -> dict[str, Any]:
+        """Make a DELETE request to the GitGuardian API.
+
+        Args:
+            endpoint: API endpoint path
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            Response data as dictionary
+
+        Raises:
+            httpx.HTTPStatusError: If the API returns an error
+        """
+        return cast(dict[str, Any], await self._request("DELETE", endpoint, **kwargs))
+
+    async def _request_list(self, endpoint: str, **kwargs) -> ListResponse:
+        """Make a request to a list endpoint that returns standardized ListResponse.
+
+        This method handles list endpoints that may return either a list directly or
+        a dict with a "results" or "data" key. It always returns a standardized structure
+        with the data, cursor, and has_more flag.
+
+        Args:
+            endpoint: API endpoint path
+            **kwargs: Additional arguments to pass to the request
+
+        Returns:
+            ListResponse with data, cursor, and has_more fields
+        """
+        url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
+        logger.debug(f"Making list request to {url}")
+
+        # Ensure we have a valid OAuth token
+        await self._ensure_api_token()
+        headers = {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self.USER_AGENT,
+        }
+        headers.update(kwargs.pop("headers", {}))
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, **kwargs)
+            response.raise_for_status()
+
+            data = response.json() if response.content else {}
+            response_headers = dict(response.headers)
+
+        # Handle both direct list and dict with "results" or "data" key
+        items: list[dict[str, Any]]
+        if isinstance(data, list):
+            items = data
+        elif isinstance(data, dict):
+            raw_items = data.get("results", data.get("data", []))
+            items = raw_items if isinstance(raw_items, list) else []
+        else:
+            items = []
+
+        cursor = self._extract_next_cursor(response_headers)
+
+        return {
+            "data": items,
+            "cursor": cursor,
+            "has_more": cursor is not None,
+        }
+
+    async def paginate_all(self, endpoint: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         """Fetch all pages of results using cursor-based pagination.
 
         Args:
@@ -611,36 +715,20 @@ class GitGuardianClient:
 
             logger.debug(f"Making paginated request to: {full_endpoint}")
 
-            # Make request with headers
-            data, headers = await self._request("GET", full_endpoint, return_headers=True)
+            # Use _request_list for standardized response handling
+            response = await self._request_list(full_endpoint)
 
-            # Handle empty responses or empty arrays
-            if not data:
+            # Handle empty responses
+            if not response["data"]:
                 logger.debug("Received empty response data, stopping pagination")
                 break
 
-            # Log response size
-            if isinstance(data, dict):
-                result_count = len(data.get("results", [])) if "results" in data else "N/A"
-                logger.debug(f"Received page with {result_count} results")
-            elif isinstance(data, list):
-                logger.debug(f"Received page with {len(data)} items")
-
-            # Add items to our collection
-            if isinstance(data, dict) and "results" in data:
-                items = data.get("results", [])
-            elif isinstance(data, dict) and "data" in data:
-                items = data.get("data", [])
-            elif isinstance(data, list):
-                items = data
-            else:
-                items = []
-
-            all_items.extend(items)
+            logger.debug(f"Received page with {len(response['data'])} items")
+            all_items.extend(response["data"])
             logger.debug(f"Total items collected so far: {len(all_items)}")
 
             # Check for next cursor
-            cursor = self._extract_next_cursor(headers)
+            cursor = response["cursor"]
             if cursor:
                 logger.debug(f"Found next cursor: {cursor}")
             else:
@@ -666,7 +754,7 @@ class GitGuardianClient:
         logger.info(f"Creating honeytoken: {name}")
         data = {"name": name, "description": description, "type": "AWS", "custom_tags": custom_tags or []}
 
-        return await self._request("POST", "/honeytokens", json=data)
+        return await self._request_post("/honeytokens", json=data)
 
     async def create_honeytoken_with_context(
         self,
@@ -702,7 +790,7 @@ class GitGuardianClient:
         if project_extensions:
             data["project_extensions"] = project_extensions
 
-        return await self._request("POST", "/honeytokens/with-context", json=data)
+        return await self._request_post("/honeytokens/with-context", json=data)
 
     async def get_honeytoken(self, honeytoken_id: str, show_token: bool = True) -> dict[str, Any]:
         """Get details for a specific honeytoken.
@@ -715,7 +803,7 @@ class GitGuardianClient:
             Honeytoken data
         """
         logger.info(f"Getting honeytoken details for ID: {honeytoken_id}")
-        return await self._request("GET", f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}")
+        return await self._request_get(f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}")
 
     async def list_incidents(
         self,
@@ -731,7 +819,7 @@ class GitGuardianClient:
         cursor: str | None = None,
         ordering: str | None = None,
         get_all: bool = False,
-    ) -> dict[str, Any]:
+    ) -> ListResponse:
         """List secrets incidents with optional filtering and cursor-based pagination.
 
         Args:
@@ -816,13 +904,15 @@ class GitGuardianClient:
         endpoint = "/incidents/secrets"
 
         if get_all:
-            return await self.paginate_all(endpoint, params)
+            # When get_all=True, return all items without cursor
+            all_items = await self.paginate_all(endpoint, params)
+            return {"data": all_items, "cursor": None, "has_more": False}
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 
-        return await self._request("GET", endpoint)
+        return await self._request_list(endpoint)
 
     async def get_incident(self, incident_id: str) -> dict[str, Any]:
         """Get detailed information about a specific incident.
@@ -834,7 +924,7 @@ class GitGuardianClient:
             Detailed incident data
         """
         logger.info(f"Getting details for incident ID: {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}")
+        return await self._request_get(f"/incidents/secrets/{incident_id}")
 
     async def get_incidents(self, incident_ids: list[str]) -> list[dict[str, Any]]:
         """Get detailed information about multiple incidents in a single batch.
@@ -891,7 +981,7 @@ class GitGuardianClient:
         if not payload:
             raise ValueError("At least one of status or custom_tags must be provided")
 
-        return await self._request("PATCH", f"/incidents/secrets/{incident_id}", json=payload)
+        return await self._request_patch(f"/incidents/secrets/{incident_id}", json=payload)
 
     async def list_honeytokens(
         self,
@@ -904,7 +994,7 @@ class GitGuardianClient:
         per_page: int = 20,
         cursor: str | None = None,
         get_all: bool = False,
-    ) -> dict[str, Any]:
+    ) -> ListResponse:
         """List all honeytokens with optional filtering and cursor-based pagination.
 
         Args:
@@ -947,13 +1037,15 @@ class GitGuardianClient:
         endpoint = "/honeytokens"
 
         if get_all:
-            return await self.paginate_all(endpoint, params)
+            # When get_all=True, return all items without cursor
+            all_items = await self.paginate_all(endpoint, params)
+            return {"data": all_items, "cursor": None, "has_more": False}
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 
-        return await self._request("GET", endpoint)
+        return await self._request_list(endpoint)
 
     async def revoke_honeytoken(self, honeytoken_id: str) -> dict[str, Any]:
         """Revoke a honeytoken.
@@ -965,7 +1057,7 @@ class GitGuardianClient:
             Result of the operation
         """
         logger.info(f"Revoking honeytoken: {honeytoken_id}")
-        return await self._request("POST", f"/honeytokens/{honeytoken_id}/revoke")
+        return await self._request_post(f"/honeytokens/{honeytoken_id}/revoke")
 
     async def get_current_token_info(self) -> dict[str, Any]:
         """Get information about the current API token.
@@ -978,18 +1070,22 @@ class GitGuardianClient:
         """
         logger.info("Getting current API token information")
 
-        # If we already have token info, return it
-        if self._token_info is not None:
-            # Convert Pydantic model to dict if needed
-            if hasattr(self._token_info, "model_dump"):
-                return dict(self._token_info.model_dump())
-            elif isinstance(self._token_info, dict):
-                return self._token_info
-            else:
-                return await self._request("GET", "/api_tokens/self")
+        try:
+            # If we already have token info, return it
+            if self._token_info is not None:
+                # Convert Pydantic model to dict if needed
+                if hasattr(self._token_info, "model_dump"):
+                    return dict(self._token_info.model_dump())
+                elif isinstance(self._token_info, dict):
+                    return self._token_info
+                else:
+                    return await self._request_get("/api_tokens/self")
 
-        # Otherwise fetch from the API
-        return await self._request("GET", "/api_tokens/self")
+            # Otherwise fetch from the API
+            return await self._request_get("/api_tokens/self")
+        except Exception as e:
+            logger.error(f"Failed to get current token info: {str(e)}")
+            raise
 
     async def list_api_tokens(self) -> dict[str, Any]:
         """List all API tokens for the account.
@@ -998,7 +1094,7 @@ class GitGuardianClient:
             List of API tokens
         """
         logger.info("Listing API tokens")
-        return await self._request("GET", "/api_tokens")
+        return await self._request_get("/api_tokens")
 
     async def revoke_current_token(self) -> dict[str, Any]:
         """Revoke the current API token.
@@ -1010,7 +1106,7 @@ class GitGuardianClient:
             Dictionary containing the revocation status
         """
         logger.info("Revoking current API token")
-        return await self._request("DELETE", "/api_tokens/self")
+        return await self._request_delete("/api_tokens/self")
 
     async def multiple_scan(self, documents: list[dict[str, str]]) -> dict[str, Any]:
         """Scan multiple documents for secrets and policy breaks.
@@ -1029,7 +1125,7 @@ class GitGuardianClient:
             if "document" not in doc:
                 raise ValueError(f"Document at index {i} is missing required 'document' field")
 
-        return await self._request("POST", "/multiscan", json=documents)
+        return await self._request_post("/multiscan", json=documents)
 
     async def get_audit_logs(self, limit: int = 100) -> dict[str, Any]:
         """Get audit logs for the organization.
@@ -1041,7 +1137,7 @@ class GitGuardianClient:
             List of audit log entries
         """
         logger.info(f"Getting audit logs (limit: {limit})")
-        return await self._request("GET", f"/audit_logs?per_page={limit}")
+        return await self._request_get(f"/audit_logs?per_page={limit}")
 
     async def list_custom_tags(self) -> dict[str, Any]:
         """List all custom tags.
@@ -1050,7 +1146,7 @@ class GitGuardianClient:
             List of custom tags
         """
         logger.info("Listing custom tags")
-        return await self._request("GET", "/custom_tags")
+        return await self._request_get("/custom_tags")
 
     async def create_custom_tag(self, key: str, value: str | None = None) -> dict[str, Any]:
         """Create a custom tag.
@@ -1063,7 +1159,7 @@ class GitGuardianClient:
             Created custom tag data
         """
         logger.info(f"Creating custom tag with key={key}, value={value}")
-        return await self._request("POST", "/custom_tags", json={"key": key, "value": value})
+        return await self._request_post("/custom_tags", json={"key": key, "value": value})
 
     async def update_custom_tag(self, tag_id: str, key: str | None = None, value: str | None = None) -> dict[str, Any]:
         """Update a custom tag.
@@ -1087,7 +1183,7 @@ class GitGuardianClient:
         if not payload:
             raise ValueError("At least one of key or value must be provided")
 
-        return await self._request("PATCH", f"/custom_tags/{tag_id}", json=payload)
+        return await self._request_patch(f"/custom_tags/{tag_id}", json=payload)
 
     async def delete_custom_tag(self, tag_id: str) -> dict[str, Any]:
         """Delete a custom tag.
@@ -1099,7 +1195,7 @@ class GitGuardianClient:
             Empty dict on success
         """
         logger.info(f"Deleting custom tag {tag_id}")
-        return await self._request("DELETE", f"/custom_tags/{tag_id}")
+        return await self._request_delete(f"/custom_tags/{tag_id}")
 
     async def get_custom_tag(self, tag_id: str) -> dict[str, Any]:
         """Get a specific custom tag by ID.
@@ -1111,7 +1207,7 @@ class GitGuardianClient:
             Custom tag data
         """
         logger.info(f"Getting custom tag {tag_id}")
-        return await self._request("GET", f"/custom_tags/{tag_id}")
+        return await self._request_get(f"/custom_tags/{tag_id}")
 
     # Secret Incident management endpoints
     async def assign_incident(self, incident_id: str, assignee_id: str) -> dict[str, Any]:
@@ -1125,7 +1221,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Assigning incident {incident_id} to member {assignee_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/assign", json={"member_id": assignee_id})
+        return await self._request_post(f"/incidents/secrets/{incident_id}/assign", json={"member_id": assignee_id})
 
     async def unassign_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a secret incident.
@@ -1137,7 +1233,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Unassigning incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/unassign")
+        return await self._request_post(f"/incidents/secrets/{incident_id}/unassign")
 
     async def resolve_incident(self, incident_id: str) -> dict[str, Any]:
         """Resolve a secret incident.
@@ -1149,7 +1245,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Resolving incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/resolve")
+        return await self._request_post(f"/incidents/secrets/{incident_id}/resolve")
 
     async def ignore_incident(self, incident_id: str, ignore_reason: str | None = None) -> dict[str, Any]:
         """Ignore a secret incident.
@@ -1165,7 +1261,7 @@ class GitGuardianClient:
         payload = {}
         if ignore_reason:
             payload["ignore_reason"] = ignore_reason
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/ignore", json=payload)
+        return await self._request_post(f"/incidents/secrets/{incident_id}/ignore", json=payload)
 
     async def reopen_incident(self, incident_id: str) -> dict[str, Any]:
         """Reopen a secret incident.
@@ -1177,7 +1273,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Reopening incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/reopen")
+        return await self._request_post(f"/incidents/secrets/{incident_id}/reopen")
 
     async def share_incident(self, incident_id: str) -> dict[str, Any]:
         """Share a secret incident (create a share link).
@@ -1189,7 +1285,7 @@ class GitGuardianClient:
             Share information including share URL
         """
         logger.info(f"Creating share link for incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/share")
+        return await self._request_post(f"/incidents/secrets/{incident_id}/share")
 
     async def unshare_incident(self, incident_id: str) -> dict[str, Any]:
         """Unshare a secret incident (remove share link).
@@ -1201,7 +1297,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Removing share link for incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/unshare")
+        return await self._request_post(f"/incidents/secrets/{incident_id}/unshare")
 
     async def grant_incident_access(self, incident_id: str, member_id: str | None = None) -> dict[str, Any]:
         """Grant access to a secret incident to a member.
@@ -1218,7 +1314,7 @@ class GitGuardianClient:
 
         payload = {"member_id": member_id}
         logger.info(f"Granting access to incident {incident_id} for member {member_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/grant_access", json=payload)
+        return await self._request_post(f"/incidents/secrets/{incident_id}/grant_access", json=payload)
 
     async def revoke_incident_access(self, incident_id: str, member_id: str) -> dict[str, Any]:
         """Revoke access to a secret incident from a member.
@@ -1232,7 +1328,7 @@ class GitGuardianClient:
         """
         payload = {"member_id": member_id}
         logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
+        return await self._request_post(f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
 
     async def list_incident_members(self, incident_id: str) -> dict[str, Any]:
         """List members having access to a secret incident.
@@ -1244,7 +1340,7 @@ class GitGuardianClient:
             List of members with access to the incident
         """
         logger.info(f"Listing members with access to incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/members")
+        return await self._request_get(f"/incidents/secrets/{incident_id}/members")
 
     async def get_incident_impacted_perimeter(self, incident_id: str) -> dict[str, Any]:
         """Retrieve the impacted perimeter of a secret incident.
@@ -1256,7 +1352,7 @@ class GitGuardianClient:
             Information about the impacted perimeter
         """
         logger.info(f"Getting impacted perimeter for incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/perimeter")
+        return await self._request_get(f"/incidents/secrets/{incident_id}/perimeter")
 
     # Secret Incident Notes management
     async def list_incident_notes(self, incident_id: str) -> dict[str, Any]:
@@ -1269,7 +1365,7 @@ class GitGuardianClient:
             List of notes attached to the incident
         """
         logger.info(f"Listing notes for incident {incident_id}")
-        return await self._request("GET", f"/incidents/secrets/{incident_id}/notes")
+        return await self._request_get(f"/incidents/secrets/{incident_id}/notes")
 
     async def create_incident_note(self, incident_id: str, content: str) -> dict[str, Any]:
         """Create a note on a secret incident.
@@ -1282,7 +1378,7 @@ class GitGuardianClient:
             Created note details
         """
         logger.info(f"Creating note for incident {incident_id}")
-        return await self._request("POST", f"/incidents/secrets/{incident_id}/notes", json={"content": content})
+        return await self._request_post(f"/incidents/secrets/{incident_id}/notes", json={"content": content})
 
     async def update_incident_note(self, incident_id: str, note_id: str, content: str) -> dict[str, Any]:
         """Update a note on a secret incident.
@@ -1296,8 +1392,8 @@ class GitGuardianClient:
             Updated note details
         """
         logger.info(f"Updating note {note_id} for incident {incident_id}")
-        return await self._request(
-            "PATCH", f"/incidents/secrets/{incident_id}/notes/{note_id}", json={"content": content}
+        return await self._request_patch(
+            f"/incidents/secrets/{incident_id}/notes/{note_id}", json={"content": content}
         )
 
     async def delete_incident_note(self, incident_id: str, note_id: str) -> dict[str, Any]:
@@ -1311,7 +1407,7 @@ class GitGuardianClient:
             Status of the operation
         """
         logger.info(f"Deleting note {note_id} from incident {incident_id}")
-        return await self._request("DELETE", f"/incidents/secrets/{incident_id}/notes/{note_id}")
+        return await self._request_delete(f"/incidents/secrets/{incident_id}/notes/{note_id}")
 
     # Secret Occurrences management
     async def list_secret_occurrences(self, incident_id: str) -> dict[str, Any]:
@@ -1324,7 +1420,7 @@ class GitGuardianClient:
             List of secret occurrences
         """
         logger.info(f"Listing secret occurrences for incident ID: {incident_id}")
-        return await self._request("GET", f"/incidents/{incident_id}/secret-occurrences")
+        return await self._request_get(f"/incidents/{incident_id}/secret-occurrences")
 
     async def list_occurrences(
         self,
@@ -1335,16 +1431,16 @@ class GitGuardianClient:
         source_id: str | None = None,
         presence: str | None = None,
         tags: list[str] | None = None,
-        exclude_tags: list[str] | None = None,
+        exclude_tags: list[TagNames] | None = None,
         per_page: int = 20,
         cursor: str | None = None,
         ordering: str | None = None,
         get_all: bool = False,
-        severity: list[str] | None = None,
-        validity: list[str] | None = None,
-        status: list[str] | None = None,
+        severity: list[IncidentSeverity] | None = None,
+        validity: list[IncidentValidity] | None = None,
+        status: list[IncidentStatus] | None = None,
         with_sources: bool | None = None,
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> ListResponse:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
         Args:
@@ -1371,7 +1467,7 @@ class GitGuardianClient:
         logger.info("Listing secret occurrences with filters")
 
         # Build parameters
-        params: dict[str, Any] = {}
+        params = {}
         if from_date:
             params["from_date"] = from_date
         if to_date:
@@ -1389,7 +1485,7 @@ class GitGuardianClient:
         if exclude_tags:
             params["exclude_tags"] = ",".join(exclude_tags) if isinstance(exclude_tags, list) else exclude_tags
         if per_page:
-            params["per_page"] = per_page
+            params["per_page"] = str(per_page)
         if cursor:
             params["cursor"] = cursor
         if ordering:
@@ -1406,11 +1502,12 @@ class GitGuardianClient:
         # If get_all is True, use paginate_all to get all results
         if get_all:
             logger.info("Getting all occurrences using cursor-based pagination")
-            return await self.paginate_all("occurrences/secrets", params)
+            all_items = await self.paginate_all("occurrences/secrets", params)
+            return {"data": all_items, "cursor": None, "has_more": False}
 
         # Otherwise, get a single page
         logger.info(f"Getting occurrences with params: {params}")
-        return await self._request("GET", "occurrences/secrets", params=params)
+        return await self._request_list("occurrences/secrets", params=params)
 
     async def list_source_incidents(self, source_id: str, **kwargs) -> dict[str, Any]:
         """List secret incidents of a source.
@@ -1430,7 +1527,7 @@ class GitGuardianClient:
         if query_params:
             endpoint = f"{endpoint}?{query_params}"
 
-        return await self._request("GET", endpoint)
+        return await self._request_get(endpoint)
 
     async def list_member_incidents(self, member_id: str, **kwargs) -> dict[str, Any]:
         """List secret incidents a member has access to.
@@ -1450,7 +1547,7 @@ class GitGuardianClient:
         if query_params:
             endpoint = f"{endpoint}?{query_params}"
 
-        return await self._request("GET", endpoint)
+        return await self._request_get(endpoint)
 
     async def list_sources(
         self,
@@ -1466,7 +1563,7 @@ class GitGuardianClient:
         per_page: int = 20,
         cursor: str | None = None,
         get_all: bool = False,
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> ListResponse:
         """List sources known by GitGuardian with optional filtering and cursor-based pagination.
 
         Args:
@@ -1516,13 +1613,15 @@ class GitGuardianClient:
         endpoint = "/sources"
 
         if get_all:
-            return await self.paginate_all(endpoint, params)
+            # When get_all=True, return all items without cursor
+            all_items = await self.paginate_all(endpoint, params)
+            return {"data": all_items, "cursor": None, "has_more": False}
 
-        return await self._request("GET", endpoint, params=params)
+        return await self._request_list(endpoint, params=params)
 
     async def get_source_by_name(
         self, source_name: str, return_all_on_no_match: bool = False
-    ) -> list[dict[str, Any]] | None:
+    ) -> dict[str, Any] | list[dict[str, Any]] | None:
         """Get a source by its name (repository name).
 
         Args:
@@ -1545,9 +1644,8 @@ class GitGuardianClient:
 
         try:
             # Get sources matching the search term
-            sources_data = cast(list[dict[str, Any]], await self._request("GET", "/sources", params=params))
-
-            # Extract sources from the response
+            response = await self._request_list("/sources", params=params)
+            sources_data = response["data"]
 
             # Try to find exact match by name
             for source in sources_data:
@@ -1592,15 +1690,15 @@ class GitGuardianClient:
                       404: API key not configured)
         """
         logger.info(f"Creating code fix request for {len(locations)} issue(s)")
-        return await self._request("POST", "/code-fix-requests", json={"locations": locations})
+        return await self._request_post("/code-fix-requests", json={"locations": locations})
 
-    async def list_members(self, params):
+    async def list_members(self, params) -> ListResponse:
         """List all users in the account."""
-        return await self._request("GET", "/members", params=params, return_headers=True)
+        return await self._request_list("/members", params=params)
 
     async def get_member(self, member_id):
         """Get a specific user's information."""
-        return await self._request("GET", f"/members/{member_id}")
+        return await self._request_get(f"/members/{member_id}")
 
     async def get_current_member(self):
         """Get the current user's information."""

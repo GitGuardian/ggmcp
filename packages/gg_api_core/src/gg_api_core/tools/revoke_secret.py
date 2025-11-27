@@ -49,7 +49,7 @@ async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
 
     try:
         # Make the API call to revoke the secret
-        result = await client._request("POST", f"/secrets/{params.secret_id}/revoke")
+        result = await client._request_post(f"/secrets/{params.secret_id}/revoke")
 
         logger.debug(f"Secret revocation response: {result}")
 

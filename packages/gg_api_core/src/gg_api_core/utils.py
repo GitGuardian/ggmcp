@@ -22,49 +22,52 @@ _client_singleton = None
 
 
 def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
-    """Get the cached GitGuardian client instance (singleton pattern).
+    """Get the GitGuardian client instance.
 
-    This function maintains a single client instance across all tool calls,
-    preserving caching and memoization benefits.
-
-    When a personal_access_token is provided, a new client instance is created
-    with that token (not cached). This is useful for per-request authentication
-    via HTTP Authorization headers.
-
-    In HTTP/SSE mode (when MCP_PORT is set), this function automatically extracts
-    the token from the Authorization header of the current request.
+    Authentication behavior depends on transport mode:
+    
+    **stdio mode** (no MCP_PORT): Uses singleton pattern with cached client.
+    - Token comes from: OAuth flow OR GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
+    - Single identity for entire server lifetime
+    
+    **HTTP mode** (MCP_PORT set): Per-request authentication.
+    - Token MUST come from Authorization header in each request
+    - Multi-tenant: different users can authenticate per-request
+    - No caching (new client per request)
 
     Args:
-        personal_access_token: Optional Personal Access Token to use for authentication.
-            If provided, a new client instance is created with this token.
+        personal_access_token: Optional PAT for explicit authentication.
+            In HTTP mode, this is extracted from request headers.
 
     Returns:
-        GitGuardianClient: The cached client instance or a new instance with the provided PAT
+        GitGuardianClient: Client instance configured with appropriate authentication
+        
+    Raises:
+        ValidationError: In HTTP mode, if Authorization header is missing/invalid
     """
-    # Check if we're in HTTP/SSE mode (MCP_PORT is set)
     mcp_port = os.environ.get("MCP_PORT")
 
     logger.debug(
         f"get_client() called: mcp_port={mcp_port}, personal_access_token={'provided' if personal_access_token else 'None'}"
     )
 
+    # In HTTP mode, get token from Authorization header or raise
     if mcp_port and not personal_access_token:
-        # In HTTP mode, get token from Authorization header or raise
-        logger.debug("HTTP mode detected, extracting token from request headers")
+        logger.debug("HTTP mode detected: extracting token from request headers")
         try:
             personal_access_token = get_personal_access_token_from_request()
-            logger.info("Successfully extracted token from HTTP request headers")
+            logger.debug("Successfully extracted token from HTTP request headers")
         except ValidationError as e:
             logger.error(f"Failed to extract token from HTTP headers: {e}")
-            raise
+            raise 
 
-    # If a PAT is provided (or extracted from headers), create a new client instance (don't use singleton)
+    # If a PAT is provided (explicitly or from headers), create per-request client (no caching)
     if personal_access_token:
-        logger.debug("Creating new GitGuardian client with provided Personal Access Token")
+        logger.debug("Creating GitGuardian client with provided token")
         return get_gitguardian_client(personal_access_token=personal_access_token)
 
-    # Otherwise, use the singleton pattern
-    logger.debug("Using singleton client (no PAT provided)")
+    # stdio mode: Use singleton pattern (OAuth or env var token)
+    logger.debug("stdio mode: Using singleton client")
     global _client_singleton
     if _client_singleton is None:
         logger.info("Creating singleton client instance")

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_honey_tokens import ListHoneytokensParams, list_honeytokens
+from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
 
 
 class TestListHoneytokens:
@@ -15,9 +15,9 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens
         THEN: The API returns the list of honeytokens
         """
-        # Mock the client response with dict format
+        # Mock the client response with ListResponse format
         mock_response = {
-            "honeytokens": [
+            "data": [
                 {
                     "id": "honeytoken_1",
                     "name": "test_token_1",
@@ -30,7 +30,9 @@ class TestListHoneytokens:
                     "status": "REVOKED",
                     "created_at": "2023-02-01T00:00:00Z",
                 },
-            ]
+            ],
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
@@ -44,6 +46,7 @@ class TestListHoneytokens:
                 creator_id=None,
                 creator_api_token_id=None,
                 per_page=20,
+                cursor=None,
                 get_all=False,
                 mine=False,
             )
@@ -58,20 +61,24 @@ class TestListHoneytokens:
         assert result.honeytokens[1]["status"] == "REVOKED"
 
     @pytest.mark.asyncio
-    async def test_list_honeytokens_list_format(self, mock_gitguardian_client):
+    async def test_list_honeytokens_with_cursor(self, mock_gitguardian_client):
         """
-        GIVEN: The API returns a list format
+        GIVEN: The API returns results with a next cursor
         WHEN: Listing honeytokens
-        THEN: The list is properly handled and returned
+        THEN: The cursor is properly returned for pagination
         """
-        # Mock the client response with list format
-        mock_response = [
-            {
-                "id": "honeytoken_1",
-                "name": "test_token_1",
-                "status": "ACTIVE",
-            }
-        ]
+        # Mock the client response with ListResponse format including cursor
+        mock_response = {
+            "data": [
+                {
+                    "id": "honeytoken_1",
+                    "name": "test_token_1",
+                    "status": "ACTIVE",
+                }
+            ],
+            "cursor": "next_page_cursor",
+            "has_more": True,
+        }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function
@@ -84,14 +91,16 @@ class TestListHoneytokens:
                 creator_id=None,
                 creator_api_token_id=None,
                 per_page=20,
+                cursor=None,
                 get_all=False,
                 mine=False,
             )
         )
 
-        # Verify response
+        # Verify response includes cursor
         assert len(result.honeytokens) == 1
         assert result.honeytokens[0]["id"] == "honeytoken_1"
+        assert result.next_cursor == "next_page_cursor"
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_with_filters(self, mock_gitguardian_client):
@@ -100,15 +109,17 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens with filters
         THEN: The API is called with correct filter parameters
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
-            "honeytokens": [
+            "data": [
                 {
                     "id": "honeytoken_1",
                     "name": "filtered_token",
                     "status": "ACTIVE",
                 }
-            ]
+            ],
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
@@ -147,18 +158,20 @@ class TestListHoneytokens:
         THEN: Only honeytokens created by current user are returned
         """
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user_123"})
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"member_id": "user_123"})
 
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
-            "honeytokens": [
+            "data": [
                 {
                     "id": "honeytoken_1",
                     "name": "my_token",
                     "creator_id": "user_123",
                     "status": "ACTIVE",
                 }
-            ]
+            ],
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
@@ -198,8 +211,8 @@ class TestListHoneytokens:
         # Mock get_current_token_info to return None user_id
         mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"other_field": "value"})
 
-        # Mock the client response
-        mock_response = {"honeytokens": []}
+        # Mock the client response with ListResponse format
+        mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with mine=True
@@ -228,13 +241,15 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens with pagination
         THEN: All honeytokens are fetched using pagination
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format (get_all returns all with cursor=None)
         mock_response = {
-            "honeytokens": [
+            "data": [
                 {"id": "honeytoken_1"},
                 {"id": "honeytoken_2"},
                 {"id": "honeytoken_3"},
-            ]
+            ],
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
@@ -267,8 +282,8 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens
         THEN: An empty list is returned
         """
-        # Mock the client response with empty list
-        mock_response = {"honeytokens": []}
+        # Mock the client response with empty list in ListResponse format
+        mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function
@@ -281,6 +296,7 @@ class TestListHoneytokens:
                 creator_id=None,
                 creator_api_token_id=None,
                 per_page=20,
+                cursor=None,
                 get_all=False,
                 mine=False,
             )
@@ -322,8 +338,8 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens
         THEN: The API is called with the creator_id filter
         """
-        # Mock the client response
-        mock_response = {"honeytokens": [{"id": "honeytoken_1"}]}
+        # Mock the client response with ListResponse format
+        mock_response = {"data": [{"id": "honeytoken_1"}], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with explicit creator_id
@@ -352,8 +368,8 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens
         THEN: The API is called with the creator_api_token_id filter
         """
-        # Mock the client response
-        mock_response = {"honeytokens": [{"id": "honeytoken_1"}]}
+        # Mock the client response with ListResponse format
+        mock_response = {"data": [{"id": "honeytoken_1"}], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with creator_api_token_id
@@ -382,16 +398,18 @@ class TestListHoneytokens:
         WHEN: Listing honeytokens
         THEN: Honeytoken details including token values are returned
         """
-        # Mock the client response with token details
+        # Mock the client response with token details and ListResponse format
         mock_response = {
-            "honeytokens": [
+            "data": [
                 {
                     "id": "honeytoken_1",
                     "name": "test_token",
                     "token": "secret_value",
                     "status": "ACTIVE",
                 }
-            ]
+            ],
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
@@ -427,8 +445,8 @@ class TestListHoneytokens:
         # Mock get_current_token_info to raise exception
         mock_gitguardian_client.get_current_token_info = AsyncMock(side_effect=Exception("Token info failed"))
 
-        # Mock the client response
-        mock_response = {"honeytokens": []}
+        # Mock the client response with ListResponse format
+        mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
         # Call the function with mine=True (should not fail, just log warning)
@@ -448,3 +466,82 @@ class TestListHoneytokens:
 
         # Verify function completes without error
         assert result.honeytokens == []
+
+    @pytest.mark.asyncio
+    async def test_list_honeytokens_cursor_pagination(self, mock_gitguardian_client):
+        """
+        GIVEN: A cursor from a previous page
+        WHEN: Listing honeytokens with that cursor
+        THEN: The cursor is passed to the API and next page is returned
+        """
+        # Mock the client response with next cursor
+        mock_response = {
+            "data": [
+                {"id": "honeytoken_3", "name": "page2_token1"},
+                {"id": "honeytoken_4", "name": "page2_token2"},
+            ],
+            "cursor": "third_page_cursor",
+            "has_more": True,
+        }
+        mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
+
+        # Call the function with a cursor from "previous page"
+        result = await list_honeytokens(
+            ListHoneytokensParams(
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                cursor="second_page_cursor",  # Cursor from previous request
+                get_all=False,
+                mine=False,
+            )
+        )
+
+        # Verify cursor was passed to the client
+        call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
+        assert call_kwargs["cursor"] == "second_page_cursor"
+
+        # Verify response includes data and next cursor
+        assert len(result.honeytokens) == 2
+        assert result.next_cursor == "third_page_cursor"
+
+    @pytest.mark.asyncio
+    async def test_list_honeytokens_last_page_no_cursor(self, mock_gitguardian_client):
+        """
+        GIVEN: The last page of results
+        WHEN: Listing honeytokens
+        THEN: next_cursor should be None indicating no more pages
+        """
+        # Mock the client response for last page (no cursor)
+        mock_response = {
+            "data": [
+                {"id": "honeytoken_last", "name": "last_token"},
+            ],
+            "cursor": None,  # No more pages
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
+
+        # Call the function
+        result = await list_honeytokens(
+            ListHoneytokensParams(
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                cursor=None,
+                get_all=False,
+                mine=False,
+            )
+        )
+
+        # Verify next_cursor is None (last page)
+        assert len(result.honeytokens) == 1
+        assert result.next_cursor is None

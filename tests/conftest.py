@@ -16,6 +16,9 @@ def mock_gitguardian_client():
             "name": "Test Token",
         }
     )
+    
+    # Set dashboard_url for self-hosted detection - use SaaS by default for tests
+    mock_client.dashboard_url = "https://dashboard.gitguardian.com"
 
     # Mock other common methods that tests might use
     mock_client.list_incidents_directly = AsyncMock(return_value={"incidents": [], "total_count": 0})
@@ -33,11 +36,17 @@ def mock_gitguardian_client():
         # Also patch get_gitguardian_client to prevent any direct calls
         with patch("gg_api_core.utils.get_gitguardian_client", return_value=mock_client):
             # Patch find_current_source_id to avoid real GitHub calls
-            mock_find_source = MagicMock()
-            mock_find_source.source_id = "source_123"
+            # Import here to avoid circular imports
+            from gg_api_core.tools.find_current_source_id import FindCurrentSourceIdResult
+
+            mock_find_source_result = FindCurrentSourceIdResult(
+                repository_name="GitGuardian/test-repo",
+                source_id="source_123",
+                message="Found source",
+            )
             with patch(
                 "gg_api_core.tools.list_incidents.find_current_source_id",
-                new_callable=lambda: AsyncMock(return_value=mock_find_source),
+                new_callable=lambda: AsyncMock(return_value=mock_find_source_result),
             ):
                 # Reset the singleton to None before each test to ensure clean state
                 import gg_api_core.utils

@@ -83,10 +83,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
                 result = await client.list_honeytokens(**filters)
 
                 # Process the result to get the list of tokens
-                if isinstance(result, dict):
-                    honeytokens = result.get("honeytokens", [])
-                else:
-                    honeytokens = result
+                honeytokens = result.get("data", [])
 
                 # Find the most recent active token
                 if honeytokens:
@@ -111,22 +108,22 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
             {"key": "source", "value": "auto-generated"},
             {"key": "type", "value": "aws"},
         ]
-        result = await client.create_honeytoken(
+        creation_result = await client.create_honeytoken(
             name=params.name, description=params.description, custom_tags=custom_tags
         )
 
         # Validate that we got an ID in the response
-        if not result.get("id"):
+        if not creation_result.get("id"):
             raise ToolError("Failed to get honeytoken ID from GitGuardian API")
 
-        logger.debug(f"Generated new honeytoken with ID: {result.get('id')}")
+        logger.debug(f"Generated new honeytoken with ID: {creation_result.get('id')}")
 
         # Add injection recommendations to the response
-        result["injection_recommendations"] = {
+        creation_result["injection_recommendations"] = {
             "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, or code comments to detect unauthorized access."
         }
 
-        return GenerateHoneytokenResult(**result)
+        return GenerateHoneytokenResult(**creation_result)
     except Exception as e:
         logger.error(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")

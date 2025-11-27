@@ -83,25 +83,13 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
 
     if params.get_all:
         # Use paginate_all for fetching all results
-        members_raw = await client.paginate_all("/members", query_params)
-        members_list = members_raw if isinstance(members_raw, list) else []
+        members_list = await client.paginate_all("/members", query_params)
         logger.debug(f"Retrieved all {len(members_list)} members using pagination")
         return ListUsersResult(members=members_list, total_count=len(members_list), next_cursor=None)
     else:
         # Single page request
-        result, headers = await client.list_members(params=query_params)
-
-        # Handle response format
-        members_list: list[dict[str, Any]]
-        if isinstance(result, dict):
-            members_list = result.get("results", result.get("data", []))
-            next_cursor = client._extract_next_cursor(headers) if headers else None
-        elif isinstance(result, list):
-            members_list = result
-            next_cursor = None
-        else:
-            logger.error(f"Unexpected result type: {type(result)}")
-            raise ToolError(f"Unexpected response format: {type(result).__name__}")
-
-        logger.debug(f"Found {len(members_list)} members")
-        return ListUsersResult(members=members_list, total_count=len(members_list), next_cursor=next_cursor)
+        result = await client.list_members(params=query_params)
+        logger.debug(f"Found {len(result['data'])} members")
+        return ListUsersResult(
+            members=result["data"], total_count=len(result["data"]), next_cursor=result["cursor"]
+        )

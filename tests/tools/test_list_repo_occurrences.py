@@ -15,9 +15,9 @@ class TestListRepoOccurrences:
         WHEN: Listing occurrences for the repository
         THEN: The API returns occurrences with exact match locations and with_sources=False
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
-            "occurrences": [
+            "data": [
                 {
                     "id": "occ_1",
                     "matches": [
@@ -79,7 +79,7 @@ class TestListRepoOccurrences:
         """
         # Mock the client response
         mock_response = {
-            "occurrences": [
+            "data": [
                 {
                     "id": "occ_1",
                     "matches": [],
@@ -114,7 +114,7 @@ class TestListRepoOccurrences:
         """
         # Mock the client response
         mock_response = {
-            "occurrences": [],
+            "data": [],
             "cursor": None,
             "has_more": False,
         }
@@ -154,11 +154,15 @@ class TestListRepoOccurrences:
         WHEN: Listing occurrences with pagination
         THEN: All occurrences are fetched and returned as a list
         """
-        # Mock the client to return a list directly when get_all=True
-        mock_response = [
-            {"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}},
-            {"id": "occ_2", "matches": [], "incident": {"id": "incident_2"}},
-        ]
+        # Mock the client to return proper dict structure when get_all=True
+        mock_response = {
+            "data": [
+                {"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}},
+                {"id": "occ_2", "matches": [], "incident": {"id": "incident_2"}},
+            ],
+            "cursor": None,
+            "has_more": False,
+        }
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function with get_all=True
@@ -229,7 +233,7 @@ class TestListRepoOccurrences:
         """
         # Mock the client response with cursor
         mock_response = {
-            "occurrences": [{"id": "occ_1"}],
+            "data": [{"id": "occ_1"}],
             "cursor": "next_cursor_123",
             "has_more": True,
         }
@@ -270,7 +274,7 @@ class TestListRepoOccurrences:
         """
         # Mock the client response with no occurrences
         mock_response = {
-            "occurrences": [],
+            "data": [],
             "cursor": None,
             "has_more": False,
         }
@@ -290,17 +294,14 @@ class TestListRepoOccurrences:
         """
         GIVEN: The API returns an unexpected response type
         WHEN: Processing the response
-        THEN: Default empty values are returned
+        THEN: An error is returned
         """
-        # Mock the client to return unexpected type
-        mock_response = "unexpected_string"
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+        # Mock the client to raise an exception for unexpected response
+        mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception("Unexpected response format"))
 
         # Call the function
         result = await list_repo_occurrences(ListRepoOccurrencesParams(repository_name="GitGuardian/test-repo"))
 
-        # Verify response defaults to empty
-        assert result.occurrences_count == 0
-        assert result.occurrences == []
-        assert result.applied_filters is not None
-        assert result.suggestion is not None
+        # Verify error response is returned
+        assert hasattr(result, "error")
+        assert "Failed to list repository occurrences" in result.error
