@@ -10,7 +10,14 @@ SAAS_HOSTNAMES = [
     "dashboard.preprod.gitguardian.com",
 ]
 
-LOCAL_HOSTNAMES = ["localhost", "127.0.0.1", "localhost:3000", "127.0.0.1:3000"]
+LOCAL_HOSTNAMES = ["localhost", "127.0.0.1"]
+
+
+def _is_local_hostname(parsed_hostname: str | None) -> bool:
+    """Check if hostname (without port) is a local hostname."""
+    if parsed_hostname is None:
+        return False
+    return parsed_hostname.lower() in LOCAL_HOSTNAMES
 
 
 def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
@@ -28,8 +35,12 @@ def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
 
     try:
         parsed = urlparse(gitguardian_url)
-        hostname = parsed.netloc.lower()
-        return hostname not in [*SAAS_HOSTNAMES, *LOCAL_HOSTNAMES]
+        # For local hostnames, ignore the port
+        if _is_local_hostname(parsed.hostname):
+            return False
+        # For SaaS, check the full netloc (includes port)
+        netloc = parsed.netloc.lower()
+        return netloc not in SAAS_HOSTNAMES
     except Exception:
         # If parsing fails, assume self-hosted to be safe
         return True
@@ -40,8 +51,7 @@ def is_local_instance(gitguardian_url: str | None = None) -> bool:
         return False
 
     parsed = urlparse(gitguardian_url)
-    hostname = parsed.netloc.lower()
-    return hostname in LOCAL_HOSTNAMES
+    return _is_local_hostname(parsed.hostname)
 
 
 def has_exposed_prefix_for_api(gitguardian_url):
