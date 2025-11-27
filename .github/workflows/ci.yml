@@ -33,6 +33,29 @@ jobs:
       - name: Run ruff format check
         run: uv run ruff format --check .
 
+  type-check:
+    runs-on: ubuntu-latest
+    name: Type Check with Mypy
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run mypy
+        run: uv run mypy packages/
+
   test:
     runs-on: ubuntu-latest
     name: Run Tests
