@@ -108,11 +108,12 @@ class GitGuardianClient:
         """
         logger.info("Initializing GitGuardian client")
 
-        self._init_urls(gitguardian_url)
-        self._init_personal_access_token(personal_access_token)
-
+        # Initialize instance variables before calling init methods
         self._token_info: Any | None = None
         self._oauth_token: str | None = None
+
+        self._init_urls(gitguardian_url)
+        self._init_personal_access_token(personal_access_token)
 
     def _init_urls(self, gitguardian_url: str | None = None):
         # Use provided raw URL or get from environment with default fallback
