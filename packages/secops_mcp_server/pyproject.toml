@@ -42,5 +42,5 @@ sentry = [
 secops-mcp-server = "secops_mcp_server.run:run_mcp_server"
 
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
