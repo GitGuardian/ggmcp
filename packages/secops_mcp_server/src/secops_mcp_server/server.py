@@ -6,6 +6,7 @@ from typing import Any, Literal
 from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
+from gg_api_core import configure_mcp_logging
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
@@ -17,9 +18,7 @@ from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.write_custom_tags import update_or_create_incident_custom_tags, write_custom_tags
 from pydantic import BaseModel, Field
 
-# Configure more detailed logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
+configure_mcp_logging()
 logger = logging.getLogger(__name__)
 
 
@@ -113,7 +112,6 @@ IMPORTANT:
 # Use our custom GitGuardianFastMCP from the core package
 mcp = get_mcp_server(
     "GitGuardian SecOps",
-    log_level="DEBUG",
     instructions=SECOPS_INSTRUCTIONS,
 )
 
