@@ -23,7 +23,7 @@ def run_stdio():
     """
     init_sentry()
     logger.info("Developer MCP server running on stdio")
-    mcp.run()
+    mcp.run(show_banner=False)
 
 
 def run_http_with_uvicorn():
