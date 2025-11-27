@@ -14,7 +14,7 @@ class TestListIncidents:
         WHEN: Listing incidents for the repository
         THEN: The API returns the incidents for that repository
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
             "data": [
                 {
@@ -24,7 +24,8 @@ class TestListIncidents:
                     "assignee_id": "user1",
                 }
             ],
-            "total_count": 1,
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
@@ -52,7 +53,7 @@ class TestListIncidents:
         assert call_kwargs["assignee_email"] == "test@example.com"
 
         # Verify response
-        assert result.total_count == mock_response["total_count"]
+        assert result.total_count == len(mock_response["data"])
         assert len(result.incidents) == len(mock_response["data"])
 
     @pytest.mark.asyncio
@@ -62,7 +63,7 @@ class TestListIncidents:
         WHEN: Listing incidents for the source
         THEN: The API returns incidents for that source
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
             "data": [
                 {
@@ -70,7 +71,8 @@ class TestListIncidents:
                     "detector": {"name": "Generic API Key"},
                 }
             ],
-            "total_count": 1,
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
@@ -110,10 +112,11 @@ class TestListIncidents:
         WHEN: Listing incidents with filters
         THEN: The API is called with correct filter parameters
         """
-        # Mock the client response
+        # Mock the client response with ListResponse format
         mock_response = {
             "data": [],
-            "total_count": 0,
+            "cursor": None,
+            "has_more": False,
         }
         mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
@@ -151,16 +154,20 @@ class TestListIncidents:
     async def test_list_incidents_get_all(self, mock_gitguardian_client):
         """
         GIVEN: get_all flag is True
-        WHEN: Listing incidents with pagination
-        THEN: All incidents are fetched using paginate_all
+        WHEN: Listing incidents with get_all
+        THEN: All incidents are fetched and returned with cursor=None
         """
-        # Mock the paginate_all response
-        mock_response = [
-            {"id": "incident_1"},
-            {"id": "incident_2"},
-            {"id": "incident_3"},
-        ]
-        mock_gitguardian_client.paginate_all = AsyncMock(return_value=mock_response)
+        # Mock list_incidents to return ListResponse format (get_all returns cursor=None)
+        mock_response = {
+            "data": [
+                {"id": "incident_1"},
+                {"id": "incident_2"},
+                {"id": "incident_3"},
+            ],
+            "cursor": None,
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
         # Call the function with get_all=True
         result = await list_incidents(
@@ -170,8 +177,10 @@ class TestListIncidents:
             )
         )
 
-        # Verify paginate_all was called
-        mock_gitguardian_client.paginate_all.assert_called_once()
+        # Verify list_incidents was called with get_all=True
+        mock_gitguardian_client.list_incidents.assert_called_once()
+        call_kwargs = mock_gitguardian_client.list_incidents.call_args.kwargs
+        assert call_kwargs["get_all"] is True
 
         # Verify response
         assert result.total_count == 3
@@ -247,11 +256,11 @@ class TestListIncidents:
         WHEN: Listing incidents with the cursor
         THEN: The API is called with the cursor parameter
         """
-        # Mock the client response with cursor
+        # Mock the client response with ListResponse format including cursor
         mock_response = {
             "data": [{"id": "incident_1"}],
-            "total_count": 1,
-            "next_cursor": "cursor_abc",
+            "cursor": "cursor_abc",
+            "has_more": True,
         }
         mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
@@ -281,12 +290,16 @@ class TestListIncidents:
     @pytest.mark.asyncio
     async def test_list_incidents_source_id_list_response(self, mock_gitguardian_client):
         """
-        GIVEN: The API returns a list directly
+        GIVEN: The API returns ListResponse format
         WHEN: Listing incidents by source_id
         THEN: The response is properly formatted
         """
-        # Mock the client to return a list directly
-        mock_response = [{"id": "incident_1"}, {"id": "incident_2"}]
+        # Mock the client to return ListResponse format
+        mock_response = {
+            "data": [{"id": "incident_1"}, {"id": "incident_2"}],
+            "cursor": None,
+            "has_more": False,
+        }
         mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
         # Call the function
@@ -311,20 +324,22 @@ class TestListIncidents:
         assert result.source_id == "source_123"
         assert result.total_count == 2
         assert len(result.incidents) == 2
+        assert result.next_cursor is None
 
     @pytest.mark.asyncio
     async def test_list_incidents_get_all_dict_response(self, mock_gitguardian_client):
         """
-        GIVEN: paginate_all returns a dict response
+        GIVEN: list_incidents with get_all=True
         WHEN: Listing all incidents with get_all=True
-        THEN: The response is properly formatted
+        THEN: The response is properly formatted with all data
         """
-        # Mock paginate_all to return a dict
+        # Mock list_incidents to return ListResponse format (get_all returns cursor=None)
         mock_response = {
             "data": [{"id": "incident_1"}, {"id": "incident_2"}],
-            "total_count": 2,
+            "cursor": None,
+            "has_more": False,
         }
-        mock_gitguardian_client.paginate_all = AsyncMock(return_value=mock_response)
+        mock_gitguardian_client.list_incidents = AsyncMock(return_value=mock_response)
 
         # Call the function with get_all=True
         result = await list_incidents(ListIncidentsParams(source_id="source_123", get_all=True))
@@ -333,3 +348,4 @@ class TestListIncidents:
         assert result.source_id == "source_123"
         assert result.total_count == 2
         assert len(result.incidents) == 2
+        assert result.next_cursor is None  # get_all should have no cursor

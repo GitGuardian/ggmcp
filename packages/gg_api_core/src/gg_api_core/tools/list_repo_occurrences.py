@@ -45,15 +45,15 @@ class ListRepoOccurrencesFilters(BaseModel):
     )
     presence: str | None = Field(default=None, description="Filter by presence status")
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
-    exclude_tags: list[TagNames | str] | None = Field(
+    exclude_tags: list[TagNames] | None = Field(
         default=DEFAULT_EXCLUDED_TAGS,
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
     )
-    status: list[IncidentStatus | str] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
-    severity: list[IncidentSeverity | str] | None = Field(
+    status: list[IncidentStatus] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
+    severity: list[IncidentSeverity] | None = Field(
         default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
     )
-    validity: list[IncidentValidity | str] | None = Field(
+    validity: list[IncidentValidity] | None = Field(
         default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
     )
 
@@ -206,7 +206,7 @@ async def list_repo_occurrences(
         if params.source_id:
             # Use source_id directly
             result = await client.list_occurrences(
-                source_id=params.source_id,
+                source_id=str(params.source_id) if params.source_id is not None else None,
                 from_date=params.from_date,
                 to_date=params.to_date,
                 presence=params.presence,
@@ -223,9 +223,7 @@ async def list_repo_occurrences(
             )
         else:
             # Use source_name (legacy path)
-            if not params.repository_name:
-                return ListRepoOccurrencesError(error="repository_name is required when source_id is not provided")
-            source_name = params.repository_name.strip()
+            source_name = params.repository_name.strip() if params.repository_name is not None else None
             result = await client.list_occurrences(
                 source_name=source_name,
                 source_type="github",  # Default to github, could be made configurable
@@ -244,37 +242,21 @@ async def list_repo_occurrences(
                 with_sources=False,
             )
 
-        # Handle the response format
-        if isinstance(result, dict):
-            occurrences = result.get("occurrences", [])
-            count = len(occurrences)
-            return ListRepoOccurrencesResult(
-                repository=params.repository_name,
-                occurrences_count=count,
-                occurrences=occurrences,
-                cursor=result.get("cursor"),
-                has_more=result.get("has_more", False),
-                applied_filters=_build_filter_info(params),
-                suggestion=_build_suggestion(params, count),
-            )
-        elif isinstance(result, list):
-            # If get_all=True, we get a list directly
-            count = len(result)
-            return ListRepoOccurrencesResult(
-                repository=params.repository_name,
-                occurrences_count=count,
-                occurrences=result,
-                applied_filters=_build_filter_info(params),
-                suggestion=_build_suggestion(params, count),
-            )
-        else:
-            return ListRepoOccurrencesResult(
-                repository=params.repository_name,
-                occurrences_count=0,
-                occurrences=[],
-                applied_filters=_build_filter_info(params),
-                suggestion=_build_suggestion(params, 0),
-            )
+        # Extract data from ListResponse
+        occurrences_data = result["data"]
+        next_cursor = result["cursor"]
+        has_more = result["has_more"]
+        
+        count = len(occurrences_data)
+        return ListRepoOccurrencesResult(
+            repository=params.repository_name,
+            occurrences_count=count,
+            occurrences=occurrences_data,
+            cursor=next_cursor,
+            has_more=has_more,
+            applied_filters=_build_filter_info(params),
+            suggestion=_build_suggestion(params, count),
+        )
 
     except Exception as e:
         logger.error(f"Error listing repository occurrences: {str(e)}")

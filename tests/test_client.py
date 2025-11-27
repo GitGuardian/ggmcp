@@ -66,7 +66,7 @@ class TestGitGuardianClient:
         mock_httpx_client.request = AsyncMock(return_value=mock_response)
 
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            result = await client._request("GET", "/test")
+            result = await client._request_get("/test")
 
             # Assert request was called with correct parameters
             mock_httpx_client.request.assert_called_once()
@@ -93,7 +93,7 @@ class TestGitGuardianClient:
         mock_httpx_client.request = AsyncMock(return_value=mock_response)
 
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            result = await client._request("GET", "/test")
+            result = await client._request_get("/test")
 
             # Should return empty dict for 204 responses
             assert result == {}
@@ -123,7 +123,7 @@ class TestGitGuardianClient:
         with patch("httpx.AsyncClient", return_value=async_client_instance):
             # The request should raise the HTTPStatusError
             with pytest.raises(httpx.HTTPStatusError):
-                await client._request("GET", "/test")
+                await client._request_get("/test")
 
     @pytest.mark.asyncio
     async def test_create_honeytoken(self, client):
@@ -185,13 +185,15 @@ class TestGitGuardianClient:
 
     @pytest.mark.asyncio
     async def test_list_incidents(self, client):
-        """Test list_incidents method."""
+        """Test list_incidents method with cursor-based pagination."""
+        # Mock response in ListResponse format (cursor-based pagination)
         expected_response = {
             "data": [{"id": "incident_1", "severity": "critical", "status": "TRIGGERED"}],
-            "pagination": {"total_count": 1, "page": 1, "per_page": 20},
+            "cursor": "next_page_cursor",
+            "has_more": True,
         }
 
-        with patch.object(client, "_request", AsyncMock(return_value=expected_response)) as mock_request:
+        with patch.object(client, "_request_list", AsyncMock(return_value=expected_response)) as mock_request_list:
             result = await client.list_incidents(
                 severity=IncidentSeverity.CRITICAL,
                 status=IncidentStatus.TRIGGERED,
@@ -200,26 +202,27 @@ class TestGitGuardianClient:
                 per_page=20,
             )
 
-            # Assert _request was called with correct parameters
-            mock_request.assert_called_once()
-            args, kwargs = mock_request.call_args
-            assert args[0] == "GET"
-            assert "/incidents" in args[1]
+            # Assert _request_list was called
+            mock_request_list.assert_called_once()
 
-            # Assert response
+            # Assert response uses cursor-based pagination format
             assert result == expected_response
             assert len(result["data"]) == 1
             assert result["data"][0]["severity"] == "critical"
+            assert result["cursor"] == "next_page_cursor"
+            assert result["has_more"] is True
 
     @pytest.mark.asyncio
     async def test_list_incidents_with_validity(self, client):
-        """Test list_incidents method with validity."""
+        """Test list_incidents method with validity filter using cursor-based pagination."""
+        # Mock response in ListResponse format (cursor-based pagination)
         expected_response = {
             "data": [{"id": "incident_1", "severity": "critical", "status": "TRIGGERED", "validity": "VALID"}],
-            "pagination": {"total_count": 1, "page": 1, "per_page": 20},
+            "cursor": None,  # Last page
+            "has_more": False,
         }
 
-        with patch.object(client, "_request", AsyncMock(return_value=expected_response)) as mock_request:
+        with patch.object(client, "_request_list", AsyncMock(return_value=expected_response)) as mock_request_list:
             result = await client.list_incidents(
                 severity=IncidentSeverity.CRITICAL,
                 status=IncidentStatus.TRIGGERED,
@@ -229,17 +232,16 @@ class TestGitGuardianClient:
                 validity=IncidentValidity.VALID,
             )
 
-            # Assert _request was called with correct parameters
-            mock_request.assert_called_once()
-            args, kwargs = mock_request.call_args
-            assert args[0] == "GET"
-            assert "/incidents" in args[1]
+            # Assert _request_list was called
+            mock_request_list.assert_called_once()
 
-            # Assert response
+            # Assert response uses cursor-based pagination format
             assert result == expected_response
             assert len(result["data"]) == 1
             assert result["data"][0]["severity"] == "critical"
             assert result["data"][0]["validity"] == "VALID"
+            assert result["cursor"] is None  # Last page
+            assert result["has_more"] is False
 
 
 class TestGetGitGuardianClient:
@@ -330,3 +332,282 @@ class TestGetGitGuardianClient:
             assert client.public_api_url == expected["public_api_url"]
             assert client.dashboard_url == expected["dashboard_url"]
             assert client.private_api_url == expected["private_api_url"]
+
+
+class TestCursorPagination:
+    """Tests for cursor pagination functionality."""
+
+    @pytest.mark.asyncio
+    async def test_request_list_returns_list_response(self, client):
+        """
+        GIVEN a list endpoint that returns data with pagination headers
+        WHEN _request_list is called
+        THEN it should return a ListResponse with data, cursor, and has_more
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"id": 1}, {"id": 2}]
+        mock_response.headers = {
+            "link": '<https://api.gitguardian.com/v1/test?cursor=next_cursor_value>; rel="next"'
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client._request_list("/test")
+
+            assert "data" in result
+            assert "cursor" in result
+            assert "has_more" in result
+            assert isinstance(result["data"], list)
+            assert len(result["data"]) == 2
+            assert result["cursor"] == "next_cursor_value"
+            assert result["has_more"] is True
+
+    @pytest.mark.asyncio
+    async def test_request_list_last_page(self, client):
+        """
+        GIVEN a list endpoint that returns the last page (no Link header)
+        WHEN _request_list is called
+        THEN cursor should be None and has_more should be False
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"id": 3}]
+        mock_response.headers = {}  # No Link header = last page
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client._request_list("/test")
+
+            assert result["data"] == [{"id": 3}]
+            assert result["cursor"] is None
+            assert result["has_more"] is False
+
+    @pytest.mark.asyncio
+    async def test_request_list_handles_dict_response(self, client):
+        """
+        GIVEN a list endpoint that returns a dict with "results" or "data" key
+        WHEN _request_list is called
+        THEN it should extract the list and return proper ListResponse
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"results": [{"id": 1}, {"id": 2}], "count": 2}
+        mock_response.headers = {}
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client._request_list("/test")
+
+            assert result["data"] == [{"id": 1}, {"id": 2}]
+            assert result["cursor"] is None
+            assert result["has_more"] is False
+
+    @pytest.mark.asyncio
+    async def test_list_incidents_returns_list_response(self, client):
+        """
+        GIVEN the list_incidents method
+        WHEN called without get_all
+        THEN it should return a ListResponse structure
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"id": 1, "severity": "high"},
+            {"id": 2, "severity": "medium"},
+        ]
+        mock_response.headers = {
+            "link": '<https://api.gitguardian.com/v1/incidents/secrets?cursor=abc123>; rel="next"'
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client.list_incidents(get_all=False)
+
+            assert "data" in result
+            assert "cursor" in result
+            assert "has_more" in result
+            assert len(result["data"]) == 2
+            assert result["cursor"] == "abc123"
+            assert result["has_more"] is True
+
+    @pytest.mark.asyncio
+    async def test_list_incidents_with_get_all(self, client):
+        """
+        GIVEN the list_incidents method with get_all=True
+        WHEN called
+        THEN it should return a ListResponse with cursor=None and has_more=False
+        """
+        # Mock paginate_all to return all items
+        with patch.object(client, "paginate_all", new_callable=AsyncMock) as mock_paginate:
+            mock_paginate.return_value = [
+                {"id": 1},
+                {"id": 2},
+                {"id": 3},
+            ]
+
+            result = await client.list_incidents(get_all=True)
+
+            assert "data" in result
+            assert "cursor" in result
+            assert "has_more" in result
+            assert len(result["data"]) == 3
+            assert result["cursor"] is None
+            assert result["has_more"] is False
+
+    @pytest.mark.asyncio
+    async def test_list_honeytokens_returns_list_response(self, client):
+        """
+        GIVEN the list_honeytokens method
+        WHEN called without get_all
+        THEN it should return a ListResponse structure
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"id": 1, "name": "token1"},
+            {"id": 2, "name": "token2"},
+        ]
+        mock_response.headers = {
+            "link": '<https://api.gitguardian.com/v1/honeytokens?cursor=xyz789>; rel="next"'
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client.list_honeytokens(get_all=False)
+
+            assert "data" in result
+            assert "cursor" in result
+            assert "has_more" in result
+            assert len(result["data"]) == 2
+            assert result["cursor"] == "xyz789"
+
+    @pytest.mark.asyncio
+    async def test_list_occurrences_returns_list_response(self, client):
+        """
+        GIVEN the list_occurrences method
+        WHEN called
+        THEN it should return a ListResponse structure
+        """
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {"id": 1, "severity": "high"},
+        ]
+        mock_response.headers = {}
+        mock_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client.list_occurrences(get_all=False)
+
+            assert "data" in result
+            assert "cursor" in result
+            assert "has_more" in result
+            assert result["cursor"] is None  # No next page
+
+    @pytest.mark.asyncio
+    async def test_paginate_all_uses_request_list(self, client):
+        """
+        GIVEN the paginate_all method
+        WHEN it follows pagination cursors
+        THEN it should accumulate all items from all pages
+        """
+        # Mock three pages of results
+        page1_response = MagicMock()
+        page1_response.status_code = 200
+        page1_response.json.return_value = [{"id": 1}, {"id": 2}]
+        page1_response.headers = {
+            "link": '<https://api.gitguardian.com/v1/test?cursor=page2>; rel="next"'
+        }
+        page1_response.raise_for_status = MagicMock()
+
+        page2_response = MagicMock()
+        page2_response.status_code = 200
+        page2_response.json.return_value = [{"id": 3}, {"id": 4}]
+        page2_response.headers = {
+            "link": '<https://api.gitguardian.com/v1/test?cursor=page3>; rel="next"'
+        }
+        page2_response.raise_for_status = MagicMock()
+
+        page3_response = MagicMock()
+        page3_response.status_code = 200
+        page3_response.json.return_value = [{"id": 5}]
+        page3_response.headers = {}  # Last page
+        page3_response.raise_for_status = MagicMock()
+
+        mock_httpx_client = AsyncMock()
+        mock_httpx_client.get = AsyncMock(side_effect=[page1_response, page2_response, page3_response])
+        
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            result = await client.paginate_all("/test")
+
+            # Should have collected all items from all pages
+            assert len(result) == 5
+            assert result == [{"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}]
+
+    @pytest.mark.asyncio
+    async def test_extract_next_cursor_decodes_url(self, client):
+        """
+        GIVEN a Link header with URL-encoded cursor
+        WHEN _extract_next_cursor is called
+        THEN it should return the decoded cursor value
+        """
+        headers = {
+            "link": '<https://api.gitguardian.com/v1/test?cursor=test%2Bvalue%3D123>; rel="next"'
+        }
+
+        cursor = client._extract_next_cursor(headers)
+
+        assert cursor == "test+value=123"
+
+    @pytest.mark.asyncio
+    async def test_extract_next_cursor_no_link_header(self, client):
+        """
+        GIVEN headers without a Link header
+        WHEN _extract_next_cursor is called
+        THEN it should return None
+        """
+        headers = {}
+
+        cursor = client._extract_next_cursor(headers)
+
+        assert cursor is None
