@@ -1,6 +1,5 @@
 import logging
 from typing import Any
-from typing_extensions import cast
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator

@@ -2,7 +2,6 @@ import json
 import logging
 from typing import Any
 
-from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
@@ -90,6 +89,4 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
         # Single page request
         result = await client.list_members(params=query_params)
         logger.debug(f"Found {len(result['data'])} members")
-        return ListUsersResult(
-            members=result["data"], total_count=len(result["data"]), next_cursor=result["cursor"]
-        )
+        return ListUsersResult(members=result["data"], total_count=len(result["data"]), next_cursor=result["cursor"])

@@ -49,7 +49,9 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=DEFAULT_EXCLUDED_TAGS,
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
     )
-    status: list[IncidentStatus] | None = Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)")
+    status: list[IncidentStatus] | None = Field(
+        default=DEFAULT_STATUSES, description="Filter by status (list of status names)"
+    )
     severity: list[IncidentSeverity] | None = Field(
         default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
     )
@@ -246,7 +248,7 @@ async def list_repo_occurrences(
         occurrences_data = result["data"]
         next_cursor = result["cursor"]
         has_more = result["has_more"]
-        
+
         count = len(occurrences_data)
         return ListRepoOccurrencesResult(
             repository=params.repository_name,

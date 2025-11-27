@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Any
 
@@ -34,15 +33,17 @@ class ListHoneytokensResult(BaseModel):
     """Result from listing honeytokens."""
 
     honeytokens: list[dict[str, Any]] = Field(description="List of honeytoken objects")
-    next_cursor: str | None = Field(default=None, description="Cursor for fetching the next page (null if no more results)")
+    next_cursor: str | None = Field(
+        default=None, description="Cursor for fetching the next page (null if no more results)"
+    )
 
 
 async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
-    IMPORTANT: When the user asks for "my honeytokens", "my tokens", "honeytokens I created", 
-    "honeytokens created by me", or similar possessive/personal references, you MUST set mine=True 
+    IMPORTANT: When the user asks for "my honeytokens", "my tokens", "honeytokens I created",
+    "honeytokens created by me", or similar possessive/personal references, you MUST set mine=True
     to filter to only the current user's honeytokens.
 
     Args:
@@ -75,7 +76,6 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
         except Exception as e:
             logger.warning(f"Failed to get current user info for 'mine' filter: {str(e)}")
 
-
     try:
         response = await client.list_honeytokens(
             status=params.status,
@@ -91,7 +91,7 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
 
         honeytokens_data = response["data"]
         next_cursor = response["cursor"]
-        
+
         logger.debug(f"Found {len(honeytokens_data)} honeytokens")
         return ListHoneytokensResult(honeytokens=honeytokens_data, next_cursor=next_cursor)
     except Exception as e:

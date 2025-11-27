@@ -43,7 +43,7 @@ class CachedTokenInfoMixin:
         kwargs["lifespan"] = self._create_token_scope_lifespan(original_lifespan)
         # Call parent __init__ in the MRO chain
         super().__init__(*args, **kwargs)
-    
+
     def clear_cache(self) -> None:
         """Clear cached token information and scopes."""
         self._token_scopes = set()
@@ -106,8 +106,8 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
 
-        self.add_middleware(self._scope_filtering_middleware)  
-    
+        self.add_middleware(self._scope_filtering_middleware)
+
     def clear_cache(self) -> None:
         """Clear cached data. Override in subclasses that cache."""
         pass

@@ -107,10 +107,8 @@ async def remediate_secret_incidents(
     try:
         # Use the list_repo_occurrences_params and update with parent-level repository info
         if params.list_repo_occurrences_params is None:
-            return RemediateSecretIncidentsError(
-                error="list_repo_occurrences_params is required", sub_tools_results={}
-            )
-        
+            return RemediateSecretIncidentsError(error="list_repo_occurrences_params is required", sub_tools_results={})
+
         occurrences_params = params.list_repo_occurrences_params.model_copy(
             update={
                 "repository_name": params.repository_name or params.list_repo_occurrences_params.repository_name,

@@ -347,14 +347,12 @@ class TestCursorPagination:
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = [{"id": 1}, {"id": 2}]
-        mock_response.headers = {
-            "link": '<https://api.gitguardian.com/v1/test?cursor=next_cursor_value>; rel="next"'
-        }
+        mock_response.headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=next_cursor_value>; rel="next"'}
         mock_response.raise_for_status = MagicMock()
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -384,7 +382,7 @@ class TestCursorPagination:
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -410,7 +408,7 @@ class TestCursorPagination:
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -434,14 +432,12 @@ class TestCursorPagination:
             {"id": 1, "severity": "high"},
             {"id": 2, "severity": "medium"},
         ]
-        mock_response.headers = {
-            "link": '<https://api.gitguardian.com/v1/incidents/secrets?cursor=abc123>; rel="next"'
-        }
+        mock_response.headers = {"link": '<https://api.gitguardian.com/v1/incidents/secrets?cursor=abc123>; rel="next"'}
         mock_response.raise_for_status = MagicMock()
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -492,14 +488,12 @@ class TestCursorPagination:
             {"id": 1, "name": "token1"},
             {"id": 2, "name": "token2"},
         ]
-        mock_response.headers = {
-            "link": '<https://api.gitguardian.com/v1/honeytokens?cursor=xyz789>; rel="next"'
-        }
+        mock_response.headers = {"link": '<https://api.gitguardian.com/v1/honeytokens?cursor=xyz789>; rel="next"'}
         mock_response.raise_for_status = MagicMock()
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -529,7 +523,7 @@ class TestCursorPagination:
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(return_value=mock_response)
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -552,17 +546,13 @@ class TestCursorPagination:
         page1_response = MagicMock()
         page1_response.status_code = 200
         page1_response.json.return_value = [{"id": 1}, {"id": 2}]
-        page1_response.headers = {
-            "link": '<https://api.gitguardian.com/v1/test?cursor=page2>; rel="next"'
-        }
+        page1_response.headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=page2>; rel="next"'}
         page1_response.raise_for_status = MagicMock()
 
         page2_response = MagicMock()
         page2_response.status_code = 200
         page2_response.json.return_value = [{"id": 3}, {"id": 4}]
-        page2_response.headers = {
-            "link": '<https://api.gitguardian.com/v1/test?cursor=page3>; rel="next"'
-        }
+        page2_response.headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=page3>; rel="next"'}
         page2_response.raise_for_status = MagicMock()
 
         page3_response = MagicMock()
@@ -573,7 +563,7 @@ class TestCursorPagination:
 
         mock_httpx_client = AsyncMock()
         mock_httpx_client.get = AsyncMock(side_effect=[page1_response, page2_response, page3_response])
-        
+
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
@@ -591,9 +581,7 @@ class TestCursorPagination:
         WHEN _extract_next_cursor is called
         THEN it should return the decoded cursor value
         """
-        headers = {
-            "link": '<https://api.gitguardian.com/v1/test?cursor=test%2Bvalue%3D123>; rel="next"'
-        }
+        headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=test%2Bvalue%3D123>; rel="next"'}
 
         cursor = client._extract_next_cursor(headers)
 
