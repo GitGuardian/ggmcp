@@ -41,5 +41,5 @@ sentry = [
 developer-mcp-server = "developer_mcp_server.run:run_mcp_server"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
