@@ -56,6 +56,10 @@ def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
         filters["severity"] = [sev.value if hasattr(sev, "value") else sev for sev in params.severity]
     if params.validity:
         filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
+    if params.assignee_id:
+        filters["assignee_id"] = params.assignee_id
+    if params.assignee_email:
+        filters["assignee_email"] = params.assignee_email
 
     return filters
 
@@ -67,6 +71,10 @@ def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> st
     # Explain what's being filtered
     if params.mine:
         suggestions.append("Incidents are filtered to show only those assigned to current user")
+    if params.assignee_id:
+        suggestions.append(f"Incidents are filtered by assignee ID: {params.assignee_id}")
+    if params.assignee_email:
+        suggestions.append(f"Incidents are filtered by assignee email: {params.assignee_email}")
 
     if params.exclude_tags:
         excluded_tag_names = [tag.name if hasattr(tag, "name") else tag for tag in params.exclude_tags]
@@ -128,6 +136,14 @@ class ListIncidentsParams(BaseModel):
     mine: bool = Field(
         default=False,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+    )
+    assignee_id: int | None = Field(
+        default=None,
+        description="Filter by assignee member ID. Cannot be used together with 'mine'.",
+    )
+    assignee_email: str | None = Field(
+        default=None,
+        description="Filter by assignee email address. Cannot be used together with 'mine'.",
     )
     severity: list[str | IncidentSeverity] | None = Field(
         default=cast(list[str | IncidentSeverity], DEFAULT_SEVERITIES),
@@ -196,7 +212,18 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
 
         if params.mine:
             member = await client.get_current_member()
-            api_params["assignee_email"] = member["email"]
+            current_user_email = member["email"]
+            if params.assignee_email and params.assignee_email != current_user_email:
+                return ListIncidentsError(
+                    error=f"Conflict: 'mine=True' implies assignee_email='{current_user_email}', "
+                    f"but assignee_email='{params.assignee_email}' was explicitly provided. "
+                    "Please use either 'mine=True' or an explicit 'assignee_email', not both with different values."
+                )
+            api_params["assignee_email"] = current_user_email
+        if params.assignee_id:
+            api_params["assignee_id"] = params.assignee_id
+        if params.assignee_email and not params.mine:
+            api_params["assignee_email"] = params.assignee_email
 
         if params.from_date:
             api_params["date_after"] = params.from_date
