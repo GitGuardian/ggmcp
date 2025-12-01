@@ -60,7 +60,11 @@ def mock_gitguardian_client():
 @pytest.fixture(autouse=True)
 def mock_env_vars():
     """Automatically mock environment variables for all tests."""
-    with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://test.api.gitguardian.com"}):
+    env_overrides = {
+        "GITGUARDIAN_URL": "https://test.api.gitguardian.com",
+        "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "",  # Clear PAT to test OAuth paths
+    }
+    with patch.dict(os.environ, env_overrides):
         yield
 
 
