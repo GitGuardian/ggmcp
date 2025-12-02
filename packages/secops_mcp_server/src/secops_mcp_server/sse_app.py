@@ -5,6 +5,10 @@ It imports the configured MCP server and exposes its SSE application.
 
 This module is specifically for production deployment with gunicorn.
 For local development, use the run_http_with_uvicorn() function instead.
+
+Note: This SSE transport requires sticky sessions for horizontal scaling since
+session state is maintained in-memory per worker. For stateless operation,
+use http_app.py instead which uses StreamableHTTP with JSON responses.
 """
 
 import logging
