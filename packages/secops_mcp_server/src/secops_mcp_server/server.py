@@ -7,7 +7,6 @@ from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
-from gg_api_core.schema_utils import compress_pydantic_model_schema
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
