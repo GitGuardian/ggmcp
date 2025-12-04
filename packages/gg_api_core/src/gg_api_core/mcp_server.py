@@ -5,12 +5,12 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import FastMCPError, ValidationError
 from fastmcp.server.dependencies import get_http_headers
-from fastmcp.server.middleware import Middleware
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.tools import Tool
 from mcp.types import Tool as MCPTool
 
@@ -277,7 +277,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
         # If arguments is empty or not a dict, nothing to preprocess
         if not isinstance(arguments, dict):
-            logger.debug(f"Arguments is not a dict, skipping preprocessing")
+            logger.debug("Arguments is not a dict, skipping preprocessing")
             return await call_next(context)
 
         # Look for stringified JSON in parameter values

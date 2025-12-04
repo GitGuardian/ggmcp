@@ -1,12 +1,11 @@
-from fastmcp import FastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honeytokens import list_honeytokens
+from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
 from gg_api_core.tools.scan_secret import scan_secrets
-from gg_api_core.tools.list_incidents import list_incidents
 
 DEVELOPER_INSTRUCTIONS = """
 # GitGuardian Developer Tools for Secret Detection & Remediation
