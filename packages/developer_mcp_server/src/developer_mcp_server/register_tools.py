@@ -1,3 +1,4 @@
+from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.list_honeytokens import list_honeytokens
