@@ -690,7 +690,7 @@ class GitGuardianOAuthClient:
                 "User-Agent": f"MCP-Server/{self.token_name}",  # Include in user agent
             }
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
                 response = await client.post(token_url, data=token_params, headers=headers)
 
                 if response.status_code == 200:
@@ -763,7 +763,7 @@ class GitGuardianOAuthClient:
         try:
             import httpx  # Import here to avoid circular imports
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
                 # Use the correct API endpoint with the full path
                 response = await client.get(
                     f"{self.api_url}/api_tokens/self",

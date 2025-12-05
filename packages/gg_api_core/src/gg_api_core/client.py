@@ -432,7 +432,7 @@ class GitGuardianClient:
 
         while retry_count <= max_retries:
             try:
-                async with httpx.AsyncClient() as client:
+                async with httpx.AsyncClient(follow_redirects=True) as client:
                     logger.debug(f"Sending {method} request to {url}")
                     response = await client.request(method, url, headers=headers, **kwargs)
 
@@ -652,7 +652,7 @@ class GitGuardianClient:
         }
         headers.update(kwargs.pop("headers", {}))
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(url, headers=headers, **kwargs)
             response.raise_for_status()
 
