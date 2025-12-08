@@ -56,9 +56,9 @@ jobs:
       - name: Run mypy
         run: uv run mypy packages/
 
-  test:
+  test-unit:
     runs-on: ubuntu-latest
-    name: Run Tests
+    name: Run Unit Tests
 
     steps:
       - uses: actions/checkout@v4
@@ -76,8 +76,35 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-groups
 
-      - name: Run tests
-        run: uv run pytest tests/
+      - name: Run unit tests
+        env:
+          ENABLE_LOCAL_OAUTH: "false"
+        run: make test-unit
+
+  test-vcr:
+    runs-on: ubuntu-latest
+    name: Run VCR Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run VCR tests
+        env:
+          ENABLE_LOCAL_OAUTH: "false"
+        run: make test-vcr
 
   docker-build:
     runs-on: ubuntu-latest

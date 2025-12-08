@@ -130,12 +130,13 @@ my_vcr = vcr.VCR(
 @pytest.fixture(scope="session")
 def real_client():
     """
-    Create a real GitGuardianClient for recording cassettes.
+    Create a real GitGuardianClient for recording/replaying cassettes.
 
-    This fixture creates a client that makes actual API calls.
-    Use this with VCR cassettes to record real HTTP interactions.
+    This fixture creates a client for use with VCR cassettes.
+    - When cassettes exist: VCR replays recorded responses (no real API calls)
+    - When recording new cassettes: Requires GITGUARDIAN_API_KEY env var
 
-    Environment variables required for recording:
+    Environment variables (only needed for recording new cassettes):
         - GITGUARDIAN_API_KEY: Your GitGuardian API key (Personal Access Token)
         - GITGUARDIAN_URL: (Optional) Custom GitGuardian URL, defaults to SaaS
 
@@ -148,13 +149,9 @@ def real_client():
     """
     from gg_api_core.client import GitGuardianClient
 
-    api_key = os.getenv("GITGUARDIAN_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "GITGUARDIAN_API_KEY is not set, recording VCR cassettes won't work. "
-            "Set this environment variable to record new cassettes."
-        )
-
+    # Use real key if available, otherwise use dummy key for cassette replay
+    # VCR will intercept requests and replay from cassettes, so the key doesn't matter
+    api_key = os.getenv("GITGUARDIAN_API_KEY", "dummy-key-for-cassette-replay")
     gitguardian_url = os.getenv("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
 
     # Create client with PAT (bypasses OAuth)
