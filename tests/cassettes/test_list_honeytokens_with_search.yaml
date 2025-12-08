@@ -1,0 +1,408 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/honeytokens?search=test&show_token=false&per_page=5
+  response:
+    body:
+      string: '[{"id": "858a3a76-f6f2-4c2e-b0bc-323d9a575413", "name": "test_honey_token",
+        "description": "description", "created_at": "2023-05-15T14:09:09.210845Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/858a3a76-f6f2-4c2e-b0bc-323d9a575413",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-05-16T09:34:17.165934Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": null, "revoker_id": null,
+        "creator_api_token_id": null, "revoker_api_token_id": null, "tags": [], "labels":
+        [{"id": "e29e158e-ef22-4055-9694-9711eea8ec48", "key": "place", "value": "ggshield"}],
+        "custom_tags": [{"id": "e29e158e-ef22-4055-9694-9711eea8ec48", "key": "place",
+        "value": "ggshield"}], "token": "[REDACTED]"}, {"id": "ef11a80c-6d8e-4fb5-8ee2-4556bae695c3",
+        "name": "test ht public", "description": "", "created_at": "2023-05-17T17:00:24.966335Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ef11a80c-6d8e-4fb5-8ee2-4556bae695c3",
+        "status": "triggered", "triggered_at": "2023-05-17T17:02:33.386529Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 5012, "creator_id": 166199, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [{"id": "027d3742-6fad-4c75-9319-be7ffa5fbd1d",
+        "key": "location", "value": "slack"}], "custom_tags": [{"id": "027d3742-6fad-4c75-9319-be7ffa5fbd1d",
+        "key": "location", "value": "slack"}], "token": "[REDACTED]"}, {"id": "1266b395-a545-42c1-b700-24dbae36447c",
+        "name": "test_honey_token_previous", "description": "description", "created_at":
+        "2023-05-30T10:30:40.547255Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/1266b395-a545-42c1-b700-24dbae36447c",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-05-30T10:41:43.173510Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 296618, "revoker_id":
+        296618, "creator_api_token_id": "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id":
+        null, "tags": [], "labels": [{"id": "93e3e01c-6ca2-42b7-a422-af277c35cece",
+        "key": "place", "value": "jira"}], "custom_tags": [{"id": "93e3e01c-6ca2-42b7-a422-af277c35cece",
+        "key": "place", "value": "jira"}], "token": "[REDACTED]"}, {"id": "7494298b-75c5-44e4-898c-77b3b9017113",
+        "name": "test_honey_token_abc", "description": "description", "created_at":
+        "2023-05-30T10:42:37.520767Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/7494298b-75c5-44e4-898c-77b3b9017113",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-05-30T10:45:41.905071Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 296618, "revoker_id":
+        296618, "creator_api_token_id": "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "3bf3bcb3-ab5b-42a3-b8f0-ac7b29e6933b", "name": "test_honey_token_previous",
+        "description": "description", "created_at": "2023-05-30T10:46:11.714531Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/3bf3bcb3-ab5b-42a3-b8f0-ac7b29e6933b",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-07-27T09:00:07.762156Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 296618, "revoker_id":
+        296618, "creator_api_token_id": "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "f17302cd-850b-4b54-9054-60d26a76cf38", "name": "test demo 31may",
+        "description": "", "created_at": "2023-05-31T08:10:36.754144Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/f17302cd-850b-4b54-9054-60d26a76cf38",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 319222, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}], "custom_tags": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}], "token": "[REDACTED]"}, {"id": "32d65c31-5c7d-463a-b789-3845f6ac4c05",
+        "name": "ggshield-cptptJHt", "description": "ggshield test", "created_at":
+        "2023-06-02T08:47:41.149126Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/32d65c31-5c7d-463a-b789-3845f6ac4c05",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "fc7cb1bb-a725-4c9f-a0cb-f85cc9f84f72",
+        "name": "ggshield-TtJwtxNE", "description": "ggshield test", "created_at":
+        "2023-06-02T08:48:20.148216Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/fc7cb1bb-a725-4c9f-a0cb-f85cc9f84f72",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "0e4f0dbd-b288-4990-9565-3cc7b0171a79",
+        "name": "test_honey_token_error_403", "description": "description", "created_at":
+        "2023-07-05T08:27:15.756813Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/0e4f0dbd-b288-4990-9565-3cc7b0171a79",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-07-27T09:00:53.240550Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 160089, "revoker_id":
+        296618, "creator_api_token_id": "89585e19-1cca-42fc-add0-65cfc24d2fd8", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "2a20a718-7b9e-4582-abdf-772053bffd72", "name": "test_honey_token",
+        "description": "description", "created_at": "2023-07-27T08:56:56.138738Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/2a20a718-7b9e-4582-abdf-772053bffd72",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-07-27T09:00:58.657957Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 296618, "revoker_id":
+        296618, "creator_api_token_id": "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "be5c419c-ef54-414f-8f1a-97afcb27aaba", "name": "test_honey_token",
+        "description": "description", "created_at": "2023-07-27T09:01:36.764795Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/be5c419c-ef54-414f-8f1a-97afcb27aaba",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 296618, "revoker_id": null, "creator_api_token_id":
+        "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "e842a635-eb7e-4617-8984-ac57fe909ef7",
+        "name": "test_honey_token_error_403", "description": "description", "created_at":
+        "2023-07-27T09:01:37.417151Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/e842a635-eb7e-4617-8984-ac57fe909ef7",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 296618, "revoker_id": null, "creator_api_token_id":
+        "cbdcad40-a7af-43b6-905d-bbd8ca891eeb", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "fa63d76d-4297-4d41-8e77-b47d1a97a41a",
+        "name": "test Antonin 1", "description": "", "created_at": "2023-08-03T08:42:25.251504Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/fa63d76d-4297-4d41-8e77-b47d1a97a41a",
+        "status": "revoked", "triggered_at": "2023-08-03T08:59:58.717709Z", "revoked_at":
+        "2023-08-03T09:00:05.809852Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        null, "revoker_id": null, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "a11570c6-f472-4fda-a493-30d65fd8e651", "name": "test Antonin 2", "description":
+        "", "created_at": "2023-08-03T14:09:46.046004Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/a11570c6-f472-4fda-a493-30d65fd8e651",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "b7fcef49-f696-4954-bca7-f9949de2ab40",
+        "name": "vBOY test segment", "description": "sdqsdqsdqsdqsd", "created_at":
+        "2023-08-07T12:45:52.890085Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/b7fcef49-f696-4954-bca7-f9949de2ab40",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2023-08-07T12:46:45.470113Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": null, "revoker_id": null,
+        "creator_api_token_id": null, "revoker_api_token_id": null, "tags": [], "labels":
+        [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "2f70f68f-0c38-4e1e-a921-f40b21fd97f7",
+        "name": "vBOY test segment 2", "description": "sdqsdqsd", "created_at": "2023-08-07T12:47:49.515448Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/2f70f68f-0c38-4e1e-a921-f40b21fd97f7",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "7c4ce80a-c28e-40b3-ae47-3656f2be4a51",
+        "name": "testket ", "description": "eew", "created_at": "2023-08-29T10:21:29.956291Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/7c4ce80a-c28e-40b3-ae47-3656f2be4a51",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "46776cb3-6b11-41fc-b431-07609992f0cb",
+        "name": "HoneyTokenaLARTest", "description": "Testworkshop", "created_at":
+        "2023-08-29T12:07:20.692993Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/46776cb3-6b11-41fc-b431-07609992f0cb",
+        "status": "revoked", "triggered_at": "2023-08-29T12:09:16.581232Z", "revoked_at":
+        "2023-08-29T12:42:37.841866Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        37699, "revoker_id": 37699, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "de145bd4-b424-49ab-b95b-80126914bf2e", "name": "ctf-demo-test-honeytoken-django-app",
+        "description": "", "created_at": "2023-09-05T19:13:53.491842Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/de145bd4-b424-49ab-b95b-80126914bf2e",
+        "status": "revoked", "triggered_at": "2023-09-06T07:42:55.177580Z", "revoked_at":
+        "2023-09-06T10:03:30.948628Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        null, "revoker_id": null, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "5564ed3c-3eec-4375-9fc8-e0ada71dce02", "name": "ctf-demo-test-honeytoken-micro-api",
+        "description": "", "created_at": "2023-09-05T19:18:08.504776Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/5564ed3c-3eec-4375-9fc8-e0ada71dce02",
+        "status": "revoked", "triggered_at": "2023-09-06T07:44:18.074891Z", "revoked_at":
+        "2023-09-06T10:03:48.581110Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        null, "revoker_id": null, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "7d80793b-c702-441e-837e-b1d3da94d576", "name": "Hacktivity Key", "description":
+        "Test Key Leak for Hacktivity", "created_at": "2023-10-05T14:41:56.632793Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/7d80793b-c702-441e-837e-b1d3da94d576",
+        "status": "revoked", "triggered_at": "2023-10-05T14:42:57.752365Z", "revoked_at":
+        "2024-12-10T12:17:33.875750Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        null, "revoker_id": 113168, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": ["publicly_exposed"], "labels": [{"id": "2cade8a1-71ff-46d2-bbe3-c2bf71437ae7",
+        "key": "confrence test", "value": "hacktivity"}, {"id": "eb81c8ab-124d-41d9-b476-c6387b330201",
+        "key": "github", "value": "public repo"}], "custom_tags": [{"id": "2cade8a1-71ff-46d2-bbe3-c2bf71437ae7",
+        "key": "confrence test", "value": "hacktivity"}, {"id": "eb81c8ab-124d-41d9-b476-c6387b330201",
+        "key": "github", "value": "public repo"}], "token": "[REDACTED]"}, {"id":
+        "22fdf53a-e348-464a-a87f-5bcecb1a4e62", "name": "Slack test", "description":
+        "blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla
+        blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla
+        blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla
+        blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla
+        blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla
+        blablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla",
+        "created_at": "2023-10-12T14:04:09.930326Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/22fdf53a-e348-464a-a87f-5bcecb1a4e62",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-06-03T09:50:06.667490Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 363707, "revoker_id":
+        353920, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "4f8e0968-664a-49f3-af85-9cc468b960ab",
+        "name": "Jason test", "description": "Token for Test ", "created_at": "2023-10-24T13:45:31.371710Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/4f8e0968-664a-49f3-af85-9cc468b960ab",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "d69a098c-8b61-4102-bb2b-9a82958a3e29",
+        "name": "Eric Demo Test 01", "description": "", "created_at": "2023-10-31T12:51:44.535200Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/d69a098c-8b61-4102-bb2b-9a82958a3e29",
+        "status": "revoked", "triggered_at": "2023-10-31T12:52:49.851916Z", "revoked_at":
+        "2024-12-10T12:16:28.115539Z", "type": "AWS", "open_events_count": 0, "creator_id":
+        136170, "revoker_id": 113168, "creator_api_token_id": null, "revoker_api_token_id":
+        null, "tags": ["publicly_exposed"], "labels": [], "custom_tags": [], "token":
+        "[REDACTED]"}, {"id": "4affa602-902b-47ff-a1f4-721dc3e671bb", "name": "test
+        eric dd 02", "description": "", "created_at": "2023-10-31T14:33:35.801324Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/4affa602-902b-47ff-a1f4-721dc3e671bb",
+        "status": "triggered", "triggered_at": "2023-10-31T14:35:33.676298Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 2897, "creator_id": 136170, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "ae448808-3865-4797-a008-9eef6344f9da", "name": "Bsides Berlin", "description":
+        "test key for a demo", "created_at": "2023-11-18T16:19:36.463172Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/ae448808-3865-4797-a008-9eef6344f9da",
+        "status": "triggered", "triggered_at": "2023-11-18T16:20:14.365596Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 105, "creator_id": null, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [{"id": "9bfc9a64-306a-46da-a968-161e45761a3c",
+        "key": "location", "value": "github"}, {"id": "e5308391-2271-423a-b14b-933842eea075",
+        "key": "repo", "value": "mackenziejj"}], "custom_tags": [{"id": "9bfc9a64-306a-46da-a968-161e45761a3c",
+        "key": "location", "value": "github"}, {"id": "e5308391-2271-423a-b14b-933842eea075",
+        "key": "repo", "value": "mackenziejj"}], "token": "[REDACTED]"}, {"id": "d6d5d79d-08fa-4c8a-bd54-c34851866cde",
+        "name": "test1112", "description": "test publicly exposed honeytoken", "created_at":
+        "2023-12-11T16:24:56.253683Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/d6d5d79d-08fa-4c8a-bd54-c34851866cde",
+        "status": "triggered", "triggered_at": "2023-12-11T16:26:07.733443Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 100, "creator_id": 319222, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}, {"id": "ac185e45-281a-4652-bcd2-a01aa8c16327",
+        "key": "vcs", "value": "github"}], "custom_tags": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}, {"id": "ac185e45-281a-4652-bcd2-a01aa8c16327",
+        "key": "vcs", "value": "github"}], "token": "[REDACTED]"}, {"id": "cc9b33c2-2171-4070-a09a-9d4a442fb6cb",
+        "name": "sss", "description": "test", "created_at": "2024-01-09T14:24:10.741214Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/cc9b33c2-2171-4070-a09a-9d4a442fb6cb",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "34d5205b-accd-429c-9efa-eda48989c83a",
+        "name": "BK Test Paris", "description": "Brandon while in Paris office", "created_at":
+        "2024-01-17T11:12:14.759334Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/34d5205b-accd-429c-9efa-eda48989c83a",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "571bd68e-e439-423b-a40c-e1ffc6ab7ea4",
+        "name": "Lauren Testing", "description": "Lauren wuz here", "created_at":
+        "2024-01-29T17:37:45.379096Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/571bd68e-e439-423b-a40c-e1ffc6ab7ea4",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 637596, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [{"id": "7f6891c2-d895-422a-b6b2-ebe9c5e3f513",
+        "key": "user", "value": "leakymcgee"}], "custom_tags": [{"id": "7f6891c2-d895-422a-b6b2-ebe9c5e3f513",
+        "key": "user", "value": "leakymcgee"}], "token": "[REDACTED]"}, {"id": "07fb5f6f-23f1-42e8-bdb2-c95864412a16",
+        "name": "My Little Honeytoken", "description": "for testing", "created_at":
+        "2024-02-02T22:18:06.038874Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/07fb5f6f-23f1-42e8-bdb2-c95864412a16",
+        "status": "triggered", "triggered_at": "2024-02-09T20:50:13.173911Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 100, "creator_id": null, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "2e904370-faa8-4842-8e5e-552902fdd245", "name": "Test key ", "description":
+        "ss", "created_at": "2024-02-29T13:49:52.467489Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/2e904370-faa8-4842-8e5e-552902fdd245",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": null, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "443045cc-7fa4-441d-a161-b060bd7fbb3e",
+        "name": "test-lena-1903", "description": "", "created_at": "2024-03-19T09:13:00.819618Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/443045cc-7fa4-441d-a161-b060bd7fbb3e",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2024-05-29T09:51:31.597203Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 319222, "revoker_id":
+        319222, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "c7101eaa-ea38-495d-b3b4-c016db23e859",
+        "name": "Test key", "description": "Access key", "created_at": "2024-05-22T12:16:55.833940Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/c7101eaa-ea38-495d-b3b4-c016db23e859",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 582717, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [{"id": "ac185e45-281a-4652-bcd2-a01aa8c16327",
+        "key": "vcs", "value": "github"}], "custom_tags": [{"id": "ac185e45-281a-4652-bcd2-a01aa8c16327",
+        "key": "vcs", "value": "github"}], "token": "[REDACTED]"}, {"id": "e157a0f9-b2eb-4710-8867-2c84e2d6bf99",
+        "name": "test lena", "description": "", "created_at": "2024-06-06T08:18:16.546654Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/e157a0f9-b2eb-4710-8867-2c84e2d6bf99",
+        "status": "triggered", "triggered_at": "2024-06-06T08:19:18.422045Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 1, "creator_id": 319222, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        [], "labels": [{"id": "895b5481-8f72-418f-84de-cd41575d80ca", "key": "machine",
+        "value": "ggprdgim01"}], "custom_tags": [{"id": "895b5481-8f72-418f-84de-cd41575d80ca",
+        "key": "machine", "value": "ggprdgim01"}], "token": "[REDACTED]"}, {"id":
+        "a411fa2c-a465-4099-8353-3c42365aca50", "name": "test MINT", "description":
+        "test MINT", "created_at": "2024-06-10T14:40:08.522247Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/a411fa2c-a465-4099-8353-3c42365aca50",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 309802, "revoker_id": null, "creator_api_token_id":
+        null, "revoker_api_token_id": null, "tags": [], "labels": [], "custom_tags":
+        [], "token": "[REDACTED]"}, {"id": "faaa4d1e-82ec-4a06-a73d-27ac4fd625e5",
+        "name": "test ericf", "description": "", "created_at": "2024-07-09T09:34:04.089955Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/faaa4d1e-82ec-4a06-a73d-27ac4fd625e5",
+        "status": "triggered", "triggered_at": "2024-07-09T09:34:57.541777Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 100, "creator_id": 136170, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        ["publicly_exposed"], "labels": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}], "custom_tags": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "key": "place", "value": "codebase"}], "token": "[REDACTED]"}, {"id": "62d71685-2eba-4b88-8edd-cc73e698cfa5",
+        "name": "test-greg", "description": "test greg", "created_at": "2025-05-12T10:06:19.826522Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/62d71685-2eba-4b88-8edd-cc73e698cfa5",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:59.739856Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "f1080264-0c2c-4abb-817f-f36c06ac5dba", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "e948f77d-5353-413e-b37d-8beba84890ff", "name": "test-greg-2", "description":
+        "test greg", "created_at": "2025-05-12T10:08:11.667578Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/e948f77d-5353-413e-b37d-8beba84890ff",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:54.809724Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "f1080264-0c2c-4abb-817f-f36c06ac5dba", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "4fdb8243-72a8-47ca-beba-7a2ea1f293eb", "name": "test-greg-3", "description":
+        "test greg", "created_at": "2025-05-12T10:08:58.561160Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/4fdb8243-72a8-47ca-beba-7a2ea1f293eb",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:50.784137Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "f1080264-0c2c-4abb-817f-f36c06ac5dba", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "b8223745-eae8-42bf-9cc6-7630c27646c6", "name": "test-greg-4", "description":
+        "test", "created_at": "2025-05-12T10:10:12.927058Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/b8223745-eae8-42bf-9cc6-7630c27646c6",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:46.594085Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "f1080264-0c2c-4abb-817f-f36c06ac5dba", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "ff2b13a8-b32c-4c78-8503-3d0f19eb035a", "name": "test-greg-5", "description":
+        "test", "created_at": "2025-05-12T10:12:50.615700Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ff2b13a8-b32c-4c78-8503-3d0f19eb035a",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:41.387978Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "f1080264-0c2c-4abb-817f-f36c06ac5dba", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "b0ddbd44-4054-4127-aa00-cd6727e70d38", "name": "TestHoneytoken", "description":
+        "Testing GitGuardian API connectivity", "created_at": "2025-05-12T12:19:05.294638Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/b0ddbd44-4054-4127-aa00-cd6727e70d38",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 270722, "revoker_id": null, "creator_api_token_id":
+        "fab65f5d-637c-41ff-83a5-a96f5a67ca6d", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "60ba06e9-b9ec-41d4-8656-35c839e3c1d1",
+        "name": "AWS Credentials", "description": "Honeytoken for testing, to be injected
+        as requested by the user.", "created_at": "2025-05-12T12:38:25.640506Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/60ba06e9-b9ec-41d4-8656-35c839e3c1d1",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 269050, "revoker_id": null, "creator_api_token_id":
+        "4652a0d2-6083-4ffc-99cf-d21432584b62", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "ab824e92-6068-4a9d-ae36-86a94516f2ec",
+        "name": "test-greg-7", "description": "test", "created_at": "2025-05-12T12:54:37.703725Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ab824e92-6068-4a9d-ae36-86a94516f2ec",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:34.521470Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "347a103b-d95c-4bc6-baad-f470235759c6", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "9844e55d-982c-4458-b65b-592ad99ce77a", "name": "test", "description":
+        "test", "created_at": "2025-05-12T13:09:38.965752Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/9844e55d-982c-4458-b65b-592ad99ce77a",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1026550, "revoker_id": null, "creator_api_token_id":
+        "347a103b-d95c-4bc6-baad-f470235759c6", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "b2a7e759-81ab-465d-a578-e3ce42c18741",
+        "name": "Test Honeytoken", "description": "Testing honeytoken generation",
+        "created_at": "2025-05-12T14:35:34.295363Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/b2a7e759-81ab-465d-a578-e3ce42c18741",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 270722, "revoker_id": null, "creator_api_token_id":
+        "fab65f5d-637c-41ff-83a5-a96f5a67ca6d", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "9f6d185a-6f59-4b7c-9248-dd05616090db",
+        "name": "test-greg-9", "description": "", "created_at": "2025-05-12T14:50:23.123299Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/9f6d185a-6f59-4b7c-9248-dd05616090db",
+        "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:27.366114Z",
+        "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
+        1026550, "creator_api_token_id": "347a103b-d95c-4bc6-baad-f470235759c6", "revoker_api_token_id":
+        null, "tags": [], "labels": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55",
+        "key": "source", "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
+        "key": "type", "value": "aws"}], "custom_tags": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55",
+        "key": "source", "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
+        "key": "type", "value": "aws"}], "token": "[REDACTED]"}, {"id": "16805984-70d6-4049-844a-79bac3054f6f",
+        "name": "AwsTestHoneytoken", "description": "Test honeytoken for development
+        and monitoring", "created_at": "2025-05-12T15:09:00.390236Z", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/honeytokens/16805984-70d6-4049-844a-79bac3054f6f",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 270722, "revoker_id": null, "creator_api_token_id":
+        "fab65f5d-637c-41ff-83a5-a96f5a67ca6d", "revoker_api_token_id": null, "tags":
+        [], "labels": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55", "key": "source",
+        "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
+        "key": "type", "value": "aws"}], "custom_tags": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55",
+        "key": "source", "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
+        "key": "type", "value": "aws"}], "token": "[REDACTED]"}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, POST, HEAD, OPTIONS
+      content-length:
+      - '29842'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:17:54 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '683'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

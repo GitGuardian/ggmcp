@@ -1,0 +1,150 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets?status=TRIGGERED&per_page=5
+  response:
+    body:
+      string: '[{"id": 21467, "detector": {"name": "newrelic_apm_license_key", "display_name":
+        "New Relic APM License Key", "nature": "specific", "family": "token", "detector_group_name":
+        "newrelic_apm_license_key", "detector_group_display_name": "New Relic APM
+        License Key"}, "date": "2020-10-26T14:19:40.469654Z", "secret_id": 70595,
+        "secret_hash": "Rkk5oUrdwpPC4VEVfur6poyo2E+7l2kFI6xMeO7sOu2Pz052OuGBsJoc20xNYyU1",
+        "hmsl_hash": "beec046bdad5b63f3fcae66e5b5925240bcb0ac0bf68661abb6ed1aaaa954b1c",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.947776Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [], "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21467", "tags": ["PUBLICLY_LEAKED",
+        "PUBLIC", "PUBLICLY_EXPOSED"], "custom_tags": []}, {"id": 21469, "detector":
+        {"name": "private_key_openssh", "display_name": "OpenSSH Private Key", "nature":
+        "specific", "family": "cryptographic_key", "detector_group_name": "private_key_openssh",
+        "detector_group_display_name": "OpenSSH Private Key"}, "date": "2020-10-25T23:19:57.381648Z",
+        "secret_id": 70597, "secret_hash": "uXOeC9IsaE56xHpyEY+k5ZcR5PdQWRkDlBOWi/I2RwLVwrqVkTr0t/OLrv3FkQLP",
+        "hmsl_hash": "cefa1de8f00a3047848849473b2397b231874aa183d4393b9ff8cb3708a99475",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.947833Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [], "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21469", "tags": ["PUBLICLY_LEAKED",
+        "PUBLIC", "PUBLICLY_EXPOSED"], "custom_tags": []}, {"id": 21470, "detector":
+        {"name": "newrelic_insights_query_key", "display_name": "New Relic Insights
+        Query Key", "nature": "specific", "family": "token", "detector_group_name":
+        "newrelic_insights_query_key", "detector_group_display_name": "New Relic Insights
+        Query Key"}, "date": "2020-10-25T05:20:21.486451Z", "secret_id": 70598, "secret_hash":
+        "9dgBZ54XIWVGlkBHWKH0eYPMN/GVRUWOPaGidbG6b4vl3rWoNibIrsxoDmTHlvoB", "hmsl_hash":
+        "78c435f66dca1f6d6b92612c38695cd2003e176843d9604a4e4788e5ae2adc5c", "occurrences_count":
+        2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.947861Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "no_checker", "severity": "high", "assignee_id": null, "assignee_email":
+        null, "share_url": null, "feedback_list": [], "ignore_reason": null, "occurrences":
+        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21470",
+        "tags": ["PUBLICLY_LEAKED", "PUBLIC", "PUBLICLY_EXPOSED"], "custom_tags":
+        []}, {"id": 21486, "detector": {"name": "newrelic_insights_query_key", "display_name":
+        "New Relic Insights Query Key", "nature": "specific", "family": "token", "detector_group_name":
+        "newrelic_insights_query_key", "detector_group_display_name": "New Relic Insights
+        Query Key"}, "date": "2020-10-15T17:19:30.287430Z", "secret_id": 70612, "secret_hash":
+        "pDlB0biFZioyiEr4RWDIiR1GV/aYyZEF9DTrqRug6PbAvbsnNibIrsxoDmTHlvoB", "hmsl_hash":
+        "8eae16fdf59e29b980e41ae52972e3143b5b6a6164b126a269e06bf60cc0c388", "occurrences_count":
+        2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.948259Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "no_checker", "severity": "high", "assignee_id": null, "assignee_email":
+        null, "share_url": null, "feedback_list": [], "ignore_reason": null, "occurrences":
+        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21486",
+        "tags": ["PUBLICLY_LEAKED", "PUBLIC", "PUBLICLY_EXPOSED"], "custom_tags":
+        []}, {"id": 21488, "detector": {"name": "private_key_openssh", "display_name":
+        "OpenSSH Private Key", "nature": "specific", "family": "cryptographic_key",
+        "detector_group_name": "private_key_openssh", "detector_group_display_name":
+        "OpenSSH Private Key"}, "date": "2020-10-15T04:19:33Z", "secret_id": 70614,
+        "secret_hash": "bjKsVu/CCw3pPxWhqOykLjoGb2OGTgOL7zoDjf/wptWwjdUrkTr0t/OLrv3FkQLP",
+        "hmsl_hash": "a8e052b163fe5a4cf89f6e45c9678e6f25df7d4fb7a3dcbf737b32acc2c2686b",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.948315Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [{"created_at":
+        "2024-10-27T19:07:31.647677Z", "updated_at": "2024-10-27T19:07:31.647687Z",
+        "email": "candidate.playground+1@gitguardian.com", "member_id": 582569, "answers":
+        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
+        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
+        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
+        given access to any sensitive information or services?", "boolean": true},
+        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Please take a look at this."}]}],
+        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21488", "tags": ["PUBLICLY_LEAKED",
+        "FROM_HISTORICAL_SCAN", "PUBLIC", "PUBLICLY_EXPOSED"], "custom_tags": []}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '6682'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:06 GMT
+      link:
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ4OA%3D%3D&per_page=5&status=TRIGGERED>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '100'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

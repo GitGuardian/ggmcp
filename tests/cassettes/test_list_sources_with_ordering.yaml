@@ -1,0 +1,110 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
+  response:
+    body:
+      string: '[{"id": 19962505, "type": "sharepoint_online_pages", "full_name": "GITGUARDIAN
+        SAS / GITGUARDIAN SAS (pages)", "health": "safe", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,3c9d2add-7c12-4ee6-bb75-5ae8baeb6844,6bf9420c-122e-4d4f-bfc5-003e45909b9b:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/GITGUARDIANSAS",
+        "deleted": false}, {"id": 19962410, "type": "sharepoint_online_drive", "full_name":
+        "jGRI Sandbox (document libraries) / Documents", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "b!coazU_5qSUqu1lmfms37XoYe8E_tzAJHodc6cVXWWjJMQuHLotqTSpE3cyfpgML1",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/jGRISandbox77/Shared%20Documents",
+        "deleted": false}, {"id": 19962342, "type": "sharepoint_online_drive", "full_name":
+        "NHI (document libraries) / Documents", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "b!rW_npeXdX0KPgMRbQqdLOZ216E9eA61Ehy_1jl7sCUTJQ5veWdObRabaf-MrSdY-",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/NHI/Shared%20Documents",
+        "deleted": false}, {"id": 20119131, "type": "sharepoint_online_drive", "full_name":
+        "NewSiteMonitored (document libraries) / Documents", "health": "unknown",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": false, "visibility": "private", "external_id": "b!4wZS3ujmTUKnj8TsDclXHBhylNILL0dKmkWA9akFsdcPvK3BfyjIQ7Umd5-qe50a",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/NewSiteMonitored/Shared%20Documents",
+        "deleted": false}, {"id": 23920758, "type": "sharepoint_online_drive", "full_name":
+        "Site 60 files (document libraries) / Documents", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "b!A4PWvlyS3k29hf755Jq7a7JP3ofQPWRNjoyUXoQi1tMzvp8Nfuj1QLDrgF37Hr0_",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/Site60files/Shared%20Documents",
+        "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '3933'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:26 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '448'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

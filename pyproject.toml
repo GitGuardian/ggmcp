@@ -49,6 +49,8 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.8.0",
+    "vcrpy>=6.0.0",
+    "pyyaml>=6.0.0",
 ]
 
 [project.scripts]
@@ -111,7 +113,8 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 markers = [
-    "asyncio" # mark a test as an asynchronous test
+    "asyncio", # mark a test as an asynchronous test
+    "vcr_test", # mark a test as using VCR cassettes (disables auto-mocking)
 ]
 
 [tool.mypy]

@@ -1,0 +1,209 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=1
+  response:
+    body:
+      string: '[{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
+        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
+        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
+        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
+        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2025-03-27T19:40:53.923165Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "high", "assignee_id":
+        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": null,
+        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
+        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
+        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
+        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
+        give or has given access to any sensitive information or services?", "boolean":
+        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
+        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
+        revoked yet because X"}]}], "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["PUBLICLY_EXPOSED", "PUBLIC"], "custom_tags": []}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1849'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:09 GMT
+      link:
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2MA%3D%3D&per_page=1>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '653'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '1'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets/21460
+  response:
+    body:
+      string: '{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
+        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
+        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
+        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
+        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2025-03-27T19:40:53.923165Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "high", "assignee_id":
+        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": null,
+        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
+        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
+        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
+        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
+        give or has given access to any sensitive information or services?", "boolean":
+        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
+        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
+        revoked yet because X"}]}], "ignore_reason": null, "occurrences": [{"id":
+        78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z", "filepath":
+        "app.py", "kind": "realtime", "presence": "removed", "matches": [{"name":
+        "client_id", "indice_start": 49, "indice_end": 69, "pre_line_start": 3, "pre_line_end":
+        3, "post_line_start": null, "post_line_end": null}, {"name": "client_secret",
+        "indice_start": 85, "indice_end": 125, "pre_line_start": 4, "pre_line_end":
+        4, "post_line_start": null, "post_line_end": null}], "tags": ["PUBLICLY_EXPOSED",
+        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
+        "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
+        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "304477822", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
+        {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "deleted": true}}, {"id": 78198, "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z",
+        "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
+        [{"name": "client_id", "indice_start": 92, "indice_end": 112, "pre_line_start":
+        null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}, {"name":
+        "client_secret", "indice_start": 128, "indice_end": 168, "pre_line_start":
+        null, "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}], "tags":
+        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
+        "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
+        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "304477822", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
+        {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "deleted": true}}], "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["PUBLICLY_EXPOSED", "PUBLIC"], "custom_tags": []}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, HEAD, OPTIONS
+      content-length:
+      - '5138'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:10 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '305'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

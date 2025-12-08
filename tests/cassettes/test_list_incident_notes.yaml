@@ -1,0 +1,150 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=1
+  response:
+    body:
+      string: '[{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
+        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
+        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
+        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
+        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2025-03-27T19:40:53.923165Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "high", "assignee_id":
+        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": null,
+        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
+        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
+        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
+        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
+        give or has given access to any sensitive information or services?", "boolean":
+        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
+        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
+        revoked yet because X"}]}], "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["PUBLICLY_EXPOSED", "PUBLIC"], "custom_tags": []}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1849'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:13 GMT
+      link:
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2MA%3D%3D&per_page=1>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '82'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '1'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets/21460/notes
+  response:
+    body:
+      string: '[]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, POST, HEAD, OPTIONS
+      content-length:
+      - '2'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:14 GMT
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '137'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,147 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/api_tokens
+  response:
+    body:
+      string: '[{"id": "004bc4f5-7f44-427f-97e7-517e9292f82b", "name": "-", "type":
+        "personal_access_token", "scopes": ["secrets:read"], "member_id": 1094434,
+        "workspace_id": 8, "created_at": "2025-10-08T12:29:22.250242Z", "last_used_at":
+        "2025-10-08T13:22:00Z", "expire_at": null, "revoked_at": "2025-10-08T13:23:04.839231Z",
+        "status": "revoked", "creator_id": 1094434}, {"id": "005b13bd-56ed-4711-96c9-6a8665a1eabb",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        582715, "workspace_id": 8, "created_at": "2025-03-05T19:59:44.171922Z", "last_used_at":
+        "2025-03-06T14:33:00Z", "expire_at": "2025-03-12T19:59:44.167712Z", "revoked_at":
+        "2025-03-07T07:33:29.036372Z", "status": "revoked", "creator_id": 582715},
+        {"id": "005d38e5-95d3-4390-817c-fbe3bbf7eea2", "name": "ggshield demo stan",
+        "type": "service_account", "scopes": ["scan"], "member_id": null, "workspace_id":
+        8, "created_at": "2021-12-03T13:22:53.246645Z", "last_used_at": "2025-06-06T15:52:03.008186Z",
+        "expire_at": null, "revoked_at": null, "status": "active", "creator_id": 166199},
+        {"id": "015d6ea5-2e02-45b8-a726-10d4b720169a", "name": "-", "type": "personal_access_token",
+        "scopes": ["scan"], "member_id": 270722, "workspace_id": 8, "created_at":
+        "2025-05-28T13:20:20.737076Z", "last_used_at": "2025-10-10T07:40:00Z", "expire_at":
+        null, "revoked_at": null, "status": "active", "creator_id": 270722}, {"id":
+        "01632444-8789-4796-9cdc-4d29c626cb14", "name": "-", "type": "personal_access_token",
+        "scopes": ["scan"], "member_id": 104544, "workspace_id": 8, "created_at":
+        "2022-11-10T17:15:03.225307Z", "last_used_at": "2022-11-10T17:15:00Z", "expire_at":
+        null, "revoked_at": "2022-11-17T14:57:59.179727Z", "status": "revoked", "creator_id":
+        104544}, {"id": "027631b1-f9fe-44db-973e-8cc2db7be4b1", "name": "-", "type":
+        "personal_access_token", "scopes": ["scan"], "member_id": 203333, "workspace_id":
+        8, "created_at": "2025-03-17T18:54:10.945004Z", "last_used_at": "2025-03-17T19:05:00Z",
+        "expire_at": "2025-03-24T18:54:10.942325Z", "revoked_at": "2025-03-17T19:07:15.496197Z",
+        "status": "revoked", "creator_id": 203333}, {"id": "02891016-0627-4430-ba9a-a090cbb38ec7",
+        "name": "Tets", "type": "service_account", "scopes": ["scan"], "member_id":
+        null, "workspace_id": 8, "created_at": "2021-01-20T16:43:17.087778Z", "last_used_at":
+        "2021-02-09T11:29:11.230118Z", "expire_at": null, "revoked_at": "2021-03-04T13:19:24.644171Z",
+        "status": "revoked", "creator_id": 13}, {"id": "034239f3-1914-44b9-9924-fad14b972ac6",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        160089, "workspace_id": 8, "created_at": "2022-10-13T10:55:06.198702Z", "last_used_at":
+        "2022-10-13T10:55:00Z", "expire_at": "2022-10-17T10:55:06Z", "revoked_at":
+        null, "status": "expired", "creator_id": 160089}, {"id": "03d6898b-53e8-452d-b0f3-2962d84448f1",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        786511, "workspace_id": 8, "created_at": "2024-09-25T13:53:51.886879Z", "last_used_at":
+        "2024-09-25T13:54:00Z", "expire_at": null, "revoked_at": "2024-09-25T13:54:42.205728Z",
+        "status": "revoked", "creator_id": 786511}, {"id": "044a698d-2afd-443a-9784-2153a4d0f24a",
+        "name": "MCP Token", "type": "personal_access_token", "scopes": ["scan", "incidents:read",
+        "honeytokens:read", "honeytokens:write", "sources:read"], "member_id": 480870,
+        "workspace_id": 8, "created_at": "2025-10-23T12:24:55.112665Z", "last_used_at":
+        "2025-10-23T13:05:00Z", "expire_at": "2025-11-22T12:24:55.088040Z", "revoked_at":
+        null, "status": "expired", "creator_id": 480870}, {"id": "04c1d347-aa85-4687-bcae-f748e3611f0e",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        100878, "workspace_id": 8, "created_at": "2023-04-12T15:53:10.225991Z", "last_used_at":
+        "2023-04-12T16:05:00Z", "expire_at": null, "revoked_at": "2023-04-12T16:06:19.357982Z",
+        "status": "revoked", "creator_id": 100878}, {"id": "057f2709-8d2d-4cbf-b13f-e89c7ec92179",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        203333, "workspace_id": 8, "created_at": "2025-03-18T09:05:01.504336Z", "last_used_at":
+        null, "expire_at": null, "revoked_at": "2025-03-18T09:06:10.544212Z", "status":
+        "revoked", "creator_id": 203333}, {"id": "059262ec-4687-422c-875b-9284e84ba479",
+        "name": "Jake-GH-Action", "type": "service_account", "scopes": ["scan"], "member_id":
+        null, "workspace_id": 8, "created_at": "2025-04-29T18:47:41.714793Z", "last_used_at":
+        "2025-04-29T21:07:00Z", "expire_at": null, "revoked_at": null, "status": "active",
+        "creator_id": 1144062}, {"id": "05eb85ee-e424-4bfe-a7a0-f44230995be0", "name":
+        "-", "type": "personal_access_token", "scopes": ["scan"], "member_id": 786511,
+        "workspace_id": 8, "created_at": "2024-09-27T08:22:42.071973Z", "last_used_at":
+        "2024-09-27T09:20:00Z", "expire_at": null, "revoked_at": "2024-09-27T09:20:05.340431Z",
+        "status": "revoked", "creator_id": 786511}, {"id": "066cbd4b-195a-4835-99b1-b95d9fbb59df",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        203333, "workspace_id": 8, "created_at": "2023-03-30T09:40:50.918481Z", "last_used_at":
+        "2023-03-30T09:49:00Z", "expire_at": null, "revoked_at": "2023-03-30T09:51:25.504423Z",
+        "status": "revoked", "creator_id": 203333}, {"id": "06bbb931-58f9-4dcc-8984-13b2af5816e0",
+        "name": "ggshield token 2024-07-19", "type": "personal_access_token", "scopes":
+        ["scan"], "member_id": 480870, "workspace_id": 8, "created_at": "2024-07-19T13:49:57.819902Z",
+        "last_used_at": "2025-12-07T13:49:00Z", "expire_at": null, "revoked_at": null,
+        "status": "active", "creator_id": 480870}, {"id": "070a5ec1-bed1-418f-a837-905af598d744",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        104544, "workspace_id": 8, "created_at": "2023-08-31T11:50:47.371009Z", "last_used_at":
+        "2023-09-06T14:50:00Z", "expire_at": null, "revoked_at": "2023-09-06T14:50:25.607895Z",
+        "status": "revoked", "creator_id": 104544}, {"id": "07407245-f877-4161-a2a8-df110b0e6479",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan", "incidents:read"],
+        "member_id": 363707, "workspace_id": 8, "created_at": "2025-11-13T17:25:10.615284Z",
+        "last_used_at": "2025-11-13T17:25:00Z", "expire_at": null, "revoked_at": null,
+        "status": "active", "creator_id": 363707}, {"id": "075218cc-3624-4303-8efb-50117e9d7f6a",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        269050, "workspace_id": 8, "created_at": "2022-06-17T09:58:51.896646Z", "last_used_at":
+        "2023-10-11T12:47:00Z", "expire_at": "2023-10-29T11:45:39.280782Z", "revoked_at":
+        null, "status": "expired", "creator_id": 269050}, {"id": "07769629-9d05-4ff6-af0b-19466cc95f5d",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        270722, "workspace_id": 8, "created_at": "2025-04-28T14:15:11.389273Z", "last_used_at":
+        "2025-04-28T15:02:00Z", "expire_at": null, "revoked_at": "2025-05-12T12:13:09.823639Z",
+        "status": "revoked", "creator_id": 270722}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '6486'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:35 GMT
+      link:
+      - <https://api.gitguardian.com/v1/api_tokens?cursor=cD0wNzc2OTYyOS05ZDA1LTRmZjYtYWYwYi0xOTQ2NmNjOTVmNWQ%3D>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '40'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

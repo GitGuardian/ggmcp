@@ -1,0 +1,120 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?visibility=private&per_page=5
+  response:
+    body:
+      string: '[{"id": 9123340, "type": "github", "full_name": "orga-083643/solid-octo",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
+        "1.120819", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630519649", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/solid-octo",
+        "deleted": false}, {"id": 9123810, "type": "github", "full_name": "orga-083643/ideal-journey",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
+        "0.866616", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630531940", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/ideal-journey",
+        "deleted": false}, {"id": 9123882, "type": "github", "full_name": "orga-083643/analytics-test",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352186Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
+        "0.942938", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630536182", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
+        "deleted": false}, {"id": 9124147, "type": "github", "full_name": "orga-083643/improved-carnival",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "cdaa5dd8497a52a75702879823adc18141ad88b4", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.354520Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 4, "duration":
+        "3.881061", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630548292", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/improved-carnival",
+        "deleted": false}, {"id": 10294451, "type": "github", "full_name": "babassov/PrivateVB",
+        "health": "safe", "source_criticality": "critical", "default_branch": "main",
+        "default_branch_head": "346eeb121643aa8ab28828719d94d33664a55839", "open_incidents_count":
+        0, "closed_incidents_count": 12, "last_scan": {"date": "2025-10-09T16:45:43.353950Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 14, "duration":
+        "1.396871", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "614802635", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        12, "severity_breakdown": {"critical": 0, "high": 12, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/babassov/PrivateVB",
+        "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '4187'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:25 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMDI5NDQ1MQ%3D%3D&per_page=5&visibility=private>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '332'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

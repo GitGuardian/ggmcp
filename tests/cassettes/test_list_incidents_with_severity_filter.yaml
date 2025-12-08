@@ -1,0 +1,157 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets?severity=critical&per_page=5
+  response:
+    body:
+      string: '[{"id": 21461, "detector": {"name": "private_key_dsa", "display_name":
+        "DSA Private Key", "nature": "specific", "family": "cryptographic_key", "detector_group_name":
+        "private_key_dsa", "detector_group_display_name": "DSA Private Key"}, "date":
+        "2020-10-29T09:19:54.249454Z", "secret_id": 70589, "secret_hash": "FNJbfEKG/ZXHjBfeEDa+45ryvtA8AC1egwR+QsSqIDlRVNh2Z/McHLTpLI6+WVL/",
+        "hmsl_hash": "ae092263bbe1c8bbcc5e8e4dd785681b62e9d48226d66cb28f5d305fa5ef8e68",
+        "occurrences_count": 2, "status": "ASSIGNED", "triggered_at": "2021-02-11T14:23:22.947605Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": 270722,
+        "assignee_email": "clement.tourriere@gitguardian.com", "share_url": null,
+        "feedback_list": [{"created_at": "2024-06-28T07:01:19.458759Z", "updated_at":
+        "2024-06-28T07:01:19.458771Z", "email": "lucius@protonmal.com", "member_id":
+        null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
+        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
+        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
+        give or has given access to any sensitive information or services?", "boolean":
+        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
+        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": "important info."}]}],
+        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21461", "tags": ["PUBLICLY_EXPOSED",
+        "PUBLICLY_LEAKED", "PUBLIC"], "custom_tags": []}, {"id": 21469, "detector":
+        {"name": "private_key_openssh", "display_name": "OpenSSH Private Key", "nature":
+        "specific", "family": "cryptographic_key", "detector_group_name": "private_key_openssh",
+        "detector_group_display_name": "OpenSSH Private Key"}, "date": "2020-10-25T23:19:57.381648Z",
+        "secret_id": 70597, "secret_hash": "uXOeC9IsaE56xHpyEY+k5ZcR5PdQWRkDlBOWi/I2RwLVwrqVkTr0t/OLrv3FkQLP",
+        "hmsl_hash": "cefa1de8f00a3047848849473b2397b231874aa183d4393b9ff8cb3708a99475",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.947833Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [], "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21469", "tags": ["PUBLICLY_EXPOSED",
+        "PUBLICLY_LEAKED", "PUBLIC"], "custom_tags": []}, {"id": 21474, "detector":
+        {"name": "private_key_openssh", "display_name": "OpenSSH Private Key", "nature":
+        "specific", "family": "cryptographic_key", "detector_group_name": "private_key_openssh",
+        "detector_group_display_name": "OpenSSH Private Key"}, "date": "2020-10-23T04:19:58.086544Z",
+        "secret_id": 70602, "secret_hash": "lz267UbwajGhSFmN5cJA6VwXIHkhpy/ew7Y8tHuS+5x11BplkTr0t/OLrv3FkQLP",
+        "hmsl_hash": "2a37036933c1358322383377b9449b3c4968096ec2d9bbb864118b64293531e6",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947974Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2024-10-29T12:21:43.182834Z", "resolver_id": 582569, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "no_checker", "severity": "critical",
+        "assignee_id": null, "assignee_email": null, "share_url": null, "feedback_list":
+        [], "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21474", "tags": ["PUBLICLY_EXPOSED",
+        "PUBLICLY_LEAKED", "PUBLIC"], "custom_tags": []}, {"id": 21488, "detector":
+        {"name": "private_key_openssh", "display_name": "OpenSSH Private Key", "nature":
+        "specific", "family": "cryptographic_key", "detector_group_name": "private_key_openssh",
+        "detector_group_display_name": "OpenSSH Private Key"}, "date": "2020-10-15T04:19:33Z",
+        "secret_id": 70614, "secret_hash": "bjKsVu/CCw3pPxWhqOykLjoGb2OGTgOL7zoDjf/wptWwjdUrkTr0t/OLrv3FkQLP",
+        "hmsl_hash": "a8e052b163fe5a4cf89f6e45c9678e6f25df7d4fb7a3dcbf737b32acc2c2686b",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.948315Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [{"created_at":
+        "2024-10-27T19:07:31.647677Z", "updated_at": "2024-10-27T19:07:31.647687Z",
+        "email": "candidate.playground+1@gitguardian.com", "member_id": 582569, "answers":
+        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
+        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
+        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
+        given access to any sensitive information or services?", "boolean": true},
+        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Please take a look at this."}]}],
+        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21488", "tags": ["FROM_HISTORICAL_SCAN",
+        "PUBLICLY_EXPOSED", "PUBLICLY_LEAKED", "PUBLIC"], "custom_tags": []}, {"id":
+        21489, "detector": {"name": "private_key_rsa", "display_name": "RSA Private
+        Key", "nature": "specific", "family": "cryptographic_key", "detector_group_name":
+        "private_key_rsa", "detector_group_display_name": "RSA Private Key"}, "date":
+        "2020-10-15T03:19:30.953774Z", "secret_id": 70615, "secret_hash": "10ZtLLzonp5ZXUynGLggNshR2Z8oarWdPzvwdzYvdiO3EWNN7vN5xZFHxYj+duJV",
+        "hmsl_hash": "5027b29f8426d784be3842ff497aecaf25c651d138b54e5fccfb3ca013aa6c3e",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2021-02-11T14:23:22.948343Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
+        "assignee_email": null, "share_url": null, "feedback_list": [], "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21489", "tags": ["PUBLICLY_EXPOSED",
+        "PUBLICLY_LEAKED", "PUBLIC"], "custom_tags": []}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '7311'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:06 GMT
+      link:
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ4OQ%3D%3D&per_page=5&severity=critical>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '92'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,144 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/custom_tags
+  response:
+    body:
+      string: '[{"id": "9df8c1c9-7367-4c77-a0f0-9f2d4b22bdda", "key": "commiter",
+        "value": "leaky mcgee"}, {"id": "1aa3ae34-f9f0-42e1-a687-9fed877a9037", "key":
+        "confrence", "value": "grrcon"}, {"id": "2cade8a1-71ff-46d2-bbe3-c2bf71437ae7",
+        "key": "confrence test", "value": "hacktivity"}, {"id": "3fd32605-4aec-4285-9fcd-3f63ac764924",
+        "key": "date leaked", "value": "08/09/2023"}, {"id": "a5ad67ad-da66-4b5d-ac94-a079fe470d58",
+        "key": "default", "value": "value"}, {"id": "8927320a-6eac-486b-bc8b-d0e0433a7a22",
+        "key": "env", "value": "production"}, {"id": "e4a53b9e-3584-4814-b959-8801472a6f04",
+        "key": "env", "value": "staging"}, {"id": "58717e34-f865-4d0b-bde9-677e027dbf11",
+        "key": "event", "value": "cab"}, {"id": "307456bf-ed02-4944-8119-b9c3652032ca",
+        "key": "file", "value": ".env"}, {"id": "9b2b852e-b0c2-4674-9b34-a35a8d26902f",
+        "key": "format", "value": "public"}, {"id": "6925b698-1dba-4f0f-8c6c-87be4ce3493e",
+        "key": "Generic test", "value": null}, {"id": "eb81c8ab-124d-41d9-b476-c6387b330201",
+        "key": "github", "value": "public repo"}, {"id": "e8d2acf7-efa2-4ee5-b2df-1bff3701af31",
+        "key": "important_leak", "value": null}, {"id": "54697103-1a85-4f35-8766-6cf16399f83e",
+        "key": "linked incident", "value": null}, {"id": "9bfc9a64-306a-46da-a968-161e45761a3c",
+        "key": "location", "value": "github"}, {"id": "7e61fc25-e730-4124-aa9c-79d9fad76092",
+        "key": "location", "value": "publicrepo"}, {"id": "027d3742-6fad-4c75-9319-be7ffa5fbd1d",
+        "key": "location", "value": "slack"}, {"id": "b8419819-fb1e-4a9f-b592-5e0395ca802d",
+        "key": "location", "value": "sourcecode"}, {"id": "10c41365-e0c1-4038-b09e-c746de4169db",
+        "key": "location", "value": "test"}, {"id": "895b5481-8f72-418f-84de-cd41575d80ca",
+        "key": "machine", "value": "ggprdgim01"}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, POST, PATCH, DELETE, HEAD, OPTIONS
+      content-length:
+      - '1619'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:17:43 GMT
+      link:
+      - <https://api.gitguardian.com/v1/custom_tags?cursor=cD1tYWNoaW5lJTNBZ2dwcmRnaW0wMQ%3D%3D>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '28'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/custom_tags/9df8c1c9-7367-4c77-a0f0-9f2d4b22bdda
+  response:
+    body:
+      string: '{"id": "9df8c1c9-7367-4c77-a0f0-9f2d4b22bdda", "key": "commiter", "value":
+        "leaky mcgee"}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-length:
+      - '84'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:17:43 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '24'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
