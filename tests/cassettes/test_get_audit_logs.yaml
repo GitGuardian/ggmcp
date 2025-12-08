@@ -1,0 +1,107 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/audit_logs?per_page=10
+  response:
+    body:
+      string: '[{"id": 16909424, "api_token_id": null, "member_id": 313030, "member_email":
+        "loic.bruneau@gitguardian.com", "member_name": "Lo\u00efc Bruneau", "date":
+        "2025-12-08T08:59:49.861698Z", "data": {"type": "saml_sso"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["312327"], "ip_address":
+        "176.137.48.195"}, {"id": 16909359, "api_token_id": null, "member_id": 104916,
+        "member_email": "wassim.hana@gitguardian.com", "member_name": "wassim hana",
+        "date": "2025-12-08T08:56:59.606898Z", "data": {"type": "saml_sso"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["104742"], "ip_address":
+        "80.119.30.122"}, {"id": 16908727, "api_token_id": null, "member_id": 715366,
+        "member_email": "gabriel.cousin@gitguardian.com", "member_name": "Gabriel
+        Cousin", "date": "2025-12-08T08:18:49.073908Z", "data": {"type": "saml_sso"},
+        "event_name": "user.logged_in", "action_type": "OTHER", "target_ids": ["714235"],
+        "ip_address": "35.83.131.170"}, {"id": 16882615, "api_token_id": null, "member_id":
+        480870, "member_email": "timothe.delion@gitguardian.com", "member_name": "Timoth\u00e9
+        Delion", "date": "2025-12-07T14:13:08.051459Z", "data": {"expire_at": null},
+        "event_name": "personal_access_token.created", "action_type": "CREATE", "target_ids":
+        ["8a262c6a-832d-49e5-8744-23c743ff25ac"], "ip_address": "35.161.89.114"},
+        {"id": 16882428, "api_token_id": null, "member_id": 480870, "member_email":
+        "timothe.delion@gitguardian.com", "member_name": "Timoth\u00e9 Delion", "date":
+        "2025-12-07T13:56:38.780218Z", "data": {"name": "ggmcp CI", "expire_at": null},
+        "event_name": "service_account.created", "action_type": "CREATE", "target_ids":
+        ["e01a0bab-40de-43ca-9937-741e9ac8c472"], "ip_address": "35.161.89.114"},
+        {"id": 16882395, "api_token_id": null, "member_id": 480870, "member_email":
+        "timothe.delion@gitguardian.com", "member_name": "Timoth\u00e9 Delion", "date":
+        "2025-12-07T13:53:16.650445Z", "data": {"type": "saml_sso"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["480218"], "ip_address":
+        "35.161.89.114"}, {"id": 16848768, "api_token_id": null, "member_id": 492181,
+        "member_email": "8@bot.gitguardian.com", "member_name": "GitGuardian Bot",
+        "date": "2025-12-05T18:51:59.376439Z", "data": {"resolution_type": "secret_revoked"},
+        "event_name": "secret_incident.bulk_resolved", "action_type": "UPDATE", "target_ids":
+        ["15179184"], "ip_address": null}, {"id": 16847140, "api_token_id": null,
+        "member_id": 319222, "member_email": "lena.cuissard@gitguardian.com", "member_name":
+        "L\u00e9na Cuissard", "date": "2025-12-05T17:33:36.449121Z", "data": null,
+        "event_name": "secret_incident.viewed", "action_type": "READ", "target_ids":
+        ["6685617"], "ip_address": "35.83.131.170"}, {"id": 16847134, "api_token_id":
+        null, "member_id": 319222, "member_email": "lena.cuissard@gitguardian.com",
+        "member_name": "L\u00e9na Cuissard", "date": "2025-12-05T17:33:22.776971Z",
+        "data": null, "event_name": "secret_incident.viewed", "action_type": "READ",
+        "target_ids": ["13327739"], "ip_address": "35.83.131.170"}, {"id": 16847088,
+        "api_token_id": null, "member_id": 319222, "member_email": "lena.cuissard@gitguardian.com",
+        "member_name": "L\u00e9na Cuissard", "date": "2025-12-05T17:32:23.181667Z",
+        "data": null, "event_name": "secret_incident.viewed", "action_type": "READ",
+        "target_ids": ["9447706"], "ip_address": "35.83.131.170"}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '3121'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:17:49 GMT
+      link:
+      - <https://api.gitguardian.com/v1/audit_logs?cursor=cD0xNjg0NzA4OA%3D%3D&per_page=10>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '4497'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

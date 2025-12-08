@@ -1,0 +1,128 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/api_tokens/self
+  response:
+    body:
+      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+        "type": "personal_access_token", "scopes": ["scan", "incidents:read", "members:read",
+        "audit_logs:read", "teams:read", "honeytokens:read", "honeytokens:write",
+        "api_tokens:read", "sources:read", "nhi:send-inventory", "nhi:write-vault",
+        "custom_tags:read", "custom_tags:write", "secrets:read", "secrets:write",
+        "scan:create-incidents", "public-perimeter:read"], "member_id": 480870, "workspace_id":
+        8, "created_at": "2025-12-07T14:13:08.044416Z", "last_used_at": "2025-12-08T09:18:00Z",
+        "expire_at": null, "revoked_at": null, "status": "active", "creator_id": 480870}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      content-length:
+      - '594'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:36 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '62'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/members/480870
+  response:
+    body:
+      string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
+        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 Delion", "created_at":
+        "2023-06-26T12:41:18.599497Z", "last_login": "2025-12-07T13:53:16.639748Z",
+        "active": true}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-length:
+      - '221'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:37 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '50'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

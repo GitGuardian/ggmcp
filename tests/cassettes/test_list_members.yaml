@@ -1,0 +1,79 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/members?per_page=5
+  response:
+    body:
+      string: '[{"id": 10, "role": "manager", "access_level": "manager", "email":
+        "bruce-wayne-gg@protonmail.com", "name": "Bruce Wayne", "created_at": "2020-01-15T15:07:36.510559Z",
+        "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
+        "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
+        "name": "Aymeric Sicard", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
+        "2025-12-04T16:04:26.580694Z", "active": true}, {"id": 2508, "role": "manager",
+        "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
+        "name": "Guillaume Charpiat", "created_at": "2020-03-23T17:53:57.158457Z",
+        "last_login": "2025-12-05T08:59:52.578776Z", "active": true}, {"id": 37699,
+        "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
+        "name": "Alexis Larnaud", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
+        "2025-12-04T13:05:37.544814Z", "active": true}, {"id": 63809, "role": "manager",
+        "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
+        "Orian Roturier", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
+        "2025-08-05T08:47:38.723615Z", "active": true}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1098'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Mon, 08 Dec 2025 09:18:37 GMT
+      link:
+      - <https://api.gitguardian.com/v1/members?cursor=cD02MzgwOQ%3D%3D&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.348.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '92'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
