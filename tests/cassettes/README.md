@@ -2,6 +2,18 @@
 
 This directory contains VCR cassettes - recorded HTTP interactions with the GitGuardian API.
 
+> **Important**: Cassettes are **recorded locally** and committed to the repository. CI replays from these committed cassettes without requiring API credentials. Developers should **periodically re-record cassettes** to keep them in sync with API changes.
+
+## Recording Workflow
+
+```
+Local (with API key)                CI (no API key)
+┌───────────────────────────┐       ┌─────────────────────┐
+│ make test-vcr-with-env    │ ───▶  │ make test-vcr       │
+│ (real API calls)          │ git   │ (replay only)       │
+└───────────────────────────┘ push  └─────────────────────┘
+```
+
 ## What are VCR Cassettes?
 
 VCR cassettes record real HTTP requests and responses the first time a test runs, then replay those recorded responses on subsequent runs. This provides:
@@ -113,11 +125,12 @@ version: 1
 
 Cassettes are **automatically scrubbed** of sensitive data:
 
-- `Authorization` headers are filtered
-- `X-Api-Key` headers are filtered
-- Query parameters `api_key` and `token` are filtered
+- Request headers are filtered (only safe headers like `content-type` are kept)
+- Response body fields are redacted: `secret_key`, `access_token_id`, `token`, `api_key`, `password`, `secret`, `credential`, `share_url`
+- Share URLs containing incident tokens are redacted
+- POST data parameters are filtered: `api_key`, `secret`, `client_id`, `client_secret`, `token`, `password`
 
-However, **always review cassettes before committing** to ensure no sensitive data remains in response bodies.
+Redacted values appear as `[REDACTED]` in cassette files.
 
 ## Replay Mode
 
@@ -128,23 +141,23 @@ By default, VCR uses `record_mode="once"`:
 
 ## Troubleshooting
 
-### "GITGUARDIAN_API_KEY is not set" warning
-Set the environment variable before running tests:
-```bash
-export GITGUARDIAN_API_KEY="your-token"
-```
-
-### Test fails with 401 Unauthorized
+### Test fails with 401 Unauthorized (when recording)
 Your API key may be invalid or expired. Generate a new PAT from the GitGuardian dashboard.
 
 ### Cassette not being created
-1. Ensure `record_mode` is set to `"once"` (default)
+1. Ensure `GITGUARDIAN_API_KEY` is set in your `.env` file
 2. Check that the cassettes directory exists
 3. Verify network connectivity to the API
 
 ### Tests fail after API changes
-Delete the cassette and re-record:
+Delete the cassette and re-record locally:
 ```bash
 rm tests/cassettes/test_name.yaml
-ENABLE_LOCAL_OAUTH=false uv run pytest tests/path::test_name -v
+make test-vcr-with-env
+```
+
+### Re-record all cassettes
+```bash
+rm tests/cassettes/*.yaml
+make test-vcr-with-env
 ```
