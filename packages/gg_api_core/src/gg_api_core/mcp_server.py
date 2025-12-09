@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import FastMCPError, ValidationError
+from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
@@ -215,28 +215,21 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         Returns:
             set: The fetched scopes, or empty set on error
         """
-        try:
-            client_to_use = self.get_client()
+        client_to_use = self.get_client()
 
-            # Fetch the complete token info
-            logger.debug("Attempting to fetch token scopes from GitGuardian API")
-            token_info = await client_to_use.get_current_token_info()
+        # Fetch the complete token info
+        logger.debug("Attempting to fetch token scopes from GitGuardian API")
+        token_info = await client_to_use.get_current_token_info()
 
-            # Extract scopes
-            scopes = token_info.get("scopes", [])
-            logger.debug(f"Retrieved token scopes: {scopes}")
+        # Extract scopes
+        scopes = token_info.get("scopes", [])
+        logger.debug(f"Retrieved token scopes: {scopes}")
 
-            return set(scopes)
-
-        except Exception as e:
-            raise FastMCPError("Error fetching token scopes from /api_tokens/self endpoint") from e
+        return set(scopes)
 
     async def _fetch_token_info_from_api(self) -> dict[str, Any]:
-        try:
-            client = self.get_client()
-            return await client.get_current_token_info()
-        except Exception as e:
-            raise FastMCPError("Error fetching token info from /api_tokens/self endpoint") from e
+        client = self.get_client()
+        return await client.get_current_token_info()
 
     async def get_scopes(self) -> set[str]:
         cached_scopes: set[str] | None = getattr(self, "_token_scopes", None)

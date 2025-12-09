@@ -63,18 +63,15 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
     # the current user's info first and set creator_id accordingly
     creator_id = params.creator_id
     if params.mine:
-        try:
-            # Get current token info to identify the user
-            token_info = await client.get_current_token_info()
-            logger.debug(f"Token info: {token_info}")
-            if token_info and "member_id" in token_info:
-                # If we have member_id, use it as creator_id
-                creator_id = token_info["member_id"]
-                logger.debug(f"Setting creator_id to current user: {creator_id}")
-            else:
-                logger.warning("Could not determine current user ID for 'mine' filter")
-        except Exception as e:
-            logger.warning(f"Failed to get current user info for 'mine' filter: {str(e)}")
+        # Get current token info to identify the user
+        token_info = await client.get_current_token_info()
+        logger.debug(f"Token info: {token_info}")
+        if token_info and "member_id" in token_info:
+            # If we have member_id, use it as creator_id
+            creator_id = token_info["member_id"]
+            logger.debug(f"Setting creator_id to current user: {creator_id}")
+        else:
+            logger.warning("Could not determine current user ID for 'mine' filter")
 
     try:
         response = await client.list_honeytokens(
