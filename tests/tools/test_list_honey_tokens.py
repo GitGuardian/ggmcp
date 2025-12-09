@@ -440,7 +440,7 @@ class TestListHoneytokens:
         """
         GIVEN: get_current_token_info raises an exception
         WHEN: Listing honeytokens with mine=True
-        THEN: The function continues without user filtering
+        THEN: The exception propagates to the caller
         """
         # Mock get_current_token_info to raise exception
         mock_gitguardian_client.get_current_token_info = AsyncMock(side_effect=Exception("Token info failed"))
@@ -449,23 +449,21 @@ class TestListHoneytokens:
         mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_honeytokens = AsyncMock(return_value=mock_response)
 
-        # Call the function with mine=True (should not fail, just log warning)
-        result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=True,
+        # Call the function with mine=True - should raise the exception
+        with pytest.raises(Exception, match="Token info failed"):
+            await list_honeytokens(
+                ListHoneytokensParams(
+                    status=None,
+                    search=None,
+                    ordering=None,
+                    show_token=False,
+                    creator_id=None,
+                    creator_api_token_id=None,
+                    per_page=20,
+                    get_all=False,
+                    mine=True,
+                )
             )
-        )
-
-        # Verify function completes without error
-        assert result.honeytokens == []
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_cursor_pagination(self, mock_gitguardian_client):

@@ -1073,22 +1073,18 @@ class GitGuardianClient:
         """
         logger.info("Getting current API token information")
 
-        try:
-            # If we already have token info, return it
-            if self._token_info is not None:
-                # Convert Pydantic model to dict if needed
-                if hasattr(self._token_info, "model_dump"):
-                    return dict(self._token_info.model_dump())
-                elif isinstance(self._token_info, dict):
-                    return self._token_info
-                else:
-                    return await self._request_get("/api_tokens/self")
+        # If we already have token info, return it
+        if self._token_info is not None:
+            # Convert Pydantic model to dict if needed
+            if hasattr(self._token_info, "model_dump"):
+                return dict(self._token_info.model_dump())
+            elif isinstance(self._token_info, dict):
+                return self._token_info
+            else:
+                return await self._request_get("/api_tokens/self")
 
-            # Otherwise fetch from the API
-            return await self._request_get("/api_tokens/self")
-        except Exception as e:
-            logger.error(f"Failed to get current token info: {str(e)}")
-            raise
+        # Otherwise fetch from the API
+        return await self._request_get("/api_tokens/self")
 
     async def list_api_tokens(self) -> dict[str, Any]:
         """List all API tokens for the account.
