@@ -893,8 +893,6 @@ class GitGuardianClient:
             params["assignee_email"] = assignee_email
         if assignee_id:
             params["assignee_id"] = assignee_id
-        if source_id:
-            params["source_id"] = source_id
         if per_page:
             params["per_page"] = str(per_page)
         if cursor:
@@ -902,7 +900,12 @@ class GitGuardianClient:
         if ordering:
             params["ordering"] = ordering
 
-        endpoint = "/incidents/secrets"
+        # Use source-specific endpoint when source_id is provided
+        # The /incidents/secrets endpoint silently ignores source_id query param
+        if source_id:
+            endpoint = f"/sources/{source_id}/incidents/secrets"
+        else:
+            endpoint = "/incidents/secrets"
 
         if get_all:
             # When get_all=True, return all items without cursor
