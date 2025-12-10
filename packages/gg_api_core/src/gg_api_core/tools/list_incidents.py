@@ -3,7 +3,13 @@ from typing import Any, cast
 
 from pydantic import BaseModel, Field
 
-from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, TagNames
+from gg_api_core.client import (
+    DEFAULT_PAGINATION_MAX_BYTES,
+    IncidentSeverity,
+    IncidentStatus,
+    IncidentValidity,
+    TagNames,
+)
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.utils import get_client
 
@@ -115,7 +121,10 @@ class ListIncidentsParams(BaseModel):
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    get_all: bool = Field(
+        default=False,
+        description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}; check 'has_more' and use cursor to continue)",
+    )
 
     # Filters
     from_date: str | None = Field(
@@ -164,6 +173,7 @@ class ListIncidentsResult(BaseModel):
     next_cursor: str | None = Field(default=None, description="Pagination cursor for next page")
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
+    has_more: bool = Field(default=False, description="True if more results exist (use next_cursor to fetch)")
 
 
 class ListIncidentsError(BaseModel):
@@ -248,7 +258,7 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
         if params.get_all:
             api_params["get_all"] = params.get_all
 
-        # Get incidents using list_incidents which returns ListResponse
+        # Get incidents using list_incidents which returns ListResponse or PaginatedResult
         response = await client.list_incidents(**api_params)
         incidents_data = response["data"]
         next_cursor = response["cursor"]
@@ -261,6 +271,7 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
             next_cursor=next_cursor,
             applied_filters=_build_filter_info(params),
             suggestion=_build_suggestion(params, count),
+            has_more=response.get("has_more", False),
         )
 
     except Exception as e:

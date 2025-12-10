@@ -211,7 +211,7 @@ def mock_gitguardian_client(request):
     mock_client.multiple_scan = AsyncMock(return_value=[])
     mock_client.get_source_by_name = AsyncMock(return_value=None)
     mock_client.list_source_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
-    mock_client.paginate_all = AsyncMock(return_value=[])
+    mock_client.paginate_all = AsyncMock(return_value={"data": [], "cursor": None, "has_more": False})
     mock_client.list_honeytokens = AsyncMock(return_value={"honeytokens": []})
     mock_client.list_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.get_current_member = AsyncMock(return_value={"email": "test@example.com"})

@@ -6,6 +6,7 @@ from typing import Any, Literal
 from developer_mcp_server.add_health_check import add_health_check
 from developer_mcp_server.register_tools import register_developer_tools
 from fastmcp.exceptions import ToolError
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
@@ -56,7 +57,10 @@ class ListIncidentsParams(BaseModel):
         description="Sort field and direction (prefix with '-' for descending order). If you need to get the latest incidents, use '-date'.",
     )
     per_page: int = Field(default=20, description="Number of results per page (1-100)")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    get_all: bool = Field(
+        default=False,
+        description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+    )
     mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user")
 
 
@@ -72,7 +76,10 @@ class ListHoneytokensParams(BaseModel):
     creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    get_all: bool = Field(
+        default=False,
+        description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+    )
     mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
 
 

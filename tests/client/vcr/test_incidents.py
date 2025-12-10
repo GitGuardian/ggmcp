@@ -104,6 +104,27 @@ class TestListIncidents:
             assert result is not None
             assert "data" in result
 
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_list_incidents_get_all(self, real_client):
+        """
+        Test listing incidents with get_all=True (paginated fetch with size limit).
+
+        GIVEN a valid GitGuardian API key
+        WHEN we request incidents with get_all=True
+        THEN we should receive a PaginatedResult with data and has_more flag
+        """
+        with my_vcr.use_cassette("test_list_incidents_get_all"):
+            result = await real_client.list_incidents(get_all=True, per_page=5)
+
+            assert result is not None
+            assert "data" in result
+            assert isinstance(result["data"], list)
+            assert "has_more" in result
+            assert isinstance(result["has_more"], bool)
+            # cursor should be present (None if no more data, or a string for continuation)
+            assert "cursor" in result
+
 
 class TestGetIncident:
     """Tests for getting individual incident details."""

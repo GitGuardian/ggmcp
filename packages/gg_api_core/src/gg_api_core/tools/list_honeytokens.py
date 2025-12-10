@@ -4,6 +4,7 @@ from typing import Any
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,10 @@ class ListHoneytokensParams(BaseModel):
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     cursor: str | None = Field(default=None, description="Pagination cursor from a previous response")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    get_all: bool = Field(
+        default=False,
+        description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+    )
 
 
 class ListHoneytokensResult(BaseModel):
@@ -36,6 +40,7 @@ class ListHoneytokensResult(BaseModel):
     next_cursor: str | None = Field(
         default=None, description="Cursor for fetching the next page (null if no more results)"
     )
+    has_more: bool = Field(default=False, description="True if more results exist (use next_cursor to fetch)")
 
 
 async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:
@@ -90,7 +95,11 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
         next_cursor = response["cursor"]
 
         logger.debug(f"Found {len(honeytokens_data)} honeytokens")
-        return ListHoneytokensResult(honeytokens=honeytokens_data, next_cursor=next_cursor)
+        return ListHoneytokensResult(
+            honeytokens=honeytokens_data,
+            next_cursor=next_cursor,
+            has_more=response.get("has_more", False),
+        )
     except Exception as e:
         logger.error(f"Error listing honeytokens: {str(e)}")
         raise ToolError(str(e))
