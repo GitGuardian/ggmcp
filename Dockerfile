@@ -52,7 +52,8 @@ COPY --chown=65532:65532 src ./src
 
 # Install all packages from wheels
 # Using --system to install globally (not in a venv) since this is a container
-RUN uv pip install --system /tmp/wheels/*.whl && \
+# Also install sentry-sdk for error monitoring in production
+RUN uv pip install --system /tmp/wheels/*.whl sentry-sdk && \
     rm -rf /tmp/wheels
 
 # Install root package to get entry points (http-mcp-server, etc.)
