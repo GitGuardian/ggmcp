@@ -2,7 +2,6 @@ from unittest.mock import AsyncMock
 
 import pytest
 from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
-from pydantic import ValidationError
 
 
 class TestListRepoOccurrences:
@@ -183,28 +182,30 @@ class TestListRepoOccurrences:
     async def test_list_repo_occurrences_no_repository_or_source(self, mock_gitguardian_client):
         """
         GIVEN: Neither repository_name nor source_id provided
-        WHEN: Attempting to create params
-        THEN: A ValidationError is raised
+        WHEN: Listing occurrences
+        THEN: All occurrences across all repositories are returned
         """
-        # Try to create params without repository_name or source_id
-        with pytest.raises(ValidationError) as exc_info:
+        mock_response = {
+            "data": [{"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}}],
+            "cursor": None,
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+
+        result = await list_repo_occurrences(
             ListRepoOccurrencesParams(
                 repository_name=None,
                 source_id=None,
-                from_date=None,
-                to_date=None,
-                presence=None,
-                tags=None,
-                ordering=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
             )
+        )
 
-        # Verify error message
-        errors = exc_info.value.errors()
-        assert len(errors) == 1
-        assert "Either 'source_id' or 'repository_name' must be provided" in str(errors[0])
+        # Verify client was called without source filters
+        mock_gitguardian_client.list_occurrences.assert_called_once()
+        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
+        assert call_kwargs["source_name"] is None
+
+        # Verify response
+        assert result.occurrences_count == 1
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):
