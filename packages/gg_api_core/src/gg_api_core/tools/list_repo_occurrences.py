@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, TagNames
 from gg_api_core.utils import get_client
@@ -75,13 +75,6 @@ class ListRepoOccurrencesBaseParams(BaseModel):
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
     get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
-
-    @model_validator(mode="after")
-    def validate_source_or_repository(self) -> "ListRepoOccurrencesBaseParams":
-        """Validate that either source_id or repository_name is provided."""
-        if not self.source_id and not self.repository_name:
-            raise ValueError("Either 'source_id' or 'repository_name' must be provided")
-        return self
 
 
 class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesBaseParams):
@@ -186,7 +179,7 @@ async def list_repo_occurrences(
 
     Args:
         params: ListRepoOccurrencesParams model containing all filtering options.
-               Either repository_name or source_id must be provided (validated by model).
+               Optionally filter by repository_name or source_id.
 
     Returns:
         ListRepoOccurrencesResult: Pydantic model containing:

@@ -7,7 +7,6 @@ from gg_api_core.tools.remediate_secret_incidents import (
     RemediateSecretIncidentsParams,
     remediate_secret_incidents,
 )
-from pydantic import ValidationError
 
 
 class TestRemediateSecretIncidentsParams:
@@ -47,15 +46,12 @@ class TestRemediateSecretIncidentsParams:
         """
         GIVEN: RemediateSecretIncidentsParams with neither repository_name nor source_id provided
         WHEN: Creating the params
-        THEN: Validation should fail with ValueError since list_repo_occurrences_params requires one
+        THEN: Validation should pass and return all occurrences
         """
-        with pytest.raises(ValidationError) as exc_info:
-            RemediateSecretIncidentsParams()
-
-        # Verify the error message comes from the nested ListRepoOccurrencesParamsForRemediate
-        errors = exc_info.value.errors()
-        assert len(errors) == 1
-        assert "Either 'source_id' or 'repository_name' must be provided" in str(errors[0])
+        params = RemediateSecretIncidentsParams()
+        assert params.repository_name is None
+        assert params.source_id is None
+        assert params.list_repo_occurrences_params is not None
 
     def test_params_with_nested_list_repo_occurrences_params(self):
         """
