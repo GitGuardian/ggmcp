@@ -456,15 +456,15 @@ class TestCursorPagination:
         """
         GIVEN the list_incidents method with get_all=True
         WHEN called
-        THEN it should return a ListResponse with cursor=None and has_more=False
+        THEN it should return a PaginatedResult with data, cursor, and has_more
         """
-        # Mock paginate_all to return all items
+        # Mock paginate_all to return PaginatedResult format
         with patch.object(client, "paginate_all", new_callable=AsyncMock) as mock_paginate:
-            mock_paginate.return_value = [
-                {"id": 1},
-                {"id": 2},
-                {"id": 3},
-            ]
+            mock_paginate.return_value = {
+                "data": [{"id": 1}, {"id": 2}, {"id": 3}],
+                "cursor": None,
+                "has_more": False,
+            }
 
             result = await client.list_incidents(get_all=True)
 
@@ -571,8 +571,9 @@ class TestCursorPagination:
             result = await client.paginate_all("/test")
 
             # Should have collected all items from all pages
-            assert len(result) == 5
-            assert result == [{"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}]
+            assert len(result["data"]) == 5
+            assert result["data"] == [{"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}]
+            assert result["has_more"] is False
 
     @pytest.mark.asyncio
     async def test_extract_next_cursor_decodes_url(self, client):

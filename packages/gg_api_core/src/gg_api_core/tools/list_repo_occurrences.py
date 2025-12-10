@@ -3,7 +3,13 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, TagNames
+from gg_api_core.client import (
+    DEFAULT_PAGINATION_MAX_BYTES,
+    IncidentSeverity,
+    IncidentStatus,
+    IncidentValidity,
+    TagNames,
+)
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -74,7 +80,10 @@ class ListRepoOccurrencesBaseParams(BaseModel):
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    get_all: bool = Field(default=False, description="If True, fetch all results using cursor-based pagination")
+    get_all: bool = Field(
+        default=False,
+        description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+    )
 
     @model_validator(mode="after")
     def validate_source_or_repository(self) -> "ListRepoOccurrencesBaseParams":
@@ -95,7 +104,7 @@ class ListRepoOccurrencesResult(BaseModel):
     occurrences_count: int = Field(description="Number of occurrences returned")
     occurrences: list[dict[str, Any]] = Field(default_factory=list, description="List of occurrence objects")
     cursor: str | None = Field(default=None, description="Pagination cursor for next page")
-    has_more: bool = Field(default=False, description="Whether more results are available")
+    has_more: bool = Field(default=False, description="True if more results exist (use cursor to fetch)")
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
 
@@ -244,10 +253,10 @@ async def list_repo_occurrences(
                 with_sources=False,
             )
 
-        # Extract data from ListResponse
+        # Extract data from ListResponse or PaginatedResult
         occurrences_data = result["data"]
         next_cursor = result["cursor"]
-        has_more = result["has_more"]
+        has_more = result.get("has_more", False)
 
         count = len(occurrences_data)
         return ListRepoOccurrencesResult(

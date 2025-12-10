@@ -81,6 +81,26 @@ class TestListHoneytokens:
             assert result is not None
             assert "data" in result
 
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_list_honeytokens_get_all(self, real_client):
+        """
+        Test listing honeytokens with get_all=True (paginated fetch with size limit).
+
+        GIVEN a valid GitGuardian API key
+        WHEN we request honeytokens with get_all=True
+        THEN we should receive a PaginatedResult with data and has_more flag
+        """
+        with my_vcr.use_cassette("test_list_honeytokens_get_all"):
+            result = await real_client.list_honeytokens(get_all=True, per_page=5)
+
+            assert result is not None
+            assert "data" in result
+            assert isinstance(result["data"], list)
+            assert "has_more" in result
+            assert isinstance(result["has_more"], bool)
+            assert "cursor" in result
+
 
 class TestGetHoneytoken:
     """Tests for getting individual honeytoken details."""

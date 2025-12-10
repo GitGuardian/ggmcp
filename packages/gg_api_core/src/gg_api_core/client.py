@@ -75,6 +75,21 @@ class ListResponse(TypedDict):
     has_more: bool
 
 
+# Default limit for paginate_all to prevent context bloat
+DEFAULT_PAGINATION_MAX_BYTES = 20_000
+
+# Default HTTP timeout in seconds (to handle slow pagination)
+DEFAULT_HTTP_TIMEOUT = 20
+
+
+class PaginatedResult(TypedDict):
+    """Result from paginate_all with size limit protection."""
+
+    data: list[dict[str, Any]]
+    cursor: str | None  # Use this cursor to fetch more results if has_more is True
+    has_more: bool  # True if results were capped by size limit OR more pages exist
+
+
 def is_oauth_enabled() -> bool:
     """
     Check if OAuth authentication is enabled via environment variable.
@@ -432,7 +447,7 @@ class GitGuardianClient:
 
         while retry_count <= max_retries:
             try:
-                async with httpx.AsyncClient(follow_redirects=True) as client:
+                async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
                     logger.debug(f"Sending {method} request to {url}")
                     response = await client.request(method, url, headers=headers, **kwargs)
 
@@ -652,7 +667,7 @@ class GitGuardianClient:
         }
         headers.update(kwargs.pop("headers", {}))
 
-        async with httpx.AsyncClient(follow_redirects=True) as client:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
             response = await client.get(url, headers=headers, **kwargs)
             response.raise_for_status()
 
@@ -677,19 +692,31 @@ class GitGuardianClient:
             "has_more": cursor is not None,
         }
 
-    async def paginate_all(self, endpoint: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    async def paginate_all(
+        self,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        max_bytes: int = DEFAULT_PAGINATION_MAX_BYTES,
+    ) -> PaginatedResult:
         """Fetch all pages of results using cursor-based pagination.
+
+        Pagination stops when either all data is fetched or the size limit is reached.
 
         Args:
             endpoint: API endpoint path
             params: Query parameters to include in the request
+            max_bytes: Maximum total bytes of JSON data to accumulate (default: 20KB).
+                      When this limit is reached, pagination stops and truncated=True is returned.
 
         Returns:
-            List of all items from all pages
+            PaginatedResult with data, cursor, has_more, truncated info, and total_bytes
         """
         params = params or {}
-        all_items = []
-        cursor = None
+        all_items: list[dict[str, Any]] = []
+        total_bytes = 0
+        cursor: str | None = None
+        truncated = False
+        has_more = False
 
         logger.debug(f"Starting pagination for endpoint '{endpoint}' with initial params: {params}")
 
@@ -724,9 +751,26 @@ class GitGuardianClient:
                 logger.debug("Received empty response data, stopping pagination")
                 break
 
-            logger.debug(f"Received page with {len(response['data'])} items")
+            # Calculate size of this page's data
+            page_bytes = len(json.dumps(response["data"]).encode("utf-8"))
+
+            # Check if adding this page would exceed the limit
+            if total_bytes + page_bytes > max_bytes and all_items:
+                # We already have some data, stop here to avoid exceeding limit
+                logger.warning(
+                    f"Pagination stopped due to size limit: {total_bytes} bytes accumulated, "
+                    f"next page would add {page_bytes} bytes (limit: {max_bytes} bytes)"
+                )
+                truncated = True
+                has_more = True
+                # Keep the cursor so caller can continue if needed
+                cursor = response["cursor"]
+                break
+
+            logger.debug(f"Received page with {len(response['data'])} items ({page_bytes} bytes)")
             all_items.extend(response["data"])
-            logger.debug(f"Total items collected so far: {len(all_items)}")
+            total_bytes += page_bytes
+            logger.debug(f"Total items collected so far: {len(all_items)} ({total_bytes} bytes)")
 
             # Check for next cursor
             cursor = response["cursor"]
@@ -736,8 +780,15 @@ class GitGuardianClient:
                 logger.debug("No next cursor found, pagination complete")
                 break
 
-        logger.info(f"Pagination complete for {endpoint}: collected {len(all_items)} total items")
-        return all_items
+        logger.info(
+            f"Pagination complete for {endpoint}: collected {len(all_items)} items "
+            f"({total_bytes} bytes, capped={truncated})"
+        )
+        return {
+            "data": all_items,
+            "cursor": cursor,
+            "has_more": has_more or (cursor is not None),
+        }
 
     async def create_honeytoken(
         self, name: str, description: str = "", custom_tags: list | None = None
@@ -908,9 +959,8 @@ class GitGuardianClient:
             endpoint = "/incidents/secrets"
 
         if get_all:
-            # When get_all=True, return all items without cursor
-            all_items = await self.paginate_all(endpoint, params)
-            return {"data": all_items, "cursor": None, "has_more": False}
+            # When get_all=True, return paginated result with truncation metadata
+            return await self.paginate_all(endpoint, params)
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
@@ -1043,9 +1093,8 @@ class GitGuardianClient:
         endpoint = "/honeytokens"
 
         if get_all:
-            # When get_all=True, return all items without cursor
-            all_items = await self.paginate_all(endpoint, params)
-            return {"data": all_items, "cursor": None, "has_more": False}
+            # When get_all=True, return paginated result with truncation metadata
+            return await self.paginate_all(endpoint, params)
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
@@ -1499,11 +1548,10 @@ class GitGuardianClient:
         if with_sources is not None:
             params["with_sources"] = str(with_sources).lower()
 
-        # If get_all is True, use paginate_all to get all results
+        # If get_all is True, use paginate_all to get all results with truncation metadata
         if get_all:
             logger.info("Getting all occurrences using cursor-based pagination")
-            all_items = await self.paginate_all("occurrences/secrets", params)
-            return {"data": all_items, "cursor": None, "has_more": False}
+            return await self.paginate_all("occurrences/secrets", params)
 
         # Otherwise, get a single page
         logger.info(f"Getting occurrences with params: {params}")
@@ -1613,9 +1661,8 @@ class GitGuardianClient:
         endpoint = "/sources"
 
         if get_all:
-            # When get_all=True, return all items without cursor
-            all_items = await self.paginate_all(endpoint, params)
-            return {"data": all_items, "cursor": None, "has_more": False}
+            # When get_all=True, return paginated result with truncation metadata
+            return await self.paginate_all(endpoint, params)
 
         return await self._request_list(endpoint, params=params)
 
