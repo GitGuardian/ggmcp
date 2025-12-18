@@ -58,7 +58,7 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
             personal_access_token = get_personal_access_token_from_request()
             logger.debug("Successfully extracted token from HTTP request headers")
         except ValidationError as e:
-            logger.error(f"Failed to extract token from HTTP headers: {e}")
+            logger.exception(f"Failed to extract token from HTTP headers: {e}")
             raise
 
     # If a PAT is provided (explicitly or from headers), create per-request client (no caching)
@@ -85,7 +85,7 @@ def get_personal_access_token_from_request():
         headers = get_http_headers()
         logger.debug(f"Retrieved HTTP headers: {list(headers.keys()) if headers else 'None'}")
     except Exception as e:
-        logger.error(f"Failed to get HTTP headers: {e}")
+        logger.exception(f"Failed to get HTTP headers: {e}")
         raise ValidationError(f"Failed to retrieve HTTP headers: {e}")
 
     if not headers:

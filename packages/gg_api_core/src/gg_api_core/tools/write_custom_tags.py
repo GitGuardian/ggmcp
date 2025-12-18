@@ -73,7 +73,7 @@ async def write_custom_tags(params: WriteCustomTagsParams):
         else:
             raise ValueError(f"Invalid action: {params.action}. Must be one of ['create_tag', 'delete_tag']")
     except Exception as e:
-        logger.error(f"Error writing custom tags: {str(e)}")
+        logger.exception(f"Error writing custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
 
 
@@ -135,5 +135,5 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
         logger.debug(f"Updated custom tags for incident {params.incident_id}")
         return result
     except Exception as e:
-        logger.error(f"Error updating custom tags: {str(e)}")
+        logger.exception(f"Error updating custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

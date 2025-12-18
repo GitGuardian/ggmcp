@@ -151,7 +151,7 @@ async def remediate_secret_incidents(
         )
 
     except Exception as e:
-        logger.error(f"Error remediating incidents: {str(e)}")
+        logger.exception(f"Error remediating incidents: {str(e)}")
         return RemediateSecretIncidentsError(error=f"Failed to remediate incidents: {str(e)}")
 
 

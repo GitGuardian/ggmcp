@@ -101,5 +101,5 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
             has_more=response.get("has_more", False),
         )
     except Exception as e:
-        logger.error(f"Error listing honeytokens: {str(e)}")
+        logger.exception(f"Error listing honeytokens: {str(e)}")
         raise ToolError(str(e))

@@ -153,7 +153,7 @@ async def get_current_token_info() -> dict[str, Any]:
         logger.debug(f"Retrieved token info for token ID: {result.get('id')}")
         return result
     except Exception as e:
-        logger.error(f"Error getting token info: {str(e)}")
+        logger.exception(f"Error getting token info: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
 
 

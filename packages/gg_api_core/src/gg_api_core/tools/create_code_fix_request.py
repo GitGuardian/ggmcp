@@ -107,7 +107,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
 
     except Exception as e:
         error_message = str(e)
-        logger.error(f"Error creating code fix request: {error_message}")
+        logger.exception(f"Error creating code fix request: {error_message}")
 
         # Provide more context based on common error scenarios
         if "not enabled" in error_message.lower():

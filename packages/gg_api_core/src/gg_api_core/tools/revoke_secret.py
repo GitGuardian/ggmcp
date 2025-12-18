@@ -65,5 +65,5 @@ async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
             raise ToolError(f"Unexpected response format: {type(result).__name__}")
 
     except Exception as e:
-        logger.error(f"Error revoking secret {params.secret_id}: {str(e)}")
+        logger.exception(f"Error revoking secret {params.secret_id}: {str(e)}")
         raise ToolError(str(e))

@@ -80,7 +80,7 @@ def init_sentry() -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"Failed to initialize Sentry: {str(e)}")
+        logger.exception(f"Failed to initialize Sentry: {str(e)}")
         return False
 
 

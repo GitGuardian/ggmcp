@@ -169,7 +169,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             logger.debug("API token revoked")
             return result
         except Exception as e:
-            logger.error(f"Error revoking current API token: {str(e)}")
+            logger.exception(f"Error revoking current API token: {str(e)}")
             raise
 
     def tool(self, *args, required_scopes: list[str] | None = None, **kwargs):
@@ -294,7 +294,7 @@ def register_common_tools(mcp_instance: AbstractGitGuardianFastMCP):
             }
 
         except Exception as e:
-            logger.error(f"Error during token revocation: {str(e)}")
+            logger.exception(f"Error during token revocation: {str(e)}")
             return {"success": False, "error": f"Failed to revoke token: {str(e)}"}
 
     logger.debug("Registered common MCP tools")
