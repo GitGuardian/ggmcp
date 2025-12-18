@@ -35,7 +35,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "developer-mcp-server",
-    "secops-mcp-server"
+    "secops-mcp-server",
+    "mcp>=1.23.0",  # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
 ]
 
 [project.urls]
