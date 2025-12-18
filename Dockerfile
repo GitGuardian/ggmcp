@@ -3,8 +3,11 @@
 #
 # Build approach: Builds Python wheels from source, then installs them in production stage.
 # This ensures parity between Docker builds and PyPI package distribution.
+#
+# Base images: Uses GitGuardian's Wolfi-based Python images (Chainguard)
+# for improved security posture and minimal attack surface.
 
-FROM python:3.13-slim AS builder
+FROM ghcr.io/gitguardian/wolfi/python:3.13-dev AS builder
 
 # Install uv for fast package management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
@@ -23,21 +26,14 @@ RUN uv build --package gg-api-core --out-dir /dist && \
     uv build --package developer-mcp-server --out-dir /dist && \
     uv build --package secops-mcp-server --out-dir /dist
 
-# Production stage
-FROM python:3.13-slim
+# Production stage - Chainguard-based image with shell for build commands
+FROM ghcr.io/gitguardian/wolfi/python:3.13-shell
 
-# Install runtime dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Switch to root for package installation
+USER root
 
 # Copy uv from builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-
-# Create non-root user with UID 65532 (consistent with ward-runs-app)
-RUN groupadd -g 65532 nonroot && \
-    useradd -u 65532 -g nonroot -m -s /bin/bash nonroot
 
 # Set working directory
 WORKDIR /app
@@ -46,9 +42,9 @@ WORKDIR /app
 COPY --from=builder /dist/*.whl /tmp/wheels/
 
 # Copy root package files (for entry point installation)
-COPY --chown=65532:65532 pyproject.toml uv.lock README.md ./
-COPY --chown=65532:65532 packages ./packages
-COPY --chown=65532:65532 src ./src
+COPY pyproject.toml uv.lock README.md ./
+COPY packages ./packages
+COPY src ./src
 
 # Install all packages from wheels
 # Using --system to install globally (not in a venv) since this is a container
@@ -60,7 +56,10 @@ RUN uv pip install --system /tmp/wheels/*.whl sentry-sdk && \
 # This is a metadata-only package that provides entry point scripts
 RUN uv pip install --system --no-deps .
 
-# Use numeric ID of nonroot, so that security check acknowledges it's not root
+# Ensure app directory is owned by nonroot user
+RUN chown -R nonroot:nonroot /app
+
+# Switch to nonroot user (UID 65532) for runtime security
 USER 65532
 
 # Expose MCP server port
