@@ -95,5 +95,5 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
             # Fallback: wrap in scan_results
             return ScanSecretsResult(scan_results=[result])
     except Exception as e:
-        logger.error(f"Error scanning for secrets: {str(e)}")
+        logger.exception(f"Error scanning for secrets: {str(e)}")
         raise

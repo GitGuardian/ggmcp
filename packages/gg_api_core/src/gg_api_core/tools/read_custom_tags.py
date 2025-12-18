@@ -47,5 +47,5 @@ async def read_custom_tags(params: ReadCustomTagsParams):
         else:
             raise ValueError(f"Invalid action: {params.action}. Must be one of ['list_tags', 'get_tag']")
     except Exception as e:
-        logger.error(f"Error reading custom tags: {str(e)}")
+        logger.exception(f"Error reading custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

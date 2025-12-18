@@ -263,5 +263,5 @@ async def list_repo_occurrences(
         )
 
     except Exception as e:
-        logger.error(f"Error listing repository occurrences: {str(e)}")
+        logger.exception(f"Error listing repository occurrences: {str(e)}")
         return ListRepoOccurrencesError(error=f"Failed to list repository occurrences: {str(e)}")

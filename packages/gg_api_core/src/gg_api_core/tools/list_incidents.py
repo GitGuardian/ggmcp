@@ -275,5 +275,5 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
         )
 
     except Exception as e:
-        logger.error(f"Error listing repository incidents: {str(e)}")
+        logger.exception(f"Error listing repository incidents: {str(e)}")
         return ListIncidentsError(error=f"Failed to list repository incidents: {str(e)}")

@@ -73,7 +73,7 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
     except ToolError:
         raise
     except Exception as e:
-        logger.error(f"Error managing incident: {str(e)}")
+        logger.exception(f"Error managing incident: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
 
 
@@ -102,5 +102,5 @@ async def update_incident_status(params: UpdateIncidentStatusParams) -> dict[str
         logger.debug(f"Updated incident {params.incident_id} status to {params.status}")
         return result
     except Exception as e:
-        logger.error(f"Error updating incident status: {str(e)}")
+        logger.exception(f"Error updating incident status: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

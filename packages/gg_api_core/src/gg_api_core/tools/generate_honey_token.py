@@ -125,5 +125,5 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
 
         return GenerateHoneytokenResult(**creation_result)
     except Exception as e:
-        logger.error(f"Error generating honeytoken: {str(e)}")
+        logger.exception(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")

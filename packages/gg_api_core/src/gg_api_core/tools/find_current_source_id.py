@@ -229,5 +229,5 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
             )
 
     except Exception as e:
-        logger.error(f"Error finding source_id: {str(e)}")
+        logger.exception(f"Error finding source_id: {str(e)}")
         return FindCurrentSourceIdError(error=f"Failed to find source_id: {str(e)}")

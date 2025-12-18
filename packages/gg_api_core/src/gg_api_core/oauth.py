@@ -571,7 +571,7 @@ class GitGuardianOAuthClient:
                 else:
                     logger.debug(f"Browser window opened successfully for '{self.token_name}'")
             except Exception as e:
-                logger.error(f"Error opening browser: {e}")
+                logger.exception(f"Error opening browser: {e}")
                 print("\n\n-------------------------------------------------------------")
                 print("Please open the following URL in your browser to authenticate:")
                 print(f"\n{authorization_url}\n")
@@ -748,7 +748,7 @@ class GitGuardianOAuthClient:
                 raise Exception("Failed to obtain access token during OAuth flow")
 
         except Exception as e:
-            logger.error(f"OAuth authentication failed: {e}")
+            logger.exception(f"OAuth authentication failed: {e}")
             raise
 
     async def _fetch_token_info(self) -> APITokenInfo | None:

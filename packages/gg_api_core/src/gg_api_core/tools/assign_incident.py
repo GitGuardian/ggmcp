@@ -116,7 +116,7 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         except ToolError:
             raise
         except Exception as e:
-            logger.error(f"Failed to look up member by email: {str(e)}")
+            logger.exception(f"Failed to look up member by email: {str(e)}")
             raise ToolError(f"Failed to look up member by email: {str(e)}")
 
     elif params.mine:
@@ -153,5 +153,5 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True)
 
     except Exception as e:
-        logger.error(f"Error assigning incident {params.incident_id}: {str(e)}")
+        logger.exception(f"Error assigning incident {params.incident_id}: {str(e)}")
         raise ToolError(str(e))

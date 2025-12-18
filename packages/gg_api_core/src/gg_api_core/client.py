@@ -354,7 +354,7 @@ class GitGuardianClient:
                     self._token_info = oauth_client.get_token_info()
                     logger.info("OAuth authentication successful")
             except Exception as e:
-                logger.error(f"OAuth authentication failed: {e}")
+                logger.exception(f"OAuth authentication failed: {e}")
                 raise
 
     async def _clear_invalid_oauth_token(self):
@@ -501,8 +501,8 @@ class GitGuardianClient:
 
                     return data
                 except json.JSONDecodeError as e:
-                    logger.error(f"Failed to parse JSON response: {str(e)}")
-                    logger.error(f"Raw response content: {response.content!r}")
+                    logger.exception(f"Failed to parse JSON response: {str(e)}")
+                    logger.debug(f"Raw response content: {response.content!r}")
                     raise
 
             except httpx.HTTPStatusError as e:
@@ -530,17 +530,17 @@ class GitGuardianClient:
                         # If we can't parse the error response, continue with normal error handling
                         pass
 
-                logger.error(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
-                logger.error(f"Error response content: {e.response.text}")
-                logger.error(f"Failed URL: {url}")
+                logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
+                logger.debug(f"Error response content: {e.response.text}")
+                logger.debug(f"Failed URL: {url}")
                 raise
             except httpx.RequestError as e:
-                logger.error(f"Request error occurred: {str(e)}")
-                logger.error(f"Failed URL: {url}")
+                logger.exception(f"Request error occurred: {str(e)}")
+                logger.debug(f"Failed URL: {url}")
                 raise
             except Exception as e:
                 logger.exception(f"Unexpected error during API request: {str(e)}")
-                logger.error(f"Failed URL: {url}")
+                logger.debug(f"Failed URL: {url}")
                 raise
 
             # If we got here with no exceptions, break out of the retry loop (should have returned above)
@@ -1712,7 +1712,7 @@ class GitGuardianClient:
                 return None
 
         except Exception as e:
-            logger.error(f"Error getting source by name: {str(e)}")
+            logger.exception(f"Error getting source by name: {str(e)}")
             return None
 
     async def create_code_fix_request(self, locations: list[dict[str, Any]]) -> dict[str, Any]:
