@@ -100,3 +100,25 @@ class TestListOccurrences:
             assert "has_more" in result
             assert isinstance(result["has_more"], bool)
             assert "cursor" in result
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_list_occurrences_with_member_assignee_id(self, real_client):
+        """
+        Test listing occurrences filtered by member assignee ID.
+
+        GIVEN a valid GitGuardian API key
+        WHEN we request occurrences assigned to a specific member
+        THEN we should receive occurrences filtered by that member's ID
+        """
+        # First get a valid member ID to filter by
+        with my_vcr.use_cassette("test_list_occurrences_with_member_assignee_id"):
+            member = await real_client.get_current_member()
+            member_id = member["id"]
+            result = await real_client.list_occurrences(member_assignee_id=member_id, per_page=5)
+
+            assert result is not None
+            assert "data" in result
+            assert isinstance(result["data"], list)
+            assert "cursor" in result
+            assert "has_more" in result

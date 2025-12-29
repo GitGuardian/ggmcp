@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import (
     DEFAULT_PAGINATION_MAX_BYTES,
@@ -64,6 +64,16 @@ class ListRepoOccurrencesFilters(BaseModel):
     validity: list[IncidentValidity] | None = Field(
         default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
     )
+    mine: bool = Field(
+        default=False, description="If True, fetch occurrences related to issues assigned to the current user"
+    )
+    member_assignee_id: int | None = Field(default=None, description="Filter by the member the incident is assigned to")
+
+    @model_validator(mode="after")
+    def validate_exactly_one_assignee_option(self):
+        """Validate that exactly one of member_assignee_id, or mine is provided."""
+        if self.member_assignee_id is not None and self.mine:
+            raise ValueError("Only one of assignee_member_id, or mine should be provided")
 
 
 class ListRepoOccurrencesBaseParams(BaseModel):
@@ -129,6 +139,10 @@ def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
         filters["severity"] = [sev.value if hasattr(sev, "value") else sev for sev in params.severity]
     if params.validity:
         filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
+    if params.mine:
+        filters["mine"] = params.mine
+    if params.member_assignee_id:
+        filters["member_assignee_id"] = params.member_assignee_id
 
     return filters
 
@@ -205,6 +219,12 @@ async def list_repo_occurrences(
     client = get_client()
     logger.debug(f"Listing occurrences with repository_name={params.repository_name}, source_id={params.source_id}")
 
+    # Filter by assigned member
+    member_assignee_id = params.member_assignee_id
+    if params.mine:
+        member = await client.get_current_member()
+        member_assignee_id = member["id"]
+
     try:
         # Call the list_occurrences method with appropriate filter
         if params.source_id:
@@ -223,6 +243,7 @@ async def list_repo_occurrences(
                 status=params.status,
                 severity=params.severity,
                 validity=params.validity,
+                member_assignee_id=member_assignee_id,
                 with_sources=False,
             )
         else:
@@ -243,6 +264,7 @@ async def list_repo_occurrences(
                 status=params.status,
                 severity=params.severity,
                 validity=params.validity,
+                member_assignee_id=member_assignee_id,
                 with_sources=False,
             )
 
