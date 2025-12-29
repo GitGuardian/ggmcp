@@ -62,10 +62,10 @@ class TestRemediateSecretIncidentsParams:
         params = RemediateSecretIncidentsParams(
             repository_name="GitGuardian/test-repo",
             list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(
-                repository_name="GitGuardian/test-repo", per_page=50
+                repository_name="GitGuardian/test-repo", per_page=20
             ),
         )
-        assert params.list_repo_occurrences_params.per_page == 50
+        assert params.list_repo_occurrences_params.per_page == 20
         assert params.list_repo_occurrences_params.repository_name == "GitGuardian/test-repo"
 
 

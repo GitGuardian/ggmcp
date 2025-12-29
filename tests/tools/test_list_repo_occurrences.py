@@ -1,7 +1,12 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
+from gg_api_core.tools.list_repo_occurrences import (
+    ListRepoOccurrencesFilters,
+    ListRepoOccurrencesParams,
+    list_repo_occurrences,
+)
+from pydantic import ValidationError
 
 
 class TestListRepoOccurrences:
@@ -306,3 +311,106 @@ class TestListRepoOccurrences:
         # Verify error response is returned
         assert hasattr(result, "error")
         assert "Failed to list repository occurrences" in result.error
+
+    @pytest.mark.asyncio
+    async def test_list_repo_occurrences_with_member_assignee_id(self, mock_gitguardian_client):
+        """
+        GIVEN: A member_assignee_id filter
+        WHEN: Listing occurrences
+        THEN: The API is called with the member_assignee_id parameter
+        """
+        mock_response = {
+            "data": [{"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}}],
+            "cursor": None,
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+
+        # Call the function with member_assignee_id
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                member_assignee_id=12345,
+            )
+        )
+
+        # Verify client was called with member_assignee_id
+        mock_gitguardian_client.list_occurrences.assert_called_once()
+        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
+        assert call_kwargs["member_assignee_id"] == 12345
+
+        # Verify filter is reported in response
+        assert result.applied_filters is not None
+        assert result.applied_filters.get("member_assignee_id") == 12345
+
+    @pytest.mark.asyncio
+    async def test_list_repo_occurrences_with_mine_filter(self, mock_gitguardian_client):
+        """
+        GIVEN: The mine filter is True
+        WHEN: Listing occurrences
+        THEN: The current member ID is fetched and used as member_assignee_id
+        """
+        mock_response = {
+            "data": [{"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}}],
+            "cursor": None,
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+        mock_gitguardian_client.get_current_member = AsyncMock(
+            return_value={"id": 67890, "email": "test@example.com", "name": "Test User"}
+        )
+
+        # Call the function with mine=True
+        result = await list_repo_occurrences(
+            ListRepoOccurrencesParams(
+                repository_name="GitGuardian/test-repo",
+                mine=True,
+            )
+        )
+
+        # Verify get_current_member was called
+        mock_gitguardian_client.get_current_member.assert_called_once()
+
+        # Verify list_occurrences was called with the member ID
+        mock_gitguardian_client.list_occurrences.assert_called_once()
+        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
+        assert call_kwargs["member_assignee_id"] == 67890
+
+        # Verify filter is reported in response
+        assert result.applied_filters is not None
+        assert result.applied_filters.get("mine") is True
+
+
+class TestListRepoOccurrencesFilters:
+    """Tests for ListRepoOccurrencesFilters validation."""
+
+    def test_mine_and_member_assignee_id_mutually_exclusive(self):
+        """
+        GIVEN: Both mine and member_assignee_id are provided
+        WHEN: Creating the filters
+        THEN: A validation error is raised
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            ListRepoOccurrencesFilters(mine=True, member_assignee_id=12345)
+
+        assert "Only one of assignee_member_id, or mine should be provided" in str(exc_info.value)
+
+    def test_mine_alone_is_valid(self):
+        """
+        GIVEN: Only mine filter is provided
+        WHEN: Creating the filters
+        THEN: The filters are valid
+        """
+        filters = ListRepoOccurrencesFilters(mine=True)
+        assert filters.mine is True
+        assert filters.member_assignee_id is None
+
+    def test_member_assignee_id_alone_is_valid(self):
+        """
+        GIVEN: Only member_assignee_id is provided
+        WHEN: Creating the filters
+        THEN: The filters are valid
+        """
+        filters = ListRepoOccurrencesFilters(member_assignee_id=12345)
+        assert filters.member_assignee_id == 12345
+        assert filters.mine is False

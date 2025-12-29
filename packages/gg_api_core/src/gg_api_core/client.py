@@ -1489,6 +1489,7 @@ class GitGuardianClient:
         validity: list[IncidentValidity] | None = None,
         status: list[IncidentStatus] | None = None,
         with_sources: bool | None = None,
+        member_assignee_id: int | None = None,
     ) -> ListResponse:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
@@ -1547,6 +1548,8 @@ class GitGuardianClient:
             params["status"] = ",".join(status)
         if with_sources is not None:
             params["with_sources"] = str(with_sources).lower()
+        if member_assignee_id is not None:
+            params["member_assignee_id"] = str(member_assignee_id)
 
         # If get_all is True, use paginate_all to get all results with truncation metadata
         if get_all:

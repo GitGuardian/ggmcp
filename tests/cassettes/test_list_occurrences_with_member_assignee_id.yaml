@@ -1,0 +1,208 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/api_tokens/self
+  response:
+    body:
+      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+        "type": "personal_access_token", "scopes": ["scan", "incidents:read", "members:read",
+        "audit_logs:read", "teams:read", "honeytokens:read", "honeytokens:write",
+        "api_tokens:read", "sources:read", "nhi:send-inventory", "nhi:write-vault",
+        "custom_tags:read", "custom_tags:write", "secrets:read", "secrets:write",
+        "scan:create-incidents", "public-perimeter:read"], "member_id": 480870, "workspace_id":
+        8, "created_at": "2025-12-07T14:13:08.044416Z", "last_used_at": "2025-12-29T10:00:00Z",
+        "expire_at": null, "revoked_at": null, "status": "active", "creator_id": 480870}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      content-length:
+      - '594'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:00 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '62'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/members/480870
+  response:
+    body:
+      string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
+        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 Delion", "created_at":
+        "2023-06-26T12:41:18.599497Z", "last_login": "2025-12-29T09:53:16.639748Z",
+        "active": true}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-length:
+      - '221'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:00 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '50'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/occurrences/secrets?member_assignee_id=480870&per_page=5
+  response:
+    body:
+      string: '[{"id": 78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z",
+        "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
+        [{"name": "client_id", "indice_start": 49, "indice_end": 69, "pre_line_start":
+        3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
+        "client_secret", "indice_start": 85, "indice_end": 125, "pre_line_start":
+        4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
+        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
+        "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
+        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "304477822", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
+        {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "deleted": true}}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1600'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:01 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '654'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
