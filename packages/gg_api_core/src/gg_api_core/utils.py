@@ -6,7 +6,7 @@ from urllib.parse import urljoin as urllib_urljoin
 from fastmcp.server.dependencies import get_http_headers
 from mcp.server.fastmcp.exceptions import ValidationError
 
-from .client import GitGuardianClient
+from .client import GitGuardianClient, acquire_single_tenant_token
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -17,92 +17,131 @@ def urljoin(base: str, url: str) -> str:
     return urllib_urljoin(base, url)
 
 
-# Singleton client instance
-_client_singleton = None
+# Singleton client instance - only used in single-tenant mode
+_client_singleton: GitGuardianClient | None = None
+
+
+def get_mcp_port_or_none() -> str | None:
+    """Get MCP_PORT environment variable value or None.
+
+    Single source of truth for MCP_PORT access.
+    """
+    return os.environ.get("MCP_PORT")
+
+
+def is_multi_tenant_mode() -> bool:
+    """Check if multi-tenant mode is enabled (explicit opt-in).
+
+    Multi-tenant mode requires explicit opt-in via MULTI_TENANCY_ENABLED=true.
+    When enabled, MCP_PORT must also be set (raises error if not).
+
+    Returns:
+        True if MULTI_TENANCY_ENABLED=true
+        False otherwise (single-tenant is the default)
+    """
+    return os.environ.get("MULTI_TENANCY_ENABLED", "").lower() == "true"
 
 
 def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
-    """Get the GitGuardian client instance.
+    """Get GitGuardian client for the current context.
 
-    Authentication behavior depends on transport mode:
+    **Single-tenant is the DEFAULT** (local stdio usage).
+    Multi-tenant requires explicit opt-in via MULTI_TENANCY_ENABLED=true.
 
-    **stdio mode** (no MCP_PORT): Uses singleton pattern with cached client.
-    - Token comes from: OAuth flow OR GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
-    - Single identity for entire server lifetime
+    Authentication modes (in order of precedence):
 
-    **HTTP mode** (MCP_PORT set): Per-request authentication.
-    - Token MUST come from Authorization header in each request
-    - Multi-tenant: different users can authenticate per-request
-    - No caching (new client per request)
+    1. **Explicit PAT provided** → Use it directly, no caching
+       - For programmatic usage where caller manages the token
+
+    2. **Multi-tenant mode** (MULTI_TENANCY_ENABLED=true) → Per-request from headers
+       - Requires MCP_PORT to be set
+       - Token MUST come from Authorization header
+       - No caching (new client per request)
+
+    3. **Single-tenant mode** (DEFAULT) → Singleton pattern, token sources:
+       a. GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
+       b. Stored OAuth token from previous authentication flow
+       c. ENABLE_LOCAL_OAUTH=true → trigger interactive OAuth flow
+       - Same identity for entire server lifetime
 
     Args:
         personal_access_token: Optional PAT for explicit authentication.
-            In HTTP mode, this is extracted from request headers.
 
     Returns:
         GitGuardianClient: Client instance configured with appropriate authentication
 
     Raises:
-        ValidationError: In HTTP mode, if Authorization header is missing/invalid
+        ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
+        RuntimeError: In single-tenant mode, if no token source is available
     """
-    mcp_port = os.environ.get("MCP_PORT")
-
-    logger.debug(
-        f"get_client() called: mcp_port={mcp_port}, personal_access_token={'provided' if personal_access_token else 'None'}"
-    )
-
-    # In HTTP mode, get token from Authorization header or raise
-    if mcp_port and not personal_access_token:
-        logger.debug("HTTP mode detected: extracting token from request headers")
-        try:
-            personal_access_token = get_personal_access_token_from_request()
-            logger.debug("Successfully extracted token from HTTP request headers")
-        except ValidationError as e:
-            logger.exception(f"Failed to extract token from HTTP headers: {e}")
-            raise
-
-    # If a PAT is provided (explicitly or from headers), create per-request client (no caching)
+    # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
-        logger.debug("Creating GitGuardian client with provided token")
-        return get_gitguardian_client(personal_access_token=personal_access_token)
+        logger.debug("Creating client with explicitly provided token")
+        return GitGuardianClient(personal_access_token=personal_access_token)
 
-    # stdio mode: Use singleton pattern (OAuth or env var token)
-    logger.debug("stdio mode: Using singleton client")
+    # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
+    if is_multi_tenant_mode():
+        mcp_port = get_mcp_port_or_none()
+        if not mcp_port:
+            raise ValidationError(
+                "MULTI_TENANCY_ENABLED=true requires MCP_PORT to be set. "
+                "Multi-tenant mode only works with HTTP transport."
+            )
+        logger.debug("Multi-tenant mode: extracting token from request headers")
+        token = _get_token_from_request_headers()
+        return GitGuardianClient(personal_access_token=token)
+
+    # 3. Single-tenant mode (DEFAULT) - use singleton pattern to cache the PAT
     global _client_singleton
-    if _client_singleton is None:
-        logger.info("Creating singleton client instance")
-        _client_singleton = get_gitguardian_client()
+    if _client_singleton is not None:
+        return _client_singleton
+
+    # Acquire token for single-tenant mode
+    token = acquire_single_tenant_token()
+    # Enable token refresh for self-healing on 401 errors
+    _client_singleton = GitGuardianClient(
+        personal_access_token=token,
+        allow_token_refresh=True,
+    )
     return _client_singleton
 
 
-def get_personal_access_token_from_request():
+def _get_token_from_request_headers() -> str:
     """Extract personal access token from HTTP request headers.
+
+    Used in multi-tenant mode where each request must provide its own token.
+
+    Returns:
+        The extracted token
 
     Raises:
         ValidationError: If headers are missing or invalid
     """
     try:
         headers = get_http_headers()
-        logger.debug(f"Retrieved HTTP headers: {list(headers.keys()) if headers else 'None'}")
     except Exception as e:
-        logger.exception(f"Failed to get HTTP headers: {e}")
-        raise ValidationError(f"Failed to retrieve HTTP headers: {e}")
+        raise ValidationError(
+            f"Failed to retrieve HTTP headers in multi-tenant mode. "
+            f"Ensure the HTTP transport is properly configured. Error: {e}"
+        )
 
     if not headers:
-        logger.error("No HTTP headers available in current context")
-        raise ValidationError("No HTTP headers available - Authorization header required in HTTP mode")
+        raise ValidationError(
+            "No HTTP headers available in multi-tenant mode. "
+            "Requests must include Authorization header with a valid PAT."
+        )
 
     auth_header = headers.get("authorization") or headers.get("Authorization")
     if not auth_header:
-        logger.error(f"Missing Authorization header. Available headers: {list(headers.keys())}")
-        raise ValidationError("Missing Authorization header - required in HTTP mode")
+        raise ValidationError(
+            "Missing Authorization header in multi-tenant mode. "
+            "Each request must include 'Authorization: Bearer <PAT>' header."
+        )
 
     token = _extract_token_from_auth_header(auth_header)
     if not token:
-        logger.error("Failed to extract token from Authorization header")
-        raise ValidationError("Invalid Authorization header format")
+        raise ValidationError("Invalid Authorization header format. Expected: 'Bearer <token>' or 'Token <token>'")
 
-    logger.debug("Successfully extracted token from Authorization header")
     return token
 
 
@@ -259,29 +298,3 @@ def parse_repo_url(remote_url: str) -> str | None:
             repository_name = match.group(1)
 
     return repository_name
-
-
-# Initialize GitGuardian client
-def get_gitguardian_client(
-    server_name: str | None = None, personal_access_token: str | None = None
-) -> GitGuardianClient:
-    """Get or initialize the GitGuardian client.
-
-    Uses OAuth authentication flow by default, or a provided Personal Access Token.
-
-    Args:
-        server_name: Name of the MCP server for server-specific token storage
-        personal_access_token: Optional Personal Access Token to use for authentication
-
-    Returns:
-        GitGuardianClient: Initialized client instance
-    """
-    logger.debug("Attempting to initialize GitGuardian client")
-    try:
-        # Store server_name as an attribute after initialization since it's not in the constructor anymore
-        client = GitGuardianClient(personal_access_token=personal_access_token)
-        client.server_name = server_name  # type: ignore[attr-defined]
-        return client
-    except Exception as e:
-        logger.exception(f"Failed to initialize GitGuardian client: {str(e)}")
-        raise

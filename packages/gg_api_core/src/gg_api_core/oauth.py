@@ -508,7 +508,7 @@ class GitGuardianOAuthClient:
             # Continue without a saved token
 
     async def oauth_process(self, login_path: str | None = None) -> str:
-        """Execute the OAuth authentication flow.
+        """Execute the OAuth authentication flow, and store the obtained token
 
         Args:
             login_path: Optional custom login path (default: "auth/login")
