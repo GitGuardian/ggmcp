@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
-from gg_api_core.utils import get_gitguardian_client
 
 
 @pytest.fixture
@@ -244,8 +243,8 @@ class TestGitGuardianClient:
             assert result["has_more"] is False
 
 
-class TestGetGitGuardianClient:
-    """Tests for the get_gitguardian_client function."""
+class TestGitGuardianClientURLs:
+    """Tests for GitGuardianClient URL computation."""
 
     @pytest.mark.parametrize(
         "url,expected",
@@ -327,7 +326,7 @@ class TestGetGitGuardianClient:
     def test_computed_urls(self, url, expected):
         """Test client initialization with URLs containing paths."""
         with patch.dict(os.environ, {"GITGUARDIAN_URL": url}):
-            client = get_gitguardian_client()
+            client = GitGuardianClient()
 
             assert client.public_api_url == expected["public_api_url"]
             assert client.dashboard_url == expected["dashboard_url"]
