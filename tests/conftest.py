@@ -218,8 +218,8 @@ def mock_gitguardian_client(request):
 
     # Patch get_client() to return our mock - this prevents the singleton from creating a real client
     with patch("gg_api_core.utils.get_client", return_value=mock_client):
-        # Also patch get_gitguardian_client to prevent any direct calls
-        with patch("gg_api_core.utils.get_gitguardian_client", return_value=mock_client):
+        # Also patch GitGuardianClient constructor to prevent any direct instantiation
+        with patch("gg_api_core.utils.GitGuardianClient", return_value=mock_client):
             # Patch find_current_source_id to avoid real GitHub calls
             # Import here to avoid circular imports
             from gg_api_core.tools.find_current_source_id import FindCurrentSourceIdResult

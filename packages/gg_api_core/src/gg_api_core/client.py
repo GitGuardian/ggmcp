@@ -10,13 +10,9 @@ from urllib.parse import quote_plus, unquote, urlparse
 import httpx
 
 from gg_api_core.host import is_self_hosted_instance
-from gg_api_core.scopes import get_scopes_from_env_var
 
 # Setup logger
 logger = logging.getLogger(__name__)
-
-# Global OAuth lock to prevent parallel OAuth flows
-_oauth_lock = asyncio.Lock()
 
 
 class IncidentSeverity(str, Enum):
@@ -104,31 +100,171 @@ def get_personal_access_token_from_env() -> str | None:
     return os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
 
 
+def _derive_urls_from_env() -> tuple[str, str]:
+    """Derive dashboard_url and public_api_url from environment.
+
+    Returns:
+        Tuple of (dashboard_url, public_api_url)
+    """
+    # Create a temporary client just to get normalized URLs
+    temp_client = GitGuardianClient.__new__(GitGuardianClient)
+    gitguardian_url = os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
+    temp_client._init_urls(gitguardian_url)
+    return temp_client.dashboard_url, temp_client.public_api_url
+
+
+def _get_stored_oauth_token(dashboard_url: str) -> str | None:
+    """Check for a stored OAuth token from a previous authentication flow.
+
+    Args:
+        dashboard_url: The dashboard URL to look up the token for
+
+    Returns:
+        The stored token if valid, None otherwise
+    """
+    try:
+        from .oauth import FileTokenStorage
+
+        file_storage = FileTokenStorage()
+        token = file_storage.get_token(dashboard_url)
+        if token:
+            logger.debug(f"Found stored OAuth token for {dashboard_url}")
+            return token
+        return None
+    except Exception as e:
+        logger.debug(f"Could not load stored OAuth token: {e}")
+        return None
+
+
+def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
+    """Run the interactive OAuth flow to obtain a PAT.
+
+    Args:
+        dashboard_url: The dashboard URL for OAuth
+        public_api_url: The public API URL for OAuth
+
+    Returns:
+        The obtained PAT
+
+    Raises:
+        RuntimeError: If OAuth flow fails
+    """
+    import asyncio
+
+    from .oauth import GitGuardianOAuthClient
+    from .scopes import get_scopes_from_env_var
+
+    scopes = get_scopes_from_env_var()
+    login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
+    token_name = os.environ.get("GITGUARDIAN_TOKEN_NAME", "MCP Token")
+
+    oauth_client = GitGuardianOAuthClient(
+        api_url=public_api_url,
+        dashboard_url=dashboard_url,
+        scopes=scopes,
+        token_name=token_name,
+    )
+
+    try:
+        # Check if OAuth client already has a valid token loaded from storage
+        if oauth_client.access_token:
+            logger.info("OAuth client loaded existing token from storage")
+            return oauth_client.access_token
+
+        # Run OAuth flow
+        logger.info("Starting interactive OAuth authentication flow...")
+        token = asyncio.get_event_loop().run_until_complete(oauth_client.oauth_process(login_path=login_path))
+        logger.info("OAuth authentication successful")
+        return token
+    except Exception as e:
+        raise RuntimeError(f"OAuth authentication failed: {e}") from e
+
+
+def acquire_single_tenant_token(
+    dashboard_url: str | None = None,
+    public_api_url: str | None = None,
+) -> str:
+    """Acquire a PAT for single-tenant mode.
+
+    Token sources (in order of precedence):
+    1. GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
+    2. Stored OAuth token from previous authentication flow
+    3. Interactive OAuth flow (if ENABLE_LOCAL_OAUTH=true)
+
+    Args:
+        dashboard_url: Optional dashboard URL. If not provided, derived from env.
+        public_api_url: Optional API URL. If not provided, derived from env.
+
+    Returns:
+        The acquired PAT
+
+    Raises:
+        RuntimeError: If no token source is available
+    """
+    # 1. Check env var first
+    if env_pat := get_personal_access_token_from_env():
+        logger.info("Using PAT from GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var")
+        return env_pat
+
+    # Derive URLs if not provided
+    if dashboard_url is None or public_api_url is None:
+        dashboard_url, public_api_url = _derive_urls_from_env()
+
+    # 2. Check for stored OAuth token from previous flow
+    stored_token = _get_stored_oauth_token(dashboard_url)
+    if stored_token:
+        logger.info("Using stored OAuth token from previous authentication")
+        return stored_token
+
+    # 3. Trigger OAuth flow if enabled
+    if is_oauth_enabled():
+        logger.info("No stored token, triggering OAuth flow")
+        return _run_oauth_flow(dashboard_url, public_api_url)
+
+    # No token source available
+    raise RuntimeError(
+        "No API token available. Options: "
+        "(1) Set GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var, "
+        "(2) Set ENABLE_LOCAL_OAUTH=true to trigger interactive OAuth flow, "
+        "(3) For HTTP deployments, set MULTI_TENANCY_ENABLED=true and MCP_PORT."
+    )
+
+
 class GitGuardianClient:
-    """Client for interacting with the GitGuardian API."""
+    """Client for interacting with the GitGuardian API.
+
+    This client expects a PAT to be provided. Token acquisition (from env vars,
+    stored OAuth tokens, or interactive OAuth flow) must be handled by the caller
+    before this client is instantiated.
+    """
 
     # Define User-Agent as a class constant
     USER_AGENT = "GitGuardian-MCP-Server/1.0"
 
-    def __init__(self, gitguardian_url: str | None = None, personal_access_token: str | None = None):
+    def __init__(
+        self,
+        gitguardian_url: str | None = None,
+        personal_access_token: str | None = None,
+        allow_token_refresh: bool = False,
+    ):
         """Initialize the GitGuardian client.
 
         Args:
-            gitguardian_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var or https://dashboard.gitguardian.com
-                    Supported formats:
-                    - SaaS US: https://dashboard.gitguardian.com (default)
-                    - SaaS EU: https://dashboard.eu1.gitguardian.com
-                    - Self-hosted dashboard URL: https://dashboard.your-gitguardian.com
-                    - Legacy API URLs are also supported for backward compatibility
+            gitguardian_url: GitGuardian URL, defaults to GITGUARDIAN_URL env var
+                or https://dashboard.gitguardian.com
+            personal_access_token: The PAT to use for authentication.
+                In normal usage, this is provided by get_client() which handles
+                token acquisition from various sources.
+            allow_token_refresh: If True, the client can attempt to refresh the
+                token when a 401 error occurs (via env var or OAuth flow).
+                This enables self-healing when tokens expire or become invalid.
         """
-        logger.info("Initializing GitGuardian client")
-
-        # Initialize instance variables before calling init methods
-        self._token_info: Any | None = None
-        self._oauth_token: str | None = None
+        logger.debug("Initializing GitGuardian client")
 
         self._init_urls(gitguardian_url)
-        self._init_personal_access_token(personal_access_token)
+        self._oauth_token = personal_access_token
+        self._allow_token_refresh = allow_token_refresh
+        self._token_info: Any | None = None
 
     def _init_urls(self, gitguardian_url: str | None = None):
         # Use provided raw URL or get from environment with default fallback
@@ -142,42 +278,6 @@ class GitGuardianClient:
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
         self.private_api_url = f"{self.dashboard_url}/api/v1"
         logger.info(f"Using private API URL: {self.private_api_url}")
-
-    def _init_personal_access_token(self, personal_access_token: str | None = None):
-        """Initialize authentication token based on transport mode.
-
-        Authentication architecture:
-        - stdio mode: OAuth (interactive) OR PAT from env var (non-interactive)
-        - HTTP mode: Per-request Authorization header ONLY (multi-tenant capable)
-        """
-        mcp_port = os.environ.get("MCP_PORT")
-        enable_local_oauth = is_oauth_enabled()
-
-        if personal_access_token:
-            logger.info("Using provided PAT")
-            self._oauth_token = personal_access_token
-            return
-
-        if mcp_port:
-            if enable_local_oauth:
-                raise ValueError(
-                    "Invalid configuration: Cannot use ENABLE_LOCAL_OAUTH=true with MCP_PORT set. "
-                    "HTTP/SSE mode requires per-request authentication via Authorization headers. "
-                    "For local OAuth authentication, use stdio transport (unset MCP_PORT)."
-                )
-            else:
-                # HTTP mode and no personal access token provided
-                # Token will be extracted from Authorization header per-request via get_client()
-                logger.info("HTTP/SSE mode: token will be provided via Authorization header per-request")
-                self._oauth_token = None
-        else:
-            if personal_access_token := os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN"):
-                logger.info("Using PAT from environment variable")
-                self._oauth_token = personal_access_token
-            else:
-                # TODO(APPAI): We should also locate here the retrieval from storage
-                logger.info("No PAT provided, falling back to OAuth")
-                self._oauth_token = None
 
     def _normalize_api_url(self, api_url: str) -> str:
         """
@@ -284,83 +384,14 @@ class GitGuardianClient:
             logger.warning(f"Failed to extract dashboard URL from API URL: {e}")
             return default_dashboard_url
 
-    async def _ensure_api_token(self):
-        """Ensure we have a valid token, initiating the OAuth flow if needed.
+    def clear_invalid_token_from_storage(self):
+        """Clear invalid OAuth token from file storage.
 
-        OAuth flow is only enabled when ENABLE_LOCAL_OAUTH=true.
-        This prevents OAuth prompts in HTTP/SSE mode (which uses per-request PATs)
-        and in test environments.
+        Call this when a 401 error indicates the stored token is invalid.
+        After calling this, the client singleton should be reset so that
+        the next call to get_client() triggers fresh token acquisition.
         """
-
-        if getattr(self, "_oauth_token", None) is not None:
-            return
-
-        if not is_oauth_enabled():
-            raise RuntimeError("OAuth is not enabled")
-
-        # Use a global lock to prevent parallel OAuth flows across all client instances
-        async with _oauth_lock:
-            # Double-check pattern: another thread might have completed OAuth while we waited for the lock
-            if getattr(self, "_oauth_token", None) is not None:
-                logger.debug("OAuth token already available after waiting for lock")
-                return
-
-            logger.warning("Acquired OAuth lock, proceeding with authentication")
-            logger.info(f"   Client API URL: {self.public_api_url}")
-            logger.info(f"   Client Dashboard URL: {self.dashboard_url}")
-            logger.info(f"   Client Server Name: {getattr(self, 'server_name', 'None')}")
-
-            # Import here to avoid circular imports
-            from .oauth import GitGuardianOAuthClient
-
-            scopes = get_scopes_from_env_var()
-
-            # Get custom login path if specified
-            login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
-
-            # Get token name from environment or use default
-            token_name = os.environ.get("GITGUARDIAN_TOKEN_NAME")
-
-            # Create OAuth client and run the OAuth flow
-            # The dashboard_url is used for OAuth, not the API URL
-            # Use server name in token name if available with proper prefixes
-            if not token_name and hasattr(self, "server_name") and self.server_name:
-                # Use distinct token names for different MCP server types
-                if "secops" in self.server_name.lower():
-                    token_name = "SecOps MCP Token"
-                elif "developer" in self.server_name.lower():
-                    token_name = "Developer MCP Token"
-                else:
-                    token_name = f"{self.server_name} MCP Token"
-            else:
-                token_name = token_name or "MCP Token"
-
-            logger.info(f"   Final token name: {token_name}")
-
-            oauth_client = GitGuardianOAuthClient(
-                api_url=self.public_api_url, dashboard_url=self.dashboard_url, scopes=scopes, token_name=token_name
-            )
-
-            try:
-                # Check if we already have a valid token loaded
-                if oauth_client.access_token and oauth_client.token_info:
-                    logger.info("Using existing OAuth token")
-                    self._oauth_token = oauth_client.access_token
-                    self._token_info = oauth_client.token_info
-                else:
-                    # No valid token exists, start the OAuth flow
-                    logger.info("Starting OAuth authentication flow...")
-                    self._oauth_token = await oauth_client.oauth_process(login_path=login_path)
-                    self._token_info = oauth_client.get_token_info()
-                    logger.info("OAuth authentication successful")
-            except Exception as e:
-                logger.exception(f"OAuth authentication failed: {e}")
-                raise
-
-    async def _clear_invalid_oauth_token(self):
-        """Clear invalid OAuth token from memory and storage, forcing a new OAuth flow."""
-
-        logger.info("Clearing invalid OAuth token from memory and storage")
+        logger.info("Clearing invalid OAuth token from storage")
 
         # Clear in-memory token
         self._oauth_token = None
@@ -392,8 +423,33 @@ class GitGuardianClient:
         except Exception as e:
             logger.warning(f"Could not clean up token storage: {str(e)}")
 
-        # Force new OAuth flow on next request
-        await self._ensure_api_token()
+    def _refresh_token(self) -> bool:
+        """Attempt to refresh the token.
+
+        This enables self-healing when the current token is invalid or expired.
+        Uses acquire_single_tenant_token() to get a fresh token.
+
+        Returns:
+            True if token was successfully refreshed, False otherwise
+        """
+        if not self._allow_token_refresh:
+            logger.debug("Token refresh not allowed for this client")
+            return False
+
+        logger.info("Attempting to refresh token...")
+
+        try:
+            new_token = acquire_single_tenant_token(
+                dashboard_url=self.dashboard_url,
+                public_api_url=self.public_api_url,
+            )
+            self._oauth_token = new_token
+            self._token_info = None
+            logger.info("Token refreshed successfully")
+            return True
+        except RuntimeError as e:
+            logger.warning(f"Could not refresh token: {e}")
+            return False
 
     async def _request(self, method: str, endpoint: str, **kwargs) -> Any:
         """Make a request to the GitGuardian API (generic method).
@@ -426,14 +482,12 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        # Ensure we have a valid OAuth token
-        await self._ensure_api_token()
         headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
             "User-Agent": self.USER_AGENT,
         }
-        logger.debug("Using OAuth token for authorization")
+        logger.debug("Using token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
         logger.debug(
@@ -506,26 +560,26 @@ class GitGuardianClient:
                     raise
 
             except httpx.HTTPStatusError as e:
-                # Special handling for 401 errors - OAuth token might be invalid/expired
+                # Special handling for 401 errors - token might be invalid/expired
                 if e.response.status_code == 401 and self._oauth_token is not None:
-                    logger.warning("Received 401 Unauthorized - OAuth token may be invalid or expired")
+                    logger.warning("Received 401 Unauthorized - token may be invalid or expired")
 
                     # Check if this is an "Invalid API key" error
                     try:
                         error_response = e.response.json()
                         if error_response.get("detail") == "Invalid API key.":
-                            logger.info("Detected invalid OAuth token, attempting to refresh...")
+                            logger.info("Detected invalid token, attempting to refresh...")
 
-                            # Clear the invalid token and remove it from storage
-                            await self._clear_invalid_oauth_token()
+                            # Clear the invalid token from storage
+                            self.clear_invalid_token_from_storage()
 
-                            # If this is the first retry attempt, try to get a new token
-                            if retry_count == 0:
-                                logger.info("Retrying request with fresh OAuth token...")
+                            # Try to refresh the token and retry (only once)
+                            if retry_count == 0 and self._refresh_token():
+                                logger.info("Token refreshed, retrying request...")
                                 retry_count += 1
                                 continue
                             else:
-                                logger.error("Failed to authenticate even after token refresh")
+                                logger.error("Could not refresh token, request will fail")
                     except (json.JSONDecodeError, AttributeError):
                         # If we can't parse the error response, continue with normal error handling
                         pass
@@ -658,8 +712,6 @@ class GitGuardianClient:
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making list request to {url}")
 
-        # Ensure we have a valid OAuth token
-        await self._ensure_api_token()
         headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
