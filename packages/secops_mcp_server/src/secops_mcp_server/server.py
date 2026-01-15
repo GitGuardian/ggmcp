@@ -18,8 +18,8 @@ from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.write_custom_tags import update_or_create_incident_custom_tags, write_custom_tags
 from pydantic import BaseModel, Field
 
-# Configure more detailed logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ IMPORTANT:
 # Use our custom GitGuardianFastMCP from the core package
 mcp = get_mcp_server(
     "GitGuardian SecOps",
-    log_level="DEBUG",
+    log_level="INFO",
     instructions=SECOPS_INSTRUCTIONS,
 )
 
