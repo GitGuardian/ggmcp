@@ -120,7 +120,7 @@ class FileTokenStorage:
         except Exception as e:
             logger.warning(f"Failed to save token to {self.token_file}: {e}")
 
-    def get_token(self, instance_url):
+    def get_token(self, instance_url: str) -> str | None:
         """Get a token for a specific instance URL if it exists and is not expired."""
         tokens = self.load_tokens()
         token_data = tokens.get(instance_url)
@@ -142,7 +142,8 @@ class FileTokenStorage:
                 logger.warning(f"Failed to parse expiry date: {e}")
                 # If we can't parse the date, assume it's still valid
 
-        return token_data.get("access_token")
+        access_token = token_data.get("access_token")
+        return str(access_token) if access_token else None
 
 
 class InMemoryTokenStorage(TokenStorage):

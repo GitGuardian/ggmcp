@@ -187,6 +187,8 @@ def mock_gitguardian_client(request):
             with my_vcr.use_cassette("test_name"):
                 result = await real_client.some_method()
     """
+    from contextlib import ExitStack
+
     # Skip mocking for tests marked with 'vcr_test' - they use real cassettes
     if request.node.get_closest_marker("vcr_test"):
         yield None
@@ -216,30 +218,57 @@ def mock_gitguardian_client(request):
     mock_client.list_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.get_current_member = AsyncMock(return_value={"email": "test@example.com"})
 
-    # Patch get_client() to return our mock - this prevents the singleton from creating a real client
-    with patch("gg_api_core.utils.get_client", return_value=mock_client):
-        # Also patch GitGuardianClient constructor to prevent any direct instantiation
-        with patch("gg_api_core.utils.GitGuardianClient", return_value=mock_client):
-            # Patch find_current_source_id to avoid real GitHub calls
-            # Import here to avoid circular imports
-            from gg_api_core.tools.find_current_source_id import FindCurrentSourceIdResult
+    # List of all modules that import get_client directly with "from gg_api_core.utils import get_client"
+    # We must patch where it's USED, not where it's DEFINED
+    modules_using_get_client = [
+        "gg_api_core.utils",
+        "gg_api_core.mcp_server",
+        "gg_api_core.tools.scan_secret",
+        "gg_api_core.tools.list_incidents",
+        "gg_api_core.tools.list_honeytokens",
+        "gg_api_core.tools.generate_honey_token",
+        "gg_api_core.tools.find_current_source_id",
+        "gg_api_core.tools.create_code_fix_request",
+        "gg_api_core.tools.assign_incident",
+        "gg_api_core.tools.manage_incident",
+        "gg_api_core.tools.list_repo_occurrences",
+        "gg_api_core.tools.write_custom_tags",
+        "gg_api_core.tools.revoke_secret",
+        "gg_api_core.tools.remediate_secret_incidents",
+        "gg_api_core.tools.read_custom_tags",
+        "gg_api_core.tools.list_users",
+    ]
 
-            mock_find_source_result = FindCurrentSourceIdResult(
-                repository_name="GitGuardian/test-repo",
-                source_id="source_123",
-                message="Found source",
-            )
-            with patch(
+    with ExitStack() as stack:
+        # Patch get_client in all modules that use it
+        for module in modules_using_get_client:
+            stack.enter_context(patch(f"{module}.get_client", return_value=mock_client))
+
+        # Also patch GitGuardianClient constructor to prevent any direct instantiation
+        stack.enter_context(patch("gg_api_core.utils.GitGuardianClient", return_value=mock_client))
+
+        # Patch find_current_source_id to avoid real GitHub calls
+        from gg_api_core.tools.find_current_source_id import FindCurrentSourceIdResult
+
+        mock_find_source_result = FindCurrentSourceIdResult(
+            repository_name="GitGuardian/test-repo",
+            source_id="source_123",
+            message="Found source",
+        )
+        stack.enter_context(
+            patch(
                 "gg_api_core.tools.list_incidents.find_current_source_id",
                 new_callable=lambda: AsyncMock(return_value=mock_find_source_result),
-            ):
-                # Reset the singleton to None before each test to ensure clean state
-                import gg_api_core.utils
+            )
+        )
 
-                gg_api_core.utils._client_singleton = None
-                yield mock_client
-                # Clean up singleton after test
-                gg_api_core.utils._client_singleton = None
+        # Reset the singleton to None before each test to ensure clean state
+        import gg_api_core.utils
+
+        gg_api_core.utils._client_singleton = None
+        yield mock_client
+        # Clean up singleton after test
+        gg_api_core.utils._client_singleton = None
 
 
 @pytest.fixture()
