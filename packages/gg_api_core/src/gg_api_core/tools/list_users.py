@@ -62,7 +62,7 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
     Raises:
         ToolError: If the listing operation fails
     """
-    client = get_client()
+    client = await get_client()
     logger.debug("Listing workspace members")
 
     # Build query parameters

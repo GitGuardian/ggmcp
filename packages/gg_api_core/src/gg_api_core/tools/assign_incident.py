@@ -78,7 +78,7 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         ToolError: If the assignment operation fails
         ValueError: If validation fails (none or multiple assignee options provided)
     """
-    client = get_client()
+    client = await get_client()
 
     # Determine the assignee_id based on the provided option
     # Note: Validation that exactly one option is provided is handled by the Pydantic validator

@@ -47,7 +47,7 @@ async def write_custom_tags(params: WriteCustomTagsParams):
         Result based on the action performed
     """
     try:
-        client = get_client()
+        client = await get_client()
 
         if params.action == "create_tag":
             if not params.tag:
@@ -100,7 +100,7 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
     Returns:
         Updated incident data
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Updating custom tags for incident {params.incident_id}")
 
     try:

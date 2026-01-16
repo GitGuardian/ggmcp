@@ -78,7 +78,7 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
             - message: User-friendly message
             - suggestion: Suggestions for resolving the error
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Finding source_id for repository at path: {repository_path}")
 
     repository_name = None

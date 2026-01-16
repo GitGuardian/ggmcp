@@ -157,7 +157,7 @@ async def remediate_secret_incidents(
 
 async def filter_mine(occurrences):
     """Filter occurrences create by the current user"""
-    client = get_client()
+    client = await get_client()
     try:
         token_info = await client.get_current_token_info()
         current_user_id = token_info.get("user_id") if token_info else None

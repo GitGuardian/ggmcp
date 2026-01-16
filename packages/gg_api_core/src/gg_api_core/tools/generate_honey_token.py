@@ -60,7 +60,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     Raises:
         ToolError: If the honeytoken generation or retrieval fails
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")
 
     # If new_token is False, try to find an existing honeytoken created by the current user

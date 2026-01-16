@@ -42,7 +42,7 @@ def is_multi_tenant_mode() -> bool:
     return os.environ.get("MULTI_TENANCY_ENABLED", "").lower() == "true"
 
 
-def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
+async def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
     """Get GitGuardian client for the current context.
 
     **Single-tenant is the DEFAULT** (local stdio usage).
@@ -97,7 +97,7 @@ def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
         return _client_singleton
 
     # Acquire token for single-tenant mode
-    token = acquire_single_tenant_token()
+    token = await acquire_single_tenant_token()
     # Enable token refresh for self-healing on 401 errors
     _client_singleton = GitGuardianClient(
         personal_access_token=token,

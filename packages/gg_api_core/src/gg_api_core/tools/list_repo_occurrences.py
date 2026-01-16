@@ -216,7 +216,7 @@ async def list_repo_occurrences(
 
         ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Listing occurrences with repository_name={params.repository_name}, source_id={params.source_id}")
 
     # Filter by assigned member

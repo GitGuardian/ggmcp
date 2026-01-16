@@ -34,7 +34,7 @@ async def read_custom_tags(params: ReadCustomTagsParams):
         Custom tag data based on the action performed
     """
     try:
-        client = get_client()
+        client = await get_client()
 
         if params.action == "list_tags":
             logger.debug("Listing all custom tags")

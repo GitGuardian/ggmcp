@@ -157,15 +157,16 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         """Return the token info dictionary."""
         pass
 
-    def get_client(self) -> GitGuardianClient:
-        return get_client(personal_access_token=self.get_personal_access_token())
+    async def get_client(self) -> GitGuardianClient:
+        return await get_client(personal_access_token=self.get_personal_access_token())
 
     async def revoke_current_token(self) -> dict[str, Any]:
         """Revoke the current API token via GitGuardian API."""
         try:
             logger.debug("Revoking current API token")
             # Call the DELETE /api_tokens/self endpoint
-            result = await self.get_client().revoke_current_token()
+            client = await self.get_client()
+            result = await client.revoke_current_token()
             logger.debug("API token revoked")
             return result
         except Exception as e:
@@ -215,7 +216,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         Returns:
             set: The fetched scopes, or empty set on error
         """
-        client_to_use = self.get_client()
+        client_to_use = await self.get_client()
 
         # Fetch the complete token info
         logger.debug("Attempting to fetch token scopes from GitGuardian API")
@@ -228,7 +229,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         return set(scopes)
 
     async def _fetch_token_info_from_api(self) -> dict[str, Any]:
-        client = self.get_client()
+        client = await self.get_client()
         return await client.get_current_token_info()
 
     async def get_scopes(self) -> set[str]:

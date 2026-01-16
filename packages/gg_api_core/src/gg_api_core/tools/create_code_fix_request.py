@@ -78,7 +78,7 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
         )
         ```
     """
-    client = get_client()
+    client = await get_client()
 
     # Convert Pydantic models to dict format expected by API
     locations_data = [{"issue_id": loc.issue_id, "location_ids": loc.location_ids} for loc in params.locations]
