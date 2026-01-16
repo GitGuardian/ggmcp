@@ -61,7 +61,7 @@ async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResu
     Raises:
         ToolError: If the listing operation fails
     """
-    client = get_client()
+    client = await get_client()
     logger.debug("Listing honeytokens with filters")
 
     # Handle mine parameter separately - if mine=True, we'll need to get

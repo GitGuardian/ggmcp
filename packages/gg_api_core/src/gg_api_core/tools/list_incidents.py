@@ -205,7 +205,7 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
 
         ListIncidentsError: Pydantic model with error message if the operation fails
     """
-    client = get_client()
+    client = await get_client()
 
     # Use the new direct approach using the GitGuardian Sources API
     try:

@@ -58,7 +58,7 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
         Exception: If the scan operation fails or documents are invalid
     """
     try:
-        client = get_client()
+        client = await get_client()
 
         # Validate input documents
         if not params.documents or not isinstance(params.documents, list):

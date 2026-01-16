@@ -144,7 +144,7 @@ async def get_current_token_info() -> dict[str, Any]:
     Returns:
         Token information dictionary
     """
-    client = mcp.get_client()
+    client = await mcp.get_client()
     logger.debug("Getting current token information")
 
     try:

@@ -44,7 +44,7 @@ async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
     Raises:
         ToolError: If the revocation operation fails
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Revoking secret with ID: {params.secret_id}")
 
     try:

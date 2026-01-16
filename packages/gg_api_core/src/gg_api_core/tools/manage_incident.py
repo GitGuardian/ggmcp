@@ -46,7 +46,7 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
     Raises:
         ToolError: If the action fails or if an invalid action is provided
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")
 
     try:
@@ -94,7 +94,7 @@ async def update_incident_status(params: UpdateIncidentStatusParams) -> dict[str
     Returns:
         Updated incident data
     """
-    client = get_client()
+    client = await get_client()
     logger.debug(f"Updating incident {params.incident_id} status to {params.status}")
 
     try:

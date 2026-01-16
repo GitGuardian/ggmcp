@@ -136,7 +136,7 @@ def _get_stored_oauth_token(dashboard_url: str) -> str | None:
         return None
 
 
-def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
+async def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
     """Run the interactive OAuth flow to obtain a PAT.
 
     Args:
@@ -149,8 +149,6 @@ def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
     Raises:
         RuntimeError: If OAuth flow fails
     """
-    import asyncio
-
     from .oauth import GitGuardianOAuthClient
     from .scopes import get_scopes_from_env_var
 
@@ -173,14 +171,14 @@ def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
 
         # Run OAuth flow
         logger.info("Starting interactive OAuth authentication flow...")
-        token = asyncio.get_event_loop().run_until_complete(oauth_client.oauth_process(login_path=login_path))
+        token = await oauth_client.oauth_process(login_path=login_path)
         logger.info("OAuth authentication successful")
         return token
     except Exception as e:
         raise RuntimeError(f"OAuth authentication failed: {e}") from e
 
 
-def acquire_single_tenant_token(
+async def acquire_single_tenant_token(
     dashboard_url: str | None = None,
     public_api_url: str | None = None,
 ) -> str:
@@ -219,7 +217,7 @@ def acquire_single_tenant_token(
     # 3. Trigger OAuth flow if enabled
     if is_oauth_enabled():
         logger.info("No stored token, triggering OAuth flow")
-        return _run_oauth_flow(dashboard_url, public_api_url)
+        return await _run_oauth_flow(dashboard_url, public_api_url)
 
     # No token source available
     raise RuntimeError(
@@ -423,7 +421,7 @@ class GitGuardianClient:
         except Exception as e:
             logger.warning(f"Could not clean up token storage: {str(e)}")
 
-    def _refresh_token(self) -> bool:
+    async def _refresh_token(self) -> bool:
         """Attempt to refresh the token.
 
         This enables self-healing when the current token is invalid or expired.
@@ -439,7 +437,7 @@ class GitGuardianClient:
         logger.info("Attempting to refresh token...")
 
         try:
-            new_token = acquire_single_tenant_token(
+            new_token = await acquire_single_tenant_token(
                 dashboard_url=self.dashboard_url,
                 public_api_url=self.public_api_url,
             )
@@ -574,7 +572,7 @@ class GitGuardianClient:
                             self.clear_invalid_token_from_storage()
 
                             # Try to refresh the token and retry (only once)
-                            if retry_count == 0 and self._refresh_token():
+                            if retry_count == 0 and await self._refresh_token():
                                 logger.info("Token refreshed, retrying request...")
                                 retry_count += 1
                                 continue
