@@ -160,7 +160,7 @@ async def filter_mine(occurrences):
     client = await get_client()
     try:
         token_info = await client.get_current_token_info()
-        current_user_id = token_info.get("user_id") if token_info else None
+        current_user_id = token_info.get("member_id") if token_info else None
 
         if current_user_id:
             occurrences = [occ for occ in occurrences if occ.get("incident", {}).get("assignee_id") == current_user_id]
