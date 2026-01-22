@@ -50,7 +50,7 @@ class TestListIncidents:
         mock_gitguardian_client.list_incidents.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_incidents.call_args.kwargs
         assert call_kwargs["source_id"] == "source_123"
-        assert call_kwargs["assignee_email"] == "test@example.com"
+        assert call_kwargs["assignee_id"] == 480870
 
         # Verify response
         assert result.total_count == len(mock_response["data"])
@@ -98,7 +98,7 @@ class TestListIncidents:
         call_kwargs = mock_gitguardian_client.list_incidents.call_args.kwargs
         # Check source_id and assignee_email
         assert call_kwargs["source_id"] == "source_123"
-        assert call_kwargs["assignee_email"] == "test@example.com"
+        assert call_kwargs["assignee_id"] == 480870
 
         # Verify response
         assert result.source_id == "source_123"

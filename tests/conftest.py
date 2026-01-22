@@ -201,6 +201,7 @@ def mock_gitguardian_client(request):
             "scopes": ["scan", "incidents:read", "sources:read", "honeytokens:read", "honeytokens:write"],
             "id": "test-token-id",
             "name": "Test Token",
+            "member_id": 480870,
         }
     )
 

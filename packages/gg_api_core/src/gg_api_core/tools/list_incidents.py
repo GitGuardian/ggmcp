@@ -221,15 +221,17 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
             api_params["source_id"] = result.source_id
 
         if params.mine:
-            member = await client.get_current_member()
-            current_user_email = member["email"]
-            if params.assignee_email and params.assignee_email != current_user_email:
+            # Use get_current_token_info() instead of get_current_member() to avoid
+            # requiring members:read scope (fixes 403 error for restricted users)
+            token_info = await client.get_current_token_info()
+            current_user_id = token_info["member_id"]
+            if params.assignee_id and params.assignee_id != current_user_id:
                 return ListIncidentsError(
-                    error=f"Conflict: 'mine=True' implies assignee_email='{current_user_email}', "
-                    f"but assignee_email='{params.assignee_email}' was explicitly provided. "
-                    "Please use either 'mine=True' or an explicit 'assignee_email', not both with different values."
+                    error=f"Conflict: 'mine=True' implies assignee_id='{current_user_id}', "
+                    f"but assignee_id='{params.assignee_id}' was explicitly provided. "
+                    "Please use either 'mine=True' or an explicit 'assignee_id', not both with different values."
                 )
-            api_params["assignee_email"] = current_user_email
+            api_params["assignee_id"] = current_user_id
         if params.assignee_id:
             api_params["assignee_id"] = params.assignee_id
         if params.assignee_email and not params.mine:
