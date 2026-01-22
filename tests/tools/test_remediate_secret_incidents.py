@@ -109,7 +109,7 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info for filtering by assignee
-        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"member_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
@@ -276,7 +276,7 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"member_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
@@ -332,7 +332,7 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"member_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(
@@ -407,7 +407,7 @@ class TestRemediateSecretIncidents:
         )
 
         # Mock get_current_token_info
-        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"user_id": "user1"})
+        mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"member_id": "user1"})
 
         # Patch list_repo_occurrences
         with patch(

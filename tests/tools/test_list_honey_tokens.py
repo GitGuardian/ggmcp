@@ -202,13 +202,13 @@ class TestListHoneytokens:
         assert result.honeytokens[0]["creator_id"] == "user_123"
 
     @pytest.mark.asyncio
-    async def test_list_honeytokens_mine_true_no_user_id(self, mock_gitguardian_client):
+    async def test_list_honeytokens_mine_true_no_member_id(self, mock_gitguardian_client):
         """
-        GIVEN: mine=True but user_id is not available
+        GIVEN: mine=True but member_id is not available
         WHEN: Listing honeytokens
         THEN: The request proceeds without user filtering
         """
-        # Mock get_current_token_info to return None user_id
+        # Mock get_current_token_info to return None member_id
         mock_gitguardian_client.get_current_token_info = AsyncMock(return_value={"other_field": "value"})
 
         # Mock the client response with ListResponse format

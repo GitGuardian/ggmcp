@@ -13,7 +13,7 @@ def client():
         client = GitGuardianClient()
         # Mock the OAuth token to prevent OAuth flow during tests
         client._oauth_token = "test_oauth_token"
-        client._token_info = {"user_id": "test_user", "scopes": ["scan"]}
+        client._token_info = {"member_id": "test_user", "scopes": ["scan"]}
         # Mock the OAuth token ensuring method to prevent OAuth flow
         client._ensure_api_token = AsyncMock()
         return client

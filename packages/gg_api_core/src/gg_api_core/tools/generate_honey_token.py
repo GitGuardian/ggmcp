@@ -68,8 +68,8 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         try:
             # Get current user's info
             token_info = await client.get_current_token_info()
-            if token_info and "user_id" in token_info:
-                current_user_id = token_info["user_id"]
+            if token_info and "member_id" in token_info:
+                current_user_id = token_info["member_id"]
 
                 # List honeytokens created by the current user
                 filters = {
