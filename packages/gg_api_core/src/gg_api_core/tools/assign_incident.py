@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
@@ -80,9 +79,10 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
     """
     client = await get_client()
 
-    # Determine the assignee_id based on the provided option
+    # Determine the assignee based on the provided option
     # Note: Validation that exactly one option is provided is handled by the Pydantic validator
     assignee_id = None
+    assignee_email = None
 
     if params.assignee_member_id is not None:
         # Direct member ID provided
@@ -90,37 +90,13 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         logger.debug(f"Using provided member ID: {assignee_id}")
 
     elif params.email is not None:
-        # Email provided - need to look up member ID
-        logger.debug(f"Looking up member ID for email: {params.email}")
-        try:
-            # Use the /members endpoint to search by email
-            result = await client._request_list("/members", params={"search": params.email})
-            members = result["data"]
-
-            # Find exact email match
-            matching_member: dict[str, Any] | None = None
-            for member in members:
-                if member.get("email", "").lower() == params.email.lower():
-                    matching_member = member
-                    break
-
-            if not matching_member:
-                raise ToolError(f"No member found with email: {params.email}")
-
-            assignee_id = matching_member.get("id")
-            if not assignee_id:
-                raise ToolError(f"Member found but no ID available for email: {params.email}")
-
-            logger.debug(f"Found member ID {assignee_id} for email: {params.email}")
-
-        except ToolError:
-            raise
-        except Exception as e:
-            logger.exception(f"Failed to look up member by email: {str(e)}")
-            raise ToolError(f"Failed to look up member by email: {str(e)}")
+        # Email provided - pass directly to API (no need to look up member ID)
+        # The API supports assigning by email directly
+        assignee_email = params.email
+        logger.debug(f"Using provided email for assignment: {assignee_email}")
 
     elif params.mine:
-        # Get current user's ID from token info
+        # Get current user's ID from token info (avoids needing members:read scope)
         token_info = await client.get_current_token_info()
         if token_info and "member_id" in token_info:
             assignee_id = token_info["member_id"]
@@ -129,28 +105,35 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             raise ToolError("Could not determine current user ID from token info")
 
     # Final validation
-    if not assignee_id:
-        raise ToolError("Failed to determine assignee member ID")
+    if not assignee_id and not assignee_email:
+        raise ToolError("Failed to determine assignee (member ID or email)")
 
-    logger.debug(f"Assigning incident {params.incident_id} to member {assignee_id}")
+    logger.debug(f"Assigning incident {params.incident_id} to member {assignee_id or assignee_email}")
 
     try:
-        # Call the client method
-        api_result = await client.assign_incident(incident_id=str(params.incident_id), assignee_id=str(assignee_id))
+        # Call the client method with either member_id or email
+        api_result = await client.assign_incident(
+            incident_id=str(params.incident_id),
+            assignee_id=str(assignee_id) if assignee_id else None,
+            email=assignee_email,
+        )
 
-        logger.debug(f"Successfully assigned incident {params.incident_id} to member {assignee_id}")
+        logger.debug(f"Successfully assigned incident {params.incident_id} to {assignee_id or assignee_email}")
 
-        # Parse the response
+        # Parse the response - get the actual assignee_id from the API response
+        response_assignee_id = assignee_id
         if isinstance(api_result, dict):
+            # If we assigned by email, get the member_id from the response
+            response_assignee_id = api_result.get("assignee_id") or assignee_id
             # Remove assignee_id from result dict to avoid conflict with our explicit parameter
             result_copy = api_result.copy()
             result_copy.pop("assignee_id", None)
             return AssignIncidentResult(
-                incident_id=params.incident_id, assignee_id=assignee_id, success=True, **result_copy
+                incident_id=params.incident_id, assignee_id=response_assignee_id, success=True, **result_copy
             )
         else:
             # Fallback response
-            return AssignIncidentResult(incident_id=params.incident_id, assignee_id=assignee_id, success=True)
+            return AssignIncidentResult(incident_id=params.incident_id, assignee_id=response_assignee_id, success=True)
 
     except Exception as e:
         logger.exception(f"Error assigning incident {params.incident_id}: {str(e)}")
