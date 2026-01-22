@@ -1,0 +1,192 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/api_tokens/self
+  response:
+    body:
+      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+        "type": "personal_access_token", "scopes": ["scan", "incidents:read", "members:read",
+        "sources:read"], "member_id": 480870, "workspace_id":
+        8, "created_at": "2025-12-07T14:13:08.044416Z", "last_used_at": "2025-12-29T10:00:00Z",
+        "expire_at": null, "revoked_at": null, "status": "active", "creator_id": 480870}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      content-length:
+      - '594'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:00 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '62'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/members/480870
+  response:
+    body:
+      string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
+        "test-user@gitguardian.com", "name": "Test User", "created_at":
+        "2023-06-26T12:41:18.599497Z", "last_login": "2025-12-29T09:53:16.639748Z",
+        "active": true}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-length:
+      - '221'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:00 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '50'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/occurrences/secrets?source_type=github&exclude_tags=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&per_page=10&severity=critical%2Chigh%2Cmedium%2Cunknown&validity=valid%2Cfailed_to_check%2Cno_checker%2Cunknown&status=TRIGGERED%2CASSIGNED%2CRESOLVED&with_sources=false&member_assignee_id=480870
+  response:
+    body:
+      string: '[{"id": 78197, "incident_id": 21460, "date": "2024-10-29T13:20:05.797462Z",
+        "filepath": "config/settings.py", "kind": "realtime", "presence": "present", "matches":
+        [{"name": "api_key", "indice_start": 49, "indice_end": 69, "pre_line_start":
+        10, "pre_line_end": 10, "post_line_start": null, "post_line_end": null}], "tags":
+        ["DEFAULT_BRANCH"], "url": "https://github.com/test-org/test-repo/commit/abc123#diff-123L10",
+        "author_info": "test@example.com", "author_name": "Test Author",
+        "sha": "abc123def456", "change_type": "addition",
+        "incident": {"id": 21460, "detector": {"name": "Generic API Key"}}}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '800'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Sun, 29 Dec 2025 10:00:01 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.350.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '654'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.152.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
