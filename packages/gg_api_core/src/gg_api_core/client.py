@@ -1311,7 +1311,9 @@ class GitGuardianClient:
         return await self._request_get(f"/custom_tags/{tag_id}")
 
     # Secret Incident management endpoints
-    async def assign_incident(self, incident_id: str, assignee_id: str) -> dict[str, Any]:
+    async def assign_incident(
+        self, incident_id: str, assignee_id: str | None = None, email: str | None = None
+    ) -> dict[str, Any]:
         """Assign a secret incident to a member.
 
         Args:
@@ -1321,8 +1323,12 @@ class GitGuardianClient:
         Returns:
             Status of the operation
         """
-        logger.info(f"Assigning incident {incident_id} to member {assignee_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/assign", json={"member_id": assignee_id})
+        if assignee_id and email:
+            raise ValueError("either email or assignee_id should be provided. Not both")
+        logger.info(f"Assigning incident {incident_id} to member {assignee_id or email}")
+        return await self._request_post(
+            f"/incidents/secrets/{incident_id}/assign", json={"member_id": assignee_id, "email": email}
+        )
 
     async def unassign_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a secret incident.
