@@ -78,7 +78,7 @@ class RemediateSecretIncidentsResult(BaseModel):
         default=0, description="Number of occurrences suggested for remediation"
     )
 
-    sub_tools_results: dict[str, BaseModel] = Field(default_factory=dict, description="Results from sub tools")
+    sub_tools_results: dict[str, Any] = Field(default_factory=dict, description="Results from sub tools")
 
 
 class RemediateSecretIncidentsError(BaseModel):
