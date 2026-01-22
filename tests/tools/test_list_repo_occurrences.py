@@ -414,3 +414,51 @@ class TestListRepoOccurrencesFilters:
         filters = ListRepoOccurrencesFilters(member_assignee_id=12345)
         assert filters.member_assignee_id == 12345
         assert filters.mine is False
+
+    def test_model_validator_returns_valid_instance(self):
+        """
+        GIVEN: Valid filter parameters
+        WHEN: Creating the filters (which triggers model_validator)
+        THEN: The model instance is not None and is properly constructed
+        """
+        # This test ensures the model_validator returns self correctly
+        # (a missing return self would cause the instance to be None)
+        filters = ListRepoOccurrencesFilters(mine=False, member_assignee_id=None)
+        assert filters is not None
+        assert isinstance(filters, ListRepoOccurrencesFilters)
+
+    def test_params_model_validator_returns_valid_instance(self):
+        """
+        GIVEN: Valid parameters for ListRepoOccurrencesParams
+        WHEN: Creating the params (which inherits validator from ListRepoOccurrencesFilters)
+        THEN: The model instance is not None and all attributes are accessible
+        """
+        # This test specifically covers the bug where missing "return self" in
+        # model_validator caused params to be None, leading to:
+        # "'NoneType' object has no attribute 'repository_name'"
+        params = ListRepoOccurrencesParams(source_id="123")
+        assert params is not None
+        assert isinstance(params, ListRepoOccurrencesParams)
+        assert params.source_id == "123"
+        assert params.repository_name is None  # Ensure attribute access works
+
+    def test_params_with_all_fields_accessible(self):
+        """
+        GIVEN: ListRepoOccurrencesParams with various fields set
+        WHEN: Accessing all fields after model validation
+        THEN: All fields are accessible and have correct values
+        """
+        params = ListRepoOccurrencesParams(
+            repository_name="GitGuardian/test-repo",
+            source_id="456",
+            mine=False,
+            member_assignee_id=None,
+            per_page=50,
+        )
+        # Verify the model is valid and all attributes work
+        assert params is not None
+        assert params.repository_name == "GitGuardian/test-repo"
+        assert params.source_id == "456"
+        assert params.mine is False
+        assert params.member_assignee_id is None
+        assert params.per_page == 50

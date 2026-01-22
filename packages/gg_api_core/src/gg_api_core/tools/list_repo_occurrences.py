@@ -74,6 +74,7 @@ class ListRepoOccurrencesFilters(BaseModel):
         """Validate that exactly one of member_assignee_id, or mine is provided."""
         if self.member_assignee_id is not None and self.mine:
             raise ValueError("Only one of assignee_member_id, or mine should be provided")
+        return self
 
 
 class ListRepoOccurrencesBaseParams(BaseModel):
