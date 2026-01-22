@@ -19,7 +19,7 @@ interactions:
   response:
     body:
       string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
-        "type": "personal_access_token", "scopes": ["scan", "incidents:read", "members:read",
+        "type": "personal_access_token", "scopes": ["scan", "incidents:read",
         "sources:read"], "member_id": 480870, "workspace_id":
         8, "created_at": "2025-12-07T14:13:08.044416Z", "last_used_at": "2025-12-29T10:00:00Z",
         "expire_at": null, "revoked_at": null, "status": "active", "creator_id": 480870}'
@@ -52,67 +52,6 @@ interactions:
       - nosniff
       x-envoy-upstream-service-time:
       - '62'
-      x-frame-options:
-      - DENY
-      x-secrets-engine-version:
-      - 2.152.1
-      x-xss-protection:
-      - 1; mode=block
-    status:
-      code: 200
-      message: OK
-- request:
-    body: ''
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Host:
-      - api.gitguardian.com
-      User-Agent:
-      - GitGuardian-MCP-Server/1.0
-    method: GET
-    uri: https://api.gitguardian.com/v1/members/480870
-  response:
-    body:
-      string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
-        "test-user@gitguardian.com", "name": "Test User", "created_at":
-        "2023-06-26T12:41:18.599497Z", "last_login": "2025-12-29T09:53:16.639748Z",
-        "active": true}'
-    headers:
-      access-control-expose-headers:
-      - X-App-Version
-      allow:
-      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
-      content-length:
-      - '221'
-      content-security-policy:
-      - frame-ancestors 'none'
-      content-type:
-      - application/json
-      cross-origin-opener-policy:
-      - same-origin
-      date:
-      - Sun, 29 Dec 2025 10:00:00 GMT
-      referrer-policy:
-      - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      vary:
-      - Cookie
-      x-app-version:
-      - v2.350.0
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '50'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

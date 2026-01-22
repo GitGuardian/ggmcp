@@ -223,8 +223,10 @@ async def list_repo_occurrences(
     # Filter by assigned member
     member_assignee_id = params.member_assignee_id
     if params.mine:
-        member = await client.get_current_member()
-        member_assignee_id = member["id"]
+        # Use get_current_token_info() instead of get_current_member() to avoid
+        # requiring members:read scope - the member_id is already in the token info
+        token_info = await client.get_current_token_info()
+        member_assignee_id = token_info["member_id"]
 
     try:
         # Call the list_occurrences method with appropriate filter

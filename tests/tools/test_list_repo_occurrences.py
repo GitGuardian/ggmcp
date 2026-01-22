@@ -356,8 +356,10 @@ class TestListRepoOccurrences:
             "has_more": False,
         }
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-        mock_gitguardian_client.get_current_member = AsyncMock(
-            return_value={"id": 67890, "email": "test@example.com", "name": "Test User"}
+        # Use get_current_token_info instead of get_current_member to avoid
+        # requiring members:read scope (fixes 403 error for restricted users)
+        mock_gitguardian_client.get_current_token_info = AsyncMock(
+            return_value={"member_id": 67890, "scopes": ["incidents:read"]}
         )
 
         # Call the function with mine=True
@@ -368,10 +370,10 @@ class TestListRepoOccurrences:
             )
         )
 
-        # Verify get_current_member was called
-        mock_gitguardian_client.get_current_member.assert_called_once()
+        # Verify get_current_token_info was called (not get_current_member)
+        mock_gitguardian_client.get_current_token_info.assert_called_once()
 
-        # Verify list_occurrences was called with the member ID
+        # Verify list_occurrences was called with the member ID from token info
         mock_gitguardian_client.list_occurrences.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
         assert call_kwargs["member_assignee_id"] == 67890
