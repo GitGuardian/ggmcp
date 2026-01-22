@@ -5,6 +5,7 @@ from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesError, Li
 from gg_api_core.tools.remediate_secret_incidents import (
     ListRepoOccurrencesParamsForRemediate,
     RemediateSecretIncidentsParams,
+    RemediateSecretIncidentsResult,
     remediate_secret_incidents,
 )
 
@@ -425,3 +426,88 @@ class TestRemediateSecretIncidents:
             sub_tool_result = result.sub_tools_results.get("list_repo_occurrences")
             assert sub_tool_result.occurrences_count == 2
             assert len(sub_tool_result.occurrences) == 2
+
+
+class TestRemediateSecretIncidentsResultSerialization:
+    """Tests for RemediateSecretIncidentsResult Pydantic serialization."""
+
+    def test_sub_tools_results_serialization(self):
+        """
+        GIVEN: A RemediateSecretIncidentsResult with a nested ListRepoOccurrencesResult
+        WHEN: Serializing the result using model_dump()
+        THEN: The nested result should be fully serialized, not an empty dict
+
+        This test ensures that the SerializeAsAny annotation works correctly
+        to serialize nested BaseModel instances in sub_tools_results.
+        """
+        # Create a nested ListRepoOccurrencesResult
+        nested_result = ListRepoOccurrencesResult(
+            repository="GitGuardian/test-repo",
+            occurrences_count=2,
+            occurrences=[
+                {"id": "occ_1", "filepath": "config.py"},
+                {"id": "occ_2", "filepath": "settings.py"},
+            ],
+            cursor="next_cursor",
+            has_more=True,
+            applied_filters={"status": ["TRIGGERED"]},
+            suggestion="Some suggestion",
+        )
+
+        # Create the parent result with nested sub_tools_results
+        result = RemediateSecretIncidentsResult(
+            remediation_instructions="Test instructions",
+            occurrences_count=2,
+            suggested_occurrences_for_remediation_count=2,
+            sub_tools_results={"list_repo_occurrences": nested_result},
+        )
+
+        # Serialize to dict (this is what FastMCP does before JSON serialization)
+        serialized = result.model_dump()
+
+        # Verify sub_tools_results is not empty
+        assert serialized["sub_tools_results"] != {}
+        assert "list_repo_occurrences" in serialized["sub_tools_results"]
+
+        # Verify the nested result is fully serialized
+        nested_serialized = serialized["sub_tools_results"]["list_repo_occurrences"]
+        assert nested_serialized != {}
+        assert nested_serialized["repository"] == "GitGuardian/test-repo"
+        assert nested_serialized["occurrences_count"] == 2
+        assert len(nested_serialized["occurrences"]) == 2
+        assert nested_serialized["occurrences"][0]["id"] == "occ_1"
+        assert nested_serialized["cursor"] == "next_cursor"
+        assert nested_serialized["has_more"] is True
+        assert nested_serialized["applied_filters"] == {"status": ["TRIGGERED"]}
+        assert nested_serialized["suggestion"] == "Some suggestion"
+
+    def test_sub_tools_results_json_serialization(self):
+        """
+        GIVEN: A RemediateSecretIncidentsResult with a nested ListRepoOccurrencesResult
+        WHEN: Serializing the result using model_dump_json()
+        THEN: The JSON should contain the full nested result data
+        """
+        import json
+
+        nested_result = ListRepoOccurrencesResult(
+            repository="GitGuardian/test-repo",
+            occurrences_count=1,
+            occurrences=[{"id": "occ_1", "filepath": "secret.py"}],
+        )
+
+        result = RemediateSecretIncidentsResult(
+            remediation_instructions="Fix the secrets",
+            occurrences_count=1,
+            suggested_occurrences_for_remediation_count=1,
+            sub_tools_results={"list_repo_occurrences": nested_result},
+        )
+
+        # Serialize to JSON string
+        json_str = result.model_dump_json()
+        parsed = json.loads(json_str)
+
+        # Verify nested data is present in JSON
+        nested_json = parsed["sub_tools_results"]["list_repo_occurrences"]
+        assert nested_json["repository"] == "GitGuardian/test-repo"
+        assert nested_json["occurrences_count"] == 1
+        assert nested_json["occurrences"][0]["id"] == "occ_1"
