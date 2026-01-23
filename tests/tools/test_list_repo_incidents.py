@@ -127,7 +127,6 @@ class TestListIncidents:
                 source_id=None,
                 from_date="2023-01-01",
                 to_date="2023-12-31",
-                presence="present",
                 tags=["tag1", "tag2"],
                 ordering="-date",
                 per_page=50,
@@ -143,7 +142,6 @@ class TestListIncidents:
         assert call_kwargs["source_id"] == "source_123"
         assert call_kwargs["date_after"] == "2023-01-01"
         assert call_kwargs["date_before"] == "2023-12-31"
-        assert call_kwargs["presence"] == "present"
         assert call_kwargs["tags"] == "tag1,tag2"
         assert call_kwargs["per_page"] == 50
         assert call_kwargs["ordering"] == "-date"

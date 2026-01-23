@@ -50,8 +50,6 @@ def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
         filters["from_date"] = params.from_date
     if params.to_date:
         filters["to_date"] = params.to_date
-    if params.presence:
-        filters["presence"] = params.presence
     if params.tags:
         filters["tags_include"] = [tag.value if hasattr(tag, "value") else tag for tag in params.tags]
     if params.exclude_tags:
@@ -133,7 +131,6 @@ class ListIncidentsParams(BaseModel):
     to_date: str | None = Field(
         default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
     )
-    presence: str | None = Field(default=None, description="Filter by presence status")
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
     exclude_tags: list[str | TagNames] | None = Field(
         default=cast(list[str | TagNames], DEFAULT_EXCLUDED_TAGS), description="Exclude incidents with these tag names."
@@ -241,8 +238,6 @@ async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | L
             api_params["date_after"] = params.from_date
         if params.to_date:
             api_params["date_before"] = params.to_date
-        if params.presence:
-            api_params["presence"] = params.presence
         if params.tags:
             api_params["tags"] = ",".join(params.tags) if isinstance(params.tags, list) else params.tags
         if params.per_page:
