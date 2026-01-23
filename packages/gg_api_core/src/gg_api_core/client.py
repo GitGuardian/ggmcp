@@ -921,6 +921,7 @@ class GitGuardianClient:
         cursor: str | None = None,
         ordering: str | None = None,
         get_all: bool = False,
+        tags: str | None = None,
     ) -> ListResponse:
         """List secrets incidents with optional filtering and cursor-based pagination.
 
@@ -938,6 +939,7 @@ class GitGuardianClient:
             ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
                      Default is ASC, DESC if preceded by '-'
             get_all: If True, fetch all results using cursor-based pagination
+            tags: Filter by tags (comma-separated tag names)
 
         Returns:
             List of incidents matching the criteria or an empty dict/list if no results
@@ -1000,6 +1002,8 @@ class GitGuardianClient:
             params["cursor"] = cursor
         if ordering:
             params["ordering"] = ordering
+        if tags:
+            params["tags"] = tags
 
         # Use source-specific endpoint when source_id is provided
         # The /incidents/secrets endpoint silently ignores source_id query param
