@@ -1217,7 +1217,7 @@ class GitGuardianClient:
         """Scan multiple documents for secrets and policy breaks.
 
         Args:
-            documents: List of documents to scan, each with 'content' and optional 'filename'
+            documents: List of documents to scan, each with 'document' and optional 'filename'
                       Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
 
         Returns:
