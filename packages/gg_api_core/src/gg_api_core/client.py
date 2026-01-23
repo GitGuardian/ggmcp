@@ -1815,3 +1815,22 @@ class GitGuardianClient:
         data = await self.get_current_token_info()
         member_id = data["member_id"]
         return await self.get_member(member_id)
+
+    async def revoke_secret(self, secret_id: str | int) -> dict[str, Any]:
+        """Revoke a secret by its ID.
+
+        This triggers the revocation of a secret through the GitGuardian API.
+        The revocation may be processed synchronously or asynchronously depending
+        on the secret type and provider.
+
+        Args:
+            secret_id: ID of the secret to revoke
+
+        Returns:
+            Dictionary containing:
+                - success: Whether the revocation was successful
+                - reason: Optional reason for the result
+                - is_async: Whether the revocation is being processed asynchronously
+        """
+        logger.info(f"Revoking secret with ID: {secret_id}")
+        return await self._request_post(f"/secrets/{secret_id}/revoke")
