@@ -59,6 +59,7 @@ def _redact_sensitive_fields(obj):
                 "secret",
                 "credential",
                 "share_url",
+                "string_matched",
             ):
                 redacted[key] = REDACTED
             # Redact share URLs that contain incident tokens

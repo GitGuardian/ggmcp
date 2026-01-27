@@ -49,10 +49,10 @@ async def main():
 
     # Incidents
     print(await list_incidents(
-        ListIncidentsParams(source_id="9036019", get_all=False, status=None,
+        ListIncidentsParams(source_ids=[9036019],
                                 severity=["critical", "high", "medium", "low", "info", "unknown"], tags=["TEST_FILE"])))
 
-    print(await list_incidents(ListIncidentsParams(source_id="9036019")))
+    print(await list_incidents(ListIncidentsParams(source_ids=[9036019])))
 
     # Honey Tokens
     print(await list_honeytokens(ListHoneytokensParams()))
