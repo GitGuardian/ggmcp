@@ -38,7 +38,31 @@ SEVERITY_NAME_TO_VALUE = {
 }
 
 
-DEFAULT_STATUSES = [IncidentStatus.TRIGGERED, IncidentStatus.ASSIGNED]  # Active incidents
+# Default filters to reduce noise - exclude test files, false positives, and low-priority incidents
+DEFAULT_EXCLUDED_TAGS = [
+    "TEST_FILE",
+    "FALSE_POSITIVE",
+    "CHECK_RUN_SKIP_FALSE_POSITIVE",
+    "CHECK_RUN_SKIP_LOW_RISK",
+    "CHECK_RUN_SKIP_TEST_CRED",
+]
+DEFAULT_SEVERITIES: list[str | int] = [
+    SeverityValues.CRITICAL,
+    SeverityValues.HIGH,
+    SeverityValues.MEDIUM,
+    SeverityValues.UNKNOWN,
+]  # Exclude LOW and INFO
+DEFAULT_STATUSES = [
+    IncidentStatus.TRIGGERED,
+    IncidentStatus.ASSIGNED,
+    IncidentStatus.RESOLVED,
+]  # Exclude IGNORED
+DEFAULT_VALIDITIES = [
+    "valid",
+    "failed_to_check",
+    "no_checker",
+    "unknown",
+]  # Exclude INVALID
 
 
 def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
@@ -85,6 +109,8 @@ def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
         filters["presence"] = params.presence
     if params.tags:
         filters["tags"] = params.tags
+    if params.exclude_tags:
+        filters["exclude_tags"] = params.exclude_tags
     if params.public_exposure:
         filters["public_exposure"] = params.public_exposure
     if params.integration:
@@ -172,7 +198,12 @@ class ListIncidentsParams(BaseModel):
 
     # Pagination
     page: int = Field(default=1, description="Page number (1-indexed)", ge=1)
-    page_size: int = Field(default=20, description="Number of results per page (default: 20, max: 100)", ge=1, le=100)
+    page_size: int = Field(
+        default=20,
+        description="Number of results per page (default: 20, max: 100)",
+        ge=1,
+        le=100,
+    )
     get_all: bool = Field(
         default=False,
         description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' to see if results were truncated)",
@@ -190,8 +221,8 @@ class ListIncidentsParams(BaseModel):
 
     # Status and assignment filters
     status: list[str] | None = Field(
-        default=None,
-        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Use both TRIGGERED and ASSIGNED to get all active incidents.",
+        default=DEFAULT_STATUSES,
+        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED.",
     )
     mine: bool = Field(
         default=False,
@@ -204,8 +235,8 @@ class ListIncidentsParams(BaseModel):
 
     # Severity, score, and validity filters
     severity: list[str | int] | None = Field(
-        default=None,
-        description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Can use names or numeric values.",
+        default=DEFAULT_SEVERITIES,
+        description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
     )
     score_min: int | None = Field(
         default=None,
@@ -220,8 +251,8 @@ class ListIncidentsParams(BaseModel):
         le=100,
     )
     validity: list[str] | None = Field(
-        default=None,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked",
+        default=DEFAULT_VALIDITIES,
+        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
     )
 
     # Secret type filters
@@ -294,8 +325,8 @@ class ListIncidentsParams(BaseModel):
         description="Filter by tag names (e.g., 'REGRESSION', 'PUBLICLY_EXPOSED', 'TEST_FILE')",
     )
     exclude_tags: list[str] | None = Field(
-        default=None,
-        description="Exclude incidents with these tag names",
+        default=DEFAULT_EXCLUDED_TAGS,
+        description="Exclude incidents with these tag names. Default excludes TEST_FILE, FALSE_POSITIVE, and CHECK_RUN_SKIP_* tags.",
     )
     public_exposure: list[str] | None = Field(
         default=None,
@@ -401,7 +432,8 @@ class ListIncidentsResult(BaseModel):
     has_next: bool = Field(default=False, description="True if there are more pages available")
     has_previous: bool = Field(default=False, description="True if there are previous pages")
     has_more: bool = Field(
-        default=False, description="True if results were truncated due to size limit (only relevant when get_all=True)"
+        default=False,
+        description="True if results were truncated due to size limit (only relevant when get_all=True)",
     )
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
@@ -413,7 +445,9 @@ class ListIncidentsError(BaseModel):
     error: str = Field(description="Error message")
 
 
-async def list_incidents(params: ListIncidentsParams) -> ListIncidentsResult | ListIncidentsError:
+async def list_incidents(
+    params: ListIncidentsParams,
+) -> ListIncidentsResult | ListIncidentsError:
     """
     List secret incidents with enhanced filtering using the MCP-optimized endpoint.
 
