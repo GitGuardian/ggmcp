@@ -1,11 +1,17 @@
 import json
+import logging
 import os
 import re
 from os.path import dirname, join, realpath
 from unittest.mock import AsyncMock, MagicMock, patch
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 import vcr
+
+# Configure logging for VCR debugging
+vcr_logger = logging.getLogger("vcr.debug")
+vcr_logger.setLevel(logging.DEBUG)
 
 # =============================================================================
 # VCR Configuration for Cassette-based Testing
@@ -29,17 +35,6 @@ ALLOWED_HEADERS = {
 
 # Placeholder for redacted values
 REDACTED = "[REDACTED]"
-
-
-def _filter_request_headers(request):
-    """
-    Remove headers not in ALLOWED_HEADERS to make sure we don't store secrets in
-    cassettes.
-    """
-    for name in list(request.headers):
-        if name.lower() not in ALLOWED_HEADERS:
-            request.headers.pop(name)
-    return request
 
 
 def _redact_sensitive_fields(obj):
@@ -79,10 +74,80 @@ def _redact_sensitive_fields(obj):
         return obj
 
 
+def _log_error_response(response, request=None):
+    """
+    Log details when an error response is received (4xx, 5xx).
+    This helps debug API issues during VCR recording.
+    """
+    status_code = response.get("status", {}).get("code", 0)
+    if status_code >= 400:
+        vcr_logger.error("=" * 60)
+        vcr_logger.error(f"HTTP ERROR: {status_code}")
+
+        # Log request details if available
+        if request:
+            vcr_logger.error(f"Request URL: {request.uri}")
+            vcr_logger.error(f"Request Method: {request.method}")
+
+            # Parse and log query parameters for readability
+            parsed = urlparse(request.uri)
+            if parsed.query:
+                vcr_logger.error("Query Parameters:")
+                params = parse_qs(parsed.query)
+                for key, values in sorted(params.items()):
+                    vcr_logger.error(f"  {key}: {values}")
+
+            # Log request body if present
+            if request.body:
+                vcr_logger.error(f"Request Body: {request.body}")
+
+        # Log response body
+        body = response.get("body", {}).get("string", b"")
+        if body:
+            try:
+                if isinstance(body, bytes):
+                    body_str = body.decode("utf-8")
+                else:
+                    body_str = body
+                # Try to pretty-print JSON
+                try:
+                    body_json = json.loads(body_str)
+                    vcr_logger.error(f"Response Body: {json.dumps(body_json, indent=2)}")
+                except json.JSONDecodeError:
+                    vcr_logger.error(f"Response Body: {body_str}")
+            except UnicodeDecodeError:
+                vcr_logger.error(f"Response Body: (binary data, {len(body)} bytes)")
+
+        vcr_logger.error("=" * 60)
+
+
+# Store the last request for error logging
+_last_request = None
+
+
+def _filter_request_headers_and_store(request):
+    """
+    Remove headers not in ALLOWED_HEADERS and store request for error logging.
+    """
+    global _last_request
+    _last_request = request
+
+    for name in list(request.headers):
+        if name.lower() not in ALLOWED_HEADERS:
+            request.headers.pop(name)
+    return request
+
+
 def _before_record_response(response):
     """
     Redact sensitive data from response bodies before recording.
+    Also log error responses for debugging.
     """
+    global _last_request
+
+    # Log error responses for debugging
+    _log_error_response(response, _last_request)
+
     body = response.get("body", {}).get("string", b"")
 
     if not body:
@@ -115,7 +180,7 @@ my_vcr = vcr.VCR(
     match_on=["method", "scheme", "host", "port", "path", "query"],
     serializer="yaml",
     record_mode="once",
-    before_record_request=_filter_request_headers,
+    before_record_request=_filter_request_headers_and_store,
     before_record_response=_before_record_response,
     filter_post_data_parameters=[
         "api_key",
@@ -199,7 +264,13 @@ def mock_gitguardian_client(request):
     mock_client = MagicMock()
     mock_client.get_current_token_info = AsyncMock(
         return_value={
-            "scopes": ["scan", "incidents:read", "sources:read", "honeytokens:read", "honeytokens:write"],
+            "scopes": [
+                "scan",
+                "incidents:read",
+                "sources:read",
+                "honeytokens:read",
+                "honeytokens:write",
+            ],
             "id": "test-token-id",
             "name": "Test Token",
             "member_id": 480870,
