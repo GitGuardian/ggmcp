@@ -18,86 +18,99 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=5&ordering=-date
   response:
     body:
-      string: '[{"id": 22750829, "detector": {"name": "newrelic_api_key_prefixed",
-        "display_name": "New Relic API Key", "nature": "specific", "family": "token",
-        "detector_group_name": "newrelic_api_key", "detector_group_display_name":
-        "New Relic API Key"}, "date": "2025-11-25T14:25:14.821969Z", "secret_id":
-        22817942, "secret_hash": "KI8+EmTSgb/n635fWbO9w0n2bDePAta7MTwqIGtOSaPiAEM+y5YhXqALAd237nLX",
-        "hmsl_hash": "89311a76737b1014d430eaea14e854db1a6dcad79d3b3f1e5121235f26994de6",
-        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2025-11-25T14:25:15.477159Z",
-        "ignored_at": "2025-11-25T14:25:15.488025Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
-        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "ignore_reason": "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/22750829", "tags":
-        [], "custom_tags": []}, {"id": 22750802, "detector": {"name": "newrelic_api_key_prefixed",
-        "display_name": "New Relic API Key", "nature": "specific", "family": "token",
-        "detector_group_name": "newrelic_api_key", "detector_group_display_name":
-        "New Relic API Key"}, "date": "2025-11-25T14:20:42.400162Z", "secret_id":
-        22817906, "secret_hash": "Aa/Lx+Xui+Qwa8PmLGUXjK4YMnG1YmMPxJddY5KkdSG8AtXqy5YhXqALAd237nLX",
-        "hmsl_hash": "7446de1755961b2ef642ed972e10befcd4ed61ff414fe066a5ff7158b97cfa63",
-        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2025-11-25T14:20:43.148057Z",
-        "ignored_at": "2025-11-25T14:20:43.155618Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
-        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "ignore_reason": "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/22750802", "tags":
-        [], "custom_tags": []}, {"id": 22611761, "detector": {"name": "stripe", "display_name":
-        "Stripe Keys", "nature": "specific", "family": "token", "detector_group_name":
-        "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2025-11-21T10:32:39Z",
-        "secret_id": 22670181, "secret_hash": "fx+6EVxIhxHmr97PH93vSFsfTYbCLF6yex2+O2Sm3CCfmQdFiIVhmFkAG+mbE/6F",
-        "hmsl_hash": "647328f9e563c65a7adb4e81f9193dbbf5ad688738d1079d00c686dd5d4300ce",
-        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2025-11-21T10:33:23.955611Z",
-        "ignored_at": "2025-11-21T10:33:23.960756Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
-        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "ignore_reason": "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 2, "removed_in_vcs": 0}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/22611761", "tags":
-        [], "custom_tags": []}, {"id": 22515404, "detector": {"name": "aws_iam", "display_name":
-        "AWS IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
-        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2025-11-17T17:16:25Z",
-        "secret_id": 22528711, "secret_hash": "6y4trbQi60aNmDEFQe0tJH3jke+8j18I9t2sKfgaunTYEUdZL4Qc71cZRqNcojMG",
-        "hmsl_hash": "86edef7fd67be6f036dae3debea7bc50204579a149bfec6c78aea7c8c5c7067c",
-        "occurrences_count": 1, "status": "TRIGGERED", "triggered_at": "2025-11-17T17:18:18.706440Z",
+      string: '[{"id": 26805049, "detector": {"name": "generic_high_entropy_secret",
+        "display_name": "Generic High Entropy Secret", "nature": "generic", "family":
+        "other", "detector_group_name": "generic_high_entropy_secret", "detector_group_display_name":
+        "Generic High Entropy Secret"}, "date": "2026-02-04T12:40:14Z", "secret_id":
+        27187353, "secret_hash": "WTaCT+UniPgL/yRBqvY08cAEfxZM20pDa9wMIFDtfg14lIkIp+KkPCNpyNbtXqJM",
+        "hmsl_hash": "7540b6bde0415ab616f125e5bd200ed3f01f764ba8e151f87f9a4937ee562f3c",
+        "occurrences_count": 1, "status": "TRIGGERED", "triggered_at": "2026-02-04T13:38:51.993879Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "ignore_reason": null,
-        "occurrences": null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
-        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
-        1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/22515404",
-        "tags": [], "custom_tags": []}, {"id": 23014961, "detector": {"name": "aws_iam",
-        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
-        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
-        Keys"}, "date": "2025-11-14T16:51:26Z", "secret_id": 23113036, "secret_hash":
-        "i2v1OWEDNGILr3ikukuKvRDItRkOX8KIA9oFN5cTik5tRD6RL4Qc71cZRqNcojMG", "hmsl_hash":
-        "b26ac0249f487bdec6800273228c0d58cd1e98a64a117f1719808a3745057b69", "occurrences_count":
-        1, "status": "IGNORED", "triggered_at": "2025-12-01T09:09:17.732554Z", "ignored_at":
-        "2025-12-01T09:09:17.744515Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        52, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 1, "removed_in_vcs":
+        0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/26805049",
+        "tags": ["FROM_HISTORICAL_SCAN"], "incident_name": "Generic High Entropy Secret",
+        "public_exposure": null, "destination_tickets": [{"id": "AEF-2271", "type":
+        "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-2271"}],
+        "custom_tags": []}, {"id": 26805046, "detector": {"name": "googleaiza", "display_name":
+        "Google API Key", "nature": "specific", "family": "token", "detector_group_name":
+        "google_api_key", "detector_group_display_name": "Google API Key"}, "date":
+        "2026-02-04T12:40:14Z", "secret_id": 27187350, "secret_hash": "CZJQmDNizaye6Se/yo5f/c+CUkxebkA24Agny/NaiDD4mt8CiwQ5Z8PP16EaJtIX",
+        "hmsl_hash": "dcc935c76a8d25e57ad36cc4ffde8493cf71a0b42222904db8f774174922456a",
+        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2026-02-04T13:38:51.989891Z",
+        "ignored_at": "2026-02-04T13:38:52.089326Z", "ignorer_id": 492181, "ignorer_api_token_id":
         null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
         "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
         null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "ignore_reason": "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/23014961", "tags":
-        ["FROM_HISTORICAL_SCAN"], "custom_tags": []}]'
+        [], "risk_score": 0, "is_vaulted": false, "ignore_reason": "invalid", "occurrences":
+        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/26805046",
+        "tags": ["FROM_HISTORICAL_SCAN"], "incident_name": "Google API Key", "public_exposure":
+        null, "destination_tickets": [], "custom_tags": []}, {"id": 26805043, "detector":
+        {"name": "mongo_uri", "display_name": "MongoDB Credentials", "nature": "specific",
+        "family": "identifiers", "detector_group_name": "mongodb_credentials", "detector_group_display_name":
+        "MongoDB Credentials"}, "date": "2026-02-04T12:40:14Z", "secret_id": 27187347,
+        "secret_hash": "/7fR6f5kCJxcKOBY7aGaXANERrgmNFFGl2msVGfVPMEzhnM4feuh40iUuZt2nZY1",
+        "hmsl_hash": "ce803e5228931ec85ad121f1c2004c890aa3ba26a72030cac80915a0cff76eb5",
+        "occurrences_count": 1, "status": "TRIGGERED", "triggered_at": "2026-02-04T13:38:51.987022Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "failed_to_check", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        49, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 1, "removed_in_vcs":
+        0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/26805043",
+        "tags": ["FROM_HISTORICAL_SCAN"], "incident_name": "MongoDB Credentials",
+        "public_exposure": null, "destination_tickets": [{"id": "AEF-2267", "type":
+        "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-2267"}],
+        "custom_tags": []}, {"id": 26567221, "detector": {"name": "openai_apikey",
+        "display_name": "OpenAI API Key", "nature": "specific", "family": "token",
+        "detector_group_name": "openai_apikey", "detector_group_display_name": "OpenAI
+        API Key"}, "date": "2026-01-28T13:22:42Z", "secret_id": 26957730, "secret_hash":
+        "acz0ORL9tiARvt5ZamEkOkA2tHnExbIFZM/UjPuml4iKKIkG95GRLqiXIWrK60u6", "hmsl_hash":
+        "9b7e86c5ae86e523a6cd59f95ee9c63ff55707f434d8bd9de0c99b41e64ef95e", "occurrences_count":
+        1, "status": "IGNORED", "triggered_at": "2026-01-29T17:51:22.801602Z", "ignored_at":
+        "2026-01-29T17:51:22.808943Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 5, "is_vaulted": false, "ignore_reason": "invalid", "occurrences":
+        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/26567221",
+        "tags": ["REVOCABLE_BY_GG"], "incident_name": "OpenAI API Key", "public_exposure":
+        null, "destination_tickets": [], "custom_tags": []}, {"id": 26805044, "detector":
+        {"name": "mongo_uri", "display_name": "MongoDB Credentials", "nature": "specific",
+        "family": "identifiers", "detector_group_name": "mongodb_credentials", "detector_group_display_name":
+        "MongoDB Credentials"}, "date": "2026-01-26T13:46:06Z", "secret_id": 27187348,
+        "secret_hash": "8qhQemKmiS/Am6ESHIGDwqPZn9s9ntwfojgd4GNyXYj+jIKRfeuh40iUuZt2nZY1",
+        "hmsl_hash": "cbbb09c0c72c8d11cb89d4af62129433609ca1a07ba5fdacd4031207fa6f444d",
+        "occurrences_count": 4, "status": "TRIGGERED", "triggered_at": "2026-02-04T13:38:51.988904Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "failed_to_check", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        49, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 4, "removed_in_vcs":
+        0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/26805044",
+        "tags": ["FROM_HISTORICAL_SCAN"], "incident_name": "MongoDB Credentials",
+        "public_exposure": null, "destination_tickets": [{"id": "AEF-2268", "type":
+        "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-2268"}],
+        "custom_tags": []}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '5787'
+      - '6722'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -105,9 +118,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 08 Dec 2025 09:24:14 GMT
+      - Wed, 04 Feb 2026 15:36:54 GMT
       link:
-      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMDI1LTExLTE0KzE2JTNBNTElM0EyNiUyQjAwJTNBMDA%3D&ordering=-date&per_page=5>;
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMDI2LTAxLTI2KzEzJTNBNDYlM0EwNiUyQjAwJTNBMDA%3D&ordering=-date&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -118,17 +131,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.348.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '460'
+      - '93'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

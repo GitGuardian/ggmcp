@@ -34,7 +34,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 02 Jan 2026 08:27:51 GMT
+      - Wed, 04 Feb 2026 15:37:26 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -44,7 +44,7 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.362.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
@@ -52,7 +52,7 @@ interactions:
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.153.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

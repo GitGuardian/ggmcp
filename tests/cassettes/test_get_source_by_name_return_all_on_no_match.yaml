@@ -103,28 +103,28 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EYF11U0G", "deleted":
         false}, {"id": 12662970, "type": "github", "full_name": "aymericGG/sample_secrets_Codacytest",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        3, "last_scan": {"date": "2025-10-09T16:45:43.354102Z", "status": "finished",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        2, "last_scan": {"date": "2025-10-09T16:45:43.354102Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 7, "duration": "2.949598", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "750268193", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 3, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 2, "low": 0, "info": 0, "unknown": 0}}},
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/aymericGG/sample_secrets_Codacytest", "deleted":
         false}, {"id": 12663154, "type": "github", "full_name": "aymericGG/juice-shop-Codacytest",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": "master",
-        "default_branch_head": null, "open_incidents_count": 53, "closed_incidents_count":
-        32, "last_scan": {"date": "2025-10-09T16:45:43.354888Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 19830, "duration": "110.594703",
-        "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "750273107", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 53, "severity_breakdown": {"critical": 0, "high": 53, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        32, "severity_breakdown": {"critical": 2, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 30}}}, "url": "https://github.com/aymericGG/juice-shop-Codacytest",
-        "deleted": false}, {"id": 13056005, "type": "github", "full_name": "amascia-gg/test_sca_scan",
+        "default_branch_head": null, "open_incidents_count": 52, "closed_incidents_count":
+        33, "last_scan": {"date": "2026-01-15T16:49:11.671959Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        52, "severity_breakdown": {"critical": 0, "high": 52, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
+        {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
+        "url": "https://github.com/aymericGG/juice-shop-Codacytest", "deleted": false},
+        {"id": 13056005, "type": "github", "full_name": "amascia-gg/test_sca_scan",
         "health": "safe", "source_criticality": "unknown", "default_branch": "modified_def",
         "default_branch_head": "80331d9b7d90ccc8e97f24a5712346b18712d016", "open_incidents_count":
         0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351336Z",
@@ -137,24 +137,24 @@ interactions:
         "info": 0, "unknown": 0}}}, "url": "https://github.com/amascia-gg/test_sca_scan",
         "deleted": false}, {"id": 13926516, "type": "github", "full_name": "ferdi05/test_keys",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.353532Z", "status": "finished",
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        1, "last_scan": {"date": "2025-10-09T16:45:43.353532Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 6, "duration": "0.732485", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "791829364", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 2, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/ferdi05/test_keys", "deleted": false}, {"id": 16218896,
         "type": "gitlab", "full_name": "qa / test-nriv", "health": "at_risk", "source_criticality":
         "unknown", "default_branch": "main", "default_branch_head": "1dee221c6baeb2677e1463ce1446b334fb5f007f",
-        "open_incidents_count": 8, "closed_incidents_count": 8, "last_scan": {"date":
+        "open_incidents_count": 4, "closed_incidents_count": 9, "last_scan": {"date":
         "2025-10-24T13:49:58.064152Z", "status": "finished", "failing_reason": "",
         "commits_scanned": 15, "duration": "4.284154", "branches_scanned": 3, "progress":
         100}, "monitored": true, "visibility": "internal", "external_id": "255", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 8, "severity_breakdown": {"critical":
-        1, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 4}}, "closed_secret_incidents":
-        {"total": 8, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0,
+        {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
+        0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 9, "severity_breakdown": {"critical": 1, "high": 3, "medium": 0,
         "low": 0, "info": 0, "unknown": 5}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
         "deleted": false}, {"id": 16218897, "type": "gitlab", "full_name": "dev /
         Salome Test", "health": "at_risk", "source_criticality": "unknown", "default_branch":
@@ -169,14 +169,14 @@ interactions:
         "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/salome-test", "deleted":
         false}, {"id": 16218898, "type": "gitlab", "full_name": "qa / test-r8327r",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 5, "closed_incidents_count":
-        4, "last_scan": {"date": "2025-10-24T13:49:58.064220Z", "status": "finished",
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        5, "last_scan": {"date": "2025-10-24T13:49:58.064220Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 11, "duration": "3.451528", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "253", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 5,
+        "253", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 4,
         "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0, "info":
-        0, "unknown": 3}}, "closed_secret_incidents": {"total": 4, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 3}}},
+        0, "unknown": 2}}, "closed_secret_incidents": {"total": 5, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 4}}},
         "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-r8327r", "deleted":
         false}, {"id": 16218901, "type": "gitlab", "full_name": "QATeam / test-renovate-npm",
         "health": "safe", "source_criticality": "unknown", "default_branch": "main",
@@ -333,25 +333,25 @@ interactions:
         "url": "https://gitlab-01.aws-qa-gitguardian.com/cgarcia/TestNewProject",
         "deleted": false}, {"id": 16218929, "type": "gitlab", "full_name": "dev /
         pierre-test-repo", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 6, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-24T13:49:58.065276Z", "status": "finished",
+        "main", "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        3, "last_scan": {"date": "2025-10-24T13:49:58.065276Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 10, "duration": "3.5616", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "218", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 6,
+        "218", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
         "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 6}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        0, "unknown": 3}}, "closed_secret_incidents": {"total": 3, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 3}}},
         "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/pierre-test-repo", "deleted":
         false}, {"id": 16218932, "type": "gitlab", "full_name": "SE-test-group-access
-        / new-project-test-group-access", "health": "safe", "source_criticality":
+        / new-project-test-group-access", "health": "at_risk", "source_criticality":
         "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 2, "last_scan": {"date": "2025-10-24T13:49:58.065378Z",
+        1, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-24T13:49:58.065378Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
         "3.001119", "branches_scanned": 2, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "214", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 0, "medium": 2, "low": 0,
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/se-test-group-access/new-project-test-group-access",
         "deleted": false}, {"id": 16218938, "type": "gitlab", "full_name": "dev /
         xblanchot-test-sca", "health": "safe", "source_criticality": "unknown", "default_branch":
@@ -569,7 +569,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '41171'
+      - '41176'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -577,7 +577,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 08 Dec 2025 09:18:30 GMT
+      - Wed, 04 Feb 2026 15:38:01 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xNjIxODk2OA%3D%3D&per_page=50&search=test>;
         rel="next"
@@ -590,17 +590,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.348.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '238'
+      - '375'
       x-frame-options:
       - DENY
       x-per-page:
       - '50'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

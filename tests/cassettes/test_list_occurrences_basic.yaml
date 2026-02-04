@@ -24,7 +24,7 @@ interactions:
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
         "client_secret", "indice_start": 85, "indice_end": 125, "pre_line_start":
         4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
         "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
@@ -44,7 +44,7 @@ interactions:
         null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}, {"name":
         "client_secret", "indice_start": 128, "indice_end": 168, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
         "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
@@ -62,7 +62,7 @@ interactions:
         "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
         [{"name": "apikey", "indice_start": 48, "indice_end": 726, "pre_line_start":
         3, "pre_line_end": 14, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/333db3e12b3f863ebb02cac6f232fc44e4f46533#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
+        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/333db3e12b3f863ebb02cac6f232fc44e4f46533#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "333db3e12b3f863ebb02cac6f232fc44e4f46533", "change_type": "deletion",
         "source": {"id": 12320, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-09",
@@ -80,7 +80,7 @@ interactions:
         "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
         [{"name": "apikey", "indice_start": 91, "indice_end": 769, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 14}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
+        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "76dd4f31a31c78a151723031bfebff4d076751b2", "change_type": "addition",
         "source": {"id": 12320, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-09",
@@ -100,7 +100,7 @@ interactions:
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
         "client_secret", "indice_start": 150, "indice_end": 169, "pre_line_start":
         4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-08/commit/970509ea87f9913d362d727ac4d178ac4332719a#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-08/commit/970509ea87f9913d362d727ac4d178ac4332719a#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "970509ea87f9913d362d727ac4d178ac4332719a", "change_type": "deletion",
         "source": {"id": 12297, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-2020-08",
@@ -129,7 +129,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 08 Dec 2025 09:18:15 GMT
+      - Wed, 04 Feb 2026 15:37:29 GMT
       link:
       - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03ODIwMQ%3D%3D&per_page=5>;
         rel="next"
@@ -142,17 +142,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.348.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '654'
+      - '58'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

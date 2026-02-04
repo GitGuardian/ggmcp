@@ -21,9 +21,9 @@ interactions:
       string: '[{"id": 12338, "type": "github", "full_name": "wayne-enterprises-gg/shared-app",
         "health": "safe", "source_criticality": "low", "default_branch": "master",
         "default_branch_head": "a219c18ff8e913427c38fc7d90756d6bb1bb5b43", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352252Z",
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-02T10:49:30.905195Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 544, "duration":
-        "0.961627", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "218964926", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
@@ -79,7 +79,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4184'
+      - '4179'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -87,7 +87,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 10 Dec 2025 19:53:47 GMT
+      - Wed, 04 Feb 2026 15:37:41 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&per_page=5>;
         rel="next"
@@ -100,17 +100,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.351.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '547'
+      - '440'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:
@@ -204,7 +204,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 10 Dec 2025 19:53:56 GMT
+      - Wed, 04 Feb 2026 15:37:52 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD05MTIzODgy&per_page=5>; rel="next",
         <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTIzNzE%3D&per_page=5>;
@@ -218,17 +218,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.351.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '8990'
+      - '10073'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:
@@ -278,24 +278,24 @@ interactions:
         "deleted": false}, {"id": 10836673, "type": "github", "full_name": "leakymcgee/secretproject",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
         "default_branch_head": "6fa238be5c8773d3560627df4597c1b0cddc708d", "open_incidents_count":
-        7, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.354139Z",
+        6, "closed_incidents_count": 2, "last_scan": {"date": "2025-10-09T16:45:43.354139Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
         "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 7, "severity_breakdown": {"critical": 3, "high": 4, "medium": 0,
+        {"total": 6, "severity_breakdown": {"critical": 3, "high": 3, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
         "deleted": false}, {"id": 11018378, "type": "github", "full_name": "leakymcgee/ggshield",
         "health": "at_risk", "source_criticality": "high", "default_branch": "main",
         "default_branch_head": "261ad38336f401683315c9dd30d792d3043f1751", "open_incidents_count":
-        14, "closed_incidents_count": 4, "last_scan": {"date": "2025-10-09T16:45:43.353684Z",
+        13, "closed_incidents_count": 5, "last_scan": {"date": "2025-10-09T16:45:43.353684Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 1515, "duration":
         "12.404975", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "691584428", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 14, "severity_breakdown": {"critical": 1, "high": 13, "medium":
+        {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
         0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
+        5, "severity_breakdown": {"critical": 4, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
         "deleted": false}, {"id": 11260258, "type": "github", "full_name": "gitjez/git_playground",
         "health": "at_risk", "source_criticality": "high", "default_branch": "main",
@@ -323,7 +323,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 10 Dec 2025 19:53:59 GMT
+      - Wed, 04 Feb 2026 15:37:55 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTI2MDI1OA%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9OTEyNDE0Nw%3D%3D&per_page=5>;
@@ -337,17 +337,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.351.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '2304'
+      - '2266'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:
@@ -386,13 +386,13 @@ interactions:
         "deleted": false}, {"id": 11270152, "type": "slack", "full_name": "Demo Slack
         Integration / #general", "health": "at_risk", "source_criticality": "unknown",
         "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        4, "closed_incidents_count": 7, "last_scan": {"date": "2025-10-09T16:44:19.448855Z",
+        4, "closed_incidents_count": 6, "last_scan": {"date": "2025-10-09T16:44:19.448855Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
         "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
         "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total":
-        7, "severity_breakdown": {"critical": 4, "high": 1, "medium": 0, "low": 0,
+        6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
         "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
         "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
         Integration / #random", "health": "safe", "source_criticality": "unknown",
@@ -442,7 +442,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 10 Dec 2025 19:54:00 GMT
+      - Wed, 04 Feb 2026 15:37:56 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEyNjAyNTk%3D&per_page=5>;
@@ -456,17 +456,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.351.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '499'
+      - '480'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:
@@ -561,7 +561,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 10 Dec 2025 19:54:02 GMT
+      - Wed, 04 Feb 2026 15:37:57 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTYwMDU4Nw%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=5>;
@@ -575,17 +575,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.351.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '677'
+      - '731'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:
