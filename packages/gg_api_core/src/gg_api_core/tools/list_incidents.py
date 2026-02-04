@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.tools.find_current_source_id import find_current_source_id
@@ -61,7 +61,7 @@ DEFAULT_VALIDITIES = [
     "valid",
     "failed_to_check",
     "no_checker",
-    "unknown",
+    "not_checked",
 ]  # Exclude INVALID
 
 
@@ -420,6 +420,47 @@ class ListIncidentsParams(BaseModel):
         default=None,
         description="Filter by custom tag ID(s)",
     )
+
+    # Validators to coerce single values into lists (common with LLM tool calls) This is specific to the
+    #  /incidents-for-mcp endpoint, that follows the internal API conventions rather than the usual public API one.
+    @field_validator(
+        "status",
+        "severity",
+        "validity",
+        "detector_group_name",
+        "detector_type",
+        "detector_category",
+        "issue_name",
+        "secret_category",
+        "secret_family",
+        "secret_provider",
+        "source_ids",
+        "source_type",
+        "source_criticality",
+        "presence",
+        "tags",
+        "exclude_tags",
+        "public_exposure",
+        "integration",
+        "issue_tracker",
+        "secret_manager_type",
+        "secret_manager_instance",
+        "nhi_env",
+        "nhi_policy",
+        "teams",
+        "secret_scope",
+        "analyzer_status",
+        "custom_tags",
+        mode="before",
+    )
+    @classmethod
+    def coerce_to_list(cls, v: Any) -> list[Any] | None:
+        """Convert single values to lists for LLM compatibility."""
+        if v is None:
+            return None
+        if isinstance(v, list):
+            return v
+        return [v]
 
 
 class ListIncidentsResult(BaseModel):
