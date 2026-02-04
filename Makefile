@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: test test-vcr test-unit test-with-env test-vcr-with-env lint format typecheck
+.PHONY: test test-vcr test-unit test-with-env test-vcr-with-env update-cassettes lint format typecheck
 
 # =============================================================================
 # CI commands (no .env sourcing)
@@ -28,6 +28,9 @@ test-with-env:
 # Run VCR tests with .env loaded (for recording cassettes)
 test-vcr-with-env:
 	set -a && source .env && set +a && make test-vcr
+
+update-cassettes:
+	rm tests/cassettes/*.yaml && make test-vcr-with-env
 
 # =============================================================================
 # Code quality
