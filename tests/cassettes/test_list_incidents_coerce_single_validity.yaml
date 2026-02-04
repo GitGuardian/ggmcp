@@ -15,10 +15,10 @@ interactions:
       User-Agent:
       - GitGuardian-MCP-Server/1.0
     method: GET
-    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&validity__in=valid%2Cnot_checked
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&ordering=-date&status__in=TRIGGERED%2CASSIGNED%2CRESOLVED&severity__in=10%2C20%2C30%2C100&validity__in=valid&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
   response:
     body:
-      string: '{"count": 125, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?page=2&page_size=5&validity__in=valid%2Cnot_checked",
+      string: '{"count": 104, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-date&page=2&page_size=5&severity__in=10%2C20%2C30%2C100&status__in=TRIGGERED%2CASSIGNED%2CRESOLVED&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&validity__in=valid",
         "previous": null, "results": [{"id": 22515404, "account": 8, "criterion":
         "AWS Keys", "date": "2025-11-17T17:16:25Z", "last_trigger_published_at": "2025-11-17T17:16:25Z",
         "last_triggered_at": "2025-11-17T17:18:18.706440Z", "last_trigger_detected_at":
@@ -284,7 +284,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '27289'
+      - '27487'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -292,7 +292,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 04 Feb 2026 15:37:27 GMT
+      - Wed, 04 Feb 2026 16:04:06 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -306,7 +306,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '384'
+      - '531'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

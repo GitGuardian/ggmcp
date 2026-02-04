@@ -21,9 +21,9 @@ interactions:
       string: '[{"id": 12338, "type": "github", "full_name": "wayne-enterprises-gg/shared-app",
         "health": "safe", "source_criticality": "low", "default_branch": "master",
         "default_branch_head": "a219c18ff8e913427c38fc7d90756d6bb1bb5b43", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352252Z",
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-02T10:49:30.905195Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 544, "duration":
-        "0.961627", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "218964926", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
@@ -79,7 +79,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4184'
+      - '4179'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -87,7 +87,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 08 Dec 2025 09:18:27 GMT
+      - Wed, 04 Feb 2026 15:37:40 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&monitored=true&per_page=5>;
         rel="next"
@@ -100,17 +100,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.348.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '693'
+      - '766'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

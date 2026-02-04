@@ -18,7 +18,7 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=10&ordering=-score&score__ge=50
   response:
     body:
-      string: '{"count": 2049, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-score&page=2&page_size=10&score__ge=50",
+      string: '{"count": 2051, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-score&page=2&page_size=10&score__ge=50",
         "previous": null, "results": [{"id": 15850682, "account": 8, "criterion":
         "Generic High Entropy Secret", "date": "2025-03-05T04:48:56Z", "last_trigger_published_at":
         "2025-03-05T04:48:56Z", "last_triggered_at": "2025-03-05T05:36:18.431191Z",
@@ -524,7 +524,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '53982'
+      - '54212'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -532,7 +532,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 02 Feb 2026 11:40:38 GMT
+      - Wed, 04 Feb 2026 15:37:28 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -542,11 +542,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.382.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '4311'
+      - '721'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

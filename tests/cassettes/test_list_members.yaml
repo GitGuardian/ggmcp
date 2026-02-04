@@ -23,13 +23,13 @@ interactions:
         "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
         "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
         "name": "Aymeric Sicard", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2025-12-04T16:04:26.580694Z", "active": true}, {"id": 2508, "role": "manager",
+        "2026-02-02T15:18:27.122251Z", "active": true}, {"id": 2508, "role": "manager",
         "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
         "name": "Guillaume Charpiat", "created_at": "2020-03-23T17:53:57.158457Z",
-        "last_login": "2025-12-05T08:59:52.578776Z", "active": true}, {"id": 37699,
+        "last_login": "2026-01-29T15:06:07.929620Z", "active": true}, {"id": 37699,
         "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
         "name": "Alexis Larnaud", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
-        "2025-12-04T13:05:37.544814Z", "active": true}, {"id": 63809, "role": "manager",
+        "2026-02-02T14:16:09.533692Z", "active": true}, {"id": 63809, "role": "manager",
         "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
         "Orian Roturier", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
         "2025-08-05T08:47:38.723615Z", "active": true}]'
@@ -47,7 +47,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Mon, 08 Dec 2025 09:18:37 GMT
+      - Wed, 04 Feb 2026 15:38:08 GMT
       link:
       - <https://api.gitguardian.com/v1/members?cursor=cD02MzgwOQ%3D%3D&per_page=5>;
         rel="next"
@@ -60,17 +60,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.348.0
+      - v2.384.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '92'
+      - '75'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.152.1
+      - 2.155.4
       x-xss-protection:
       - 1; mode=block
     status:

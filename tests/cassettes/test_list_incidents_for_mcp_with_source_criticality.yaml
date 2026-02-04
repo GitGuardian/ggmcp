@@ -1,24 +1,24 @@
 interactions:
-  - request:
-      body: ''
-      headers:
-        Accept:
-          - '*/*'
-        Accept-Encoding:
-          - gzip, deflate
-        Connection:
-          - keep-alive
-        Content-Type:
-          - application/json
-        Host:
-          - api.gitguardian.com
-        User-Agent:
-          - GitGuardian-MCP-Server/1.0
-      method: GET
-      uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&source_criticality__in=critical%2Chigh
-    response:
-      body:
-        string: '{"count": 565, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?page=2&page_size=5&source_criticality__in=critical%2Chigh",
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&source_criticality__in=critical%2Chigh
+  response:
+    body:
+      string: '{"count": 564, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?page=2&page_size=5&source_criticality__in=critical%2Chigh",
         "previous": null, "results": [{"id": 21898354, "account": 8, "criterion":
         "OpenAI Project API Key v2", "date": "2025-10-27T08:36:14Z", "last_trigger_published_at":
         "2025-10-27T08:36:14Z", "last_triggered_at": "2025-10-27T08:36:28.692404Z",
@@ -44,10 +44,11 @@ interactions:
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
         "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
-        "similar_issue_count": 0, "score": 68, "displayed_occurrence": {"id": 222897202,
-        "issue": 21898354, "account": 8, "kind": "RLTM", "element": "2f64439b954159030a743bd6cba1f09c68c78892",
-        "element_type": "GIT_COMMIT", "author_name": "Pierre Lalanne", "author_info":
-        "pierre.lalanne@gitguardian.com", "value": null, "value_hash": "TSNePghDjVdzM9TUpPkpmfsFuHs2+mQKRGw/SUEp/MomFh2KEqAS8JpAuXnz5rBz",
+        "is_vaulted": false, "similar_issue_count": 0, "score": 68, "displayed_occurrence":
+        {"id": 222897202, "issue": 21898354, "account": 8, "kind": "RLTM", "element":
+        "2f64439b954159030a743bd6cba1f09c68c78892", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "TSNePghDjVdzM9TUpPkpmfsFuHs2+mQKRGw/SUEp/MomFh2KEqAS8JpAuXnz5rBz",
         "published_at": "2025-10-27T08:36:14Z", "date": "2025-10-27T08:36:14Z", "detected_at":
         "2025-10-27T08:36:24.106237Z", "is_vcs_type": true, "last_detected_at": "2025-10-27T08:36:14Z",
         "last_seen_at": "2025-10-27T08:36:14Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/2f64439b954159030a743bd6cba1f09c68c78892#diff-25541648145d3e401765df599038b993ce7692e9b97a137e8f6597d046110ef5R3",
@@ -55,15 +56,15 @@ interactions:
         "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
         "private", "monitored": true, "source_criticality": "critical", "deleted_at":
         null, "default_branch": "main"}, "regression": false, "content": 101119659,
-        "secrets_engine_version": "2.149.1", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 65, "indice_end": 229, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 3, "post_line_end": 3}], "most_sensitive_match_name":
+        "secrets_engine_version": "2.149.1", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 65, "indice_end": 229, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}], "most_sensitive_match_name":
         "apikey", "insights": [], "filepath": "severity_score.py", "filename": "severity_score.py",
         "presence": "visible", "last_presence_seen_at": "2025-10-27T08:36:28.720974Z",
         "last_presence_check_at": "2025-10-27T08:36:28.720974Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
         [{"type": "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH"], "public_exposure": {"source_publicly_visible":
+        false, "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible":
         false, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "occurrences_count": 1}, {"id": 21638889, "account": 8, "criterion": "Grafana
         Token", "date": "2025-10-16T07:58:02Z", "last_trigger_published_at": "2025-10-16T07:58:02Z",
@@ -83,9 +84,9 @@ interactions:
         0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"name": "global / test", "type": "gl_project", "path": "global/test", "source_criticality":
-        "critical"}], "custom_tags": [], "vault_metadata": null, "similar_issue_count":
-        19, "score": 68, "displayed_occurrence": {"id": 221458219, "issue": 21638889,
-        "account": 8, "kind": "RLTM", "element": "d42f635267c94366c6bcfd7f46b9d599e05dcaa4",
+        "critical"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 68, "displayed_occurrence": {"id": 221458219,
+        "issue": 21638889, "account": 8, "kind": "RLTM", "element": "d42f635267c94366c6bcfd7f46b9d599e05dcaa4",
         "element_type": "GIT_COMMIT", "author_name": "Administrator", "author_info":
         "gitlab_admin_0c3c76@example.com", "value": null, "value_hash": "aOaHQrqTREFBfh6ATp1yyhGvRoSciTAHLQVIqR6kv0E5rdYfyP7JSA8I6OqNuVN9",
         "published_at": "2025-10-16T07:58:02Z", "date": "2025-10-16T07:58:02Z", "detected_at":
@@ -103,7 +104,7 @@ interactions:
         "last_presence_check_at": "2025-10-16T07:58:07.092609Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
         [{"type": "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["PUBLICLY_LEAKED", "DEFAULT_BRANCH"], "public_exposure": {"source_publicly_visible":
+        false, "tags": ["DEFAULT_BRANCH", "PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
         false, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "occurrences_count": 1}, {"id": 21621944, "account": 8, "criterion": "Grafana
         Token", "date": "2025-10-15T13:52:44Z", "last_trigger_published_at": "2025-10-15T13:52:44Z",
@@ -122,9 +123,9 @@ interactions:
         "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"name": "global / test", "type": "gl_project", "path": "global/test", "source_criticality":
-        "critical"}], "custom_tags": [], "vault_metadata": null, "similar_issue_count":
-        32, "score": 68, "displayed_occurrence": {"id": 221369315, "issue": 21621944,
-        "account": 8, "kind": "RLTM", "element": "1e20e88940cd9575981d06c9ad29e8e23a85b8f2",
+        "critical"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 1, "score": 49, "displayed_occurrence": {"id": 221369315,
+        "issue": 21621944, "account": 8, "kind": "RLTM", "element": "1e20e88940cd9575981d06c9ad29e8e23a85b8f2",
         "element_type": "GIT_COMMIT", "author_name": "Administrator", "author_info":
         "gitlab_admin_0c3c76@example.com", "value": null, "value_hash": "WZPctg5bLv/KFJusoOKPl5XOeL9eZOdFJBV1ksNzlQo2d4DKtVtIuannMq0ifxzL",
         "published_at": "2025-10-15T13:52:44Z", "date": "2025-10-15T13:52:44Z", "detected_at":
@@ -142,7 +143,7 @@ interactions:
         "last_presence_check_at": "2025-10-15T13:52:49.341853Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
         [{"type": "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["PUBLICLY_LEAKED", "DEFAULT_BRANCH"], "public_exposure": {"source_publicly_visible":
+        false, "tags": ["DEFAULT_BRANCH", "PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
         false, "public_incident_linked": false, "leaked_outside_perimeter": true},
         "occurrences_count": 2}, {"id": 21621653, "account": 8, "criterion": "Grafana
         Token", "date": "2025-10-15T13:31:44Z", "last_trigger_published_at": "2025-10-15T13:31:44Z",
@@ -161,9 +162,9 @@ interactions:
         "feedbacks_count": 0, "occurrences_presence_seen_count": 3, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"name": "global / test", "type": "gl_project", "path": "global/test", "source_criticality":
-        "critical"}], "custom_tags": [], "vault_metadata": null, "similar_issue_count":
-        30, "score": 50, "displayed_occurrence": {"id": 221367654, "issue": 21621653,
-        "account": 8, "kind": "RLTM", "element": "ef2bfdbff1c92fe12fa53fc6d0d6051f1436ba28",
+        "critical"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 1, "score": 8, "displayed_occurrence": {"id": 221367654,
+        "issue": 21621653, "account": 8, "kind": "RLTM", "element": "ef2bfdbff1c92fe12fa53fc6d0d6051f1436ba28",
         "element_type": "GIT_COMMIT", "author_name": "Administrator", "author_info":
         "gitlab_admin_0c3c76@example.com", "value": null, "value_hash": "F51PflSIQw0DahVX8hIeVF3Es+SRoxje0bnxFydF7cujATj3FZvDfNnFv62kBgCF",
         "published_at": "2025-10-15T13:31:44Z", "date": "2025-10-15T13:31:44Z", "detected_at":
@@ -201,10 +202,11 @@ interactions:
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
         "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
-        "similar_issue_count": 11, "score": 7, "displayed_occurrence": {"id": 184231403,
-        "issue": 16646810, "account": 8, "kind": "RLTM", "element": "e1e335065c162b35a40373fdd28a3980235ab011",
-        "element_type": "GIT_COMMIT", "author_name": "Pierre Lalanne", "author_info":
-        "pierre.lalanne@gitguardian.com", "value": null, "value_hash": "q99E8ePeKiMkStbJAQC9H7QQ08Z8dK5c9LuRAo85jeoo+0q310Jmvul+T2BreFgH",
+        "is_vaulted": false, "similar_issue_count": 0, "score": 7, "displayed_occurrence":
+        {"id": 184231403, "issue": 16646810, "account": 8, "kind": "RLTM", "element":
+        "e1e335065c162b35a40373fdd28a3980235ab011", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "q99E8ePeKiMkStbJAQC9H7QQ08Z8dK5c9LuRAo85jeoo+0q310Jmvul+T2BreFgH",
         "published_at": "2025-04-17T17:10:16Z", "date": "2025-04-17T17:10:16Z", "detected_at":
         "2025-04-17T17:10:24.872117Z", "is_vcs_type": true, "last_detected_at": "2025-04-17T17:10:16Z",
         "last_seen_at": "2025-04-17T17:10:16Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/e1e335065c162b35a40373fdd28a3980235ab011#diff-bf99b121fdca9fba6e061f197f24f0826f47be5ffaa7e9b265146817f61defb1R1",
@@ -212,52 +214,53 @@ interactions:
         "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
         "private", "monitored": true, "source_criticality": "critical", "deleted_at":
         null, "default_branch": "main"}, "regression": false, "content": 60687110,
-        "secrets_engine_version": "2.136.1", "matches": [{"name": "apikey", "string_matched": "[REDACTED]", "indice_start": 15, "indice_end": 41, "pre_line_start":
-        null, "pre_line_end": null, "post_line_start": 1, "post_line_end": 1}], "most_sensitive_match_name":
+        "secrets_engine_version": "2.136.1", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 15, "indice_end": 41, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 1, "post_line_end": 1}], "most_sensitive_match_name":
         "apikey", "insights": [], "filepath": "tmp_gitlab_custom_host.txt", "filename":
         "tmp_gitlab_custom_host.txt", "presence": "visible", "last_presence_seen_at":
         "2025-10-09T16:47:43.501286Z", "last_presence_check_at": "2025-10-09T16:47:43.501286Z",
         "first_presence_deleted_at": null, "seen_in_default_branch": true, "change_type":
         "addition", "full_tags": [{"type": "DEFAULT_BRANCH", "metadata": null}]},
-        "has_dropped_occurrences": false, "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH"],
+        "has_dropped_occurrences": false, "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG"],
         "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
         false, "leaked_outside_perimeter": false}, "occurrences_count": 1}]}'
-      headers:
-        access-control-expose-headers:
-          - X-App-Version
-        allow:
-          - GET, HEAD, OPTIONS
-        content-length:
-          - '24071'
-        content-security-policy:
-          - frame-ancestors 'none'
-        content-type:
-          - application/json
-        cross-origin-opener-policy:
-          - same-origin
-        date:
-          - Wed, 31 Dec 2025 16:06:52 GMT
-        referrer-policy:
-          - strict-origin-when-cross-origin
-        server:
-          - istio-envoy
-        strict-transport-security:
-          - max-age=31536000; includeSubDomains
-        vary:
-          - Cookie
-        x-app-version:
-          - v2.362.0
-        x-content-type-options:
-          - nosniff
-        x-envoy-upstream-service-time:
-          - '585'
-        x-frame-options:
-          - DENY
-        x-secrets-engine-version:
-          - 2.153.1
-        x-xss-protection:
-          - 1; mode=block
-      status:
-        code: 200
-        message: OK
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '24018'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Wed, 04 Feb 2026 15:37:08 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '766'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
 version: 1
