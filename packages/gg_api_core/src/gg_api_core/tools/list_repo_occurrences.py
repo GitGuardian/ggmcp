@@ -37,17 +37,19 @@ DEFAULT_VALIDITIES = [
     IncidentValidity.FAILED_TO_CHECK,
     IncidentValidity.NO_CHECKER,
     IncidentValidity.UNKNOWN,
-]  # We exclude "INVALID" ones
+]  # We exclude "INVALID" ones. Note: /occurrences/secrets uses "unknown" not "not_checked"
 
 
 class ListRepoOccurrencesFilters(BaseModel):
     """Filters for listing repository occurrences."""
 
     from_date: str | None = Field(
-        default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"
+        default=None,
+        description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)",
     )
     to_date: str | None = Field(
-        default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"
+        default=None,
+        description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)",
     )
     presence: str | None = Field(default=None, description="Filter by presence status")
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
@@ -59,13 +61,16 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=DEFAULT_STATUSES, description="Filter by status (list of status names)"
     )
     severity: list[IncidentSeverity] | None = Field(
-        default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"
+        default=DEFAULT_SEVERITIES,
+        description="Filter by severity (list of severity names)",
     )
     validity: list[IncidentValidity] | None = Field(
-        default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"
+        default=DEFAULT_VALIDITIES,
+        description="Filter by validity (list of validity names)",
     )
     mine: bool = Field(
-        default=False, description="If True, fetch occurrences related to issues assigned to the current user"
+        default=False,
+        description="If True, fetch occurrences related to issues assigned to the current user",
     )
     member_assignee_id: int | None = Field(default=None, description="Filter by the member the incident is assigned to")
 
@@ -89,7 +94,10 @@ class ListRepoOccurrencesBaseParams(BaseModel):
         description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required.",
     )
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    per_page: int = Field(
+        default=20,
+        description="Number of results per page (default: 20, min: 1, max: 100)",
+    )
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
     get_all: bool = Field(
         default=False,

@@ -36,13 +36,19 @@ class IncidentStatus(str, Enum):
 
 
 class IncidentValidity(str, Enum):
-    """Enum for incident validity values."""
+    """Enum for incident validity values.
+
+    Note: Different API endpoints accept different validity values:
+    - /incidents-for-mcp: accepts NOT_CHECKED but not UNKNOWN
+    - /occurrences/secrets: accepts UNKNOWN but not NOT_CHECKED
+    """
 
     VALID = "valid"
     INVALID = "invalid"
     FAILED_TO_CHECK = "failed_to_check"
     NO_CHECKER = "no_checker"
-    UNKNOWN = "unknown"
+    NOT_CHECKED = "not_checked"  # Valid for /incidents-for-mcp
+    UNKNOWN = "unknown"  # Valid for /occurrences/secrets
 
 
 class TagNames(str, Enum):
@@ -854,7 +860,12 @@ class GitGuardianClient:
             Honeytoken data
         """
         logger.info(f"Creating honeytoken: {name}")
-        data = {"name": name, "description": description, "type": "AWS", "custom_tags": custom_tags or []}
+        data = {
+            "name": name,
+            "description": description,
+            "type": "AWS",
+            "custom_tags": custom_tags or [],
+        }
 
         return await self._request_post("/honeytokens", json=data)
 
@@ -883,7 +894,12 @@ class GitGuardianClient:
         logger.info(f"Creating honeytoken with context: {name}")
         logger.debug(f"Context: language={language}, filename={filename}, extensions={project_extensions}")
 
-        data = {"name": name, "description": description, "type": "AWS", "custom_tags": custom_tags or []}
+        data = {
+            "name": name,
+            "description": description,
+            "type": "AWS",
+            "custom_tags": custom_tags or [],
+        }
 
         if language:
             data["language"] = language
@@ -1067,7 +1083,10 @@ class GitGuardianClient:
         return incidents
 
     async def update_incident(
-        self, incident_id: str, status: str | None = None, custom_tags: list | None = None
+        self,
+        incident_id: str,
+        status: str | None = None,
+        custom_tags: list | None = None,
     ) -> dict[str, Any]:
         """Update a secret incident.
 
@@ -1331,7 +1350,8 @@ class GitGuardianClient:
             raise ValueError("either email or assignee_id should be provided. Not both")
         logger.info(f"Assigning incident {incident_id} to member {assignee_id or email}")
         return await self._request_post(
-            f"/incidents/secrets/{incident_id}/assign", json={"member_id": assignee_id, "email": email}
+            f"/incidents/secrets/{incident_id}/assign",
+            json={"member_id": assignee_id, "email": email},
         )
 
     async def unassign_incident(self, incident_id: str) -> dict[str, Any]:
@@ -1503,7 +1523,10 @@ class GitGuardianClient:
             Updated note details
         """
         logger.info(f"Updating note {note_id} for incident {incident_id}")
-        return await self._request_patch(f"/incidents/secrets/{incident_id}/notes/{note_id}", json={"content": content})
+        return await self._request_patch(
+            f"/incidents/secrets/{incident_id}/notes/{note_id}",
+            json={"content": content},
+        )
 
     async def delete_incident_note(self, incident_id: str, note_id: str) -> dict[str, Any]:
         """Delete a note from a secret incident.
