@@ -1,0 +1,110 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
+  response:
+    body:
+      string: '[{"id": 22181104, "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2
+        / Granite Car", "health": "at_risk", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
+        "109642050", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        3, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total": 6, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 5}}},
+        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/GRAN490879",
+        "deleted": false}, {"id": 13905736, "type": "jira_cloud", "full_name": "gitjez
+        / Jira Work Management Project", "health": "safe", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "visibility":
+        "private", "external_id": "10004", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://gitjez.atlassian.net/browse/JWMP",
+        "deleted": false}, {"id": 23920763, "type": "sharepoint_online_pages", "full_name":
+        "Site 60 files / Site 60 files (pages)", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,bed68303-925c-4dde-bd85-fef9e49abb6b,87de4fb2-3dd0-4d64-8e8c-945e8422d6d3:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/Site60files",
+        "deleted": false}, {"id": 19962432, "type": "sharepoint_online_pages", "full_name":
+        "Test Corentin / Test Corentin (pages)", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,c034d99c-c410-4696-a12b-34150b6dd30a,4fe8b59d-035e-44ad-872f-f58e5eec0944:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/TestCorentin",
+        "deleted": false}, {"id": 19962495, "type": "sharepoint_online_pages", "full_name":
+        "Public Team / Public Team (pages)", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,cd290f75-87a6-404b-9b6b-14b7db7c8c4e,37dd6d74-561a-4063-af27-0d43ef74682d:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/PublicTeam",
+        "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '3765'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 05 Feb 2026 08:02:34 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '634'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

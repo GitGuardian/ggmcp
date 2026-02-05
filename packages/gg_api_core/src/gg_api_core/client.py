@@ -1127,7 +1127,7 @@ class GitGuardianClient:
         """List all honeytokens with optional filtering and cursor-based pagination.
 
         Args:
-            status: Filter by status (ACTIVE or REVOKED)
+            status: Filter by status (active, triggered, or revoked)
             search: Search string to filter results
             ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
             show_token: Whether to include token details in the response

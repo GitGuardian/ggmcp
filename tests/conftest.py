@@ -17,6 +17,16 @@ vcr_logger.setLevel(logging.DEBUG)
 # VCR Configuration for Cassette-based Testing
 # =============================================================================
 # Following the same pattern as ggshield for recording and replaying HTTP interactions
+#
+# Cassettes are stored mirroring the test file structure:
+#   tests/tools/vcr/test_foo.py -> tests/cassettes/tools/vcr/test_foo_*.yaml
+#   tests/client/vcr/test_bar.py -> tests/cassettes/client/vcr/test_bar_*.yaml
+#
+# Usage: Use the `use_cassette` fixture in tests:
+#   @pytest.mark.vcr_test
+#   async def test_something(real_client, use_cassette):
+#       with use_cassette("test_something"):
+#           ...
 
 CASSETTES_DIR = join(dirname(realpath(__file__)), "cassettes")
 
@@ -172,8 +182,8 @@ def _before_record_response(response):
     return response
 
 
-my_vcr = vcr.VCR(
-    cassette_library_dir=CASSETTES_DIR,
+# Common VCR options
+_vcr_common_options = dict(
     path_transformer=vcr.VCR.ensure_suffix(".yaml"),
     decode_compressed_response=True,
     ignore_localhost=True,
@@ -190,6 +200,59 @@ my_vcr = vcr.VCR(
         "token",
         "password",
     ],
+)
+
+
+def _get_cassette_dir_for_test(test_file_path: str) -> str:
+    """
+    Get the cassette directory for a test file, mirroring its path structure.
+
+    Example:
+        tests/tools/vcr/test_list_users.py -> tests/cassettes/tools/vcr/
+        tests/client/vcr/test_health.py -> tests/cassettes/client/vcr/
+    """
+    tests_dir = dirname(realpath(__file__))
+    # Get relative path from tests/ directory
+    rel_path = os.path.relpath(dirname(test_file_path), tests_dir)
+    # Build cassette directory path
+    return join(CASSETTES_DIR, rel_path)
+
+
+@pytest.fixture
+def use_cassette(request):
+    """
+    Fixture that provides a cassette context manager with auto-detected path.
+
+    Cassettes are stored mirroring the test file structure:
+        tests/tools/vcr/test_foo.py -> tests/cassettes/tools/vcr/
+
+    Usage:
+        @pytest.mark.vcr_test
+        @pytest.mark.asyncio
+        async def test_something(real_client, use_cassette):
+            with use_cassette("test_something"):
+                result = await some_tool(params)
+    """
+    test_file = request.fspath
+    cassette_dir = _get_cassette_dir_for_test(str(test_file))
+
+    # Ensure the cassette directory exists
+    os.makedirs(cassette_dir, exist_ok=True)
+
+    # Create VCR instance for this test's directory
+    test_vcr = vcr.VCR(
+        cassette_library_dir=cassette_dir,
+        **_vcr_common_options,
+    )
+
+    return test_vcr.use_cassette
+
+
+# Convenience module-level VCR for direct imports (backward compatibility)
+# Prefer using the use_cassette fixture instead
+my_vcr = vcr.VCR(
+    cassette_library_dir=CASSETTES_DIR,
+    **_vcr_common_options,
 )
 
 

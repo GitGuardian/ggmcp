@@ -30,7 +30,7 @@ test-vcr-with-env:
 	set -a && source .env && set +a && make test-vcr
 
 update-cassettes:
-	rm tests/cassettes/*.yaml && make test-vcr-with-env
+	rm tests/cassettes/**/*.yaml && make test-vcr-with-env
 
 # =============================================================================
 # Code quality

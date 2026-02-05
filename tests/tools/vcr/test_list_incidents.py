@@ -21,8 +21,6 @@ from gg_api_core.tools.list_incidents import (
     list_incidents,
 )
 
-from tests.conftest import my_vcr
-
 
 class TestListIncidentsCoercionVCR:
     """VCR tests for list_incidents tool with coercion.
@@ -33,7 +31,7 @@ class TestListIncidentsCoercionVCR:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_incidents_with_single_status_value(self, real_client):
+    async def test_list_incidents_with_single_status_value(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with incidents:read scope
         WHEN: Calling list_incidents with a single status value (not a list)
@@ -42,7 +40,7 @@ class TestListIncidentsCoercionVCR:
         This tests that LLMs passing status="TRIGGERED" instead of status=["TRIGGERED"]
         still works correctly.
         """
-        with my_vcr.use_cassette("test_list_incidents_coerce_single_status"):
+        with use_cassette("test_list_incidents_coerce_single_status"):
             with patch(
                 "gg_api_core.tools.list_incidents.get_client",
                 return_value=real_client,
@@ -66,7 +64,7 @@ class TestListIncidentsCoercionVCR:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_incidents_with_single_severity_value(self, real_client):
+    async def test_list_incidents_with_single_severity_value(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with incidents:read scope
         WHEN: Calling list_incidents with a single severity value (not a list)
@@ -75,7 +73,7 @@ class TestListIncidentsCoercionVCR:
         This tests that LLMs passing severity=10 instead of severity=[10]
         still works correctly.
         """
-        with my_vcr.use_cassette("test_list_incidents_coerce_single_severity"):
+        with use_cassette("test_list_incidents_coerce_single_severity"):
             with patch(
                 "gg_api_core.tools.list_incidents.get_client",
                 return_value=real_client,
@@ -98,13 +96,13 @@ class TestListIncidentsCoercionVCR:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_incidents_with_single_validity_value(self, real_client):
+    async def test_list_incidents_with_single_validity_value(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with incidents:read scope
         WHEN: Calling list_incidents with a single validity value (not a list)
         THEN: The coercion converts it to a list and the API call succeeds
         """
-        with my_vcr.use_cassette("test_list_incidents_coerce_single_validity"):
+        with use_cassette("test_list_incidents_coerce_single_validity"):
             with patch(
                 "gg_api_core.tools.list_incidents.get_client",
                 return_value=real_client,
@@ -126,7 +124,7 @@ class TestListIncidentsCoercionVCR:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_incidents_with_multiple_single_values(self, real_client):
+    async def test_list_incidents_with_multiple_single_values(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with incidents:read scope
         WHEN: Calling list_incidents with multiple single values (not lists)
@@ -135,7 +133,7 @@ class TestListIncidentsCoercionVCR:
         This is the most realistic test case - LLMs often pass multiple
         parameters as single values instead of lists.
         """
-        with my_vcr.use_cassette("test_list_incidents_coerce_multiple_single_values"):
+        with use_cassette("test_list_incidents_coerce_multiple_single_values"):
             with patch(
                 "gg_api_core.tools.list_incidents.get_client",
                 return_value=real_client,

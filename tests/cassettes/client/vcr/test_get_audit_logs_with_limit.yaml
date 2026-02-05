@@ -1,0 +1,85 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/audit_logs?per_page=5
+  response:
+    body:
+      string: '[{"id": 18378985, "api_token_id": null, "member_id": 937471, "member_email":
+        "candidate.playground+eu3@gitguardian.com", "member_name": "EU3 Candidate",
+        "date": "2026-02-05T07:35:42.412939Z", "data": {"type": "basic"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["935620"], "ip_address":
+        "83.36.91.222"}, {"id": 18366488, "api_token_id": null, "member_id": 1301278,
+        "member_email": "zach.mccullough@gitguardian.com", "member_name": "Zachary
+        MCCULLOUGH", "date": "2026-02-04T20:29:00.481270Z", "data": {"type": "saml_sso"},
+        "event_name": "user.logged_in", "action_type": "OTHER", "target_ids": ["1299091"],
+        "ip_address": "73.8.249.128"}, {"id": 18366464, "api_token_id": null, "member_id":
+        1301278, "member_email": "zach.mccullough@gitguardian.com", "member_name":
+        "Zachary MCCULLOUGH", "date": "2026-02-04T20:28:10.215980Z", "data": {"type":
+        "saml_sso"}, "event_name": "user.logged_in", "action_type": "OTHER", "target_ids":
+        ["1299091"], "ip_address": "73.8.249.128"}, {"id": 18366177, "api_token_id":
+        null, "member_id": 1301278, "member_email": "zach.mccullough@gitguardian.com",
+        "member_name": "Zachary MCCULLOUGH", "date": "2026-02-04T20:14:07.951413Z",
+        "data": {"type": "saml_sso"}, "event_name": "user.logged_in", "action_type":
+        "OTHER", "target_ids": ["1299091"], "ip_address": "73.8.249.128"}, {"id":
+        18366174, "api_token_id": null, "member_id": 1301278, "member_email": "zach.mccullough@gitguardian.com",
+        "member_name": "Zachary MCCULLOUGH", "date": "2026-02-04T20:13:55.579230Z",
+        "data": {"type": "saml_sso"}, "event_name": "user.logged_in", "action_type":
+        "OTHER", "target_ids": ["1299091"], "ip_address": "73.8.249.128"}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1545'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 05 Feb 2026 08:01:12 GMT
+      link:
+      - <https://api.gitguardian.com/v1/audit_logs?cursor=cD0xODM2NjE3NA%3D%3D&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '36'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -14,15 +14,13 @@ from gg_api_core.tools.list_repo_occurrences import (
     list_repo_occurrences,
 )
 
-from tests.conftest import my_vcr
-
 
 class TestListRepoOccurrencesVCR:
     """VCR tests for the list_repo_occurrences tool."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_with_mine_true(self, real_client):
+    async def test_list_repo_occurrences_with_mine_true(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with incidents:read scope
         WHEN: Calling list_repo_occurrences with mine=True
@@ -33,7 +31,7 @@ class TestListRepoOccurrencesVCR:
         1. The model_validator bug fix : https://github.com/GitGuardian/ggmcp/issues/75
         2. The mine=True filter functionality
         """
-        with my_vcr.use_cassette("test_list_repo_occurrences_with_mine_true"):
+        with use_cassette("test_list_repo_occurrences_with_mine_true"):
             # Patch get_client to return the real_client for VCR recording/playback
             with patch(
                 "gg_api_core.tools.list_repo_occurrences.get_client",

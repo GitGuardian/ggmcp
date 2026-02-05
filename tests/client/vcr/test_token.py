@@ -11,15 +11,13 @@ These tests cover:
 
 import pytest
 
-from tests.conftest import my_vcr
-
 
 class TestTokenMethods:
     """Tests for token and authentication related methods."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_current_token_info(self, real_client):
+    async def test_get_current_token_info(self, real_client, use_cassette):
         """
         Test getting current token information.
 
@@ -27,7 +25,7 @@ class TestTokenMethods:
         WHEN we request the current token info
         THEN we should receive token details including scopes and member_id
         """
-        with my_vcr.use_cassette("test_get_current_token_info"):
+        with use_cassette("test_get_current_token_info"):
             result = await real_client.get_current_token_info()
 
             assert result is not None
@@ -40,7 +38,7 @@ class TestTokenMethods:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_api_tokens(self, real_client):
+    async def test_list_api_tokens(self, real_client, use_cassette):
         """
         Test listing all API tokens for the account.
 
@@ -48,7 +46,7 @@ class TestTokenMethods:
         WHEN we request the list of API tokens
         THEN we should receive a list of tokens
         """
-        with my_vcr.use_cassette("test_list_api_tokens"):
+        with use_cassette("test_list_api_tokens"):
             result = await real_client.list_api_tokens()
 
             assert result is not None
@@ -64,7 +62,7 @@ class TestMemberMethods:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_current_member(self, real_client):
+    async def test_get_current_member(self, real_client, use_cassette):
         """
         Test getting the current authenticated member's information.
 
@@ -72,7 +70,7 @@ class TestMemberMethods:
         WHEN we request the current member info
         THEN we should receive member details including email
         """
-        with my_vcr.use_cassette("test_get_current_member"):
+        with use_cassette("test_get_current_member"):
             result = await real_client.get_current_member()
 
             assert result is not None
@@ -81,7 +79,7 @@ class TestMemberMethods:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_members(self, real_client):
+    async def test_list_members(self, real_client, use_cassette):
         """
         Test listing members in the organization.
 
@@ -89,7 +87,7 @@ class TestMemberMethods:
         WHEN we request the list of members
         THEN we should receive a list response with member data
         """
-        with my_vcr.use_cassette("test_list_members"):
+        with use_cassette("test_list_members"):
             result = await real_client.list_members(params={"per_page": 5})
 
             assert result is not None
@@ -98,7 +96,7 @@ class TestMemberMethods:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_member_by_id(self, real_client):
+    async def test_get_member_by_id(self, real_client, use_cassette):
         """
         Test getting a specific member by ID.
 
@@ -106,7 +104,7 @@ class TestMemberMethods:
         WHEN we request the member info
         THEN we should receive the member's details
         """
-        with my_vcr.use_cassette("test_get_member_by_id"):
+        with use_cassette("test_get_member_by_id"):
             # First get the current member to get a valid ID
             current = await real_client.get_current_member()
             member_id = current["id"]

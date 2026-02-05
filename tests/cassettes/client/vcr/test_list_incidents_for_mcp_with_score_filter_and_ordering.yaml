@@ -1,0 +1,559 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=10&ordering=-score&score__ge=50
+  response:
+    body:
+      string: '{"count": 2051, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-score&page=2&page_size=10&score__ge=50",
+        "previous": null, "results": [{"id": 15850682, "account": 8, "criterion":
+        "Generic High Entropy Secret", "date": "2025-03-05T04:48:56Z", "last_trigger_published_at":
+        "2025-03-05T04:48:56Z", "last_triggered_at": "2025-03-05T05:36:18.431191Z",
+        "last_trigger_detected_at": "2025-03-05T05:36:18.431191Z", "hash": "wTNgbH2Ra7jYDRNm9ZdISVj3oE0glL7wdC0rbuHBI/uhxn7hp+KkPCNpyNbtXqJM",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2025-03-09T02:53:29.158442Z",
+        "resolver": 581869, "regression": false, "manual_severity_setter": 581869,
+        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
+        "ignorer_display_name": "none", "ignorer_type": "none", "resolver_display_name":
+        "candidate.playground+3@gitguardian.com", "resolver_type": "user", "manual_severity_setter_display_name":
+        "candidate.playground+3@gitguardian.com", "manual_severity_setter_type": "user",
+        "status": "RESOLVED", "issue_name": "Generic High Entropy Secret", "severity_rule_config":
+        {"id": 6459, "gg_created_at": "2025-02-03T14:13:41.508933Z", "gg_updated_at":
+        "2025-02-03T14:13:41.508935Z", "index": 160, "severity": 20, "rule": {"id":
+        13, "gg_created_at": "2022-11-28T14:53:29.767694Z", "gg_updated_at": "2023-04-17T09:40:21.035058Z",
+        "name": "Secret exposed publicly", "description": "Secret exposed publicly",
+        "json_rule": {"operator": "CONTAINS_ANY", "arg1": {"path": "tag_names", "default":
+        null}, "arg2": {"value": ["PUBLIC"]}}, "is_global": true, "scope": "private",
+        "author": 251340}}, "declarative_secret_status": "revoked", "assignee": 581869,
+        "last_presence_check_at": null, "secret": "[REDACTED]", "severity": 30, "authors":
+        [{"info": "ubuntu@ip-172-31-20-198.us-east-2.compute.internal", "name": "Ubuntu"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 1, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "CalcoastWineries/sample_secrets",
+        "type": "gh_repository", "path": "CalcoastWineries/sample_secrets", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 100, "displayed_occurrence": {"id": 179679160,
+        "issue": 15850682, "account": 8, "kind": "RLTM", "element": "5bb5717166769bf0a547bb09395dbcf788d294c5",
+        "element_type": "GIT_COMMIT", "author_name": "Ubuntu", "author_info": "ubuntu@ip-172-31-20-198.us-east-2.compute.internal",
+        "value": null, "value_hash": "Kr0PRWHU5nDuA/ALmam70wq51Ks+bGs1bbNG2vwd8REY8HYWuwoZDbwNPekK1/jB",
+        "published_at": "2025-03-05T04:48:56Z", "date": "2025-03-05T04:48:56Z", "detected_at":
+        "2025-03-05T05:36:15.856218Z", "is_vcs_type": true, "last_detected_at": "2025-03-05T04:48:56Z",
+        "last_seen_at": "2025-03-05T04:48:56Z", "data": {}, "url": "https://github.com/CalcoastWineries/sample_secrets/commit/5bb5717166769bf0a547bb09395dbcf788d294c5#diff-c10c74a3a17e27b057145a615025bd530ccd0728ea8285a6d3ea53a842ec7b39R75",
+        "source": {"id": 18467902, "url": "https://github.com/CalcoastWineries/sample_secrets",
+        "type": "gh_repository", "display_name": "CalcoastWineries/sample_secrets",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2025-03-10T10:13:16.613218Z", "default_branch": "main"}, "regression":
+        false, "content": 53831216, "secrets_engine_version": "2.133.0", "matches":
+        [{"name": "apikey", "string_matched": "[REDACTED]", "indice_start": 13073,
+        "indice_end": 14069, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        75, "post_line_end": 75}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": ".azure/msal_token_cache.json", "filename": "msal_token_cache.json",
+        "presence": "visible", "last_presence_seen_at": "2025-03-05T20:54:59.444872Z",
+        "last_presence_check_at": "2025-03-05T20:54:59.444872Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
+        [{"type": "PUBLICLY_EXPOSED", "metadata": null}, {"type": "DEFAULT_BRANCH",
+        "metadata": null}]}, "has_dropped_occurrences": false, "tags": ["DEFAULT_BRANCH",
+        "PUBLICLY_EXPOSED", "PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 1}, {"id": 19393623, "account": 8, "criterion": "1Password
+        Service Account Token", "date": "2025-06-20T21:38:41.888719Z", "last_trigger_published_at":
+        "2025-06-20T21:38:41.888719Z", "last_triggered_at": "2025-07-28T14:11:20.200718Z",
+        "last_trigger_detected_at": "2025-07-28T14:11:20.200718Z", "hash": "tbvCJz/mlPqhwCw5sWvMFDJE9je/nSW/NXbAgyM88/hql8CfVTTvfMvzOhUGsHeF",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "1Password Service Account Token",
+        "severity_rule_config": null, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "steven.kluth@gitguardian.com", "name": "Steve Kluth"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "Demo Slack Integration /
+        #general", "type": "slack_channel", "path": "Demo Slack Integration / #general",
+        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 100, "displayed_occurrence":
+        {"id": 201067081, "issue": 19393623, "account": 8, "kind": "HIST", "element":
+        "p1750455521.888719", "element_type": "SLACK_MESSAGE", "author_name": "Steve
+        Kluth", "author_info": "steven.kluth@gitguardian.com", "value": null, "value_hash":
+        "puQd46FABuUmomXCrnoYIzG8tXB8c/wP+LsSMunlgfIknwskGLeOA5w5qu+SkMQ2", "published_at":
+        "2025-06-20T21:38:41.888719Z", "date": "2025-06-20T21:38:41.888719Z", "detected_at":
+        "2025-07-28T14:11:17.041858Z", "is_vcs_type": false, "last_detected_at": "2025-06-20T21:38:41.888719Z",
+        "last_seen_at": "2025-06-20T21:38:41.888719Z", "data": {}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T/p1750455521.888719",
+        "source": {"id": 11270152, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
+        "type": "slack_channel", "display_name": "Demo Slack Integration / #general",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": null, "default_branch": null}, "regression": false, "content":
+        79025034, "secrets_engine_version": "2.143.0", "matches": [{"name": "token",
+        "string_matched": "[REDACTED]", "indice_start": 0, "indice_end": 397, "pre_line_start":
+        null, "pre_line_end": null, "post_line_start": null, "post_line_end": null}],
+        "most_sensitive_match_name": "token", "insights": [], "filepath": null, "filename":
+        null, "presence": "visible", "last_presence_seen_at": "2025-09-02T17:23:28.633584Z",
+        "last_presence_check_at": "2025-09-02T17:23:28.633584Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": null, "full_tags": [{"type":
+        "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["FROM_HISTORICAL_SCAN", "PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": true},
+        "occurrences_count": 1}, {"id": 21460, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-29T13:19:59.005564Z", "last_trigger_published_at": "2020-10-29T13:19:59.005564Z",
+        "last_triggered_at": "2021-02-11T14:23:22.947577Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.947577Z", "hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": true, "ignored_at": "2026-01-26T14:36:19.333114Z",
+        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
+        null, "resolver": null, "regression": false, "manual_severity_setter": 614347,
+        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
+        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "romain.jouhannet@gitguardian.com",
+        "manual_severity_setter_type": "user", "status": "IGNORED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z",
+        "gg_updated_at": "2023-02-07T13:53:07.394210Z", "index": 200, "severity":
+        20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at":
+        "2023-01-26T08:30:27.365959Z", "name": "Cloud providers secrets", "description":
+        "Detector is linked to cloud providers", "json_rule": {"operator": "EQ", "arg1":
+        {"path": "issue.secret.detector.metadata.category", "default": null}, "arg2":
+        {"value": "cloud_provider"}}, "is_global": true, "scope": "private", "author":
+        104371}}, "declarative_secret_status": "invalid", "assignee": 245361, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 30, "authors": [{"info": "lucius-fox-gg@protonmail.com",
+        "name": "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 1, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/public-app-gg-bis-2020-10", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/public-app-gg-bis-2020-10", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 48, "score": 99, "displayed_occurrence": {"id": 78198,
+        "issue": 21460, "account": 8, "kind": "RLTM", "element": "998deb2c88b0be31f72d117ac1238114334445e8",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "1L9CNiJQrSoUY+DgKJLdtjuqHK0OaVUl1VVX1ysCO/lX8FQi+GgD01C2z8H3+skF",
+        "published_at": "2020-10-29T13:19:59.005564Z", "date": "2020-10-29T13:19:59.005564Z",
+        "detected_at": "2020-10-29T13:19:59.005564Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-29T13:19:59.005564Z", "last_seen_at": "2020-10-29T13:19:59.005564Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12349, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2021-01-14T00:19:19.349665Z", "default_branch": null}, "regression":
+        false, "content": 468, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-29T13:19:59.005564Z", "last_presence_check_at":
+        "2021-07-24T15:12:47.621455Z", "first_presence_deleted_at": "2021-07-24T15:12:47.621455Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21464, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-29T04:19:56.388169Z", "last_trigger_published_at": "2020-10-29T04:19:56.388169Z",
+        "last_triggered_at": "2021-02-11T14:23:22.947692Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.947692Z", "hash": "Vk90LgwiOvekJz1ekAbpTtG//qwTheghhQ6DeOBCFVHzghwkL4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2023-11-06T09:02:20.011118Z",
+        "resolver": 491414, "regression": false, "manual_severity_setter": null, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
+        "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
+        {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at":
+        "2023-02-07T13:53:07.394210Z", "index": 200, "severity": 20, "rule": {"id":
+        7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at": "2023-01-26T08:30:27.365959Z",
+        "name": "Cloud providers secrets", "description": "Detector is linked to cloud
+        providers", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "cloud_provider"}}, "is_global": true,
+        "scope": "private", "author": 104371}}, "declarative_secret_status": "revoked",
+        "assignee": 10, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "lucius-fox-gg@protonmail.com", "name": "Lucius
+        Fox"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/public-app-gg-bis-2020-09", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/public-app-gg-bis-2020-09", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 48, "score": 99, "displayed_occurrence": {"id": 78206,
+        "issue": 21464, "account": 8, "kind": "RLTM", "element": "643bdce69ff4517e60c383e1a81d7d74244981a1",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "5lwvD42Y5SrxcOTVkytIeyBCp9rtT6ukEOtUT6LfHX42Psy7pxjjDYOGpRytJCpz",
+        "published_at": "2020-10-29T04:19:56.388169Z", "date": "2020-10-29T04:19:56.388169Z",
+        "detected_at": "2020-10-29T04:19:56.388169Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-29T04:19:56.388169Z", "last_seen_at": "2020-10-29T04:19:56.388169Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-09/commit/643bdce69ff4517e60c383e1a81d7d74244981a1#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12345, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-09",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/public-app-gg-bis-2020-09",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-12-15T00:19:32.297591Z", "default_branch": null}, "regression":
+        false, "content": 476, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-29T04:19:56.388169Z", "last_presence_check_at":
+        "2021-06-02T20:59:20.610413Z", "first_presence_deleted_at": "2021-06-02T20:59:20.610413Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21468, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-26T11:19:37.692890Z", "last_trigger_published_at": "2020-10-26T11:19:37.692890Z",
+        "last_triggered_at": "2021-02-11T14:23:22.947805Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.947805Z", "hash": "Ht2AYBgk3PDhYwqAc7LqGbqcKAMllvnJ4JmP4l/oSLsfa769L4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2021-10-29T11:30:15.067891Z",
+        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
+        "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
+        {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at":
+        "2023-02-07T13:53:07.394210Z", "index": 200, "severity": 20, "rule": {"id":
+        7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at": "2023-01-26T08:30:27.365959Z",
+        "name": "Cloud providers secrets", "description": "Detector is linked to cloud
+        providers", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "cloud_provider"}}, "is_global": true,
+        "scope": "private", "author": 104371}}, "declarative_secret_status": "active",
+        "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com", "name":
+        "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        1, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-app-gg-bis-2020-10", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-app-gg-bis-2020-10", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 99, "displayed_occurrence": {"id": 78214,
+        "issue": 21468, "account": 8, "kind": "RLTM", "element": "3bc35c67a11f7474629e762f2dce57e91c79e64f",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "hG1diU79gB2CHQVjnqOs2/jzPWkypY0MPkfnzVId4etJxn1OKn9nKQTMTumsQ0DJ",
+        "published_at": "2020-10-26T11:19:37.692890Z", "date": "2020-10-26T11:19:37.692890Z",
+        "detected_at": "2020-10-26T11:19:37.692890Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-26T11:19:37.692890Z", "last_seen_at": "2020-10-26T11:19:37.692890Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-10/commit/3bc35c67a11f7474629e762f2dce57e91c79e64f#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12325, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-10",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-app-gg-bis-2020-10",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2021-01-14T00:19:19.859391Z", "default_branch": null}, "regression":
+        false, "content": 484, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-26T11:19:37.692890Z", "last_presence_check_at":
+        "2021-06-18T23:39:09.316482Z", "first_presence_deleted_at": "2021-06-18T23:39:09.316482Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21471, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-25T02:19:49.840699Z", "last_trigger_published_at": "2020-10-25T02:19:49.840699Z",
+        "last_triggered_at": "2021-02-11T14:23:22.947888Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.947888Z", "hash": "6FW4RNZbYeOvBd3nNaZZZ/Y4DuSSLxp9xjYf5nfijvq0aJRkL4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2023-11-06T09:02:20.011118Z",
+        "resolver": 491414, "regression": false, "manual_severity_setter": 9322, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
+        "resolver_type": "user", "manual_severity_setter_display_name": "ramzi.lahoud@gitguardian.com",
+        "manual_severity_setter_type": "user", "status": "RESOLVED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z",
+        "gg_updated_at": "2023-02-07T13:53:07.394210Z", "index": 200, "severity":
+        20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at":
+        "2023-01-26T08:30:27.365959Z", "name": "Cloud providers secrets", "description":
+        "Detector is linked to cloud providers", "json_rule": {"operator": "EQ", "arg1":
+        {"path": "issue.secret.detector.metadata.category", "default": null}, "arg2":
+        {"value": "cloud_provider"}}, "is_global": true, "scope": "private", "author":
+        104371}}, "declarative_secret_status": "revoked", "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com",
+        "name": "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 2, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 42, "score": 99, "displayed_occurrence": {"id": 78220,
+        "issue": 21471, "account": 8, "kind": "RLTM", "element": "0899f9d92a22cafba6d00ca1a56f216997c357d4",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "ut/784B4BzPAarLlCWhL4l5Nr1lqRpIlJuDcUvTqIuoAXbXeWeDKX6I61HmWOtHD",
+        "published_at": "2020-10-25T02:19:49.840699Z", "date": "2020-10-25T02:19:49.840699Z",
+        "detected_at": "2020-10-25T02:19:49.840699Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-25T02:19:49.840699Z", "last_seen_at": "2020-10-25T02:19:49.840699Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09/commit/0899f9d92a22cafba6d00ca1a56f216997c357d4#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12357, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-12-15T00:19:32.600910Z", "default_branch": null}, "regression":
+        false, "content": 490, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-25T02:19:49.840699Z", "last_presence_check_at":
+        "2021-03-17T10:21:11.522892Z", "first_presence_deleted_at": "2021-03-17T10:21:11.522892Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21481, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-18T12:19:38.047282Z", "last_trigger_published_at": "2020-10-18T12:19:38.047282Z",
+        "last_triggered_at": "2021-02-11T14:23:22.948176Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.948176Z", "hash": "aCi7L0fT+cZPk56I9Btc1CVtZNssJ8H0LhtdRItzdl1KzvxPL4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2021-10-29T16:04:55.127144Z",
+        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
+        "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
+        {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at":
+        "2023-02-07T13:53:07.394210Z", "index": 200, "severity": 20, "rule": {"id":
+        7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at": "2023-01-26T08:30:27.365959Z",
+        "name": "Cloud providers secrets", "description": "Detector is linked to cloud
+        providers", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "cloud_provider"}}, "is_global": true,
+        "scope": "private", "author": 104371}}, "declarative_secret_status": "revoked",
+        "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com", "name":
+        "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-gg-bis-2020-08", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-gg-bis-2020-08", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 64, "score": 99, "displayed_occurrence": {"id": 78239,
+        "issue": 21481, "account": 8, "kind": "RLTM", "element": "6877bb0b4fca9e7f125c027fb3c2254be9cb35b6",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "U3EYGTDUfl1mGIc+8BYoYEAqXHn8UtjhIVmlMZzpGdk451drrHgmRJdpiGpROYFv",
+        "published_at": "2020-10-18T12:19:38.047282Z", "date": "2020-10-18T12:19:38.047282Z",
+        "detected_at": "2020-10-18T12:19:38.047282Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-18T12:19:38.047282Z", "last_seen_at": "2020-10-18T12:19:38.047282Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-08/commit/6877bb0b4fca9e7f125c027fb3c2254be9cb35b6#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12275, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-08",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-gg-bis-2020-08",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-11-14T00:19:21.111601Z", "default_branch": null}, "regression":
+        false, "content": 509, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-18T12:19:38.047282Z", "last_presence_check_at":
+        "2021-07-12T06:35:52.297763Z", "first_presence_deleted_at": "2021-07-12T06:35:52.297763Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21483, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-16T23:19:38.924991Z", "last_trigger_published_at": "2020-10-16T23:19:38.924991Z",
+        "last_triggered_at": "2021-02-11T14:23:22.948203Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.948203Z", "hash": "B0E6crZJCVBow2yPeSnJTAL6Gfs0OPt7FnIY5XogCicHKGSaL4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:06:08.295495Z",
+        "resolver": null, "regression": false, "manual_severity_setter": 9322, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
+        "unknown", "manual_severity_setter_display_name": "ramzi.lahoud@gitguardian.com",
+        "manual_severity_setter_type": "user", "status": "RESOLVED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z",
+        "gg_updated_at": "2023-02-07T13:53:07.394210Z", "index": 200, "severity":
+        20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at":
+        "2023-01-26T08:30:27.365959Z", "name": "Cloud providers secrets", "description":
+        "Detector is linked to cloud providers", "json_rule": {"operator": "EQ", "arg1":
+        {"path": "issue.secret.detector.metadata.category", "default": null}, "arg2":
+        {"value": "cloud_provider"}}, "is_global": true, "scope": "private", "author":
+        104371}}, "declarative_secret_status": "revoked", "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com",
+        "name": "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 2, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 25, "score": 99, "displayed_occurrence": {"id": 78242,
+        "issue": 21483, "account": 8, "kind": "RLTM", "element": "21dfe9873dee987ce65df7cece464299ec359ded",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "SVpvvlAm+mSkBreWHt3M0x1lYBT3+d+xuKt2jG4MHghesISKuoP/qcMyEiXAlxlC",
+        "published_at": "2020-10-16T23:19:38.924991Z", "date": "2020-10-16T23:19:38.924991Z",
+        "detected_at": "2020-10-16T23:19:38.924991Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-16T23:19:38.924991Z", "last_seen_at": "2020-10-16T23:19:38.924991Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09/commit/21dfe9873dee987ce65df7cece464299ec359ded#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12357, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-12-15T00:19:32.600910Z", "default_branch": null}, "regression":
+        false, "content": 511, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-16T23:19:38.924991Z", "last_presence_check_at":
+        "2021-05-07T20:22:57.204503Z", "first_presence_deleted_at": "2021-05-07T20:22:57.204503Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21496, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-10T01:19:39.990914Z", "last_trigger_published_at": "2020-10-10T01:19:39.990914Z",
+        "last_triggered_at": "2021-02-11T14:23:22.948454Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.948454Z", "hash": "VqlDWipUnHkfhGiSijqczvR/JWp1lr1/I+Ra3GXk2MMUQUk6L4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z",
+        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
+        "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
+        {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at":
+        "2023-02-07T13:53:07.394210Z", "index": 200, "severity": 20, "rule": {"id":
+        7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at": "2023-01-26T08:30:27.365959Z",
+        "name": "Cloud providers secrets", "description": "Detector is linked to cloud
+        providers", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "cloud_provider"}}, "is_global": true,
+        "scope": "private", "author": 104371}}, "declarative_secret_status": "revoked",
+        "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com", "name":
+        "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-app-gg-bis-2020-09", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 1, "score": 99, "displayed_occurrence": {"id": 78265,
+        "issue": 21496, "account": 8, "kind": "RLTM", "element": "503679d2088a4ad0ac8da4f7fa80f2d9dc8b53cb",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "RaQzNWSHPE9wz4Q3ll9+QP43F7uaBELZtgsEuKU1K8k4T1TAIgmRXj0sSXd5i6Rh",
+        "published_at": "2020-10-10T01:19:39.990914Z", "date": "2020-10-10T01:19:39.990914Z",
+        "detected_at": "2020-10-10T01:19:39.990914Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-10T01:19:39.990914Z", "last_seen_at": "2020-10-10T01:19:39.990914Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09/commit/503679d2088a4ad0ac8da4f7fa80f2d9dc8b53cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12357, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-app-gg-bis-2020-09",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-12-15T00:19:32.600910Z", "default_branch": null}, "regression":
+        false, "content": 531, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-10T01:19:39.990914Z", "last_presence_check_at":
+        "2021-07-04T06:13:29.280264Z", "first_presence_deleted_at": "2021-07-04T06:13:29.280264Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}, {"id": 21504, "account": 8, "criterion": "AWS Keys",
+        "date": "2020-10-07T22:19:40.847825Z", "last_trigger_published_at": "2020-10-07T22:19:40.847825Z",
+        "last_triggered_at": "2021-02-11T14:23:22.948647Z", "last_trigger_detected_at":
+        "2021-02-11T14:23:22.948647Z", "hash": "U7n6mHuR3NaG1u4+1vpdfRYtpM1dfgYOaENqIicUX3KVRVy6L4Qc71cZRqNcojMG",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z",
+        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
+        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
+        "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
+        {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at":
+        "2023-02-07T13:53:07.394210Z", "index": 200, "severity": 20, "rule": {"id":
+        7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at": "2023-01-26T08:30:27.365959Z",
+        "name": "Cloud providers secrets", "description": "Detector is linked to cloud
+        providers", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "cloud_provider"}}, "is_global": true,
+        "scope": "private", "author": 104371}}, "declarative_secret_status": "revoked",
+        "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com", "name":
+        "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/private-gg-bis-2020-08", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/private-gg-bis-2020-08", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 1, "score": 99, "displayed_occurrence": {"id": 78280,
+        "issue": 21504, "account": 8, "kind": "RLTM", "element": "e3b9ca510380b3b675cf180fa5115b8ba4d310ed",
+        "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
+        "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "Z0Wch+TvRD6TeD9XDcZKPlnZ3Y3JGuxreeOUwDUPu+2UhbRM53Aj3nPUanUM/HIG",
+        "published_at": "2020-10-07T22:19:40.847825Z", "date": "2020-10-07T22:19:40.847825Z",
+        "detected_at": "2020-10-07T22:19:40.847825Z", "is_vcs_type": true, "last_detected_at":
+        "2020-10-07T22:19:40.847825Z", "last_seen_at": "2020-10-07T22:19:40.847825Z",
+        "data": {}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-08/commit/e3b9ca510380b3b675cf180fa5115b8ba4d310ed#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "source": {"id": 12275, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-08",
+        "type": "gh_repository", "display_name": "wayne-enterprises-gg/private-gg-bis-2020-08",
+        "visibility": "public", "monitored": true, "source_criticality": "unknown",
+        "deleted_at": "2020-11-14T00:19:21.111601Z", "default_branch": null}, "regression":
+        false, "content": 545, "secrets_engine_version": "unknown", "matches": [{"name":
+        "client_id", "string_matched": "[REDACTED]", "indice_start": 92, "indice_end":
+        112, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
+        3}, {"name": "client_secret", "string_matched": "[REDACTED]", "indice_start":
+        128, "indice_end": 168, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        4, "post_line_end": 4}], "most_sensitive_match_name": "client_secret", "insights":
+        [], "filepath": "app.py", "filename": "app.py", "presence": "repository_deleted",
+        "last_presence_seen_at": "2020-10-07T22:19:40.847825Z", "last_presence_check_at":
+        "2021-06-14T01:35:49.012046Z", "first_presence_deleted_at": "2021-06-14T01:35:49.012046Z",
+        "seen_in_default_branch": null, "change_type": "addition", "full_tags": [{"type":
+        "PUBLICLY_EXPOSED", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["PUBLICLY_EXPOSED"], "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 2}]}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '54212'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 05 Feb 2026 08:02:22 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '1363'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,310 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&ordering=-date&status__in=TRIGGERED&severity__in=10%2C20%2C30%2C100&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
+  response:
+    body:
+      string: '{"count": 3906, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-date&page=2&page_size=5&severity__in=10%2C20%2C30%2C100&status__in=TRIGGERED&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked",
+        "previous": null, "results": [{"id": 26805043, "account": 8, "criterion":
+        "MongoDB URI", "date": "2026-02-04T12:40:14Z", "last_trigger_published_at":
+        "2026-02-04T12:40:14Z", "last_triggered_at": "2026-02-04T13:38:51.987022Z",
+        "last_trigger_detected_at": "2026-02-04T13:38:51.987022Z", "hash": "/7fR6f5kCJxcKOBY7aGaXANERrgmNFFGl2msVGfVPMEzhnM4feuh40iUuZt2nZY1",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "MongoDB Credentials", "severity_rule_config":
+        {"id": 7276, "gg_created_at": "2025-03-18T08:57:54.146841Z", "gg_updated_at":
+        "2025-03-18T08:57:54.146844Z", "index": 15, "severity": 20, "rule": {"id":
+        516, "gg_created_at": "2025-03-18T08:57:54.142529Z", "gg_updated_at": "2025-03-18T08:57:54.142532Z",
+        "name": "Specific Database Credentials", "description": "Specific Database
+        Credentials", "json_rule": {"operator": "AND", "args": [{"operator": "EQ",
+        "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
+        "arg2": {"value": "data_storage"}}, {"operator": "EQ", "arg1": {"path": "issue.secret.detector.nature",
+        "default": null}, "arg2": {"value": "specific"}}]}, "is_global": true, "scope":
+        "private", "author": null}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
+        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 49, "displayed_occurrence": {"id": 241287706,
+        "issue": 26805043, "account": 8, "kind": "HIST", "element": "5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8",
+        "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
+        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "I7HWuf4N7z4BUl5YTbmxXGsCjjQ/IlAjXcso7ELZ+5LYJl5p8C+H70xNQGAF2tHA",
+        "published_at": "2026-02-04T12:40:14Z", "date": "2026-02-04T12:40:14Z", "detected_at":
+        "2026-02-04T13:38:46.386256Z", "is_vcs_type": true, "last_detected_at": "2026-02-04T12:40:14Z",
+        "last_seen_at": "2026-02-04T12:40:14Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8#8b00584865b28d12f057cc2064a51a05b33603f1_None_8",
+        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
+        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
+        "main"}, "regression": false, "content": 129708170, "secrets_engine_version":
+        "2.155.4", "matches": [{"name": "connection_uri", "string_matched": "[REDACTED]",
+        "indice_start": 232, "indice_end": 323, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 8, "post_line_end": 8}, {"name": "scheme", "string_matched":
+        "[REDACTED]", "indice_start": 232, "indice_end": 243, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 8, "post_line_end": 8}, {"name":
+        "username", "string_matched": "[REDACTED]", "indice_start": 246, "indice_end":
+        254, "pre_line_start": null, "pre_line_end": null, "post_line_start": 8, "post_line_end":
+        8}, {"name": "password", "string_matched": "[REDACTED]", "indice_start": 255,
+        "indice_end": 267, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        8, "post_line_end": 8}, {"name": "host", "string_matched": "[REDACTED]", "indice_start":
+        268, "indice_end": 288, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        8, "post_line_end": 8}, {"name": "database", "string_matched": "[REDACTED]",
+        "indice_start": 289, "indice_end": 295, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 8, "post_line_end": 8}, {"name": "query", "string_matched":
+        "[REDACTED]", "indice_start": 296, "indice_end": 323, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 8, "post_line_end": 8}], "most_sensitive_match_name":
+        "password", "insights": [], "filepath": "bluethroat.py", "filename": "bluethroat.py",
+        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
+        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
+        [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
+        false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 1}, {"id": 26805049, "account": 8, "criterion": "Generic
+        High Entropy Secret", "date": "2026-02-04T12:40:14Z", "last_trigger_published_at":
+        "2026-02-04T12:40:14Z", "last_triggered_at": "2026-02-04T13:38:51.993879Z",
+        "last_trigger_detected_at": "2026-02-04T13:38:51.993879Z", "hash": "WTaCT+UniPgL/yRBqvY08cAEfxZM20pDa9wMIFDtfg14lIkIp+KkPCNpyNbtXqJM",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "Generic High Entropy Secret",
+        "severity_rule_config": null, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
+        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 52, "displayed_occurrence": {"id": 241287705,
+        "issue": 26805049, "account": 8, "kind": "HIST", "element": "5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8",
+        "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
+        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "GhRrj5e1kcvhEll7h1jzMp+OWqSKSo2NolskBvuPoBtWAGgECsEe4zatEBTLXqE2",
+        "published_at": "2026-02-04T12:40:14Z", "date": "2026-02-04T12:40:14Z", "detected_at":
+        "2026-02-04T13:38:46.386256Z", "is_vcs_type": true, "last_detected_at": "2026-02-04T12:40:14Z",
+        "last_seen_at": "2026-02-04T12:40:14Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8#8b00584865b28d12f057cc2064a51a05b33603f1_None_20",
+        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
+        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
+        "main"}, "regression": false, "content": 129708170, "secrets_engine_version":
+        "2.155.4", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
+        "indice_start": 901, "indice_end": 963, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 20, "post_line_end": 20}], "most_sensitive_match_name":
+        "apikey", "insights": [], "filepath": "bluethroat.py", "filename": "bluethroat.py",
+        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
+        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
+        [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
+        false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 1}, {"id": 26805044, "account": 8, "criterion": "MongoDB
+        URI", "date": "2026-01-26T13:46:06Z", "last_trigger_published_at": "2026-01-26T13:46:06Z",
+        "last_triggered_at": "2026-02-04T13:38:51.988904Z", "last_trigger_detected_at":
+        "2026-02-04T13:38:51.988904Z", "hash": "8qhQemKmiS/Am6ESHIGDwqPZn9s9ntwfojgd4GNyXYj+jIKRfeuh40iUuZt2nZY1",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "MongoDB Credentials", "severity_rule_config":
+        {"id": 7276, "gg_created_at": "2025-03-18T08:57:54.146841Z", "gg_updated_at":
+        "2025-03-18T08:57:54.146844Z", "index": 15, "severity": 20, "rule": {"id":
+        516, "gg_created_at": "2025-03-18T08:57:54.142529Z", "gg_updated_at": "2025-03-18T08:57:54.142532Z",
+        "name": "Specific Database Credentials", "description": "Specific Database
+        Credentials", "json_rule": {"operator": "AND", "args": [{"operator": "EQ",
+        "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
+        "arg2": {"value": "data_storage"}}, {"operator": "EQ", "arg1": {"path": "issue.secret.detector.nature",
+        "default": null}, "arg2": {"value": "specific"}}]}, "is_global": true, "scope":
+        "private", "author": null}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        4, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "RomainJ / demo", "type":
+        "gl_project", "path": "romain/demo", "source_criticality": "unknown"}], "custom_tags":
+        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 1,
+        "score": 49, "displayed_occurrence": {"id": 241287735, "issue": 26805044,
+        "account": 8, "kind": "HIST", "element": "7c8a5a83a8529f3942f648e6a79ae21b08afdb07",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "fmih/YlCd4UrrB/ETqBfjzlVfSG7RBhEUvyvat2FzYNAy8zVUK4iCeYsKrlknGkQ",
+        "published_at": "2026-01-26T13:46:06Z", "date": "2026-01-26T13:46:06Z", "detected_at":
+        "2026-02-04T13:38:46.386256Z", "is_vcs_type": true, "last_detected_at": "2026-01-26T13:46:06Z",
+        "last_seen_at": "2026-01-26T13:46:06Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/7c8a5a83a8529f3942f648e6a79ae21b08afdb07#8b00584865b28d12f057cc2064a51a05b33603f1_8_9",
+        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
+        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
+        "main"}, "regression": false, "content": 129708164, "secrets_engine_version":
+        "2.155.4", "matches": [{"name": "connection_uri", "string_matched": "[REDACTED]",
+        "indice_start": 128, "indice_end": 195, "pre_line_start": 8, "pre_line_end":
+        8, "post_line_start": 9, "post_line_end": 9}, {"name": "scheme", "string_matched":
+        "[REDACTED]", "indice_start": 128, "indice_end": 139, "pre_line_start": 8,
+        "pre_line_end": 8, "post_line_start": 9, "post_line_end": 9}, {"name": "username",
+        "string_matched": "[REDACTED]", "indice_start": 142, "indice_end": 150, "pre_line_start":
+        8, "pre_line_end": 8, "post_line_start": 9, "post_line_end": 9}, {"name":
+        "password", "string_matched": "[REDACTED]", "indice_start": 151, "indice_end":
+        163, "pre_line_start": 8, "pre_line_end": 8, "post_line_start": 9, "post_line_end":
+        9}, {"name": "host", "string_matched": "[REDACTED]", "indice_start": 164,
+        "indice_end": 184, "pre_line_start": 8, "pre_line_end": 8, "post_line_start":
+        9, "post_line_end": 9}, {"name": "database", "string_matched": "[REDACTED]",
+        "indice_start": 185, "indice_end": 191, "pre_line_start": 8, "pre_line_end":
+        8, "post_line_start": 9, "post_line_end": 9}, {"name": "query", "string_matched":
+        "[REDACTED]", "indice_start": 192, "indice_end": 195, "pre_line_start": 8,
+        "pre_line_end": 8, "post_line_start": 9, "post_line_end": 9}], "most_sensitive_match_name":
+        "password", "insights": [], "filepath": "bluethroat.py", "filename": "bluethroat.py",
+        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
+        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": "context", "full_tags":
+        [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
+        false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 4}, {"id": 26155836, "account": 8, "criterion": "Artifactory
+        Token", "date": "2026-01-21T10:36:57.655878Z", "last_trigger_published_at":
+        "2026-01-21T10:36:57.655878Z", "last_triggered_at": "2026-01-21T10:36:58.397779Z",
+        "last_trigger_detected_at": "2026-01-21T10:36:58.397779Z", "hash": "sb5IGg6qhGHwZ7DbBySx1FRi53wnsGUfGCxJpN/LR7YhaCe/mfERIIoosvzjJs1k",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "Artifactory Token", "severity_rule_config":
+        {"id": 7273, "gg_created_at": "2025-03-18T08:57:54.146813Z", "gg_updated_at":
+        "2025-03-18T08:57:54.146816Z", "index": 12, "severity": 10, "rule": {"id":
+        513, "gg_created_at": "2025-03-18T08:57:54.142453Z", "gg_updated_at": "2025-03-18T08:57:54.142456Z",
+        "name": "Package manager related secret", "description": "The detector relates
+        to a package manager", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "package_registry"}}, "is_global": true,
+        "scope": "private", "author": null}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "gg-tools@gitguardian.com", "name": "gg-tools"}],
+        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "jira-data-center.do.gitguardian.dev
+        / ChangingGCAM", "type": "jira_data_center_project", "path": "jira-data-center.do.gitguardian.dev
+        / ChangingGCAM", "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata":
+        null, "is_vaulted": false, "similar_issue_count": 0, "score": 92, "displayed_occurrence":
+        {"id": 238634588, "issue": 26155836, "account": 8, "kind": "RLTM", "element":
+        "https://jira-data-center.do.gitguardian.dev/browse/GCAM-2?focusedCommentId=11020#comment-11020",
+        "element_type": "JIRA_COMMENT", "author_name": "gg-tools", "author_info":
+        "gg-tools@gitguardian.com", "value": null, "value_hash": "eQvUyYdyG+FGWUNR0idFck7aRQRzU9rBJuNONSFQNBc/68hbESiZedNRnCS6CqCj",
+        "published_at": "2026-01-21T10:36:57.655878Z", "date": "2026-01-21T10:36:57.655878Z",
+        "detected_at": "2026-01-21T10:36:55.769000Z", "is_vcs_type": false, "last_detected_at":
+        "2026-01-21T10:47:47.663607Z", "last_seen_at": "2026-01-21T10:47:47.663607Z",
+        "data": {}, "url": "https://jira-data-center.do.gitguardian.dev/browse/GCAM-2?focusedCommentId=11020#comment-11020",
+        "source": {"id": 24381556, "url": "https://jira-data-center.do.gitguardian.dev/browse/GCAM/",
+        "type": "jira_data_center_project", "display_name": "jira-data-center.do.gitguardian.dev
+        / ChangingGCAM", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 125057751, "secrets_engine_version": "2.155.2", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 925, "indice_end":
+        998, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-01-21T10:47:48.180663Z", "last_presence_check_at": "2026-01-21T10:47:48.180663Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 1}, {"id": 24375193, "account": 8, "criterion":
+        "GitLab Deploy Token", "date": "2026-01-09T08:24:04.959199Z", "last_trigger_published_at":
+        "2026-01-09T08:24:04.959199Z", "last_triggered_at": "2026-01-09T08:24:05.803947Z",
+        "last_trigger_detected_at": "2026-01-09T08:24:05.803947Z", "hash": "Ay4wkmSfILvedY0gTrX1lV+LB9bfTXQfu3WeEVtVe7R0lFB6rGdxdFLGuJmYhmlq",
+        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
+        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
+        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
+        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
+        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
+        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
+        "none", "status": "TRIGGERED", "issue_name": "GitLab Deploy Token", "severity_rule_config":
+        null, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gg-tools@gitguardian.com",
+        "name": "gg-tools"}], "user_permission": 7, "is_publicly_shared": true, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "jira-data-center.do.gitguardian.dev / ChangingGCAM", "type": "jira_data_center_project",
+        "path": "jira-data-center.do.gitguardian.dev / ChangingGCAM", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 87, "displayed_occurrence": {"id": 233884592,
+        "issue": 24375193, "account": 8, "kind": "RLTM", "element": "https://jira-data-center.do.gitguardian.dev/browse/GCAM-2?focusedCommentId=11018#comment-11018",
+        "element_type": "JIRA_COMMENT", "author_name": "gg-tools", "author_info":
+        "gg-tools@gitguardian.com", "value": null, "value_hash": "Jsxx/eXrtk8aiWGfZlTtIZvbOUH7VAac+Nh9uPb+jM9ryTz1xo92W2pxq8dD2ntI",
+        "published_at": "2026-01-09T08:24:04.959199Z", "date": "2026-01-09T08:24:04.959199Z",
+        "detected_at": "2026-01-09T08:24:03.747000Z", "is_vcs_type": false, "last_detected_at":
+        "2026-01-09T08:24:07.864003Z", "last_seen_at": "2026-01-09T08:24:07.864003Z",
+        "data": {}, "url": "https://jira-data-center.do.gitguardian.dev/browse/GCAM-2?focusedCommentId=11018#comment-11018",
+        "source": {"id": 24381556, "url": "https://jira-data-center.do.gitguardian.dev/browse/GCAM/",
+        "type": "jira_data_center_project", "display_name": "jira-data-center.do.gitguardian.dev
+        / ChangingGCAM", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 119270193, "secrets_engine_version": "2.153.1", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 914, "indice_end":
+        939, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-01-09T08:24:08.848118Z", "last_presence_check_at": "2026-01-09T08:24:08.848118Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 1}]}'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '26902'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 05 Feb 2026 08:03:25 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '3010'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

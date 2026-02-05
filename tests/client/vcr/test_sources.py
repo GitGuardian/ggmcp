@@ -10,15 +10,13 @@ These tests cover:
 
 import pytest
 
-from tests.conftest import my_vcr
-
 
 class TestListSources:
     """Tests for listing sources with various filters."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_basic(self, real_client):
+    async def test_list_sources_basic(self, real_client, use_cassette):
         """
         Test basic source listing.
 
@@ -26,7 +24,7 @@ class TestListSources:
         WHEN we request the list of sources
         THEN we should receive a list response with source data
         """
-        with my_vcr.use_cassette("test_list_sources_basic"):
+        with use_cassette("test_list_sources_basic"):
             result = await real_client.list_sources(per_page=5)
 
             assert result is not None
@@ -37,7 +35,7 @@ class TestListSources:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_with_search(self, real_client):
+    async def test_list_sources_with_search(self, real_client, use_cassette):
         """
         Test listing sources with search filter.
 
@@ -45,7 +43,7 @@ class TestListSources:
         WHEN we request sources matching a search term
         THEN we should receive filtered results
         """
-        with my_vcr.use_cassette("test_list_sources_with_search"):
+        with use_cassette("test_list_sources_with_search"):
             result = await real_client.list_sources(search="test", per_page=5)
 
             assert result is not None
@@ -53,7 +51,7 @@ class TestListSources:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_with_visibility_filter(self, real_client):
+    async def test_list_sources_with_visibility_filter(self, real_client, use_cassette):
         """
         Test listing sources filtered by visibility.
 
@@ -61,7 +59,7 @@ class TestListSources:
         WHEN we request sources with specific visibility
         THEN we should receive filtered results
         """
-        with my_vcr.use_cassette("test_list_sources_with_visibility_filter"):
+        with use_cassette("test_list_sources_with_visibility_filter"):
             result = await real_client.list_sources(visibility="private", per_page=5)
 
             assert result is not None
@@ -69,7 +67,7 @@ class TestListSources:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_with_ordering(self, real_client):
+    async def test_list_sources_with_ordering(self, real_client, use_cassette):
         """
         Test listing sources with specific ordering.
 
@@ -77,7 +75,7 @@ class TestListSources:
         WHEN we request sources with ordering
         THEN we should receive ordered results
         """
-        with my_vcr.use_cassette("test_list_sources_with_ordering"):
+        with use_cassette("test_list_sources_with_ordering"):
             result = await real_client.list_sources(ordering="-last_scan_date", per_page=5)
 
             assert result is not None
@@ -85,7 +83,7 @@ class TestListSources:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_monitored_only(self, real_client):
+    async def test_list_sources_monitored_only(self, real_client, use_cassette):
         """
         Test listing only monitored sources.
 
@@ -93,7 +91,7 @@ class TestListSources:
         WHEN we request only monitored sources
         THEN we should receive only monitored sources
         """
-        with my_vcr.use_cassette("test_list_sources_monitored_only"):
+        with use_cassette("test_list_sources_monitored_only"):
             result = await real_client.list_sources(monitored=True, per_page=5)
 
             assert result is not None
@@ -101,7 +99,7 @@ class TestListSources:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_sources_get_all(self, real_client):
+    async def test_list_sources_get_all(self, real_client, use_cassette):
         """
         Test listing sources with get_all=True (paginated fetch with size limit).
 
@@ -109,7 +107,7 @@ class TestListSources:
         WHEN we request sources with get_all=True
         THEN we should receive a PaginatedResult with data and has_more flag
         """
-        with my_vcr.use_cassette("test_list_sources_get_all"):
+        with use_cassette("test_list_sources_get_all"):
             result = await real_client.list_sources(get_all=True, per_page=5)
 
             assert result is not None
@@ -125,7 +123,7 @@ class TestGetSourceByName:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_source_by_name(self, real_client):
+    async def test_get_source_by_name(self, real_client, use_cassette):
         """
         Test getting a source by its name.
 
@@ -133,7 +131,7 @@ class TestGetSourceByName:
         WHEN we search for the source by name
         THEN we should receive the source details
         """
-        with my_vcr.use_cassette("test_get_source_by_name"):
+        with use_cassette("test_get_source_by_name"):
             # First get a source name from the list
             sources = await real_client.list_sources(per_page=1)
             if not sources["data"]:
@@ -149,7 +147,7 @@ class TestGetSourceByName:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_source_by_name_no_match(self, real_client):
+    async def test_get_source_by_name_no_match(self, real_client, use_cassette):
         """
         Test searching for a non-existent source.
 
@@ -157,14 +155,14 @@ class TestGetSourceByName:
         WHEN we search for the source by name
         THEN we should receive None
         """
-        with my_vcr.use_cassette("test_get_source_by_name_no_match"):
+        with use_cassette("test_get_source_by_name_no_match"):
             result = await real_client.get_source_by_name("non-existent-repo-name-12345")
 
             assert result is None
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_source_by_name_return_all_on_no_match(self, real_client):
+    async def test_get_source_by_name_return_all_on_no_match(self, real_client, use_cassette):
         """
         Test searching for a source with return_all_on_no_match=True.
 
@@ -172,7 +170,7 @@ class TestGetSourceByName:
         WHEN we search with return_all_on_no_match=True
         THEN we should receive all matching candidates
         """
-        with my_vcr.use_cassette("test_get_source_by_name_return_all_on_no_match"):
+        with use_cassette("test_get_source_by_name_return_all_on_no_match"):
             # Search for a partial name that might match multiple sources
             result = await real_client.get_source_by_name("test", return_all_on_no_match=True)
 
@@ -185,7 +183,7 @@ class TestSourceIncidents:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_source_incidents(self, real_client):
+    async def test_list_source_incidents(self, real_client, use_cassette):
         """
         Test listing incidents for a specific source.
 
@@ -193,7 +191,7 @@ class TestSourceIncidents:
         WHEN we request incidents for that source
         THEN we should receive a list of incidents
         """
-        with my_vcr.use_cassette("test_list_source_incidents"):
+        with use_cassette("test_list_source_incidents"):
             # First get a source ID
             sources = await real_client.list_sources(per_page=1)
             if not sources["data"]:
@@ -206,7 +204,7 @@ class TestSourceIncidents:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_member_incidents(self, real_client):
+    async def test_list_member_incidents(self, real_client, use_cassette):
         """
         Test listing incidents a member has access to.
 
@@ -214,7 +212,7 @@ class TestSourceIncidents:
         WHEN we request incidents for that member
         THEN we should receive a list of incidents
         """
-        with my_vcr.use_cassette("test_list_member_incidents"):
+        with use_cassette("test_list_member_incidents"):
             # First get the current member ID
             current = await real_client.get_current_member()
             member_id = current["id"]
