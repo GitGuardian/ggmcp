@@ -8,15 +8,13 @@ These tests cover:
 
 import pytest
 
-from tests.conftest import my_vcr
-
 
 class TestListOccurrences:
     """Tests for listing occurrences with various filters."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_basic(self, real_client):
+    async def test_list_occurrences_basic(self, real_client, use_cassette):
         """
         Test basic occurrence listing.
 
@@ -24,7 +22,7 @@ class TestListOccurrences:
         WHEN we request the list of occurrences
         THEN we should receive a list response with occurrence data
         """
-        with my_vcr.use_cassette("test_list_occurrences_basic"):
+        with use_cassette("test_list_occurrences_basic"):
             result = await real_client.list_occurrences(per_page=5)
 
             assert result is not None
@@ -35,7 +33,7 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_with_date_filter(self, real_client):
+    async def test_list_occurrences_with_date_filter(self, real_client, use_cassette):
         """
         Test listing occurrences filtered by date range.
 
@@ -43,7 +41,7 @@ class TestListOccurrences:
         WHEN we request occurrences from a specific date range
         THEN we should receive occurrences within that range
         """
-        with my_vcr.use_cassette("test_list_occurrences_with_date_filter"):
+        with use_cassette("test_list_occurrences_with_date_filter"):
             result = await real_client.list_occurrences(from_date="2024-01-01", to_date="2024-12-31", per_page=5)
 
             assert result is not None
@@ -51,7 +49,7 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_with_presence_filter(self, real_client):
+    async def test_list_occurrences_with_presence_filter(self, real_client, use_cassette):
         """
         Test listing occurrences filtered by presence status.
 
@@ -59,7 +57,7 @@ class TestListOccurrences:
         WHEN we request occurrences with specific presence
         THEN we should receive filtered results
         """
-        with my_vcr.use_cassette("test_list_occurrences_with_presence_filter"):
+        with use_cassette("test_list_occurrences_with_presence_filter"):
             result = await real_client.list_occurrences(presence="present", per_page=5)
 
             assert result is not None
@@ -67,7 +65,7 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_with_sources(self, real_client):
+    async def test_list_occurrences_with_sources(self, real_client, use_cassette):
         """
         Test listing occurrences with source details included.
 
@@ -75,7 +73,7 @@ class TestListOccurrences:
         WHEN we request occurrences with with_sources=True
         THEN we should receive occurrences with source information
         """
-        with my_vcr.use_cassette("test_list_occurrences_with_sources"):
+        with use_cassette("test_list_occurrences_with_sources"):
             result = await real_client.list_occurrences(with_sources=True, per_page=5)
 
             assert result is not None
@@ -83,7 +81,7 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_get_all(self, real_client):
+    async def test_list_occurrences_get_all(self, real_client, use_cassette):
         """
         Test listing occurrences with get_all=True (paginated fetch with size limit).
 
@@ -91,7 +89,7 @@ class TestListOccurrences:
         WHEN we request occurrences with get_all=True
         THEN we should receive a PaginatedResult with data and has_more flag
         """
-        with my_vcr.use_cassette("test_list_occurrences_get_all"):
+        with use_cassette("test_list_occurrences_get_all"):
             result = await real_client.list_occurrences(get_all=True, per_page=5)
 
             assert result is not None
@@ -103,7 +101,7 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_with_member_assignee_id(self, real_client):
+    async def test_list_occurrences_with_member_assignee_id(self, real_client, use_cassette):
         """
         Test listing occurrences filtered by member assignee ID.
 
@@ -112,7 +110,7 @@ class TestListOccurrences:
         THEN we should receive occurrences filtered by that member's ID
         """
         # First get a valid member ID to filter by
-        with my_vcr.use_cassette("test_list_occurrences_with_member_assignee_id"):
+        with use_cassette("test_list_occurrences_with_member_assignee_id"):
             member = await real_client.get_current_member()
             member_id = member["id"]
             result = await real_client.list_occurrences(member_assignee_id=member_id, per_page=5)

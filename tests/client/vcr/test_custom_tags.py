@@ -9,15 +9,13 @@ These tests cover:
 
 import pytest
 
-from tests.conftest import my_vcr
-
 
 class TestCustomTags:
     """Tests for custom tag methods."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_custom_tags(self, real_client):
+    async def test_list_custom_tags(self, real_client, use_cassette):
         """
         Test listing all custom tags.
 
@@ -25,7 +23,7 @@ class TestCustomTags:
         WHEN we request the list of custom tags
         THEN we should receive a list of tags (may be empty)
         """
-        with my_vcr.use_cassette("test_list_custom_tags"):
+        with use_cassette("test_list_custom_tags"):
             result = await real_client.list_custom_tags()
 
             assert result is not None
@@ -35,7 +33,7 @@ class TestCustomTags:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_custom_tag(self, real_client):
+    async def test_get_custom_tag(self, real_client, use_cassette):
         """
         Test getting a specific custom tag by ID.
 
@@ -43,7 +41,7 @@ class TestCustomTags:
         WHEN we request the custom tag details
         THEN we should receive the tag details
         """
-        with my_vcr.use_cassette("test_get_custom_tag"):
+        with use_cassette("test_get_custom_tag"):
             # First get a custom tag ID from the list
             tags = await real_client.list_custom_tags()
 
@@ -70,7 +68,7 @@ class TestAuditLogs:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_audit_logs(self, real_client):
+    async def test_get_audit_logs(self, real_client, use_cassette):
         """
         Test getting audit logs.
 
@@ -78,7 +76,7 @@ class TestAuditLogs:
         WHEN we request the audit logs
         THEN we should receive a list of audit log entries
         """
-        with my_vcr.use_cassette("test_get_audit_logs"):
+        with use_cassette("test_get_audit_logs"):
             result = await real_client.get_audit_logs(limit=10)
 
             assert result is not None
@@ -88,7 +86,7 @@ class TestAuditLogs:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_audit_logs_with_limit(self, real_client):
+    async def test_get_audit_logs_with_limit(self, real_client, use_cassette):
         """
         Test getting audit logs with a specific limit.
 
@@ -96,7 +94,7 @@ class TestAuditLogs:
         WHEN we request audit logs with limit=5
         THEN we should receive at most 5 log entries
         """
-        with my_vcr.use_cassette("test_get_audit_logs_with_limit"):
+        with use_cassette("test_get_audit_logs_with_limit"):
             result = await real_client.get_audit_logs(limit=5)
 
             assert result is not None

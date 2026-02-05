@@ -1,0 +1,93 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/members?per_page=10&ordering=-created_at
+  response:
+    body:
+      string: '[{"id": 1332393, "role": "member", "access_level": "member", "email":
+        "kevin.torres@gitguardian.com", "name": "Kevin TORRES", "created_at": "2026-02-04T12:47:15.570966Z",
+        "last_login": "2026-01-29T18:17:40.772984Z", "active": true}, {"id": 1331114,
+        "role": "member", "access_level": "member", "email": "test.automation@gitguardian.com",
+        "name": "Test Automation", "created_at": "2026-02-03T09:36:17.670987Z", "last_login":
+        "2026-02-03T11:23:45.653129Z", "active": true}, {"id": 1330095, "role": "member",
+        "access_level": "member", "email": "clemence.pierunek@gitguardian.com", "name":
+        "Cl\u00e9mence PIERUNEK", "created_at": "2026-02-02T10:20:53.462285Z", "last_login":
+        null, "active": true}, {"id": 1322458, "role": "member", "access_level": "member",
+        "email": "hugo.guiheneuf@gitguardian.com", "name": "Hugo GUIHENEUF", "created_at":
+        "2026-01-27T11:05:33.281543Z", "last_login": null, "active": true}, {"id":
+        1321803, "role": "manager", "access_level": "manager", "email": "severine.bonnechere@gitguardian.com",
+        "name": "S\u00e9verine Bonnechere", "created_at": "2026-01-26T16:54:53.792482Z",
+        "last_login": "2026-02-04T13:05:53.048620Z", "active": true}, {"id": 1316436,
+        "role": "member", "access_level": "member", "email": "timo.hauswirth@gitguardian.com",
+        "name": "Timo Dominik HAUSWIRTH", "created_at": "2026-01-20T15:20:36.496891Z",
+        "last_login": null, "active": true}, {"id": 1311591, "role": "member", "access_level":
+        "member", "email": "agustin.barrachina@gitguardian.com", "name": "Jos\u00e9
+        Agustin BARRACHINA", "created_at": "2026-01-19T10:27:21.987474Z", "last_login":
+        "2026-02-03T13:38:39.764175Z", "active": true}, {"id": 1311464, "role": "member",
+        "access_level": "member", "email": "clemence.periunek@gitguardian.com", "name":
+        "Cl\u00e9mence PIERUNEK", "created_at": "2026-01-19T07:55:43.669831Z", "last_login":
+        null, "active": false}, {"id": 1309363, "role": "member", "access_level":
+        "member", "email": "bertrand.mathieu@gitguardian.com", "name": "Bertrand MATHIEU",
+        "created_at": "2026-01-16T14:55:22.865271Z", "last_login": null, "active":
+        true}, {"id": 1307485, "role": "member", "access_level": "member", "email":
+        "scott.tomilson@gitguardian.com", "name": "Scott TOMILSON", "created_at":
+        "2026-01-14T13:01:04.353992Z", "last_login": "2026-01-12T15:17:12.338641Z",
+        "active": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '2129'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 05 Feb 2026 08:03:35 GMT
+      link:
+      - <https://api.gitguardian.com/v1/members?cursor=cD0yMDI2LTAxLTE0KzEzJTNBMDElM0EwNC4zNTM5OTIlMkIwMCUzQTAw&ordering=-created_at&per_page=10>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.384.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '40'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.155.4
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

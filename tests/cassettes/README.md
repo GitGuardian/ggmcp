@@ -4,6 +4,21 @@ This directory contains VCR cassettes - recorded HTTP interactions with the GitG
 
 > **Important**: Cassettes are **recorded locally** and committed to the repository. CI replays from these committed cassettes without requiring API credentials. Developers should **periodically re-record cassettes** to keep them in sync with API changes.
 
+## Directory Structure
+
+Cassettes mirror the test file path structure:
+
+```
+tests/cassettes/
+├── tools/vcr/   # Cassettes for tests/tools/vcr/ (MCP tool tests)
+├── client/vcr/  # Cassettes for tests/client/vcr/ (API client tests)
+└── README.md
+```
+
+The cassette directory is automatically determined based on the test file location:
+- `tests/tools/vcr/test_foo.py` → `tests/cassettes/tools/vcr/`
+- `tests/client/vcr/test_bar.py` → `tests/cassettes/client/vcr/`
+
 ## Recording Workflow
 
 ```
@@ -45,57 +60,81 @@ VCR cassettes record real HTTP requests and responses the first time a test runs
 
 3. **Delete existing cassette (if re-recording):**
    ```bash
-   rm tests/cassettes/test_your_test_name.yaml
+   # For tool tests
+   rm tests/cassettes/tools/vcr/test_your_test_name.yaml
+   # For client tests
+   rm tests/cassettes/client/vcr/test_your_test_name.yaml
    ```
 
 4. **Run the test:**
    ```bash
-   ENABLE_LOCAL_OAUTH=false uv run pytest tests/test_vcr_example.py::test_your_test_name -v
+   ENABLE_LOCAL_OAUTH=false uv run pytest tests/tools/vcr/test_your_test.py::test_your_test_name -v
    ```
 
 5. **Verify the cassette was created:**
    ```bash
-   ls -la tests/cassettes/
+   ls -la tests/cassettes/tools/vcr/   # For tool tests
+   ls -la tests/cassettes/client/vcr/  # For client tests
    ```
 
-### Recording All Example Tests
+### Recording All VCR Tests
 
 ```bash
 export GITGUARDIAN_API_KEY="your-token"
-ENABLE_LOCAL_OAUTH=false uv run pytest tests/test_vcr_example.py -v
+make test-vcr-with-env
 ```
 
 ## Writing Tests with Cassettes
 
-### Basic Pattern (Context Manager)
+Use the `use_cassette` fixture which automatically determines the cassette directory based on the test file location:
 
 ```python
 import pytest
-from tests.conftest import my_vcr
+
 
 @pytest.mark.vcr_test  # Disables auto-mocking
 @pytest.mark.asyncio
-async def test_something(real_client):
-    with my_vcr.use_cassette("test_something"):
+async def test_something(real_client, use_cassette):
+    with use_cassette("test_something"):
         result = await real_client.some_method()
         assert result is not None
 ```
 
-### Decorator Pattern
+### For Tool Tests (tests/tools/vcr/)
 
 ```python
+import pytest
+
+from gg_mcp.tools import some_tool
+
+
 @pytest.mark.vcr_test
 @pytest.mark.asyncio
-@my_vcr.use_cassette("test_something")
-async def test_something(real_client):
-    result = await real_client.some_method()
-    assert result is not None
+async def test_some_tool(real_client, use_cassette):
+    with use_cassette("test_some_tool"):
+        result = await some_tool(params)
+        assert result is not None
+```
+
+### For Client Tests (tests/client/vcr/)
+
+```python
+import pytest
+
+
+@pytest.mark.vcr_test
+@pytest.mark.asyncio
+async def test_client_method(real_client, use_cassette):
+    with use_cassette("test_client_method"):
+        result = await real_client.some_method()
+        assert result is not None
 ```
 
 ### Key Points
 
 - **`@pytest.mark.vcr_test`**: Required to disable automatic mocking
 - **`real_client` fixture**: Provides a real GitGuardianClient instance
+- **`use_cassette` fixture**: Provides a context manager that auto-detects the cassette path
 - **Cassette names**: Should match test names for clarity
 
 ## Cassette File Format
@@ -152,12 +191,14 @@ Your API key may be invalid or expired. Generate a new PAT from the GitGuardian 
 ### Tests fail after API changes
 Delete the cassette and re-record locally:
 ```bash
-rm tests/cassettes/test_name.yaml
+# For tool tests
+rm tests/cassettes/tools/vcr/test_name.yaml
+# For client tests
+rm tests/cassettes/client/vcr/test_name.yaml
 make test-vcr-with-env
 ```
 
 ### Re-record all cassettes
 ```bash
-rm tests/cassettes/*.yaml
-make test-vcr-with-env
+make regenerate-cassettes
 ```

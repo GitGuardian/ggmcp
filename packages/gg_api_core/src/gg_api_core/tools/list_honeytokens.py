@@ -17,15 +17,22 @@ class ListHoneytokensParams(BaseModel):
         default=False,
         description="If True, fetch honeytokens created by the current user. Set to False to get all honeytokens in the workspace.",
     )
-    status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
-    search: str | None = Field(default=None, description="Search string to filter results by name or description")
+    status: str | None = Field(default=None, description="Filter by status (active, triggered, or revoked)")
+    search: str | None = Field(
+        default=None,
+        description="Search string to filter results by name or description",
+    )
     ordering: str | None = Field(
-        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+        default=None,
+        description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')",
     )
     show_token: bool = Field(default=False, description="Whether to include token details in the response")
     creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    per_page: int = Field(
+        default=20,
+        description="Number of results per page (default: 20, min: 1, max: 100)",
+    )
     cursor: str | None = Field(default=None, description="Pagination cursor from a previous response")
     get_all: bool = Field(
         default=False,
@@ -38,9 +45,13 @@ class ListHoneytokensResult(BaseModel):
 
     honeytokens: list[dict[str, Any]] = Field(description="List of honeytoken objects")
     next_cursor: str | None = Field(
-        default=None, description="Cursor for fetching the next page (null if no more results)"
+        default=None,
+        description="Cursor for fetching the next page (null if no more results)",
     )
-    has_more: bool = Field(default=False, description="True if more results exist (use next_cursor to fetch)")
+    has_more: bool = Field(
+        default=False,
+        description="True if more results exist (use next_cursor to fetch)",
+    )
 
 
 async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:

@@ -8,15 +8,13 @@ These tests cover:
 
 import pytest
 
-from tests.conftest import my_vcr
-
 
 class TestListHoneytokens:
     """Tests for listing honeytokens with various filters."""
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_honeytokens_basic(self, real_client):
+    async def test_list_honeytokens_basic(self, real_client, use_cassette):
         """
         Test basic honeytoken listing.
 
@@ -24,7 +22,7 @@ class TestListHoneytokens:
         WHEN we request the list of honeytokens
         THEN we should receive a list response with honeytoken data
         """
-        with my_vcr.use_cassette("test_list_honeytokens_basic"):
+        with use_cassette("test_list_honeytokens_basic"):
             result = await real_client.list_honeytokens(per_page=5)
 
             assert result is not None
@@ -35,7 +33,7 @@ class TestListHoneytokens:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_honeytokens_with_search(self, real_client):
+    async def test_list_honeytokens_with_search(self, real_client, use_cassette):
         """
         Test listing honeytokens with search filter.
 
@@ -43,7 +41,7 @@ class TestListHoneytokens:
         WHEN we request honeytokens with a search term
         THEN we should receive filtered results
         """
-        with my_vcr.use_cassette("test_list_honeytokens_with_search"):
+        with use_cassette("test_list_honeytokens_with_search"):
             result = await real_client.list_honeytokens(search="test", per_page=5)
 
             assert result is not None
@@ -51,7 +49,7 @@ class TestListHoneytokens:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_honeytokens_with_ordering(self, real_client):
+    async def test_list_honeytokens_with_ordering(self, real_client, use_cassette):
         """
         Test listing honeytokens with specific ordering.
 
@@ -59,7 +57,7 @@ class TestListHoneytokens:
         WHEN we request honeytokens ordered by -created_at
         THEN we should receive honeytokens in descending creation order
         """
-        with my_vcr.use_cassette("test_list_honeytokens_with_ordering"):
+        with use_cassette("test_list_honeytokens_with_ordering"):
             result = await real_client.list_honeytokens(ordering="-created_at", per_page=5)
 
             assert result is not None
@@ -67,7 +65,7 @@ class TestListHoneytokens:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_honeytokens_show_token(self, real_client):
+    async def test_list_honeytokens_show_token(self, real_client, use_cassette):
         """
         Test listing honeytokens with token details visible.
 
@@ -75,7 +73,7 @@ class TestListHoneytokens:
         WHEN we request honeytokens with show_token=True
         THEN we should receive honeytokens with token values
         """
-        with my_vcr.use_cassette("test_list_honeytokens_show_token"):
+        with use_cassette("test_list_honeytokens_show_token"):
             result = await real_client.list_honeytokens(show_token=True, per_page=5)
 
             assert result is not None
@@ -83,7 +81,7 @@ class TestListHoneytokens:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_honeytokens_get_all(self, real_client):
+    async def test_list_honeytokens_get_all(self, real_client, use_cassette):
         """
         Test listing honeytokens with get_all=True (paginated fetch with size limit).
 
@@ -91,7 +89,7 @@ class TestListHoneytokens:
         WHEN we request honeytokens with get_all=True
         THEN we should receive a PaginatedResult with data and has_more flag
         """
-        with my_vcr.use_cassette("test_list_honeytokens_get_all"):
+        with use_cassette("test_list_honeytokens_get_all"):
             result = await real_client.list_honeytokens(get_all=True, per_page=5)
 
             assert result is not None
@@ -107,7 +105,7 @@ class TestGetHoneytoken:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_honeytoken(self, real_client):
+    async def test_get_honeytoken(self, real_client, use_cassette):
         """
         Test getting a single honeytoken by ID.
 
@@ -115,7 +113,7 @@ class TestGetHoneytoken:
         WHEN we request the honeytoken details
         THEN we should receive detailed honeytoken information
         """
-        with my_vcr.use_cassette("test_get_honeytoken"):
+        with use_cassette("test_get_honeytoken"):
             # First get a honeytoken ID from the list
             honeytokens = await real_client.list_honeytokens(per_page=1)
             if not honeytokens["data"]:
@@ -132,7 +130,7 @@ class TestGetHoneytoken:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_honeytoken_without_token(self, real_client):
+    async def test_get_honeytoken_without_token(self, real_client, use_cassette):
         """
         Test getting a honeytoken without showing the token value.
 
@@ -140,7 +138,7 @@ class TestGetHoneytoken:
         WHEN we request the honeytoken details with show_token=False
         THEN we should receive details without the actual token value
         """
-        with my_vcr.use_cassette("test_get_honeytoken_without_token"):
+        with use_cassette("test_get_honeytoken_without_token"):
             # First get a honeytoken ID from the list
             honeytokens = await real_client.list_honeytokens(per_page=1)
             if not honeytokens["data"]:
