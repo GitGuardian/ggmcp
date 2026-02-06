@@ -1038,19 +1038,27 @@ class GitGuardianClient:
 
         return await self._request_list(endpoint)
 
-    async def get_incident(self, incident_id: str) -> dict[str, Any]:
+    async def get_incident(
+        self,
+        incident_id: int,
+        with_occurrences: int = 20,
+    ) -> dict[str, Any]:
         """Get detailed information about a specific incident.
 
         Args:
             incident_id: ID of the incident to retrieve
+            with_occurrences: Number of occurrences to retrieve (0-100, default: 20)
 
         Returns:
-            Detailed incident data
+            Detailed incident data including occurrences
         """
         logger.info(f"Getting details for incident ID: {incident_id}")
-        return await self._request_get(f"/incidents/secrets/{incident_id}")
+        params: dict[str, Any] = {}
+        if with_occurrences != 20:
+            params["with_occurrences"] = with_occurrences
+        return await self._request_get(f"/incidents/secrets/{incident_id}", params=params)
 
-    async def get_incidents(self, incident_ids: list[str]) -> list[dict[str, Any]]:
+    async def get_incidents(self, incident_ids: list[int]) -> list[dict[str, Any]]:
         """Get detailed information about multiple incidents in a single batch.
 
         This method optimizes API usage by fetching multiple incidents in parallel
@@ -1065,9 +1073,7 @@ class GitGuardianClient:
         logger.info(f"Batch fetching {len(incident_ids)} incidents")
 
         # Use asyncio.gather to fetch incidents in parallel
-        tasks = []
-        for incident_id in incident_ids:
-            tasks.append(self.get_incident(incident_id))
+        tasks = [self.get_incident(incident_id) for incident_id in incident_ids]
 
         # Wait for all requests to complete
         results = await asyncio.gather(*tasks, return_exceptions=True)

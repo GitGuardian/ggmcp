@@ -1,6 +1,7 @@
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
+from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incidents import list_incidents
@@ -113,4 +114,10 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         list_detectors,
         description="List secret detectors available in the GitGuardian detection engine. Returns information about detectors including name, category, type",
         required_scopes=["scan"],
+    )
+
+    mcp.tool(
+        get_incident,
+        description="Retrieve a specific secret incident by its ID with detailed information including occurrences, detector info, assignee details, and custom tags.",
+        required_scopes=["incidents:read"],
     )
