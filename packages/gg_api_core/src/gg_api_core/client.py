@@ -1835,8 +1835,16 @@ class GitGuardianClient:
         """List all users in the account."""
         return await self._request_list("/members", params=params)
 
-    async def get_member(self, member_id):
-        """Get a specific user's information."""
+    async def get_member(self, member_id: int) -> dict[str, Any]:
+        """Get a specific user's information.
+
+        Args:
+            member_id: ID of the member to retrieve
+
+        Returns:
+            Member information including id, name, email, role, access_level, active status
+        """
+        logger.info(f"Getting member details for ID: {member_id}")
         return await self._request_get(f"/members/{member_id}")
 
     async def get_current_member(self):
