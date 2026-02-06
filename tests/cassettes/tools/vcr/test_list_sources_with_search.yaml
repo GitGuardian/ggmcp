@@ -1,0 +1,170 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?search=test&per_page=10
+  response:
+    body:
+      string: '[{"id": 9123882, "type": "github", "full_name": "orga-083643/analytics-test",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352186Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
+        "0.942938", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630536182", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
+        "deleted": false}, {"id": 11363204, "type": "github", "full_name": "amascia-gg/ftn-test-circleci",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        1, "last_scan": {"date": "2025-10-09T16:45:43.354963Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
+        2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
+        {"id": 11677085, "type": "github", "full_name": "peterringball/test", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": false, "visibility": "private", "external_id": "673461264",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
+        "deleted": false}, {"id": 11678252, "type": "github", "full_name": "tuches/Test",
+        "health": "safe", "source_criticality": "low", "default_branch": "master",
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 5, "duration": "0.68205", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "291043633", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/tuches/Test", "deleted": false}, {"id": 11756704,
+        "type": "github", "full_name": "peterringball/test4", "health": "safe", "source_criticality":
+        "low", "default_branch": "main", "default_branch_head": "d7d00895483d9e6fd62acf72594199ee5cabf7c7",
+        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
+        "2025-10-09T16:45:43.353873Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 32, "duration": "3.878778", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "684649378",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test4",
+        "deleted": false}, {"id": 12322614, "type": "slack", "full_name": "Demo Slack
+        Integration / #test-timothe-delion", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.449065Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
+        "0.233054", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "C06D386SZC0", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06D386SZC0",
+        "deleted": false}, {"id": 12470998, "type": "slack", "full_name": "Demo Slack
+        Integration / #test-channel-creation", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.444580Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
+        "0.23533", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "C06EGV15G8Z", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EGV15G8Z",
+        "deleted": false}, {"id": 12482445, "type": "slack", "full_name": "Demo Slack
+        Integration / #test", "health": "safe", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": {"date": "2025-10-09T16:44:19.440496Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 0, "duration": "0.26622", "branches_scanned":
+        0, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "C06EYF11U0G", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EYF11U0G", "deleted":
+        false}, {"id": 12662970, "type": "github", "full_name": "aymericGG/sample_secrets_Codacytest",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        2, "last_scan": {"date": "2025-10-09T16:45:43.354102Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 7, "duration": "2.949598", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "750268193", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/aymericGG/sample_secrets_Codacytest", "deleted":
+        false}, {"id": 12663154, "type": "github", "full_name": "aymericGG/juice-shop-Codacytest",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "master",
+        "default_branch_head": null, "open_incidents_count": 52, "closed_incidents_count":
+        33, "last_scan": {"date": "2026-01-15T16:49:11.671959Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        52, "severity_breakdown": {"critical": 0, "high": 52, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
+        {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
+        "url": "https://github.com/aymericGG/juice-shop-Codacytest", "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '8027'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Fri, 06 Feb 2026 15:19:22 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjY2MzE1NA%3D%3D&per_page=10&search=test>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.386.1
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '470'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.156.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

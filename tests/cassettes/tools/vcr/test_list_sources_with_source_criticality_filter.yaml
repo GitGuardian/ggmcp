@@ -1,0 +1,174 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?source_criticality=unknown&per_page=10
+  response:
+    body:
+      string: '[{"id": 12370, "type": "github", "full_name": "aymericGG/Project-back",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2025-10-09T16:45:43.353058Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.01237", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "253745397",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-back",
+        "deleted": false}, {"id": 9123340, "type": "github", "full_name": "orga-083643/solid-octo",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
+        "1.120819", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630519649", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/solid-octo",
+        "deleted": false}, {"id": 9123465, "type": "github", "full_name": "orga-083643/expert-train",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "1e3f25567a57f788700cbe9b21a05fb2a3dd23f9", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.353647Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 4, "duration":
+        "4.092814", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "630525080", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/expert-train",
+        "deleted": false}, {"id": 9123810, "type": "github", "full_name": "orga-083643/ideal-journey",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
+        "0.866616", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630531940", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/ideal-journey",
+        "deleted": false}, {"id": 9123882, "type": "github", "full_name": "orga-083643/analytics-test",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352186Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
+        "0.942938", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630536182", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
+        "deleted": false}, {"id": 9124147, "type": "github", "full_name": "orga-083643/improved-carnival",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "cdaa5dd8497a52a75702879823adc18141ad88b4", "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.354520Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 4, "duration":
+        "3.881061", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "630548292", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/improved-carnival",
+        "deleted": false}, {"id": 10836673, "type": "github", "full_name": "leakymcgee/secretproject",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": "6fa238be5c8773d3560627df4597c1b0cddc708d", "open_incidents_count":
+        6, "closed_incidents_count": 2, "last_scan": {"date": "2025-10-09T16:45:43.354139Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
+        "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 3, "high": 3, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
+        "deleted": false}, {"id": 11270152, "type": "slack", "full_name": "Demo Slack
+        Integration / #general", "health": "at_risk", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        4, "closed_incidents_count": 6, "last_scan": {"date": "2025-10-09T16:44:19.448855Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
+        "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total":
+        6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
+        "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
+        "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
+        Integration / #random", "health": "safe", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.448890Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
+        "0.215615", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "C0602J433A5", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0602J433A5",
+        "deleted": false}, {"id": 11328061, "type": "slack", "full_name": "Demo Slack
+        Integration / #demo-231009", "health": "at_risk", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        2, "closed_incidents_count": 4, "last_scan": {"date": "2025-10-09T16:44:19.448925Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
+        "0.206472", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "C05VBD2TDST", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
+        "info": 1, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05VBD2TDST",
+        "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '8291'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Fri, 06 Feb 2026 15:05:31 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTMyODA2MQ%3D%3D&per_page=10&source_criticality=unknown>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.386.1
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '16697'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.156.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

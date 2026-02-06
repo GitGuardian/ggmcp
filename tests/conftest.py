@@ -374,6 +374,7 @@ def mock_gitguardian_client(request):
         "gg_api_core.tools.read_custom_tags",
         "gg_api_core.tools.list_users",
         "gg_api_core.tools.list_detectors",
+        "gg_api_core.tools.list_sources",
     ]
 
     with ExitStack() as stack:
