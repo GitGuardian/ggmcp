@@ -375,6 +375,8 @@ def mock_gitguardian_client(request):
         "gg_api_core.tools.list_users",
         "gg_api_core.tools.list_detectors",
         "gg_api_core.tools.list_sources",
+        "gg_api_core.tools.get_incident",
+        "gg_api_core.tools.get_member",
     ]
 
     with ExitStack() as stack:
