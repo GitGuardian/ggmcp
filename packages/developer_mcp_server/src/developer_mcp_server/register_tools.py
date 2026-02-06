@@ -2,6 +2,7 @@ from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_incident import get_incident
+from gg_api_core.tools.get_member import get_member
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incidents import list_incidents
@@ -127,4 +128,10 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         get_incident,
         description="Retrieve a specific secret incident by its ID with detailed information including occurrences, detector info, assignee details, and custom tags.",
         required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        get_member,
+        description="Retrieve a specific member by their ID with information including name, email, role, access level, and activity status.",
+        required_scopes=["members:read"],
     )
