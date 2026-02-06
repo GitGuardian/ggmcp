@@ -2105,3 +2105,45 @@ class GitGuardianClient:
             params.update(custom_filters)
 
         return await self._request_get("/incidents-for-mcp", params=params)
+
+    async def list_detectors(
+        self,
+        search: str | None = None,
+        type: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List secret detectors known by GitGuardian with optional filtering.
+
+        This endpoint returns information about the secret detectors available
+        in the GitGuardian detection engine.
+
+        Args:
+            search: Search string to filter detectors by name
+            type: Filter by detector type (specific, generic, custom)
+            per_page: Number of results per page (default: 20, max: 100)
+            cursor: Pagination cursor from a previous response
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            ListResponse with detector data, cursor, and has_more fields
+        """
+        logger.info("Listing secret detectors")
+
+        params: dict[str, Any] = {}
+        if search:
+            params["search"] = search
+        if type:
+            params["type"] = type
+        if per_page:
+            params["per_page"] = str(per_page)
+        if cursor:
+            params["cursor"] = cursor
+
+        endpoint = "/secret_detectors"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
