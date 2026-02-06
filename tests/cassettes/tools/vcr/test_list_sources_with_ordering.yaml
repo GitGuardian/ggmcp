@@ -1,0 +1,111 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
+  response:
+    body:
+      string: '[{"id": 19962464, "type": "sharepoint_online_pages", "full_name": "GGSim
+        - 37aec209-3b8f-423f-95c0-e859899c0f8a / GGSim - 37aec209-3b8f-423f-95c0-e859899c0f8a
+        (pages)", "health": "safe", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
+        "gitguardianengineering.sharepoint.com,15b47182-5c3b-46b0-b905-ce16b01f11a1,9e71d4c2-2cbd-4c78-ba9f-5f03dd3e852d:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/GGSim-37aec209-3b8f-423f-95c0-e859899c0f8a",
+        "deleted": false}, {"id": 19962432, "type": "sharepoint_online_pages", "full_name":
+        "Test Corentin / Test Corentin (pages)", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,c034d99c-c410-4696-a12b-34150b6dd30a,4fe8b59d-035e-44ad-872f-f58e5eec0944:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/TestCorentin",
+        "deleted": false}, {"id": 23920763, "type": "sharepoint_online_pages", "full_name":
+        "Site 60 files / Site 60 files (pages)", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,bed68303-925c-4dde-bd85-fef9e49abb6b,87de4fb2-3dd0-4d64-8e8c-945e8422d6d3:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/Site60files",
+        "deleted": false}, {"id": 19962495, "type": "sharepoint_online_pages", "full_name":
+        "Public Team / Public Team (pages)", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,cd290f75-87a6-404b-9b6b-14b7db7c8c4e,37dd6d74-561a-4063-af27-0d43ef74682d:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/PublicTeam",
+        "deleted": false}, {"id": 19962483, "type": "sharepoint_online_pages", "full_name":
+        "ODS Team Public Site / ODS Team Public Site (pages)", "health": "safe", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "gitguardianengineering.sharepoint.com,88db6eb7-9fd6-4a93-a991-83d88af0bb12,2473ed83-2de9-4087-837e-bb4efc067605:pages",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/ODSTeamPublicSite",
+        "deleted": false}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '4136'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Fri, 06 Feb 2026 15:05:33 GMT
+      link:
+      - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.386.1
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '995'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.156.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

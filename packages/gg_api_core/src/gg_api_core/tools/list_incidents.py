@@ -288,7 +288,7 @@ class ListIncidentsParams(BaseModel):
     # Source filters
     repository_name: str | None = Field(
         default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Will be resolved to a source ID. Not required if source is provided.",
+        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Will be resolved to a source ID. Not required if source is provided. Prefer using the source_id when possible",
     )
     source_ids: list[int] | None = Field(
         default=None,

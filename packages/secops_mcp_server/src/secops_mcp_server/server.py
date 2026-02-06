@@ -13,10 +13,16 @@ from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_users import list_users
-from gg_api_core.tools.manage_incident import manage_private_incident, update_incident_status
+from gg_api_core.tools.manage_incident import (
+    manage_private_incident,
+    update_incident_status,
+)
 from gg_api_core.tools.read_custom_tags import read_custom_tags
 from gg_api_core.tools.revoke_secret import revoke_secret
-from gg_api_core.tools.write_custom_tags import update_or_create_incident_custom_tags, write_custom_tags
+from gg_api_core.tools.write_custom_tags import (
+    update_or_create_incident_custom_tags,
+    write_custom_tags,
+)
 from pydantic import BaseModel, Field
 
 # Configure logging
@@ -38,20 +44,27 @@ class GenerateHoneytokenParams(BaseModel):
 class ListIncidentsParams(BaseModel):
     """Parameters for listing incidents."""
 
-    severity: str | None = Field(default=None, description="Filter incidents by severity (critical, high, medium, low)")
+    severity: str | None = Field(
+        default=None,
+        description="Filter incidents by severity (critical, high, medium, low)",
+    )
     status: str | None = Field(
-        default=None, description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)"
+        default=None,
+        description="Filter incidents by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)",
     )
     from_date: str | None = Field(
-        default=None, description="Filter incidents created after this date (ISO format: YYYY-MM-DD)"
+        default=None,
+        description="Filter incidents created after this date (ISO format: YYYY-MM-DD)",
     )
     to_date: str | None = Field(
-        default=None, description="Filter incidents created before this date (ISO format: YYYY-MM-DD)"
+        default=None,
+        description="Filter incidents created before this date (ISO format: YYYY-MM-DD)",
     )
     assignee_email: str | None = Field(default=None, description="Filter incidents assigned to this email")
     assignee_id: str | int | None = Field(default=None, description="Filter incidents assigned to this user id")
     validity: str | None = Field(
-        default=None, description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)"
+        default=None,
+        description="Filter incidents by validity (valid, invalid, failed_to_check, no_checker, unknown)",
     )
     ordering: Literal["date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at"] | None = Field(
         default=None,
@@ -62,26 +75,39 @@ class ListIncidentsParams(BaseModel):
         default=False,
         description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
     )
-    mine: bool = Field(default=False, description="If True, fetch incidents assigned to the current user")
+    mine: bool = Field(
+        default=False,
+        description="If True, fetch incidents assigned to the current user",
+    )
 
 
 class ListHoneytokensParams(BaseModel):
     """Parameters for listing honeytokens."""
 
     status: str | None = Field(default=None, description="Filter by status (ACTIVE or REVOKED)")
-    search: str | None = Field(default=None, description="Search string to filter results by name or description")
+    search: str | None = Field(
+        default=None,
+        description="Search string to filter results by name or description",
+    )
     ordering: str | None = Field(
-        default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"
+        default=None,
+        description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')",
     )
     show_token: bool = Field(default=False, description="Whether to include token details in the response")
     creator_id: str | int | None = Field(default=None, description="Filter by creator ID")
     creator_api_token_id: str | int | None = Field(default=None, description="Filter by creator API token ID")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    per_page: int = Field(
+        default=20,
+        description="Number of results per page (default: 20, min: 1, max: 100)",
+    )
     get_all: bool = Field(
         default=False,
         description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
     )
-    mine: bool = Field(default=False, description="If True, fetch honeytokens created by the current user")
+    mine: bool = Field(
+        default=False,
+        description="If True, fetch honeytokens created by the current user",
+    )
 
 
 # ===== End of Pydantic Models =====

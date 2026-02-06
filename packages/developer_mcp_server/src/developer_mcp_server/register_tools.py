@@ -5,6 +5,7 @@ from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
+from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
 from gg_api_core.tools.scan_secret import scan_secrets
@@ -113,4 +114,10 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         list_detectors,
         description="List secret detectors available in the GitGuardian detection engine. Returns information about detectors including name, category, type",
         required_scopes=["scan"],
+    )
+
+    mcp.tool(
+        list_sources,
+        description="List sources (repositories, integrations) known by GitGuardian. Filter by type, health, visibility, criticality, and scan status.",
+        required_scopes=["sources:read"],
     )

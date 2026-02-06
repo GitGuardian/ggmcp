@@ -87,11 +87,11 @@ class ListRepoOccurrencesBaseParams(BaseModel):
 
     repository_name: str | None = Field(
         default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided.",
+        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided. Prefer using the source_id when possible.",
     )
     source_id: str | int | None = Field(
         default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using find_current_source_id. If provided, repository_name is not required.",
+        description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools. If provided, repository_name is not required.",
     )
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(
