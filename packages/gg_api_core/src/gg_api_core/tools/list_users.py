@@ -14,13 +14,17 @@ class ListUsersParams(BaseModel):
     """Parameters for listing workspace members/users."""
 
     cursor: str | None = Field(default=None, description="Pagination cursor for fetching next page of results")
-    per_page: int = Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)")
+    per_page: int = Field(
+        default=20,
+        description="Number of results per page (default: 20, min: 1, max: 100)",
+    )
     role: str | None = Field(
         default=None,
         description="Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead",
     )
     access_level: str | None = Field(
-        default=None, description="Filter members based on their access level (owner, manager, member, restricted)"
+        default=None,
+        description="Filter members based on their access level (owner, manager, member, restricted)",
     )
     active: bool | None = Field(default=None, description="Filter members based on their active status")
     search: str | None = Field(default=None, description="Search members based on their name or email")
@@ -40,7 +44,10 @@ class ListUsersResult(BaseModel):
     members: list[dict[str, Any]] = Field(description="List of workspace member objects")
     total_count: int = Field(description="Total number of members returned")
     next_cursor: str | None = Field(default=None, description="Pagination cursor for next page (if applicable)")
-    has_more: bool = Field(default=False, description="True if more results exist (use next_cursor to fetch)")
+    has_more: bool = Field(
+        default=False,
+        description="True if more results exist (use next_cursor to fetch)",
+    )
 
 
 async def list_users(params: ListUsersParams) -> ListUsersResult:
@@ -98,5 +105,10 @@ async def list_users(params: ListUsersParams) -> ListUsersResult:
     else:
         # Single page request
         result = await client.list_members(params=query_params)
-        logger.debug(f"Found {len(result['data'])} members")
-        return ListUsersResult(members=result["data"], total_count=len(result["data"]), next_cursor=result["cursor"])
+        logger.debug(f"Found {len(result['data'])} members (has_more={result['has_more']})")
+        return ListUsersResult(
+            members=result["data"],
+            total_count=len(result["data"]),
+            next_cursor=result["cursor"],
+            has_more=result["has_more"],
+        )
