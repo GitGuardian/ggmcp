@@ -18,7 +18,11 @@ class ManageIncidentParams(BaseModel):
     )
     ignore_reason: Literal["test_credential", "false_positive", "low_risk", "invalid"] | None = Field(
         default=None,
-        description="Reason for ignoring the incident. Only used with 'ignore' action. Options: 'test_credential' (secret is for testing), 'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), 'invalid' (secret is invalid/inactive)",
+        description="Reason for ignoring the incident. Required when action is 'ignore'. Must be explicitly provided by the user. Options: 'test_credential' (secret is for testing), 'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), 'invalid' (secret is invalid/inactive)",
+    )
+    secret_revoked: bool | None = Field(
+        default=None,
+        description="Whether the secret has been revoked/rotated. Required when action is 'resolve'. Must be explicitly provided by the user.",
     )
 
 
@@ -39,6 +43,7 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
             - incident_id: The ID of the incident to manage
             - action: The lifecycle action to perform (unassign, resolve, ignore, or reopen)
             - ignore_reason: Required when action is 'ignore'. One of: test_credential, false_positive, low_risk, invalid
+            - secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
 
     Returns:
         Dictionary containing the updated incident data from the API
@@ -55,9 +60,26 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
             result = await client.unassign_incident(incident_id=str(params.incident_id))
 
         elif params.action == "resolve":
-            result = await client.resolve_incident(incident_id=str(params.incident_id))
+            if params.secret_revoked is None:
+                raise ToolError(
+                    "The 'secret_revoked' parameter is required when resolving an incident. "
+                    "Please ask the user: Was the secret revoked/rotated? "
+                    "Set secret_revoked=true if the secret was revoked, or secret_revoked=false if not."
+                )
+            result = await client.resolve_incident(
+                incident_id=str(params.incident_id),
+                secret_revoked=params.secret_revoked,
+            )
 
         elif params.action == "ignore":
+            if params.ignore_reason is None:
+                raise ToolError(
+                    "The 'ignore_reason' parameter is required when ignoring an incident. "
+                    "Please ask the user why this incident should be ignored. "
+                    "Valid reasons: 'test_credential' (secret is for testing), "
+                    "'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), "
+                    "'invalid' (secret is invalid/inactive)."
+                )
             result = await client.ignore_incident(
                 incident_id=str(params.incident_id), ignore_reason=params.ignore_reason
             )
