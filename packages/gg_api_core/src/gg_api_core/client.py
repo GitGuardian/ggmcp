@@ -1372,17 +1372,19 @@ class GitGuardianClient:
         logger.info(f"Unassigning incident {incident_id}")
         return await self._request_post(f"/incidents/secrets/{incident_id}/unassign")
 
-    async def resolve_incident(self, incident_id: str) -> dict[str, Any]:
+    async def resolve_incident(self, incident_id: str, secret_revoked: bool = True) -> dict[str, Any]:
         """Resolve a secret incident.
 
         Args:
             incident_id: ID of the secret incident
+            secret_revoked: Whether the secret has been revoked/rotated (default: True)
 
         Returns:
             Status of the operation
         """
-        logger.info(f"Resolving incident {incident_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/resolve")
+        logger.info(f"Resolving incident {incident_id} (secret_revoked={secret_revoked})")
+        payload = {"secret_revoked": secret_revoked}
+        return await self._request_post(f"/incidents/secrets/{incident_id}/resolve", json=payload)
 
     async def ignore_incident(self, incident_id: str, ignore_reason: str | None = None) -> dict[str, Any]:
         """Ignore a secret incident.
