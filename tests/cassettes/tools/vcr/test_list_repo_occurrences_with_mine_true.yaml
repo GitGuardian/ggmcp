@@ -80,7 +80,7 @@ interactions:
       User-Agent:
       - GitGuardian-MCP-Server/1.0
     method: GET
-    uri: https://api.gitguardian.com/v1/occurrences/secrets?source_type=github&exclude_tags=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&per_page=10&severity=critical%2Chigh%2Cmedium%2Cunknown&validity=valid%2Cfailed_to_check%2Cno_checker%2Cunknown&status=TRIGGERED%2CASSIGNED%2CRESOLVED&with_sources=false&member_assignee_id=480870
+    uri: https://api.gitguardian.com/v1/occurrences/secrets?exclude_tags=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&per_page=10&severity=critical%2Chigh%2Cmedium%2Cunknown&validity=valid%2Cfailed_to_check%2Cno_checker%2Cunknown&status=TRIGGERED%2CASSIGNED%2CRESOLVED&with_sources=false&member_assignee_id=480870
   response:
     body:
       string: '[{"id": 78199, "incident_id": 21461, "date": "2020-10-29T10:19:39.723768Z",
@@ -170,7 +170,7 @@ interactions:
       date:
       - Thu, 05 Feb 2026 08:03:32 GMT
       link:
-      - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03ODIxOA%3D%3D&exclude_tags=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&member_assignee_id=480870&per_page=10&severity=critical%2Chigh%2Cmedium%2Cunknown&source_type=github&status=TRIGGERED%2CASSIGNED%2CRESOLVED&validity=valid%2Cfailed_to_check%2Cno_checker%2Cunknown&with_sources=false>;
+      - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03ODIxOA%3D%3D&exclude_tags=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&member_assignee_id=480870&per_page=10&severity=critical%2Chigh%2Cmedium%2Cunknown&status=TRIGGERED%2CASSIGNED%2CRESOLVED&validity=valid%2Cfailed_to_check%2Cno_checker%2Cunknown&with_sources=false>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin

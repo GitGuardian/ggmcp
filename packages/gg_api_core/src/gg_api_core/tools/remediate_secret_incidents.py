@@ -8,7 +8,11 @@ from pydantic import BaseModel, Field, model_validator
 from gg_api_core.client import TagNames
 from gg_api_core.utils import get_client
 
-from .list_repo_occurrences import ListRepoOccurrencesError, ListRepoOccurrencesParams, list_repo_occurrences
+from .list_repo_occurrences import (
+    ListRepoOccurrencesError,
+    ListRepoOccurrencesParams,
+    list_repo_occurrences,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,15 +31,14 @@ class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
 class RemediateSecretIncidentsParams(BaseModel):
     """Parameters for remediating secret incidents."""
 
-    repository_name: str | None = Field(
-        default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Prefer using the source_id when possible",
-    )
     source_id: str | int | None = Field(
         default=None,
         description="The source ID of the repository. Pass the current repository source ID if not provided.",
     )
-    get_all: bool = Field(default=True, description="Whether to get all occurrences or just the first page")
+    get_all: bool = Field(
+        default=True,
+        description="Whether to get all occurrences or just the first page",
+    )
     mine: bool = Field(
         default=False,
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
@@ -43,7 +46,8 @@ class RemediateSecretIncidentsParams(BaseModel):
 
     # Behaviour
     git_commands: bool = Field(
-        default=True, description="Whether to include git commands to fix incidents in git history"
+        default=True,
+        description="Whether to include git commands to fix incidents in git history",
     )
     create_env_example: bool = Field(
         default=True,
@@ -61,9 +65,8 @@ class RemediateSecretIncidentsParams(BaseModel):
     def populate_list_repo_occurrences_params(self) -> "RemediateSecretIncidentsParams":
         """Populate list_repo_occurrences_params with repository info from parent if not provided."""
         if self.list_repo_occurrences_params is None:
-            # Create with parent's repository info
+            # Create with parent's source info
             self.list_repo_occurrences_params = ListRepoOccurrencesParamsForRemediate(
-                repository_name=self.repository_name,
                 source_id=self.source_id,
             )
         return self
@@ -102,7 +105,7 @@ async def remediate_secret_incidents(
     Returns:
         RemediateSecretIncidentsResult or RemediateSecretIncidentsError
     """
-    logger.debug(f"Using remediate_secret_incidents for: {params.repository_name}")
+    logger.debug(f"Using remediate_secret_incidents for source_id: {params.source_id}")
 
     try:
         # Use the list_repo_occurrences_params and update with parent-level repository info
@@ -111,7 +114,6 @@ async def remediate_secret_incidents(
 
         occurrences_params = params.list_repo_occurrences_params.model_copy(
             update={
-                "repository_name": params.repository_name or params.list_repo_occurrences_params.repository_name,
                 "source_id": params.source_id or params.list_repo_occurrences_params.source_id,
                 "get_all": params.get_all,
             }
@@ -120,7 +122,8 @@ async def remediate_secret_incidents(
         occurrences_result = await list_repo_occurrences(occurrences_params)
         if isinstance(occurrences_result, ListRepoOccurrencesError):
             return RemediateSecretIncidentsError(
-                error=occurrences_result.error, sub_tools_results={"list_repo_occurrences": occurrences_result}
+                error=occurrences_result.error,
+                sub_tools_results={"list_repo_occurrences": occurrences_result},
             )
 
         occurrences = occurrences_result.occurrences

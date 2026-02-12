@@ -1,7 +1,10 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesError, ListRepoOccurrencesResult
+from gg_api_core.tools.list_repo_occurrences import (
+    ListRepoOccurrencesError,
+    ListRepoOccurrencesResult,
+)
 from gg_api_core.tools.remediate_secret_incidents import (
     ListRepoOccurrencesParamsForRemediate,
     RemediateSecretIncidentsParams,
@@ -13,16 +16,6 @@ from gg_api_core.tools.remediate_secret_incidents import (
 class TestRemediateSecretIncidentsParams:
     """Tests for RemediateSecretIncidentsParams validation."""
 
-    def test_params_with_repository_name(self):
-        """
-        GIVEN: RemediateSecretIncidentsParams with repository_name provided
-        WHEN: Creating the params
-        THEN: Validation should pass
-        """
-        params = RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
-        assert params.repository_name == "GitGuardian/test-repo"
-        assert params.source_id is None
-
     def test_params_with_source_id(self):
         """
         GIVEN: RemediateSecretIncidentsParams with source_id provided
@@ -31,26 +24,14 @@ class TestRemediateSecretIncidentsParams:
         """
         params = RemediateSecretIncidentsParams(source_id="source_123")
         assert params.source_id == "source_123"
-        assert params.repository_name is None
 
-    def test_params_with_both_repository_name_and_source_id(self):
+    def test_params_with_no_source_id(self):
         """
-        GIVEN: RemediateSecretIncidentsParams with both repository_name and source_id provided
-        WHEN: Creating the params
-        THEN: Validation should pass
-        """
-        params = RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", source_id="source_123")
-        assert params.repository_name == "GitGuardian/test-repo"
-        assert params.source_id == "source_123"
-
-    def test_params_with_neither_repository_name_nor_source_id(self):
-        """
-        GIVEN: RemediateSecretIncidentsParams with neither repository_name nor source_id provided
+        GIVEN: RemediateSecretIncidentsParams with no source_id provided
         WHEN: Creating the params
         THEN: Validation should pass and return all occurrences
         """
         params = RemediateSecretIncidentsParams()
-        assert params.repository_name is None
         assert params.source_id is None
         assert params.list_repo_occurrences_params is not None
 
@@ -61,13 +42,11 @@ class TestRemediateSecretIncidentsParams:
         THEN: Nested params should be properly set
         """
         params = RemediateSecretIncidentsParams(
-            repository_name="GitGuardian/test-repo",
-            list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(
-                repository_name="GitGuardian/test-repo", per_page=20
-            ),
+            source_id="source_123",
+            list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(source_id="source_123", per_page=20),
         )
         assert params.list_repo_occurrences_params.per_page == 20
-        assert params.list_repo_occurrences_params.repository_name == "GitGuardian/test-repo"
+        assert params.list_repo_occurrences_params.source_id == "source_123"
 
 
 class TestRemediateSecretIncidents:
@@ -118,9 +97,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
-            )
+            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
 
             # Verify response structure
             assert result.remediation_instructions is not None
@@ -155,9 +132,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
-            )
+            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
 
             # Verify response
             assert result.remediation_instructions is not None
@@ -182,9 +157,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo")
-            )
+            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
 
             # Verify error response
             assert hasattr(result, "error")
@@ -234,7 +207,7 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with mine=False
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", mine=False)
+                RemediateSecretIncidentsParams(source_id="source_123", mine=False)
             )
 
             # Verify all occurrences are included (not filtered by assignee)
@@ -287,7 +260,7 @@ class TestRemediateSecretIncidents:
             # Call the function with git_commands=False
             result = await remediate_secret_incidents(
                 RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo",
+                    source_id="source_123",
                     git_commands=False,
                     mine=False,
                 )
@@ -343,7 +316,7 @@ class TestRemediateSecretIncidents:
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
                 RemediateSecretIncidentsParams(
-                    repository_name="GitGuardian/test-repo",
+                    source_id="source_123",
                     create_env_example=False,
                     mine=False,
                 )
@@ -417,7 +390,7 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(repository_name="GitGuardian/test-repo", mine=False)
+                RemediateSecretIncidentsParams(source_id="source_123", mine=False)
             )
 
             # Verify response
@@ -442,7 +415,6 @@ class TestRemediateSecretIncidentsResultSerialization:
         """
         # Create a nested ListRepoOccurrencesResult
         nested_result = ListRepoOccurrencesResult(
-            repository="GitGuardian/test-repo",
             occurrences_count=2,
             occurrences=[
                 {"id": "occ_1", "filepath": "config.py"},
@@ -472,7 +444,6 @@ class TestRemediateSecretIncidentsResultSerialization:
         # Verify the nested result is fully serialized
         nested_serialized = serialized["sub_tools_results"]["list_repo_occurrences"]
         assert nested_serialized != {}
-        assert nested_serialized["repository"] == "GitGuardian/test-repo"
         assert nested_serialized["occurrences_count"] == 2
         assert len(nested_serialized["occurrences"]) == 2
         assert nested_serialized["occurrences"][0]["id"] == "occ_1"
@@ -490,7 +461,6 @@ class TestRemediateSecretIncidentsResultSerialization:
         import json
 
         nested_result = ListRepoOccurrencesResult(
-            repository="GitGuardian/test-repo",
             occurrences_count=1,
             occurrences=[{"id": "occ_1", "filepath": "secret.py"}],
         )
@@ -508,6 +478,5 @@ class TestRemediateSecretIncidentsResultSerialization:
 
         # Verify nested data is present in JSON
         nested_json = parsed["sub_tools_results"]["list_repo_occurrences"]
-        assert nested_json["repository"] == "GitGuardian/test-repo"
         assert nested_json["occurrences_count"] == 1
         assert nested_json["occurrences"][0]["id"] == "occ_1"
