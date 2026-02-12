@@ -387,20 +387,8 @@ def mock_gitguardian_client(request):
         # Also patch GitGuardianClient constructor to prevent any direct instantiation
         stack.enter_context(patch("gg_api_core.utils.GitGuardianClient", return_value=mock_client))
 
-        # Patch find_current_source_id to avoid real GitHub calls
-        from gg_api_core.tools.find_current_source_id import FindCurrentSourceIdResult
-
-        mock_find_source_result = FindCurrentSourceIdResult(
-            repository_name="GitGuardian/test-repo",
-            source_id="source_123",
-            message="Found source",
-        )
-        stack.enter_context(
-            patch(
-                "gg_api_core.tools.list_incidents.find_current_source_id",
-                new_callable=lambda: AsyncMock(return_value=mock_find_source_result),
-            )
-        )
+        # Note: find_current_source_id is no longer called by list_incidents
+        # (repository_name param was removed), so no patching needed here
 
         # Reset the singleton to None before each test to ensure clean state
         import gg_api_core.utils

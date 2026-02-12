@@ -240,7 +240,7 @@ mcp.tool(
 
 mcp.tool(
     list_incidents,
-    description="List secret incidents with advanced filtering options including detector type, secret category, source criticality, and public exposure. Uses page-based pagination. Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED.",
+    description="List secret incidents with advanced filtering options including detector type, secret category, source criticality, and public exposure. Filter by repository using source_ids. Uses page-based pagination. Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED.",
     required_scopes=["incidents:read"],
 )
 

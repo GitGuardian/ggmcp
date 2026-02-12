@@ -51,9 +51,9 @@ All tools operate within your IDE environment to provide immediate feedback and 
 def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
     mcp.tool(
         remediate_secret_incidents,
-        description="Find and fix secrets in the current repository using exact match locations (file paths, line numbers, character indices). "
-        "This tool leverages the occurrences API to provide precise remediation instructions without needing to search for secrets in files. "
-        "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this repo.",
+        description="List secrets in a given source (identified by source_id) and return exact match locations (file paths, line numbers, character indices). "
+        "along with precise remediation instructions. This tool leverages the occurrences API."
+        "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this source.",
         required_scopes=["incidents:read", "sources:read"],
     )
 
@@ -73,7 +73,7 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
     mcp.tool(
         list_incidents,
         description="List secret incidents with advanced filtering options. "
-        "Filter by repository (via repository_name or source_ids), detector type, severity, status, and more. "
+        "Filter by repository (via source_ids), detector type, severity, status, and more. "
         "With mine=True, this tool only shows incidents assigned to the current user.",
         required_scopes=["incidents:read", "sources:read"],
     )

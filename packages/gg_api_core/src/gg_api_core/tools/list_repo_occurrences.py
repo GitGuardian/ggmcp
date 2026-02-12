@@ -85,13 +85,9 @@ class ListRepoOccurrencesFilters(BaseModel):
 class ListRepoOccurrencesBaseParams(BaseModel):
     """Parameters for listing repository occurrences."""
 
-    repository_name: str | None = Field(
-        default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Pass the current repository name if not provided. Not required if source_id is provided. Prefer using the source_id when possible.",
-    )
     source_id: str | int | None = Field(
         default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools. If provided, repository_name is not required.",
+        description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools.",
     )
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(
@@ -112,7 +108,6 @@ class ListRepoOccurrencesParams(ListRepoOccurrencesFilters, ListRepoOccurrencesB
 class ListRepoOccurrencesResult(BaseModel):
     """Result from listing repository occurrences."""
 
-    repository: str | None = Field(default=None, description="Repository name")
     occurrences_count: int = Field(description="Number of occurrences returned")
     occurrences: list[dict[str, Any]] = Field(default_factory=list, description="List of occurrence objects")
     cursor: str | None = Field(default=None, description="Pagination cursor for next page")
@@ -211,7 +206,7 @@ async def list_repo_occurrences(
 
     Args:
         params: ListRepoOccurrencesParams model containing all filtering options.
-               Optionally filter by repository_name or source_id.
+               Optionally filter by source_id.
 
     Returns:
         ListRepoOccurrencesResult: Pydantic model containing:
@@ -226,7 +221,7 @@ async def list_repo_occurrences(
         ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
     client = await get_client()
-    logger.debug(f"Listing occurrences with repository_name={params.repository_name}, source_id={params.source_id}")
+    logger.debug(f"Listing occurrences with source_id={params.source_id}")
 
     # Filter by assigned member
     member_assignee_id = params.member_assignee_id
@@ -237,47 +232,23 @@ async def list_repo_occurrences(
         member_assignee_id = token_info["member_id"]
 
     try:
-        # Call the list_occurrences method with appropriate filter
-        if params.source_id:
-            # Use source_id directly
-            result = await client.list_occurrences(
-                source_id=str(params.source_id) if params.source_id is not None else None,
-                from_date=params.from_date,
-                to_date=params.to_date,
-                presence=params.presence,
-                tags=params.tags,
-                exclude_tags=params.exclude_tags,
-                per_page=params.per_page,
-                cursor=params.cursor,
-                ordering=params.ordering,
-                get_all=params.get_all,
-                status=params.status,
-                severity=params.severity,
-                validity=params.validity,
-                member_assignee_id=member_assignee_id,
-                with_sources=False,
-            )
-        else:
-            # Use source_name (legacy path)
-            source_name = params.repository_name.strip() if params.repository_name is not None else None
-            result = await client.list_occurrences(
-                source_name=source_name,
-                source_type="github",  # Default to github, could be made configurable
-                from_date=params.from_date,
-                to_date=params.to_date,
-                presence=params.presence,
-                tags=params.tags,
-                exclude_tags=params.exclude_tags,
-                per_page=params.per_page,
-                cursor=params.cursor,
-                ordering=params.ordering,
-                get_all=params.get_all,
-                status=params.status,
-                severity=params.severity,
-                validity=params.validity,
-                member_assignee_id=member_assignee_id,
-                with_sources=False,
-            )
+        result = await client.list_occurrences(
+            source_id=str(params.source_id) if params.source_id is not None else None,
+            from_date=params.from_date,
+            to_date=params.to_date,
+            presence=params.presence,
+            tags=params.tags,
+            exclude_tags=params.exclude_tags,
+            per_page=params.per_page,
+            cursor=params.cursor,
+            ordering=params.ordering,
+            get_all=params.get_all,
+            status=params.status,
+            severity=params.severity,
+            validity=params.validity,
+            member_assignee_id=member_assignee_id,
+            with_sources=False,
+        )
 
         # Extract data from ListResponse or PaginatedResult
         occurrences_data = result["data"]
@@ -286,7 +257,6 @@ async def list_repo_occurrences(
 
         count = len(occurrences_data)
         return ListRepoOccurrencesResult(
-            repository=params.repository_name,
             occurrences_count=count,
             occurrences=occurrences_data,
             cursor=next_cursor,

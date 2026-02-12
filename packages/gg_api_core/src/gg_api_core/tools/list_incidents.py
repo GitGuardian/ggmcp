@@ -5,7 +5,6 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
-from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -97,8 +96,6 @@ def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
         filters["secret_family"] = params.secret_family
     if params.secret_provider:
         filters["secret_provider"] = params.secret_provider
-    if params.repository_name:
-        filters["repository_name"] = params.repository_name
     if params.source_ids:
         filters["source_ids"] = params.source_ids
     if params.source_type:
@@ -286,13 +283,9 @@ class ListIncidentsParams(BaseModel):
     )
 
     # Source filters
-    repository_name: str | None = Field(
-        default=None,
-        description="The full repository name. For example, for https://github.com/GitGuardian/ggmcp.git the full name is GitGuardian/ggmcp. Will be resolved to a source ID. Not required if source is provided. Prefer using the source_id when possible",
-    )
     source_ids: list[int] | None = Field(
         default=None,
-        description="Filter by source ID(s). If repository_name is provided, it will be resolved and added to this list.",
+        description="Filter by source ID(s). Can be obtained using list_source or find_current_source_id tools.",
     )
     source_type: list[str] | None = Field(
         default=None,
@@ -582,14 +575,7 @@ async def list_incidents(
             api_params["secret_provider"] = params.secret_provider
 
         # Source filters
-        # Resolve repository_name to source ID if provided
         source_ids: list[int | str] = list(params.source_ids) if params.source_ids else []
-        if params.repository_name:
-            result = await find_current_source_id(params.repository_name)
-            if hasattr(result, "error"):
-                return ListIncidentsError(error=result.error)
-            if result.source_id is not None:
-                source_ids.append(int(result.source_id) if isinstance(result.source_id, str) else result.source_id)
         if source_ids:
             api_params["source"] = source_ids
         if params.source_type:
