@@ -25,7 +25,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 dependencies = [
-    "fastmcp>=2.0.0",
+    "fastmcp>=2.0.0,<3.0.0",
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
     "gg-api-core",
