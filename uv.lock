@@ -441,12 +441,12 @@ sentry = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=2.0.0" },
+    { name = "fastmcp", specifier = "~=2.13" },
     { name = "gg-api-core", editable = "packages/gg_api_core" },
     { name = "gg-api-core", extras = ["sentry"], marker = "extra == 'sentry'", editable = "packages/gg_api_core" },
-    { name = "httpx", specifier = ">=0.24.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "uvicorn", specifier = ">=0.27.0" },
+    { name = "httpx", specifier = "~=0.28" },
+    { name = "pydantic", specifier = "~=2.12" },
+    { name = "uvicorn", specifier = "~=0.34" },
 ]
 
 [[package]]
@@ -554,12 +554,12 @@ sentry = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=2.0.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "jinja2", specifier = ">=3.1.0" },
-    { name = "pydantic-settings", specifier = ">=2.0.0" },
-    { name = "python-dotenv", specifier = ">=1.0.0" },
-    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = ">=2.0.0" },
+    { name = "fastmcp", specifier = "~=2.13" },
+    { name = "httpx", specifier = "~=0.28" },
+    { name = "jinja2", specifier = "~=3.1" },
+    { name = "pydantic-settings", specifier = "~=2.9" },
+    { name = "python-dotenv", specifier = "~=1.1" },
+    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.43" },
 ]
 
 [[package]]
@@ -587,20 +587,20 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "developer-mcp-server", editable = "packages/developer_mcp_server" },
-    { name = "mcp", specifier = ">=1.23.0" },
+    { name = "mcp", specifier = "~=1.24" },
     { name = "secops-mcp-server", editable = "packages/secops_mcp_server" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "mypy", specifier = ">=1.0.0" },
-    { name = "pytest", specifier = ">=8.0.0" },
-    { name = "pytest-asyncio", specifier = ">=0.24.0" },
-    { name = "pytest-cov", specifier = ">=4.1.0" },
-    { name = "pytest-mock", specifier = ">=3.12.0" },
-    { name = "pyyaml", specifier = ">=6.0.0" },
-    { name = "ruff", specifier = ">=0.8.0" },
-    { name = "vcrpy", specifier = ">=6.0.0" },
+    { name = "mypy", specifier = "~=1.18" },
+    { name = "pytest", specifier = "~=8.4" },
+    { name = "pytest-asyncio", specifier = "~=1.2" },
+    { name = "pytest-cov", specifier = "~=7.0" },
+    { name = "pytest-mock", specifier = "~=3.15" },
+    { name = "pyyaml", specifier = "~=6.0" },
+    { name = "ruff", specifier = "~=0.14" },
+    { name = "vcrpy", specifier = "~=8.0" },
 ]
 
 [[package]]
@@ -1613,13 +1613,13 @@ sentry = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=2.0.0" },
+    { name = "fastmcp", specifier = "~=2.13" },
     { name = "gg-api-core", editable = "packages/gg_api_core" },
     { name = "gg-api-core", extras = ["sentry"], marker = "extra == 'sentry'", editable = "packages/gg_api_core" },
-    { name = "gunicorn", specifier = ">=23.0.0" },
-    { name = "httpx", specifier = ">=0.24.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "uvicorn", specifier = ">=0.27.0" },
+    { name = "gunicorn", specifier = "~=23.0" },
+    { name = "httpx", specifier = "~=0.28" },
+    { name = "pydantic", specifier = "~=2.12" },
+    { name = "uvicorn", specifier = "~=0.34" },
 ]
 
 [[package]]

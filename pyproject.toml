@@ -36,7 +36,7 @@ requires-python = ">=3.10"
 dependencies = [
     "developer-mcp-server",
     "secops-mcp-server",
-    "mcp>=1.23.0",  # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
+    "mcp~=1.24",  # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
 ]
 
 [project.urls]
@@ -44,14 +44,14 @@ Homepage = "https://github.com/GitGuardian/ggmcp"
 
 [dependency-groups]
 dev = [
-    "mypy>=1.0.0",
-    "pytest>=8.0.0",
-    "pytest-asyncio>=0.24.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.12.0",
-    "ruff>=0.8.0",
-    "vcrpy>=6.0.0",
-    "pyyaml>=6.0.0",
+    "mypy~=1.18",
+    "pytest~=8.4",
+    "pytest-asyncio~=1.2",
+    "pytest-cov~=7.0",
+    "pytest-mock~=3.15",
+    "ruff~=0.14",
+    "vcrpy~=8.0",
+    "pyyaml~=6.0",
 ]
 
 [project.scripts]
