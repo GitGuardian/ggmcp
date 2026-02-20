@@ -5,7 +5,7 @@ node = "latest"
 "pipx:pre-commit" = "latest"
 "pipx:ruff" = "latest"
 "pipx:ruff-lsp" = "latest"
-uv = "0.7"
+uv = "0.10.4"
 
 [env]
 _.python.venv = ".venv"
