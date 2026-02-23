@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/gitguardian-ggmcp-badge.png)](https://mseep.ai/app/gitguardian-ggmcp)
+
 # GitGuardian MCP Server
 
 Stay focused on building your product while your AI assistant handles the security heavy lifting with GitGuardian's comprehensive protection.
