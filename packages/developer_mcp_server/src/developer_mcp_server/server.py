@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 # Use our custom GitGuardianFastMCP from the core package
 mcp = get_mcp_server(
     "GitGuardian Developer",
-    log_level="INFO",
     instructions=DEVELOPER_INSTRUCTIONS,
 )
 

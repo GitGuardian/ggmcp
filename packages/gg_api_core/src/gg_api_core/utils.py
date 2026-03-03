@@ -3,8 +3,8 @@ import os
 import re
 from urllib.parse import urljoin as urllib_urljoin
 
+from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
-from mcp.server.fastmcp.exceptions import ValidationError
 
 from .client import GitGuardianClient, acquire_single_tenant_token
 
