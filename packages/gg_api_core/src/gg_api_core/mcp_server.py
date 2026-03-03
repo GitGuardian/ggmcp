@@ -12,7 +12,6 @@ from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
-from mcp.types import Tool as MCPTool
 
 from gg_api_core.client import GitGuardianClient, get_personal_access_token_from_env, is_oauth_enabled
 from gg_api_core.utils import get_client
@@ -185,26 +184,29 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             # Or with function passed directly
             mcp.tool(my_func, required_scopes=["scan"])
         """
-        # Call parent's tool decorator
-        result = super().tool(*args, **kwargs)
+        # In FastMCP v3, @mcp.tool() returns the original function, not a Tool object.
+        # Derive the tool name from the explicit kwarg or from the function itself.
 
-        # Store scopes if this is a tool instance (not a decorator)
-        if hasattr(result, "name") and required_scopes:
-            self._tool_scopes[result.name] = set(required_scopes)
+        if args and callable(args[0]):
+            # Direct call: mcp.tool(fn, required_scopes=...)
+            fn = args[0]
+            name = kwargs.get("name", fn.__name__)
+            result = super().tool(*args, **kwargs)
+            if required_scopes:
+                self._tool_scopes[name] = set(required_scopes)
             return result
-
-        # If it's a decorator, wrap it to track scopes
-        if callable(result):
+        else:
+            # Decorator usage: @mcp.tool(required_scopes=...)
+            parent_decorator = super().tool(*args, **kwargs)
 
             def wrapper(fn):
-                tool = result(fn)
+                name = kwargs.get("name", fn.__name__)
+                result = parent_decorator(fn)
                 if required_scopes:
-                    self._tool_scopes[tool.name] = set(required_scopes)
-                return tool
+                    self._tool_scopes[name] = set(required_scopes)
+                return result
 
             return wrapper
-
-        return result
 
     async def _fetch_token_scopes_from_api(self, client=None) -> set[str]:
         """Fetch token scopes from the GitGuardian API.
@@ -241,14 +243,6 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         scopes = await self._fetch_token_scopes_from_api()
         logger.debug(f"scopes: {scopes}")
         return scopes
-
-    async def list_tools(self) -> list[MCPTool]:
-        """
-        Public method to list tools (for compatibility with tests and external code).
-
-        This calls _list_tools_mcp which applies middleware and converts to MCP format.
-        """
-        return await self._list_tools_mcp()
 
 
 # Common MCP tools for user information and token management

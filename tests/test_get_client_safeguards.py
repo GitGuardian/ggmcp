@@ -4,8 +4,8 @@ import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fastmcp.exceptions import ValidationError
 from gg_api_core.utils import get_client, get_mcp_port_or_none, is_multi_tenant_mode
-from mcp.server.fastmcp.exceptions import ValidationError
 
 
 class TestGetMcpPortOrNone:

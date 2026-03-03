@@ -147,7 +147,6 @@ IMPORTANT:
 # Use our custom GitGuardianFastMCP from the core package
 mcp = get_mcp_server(
     "GitGuardian SecOps",
-    log_level="INFO",
     instructions=SECOPS_INSTRUCTIONS,
 )
 
