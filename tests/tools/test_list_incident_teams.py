@@ -26,12 +26,9 @@ class TestListIncidentTeams:
         mock_client.list_incident_teams.return_value = {
             "data": [
                 {
-                    "id": 3252,
-                    "name": "feature team A",
-                    "description": "Description of my team",
-                    "is_global": False,
-                    "gitguardian_url": "https://dashboard.gitguardian.com/workspace/1/settings/user/teams/1",
-                    "external_provider_id": "123-456-7890",
+                    "team_id": 304856,
+                    "incident_id": 42,
+                    "incident_permission": "full_access",
                 }
             ],
             "cursor": None,
@@ -47,7 +44,7 @@ class TestListIncidentTeams:
 
             assert isinstance(result, ListIncidentTeamsResult)
             assert result.total_count == 1
-            assert result.teams[0]["name"] == "feature team A"
+            assert result.teams[0]["team_id"] == 304856
             assert result.has_more is False
             assert result.next_cursor is None
 
