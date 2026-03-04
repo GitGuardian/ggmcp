@@ -26,14 +26,10 @@ class TestListIncidentMembers:
         mock_client.list_incident_members.return_value = {
             "data": [
                 {
-                    "id": 3252,
-                    "name": "John Smith",
+                    "id": 10,
                     "email": "john.smith@example.org",
-                    "role": "owner",
-                    "access_level": "owner",
-                    "active": True,
-                    "created_at": "2023-06-28T16:40:26.897Z",
-                    "last_login": "2023-06-28T16:40:26.897Z",
+                    "incident_id": 42,
+                    "incident_permission": "full_access",
                 }
             ],
             "cursor": None,
@@ -49,7 +45,7 @@ class TestListIncidentMembers:
 
             assert isinstance(result, ListIncidentMembersResult)
             assert result.total_count == 1
-            assert result.members[0]["name"] == "John Smith"
+            assert result.members[0]["email"] == "john.smith@example.org"
             assert result.has_more is False
             assert result.next_cursor is None
 
