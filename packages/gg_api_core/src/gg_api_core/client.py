@@ -1469,17 +1469,53 @@ class GitGuardianClient:
         logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
         return await self._request_post(f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
 
-    async def list_incident_members(self, incident_id: str) -> dict[str, Any]:
+    async def list_incident_members(
+        self,
+        incident_id: int,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
         """List members having access to a secret incident.
 
         Args:
             incident_id: ID of the secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
 
         Returns:
-            List of members with access to the incident
+            ListResponse with data, cursor, and has_more fields
         """
         logger.info(f"Listing members with access to incident {incident_id}")
-        return await self._request_get(f"/incidents/secrets/{incident_id}/members")
+        endpoint = f"/incidents/secrets/{incident_id}/members"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
+    async def list_incident_teams(
+        self,
+        incident_id: int,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List teams having access to a secret incident.
+
+        Args:
+            incident_id: ID of the secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
+
+        Returns:
+            ListResponse with data, cursor, and has_more fields
+        """
+        logger.info(f"Listing teams with access to incident {incident_id}")
+        endpoint = f"/incidents/secrets/{incident_id}/teams"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
 
     async def get_incident_impacted_perimeter(self, incident_id: str) -> dict[str, Any]:
         """Retrieve the impacted perimeter of a secret incident.
