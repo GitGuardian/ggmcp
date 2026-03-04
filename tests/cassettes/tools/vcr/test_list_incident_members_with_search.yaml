@@ -1,0 +1,87 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/1.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets/21460/members?per_page=10&search=gitguardian
+  response:
+    body:
+      string: '[{"id": 13, "member_id": 13, "role": "manager", "name": "Aymeric Sicard",
+        "email": "aymeric.sicard@gitguardian.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 2508, "member_id": 2508, "role": "manager", "name":
+        "Guillaume Charpiat", "email": "guillaume.charpiat@gitguardian.com", "incident_id":
+        21460, "incident_permission": "full_access"}, {"id": 37699, "member_id": 37699,
+        "role": "manager", "name": "Alexis Larnaud", "email": "alexis.larnaud@gitguardian.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 63809,
+        "member_id": 63809, "role": "manager", "name": "Orian Roturier", "email":
+        "orian.roturier@gitguardian.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 104544, "member_id": 104544, "role": "manager", "name":
+        "Pierre Lalanne", "email": "pierre.lalanne@gitguardian.com", "incident_id":
+        21460, "incident_permission": "full_access"}, {"id": 104916, "member_id":
+        104916, "role": "manager", "name": "wassim hana", "email": "wassim.hana@gitguardian.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 113168,
+        "member_id": 113168, "role": "owner", "name": "Henri Hubert", "email": "henri.hubert@gitguardian.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 136170,
+        "member_id": 136170, "role": "manager", "name": "Eric Fourrier", "email":
+        "eric.fourrier@gitguardian.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 160089, "member_id": 160089, "role": "manager", "name":
+        "Aur\u00e9lien G\u00e2teau", "email": "aurelien.gateau@gitguardian.com", "incident_id":
+        21460, "incident_permission": "full_access"}, {"id": 166199, "member_id":
+        166199, "role": "manager", "name": "Stanislas Cr\u00e9pin", "email": "stanislas.crepin@gitguardian.com",
+        "incident_id": 21460, "incident_permission": "full_access"}]'
+    headers:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '1698'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
+      - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Wed, 04 Mar 2026 11:39:07 GMT
+      link:
+      - <https://api.gitguardian.com/v1/incidents/secrets/21460/members?cursor=cD0xNjYxOTk%3D&per_page=10&search=gitguardian>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.404.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '37'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '10'
+      x-secrets-engine-version:
+      - 2.157.1
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
