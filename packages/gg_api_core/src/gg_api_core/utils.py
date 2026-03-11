@@ -118,7 +118,7 @@ def _get_token_from_request_headers() -> str:
         ValidationError: If headers are missing or invalid
     """
     try:
-        headers = get_http_headers()
+        headers = get_http_headers(include={"authorization"})
     except Exception as e:
         raise ValidationError(
             f"Failed to retrieve HTTP headers in multi-tenant mode. "
@@ -131,7 +131,7 @@ def _get_token_from_request_headers() -> str:
             "Requests must include Authorization header with a valid PAT."
         )
 
-    auth_header = headers.get("authorization") or headers.get("Authorization")
+    auth_header = headers.get("authorization")
     if not auth_header:
         raise ValidationError(
             "Missing Authorization header in multi-tenant mode. "
