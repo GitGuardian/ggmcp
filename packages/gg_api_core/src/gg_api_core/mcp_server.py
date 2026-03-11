@@ -327,11 +327,11 @@ class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
     authentication_mode = AuthenticationMode.AUTHORIZATION_HEADER
 
     def get_personal_access_token(self) -> str:
-        headers = get_http_headers()
+        headers = get_http_headers(include={"authorization"})
         if not headers:
             raise ValidationError("No HTTP headers available - Authorization header required")
 
-        auth_header = headers.get("authorization") or headers.get("Authorization")
+        auth_header = headers.get("authorization")
         if not auth_header:
             raise ValidationError("Missing Authorization header")
 
