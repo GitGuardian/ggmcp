@@ -18,7 +18,7 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&date__le=2025-12-31&date__ge=2024-01-01
   response:
     body:
-      string: '{"count": 6146, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?date__ge=2024-01-01&date__le=2025-12-31&page=2&page_size=5",
+      string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?date__ge=2024-01-01&date__le=2025-12-31&page=2&page_size=5",
         "previous": null, "results": [{"id": 23429983, "account": 8, "criterion":
         "AWS Keys", "date": "2025-12-16T17:22:08Z", "last_trigger_published_at": "2025-12-16T17:22:08Z",
         "last_triggered_at": "2025-12-16T18:22:25.117146Z", "last_trigger_detected_at":
@@ -39,7 +39,7 @@ interactions:
         [{"name": "Alina''s site (document libraries) / Documents", "type": "sharepoint_online_drive",
         "path": "Alina''s site (document libraries) / Documents", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 7, "displayed_occurrence": {"id": 230344889,
+        "similar_issue_count": 0, "score": 9, "displayed_occurrence": {"id": 230344889,
         "issue": 23429983, "account": 8, "kind": "RLTM", "element": "{\"drive_id\":
         \"b!EFtsUNZdNkyikeU9z6xQzkUMGeBD9bdJo5M6BS3bW67zTZ14Z8npSqr01XpQaXIh\", \"parent_reference_path\":
         \"/drives/b!EFtsUNZdNkyikeU9z6xQzkUMGeBD9bdJo5M6BS3bW67zTZ14Z8npSqr01XpQaXIh/root:\",
@@ -76,16 +76,15 @@ interactions:
         "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
         "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
         "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Generic High Entropy Secret",
-        "severity_rule_config": null, "declarative_secret_status": null, "assignee":
-        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
-        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        "none", "status": "TRIGGERED", "issue_name": "Square Token", "severity_rule_config":
+        null, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
+        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
+        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 52, "displayed_occurrence": {"id": 241287721,
+        "similar_issue_count": 0, "score": 29, "displayed_occurrence": {"id": 241287721,
         "issue": 26805045, "account": 8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
         "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "WE9RdxAVX6gbgtYpkWDapCSNR52nN4Dtf6NepeWQWpH1122NxY2lk0p41XlD3KA6",
@@ -100,8 +99,8 @@ interactions:
         "indice_start": 901, "indice_end": 963, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 20, "post_line_end": 20}], "most_sensitive_match_name":
         "apikey", "insights": [], "filepath": "spinetail.py", "filename": "spinetail.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
-        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:33:05.054565Z",
+        "last_presence_check_at": "2026-02-18T22:33:05.054565Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
         [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
         false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
@@ -125,9 +124,9 @@ interactions:
         6, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "RomainJ / demo", "type":
         "gl_project", "path": "romain/demo", "source_criticality": "unknown"}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 3,
-        "score": 0, "displayed_occurrence": {"id": 241287716, "issue": 26805047, "account":
-        8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
+        [], "vault_metadata": [{"source": "hashicorpvault"}], "is_vaulted": true,
+        "similar_issue_count": 3, "score": 0, "displayed_occurrence": {"id": 241287716,
+        "issue": 26805047, "account": 8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
         "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "SJwViF0/DsMYa+t+dBEiZx2csnwTDMqh1ro0cKTbBj5LYGqhjI9qf5LnmIYCvOW2",
         "published_at": "2025-12-14T19:04:50Z", "date": "2025-12-14T19:04:50Z", "detected_at":
@@ -141,8 +140,8 @@ interactions:
         "indice_start": 483, "indice_end": 522, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 12, "post_line_end": 12}], "most_sensitive_match_name":
         "apikey", "insights": [], "filepath": "spinetail.py", "filename": "spinetail.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
-        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:33:05.054565Z",
+        "last_presence_check_at": "2026-02-18T22:33:05.054565Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
         [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
         false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
@@ -158,8 +157,8 @@ interactions:
         "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
         "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "TRIGGERED", "issue_name": "MongoDB Credentials", "severity_rule_config":
-        {"id": 7276, "gg_created_at": "2025-03-18T08:57:54.146841Z", "gg_updated_at":
-        "2025-03-18T08:57:54.146844Z", "index": 15, "severity": 20, "rule": {"id":
+        {"id": 10873, "gg_created_at": "2026-02-12T15:13:37.684368Z", "gg_updated_at":
+        "2026-02-12T15:13:37.684372Z", "index": 160, "severity": 20, "rule": {"id":
         516, "gg_created_at": "2025-03-18T08:57:54.142529Z", "gg_updated_at": "2025-03-18T08:57:54.142532Z",
         "name": "Specific Database Credentials", "description": "Specific Database
         Credentials", "json_rule": {"operator": "AND", "args": [{"operator": "EQ",
@@ -174,7 +173,7 @@ interactions:
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 11, "score": 49, "displayed_occurrence": {"id": 241287710,
+        "similar_issue_count": 11, "score": 50, "displayed_occurrence": {"id": 241287710,
         "issue": 26805048, "account": 8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
         "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "MaZxnaQEbYuJeCHedgQlQjI92lEcfqKmpHQiHzv49fT/ENa8G+Sw9gDmAbwsAhz4",
@@ -202,8 +201,8 @@ interactions:
         "[REDACTED]", "indice_start": 296, "indice_end": 323, "pre_line_start": null,
         "pre_line_end": null, "post_line_start": 8, "post_line_end": 8}], "most_sensitive_match_name":
         "password", "insights": [], "filepath": "spinetail.py", "filename": "spinetail.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-04T13:38:52.180505Z",
-        "last_presence_check_at": "2026-02-04T13:38:52.180505Z", "first_presence_deleted_at":
+        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:33:05.054565Z",
+        "last_presence_check_at": "2026-02-18T22:33:05.054565Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
         [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
         false, "tags": ["FROM_HISTORICAL_SCAN"], "public_exposure": {"source_publicly_visible":
@@ -227,7 +226,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "nriv/agar", "type": "azure_cr_repository",
         "path": "nriv/agar", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        3, "displayed_occurrence": {"id": 229731464, "issue": 23316251, "account":
+        8, "displayed_occurrence": {"id": 229731464, "issue": 23316251, "account":
         8, "kind": "HIST", "element": "{\"repository_name\": \"nriv/agar\", \"file_path\":
         \"main.py\"}", "element_type": "CONTAINER_LAYER", "author_name": "", "author_info":
         "", "value": null, "value_hash": "OsUesR0NJgwb7nf5Kfb6ySEtDSjDPObGt6O9YVAGqq+VsBrAMp3Kne4OXFGvqCq/",
@@ -256,7 +255,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '25363'
+      - '25360'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -264,7 +263,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:17 GMT
+      - Wed, 11 Mar 2026 20:15:03 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -274,15 +273,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.410.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '347'
+      - '147'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

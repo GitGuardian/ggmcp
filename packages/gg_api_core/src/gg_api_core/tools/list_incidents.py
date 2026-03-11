@@ -460,7 +460,6 @@ class ListIncidentsResult(BaseModel):
     """Result from listing incidents."""
 
     incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of incident objects")
-    total_count: int = Field(description="Total number of incidents matching the filters")
     page: int = Field(description="Current page number (last page fetched when get_all=True)")
     page_size: int = Field(description="Number of results per page")
     has_next: bool = Field(default=False, description="True if there are more pages available")
@@ -500,7 +499,6 @@ async def list_incidents(
     Returns:
         ListIncidentsResult: Pydantic model containing:
             - incidents: List of incident objects with detailed information
-            - total_count: Total number of matching incidents
             - page: Current page number
             - page_size: Results per page
             - has_next/has_previous: Pagination indicators
@@ -665,7 +663,6 @@ async def list_incidents(
             current_page = 1
             total_bytes = 0
             has_more = False
-            total_count = 0
 
             while True:
                 response = await client.list_incidents_for_mcp(
@@ -676,7 +673,6 @@ async def list_incidents(
                 )
 
                 page_incidents = response.get("results", [])
-                total_count = response.get("count", 0)
                 has_next_page = response.get("next") is not None
 
                 # Check byte limit before adding results
@@ -696,7 +692,6 @@ async def list_incidents(
 
             return ListIncidentsResult(
                 incidents=all_incidents,
-                total_count=total_count,
                 page=current_page,
                 page_size=params.page_size,
                 has_next=has_more,
@@ -716,13 +711,11 @@ async def list_incidents(
 
             # Parse the response
             incidents_data = response.get("results", [])
-            total_count = response.get("count", len(incidents_data))
             has_next = response.get("next") is not None
             has_previous = response.get("previous") is not None
 
             return ListIncidentsResult(
                 incidents=incidents_data,
-                total_count=total_count,
                 page=params.page,
                 page_size=params.page_size,
                 has_next=has_next,
