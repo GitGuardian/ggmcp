@@ -1,5 +1,6 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Sequence
@@ -67,10 +68,21 @@ class CachedTokenInfoMixin:
                 async with original_lifespan(fastmcp) as original_context:
                     context_result = original_context
 
-            # Cache scopes at startup (single token throughout lifespan)
+            # Cache scopes at startup (single token throughout lifespan).
+            # Use a timeout to avoid blocking MCP server startup indefinitely
+            # (e.g., when an expired token triggers an interactive OAuth re-auth flow).
             try:
-                self._token_scopes = await self._fetch_token_scopes_from_api()  # type: ignore[attr-defined]
+                self._token_scopes = await asyncio.wait_for(
+                    self._fetch_token_scopes_from_api(),  # type: ignore[attr-defined]
+                    timeout=30,
+                )
                 logger.debug(f"Retrieved token scopes: {self._token_scopes}")
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "Timed out fetching token scopes during startup (30s). "
+                    "This may happen when an expired token triggers re-authentication. "
+                    "Tools requiring scopes will not be available until scopes are fetched."
+                )
             except Exception as e:
                 logger.warning(f"Failed to fetch token scopes during startup: {str(e)}")
                 logger.warning("Some tools may not be available if scope detection fails")

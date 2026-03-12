@@ -121,26 +121,35 @@ class FileTokenStorage:
             logger.warning(f"Failed to save token to {self.token_file}: {e}")
 
     def get_token(self, instance_url: str) -> str | None:
-        """Get a token for a specific instance URL if it exists and is not expired."""
+        """Get a token for a specific instance URL if it exists.
+
+        Returns the token even if expired — the API is the source of truth
+        for token validity. This avoids triggering a blocking interactive
+        OAuth flow during MCP server startup when a token has just expired
+        but might still be accepted by the API (grace period) or can be
+        refreshed automatically via the 401 retry handler.
+        """
         tokens = self.load_tokens()
         token_data = tokens.get(instance_url)
 
         if not token_data:
             return None
 
-        # Check if token is expired
+        # Log expiry status for diagnostics, but still return the token
         expires_at = token_data.get("expires_at")
         if expires_at:
-            # Parse ISO format date
             try:
                 expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
                 now = datetime.datetime.now(datetime.timezone.utc)
                 if now >= expiry_date:
-                    logger.info(f"Token for {instance_url} has expired")
-                    return None
+                    logger.warning(
+                        f"Stored token for {instance_url} has expired "
+                        f"(expired {now - expiry_date} ago). "
+                        f"Returning it anyway — the API will validate and "
+                        f"the 401 handler will trigger re-authentication if needed."
+                    )
             except Exception as e:
                 logger.warning(f"Failed to parse expiry date: {e}")
-                # If we can't parse the date, assume it's still valid
 
         access_token = token_data.get("access_token")
         return str(access_token) if access_token else None
@@ -482,16 +491,18 @@ class GitGuardianOAuthClient:
                 logger.debug(f"No saved token found for {self.dashboard_url}")
                 return
 
-            # Check if token is expired
+            # Log expiry status but still load the token — the API validates
             expires_at = token_data.get("expires_at")
             if expires_at:
                 try:
-                    # Parse ISO format date
                     expiry_date = datetime.datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
                     now = datetime.datetime.now(datetime.timezone.utc)
                     if now >= expiry_date:
-                        logger.debug(f"Token for {self.dashboard_url} has expired")
-                        return
+                        logger.warning(
+                            f"Stored token for {self.dashboard_url} has expired "
+                            f"(expired {now - expiry_date} ago). "
+                            f"Loading it anyway for automatic re-authentication."
+                        )
                 except Exception as e:
                     logger.warning(f"Failed to parse expiry date '{expires_at}': {e}")
 
@@ -565,26 +576,26 @@ class GitGuardianOAuthClient:
                 browser_opened = webbrowser.open(authorization_url)
                 if not browser_opened:
                     logger.warning("Could not open browser automatically.")
-                    print("\n\n-------------------------------------------------------------")
-                    print("Please open the following URL in your browser to authenticate:")
-                    print(f"\n{authorization_url}\n")
-                    print("-------------------------------------------------------------\n\n")
+                    logger.info("-------------------------------------------------------------")
+                    logger.info("Please open the following URL in your browser to authenticate:")
+                    logger.info(f"{authorization_url}")
+                    logger.info("-------------------------------------------------------------")
                 else:
                     logger.debug(f"Browser window opened successfully for '{self.token_name}'")
             except Exception as e:
                 logger.exception(f"Error opening browser: {e}")
-                print("\n\n-------------------------------------------------------------")
-                print("Please open the following URL in your browser to authenticate:")
-                print(f"\n{authorization_url}\n")
-                print("-------------------------------------------------------------\n\n")
+                logger.info("-------------------------------------------------------------")
+                logger.info("Please open the following URL in your browser to authenticate:")
+                logger.info(f"{authorization_url}")
+                logger.info("-------------------------------------------------------------")
 
-        # Store relevant information for manual OAuth flow
-        print("\n\n===========================================================")
-        print("                 GITGUARDIAN OAUTH LOGIN                ")
-        print("===========================================================\n")
-        print(f"The server will open a browser window to {server_url} for authentication.")
-        print("You'll need to log in and authorize the application.")
-        print(f"After authorization, you'll be redirected to http://localhost:{callback_server.port}\n")
+        # Log OAuth flow information (using logger to avoid corrupting MCP stdio protocol)
+        logger.info("===========================================================")
+        logger.info("                 GITGUARDIAN OAUTH LOGIN                ")
+        logger.info("===========================================================")
+        logger.info(f"The server will open a browser window to {server_url} for authentication.")
+        logger.info("You'll need to log in and authorize the application.")
+        logger.info(f"After authorization, you'll be redirected to http://localhost:{callback_server.port}")
 
         # Create a simple server directly instead of trying to use OAuthClientProvider
         try:
