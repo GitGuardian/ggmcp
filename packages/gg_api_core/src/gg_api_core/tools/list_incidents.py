@@ -219,7 +219,7 @@ class ListIncidentsParams(BaseModel):
     # Status and assignment filters
     status: list[str] | None = Field(
         default=DEFAULT_STATUSES,
-        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED.",
+        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED. Note that OPENED is not a valid status but means 'TRIGGERED OR ASSIGNED'.",
     )
     mine: bool = Field(
         default=False,
@@ -489,7 +489,8 @@ async def list_incidents(
 
     Features:
     - Page-based pagination
-    - Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED
+    - Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Note that OPENED is not a valid status but means
+     'TRIGGERED OR ASSIGNED'
     - Rich filtering options for detector types, secret categories, and public exposure
     - Returns detailed incident data including custom tags, vault metadata, and similar issue counts
 
