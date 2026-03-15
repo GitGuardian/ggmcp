@@ -80,6 +80,10 @@ class ListResponse(TypedDict):
 # Default limit for paginate_all to prevent context bloat
 DEFAULT_PAGINATION_MAX_BYTES = 20_000
 
+# Hard cap on number of pages fetched during get_all pagination
+# Prevents runaway loops regardless of byte limit effectiveness
+MAX_PAGINATION_PAGES = 10
+
 # Default HTTP timeout in seconds (to handle slow pagination)
 DEFAULT_HTTP_TIMEOUT = 20
 
@@ -773,10 +777,20 @@ class GitGuardianClient:
         cursor: str | None = None
         truncated = False
         has_more = False
+        page_count = 0
 
         logger.debug(f"Starting pagination for endpoint '{endpoint}' with initial params: {params}")
 
         while True:
+            page_count += 1
+            if page_count > MAX_PAGINATION_PAGES:
+                logger.warning(
+                    f"Pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES}) for endpoint '{endpoint}'"
+                )
+                truncated = True
+                has_more = True
+                break
+
             # If we have a cursor, add it to params
             if cursor:
                 params["cursor"] = cursor

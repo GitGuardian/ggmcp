@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
-from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -658,13 +658,18 @@ async def list_incidents(
             api_params["custom_tags"] = params.custom_tags
 
         if params.get_all:
-            # Fetch all pages with byte limit protection
+            # Fetch all pages with byte limit protection and hard page cap.
             all_incidents: list[dict[str, Any]] = []
             current_page = 1
             total_bytes = 0
             has_more = False
 
             while True:
+                if current_page > MAX_PAGINATION_PAGES:
+                    logger.warning(f"get_all pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES})")
+                    has_more = True
+                    break
+
                 response = await client.list_incidents_for_mcp(
                     page=current_page,
                     page_size=params.page_size,
@@ -674,6 +679,10 @@ async def list_incidents(
 
                 page_incidents = response.get("results", [])
                 has_next_page = response.get("next") is not None
+
+                # Empty page means no more matching results
+                if not page_incidents:
+                    break
 
                 # Check byte limit before adding results
                 page_bytes = len(json.dumps(page_incidents))
