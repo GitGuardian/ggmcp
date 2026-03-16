@@ -579,25 +579,30 @@ class GitGuardianClient:
                 if e.response.status_code == 401 and self._oauth_token is not None:
                     logger.warning("Received 401 Unauthorized - token may be invalid or expired")
 
-                    # Check if this is an "Invalid API key" error
-                    try:
-                        error_response = e.response.json()
-                        if error_response.get("detail") == "Invalid API key.":
-                            logger.info("Detected invalid token, attempting to refresh...")
+                    # In single-tenant mode with token refresh enabled,
+                    # attempt to clear the invalid token and acquire a new one.
+                    # In multi-tenant mode (_allow_token_refresh=False), each request
+                    # has its own token from the Authorization header — there is no
+                    # shared storage to clear and no refresh flow to trigger.
+                    if self._allow_token_refresh:
+                        try:
+                            error_response = e.response.json()
+                            if error_response.get("detail") == "Invalid API key.":
+                                logger.info("Detected invalid token, attempting to refresh...")
 
-                            # Clear the invalid token from storage
-                            self.clear_invalid_token_from_storage()
+                                # Clear the invalid token from storage
+                                self.clear_invalid_token_from_storage()
 
-                            # Try to refresh the token and retry (only once)
-                            if retry_count == 0 and await self._refresh_token():
-                                logger.info("Token refreshed, retrying request...")
-                                retry_count += 1
-                                continue
-                            else:
-                                logger.error("Could not refresh token, request will fail")
-                    except (json.JSONDecodeError, AttributeError):
-                        # If we can't parse the error response, continue with normal error handling
-                        pass
+                                # Try to refresh the token and retry (only once)
+                                if retry_count == 0 and await self._refresh_token():
+                                    logger.info("Token refreshed, retrying request...")
+                                    retry_count += 1
+                                    continue
+                                else:
+                                    logger.error("Could not refresh token, request will fail")
+                        except (json.JSONDecodeError, AttributeError):
+                            # If we can't parse the error response, continue with normal error handling
+                            pass
 
                 logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 logger.debug(f"Error response content: {e.response.text}")
