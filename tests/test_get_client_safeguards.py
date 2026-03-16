@@ -85,7 +85,7 @@ class TestGetClientExplicitPAT:
 
         result = await get_client(personal_access_token="explicit-token")
 
-        mock_client_class.assert_called_once_with(personal_access_token="explicit-token")
+        mock_client_class.assert_called_once_with(personal_access_token="explicit-token", user_agent=None)
         assert result == mock_client
 
     @patch("gg_api_core.utils.GitGuardianClient")
@@ -101,7 +101,7 @@ class TestGetClientExplicitPAT:
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
             result = await get_client(personal_access_token="explicit-token")
 
-        mock_client_class.assert_called_once_with(personal_access_token="explicit-token")
+        mock_client_class.assert_called_once_with(personal_access_token="explicit-token", user_agent=None)
         assert result == mock_client
 
 
@@ -137,7 +137,7 @@ class TestGetClientMultiTenantMode:
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
             result = await get_client()
 
-        mock_client_class.assert_called_once_with(personal_access_token="request-token")
+        mock_client_class.assert_called_once_with(personal_access_token="request-token", user_agent=None)
         assert result == mock_client
 
     @patch("gg_api_core.utils.get_http_headers")

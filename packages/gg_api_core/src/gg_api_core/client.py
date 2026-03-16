@@ -4,6 +4,7 @@ import logging
 import os
 import re
 from enum import Enum
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
@@ -242,14 +243,17 @@ class GitGuardianClient:
     before this client is instantiated.
     """
 
-    # Define User-Agent as a class constant
-    USER_AGENT = "GitGuardian-MCP-Server/1.0"
+    try:
+        DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
+    except PackageNotFoundError:
+        DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
 
     def __init__(
         self,
         gitguardian_url: str | None = None,
         personal_access_token: str | None = None,
         allow_token_refresh: bool = False,
+        user_agent: str | None = None,
     ):
         """Initialize the GitGuardian client.
 
@@ -262,12 +266,15 @@ class GitGuardianClient:
             allow_token_refresh: If True, the client can attempt to refresh the
                 token when a 401 error occurs (via env var or OAuth flow).
                 This enables self-healing when tokens expire or become invalid.
+            user_agent: Custom User-Agent string to identify the MCP client.
+                Defaults to DEFAULT_USER_AGENT if not provided.
         """
         logger.debug("Initializing GitGuardian client")
 
         self._init_urls(gitguardian_url)
         self._oauth_token = personal_access_token
         self._allow_token_refresh = allow_token_refresh
+        self._user_agent = user_agent or self.DEFAULT_USER_AGENT
         self._token_info: Any | None = None
 
     def _init_urls(self, gitguardian_url: str | None = None):
@@ -489,7 +496,7 @@ class GitGuardianClient:
         headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
-            "User-Agent": self.USER_AGENT,
+            "User-Agent": self._user_agent,
         }
         logger.debug("Using token for authorization")
 
@@ -719,7 +726,7 @@ class GitGuardianClient:
         headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
-            "User-Agent": self.USER_AGENT,
+            "User-Agent": self._user_agent,
         }
         headers.update(kwargs.pop("headers", {}))
 

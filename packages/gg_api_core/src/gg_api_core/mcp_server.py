@@ -13,7 +13,11 @@ from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
 
-from gg_api_core.client import GitGuardianClient, get_personal_access_token_from_env, is_oauth_enabled
+from gg_api_core.client import (
+    GitGuardianClient,
+    get_personal_access_token_from_env,
+    is_oauth_enabled,
+)
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -156,8 +160,23 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         """Return the token info dictionary."""
         pass
 
+    def _get_caller_user_agent(self) -> str | None:
+        """Try to extract User-Agent from the incoming MCP request headers.
+
+        Returns None if not available (e.g. stdio transport).
+        """
+        try:
+            headers = get_http_headers(include={"user-agent"})
+            return headers.get("user-agent") if headers else None
+        except Exception:
+            logger.exception("Error when trying to extract User-Agent from headers")
+            return None
+
     async def get_client(self) -> GitGuardianClient:
-        return await get_client(personal_access_token=self.get_personal_access_token())
+        return await get_client(
+            personal_access_token=self.get_personal_access_token(),
+            user_agent=self._get_caller_user_agent(),
+        )
 
     async def revoke_current_token(self) -> dict[str, Any]:
         """Revoke the current API token via GitGuardian API."""
