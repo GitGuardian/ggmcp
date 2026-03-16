@@ -5,6 +5,8 @@ from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_member import get_member
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
+from gg_api_core.tools.list_incident_members import list_incident_members
+from gg_api_core.tools.list_incident_teams import list_incident_teams
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
@@ -135,4 +137,16 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         get_member,
         description="Retrieve a specific member by their ID with information including name, email, role, access level, and activity status.",
         required_scopes=["members:read"],
+    )
+
+    mcp.tool(
+        list_incident_members,
+        description="List members with access to a secret incident. Filter by access level, search by name/email, and filter on direct or indirect accesses.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        list_incident_teams,
+        description="List teams with access to a secret incident. Search by team name/description and filter on direct or indirect accesses.",
+        required_scopes=["incidents:read"],
     )
