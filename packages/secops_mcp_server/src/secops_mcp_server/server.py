@@ -11,8 +11,6 @@ from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
-from gg_api_core.tools.list_incidents import list_incidents
-from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.manage_incident import (
     manage_private_incident,
     update_incident_status,
@@ -214,12 +212,6 @@ mcp.tool(
 )
 
 mcp.tool(
-    list_users,
-    description="List users on the workspace/account",
-    required_scopes=["members:read"],
-)
-
-mcp.tool(
     revoke_secret,
     description="Revoke a secret by its ID through the GitGuardian API",
     required_scopes=["write:secret"],
@@ -235,12 +227,6 @@ mcp.tool(
     create_code_fix_request,
     description="Create code fix requests for multiple secret incidents with their locations. This will generate pull requests to automatically remediate the detected secrets.",
     required_scopes=["incidents:write"],
-)
-
-mcp.tool(
-    list_incidents,
-    description="List secret incidents with advanced filtering options including detector type, secret category, source criticality, and public exposure. Filter by repository using source_ids. Uses page-based pagination. Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED.",
-    required_scopes=["incidents:read"],
 )
 
 register_common_tools(mcp)

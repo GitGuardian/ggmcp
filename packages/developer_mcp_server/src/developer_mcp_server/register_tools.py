@@ -72,10 +72,11 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
 
     mcp.tool(
         list_incidents,
-        description="List secret incidents with advanced filtering options. "
-        "Filter by repository (via source_ids), detector type, severity, status, and more. "
-        "With mine=True, this tool only shows incidents assigned to the current user.",
-        required_scopes=["incidents:read", "sources:read"],
+        description="List secret incidents with advanced filtering options including detector type, secret category, source criticality, and public exposure. "
+        "Filter by repository (via source_ids), detector type, severity, status (TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
+        "With mine=True, this tool only shows incidents assigned to the current user. "
+        "Uses page-based pagination.",
+        required_scopes=["incidents:read"],
     )
 
     mcp.tool(
