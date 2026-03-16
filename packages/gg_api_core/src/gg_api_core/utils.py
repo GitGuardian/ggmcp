@@ -42,7 +42,7 @@ def is_multi_tenant_mode() -> bool:
     return os.environ.get("MULTI_TENANCY_ENABLED", "").lower() == "true"
 
 
-async def get_client(personal_access_token: str | None = None) -> GitGuardianClient:
+async def get_client(personal_access_token: str | None = None, user_agent: str | None = None) -> GitGuardianClient:
     """Get GitGuardian client for the current context.
 
     **Single-tenant is the DEFAULT** (local stdio usage).
@@ -77,7 +77,7 @@ async def get_client(personal_access_token: str | None = None) -> GitGuardianCli
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
         logger.debug("Creating client with explicitly provided token")
-        return GitGuardianClient(personal_access_token=personal_access_token)
+        return GitGuardianClient(personal_access_token=personal_access_token, user_agent=user_agent)
 
     # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
     if is_multi_tenant_mode():
@@ -89,7 +89,7 @@ async def get_client(personal_access_token: str | None = None) -> GitGuardianCli
             )
         logger.debug("Multi-tenant mode: extracting token from request headers")
         token = _get_token_from_request_headers()
-        return GitGuardianClient(personal_access_token=token)
+        return GitGuardianClient(personal_access_token=token, user_agent=user_agent)
 
     # 3. Single-tenant mode (DEFAULT) - use singleton pattern to cache the PAT
     global _client_singleton
@@ -102,6 +102,7 @@ async def get_client(personal_access_token: str | None = None) -> GitGuardianCli
     _client_singleton = GitGuardianClient(
         personal_access_token=token,
         allow_token_refresh=True,
+        user_agent=user_agent,
     )
     return _client_singleton
 
