@@ -599,7 +599,7 @@ class GitGuardianClient:
                                     retry_count += 1
                                     continue
                                 else:
-                                    logger.error("Could not refresh token, request will fail")
+                                    logger.exception("Could not refresh token, request will fail")
                         except (json.JSONDecodeError, AttributeError):
                             # If we can't parse the error response, continue with normal error handling
                             pass
