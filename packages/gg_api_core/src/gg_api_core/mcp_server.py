@@ -1,5 +1,6 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
+import copy
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Sequence
@@ -12,6 +13,7 @@ from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
+from mcp.types import Tool as MCPTool
 
 from gg_api_core.client import (
     GitGuardianClient,
@@ -20,8 +22,58 @@ from gg_api_core.client import (
 )
 from gg_api_core.utils import get_client
 
+# ── VS Code MCP Client Compatibility ──────────────────────────────────
+# Force protocol version to 2024-11-05 (the stable version that VS Code
+# fully supports). FastMCP 2.x + mcp 1.24 negotiate 2025-11-25 by default,
+# which enables features (outputSchema, structuredContent, tasks) that
+# VS Code's MCP client doesn't implement yet, causing silent failures.
+#
+# Must patch in mcp.server.session (where the initialize handler lives)
+# because it does `from mcp.shared.version import SUPPORTED_PROTOCOL_VERSIONS`
+# which creates a local binding that won't see changes to the source module.
+import mcp.server.session as _mcp_session
+import mcp.types as _mcp_types
+
+_COMPAT_PROTOCOL_VERSION = "2024-11-05"
+_mcp_types.LATEST_PROTOCOL_VERSION = _COMPAT_PROTOCOL_VERSION
+_mcp_session.SUPPORTED_PROTOCOL_VERSIONS = [_COMPAT_PROTOCOL_VERSION]
+# ──────────────────────────────────────────────────────────────────────
+
 # Configure logger
 logger = logging.getLogger(__name__)
+
+
+def _resolve_schema_refs(schema: dict[str, Any]) -> dict[str, Any]:
+    """Inline all $ref references in a JSON Schema, removing $defs.
+
+    VS Code's MCP client cannot resolve $ref/$defs in tool inputSchema,
+    causing silent failures when trying to call tools. This function
+    produces a flat, self-contained schema that any client can parse.
+    """
+    schema = copy.deepcopy(schema)
+    defs = schema.pop("$defs", None) or {}
+
+    def _resolve(node):
+        if isinstance(node, dict):
+            if "$ref" in node:
+                ref_path = node["$ref"]  # e.g. "#/$defs/SomeModel"
+                if ref_path.startswith("#/$defs/"):
+                    def_name = ref_path[len("#/$defs/"):]
+                    if def_name in defs:
+                        resolved = copy.deepcopy(defs[def_name])
+                        # Merge any sibling keys (e.g. "description" next to "$ref")
+                        for k, v in node.items():
+                            if k != "$ref":
+                                resolved.setdefault(k, v)
+                        return _resolve(resolved)
+                # Unresolvable ref - return as-is without the ref
+                return {k: v for k, v in node.items() if k != "$ref"}
+            return {k: _resolve(v) for k, v in node.items()}
+        if isinstance(node, list):
+            return [_resolve(item) for item in node]
+        return node
+
+    return _resolve(schema)
 
 
 class AuthenticationMode(Enum):
@@ -138,8 +190,27 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         """
         Initialize the GitGuardian MCP server.
         """
+        # Disable FastMCP metadata in tool definitions (_meta field) and
+        # disable background task support. Both are FastMCP 2.x features that
+        # VS Code's MCP client doesn't support, causing silent tool call failures.
+        kwargs.setdefault("include_fastmcp_meta", False)
+
         # Initialize the parent class FIRST (required for FastMCP attributes)
         super().__init__(*args, **kwargs)
+
+        # Patch low-level server to not advertise tasks capability.
+        # FastMCP 2.x unconditionally sets capabilities.tasks in the initialize
+        # response (SEP-1686), but VS Code doesn't support this and may try to
+        # use the task protocol for tool calls, causing "no response" errors.
+        if hasattr(self, '_mcp_server'):
+            _original_get_caps = self._mcp_server.get_capabilities
+
+            def _patched_get_capabilities(notification_options, experimental_capabilities):
+                caps = _original_get_caps(notification_options, experimental_capabilities)
+                caps.tasks = None
+                return caps
+
+            self._mcp_server.get_capabilities = _patched_get_capabilities
 
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
@@ -206,6 +277,12 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # In FastMCP v3, @mcp.tool() returns the original function, not a Tool object.
         # Derive the tool name from the explicit kwarg or from the function itself.
 
+        # Force output_schema=None to disable outputSchema in tool listings.
+        # FastMCP 2.x auto-generates outputSchema from Pydantic return types,
+        # but VS Code's MCP client doesn't support this yet (protocol 2025-11-25
+        # feature) and silently fails to call tools that include it.
+        kwargs.setdefault("output_schema", None)
+
         if args and callable(args[0]):
             # Direct call: mcp.tool(fn, required_scopes=...)
             fn = args[0]
@@ -262,6 +339,43 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         scopes = await self._fetch_token_scopes_from_api()
         logger.debug(f"scopes: {scopes}")
         return scopes
+
+    async def _call_tool_mcp(self, key: str, arguments: dict[str, Any]) -> Any:
+        """Override to strip structuredContent from tool call results.
+
+        FastMCP 2.x includes structuredContent (a 2025-11-25 protocol feature)
+        in CallToolResult for dict returns, even when output_schema=None.
+        VS Code doesn't support this and may fail silently.
+        """
+        import fastmcp.server.context
+        from mcp.types import CallToolResult
+
+        async with fastmcp.server.context.Context(fastmcp=self):
+            result = await self._call_tool_middleware(key, arguments)
+            mcp_result = result.to_mcp_result()
+
+            # If it's a tuple (content, structured_content), return only content
+            if isinstance(mcp_result, tuple):
+                return mcp_result[0]
+
+            # If it's a CallToolResult with structuredContent, strip it
+            if isinstance(mcp_result, CallToolResult) and mcp_result.structuredContent is not None:
+                return mcp_result.content
+
+            return mcp_result
+
+    async def _list_tools_mcp(self) -> list[MCPTool]:
+        """Override to flatten $ref/$defs in tool inputSchema.
+
+        FastMCP generates Pydantic-style schemas with $defs and $ref which
+        VS Code's MCP client can't resolve, causing silent tool call failures.
+        This inlines all references to produce flat, self-contained schemas.
+        """
+        tools = await super()._list_tools_mcp()
+        for tool in tools:
+            if tool.inputSchema and "$defs" in tool.inputSchema:
+                tool.inputSchema = _resolve_schema_refs(tool.inputSchema)
+        return tools
 
 
 # Common MCP tools for user information and token management
