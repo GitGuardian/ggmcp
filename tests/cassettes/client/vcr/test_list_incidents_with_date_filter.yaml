@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets?from_date=2024-01-01&to_date=2024-12-31&per_page=5
   response:
@@ -23,13 +23,13 @@ interactions:
         "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
         "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
         "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": "2026-01-26T14:36:19.333114Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "medium", "assignee_id":
-        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]",
-        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
-        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
+        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
+        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
+        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
         "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
         "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
         "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
@@ -37,13 +37,14 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 99, "is_vaulted": false, "ignore_reason":
-        "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "incident_name": "AWS IAM Keys", "public_exposure": null, "destination_tickets":
-        [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLICLY_LEAKED"],
+        "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}, {"id": 21461, "detector": {"name": "private_key_dsa",
         "display_name": "DSA Private Key", "nature": "specific", "family": "cryptographic_key",
         "detector_group_name": "private_key_dsa", "detector_group_display_name": "DSA
@@ -64,14 +65,15 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "important info."}]}],
-        "risk_score": 68, "is_vaulted": false, "ignore_reason": null, "occurrences":
+        "risk_score": 60, "is_vaulted": false, "ignore_reason": null, "occurrences":
         null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21461",
-        "tags": ["PUBLICLY_LEAKED", "PUBLICLY_EXPOSED", "PUBLIC"], "incident_name":
-        "DSA Private Key", "public_exposure": null, "destination_tickets": [{"id":
-        "JB-15", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-15"},
-        {"id": "JB-14", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
+        "tags": ["PUBLICLY_LEAKED"], "incident_name": "DSA Private Key", "public_exposure":
+        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [{"id": "JB-15", "type": "jira_cloud", "link":
+        "https://sandboxgitguardian.atlassian.net/browse/JB-15"}, {"id": "JB-14",
+        "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
         "custom_tags": []}, {"id": 21462, "detector": {"name": "salesforce_oauth2",
         "display_name": "Salesforce Oauth2 Keys", "nature": "specific", "family":
         "credentials", "detector_group_name": "salesforce_oauth2_keys", "detector_group_display_name":
@@ -83,12 +85,13 @@ interactions:
         null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
         "secret_revoked": false, "validity": "invalid", "severity": "high", "assignee_id":
         10, "assignee_email": "bruce-wayne-gg@protonmail.com", "share_url": "[REDACTED]",
-        "feedback_list": [], "risk_score": 3, "is_vaulted": false, "ignore_reason":
+        "feedback_list": [], "risk_score": 19, "is_vaulted": false, "ignore_reason":
         "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21462", "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "incident_name": "Salesforce Oauth2 Keys", "public_exposure": null,
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21462", "tags": ["PUBLICLY_LEAKED"],
+        "incident_name": "Salesforce Oauth2 Keys", "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "destination_tickets": [], "custom_tags": []}, {"id": 21463, "detector": {"name":
         "private_key_rsa", "display_name": "RSA Private Key", "nature": "specific",
         "family": "cryptographic_key", "detector_group_name": "private_key_rsa", "detector_group_display_name":
@@ -100,36 +103,39 @@ interactions:
         "2023-04-21T12:50:04.503620Z", "resolver_id": null, "resolver_api_token_id":
         null, "secret_revoked": true, "validity": "no_checker", "severity": "high",
         "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "risk_score": 68, "is_vaulted": false, "ignore_reason": null, "occurrences":
+        [], "risk_score": 60, "is_vaulted": false, "ignore_reason": null, "occurrences":
         null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21463",
-        "tags": ["PUBLICLY_LEAKED", "PUBLICLY_EXPOSED", "PUBLIC"], "incident_name":
-        "RSA Private Key", "public_exposure": null, "destination_tickets": [], "custom_tags":
-        []}, {"id": 21464, "detector": {"name": "aws_iam", "display_name": "AWS IAM
-        Keys", "nature": "specific", "family": "credentials", "detector_group_name":
-        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T04:19:56.388169Z",
-        "secret_id": 70592, "secret_hash": "Vk90LgwiOvekJz1ekAbpTtG//qwTheghhQ6DeOBCFVHzghwkL4Qc71cZRqNcojMG",
+        "tags": ["PUBLICLY_LEAKED"], "incident_name": "RSA Private Key", "public_exposure":
+        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [], "custom_tags": []}, {"id": 21464, "detector":
+        {"name": "aws_iam", "display_name": "AWS IAM Keys", "nature": "specific",
+        "family": "credentials", "detector_group_name": "aws_iam", "detector_group_display_name":
+        "AWS IAM Keys"}, "date": "2020-10-29T04:19:56.388169Z", "secret_id": 70592,
+        "secret_hash": "Vk90LgwiOvekJz1ekAbpTtG//qwTheghhQ6DeOBCFVHzghwkL4Qc71cZRqNcojMG",
         "hmsl_hash": "ebfb0b865d12332d62237b9893b78ca51e6a14ca773935a4771972074708af4c",
         "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947692Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        "2023-11-06T09:02:20.011118Z", "resolver_id": 492181, "resolver_api_token_id":
+        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
         null, "secret_revoked": true, "validity": "invalid", "severity": "high", "assignee_id":
         10, "assignee_email": "bruce-wayne-gg@protonmail.com", "share_url": "[REDACTED]",
-        "feedback_list": [], "risk_score": 99, "is_vaulted": false, "ignore_reason":
+        "feedback_list": [], "risk_score": 100, "is_vaulted": false, "ignore_reason":
         null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21464", "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "incident_name": "AWS IAM Keys", "public_exposure": null, "destination_tickets":
-        [], "custom_tags": []}]'
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21464", "tags": ["PUBLICLY_LEAKED"],
+        "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "destination_tickets": [{"id": "AEF-2326", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-2326"}],
+        "custom_tags": []}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '8170'
+      - '8647'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -137,7 +143,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:01:35 GMT
+      - Fri, 20 Mar 2026 15:56:17 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2NA%3D%3D&from_date=2024-01-01&per_page=5&to_date=2024-12-31>;
         rel="next"
@@ -150,17 +156,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '79'
+      - '98'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

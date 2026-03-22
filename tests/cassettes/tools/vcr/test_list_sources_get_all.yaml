@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=20
   response:
@@ -155,7 +155,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
         "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 6, "severity_breakdown": {"critical": 3, "high": 3, "medium": 0,
+        {"total": 6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
@@ -166,7 +166,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 1515, "duration":
         "12.404975", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "691584428", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
+        {"total": 13, "severity_breakdown": {"critical": 12, "high": 1, "medium":
         0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         5, "severity_breakdown": {"critical": 4, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
@@ -177,8 +177,8 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 104, "duration":
         "5.271635", "branches_scanned": 15, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "602034939", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 11, "severity_breakdown": {"critical": 1, "high": 10, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        {"total": 11, "severity_breakdown": {"critical": 2, "high": 9, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         13, "severity_breakdown": {"critical": 1, "high": 12, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}}, "url": "https://github.com/gitjez/git_playground",
         "deleted": false}, {"id": 11260259, "type": "github", "full_name": "gitjez/private_repo",
@@ -199,8 +199,8 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
         "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total":
+        {"total": 4, "severity_breakdown": {"critical": 2, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
         6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
         "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
         "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
@@ -243,7 +243,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '16624'
+      - '16623'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -251,7 +251,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 15:05:46 GMT
+      - Fri, 20 Mar 2026 15:58:34 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=20>;
         rel="next"
@@ -264,17 +264,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.1
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '8881'
+      - '8014'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -294,7 +294,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=20&cursor=cD0xMTM0ODc3Ng%3D%3D
   response:
@@ -306,7 +306,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
@@ -328,7 +328,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 113, "duration":
         "3.560034", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "705767874", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 3, "severity_breakdown": {"critical": 1, "high": 2, "medium": 0,
+        {"total": 3, "severity_breakdown": {"critical": 3, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/nodejs-goof",
@@ -350,7 +350,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 18, "duration":
         "3.934015", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "713321698", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/terragoatGGDemoProd",
@@ -391,7 +391,7 @@ interactions:
         "", "commits_scanned": 1, "duration": "1.096922", "branches_scanned": 1, "progress":
         100}, "monitored": true, "visibility": "private", "external_id": "713839011",
         "secret_incidents_breakdown": {"open_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        {"critical": 1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/cfngoat",
         "deleted": false}, {"id": 11756704, "type": "github", "full_name": "peterringball/test4",
@@ -467,7 +467,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        52, "severity_breakdown": {"critical": 0, "high": 52, "medium": 0, "low":
+        52, "severity_breakdown": {"critical": 27, "high": 25, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
         {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
         "url": "https://github.com/aymericGG/juice-shop-Codacytest", "deleted": false},
@@ -478,8 +478,8 @@ interactions:
         "failing_reason": "", "commits_scanned": 91, "duration": "1.635283", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "644504052", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        11, "severity_breakdown": {"critical": 0, "high": 11, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        11, "severity_breakdown": {"critical": 6, "high": 5, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/ZGuardian/GitGoat", "deleted": false}, {"id": 12842036,
         "type": "github", "full_name": "ZGuardian/wrongsecrets", "health": "at_risk",
@@ -489,7 +489,7 @@ interactions:
         "", "commits_scanned": 2903, "duration": "28.527595", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "644518416", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        40, "severity_breakdown": {"critical": 5, "high": 35, "medium": 0, "low":
+        40, "severity_breakdown": {"critical": 35, "high": 5, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 24, "severity_breakdown":
         {"critical": 7, "high": 17, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/ZGuardian/wrongsecrets", "deleted": false}, {"id":
@@ -500,7 +500,7 @@ interactions:
         "", "commits_scanned": 259, "duration": "8.001244", "branches_scanned": 1,
         "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "644519103", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/ZGuardian/terragoat", "deleted": false}, {"id":
@@ -529,7 +529,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 15:05:48 GMT
+      - Fri, 20 Mar 2026 15:58:36 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjg0MjAzOA%3D%3D&per_page=20>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=20>;
@@ -543,17 +543,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.1
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '1860'
+      - '1468'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

@@ -13,20 +13,100 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&issue_tracker__in=jira_cloud_notifier
   response:
     body:
       string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?issue_tracker__in=jira_cloud_notifier&page=2&page_size=5",
-        "previous": null, "results": [{"id": 27966952, "account": 8, "criterion":
-        "OpenAI API Key", "date": "2026-03-06T06:44:00Z", "last_trigger_published_at":
-        "2026-03-06T06:44:00Z", "last_triggered_at": "2026-03-06T06:46:00.813247Z",
-        "last_trigger_detected_at": "2026-03-06T06:46:00.813247Z", "hash": "qAqxBGe/jVUeo2sH1EACPXT4xKnxJeIOJlp4g3WKNS64WAaZ95GRLqiXIWrK60u6",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2026-03-06T06:49:45.664666Z",
-        "resolver": 491414, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "previous": null, "results": [{"id": 28905156, "account": 8, "criterion":
+        "GitLab Token", "date": "2026-03-17T14:35:54.643000Z", "last_trigger_published_at":
+        "2026-03-17T14:35:54.643000Z", "last_triggered_at": "2026-03-17T14:36:00.418064Z",
+        "last_trigger_detected_at": "2026-03-17T14:36:00.418064Z", "hash": "kbVfTxt8mubX2vVRQN/wNxpT9vQMThT40ap5w7qZ8b20vI7qxGkRAPRx8mJAAtol",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "GitLab Token", "severity_rule_config": null, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "<unknown>", "name": "GG Test Integrations"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "gg-test-integrations / My
+        Kanban Space", "type": "jira_cloud_project", "path": "gg-test-integrations
+        / My Kanban Space", "source_criticality": "unknown"}], "custom_tags": [],
+        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
+        10, "displayed_occurrence": {"id": 251398324, "issue": 28905156, "account":
+        8, "kind": "RLTM", "element": "KAN-1/attachment/10003", "element_type": "JIRA_ATTACHMENT",
+        "author_name": "GG Test Integrations", "author_info": "<unknown>", "value":
+        null, "value_hash": "ANhrxxdlpUdBuuKCFgR9GCYhiQtUs9r3Zdbz3c2kuqZy+eS+jy+nX8JdITltnLl1",
+        "published_at": "2026-03-17T14:35:54.643000Z", "date": "2026-03-17T14:35:54.643000Z",
+        "detected_at": "2026-03-17T14:35:57.639696Z", "is_vcs_type": false, "last_detected_at":
+        "2026-03-17T14:35:54.643000Z", "last_seen_at": "2026-03-17T14:35:54.643000Z",
+        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
+        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
+        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
+        Space", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 144316417, "secrets_engine_version": "2.158.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 106, "indice_end":
+        132, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": "https://gg-test-integrations.atlassian.net/rest/api/2/attachment/content/10003",
+        "filename": "toto9.txt", "presence": "visible", "last_presence_seen_at": "2026-03-17T14:36:00.446573Z",
+        "last_presence_check_at": "2026-03-17T14:36:00.446573Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": null, "full_tags": []},
+        "has_dropped_occurrences": false, "tags": ["REVOCABLE_BY_GG"], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 2}, {"id": 28905136, "account": 8, "criterion":
+        "GitLab Token", "date": "2026-03-17T13:50:21.909000Z", "last_trigger_published_at":
+        "2026-03-17T13:50:21.909000Z", "last_triggered_at": "2026-03-17T14:35:04.182999Z",
+        "last_trigger_detected_at": "2026-03-17T14:35:04.182999Z", "hash": "WK++VMwWOtCgcJLB1bssA+LYOZibFxHq2PD3Gc27zcfd1zd3xGkRAPRx8mJAAtol",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "GitLab Token", "severity_rule_config": null, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "ggtestintegrations@proton.me", "name":
+        "GG Test Integrations"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
+        "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"}],
+        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
+        0, "score": 10, "displayed_occurrence": {"id": 251397394, "issue": 28905136,
+        "account": 8, "kind": "HIST", "element": "KAN-1/attachment/10000", "element_type":
+        "JIRA_ATTACHMENT", "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
+        "value": null, "value_hash": "HJeG3nW8vJKcwODm8fthKZ+emBqlOohKRUtdSDefI95yvYyjcl17awQJwJ+R7glD",
+        "published_at": "2026-03-17T13:50:21.909000Z", "date": "2026-03-17T13:50:21.909000Z",
+        "detected_at": "2026-03-17T14:34:59.387226Z", "is_vcs_type": false, "last_detected_at":
+        "2026-03-17T13:50:21.909000Z", "last_seen_at": "2026-03-17T13:50:21.909000Z",
+        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
+        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
+        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
+        Space", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 144316340, "secrets_engine_version": "2.158.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 107, "indice_end":
+        133, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": "https://api.atlassian.com/ex/jira/239c88bc-2664-4cb9-a422-e59dfaf60bf6/rest/api/3/attachment/content/10000",
+        "filename": "toto.pdf", "presence": "visible", "last_presence_seen_at": "2026-03-17T14:35:04.233212Z",
+        "last_presence_check_at": "2026-03-17T14:35:04.233212Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": null, "full_tags": [{"type":
+        "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["FROM_HISTORICAL_SCAN", "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 1}, {"id": 27966952, "account": 8, "criterion": "OpenAI
+        API Key", "date": "2026-03-06T06:44:00Z", "last_trigger_published_at": "2026-03-06T06:44:00Z",
+        "last_triggered_at": "2026-03-06T06:46:00.813247Z", "last_trigger_detected_at":
+        "2026-03-06T06:46:00.813247Z", "hash": "qAqxBGe/jVUeo2sH1EACPXT4xKnxJeIOJlp4g3WKNS64WAaZ95GRLqiXIWrK60u6",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2026-03-12T18:05:49.089586Z", "resolver":
+        491414, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
         "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "OpenAI API Key", "severity_rule_config":
@@ -37,7 +117,7 @@ interactions:
         was discovered", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
         "default": null}, "arg2": {"value": "valid"}}, "is_global": true, "scope":
         "private", "author": null}}, "declarative_secret_status": "revoked", "assignee":
-        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        614347, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
         100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
         Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
         0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
@@ -69,25 +149,23 @@ interactions:
         Password", "date": "2026-03-02T08:03:19Z", "last_trigger_published_at": "2026-03-02T08:03:19Z",
         "last_triggered_at": "2026-03-02T08:04:40.966599Z", "last_trigger_detected_at":
         "2026-03-02T08:04:40.966599Z", "hash": "DIhTV8EvZb3qiiqNdZxIdx5KXxPM1+opgvbjqYv9ikr7Xshkfma8ieOEhD7igl+v",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Generic Password", "severity_rule_config":
-        null, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": true, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
-        [{"name": "olaugier / test", "type": "gl_project", "path": "olaugier/test",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 65, "displayed_occurrence":
-        {"id": 247153722, "issue": 27743219, "account": 8, "kind": "RLTM", "element":
-        "876b995fcda9f3ebacdde3630fe8521c09e88a50", "element_type": "GIT_COMMIT",
-        "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
-        "value_hash": "kqtDoOt2gXsDpCN6VFM6vvO0PUTxcS7pA+2Yu2AS9t2s4kcdjypyaVpjw9oi8GAg",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Generic Password", "severity_rule_config": null, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
+        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 1, "sources": [{"name": "olaugier / test", "type":
+        "gl_project", "path": "olaugier/test", "source_criticality": "unknown"}],
+        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
+        0, "score": 65, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
+        "account": 8, "kind": "RLTM", "element": "876b995fcda9f3ebacdde3630fe8521c09e88a50",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "kqtDoOt2gXsDpCN6VFM6vvO0PUTxcS7pA+2Yu2AS9t2s4kcdjypyaVpjw9oi8GAg",
         "published_at": "2026-03-02T08:03:19Z", "date": "2026-03-02T08:03:19Z", "detected_at":
         "2026-03-02T08:04:26.107138Z", "is_vcs_type": true, "last_detected_at": "2026-03-02T08:03:19Z",
         "last_seen_at": "2026-03-02T08:03:19Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/olaugier/test/commit/876b995fcda9f3ebacdde3630fe8521c09e88a50#dbdb2e6bfc642ed0d0c5033e50062fe3ede15e4e_0_3",
@@ -110,22 +188,20 @@ interactions:
         Keys", "date": "2026-02-19T14:36:24Z", "last_trigger_published_at": "2026-02-19T14:36:24Z",
         "last_triggered_at": "2026-02-19T14:40:08.909390Z", "last_trigger_detected_at":
         "2026-02-19T14:40:08.909390Z", "hash": "ldopSL0HhOyMPVqrCoyqhrM0YiRtyDjCRKal/yZRhL1LxHMKL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -162,131 +238,14 @@ interactions:
         [{"type": "TEST_FILE", "metadata": null}]}, "has_dropped_occurrences": false,
         "tags": ["TEST_FILE"], "public_exposure": {"source_publicly_visible": false,
         "public_incident_linked": false, "leaked_outside_perimeter": false}, "occurrences_count":
-        1}, {"id": 26879946, "account": 8, "criterion": "AWS Keys", "date": "2026-02-05T16:48:19Z",
-        "last_trigger_published_at": "2026-02-05T16:48:19Z", "last_triggered_at":
-        "2026-02-05T16:51:59.912161Z", "last_trigger_detected_at": "2026-02-05T16:51:59.912161Z",
-        "hash": "BPRo0pF0ZesUJFhK1FAEiWQsj9wNtT2WYZ15WbzmXjC7vE/VL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "ASSIGNED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
-        "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
-        "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
-        "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
-        "gitlab_enterprise_token", "github_access_token", "aws_iam"]}}]}, "is_global":
-        true, "scope": "any", "author": null}}, "declarative_secret_status": null,
-        "assignee": 581873, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        8, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
-        / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 98, "displayed_occurrence":
-        {"id": 242021853, "issue": 26879946, "account": 8, "kind": "RLTM", "element":
-        "e2cbc193a76a13b94e135c12a055d2083a233a89", "element_type": "GIT_COMMIT",
-        "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
-        "value_hash": "7AkVngiwT5n4ZZihQovCHs2qrlx0MOfD853AYv4HHS0DiM0Vk9YtctC+FFM1Iw+v",
-        "published_at": "2026-02-05T16:48:19Z", "date": "2026-02-05T16:48:19Z", "detected_at":
-        "2026-02-05T16:51:53.166126Z", "is_vcs_type": true, "last_detected_at": "2026-02-05T16:48:19Z",
-        "last_seen_at": "2026-02-05T16:48:19Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging/commit/e2cbc193a76a13b94e135c12a055d2083a233a89#2dd906314026edd7e5fa25025afd4353424625a7_0_19",
-        "source": {"id": 16219056, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
-        "type": "gl_project", "display_name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
-        "visibility": "private", "monitored": true, "source_criticality": "unknown",
-        "deleted_at": null, "default_branch": "main"}, "regression": false, "content":
-        130291193, "secrets_engine_version": "2.156.0", "matches": [{"name": "client_id",
-        "string_matched": "[REDACTED]", "indice_start": 124, "indice_end": 144, "pre_line_start":
-        null, "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}, {"name":
-        "client_secret", "string_matched": "[REDACTED]", "indice_start": 981, "indice_end":
-        1021, "pre_line_start": null, "pre_line_end": null, "post_line_start": 19,
-        "post_line_end": 19}], "most_sensitive_match_name": "client_secret", "insights":
-        [], "filepath": "ec2_instance_management.py", "filename": "ec2_instance_management.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:30:08.818671Z",
-        "last_presence_check_at": "2026-02-18T22:30:08.818671Z", "first_presence_deleted_at":
-        null, "seen_in_default_branch": false, "change_type": "addition", "full_tags":
-        []}, "has_dropped_occurrences": false, "tags": [], "public_exposure": {"source_publicly_visible":
-        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "occurrences_count": 8}, {"id": 26805043, "account": 8, "criterion": "MongoDB
-        URI", "date": "2026-02-04T12:40:14Z", "last_trigger_published_at": "2026-02-04T12:40:14Z",
-        "last_triggered_at": "2026-02-04T13:38:51.987022Z", "last_trigger_detected_at":
-        "2026-02-04T13:38:51.987022Z", "hash": "/7fR6f5kCJxcKOBY7aGaXANERrgmNFFGl2msVGfVPMEzhnM4feuh40iUuZt2nZY1",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2026-02-06T14:57:44.199417Z",
-        "resolver": 104371, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
-        "none", "ignorer_type": "none", "resolver_display_name": "pierre.lalanne@gitguardian.com",
-        "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "RESOLVED", "issue_name": "MongoDB Credentials", "severity_rule_config":
-        {"id": 7276, "gg_created_at": "2025-03-18T08:57:54.146841Z", "gg_updated_at":
-        "2026-03-10T09:47:04.603115Z", "index": 15, "severity": 20, "rule": {"id":
-        516, "gg_created_at": "2025-03-18T08:57:54.142529Z", "gg_updated_at": "2025-03-18T08:57:54.142532Z",
-        "name": "Specific Database Credentials", "description": "Specific Database
-        Credentials", "json_rule": {"operator": "AND", "args": [{"operator": "EQ",
-        "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
-        "arg2": {"value": "data_storage"}}, {"operator": "EQ", "arg1": {"path": "issue.secret.detector.nature",
-        "default": null}, "arg2": {"value": "specific"}}]}, "is_global": true, "scope":
-        "private", "author": null}}, "declarative_secret_status": "revoked", "assignee":
-        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
-        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
-        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 50, "displayed_occurrence": {"id": 241287706,
-        "issue": 26805043, "account": 8, "kind": "HIST", "element": "5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8",
-        "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "I7HWuf4N7z4BUl5YTbmxXGsCjjQ/IlAjXcso7ELZ+5LYJl5p8C+H70xNQGAF2tHA",
-        "published_at": "2026-02-04T12:40:14Z", "date": "2026-02-04T12:40:14Z", "detected_at":
-        "2026-02-04T13:38:46.386256Z", "is_vcs_type": true, "last_detected_at": "2026-02-04T12:40:14Z",
-        "last_seen_at": "2026-02-04T12:40:14Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8#8b00584865b28d12f057cc2064a51a05b33603f1_None_8",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
-        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
-        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        "main"}, "regression": false, "content": 129708170, "secrets_engine_version":
-        "2.155.4", "matches": [{"name": "connection_uri", "string_matched": "[REDACTED]",
-        "indice_start": 232, "indice_end": 323, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 8, "post_line_end": 8}, {"name": "scheme", "string_matched":
-        "[REDACTED]", "indice_start": 232, "indice_end": 243, "pre_line_start": null,
-        "pre_line_end": null, "post_line_start": 8, "post_line_end": 8}, {"name":
-        "username", "string_matched": "[REDACTED]", "indice_start": 246, "indice_end":
-        254, "pre_line_start": null, "pre_line_end": null, "post_line_start": 8, "post_line_end":
-        8}, {"name": "password", "string_matched": "[REDACTED]", "indice_start": 255,
-        "indice_end": 267, "pre_line_start": null, "pre_line_end": null, "post_line_start":
-        8, "post_line_end": 8}, {"name": "host", "string_matched": "[REDACTED]", "indice_start":
-        268, "indice_end": 288, "pre_line_start": null, "pre_line_end": null, "post_line_start":
-        8, "post_line_end": 8}, {"name": "database", "string_matched": "[REDACTED]",
-        "indice_start": 289, "indice_end": 295, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 8, "post_line_end": 8}, {"name": "query", "string_matched":
-        "[REDACTED]", "indice_start": 296, "indice_end": 323, "pre_line_start": null,
-        "pre_line_end": null, "post_line_start": 8, "post_line_end": 8}], "most_sensitive_match_name":
-        "password", "insights": [], "filepath": "bluethroat.py", "filename": "bluethroat.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:33:05.054565Z",
-        "last_presence_check_at": "2026-02-18T22:33:05.054565Z", "first_presence_deleted_at":
-        null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
-        [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["DEFAULT_BRANCH", "FROM_HISTORICAL_SCAN"], "public_exposure":
-        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "occurrences_count": 2}]}'
+        1}]}'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '27903'
+      - '25021'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -294,7 +253,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:14:40 GMT
+      - Fri, 20 Mar 2026 15:56:39 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -304,11 +263,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '130'
+      - '148'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

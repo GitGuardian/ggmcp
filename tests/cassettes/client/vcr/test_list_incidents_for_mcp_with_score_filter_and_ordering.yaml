@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=10&ordering=-score&score__ge=50
   response:
@@ -23,13 +23,12 @@ interactions:
         Keys", "date": "2020-10-29T13:19:59.005564Z", "last_trigger_published_at":
         "2020-10-29T13:19:59.005564Z", "last_triggered_at": "2021-02-11T14:23:22.947577Z",
         "last_trigger_detected_at": "2021-02-11T14:23:22.947577Z", "hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": true, "ignored_at": "2026-01-26T14:36:19.333114Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": 614347,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
-        "none", "resolver_type": "none", "manual_severity_setter_display_name": "romain.jouhannet@gitguardian.com",
-        "manual_severity_setter_type": "user", "status": "IGNORED", "issue_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2026-03-11T22:41:04.525493Z", "resolver":
+        491414, "regression": false, "manual_severity_setter": 614347, "ignorer_display_name":
+        "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
+        "resolver_type": "user", "manual_severity_setter_display_name": "romain.jouhannet@gitguardian.com",
+        "manual_severity_setter_type": "user", "status": "RESOLVED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z",
         "gg_updated_at": "2023-02-07T13:53:07.394210Z", "index": 200, "severity":
         20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at":
@@ -37,7 +36,7 @@ interactions:
         "Detector is linked to cloud providers", "json_rule": {"operator": "EQ", "arg1":
         {"path": "issue.secret.detector.metadata.category", "default": null}, "arg2":
         {"value": "cloud_provider"}}, "is_global": true, "scope": "private", "author":
-        104371}}, "declarative_secret_status": "invalid", "assignee": 245361, "last_presence_check_at":
+        104371}}, "declarative_secret_status": "revoked", "assignee": 245361, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 30, "authors": [{"info": "lucius-fox-gg@protonmail.com",
         "name": "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false,
         "feedbacks_count": 1, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
@@ -74,10 +73,9 @@ interactions:
         "date": "2020-10-29T04:19:56.388169Z", "last_trigger_published_at": "2020-10-29T04:19:56.388169Z",
         "last_triggered_at": "2021-02-11T14:23:22.947692Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.947692Z", "hash": "Vk90LgwiOvekJz1ekAbpTtG//qwTheghhQ6DeOBCFVHzghwkL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2023-11-06T09:02:20.011118Z",
-        "resolver": 491414, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2026-03-11T22:41:04.525493Z", "resolver":
+        491414, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
         "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -125,10 +123,9 @@ interactions:
         "date": "2020-10-26T11:19:37.692890Z", "last_trigger_published_at": "2020-10-26T11:19:37.692890Z",
         "last_triggered_at": "2021-02-11T14:23:22.947805Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.947805Z", "hash": "Ht2AYBgk3PDhYwqAc7LqGbqcKAMllvnJ4JmP4l/oSLsfa769L4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2021-10-29T11:30:15.067891Z",
-        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2021-10-29T11:30:15.067891Z", "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -176,10 +173,9 @@ interactions:
         "date": "2020-10-25T02:19:49.840699Z", "last_trigger_published_at": "2020-10-25T02:19:49.840699Z",
         "last_triggered_at": "2021-02-11T14:23:22.947888Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.947888Z", "hash": "6FW4RNZbYeOvBd3nNaZZZ/Y4DuSSLxp9xjYf5nfijvq0aJRkL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2023-11-06T09:02:20.011118Z",
-        "resolver": 491414, "regression": false, "manual_severity_setter": 9322, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2023-11-06T09:02:20.011118Z", "resolver":
+        491414, "regression": false, "manual_severity_setter": 9322, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
         "resolver_type": "user", "manual_severity_setter_display_name": "ramzi.lahoud@gitguardian.com",
         "manual_severity_setter_type": "user", "status": "RESOLVED", "issue_name":
@@ -227,10 +223,9 @@ interactions:
         "date": "2020-10-18T12:19:38.047282Z", "last_trigger_published_at": "2020-10-18T12:19:38.047282Z",
         "last_triggered_at": "2021-02-11T14:23:22.948176Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.948176Z", "hash": "aCi7L0fT+cZPk56I9Btc1CVtZNssJ8H0LhtdRItzdl1KzvxPL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2021-10-29T16:04:55.127144Z",
-        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2021-10-29T16:04:55.127144Z", "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -278,10 +273,9 @@ interactions:
         "date": "2020-10-16T23:19:38.924991Z", "last_trigger_published_at": "2020-10-16T23:19:38.924991Z",
         "last_triggered_at": "2021-02-11T14:23:22.948203Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.948203Z", "hash": "B0E6crZJCVBow2yPeSnJTAL6Gfs0OPt7FnIY5XogCicHKGSaL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:06:08.295495Z",
-        "resolver": null, "regression": false, "manual_severity_setter": 9322, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2022-09-06T09:06:08.295495Z", "resolver":
+        null, "regression": false, "manual_severity_setter": 9322, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "ramzi.lahoud@gitguardian.com",
         "manual_severity_setter_type": "user", "status": "RESOLVED", "issue_name":
@@ -329,10 +323,9 @@ interactions:
         "date": "2020-10-10T01:19:39.990914Z", "last_trigger_published_at": "2020-10-10T01:19:39.990914Z",
         "last_triggered_at": "2021-02-11T14:23:22.948454Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.948454Z", "hash": "VqlDWipUnHkfhGiSijqczvR/JWp1lr1/I+Ra3GXk2MMUQUk6L4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z",
-        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z", "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -380,10 +373,9 @@ interactions:
         "date": "2020-10-07T22:19:40.847825Z", "last_trigger_published_at": "2020-10-07T22:19:40.847825Z",
         "last_triggered_at": "2021-02-11T14:23:22.948647Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.948647Z", "hash": "U7n6mHuR3NaG1u4+1vpdfRYtpM1dfgYOaENqIicUX3KVRVy6L4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z",
-        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z", "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -431,10 +423,9 @@ interactions:
         "date": "2020-10-06T13:20:07.039345Z", "last_trigger_published_at": "2020-10-06T13:20:07.039345Z",
         "last_triggered_at": "2021-02-11T14:23:22.948789Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.948789Z", "hash": "fs8yT4OztZJaGVMlj8QrlGVdOWVFLNRcoHWkLUnTtAIKcORfL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z",
-        "resolver": null, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2022-09-06T09:04:13.473983Z", "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "unknown", "resolver_type":
         "unknown", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "AWS IAM Keys", "severity_rule_config":
@@ -482,30 +473,29 @@ interactions:
         "date": "2020-09-22T23:19:43.460578Z", "last_trigger_published_at": "2020-09-22T23:19:43.460578Z",
         "last_triggered_at": "2021-02-11T14:23:22.949356Z", "last_trigger_detected_at":
         "2021-02-11T14:23:22.949356Z", "hash": "Aq4rWli5jAnS4ZDwGzLS2h2k3ws6Pie9sxWWvY8sX1wG9HJgL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": true, "ignored_at": "2020-09-24T09:47:42.196767Z",
-        "ignore_reason": null, "ignorer": 2503, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": 9322,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "guillaume.charpiat@gitguardian.com", "ignorer_type":
-        "user", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "ramzi.lahoud@gitguardian.com", "manual_severity_setter_type": "user", "status":
-        "IGNORED", "issue_name": "AWS IAM Keys", "severity_rule_config": {"id": 28,
-        "gg_created_at": "2023-02-07T13:53:07.394202Z", "gg_updated_at": "2023-02-07T13:53:07.394210Z",
-        "index": 200, "severity": 20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z",
-        "gg_updated_at": "2023-01-26T08:30:27.365959Z", "name": "Cloud providers secrets",
-        "description": "Detector is linked to cloud providers", "json_rule": {"operator":
-        "EQ", "arg1": {"path": "issue.secret.detector.metadata.category", "default":
-        null}, "arg2": {"value": "cloud_provider"}}, "is_global": true, "scope": "private",
-        "author": 104371}}, "declarative_secret_status": "active", "assignee": null,
-        "last_presence_check_at": null, "secret": "[REDACTED]", "severity": 100, "authors":
-        [{"info": "lucius-fox-gg@protonmail.com", "name": "Lucius Fox"}], "user_permission":
-        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        0, "occurrences_presence_deleted_count": 2, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "wayne-enterprises-gg/public-app-gg-bis-2020-09",
-        "type": "gh_repository", "path": "wayne-enterprises-gg/public-app-gg-bis-2020-09",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 101, "score": 100, "displayed_occurrence":
-        {"id": 78335, "issue": 21536, "account": 8, "kind": "RLTM", "element": "1ccd84be4e607782519936669189dcdd44e95a8c",
+        "ignored": true, "ignored_at": "2020-09-24T09:47:42.196767Z", "ignore_reason":
+        null, "ignorer": 2503, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": 9322, "ignorer_display_name":
+        "guillaume.charpiat@gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "ramzi.lahoud@gitguardian.com",
+        "manual_severity_setter_type": "user", "status": "IGNORED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 28, "gg_created_at": "2023-02-07T13:53:07.394202Z",
+        "gg_updated_at": "2023-02-07T13:53:07.394210Z", "index": 200, "severity":
+        20, "rule": {"id": 7, "gg_created_at": "2022-11-28T14:51:21.662136Z", "gg_updated_at":
+        "2023-01-26T08:30:27.365959Z", "name": "Cloud providers secrets", "description":
+        "Detector is linked to cloud providers", "json_rule": {"operator": "EQ", "arg1":
+        {"path": "issue.secret.detector.metadata.category", "default": null}, "arg2":
+        {"value": "cloud_provider"}}, "is_global": true, "scope": "private", "author":
+        104371}}, "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "lucius-fox-gg@protonmail.com",
+        "name": "Lucius Fox"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 0, "occurrences_presence_deleted_count":
+        2, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "wayne-enterprises-gg/public-app-gg-bis-2020-09", "type": "gh_repository",
+        "path": "wayne-enterprises-gg/public-app-gg-bis-2020-09", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 101, "score": 100, "displayed_occurrence": {"id": 78335,
+        "issue": 21536, "account": 8, "kind": "RLTM", "element": "1ccd84be4e607782519936669189dcdd44e95a8c",
         "element_type": "GIT_COMMIT", "author_name": "Lucius Fox", "author_info":
         "lucius-fox-gg@protonmail.com", "value": null, "value_hash": "heNxh9k0jTZ05w7q9zGYibOwxsZMOq5rHxDweGWf4HsKPayxymxFnFW0QPDEKh3W",
         "published_at": "2020-09-22T23:19:43.460578Z", "date": "2020-09-22T23:19:43.460578Z",
@@ -536,7 +526,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '55378'
+      - '54504'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -544,7 +534,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:15:06 GMT
+      - Fri, 20 Mar 2026 15:56:46 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -554,11 +544,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '232'
+      - '1630'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/occurrences/secrets?presence=present&per_page=5
   response:
@@ -40,7 +40,7 @@ interactions:
         "filepath": "app.py", "kind": "historical", "presence": "present", "matches":
         [{"name": "apikey", "indice_start": 46, "indice_end": 93, "pre_line_start":
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}], "tags":
-        ["FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH", "PUBLIC", "PUBLICLY_EXPOSED"],
+        ["PUBLICLY_EXPOSED", "PUBLIC", "FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH"],
         "url": "https://github.com/wayne-enterprises-gg/business-app/commit/ceb205b6eb487342c3a5fa931d480cbef12efeb2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "change_type": "deletion",
@@ -59,7 +59,7 @@ interactions:
         "filepath": "app.py", "kind": "historical", "presence": "present", "matches":
         [{"name": "apikey", "indice_start": 46, "indice_end": 83, "pre_line_start":
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}], "tags":
-        ["FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH", "PUBLIC", "PUBLICLY_EXPOSED"],
+        ["PUBLICLY_EXPOSED", "PUBLIC", "FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH"],
         "url": "https://github.com/wayne-enterprises-gg/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "deletion",
@@ -78,7 +78,7 @@ interactions:
         "filepath": "app.py", "kind": "historical", "presence": "present", "matches":
         [{"name": "apikey", "indice_start": 92, "indice_end": 139, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}], "tags":
-        ["FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH", "PUBLIC", "PUBLICLY_EXPOSED"],
+        ["PUBLICLY_EXPOSED", "PUBLIC", "FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH"],
         "url": "https://github.com/wayne-enterprises-gg/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "addition",
@@ -97,7 +97,7 @@ interactions:
         "filepath": "app.py", "kind": "historical", "presence": "present", "matches":
         [{"name": "apikey", "indice_start": 89, "indice_end": 126, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}], "tags":
-        ["FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH", "PUBLIC", "PUBLICLY_EXPOSED"],
+        ["PUBLICLY_EXPOSED", "PUBLIC", "FROM_HISTORICAL_SCAN", "DEFAULT_BRANCH"],
         "url": "https://github.com/wayne-enterprises-gg/business-app/commit/c2f01354e84ba1f5a88a2feb9d2a09be28451316#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "c2f01354e84ba1f5a88a2feb9d2a09be28451316", "change_type": "addition",
@@ -127,7 +127,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:25 GMT
+      - Fri, 20 Mar 2026 15:56:48 GMT
       link:
       - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03OTM5Mg%3D%3D&per_page=5&presence=present>;
         rel="next"
@@ -140,17 +140,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '120'
+      - '175'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

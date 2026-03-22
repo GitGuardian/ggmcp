@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&search=aws
   response:
@@ -23,22 +23,20 @@ interactions:
         "AWS Keys", "date": "2026-02-19T14:36:24Z", "last_trigger_published_at": "2026-02-19T14:36:24Z",
         "last_triggered_at": "2026-02-19T14:40:08.909390Z", "last_trigger_detected_at":
         "2026-02-19T14:40:08.909390Z", "hash": "ldopSL0HhOyMPVqrCoyqhrM0YiRtyDjCRKal/yZRhL1LxHMKL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -79,22 +77,20 @@ interactions:
         "last_trigger_published_at": "2026-02-05T16:48:19Z", "last_triggered_at":
         "2026-02-05T16:51:59.912161Z", "last_trigger_detected_at": "2026-02-05T16:51:59.912161Z",
         "hash": "BPRo0pF0ZesUJFhK1FAEiWQsj9wNtT2WYZ15WbzmXjC7vE/VL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "ASSIGNED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "ASSIGNED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -135,11 +131,10 @@ interactions:
         Keys", "date": "2026-01-12T15:27:28Z", "last_trigger_published_at": "2026-01-12T15:27:28Z",
         "last_triggered_at": "2026-01-12T15:33:36.783106Z", "last_trigger_detected_at":
         "2026-01-12T15:33:36.783106Z", "hash": "S/c7Y0f34gQYCYuTir+9tfWUCHbGG2SB2ejhc2TzrxnJAP7RL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": true, "ignored_at": "2026-01-12T15:33:36.792417Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": null,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "ignored": true, "ignored_at": "2026-01-12T15:33:36.792417Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": null, "declarative_secret_status":
@@ -182,11 +177,10 @@ interactions:
         Keys", "date": "2025-12-16T17:22:08Z", "last_trigger_published_at": "2025-12-16T17:22:08Z",
         "last_triggered_at": "2025-12-16T18:22:25.117146Z", "last_trigger_detected_at":
         "2025-12-16T18:22:25.117146Z", "hash": "Bxk/2SaXQPI8yl7xAhB3l3Q9xdra8RHtG7PEK3Wc2BUYBzgKL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": true, "ignored_at": "2025-12-16T18:22:25.122585Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": null,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "ignored": true, "ignored_at": "2025-12-16T18:22:25.122585Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": null, "declarative_secret_status":
@@ -229,22 +223,20 @@ interactions:
         "last_trigger_published_at": "2025-11-17T17:16:25Z", "last_triggered_at":
         "2025-11-17T17:18:18.706440Z", "last_trigger_detected_at": "2025-11-17T17:18:18.706440Z",
         "hash": "6y4trbQi60aNmDEFQe0tJH3jke+8j18I9t2sKfgaunTYEUdZL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -252,7 +244,7 @@ interactions:
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
@@ -287,7 +279,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '28095'
+      - '27661'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -295,7 +287,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:14:38 GMT
+      - Fri, 20 Mar 2026 15:56:37 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -305,11 +297,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '441'
+      - '611'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

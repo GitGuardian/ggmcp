@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&ordering=-date&status__in=TRIGGERED%2CASSIGNED%2CRESOLVED&severity__in=10&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
   response:
@@ -23,22 +23,20 @@ interactions:
         "AWS Keys", "date": "2026-02-05T16:48:19Z", "last_trigger_published_at": "2026-02-05T16:48:19Z",
         "last_triggered_at": "2026-02-05T16:51:59.912161Z", "last_trigger_detected_at":
         "2026-02-05T16:51:59.912161Z", "hash": "BPRo0pF0ZesUJFhK1FAEiWQsj9wNtT2WYZ15WbzmXjC7vE/VL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "ASSIGNED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "ASSIGNED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -79,10 +77,9 @@ interactions:
         Token", "date": "2026-01-21T10:36:57.655878Z", "last_trigger_published_at":
         "2026-01-21T10:36:57.655878Z", "last_triggered_at": "2026-01-21T10:36:58.397779Z",
         "last_trigger_detected_at": "2026-01-21T10:36:58.397779Z", "hash": "sb5IGg6qhGHwZ7DbBySx1FRi53wnsGUfGCxJpN/LR7YhaCe/mfERIIoosvzjJs1k",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": true, "resolved_at": "2026-02-27T12:28:45.159703Z",
-        "resolver": 353104, "regression": false, "manual_severity_setter": null, "policy_name":
-        "ensure_no_secrets", "policy_display_name": "Secrets detection", "ignorer_display_name":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": true, "resolved_at": "2026-02-27T12:28:45.159703Z", "resolver":
+        353104, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "none", "ignorer_type": "none", "resolver_display_name": "jean.ramirez@gitguardian.com",
         "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "Artifactory Token", "severity_rule_config":
@@ -126,22 +123,20 @@ interactions:
         "AWS Keys", "date": "2025-11-17T17:16:25Z", "last_trigger_published_at": "2025-11-17T17:16:25Z",
         "last_triggered_at": "2025-11-17T17:18:18.706440Z", "last_trigger_detected_at":
         "2025-11-17T17:18:18.706440Z", "hash": "6y4trbQi60aNmDEFQe0tJH3jke+8j18I9t2sKfgaunTYEUdZL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -149,7 +144,7 @@ interactions:
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
@@ -182,34 +177,32 @@ interactions:
         "last_trigger_published_at": "2025-10-21T15:12:04Z", "last_triggered_at":
         "2025-10-24T14:00:09.175001Z", "last_trigger_detected_at": "2025-10-24T14:00:09.175001Z",
         "hash": "Zd93zYw/R/gWlrzFtbVCB8yjZSdccT/b0NvSLGeof/3dmYqVVYcK62ozICbL8rB3",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Generic Private Key", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
-        "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
-        "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
-        {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
-        520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
-        [{"name": "kevin-nedelec / Rayn-private", "type": "gl_project", "path": "kevin-nedelec/rayn-private",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 79, "displayed_occurrence":
-        {"id": 222656411, "issue": 21857830, "account": 8, "kind": "HIST", "element":
-        "4334fd4d0902e960583a2f0f578dd7cb0c1f691f", "element_type": "GIT_COMMIT",
-        "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
-        "value_hash": "4elueXyOgrNYPQ5m+XbCLfjEyoDQgvVA5a9sk8YsKVuGk7K+MSCwVESEtIRCtWCk",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Generic Private Key", "severity_rule_config": {"id": 10858, "gg_created_at":
+        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
+        "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
+        "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
+        "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
+        "AND", "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path":
+        "issue.public_leak_range", "default": null}, "arg2": {"value": "0"}}}, {"operator":
+        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
+        "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
+        "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 1, "sources": [{"name": "kevin-nedelec / Rayn-private",
+        "type": "gl_project", "path": "kevin-nedelec/rayn-private", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 79, "displayed_occurrence": {"id": 222656411,
+        "issue": 21857830, "account": 8, "kind": "HIST", "element": "4334fd4d0902e960583a2f0f578dd7cb0c1f691f",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "4elueXyOgrNYPQ5m+XbCLfjEyoDQgvVA5a9sk8YsKVuGk7K+MSCwVESEtIRCtWCk",
         "published_at": "2025-10-21T15:12:04Z", "date": "2025-10-21T15:12:04Z", "detected_at":
         "2025-10-24T14:00:01.744927Z", "is_vcs_type": true, "last_detected_at": "2025-10-21T15:12:04Z",
         "last_seen_at": "2025-10-21T15:12:04Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/kevin-nedelec/rayn-private/commit/4334fd4d0902e960583a2f0f578dd7cb0c1f691f#53585a096fe3a3b96321113856ae62602995a33b_None_2624",
@@ -231,34 +224,32 @@ interactions:
         "RSA Private Key", "date": "2025-10-21T15:12:04Z", "last_trigger_published_at":
         "2025-10-21T15:12:04Z", "last_triggered_at": "2025-10-24T14:00:09.175160Z",
         "last_trigger_detected_at": "2025-10-24T14:00:09.175160Z", "hash": "naEqgN/D9qNsk8WifuluDLW5hbScH3ENkz1s6aH+bJgJ5zvw7vN5xZFHxYj+duJV",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "RSA Private Key", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
-        "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
-        "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
-        {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
-        520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "kevin-nedelec / Rayn-private", "type": "gl_project", "path": "kevin-nedelec/rayn-private",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 66, "displayed_occurrence":
-        {"id": 222656412, "issue": 21857831, "account": 8, "kind": "HIST", "element":
-        "49f8942dcaf2c9a180f5eb090270ffafe9ef813a", "element_type": "GIT_COMMIT",
-        "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
-        "value_hash": "SQILbjvj8BY3EDFcUQtxuDQpSUDpcSrXrwvgmYepHQyiruiBfTTU7gIYYCLw5Cwr",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "RSA Private Key", "severity_rule_config": {"id": 10858, "gg_created_at":
+        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
+        "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
+        "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
+        "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
+        "AND", "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path":
+        "issue.public_leak_range", "default": null}, "arg2": {"value": "0"}}}, {"operator":
+        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
+        "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
+        "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "kevin-nedelec / Rayn-private",
+        "type": "gl_project", "path": "kevin-nedelec/rayn-private", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 66, "displayed_occurrence": {"id": 222656412,
+        "issue": 21857831, "account": 8, "kind": "HIST", "element": "49f8942dcaf2c9a180f5eb090270ffafe9ef813a",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "SQILbjvj8BY3EDFcUQtxuDQpSUDpcSrXrwvgmYepHQyiruiBfTTU7gIYYCLw5Cwr",
         "published_at": "2025-10-21T15:12:04Z", "date": "2025-10-21T15:12:04Z", "detected_at":
         "2025-10-24T14:00:01.744927Z", "is_vcs_type": true, "last_detected_at": "2025-10-21T15:12:04Z",
         "last_seen_at": "2025-10-21T15:12:04Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/kevin-nedelec/rayn-private/commit/49f8942dcaf2c9a180f5eb090270ffafe9ef813a#53585a096fe3a3b96321113856ae62602995a33b_None_2477",
@@ -283,7 +274,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '27764'
+      - '27330'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -291,7 +282,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:15:09 GMT
+      - Fri, 20 Mar 2026 15:57:41 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -301,11 +292,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '156'
+      - '132'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

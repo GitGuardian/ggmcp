@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/secret_detectors?per_page=20
   response:
@@ -86,7 +86,7 @@ interactions:
         true, "removed_at": null, "open_incidents_count": 6, "ignored_incidents_count":
         14, "resolved_incidents_count": 0}, {"name": "algolia_keys", "display_name":
         "Algolia Keys", "is_active": true, "type": "specific", "category": "data_storage",
-        "checkable": true, "frequency": 357.01, "use_with_validity_check_disabled":
+        "checkable": true, "frequency": 345.07, "use_with_validity_check_disabled":
         false, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 1, "resolved_incidents_count":
         0}, {"name": "algolia_search", "display_name": "Algolia Search Keys", "is_active":
@@ -128,9 +128,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 13:52:29 GMT
+      - Fri, 20 Mar 2026 15:57:28 GMT
       link:
-      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hbXFwX2Fzc2lnbm1lbnRfYXR0YWNoZWRfcG9ydA%3D%3D&per_page=20>;
+      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hbXFwX2NyZWRlbnRpYWxz&per_page=20>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -141,17 +141,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '68'
+      - '54'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -171,9 +171,9 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
-    uri: https://api.gitguardian.com/v1/secret_detectors?per_page=20&cursor=cD1hbXFwX2Fzc2lnbm1lbnRfYXR0YWNoZWRfcG9ydA%3D%3D
+    uri: https://api.gitguardian.com/v1/secret_detectors?per_page=20&cursor=cD1hbXFwX2NyZWRlbnRpYWxz
   response:
     body:
       string: '[{"name": "anthropic_admin_key", "display_name": "Anthropic Admin Key",
@@ -215,15 +215,20 @@ interactions:
         "package_registry", "checkable": true, "frequency": 0.05, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "artifactory_token_with_host", "display_name": "Artifactory Token
-        With Host", "is_active": true, "type": "specific", "category": "package_registry",
-        "checkable": true, "frequency": 0.17, "use_with_validity_check_disabled":
-        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "asana_access_token", "display_name": "Asana Key", "is_active":
-        true, "type": "specific", "category": "collaboration_tool", "checkable": true,
-        "frequency": 0.72, "use_with_validity_check_disabled": true, "scans_code_only":
+        0}, {"name": "artifactory_token", "display_name": "Artifactory Token", "is_active":
+        true, "type": "specific", "category": "package_registry", "checkable": false,
+        "frequency": 0.98, "use_with_validity_check_disabled": true, "scans_code_only":
         false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        20, "ignored_incidents_count": 0, "resolved_incidents_count": 1}, {"name":
+        "artifactory_token_with_host", "display_name": "Artifactory Token With Host",
+        "is_active": true, "type": "specific", "category": "package_registry", "checkable":
+        true, "frequency": 0.17, "use_with_validity_check_disabled": true, "scans_code_only":
+        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
+        "asana_access_token", "display_name": "Asana Key", "is_active": true, "type":
+        "specific", "category": "collaboration_tool", "checkable": true, "frequency":
+        0.72, "use_with_validity_check_disabled": true, "scans_code_only": false,
+        "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
         0, "ignored_incidents_count": 29, "resolved_incidents_count": 0}, {"name":
         "asi_one_api_key", "display_name": "ASI:One API Key", "is_active": true, "type":
         "specific", "category": "ai", "checkable": true, "frequency": 0.06, "use_with_validity_check_disabled":
@@ -268,11 +273,6 @@ interactions:
         "checkable": true, "frequency": 0.47, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "aws_cognito_oauth_credentials", "display_name": "AWS Cognito
-        OAuth 2.0 Credentials", "is_active": true, "type": "specific", "category":
-        "identity_provider", "checkable": false, "frequency": 3.65, "use_with_validity_check_disabled":
-        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
         0}]'
     headers:
       access-control-expose-headers:
@@ -280,7 +280,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '7378'
+      - '7350'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -288,9 +288,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 13:52:29 GMT
+      - Fri, 20 Mar 2026 15:57:29 GMT
       link:
-      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hd3NfY29nbml0b19vYXV0aF9jcmVkZW50aWFscw%3D%3D&per_page=20>;
+      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hd3NfYmVkcm9ja19sb25nX3Rlcm1fYXBpX2tleQ%3D%3D&per_page=20>;
         rel="next", <https://api.gitguardian.com/v1/secret_detectors?cursor=cj0xJnA9YW50aHJvcGljX2FkbWluX2tleQ%3D%3D&per_page=20>;
         rel="prev"
       referrer-policy:
@@ -302,17 +302,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '77'
+      - '70'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -332,25 +332,30 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
-    uri: https://api.gitguardian.com/v1/secret_detectors?per_page=20&cursor=cD1hd3NfY29nbml0b19vYXV0aF9jcmVkZW50aWFscw%3D%3D
+    uri: https://api.gitguardian.com/v1/secret_detectors?per_page=20&cursor=cD1hd3NfYmVkcm9ja19sb25nX3Rlcm1fYXBpX2tleQ%3D%3D
   response:
     body:
-      string: '[{"name": "aws_cognito_oauth_credentials_with_host", "display_name":
-        "AWS Cognito OAuth 2.0 Credentials with Host", "is_active": true, "type":
-        "specific", "category": "identity_provider", "checkable": true, "frequency":
-        3.65, "use_with_validity_check_disabled": true, "scans_code_only": false,
-        "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "aws_iam", "display_name": "AWS IAM Keys", "is_active": true, "type": "specific",
-        "category": "cloud_provider", "checkable": true, "frequency": 57.66, "use_with_validity_check_disabled":
+      string: '[{"name": "aws_cognito_oauth_credentials", "display_name": "AWS Cognito
+        OAuth 2.0 Credentials", "is_active": true, "type": "specific", "category":
+        "identity_provider", "checkable": false, "frequency": 3.65, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        null, "open_incidents_count": 46, "ignored_incidents_count": 682, "resolved_incidents_count":
-        337}, {"name": "aws_iam_sts", "display_name": "AWS IAM STS Keys", "is_active":
-        true, "type": "specific", "category": "cloud_provider", "checkable": true,
-        "frequency": 1.35, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
+        0}, {"name": "aws_cognito_oauth_credentials_with_host", "display_name": "AWS
+        Cognito OAuth 2.0 Credentials with Host", "is_active": true, "type": "specific",
+        "category": "identity_provider", "checkable": true, "frequency": 3.65, "use_with_validity_check_disabled":
+        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
+        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
+        0}, {"name": "aws_iam", "display_name": "AWS IAM Keys", "is_active": true,
+        "type": "specific", "category": "cloud_provider", "checkable": true, "frequency":
+        57.66, "use_with_validity_check_disabled": true, "scans_code_only": false,
+        "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        47, "ignored_incidents_count": 681, "resolved_incidents_count": 338}, {"name":
+        "aws_iam_sts", "display_name": "AWS IAM STS Keys", "is_active": true, "type":
+        "specific", "category": "cloud_provider", "checkable": true, "frequency":
+        1.35, "use_with_validity_check_disabled": true, "scans_code_only": false,
+        "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
         0, "ignored_incidents_count": 5, "resolved_incidents_count": 0}, {"name":
         "aws_ses_keys", "display_name": "AWS SES Keys", "is_active": true, "type":
         "specific", "category": "cloud_provider", "checkable": true, "frequency":
@@ -367,14 +372,29 @@ interactions:
         "frequency": 0.03, "use_with_validity_check_disabled": true, "scans_code_only":
         false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
         0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
+        "azure_ai_search_key", "display_name": "Azure AI Search Key", "is_active":
+        true, "type": "specific", "category": "cloud_provider", "checkable": true,
+        "frequency": 0.07, "use_with_validity_check_disabled": true, "scans_code_only":
+        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
+        "azure_apim_gateway_key", "display_name": "Azure APIM Gateway Key", "is_active":
+        true, "type": "specific", "category": "cloud_provider", "checkable": false,
+        "frequency": 0.01, "use_with_validity_check_disabled": true, "scans_code_only":
+        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
         "azure_app_configuration_connection_string", "display_name": "Azure App Configuration
         Connection String", "is_active": true, "type": "specific", "category": "cloud_provider",
         "checkable": true, "frequency": 1.44, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "azure_cache_for_redis_access_key", "display_name": "Azure Cache
-        for Redis Access Key", "is_active": true, "type": "specific", "category":
-        "cloud_provider", "checkable": true, "frequency": 0.67, "use_with_validity_check_disabled":
+        0}, {"name": "azure_batch_credentials", "display_name": "Azure Batch Credentials",
+        "is_active": true, "type": "specific", "category": "cloud_provider", "checkable":
+        true, "frequency": 0.04, "use_with_validity_check_disabled": true, "scans_code_only":
+        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
+        "azure_cache_for_redis_access_key", "display_name": "Azure Cache for Redis
+        Access Key", "is_active": true, "type": "specific", "category": "cloud_provider",
+        "checkable": true, "frequency": 0.67, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
         0}, {"name": "azure_communication_services_connection_string", "display_name":
@@ -383,13 +403,18 @@ interactions:
         0.98, "use_with_validity_check_disabled": true, "scans_code_only": false,
         "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
         0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_cosmosdb_credentials", "display_name": "Azure Cosmos DB Credentials",
-        "is_active": true, "type": "specific", "category": "data_storage", "checkable":
-        true, "frequency": 0.58, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        20, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_devops_pat_with_org", "display_name": "Azure DevOps Personal Access
-        Token with Organization", "is_active": true, "type": "specific", "category":
+        "azure_container_registry_key", "display_name": "Azure Container Registry
+        Key", "is_active": true, "type": "specific", "category": "cloud_provider",
+        "checkable": true, "frequency": 0.01, "use_with_validity_check_disabled":
+        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
+        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
+        0}, {"name": "azure_cosmosdb_credentials", "display_name": "Azure Cosmos DB
+        Credentials", "is_active": true, "type": "specific", "category": "data_storage",
+        "checkable": true, "frequency": 0.58, "use_with_validity_check_disabled":
+        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
+        null, "open_incidents_count": 20, "ignored_incidents_count": 0, "resolved_incidents_count":
+        0}, {"name": "azure_devops_pat_with_org", "display_name": "Azure DevOps Personal
+        Access Token with Organization", "is_active": true, "type": "specific", "category":
         "cloud_provider", "checkable": true, "frequency": 0.05, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
@@ -412,40 +437,14 @@ interactions:
         true, "type": "specific", "category": "cloud_provider", "checkable": true,
         "frequency": 0.0, "use_with_validity_check_disabled": true, "scans_code_only":
         false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_event_grid_access_key", "display_name": "Azure Event Grid Access Key",
-        "is_active": true, "type": "specific", "category": "data_storage", "checkable":
-        true, "frequency": 0.98, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_functions_app_key", "display_name": "Azure Functions App Key", "is_active":
-        true, "type": "specific", "category": "cloud_provider", "checkable": false,
-        "frequency": 12.4, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        2, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_iot_device_connection_string", "display_name": "Azure IoT Device Connection
-        String", "is_active": true, "type": "specific", "category": "cloud_provider",
-        "checkable": true, "frequency": 1.1, "use_with_validity_check_disabled": true,
-        "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "azure_logic_app_sig_key", "display_name": "Azure Logic App Shared
-        Access Signature", "is_active": false, "type": "specific", "category": "cloud_provider",
-        "checkable": false, "frequency": 69.38, "use_with_validity_check_disabled":
-        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        "2026-02-05T11:31:39.982598Z", "open_incidents_count": 0, "ignored_incidents_count":
-        0, "resolved_incidents_count": 0}, {"name": "azure_open_ai_api_key", "display_name":
-        "Azure Open AI API key", "is_active": true, "type": "specific", "category":
-        "ai", "checkable": true, "frequency": 4.58, "use_with_validity_check_disabled":
-        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
-        null, "open_incidents_count": 2, "ignored_incidents_count": 2, "resolved_incidents_count":
-        0}]'
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '7636'
+      - '7601'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -453,10 +452,10 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 13:52:30 GMT
+      - Fri, 20 Mar 2026 15:57:29 GMT
       link:
-      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1henVyZV9vcGVuX2FpX2FwaV9rZXk%3D&per_page=20>;
-        rel="next", <https://api.gitguardian.com/v1/secret_detectors?cursor=cj0xJnA9YXdzX2NvZ25pdG9fb2F1dGhfY3JlZGVudGlhbHNfd2l0aF9ob3N0&per_page=20>;
+      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1henVyZV9lbnRyYV9pZF90b2tlbg%3D%3D&per_page=20>;
+        rel="next", <https://api.gitguardian.com/v1/secret_detectors?cursor=cj0xJnA9YXdzX2NvZ25pdG9fb2F1dGhfY3JlZGVudGlhbHM%3D&per_page=20>;
         rel="prev"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -467,17 +466,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '64'
+      - '52'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

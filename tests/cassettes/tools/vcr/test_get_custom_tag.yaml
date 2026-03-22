@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/custom_tags/9df8c1c9-7367-4c77-a0f0-9f2d4b22bdda
   response:
@@ -34,7 +34,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:03:36 GMT
+      - Fri, 20 Mar 2026 15:58:48 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -44,15 +44,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '29'
+      - '20'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
