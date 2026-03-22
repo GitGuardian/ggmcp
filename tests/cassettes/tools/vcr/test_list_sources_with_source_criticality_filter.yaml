@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?source_criticality=unknown&per_page=10
   response:
@@ -90,7 +90,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
         "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 6, "severity_breakdown": {"critical": 3, "high": 3, "medium": 0,
+        {"total": 6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
@@ -101,8 +101,8 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
         "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total":
+        {"total": 4, "severity_breakdown": {"critical": 2, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
         6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
         "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
         "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
@@ -142,7 +142,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 15:05:31 GMT
+      - Fri, 20 Mar 2026 15:58:23 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTMyODA2MQ%3D%3D&per_page=10&source_criticality=unknown>;
         rel="next"
@@ -155,17 +155,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.1
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '16697'
+      - '11812'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

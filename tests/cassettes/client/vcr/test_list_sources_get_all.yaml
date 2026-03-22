@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5
   response:
@@ -87,7 +87,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:37 GMT
+      - Fri, 20 Mar 2026 15:56:56 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&per_page=5>;
         rel="next"
@@ -100,17 +100,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '399'
+      - '225'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -130,7 +130,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMjM3MA%3D%3D
   response:
@@ -204,7 +204,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:48 GMT
+      - Fri, 20 Mar 2026 15:57:04 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD05MTIzODgy&per_page=5>; rel="next",
         <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTIzNzE%3D&per_page=5>;
@@ -218,17 +218,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '10478'
+      - '6921'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -248,7 +248,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD05MTIzODgy
   response:
@@ -282,7 +282,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
         "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 6, "severity_breakdown": {"critical": 3, "high": 3, "medium": 0,
+        {"total": 6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
@@ -293,7 +293,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 1515, "duration":
         "12.404975", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "691584428", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
+        {"total": 13, "severity_breakdown": {"critical": 12, "high": 1, "medium":
         0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         5, "severity_breakdown": {"critical": 4, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
@@ -304,8 +304,8 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 104, "duration":
         "5.271635", "branches_scanned": 15, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "602034939", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 11, "severity_breakdown": {"critical": 1, "high": 10, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        {"total": 11, "severity_breakdown": {"critical": 2, "high": 9, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         13, "severity_breakdown": {"critical": 1, "high": 12, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}}, "url": "https://github.com/gitjez/git_playground",
         "deleted": false}]'
@@ -315,7 +315,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4184'
+      - '4183'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -323,7 +323,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:51 GMT
+      - Fri, 20 Mar 2026 15:57:06 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTI2MDI1OA%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9OTEyNDE0Nw%3D%3D&per_page=5>;
@@ -337,17 +337,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '2425'
+      - '1913'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -367,7 +367,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMTI2MDI1OA%3D%3D
   response:
@@ -390,8 +390,8 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
         "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total":
+        {"total": 4, "severity_breakdown": {"critical": 2, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
         6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
         "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
         "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
@@ -442,7 +442,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:53 GMT
+      - Fri, 20 Mar 2026 15:57:07 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEyNjAyNTk%3D&per_page=5>;
@@ -456,17 +456,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '498'
+      - '289'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -486,7 +486,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMTM0ODc3Ng%3D%3D
   response:
@@ -498,7 +498,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
@@ -520,7 +520,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 113, "duration":
         "3.560034", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "public", "external_id": "705767874", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 3, "severity_breakdown": {"critical": 1, "high": 2, "medium": 0,
+        {"total": 3, "severity_breakdown": {"critical": 3, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/nodejs-goof",
@@ -542,7 +542,7 @@ interactions:
         "status": "finished", "failing_reason": "", "commits_scanned": 18, "duration":
         "3.934015", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
         "private", "external_id": "713321698", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/terragoatGGDemoProd",
@@ -561,7 +561,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:54 GMT
+      - Fri, 20 Mar 2026 15:57:08 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTYwMDU4Nw%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=5>;
@@ -575,17 +575,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '771'
+      - '499'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

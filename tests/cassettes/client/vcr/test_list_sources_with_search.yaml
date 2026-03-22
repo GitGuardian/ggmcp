@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=5
   response:
@@ -36,7 +36,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
@@ -84,7 +84,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:02:32 GMT
+      - Fri, 20 Mar 2026 15:56:54 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTc1NjcwNA%3D%3D&per_page=5&search=test>;
         rel="next"
@@ -97,17 +97,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '338'
+      - '245'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

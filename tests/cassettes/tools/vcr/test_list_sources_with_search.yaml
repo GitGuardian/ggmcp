@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=10
   response:
@@ -36,7 +36,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
+        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
@@ -120,7 +120,7 @@ interactions:
         "failing_reason": "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        52, "severity_breakdown": {"critical": 0, "high": 52, "medium": 0, "low":
+        52, "severity_breakdown": {"critical": 27, "high": 25, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
         {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
         "url": "https://github.com/aymericGG/juice-shop-Codacytest", "deleted": false}]'
@@ -130,7 +130,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '8027'
+      - '8028'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -138,7 +138,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 15:19:22 GMT
+      - Fri, 20 Mar 2026 15:57:46 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjY2MzE1NA%3D%3D&per_page=10&search=test>;
         rel="next"
@@ -151,17 +151,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.1
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '470'
+      - '216'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

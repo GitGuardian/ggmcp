@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/honeytokens?show_token=true&per_page=5
   response:
@@ -54,10 +54,11 @@ interactions:
         "45182b59-b659-41ef-9bb8-44a78740fade", "name": "solid-octo-repo", "description":
         "Placed in solid-octo repo, file ... on 16May2023", "created_at": "2023-05-16T11:51:06.384073Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/45182b59-b659-41ef-9bb8-44a78740fade",
-        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
-        "open_events_count": 0, "creator_id": 319222, "revoker_id": null, "creator_api_token_id":
-        null, "revoker_api_token_id": null, "tags": [], "labels": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
-        "key": "place", "value": "codebase"}], "custom_tags": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
+        "status": "triggered", "triggered_at": "2026-02-18T14:51:12.499369Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 1, "creator_id": 319222, "revoker_id":
+        null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
+        [], "labels": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432", "key": "place",
+        "value": "codebase"}], "custom_tags": [{"id": "75e08b81-a5b1-4829-8c95-07aa2816a432",
         "key": "place", "value": "codebase"}], "token": "[REDACTED]"}, {"id": "bfa8a9c0-547e-4e61-b366-8ec0a23e2601",
         "name": "jira-OPS-124", "description": "honeytoken deployed in jira ticket
         OPS-124", "created_at": "2023-05-16T11:58:57.713307Z", "gitguardian_url":
@@ -596,7 +597,7 @@ interactions:
         "name": "Jason and team", "description": "akljdlaj", "created_at": "2023-10-24T14:23:20.991107Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/fe392ff1-b3d7-462f-a26f-d094326f40ed",
         "status": "triggered", "triggered_at": "2024-05-10T22:15:09.224357Z", "revoked_at":
-        null, "type": "AWS", "open_events_count": 9, "creator_id": null, "revoker_id":
+        null, "type": "AWS", "open_events_count": 100, "creator_id": null, "revoker_id":
         null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
         [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "d69a098c-8b61-4102-bb2b-9a82958a3e29",
         "name": "Eric Demo Test 01", "description": "", "created_at": "2023-10-31T12:51:44.535200Z",
@@ -1274,11 +1275,11 @@ interactions:
         [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "adaea919-086f-4e37-b4e5-dc8208d0e4f5",
         "name": "ggshield-rWApiuse", "description": "description", "created_at": "2025-03-03T09:15:26.314595Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/adaea919-086f-4e37-b4e5-dc8208d0e4f5",
-        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
-        "open_events_count": 0, "creator_id": 160089, "revoker_id": null, "creator_api_token_id":
-        "c5b1d824-a6c0-46cc-89a8-bd0789dec2a5", "revoker_api_token_id": null, "tags":
-        [], "labels": [{"id": "e4a53b9e-3584-4814-b959-8801472a6f04", "key": "env",
-        "value": "staging"}], "custom_tags": [{"id": "e4a53b9e-3584-4814-b959-8801472a6f04",
+        "status": "triggered", "triggered_at": "2026-02-18T14:51:12.198393Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 1, "creator_id": 160089, "revoker_id":
+        null, "creator_api_token_id": "c5b1d824-a6c0-46cc-89a8-bd0789dec2a5", "revoker_api_token_id":
+        null, "tags": [], "labels": [{"id": "e4a53b9e-3584-4814-b959-8801472a6f04",
+        "key": "env", "value": "staging"}], "custom_tags": [{"id": "e4a53b9e-3584-4814-b959-8801472a6f04",
         "key": "env", "value": "staging"}], "token": "[REDACTED]"}, {"id": "da9d6ce8-b5c6-4a4e-aad3-7c22560ad42c",
         "name": "ggshield-jdbeH3gE", "description": "description", "created_at": "2025-03-03T09:15:27.049176Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/da9d6ce8-b5c6-4a4e-aad3-7c22560ad42c",
@@ -1378,12 +1379,12 @@ interactions:
         "name": "AWS Credentials", "description": "Honeytoken for testing, to be injected
         as requested by the user.", "created_at": "2025-05-12T12:38:25.640506Z", "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/honeytokens/60ba06e9-b9ec-41d4-8656-35c839e3c1d1",
-        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
-        "open_events_count": 0, "creator_id": 269050, "revoker_id": null, "creator_api_token_id":
-        "4652a0d2-6083-4ffc-99cf-d21432584b62", "revoker_api_token_id": null, "tags":
-        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "ab824e92-6068-4a9d-ae36-86a94516f2ec",
-        "name": "test-greg-7", "description": "test", "created_at": "2025-05-12T12:54:37.703725Z",
-        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ab824e92-6068-4a9d-ae36-86a94516f2ec",
+        "status": "triggered", "triggered_at": "2026-02-18T13:45:03.781945Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 1, "creator_id": 269050, "revoker_id":
+        null, "creator_api_token_id": "4652a0d2-6083-4ffc-99cf-d21432584b62", "revoker_api_token_id":
+        null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
+        {"id": "ab824e92-6068-4a9d-ae36-86a94516f2ec", "name": "test-greg-7", "description":
+        "test", "created_at": "2025-05-12T12:54:37.703725Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ab824e92-6068-4a9d-ae36-86a94516f2ec",
         "status": "revoked", "triggered_at": null, "revoked_at": "2025-05-12T15:17:34.521470Z",
         "type": "AWS", "open_events_count": 0, "creator_id": 1026550, "revoker_id":
         1026550, "creator_api_token_id": "347a103b-d95c-4bc6-baad-f470235759c6", "revoker_api_token_id":
@@ -1455,11 +1456,11 @@ interactions:
         "name": "aws-development-access-key", "description": "Development environment
         AWS access key for monitoring credential leaks", "created_at": "2025-05-12T15:12:56.525944Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/d476c118-b210-403d-b685-3d7f0a514950",
-        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
-        "open_events_count": 0, "creator_id": 270722, "revoker_id": null, "creator_api_token_id":
-        "fab65f5d-637c-41ff-83a5-a96f5a67ca6d", "revoker_api_token_id": null, "tags":
-        [], "labels": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55", "key": "source",
-        "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
+        "status": "triggered", "triggered_at": "2026-02-18T14:50:57.626529Z", "revoked_at":
+        null, "type": "AWS", "open_events_count": 2, "creator_id": 270722, "revoker_id":
+        null, "creator_api_token_id": "fab65f5d-637c-41ff-83a5-a96f5a67ca6d", "revoker_api_token_id":
+        null, "tags": [], "labels": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55",
+        "key": "source", "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
         "key": "type", "value": "aws"}], "custom_tags": [{"id": "60d0313d-9096-41a7-8579-9523bfd8cc55",
         "key": "source", "value": "auto-generated"}, {"id": "07359853-8918-4881-9d88-1df72e80ad15",
         "key": "type", "value": "aws"}], "token": "[REDACTED]"}, {"id": "0a112323-6906-4bd0-a660-1b45a0fc59ca",
@@ -1598,7 +1599,7 @@ interactions:
         "name": "ggshield-0k2Xha2i", "description": "description", "created_at": "2025-07-29T10:40:28.088246Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/043cd1a9-11c8-42b0-ac4b-3cc95b6596ce",
         "status": "triggered", "triggered_at": "2025-08-22T16:59:58.315774Z", "revoked_at":
-        null, "type": "AWS", "open_events_count": 1, "creator_id": 160089, "revoker_id":
+        null, "type": "AWS", "open_events_count": 100, "creator_id": 160089, "revoker_id":
         null, "creator_api_token_id": "c5b1d824-a6c0-46cc-89a8-bd0789dec2a5", "revoker_api_token_id":
         null, "tags": [], "labels": [], "custom_tags": [], "token": "[REDACTED]"},
         {"id": "49e4fce7-aa48-42b0-9fc4-e16105ae08e5", "name": "ggshield-ncOpkfP8",
@@ -1632,7 +1633,7 @@ interactions:
       allow:
       - GET, POST, HEAD, OPTIONS
       content-length:
-      - '159122'
+      - '159238'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -1640,7 +1641,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:01:22 GMT
+      - Fri, 20 Mar 2026 15:56:07 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -1650,15 +1651,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '2258'
+      - '1147'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
