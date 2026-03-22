@@ -13,12 +13,23 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/api_tokens
   response:
     body:
-      string: '[{"id": "004bc4f5-7f44-427f-97e7-517e9292f82b", "name": "-", "type":
+      string: '[{"id": "002a13bb-3db7-4f66-930c-85294ca61c00", "name": "-", "type":
+        "personal_access_token", "scopes": ["scan", "incidents:read", "incidents:write",
+        "incidents:share", "members:read", "members:write", "audit_logs:read", "teams:read",
+        "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write", "health_checks:read",
+        "health_checks:write"], "member_id": 309802, "workspace_id": 8, "created_at":
+        "2026-03-19T13:37:17.662856Z", "last_used_at": "2026-03-19T13:37:00Z", "expire_at":
+        "2026-03-29T13:37:17.635970Z", "revoked_at": null, "status": "active", "creator_id":
+        309802}, {"id": "004bc4f5-7f44-427f-97e7-517e9292f82b", "name": "-", "type":
         "personal_access_token", "scopes": ["secrets:read"], "member_id": 1094434,
         "workspace_id": 8, "created_at": "2025-10-08T12:29:22.250242Z", "last_used_at":
         "2025-10-08T13:22:00Z", "expire_at": null, "revoked_at": "2025-10-08T13:23:04.839231Z",
@@ -68,9 +79,19 @@ interactions:
         "name": "Jake-GH-Action", "type": "service_account", "scopes": ["scan"], "member_id":
         null, "workspace_id": 8, "created_at": "2025-04-29T18:47:41.714793Z", "last_used_at":
         "2025-04-29T21:07:00Z", "expire_at": null, "revoked_at": null, "status": "active",
-        "creator_id": 1144062}, {"id": "05eb85ee-e424-4bfe-a7a0-f44230995be0", "name":
-        "-", "type": "personal_access_token", "scopes": ["scan"], "member_id": 786511,
-        "workspace_id": 8, "created_at": "2024-09-27T08:22:42.071973Z", "last_used_at":
+        "creator_id": 1144062}, {"id": "05c37cbb-38a6-4965-ac85-e5df2519d9a6", "name":
+        "-", "type": "personal_access_token", "scopes": ["scan", "incidents:read",
+        "incidents:write", "incidents:share", "members:read", "members:write", "audit_logs:read",
+        "teams:read", "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write"], "member_id":
+        313030, "workspace_id": 8, "created_at": "2026-02-10T14:56:48.514832Z", "last_used_at":
+        "2026-02-10T14:56:00Z", "expire_at": "2026-02-20T14:56:48.474063Z", "revoked_at":
+        null, "status": "expired", "creator_id": 313030}, {"id": "05eb85ee-e424-4bfe-a7a0-f44230995be0",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
+        786511, "workspace_id": 8, "created_at": "2024-09-27T08:22:42.071973Z", "last_used_at":
         "2024-09-27T09:20:00Z", "expire_at": null, "revoked_at": "2024-09-27T09:20:05.340431Z",
         "status": "revoked", "creator_id": 786511}, {"id": "066cbd4b-195a-4835-99b1-b95d9fbb59df",
         "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
@@ -79,8 +100,18 @@ interactions:
         "status": "revoked", "creator_id": 203333}, {"id": "06bbb931-58f9-4dcc-8984-13b2af5816e0",
         "name": "ggshield token 2024-07-19", "type": "personal_access_token", "scopes":
         ["scan"], "member_id": 480870, "workspace_id": 8, "created_at": "2024-07-19T13:49:57.819902Z",
-        "last_used_at": "2025-12-09T16:02:00Z", "expire_at": null, "revoked_at": null,
-        "status": "active", "creator_id": 480870}, {"id": "070a5ec1-bed1-418f-a837-905af598d744",
+        "last_used_at": "2025-12-09T16:02:00Z", "expire_at": null, "revoked_at": "2026-02-10T13:10:32.105054Z",
+        "status": "revoked", "creator_id": 480870}, {"id": "06be620c-121d-4fe7-a4d4-768f694c5463",
+        "name": "-", "type": "personal_access_token", "scopes": ["scan", "incidents:read",
+        "incidents:write", "incidents:share", "members:read", "members:write", "audit_logs:read",
+        "teams:read", "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write"], "member_id":
+        1078297, "workspace_id": 8, "created_at": "2026-03-02T14:16:03.241579Z", "last_used_at":
+        "2026-03-02T14:16:00Z", "expire_at": "2026-03-12T14:16:03.208147Z", "revoked_at":
+        null, "status": "expired", "creator_id": 1078297}, {"id": "070a5ec1-bed1-418f-a837-905af598d744",
         "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
         104544, "workspace_id": 8, "created_at": "2023-08-31T11:50:47.371009Z", "last_used_at":
         "2023-09-06T14:50:00Z", "expire_at": null, "revoked_at": "2023-09-06T14:50:25.607895Z",
@@ -88,26 +119,14 @@ interactions:
         "name": "-", "type": "personal_access_token", "scopes": ["scan", "incidents:read"],
         "member_id": 363707, "workspace_id": 8, "created_at": "2025-11-13T17:25:10.615284Z",
         "last_used_at": "2025-11-13T17:25:00Z", "expire_at": null, "revoked_at": null,
-        "status": "active", "creator_id": 363707}, {"id": "075218cc-3624-4303-8efb-50117e9d7f6a",
-        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
-        269050, "workspace_id": 8, "created_at": "2022-06-17T09:58:51.896646Z", "last_used_at":
-        "2023-10-11T12:47:00Z", "expire_at": "2023-10-29T11:45:39.280782Z", "revoked_at":
-        null, "status": "expired", "creator_id": 269050}, {"id": "07769629-9d05-4ff6-af0b-19466cc95f5d",
-        "name": "-", "type": "personal_access_token", "scopes": ["scan"], "member_id":
-        270722, "workspace_id": 8, "created_at": "2025-04-28T14:15:11.389273Z", "last_used_at":
-        "2025-04-28T15:02:00Z", "expire_at": null, "revoked_at": "2025-05-12T12:13:09.823639Z",
-        "status": "revoked", "creator_id": 270722}, {"id": "07aedb0e-e796-4600-976c-198a421425c5",
-        "name": "agat-onpremise-tutorial1", "type": "service_account", "scopes": ["scan"],
-        "member_id": null, "workspace_id": 8, "created_at": "2021-11-29T13:08:36.185522Z",
-        "last_used_at": "2021-11-29T13:15:00Z", "expire_at": null, "revoked_at": "2021-11-29T13:39:26.846751Z",
-        "status": "revoked", "creator_id": 160089}]'
+        "status": "active", "creator_id": 363707}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '6501'
+      - '7987'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -115,9 +134,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:03:04 GMT
+      - Fri, 20 Mar 2026 15:57:16 GMT
       link:
-      - <https://api.gitguardian.com/v1/api_tokens?cursor=cD0wN2FlZGIwZS1lNzk2LTQ2MDAtOTc2Yy0xOThhNDIxNDI1YzU%3D>;
+      - <https://api.gitguardian.com/v1/api_tokens?cursor=cD0wNzQwNzI0NS1mODc3LTQxNjEtYTJhOC1kZjExMGIwZTY0Nzk%3D>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -128,17 +147,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '67'
+      - '28'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

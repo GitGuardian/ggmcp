@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/secret_detectors?per_page=5
   response:
@@ -56,7 +56,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 06 Feb 2026 13:52:26 GMT
+      - Fri, 20 Mar 2026 15:57:24 GMT
       link:
       - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hZGFmcnVpdF9pb19hcGlrZXk%3D&per_page=5>;
         rel="next"
@@ -69,17 +69,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.386.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '46'
+      - '63'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.156.0
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

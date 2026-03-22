@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&ordering=-date&status__in=TRIGGERED&severity__in=10&validity__in=valid&tags__nin=TEST_FILE
   response:
@@ -23,22 +23,20 @@ interactions:
         "AWS Keys", "date": "2025-11-17T17:16:25Z", "last_trigger_published_at": "2025-11-17T17:16:25Z",
         "last_triggered_at": "2025-11-17T17:18:18.706440Z", "last_trigger_detected_at":
         "2025-11-17T17:18:18.706440Z", "hash": "6y4trbQi60aNmDEFQe0tJH3jke+8j18I9t2sKfgaunTYEUdZL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "AWS IAM Keys", "severity_rule_config":
-        {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10, "rule": {"id":
-        503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at": "2025-04-02T13:15:43.307296Z",
-        "name": "Valid secrets related to highly sensitive detectors", "description":
-        "Secrets related to highly sensitive detectors were valid when the incident
-        was discovered. You can edit this rule to create your own list of sensitive
-        detectors", "json_rule": {"operator": "AND", "args": [{"operator": "EQ", "arg1":
-        {"path": "issue.secret.validity_status", "default": null}, "arg2": {"value":
-        "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
+        "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
+        detectors", "description": "Secrets related to highly sensitive detectors
+        were valid when the incident was discovered. You can edit this rule to create
+        your own list of sensitive detectors", "json_rule": {"operator": "AND", "args":
+        [{"operator": "EQ", "arg1": {"path": "issue.secret.validity_status", "default":
+        null}, "arg2": {"value": "valid"}}, {"operator": "IN", "arg1": {"path": "issue.secret.detector.detector_group_name",
         "default": null}, "arg2": {"value": ["github_app_token", "ldap_credentials",
         "github_oauth_token", "googlecloud_keys", "jira_basic_auth", "python_package_index_key",
         "aws_iam_sts", "npm_token", "gitlab_token", "smtp_credentials", "github_fine_grained_pat",
@@ -46,7 +44,7 @@ interactions:
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
@@ -79,19 +77,17 @@ interactions:
         "last_trigger_published_at": "2025-09-28T15:22:38.271649Z", "last_triggered_at":
         "2025-09-28T15:22:38.612424Z", "last_trigger_detected_at": "2025-09-28T15:22:38.612424Z",
         "hash": "Jxnz5kPob11xLvEtZ86g47aESTtckctpj4bPLy+pvS9PIsSDiwQ5Z8PP16EaJtIX",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Google API Key", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Google API Key", "severity_rule_config": {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10,
+        "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at":
+        "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets", "description":
+        "Publicly leaked secrets outside perimeter", "json_rule": {"operator": "AND",
+        "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
         "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
         "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
@@ -128,19 +124,17 @@ interactions:
         API Key", "date": "2025-09-28T04:37:26.780820Z", "last_trigger_published_at":
         "2025-09-28T04:37:26.780820Z", "last_triggered_at": "2025-09-28T04:37:27.086350Z",
         "last_trigger_detected_at": "2025-09-28T04:37:27.086350Z", "hash": "WalGxMwzVJ87pj8JiS0ZNe3lw3X3qfK3BkEsRZ10l5GkP6wwiwQ5Z8PP16EaJtIX",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Google API Key", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Google API Key", "severity_rule_config": {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10,
+        "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at":
+        "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets", "description":
+        "Publicly leaked secrets outside perimeter", "json_rule": {"operator": "AND",
+        "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
         "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
         "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
@@ -177,41 +171,39 @@ interactions:
         "DeepSeek API Key", "date": "2025-09-28T02:34:55.156736Z", "last_trigger_published_at":
         "2025-09-28T02:34:55.156736Z", "last_triggered_at": "2025-09-28T02:34:55.812065Z",
         "last_trigger_detected_at": "2025-09-28T02:34:55.812065Z", "hash": "EmVR5NWRB87CbNgAA1i1CxdMstfwZV3vFmSvEGv3CPvhASlwl9yUgFtNM7Q1m5Uz",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "DeepSeek API Key", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
-        "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
-        "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
-        {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
-        520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
-        Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
-        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        87, "displayed_occurrence": {"id": 217590276, "issue": 21250826, "account":
-        8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
-        "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
-        "S9J90cfgfIz9/1KiWTklsCZsShVgIHiSFM0yUQf2i7lzzzxGfAxs12u2O6U6+pg/", "published_at":
-        "2025-09-28T02:34:55.156736Z", "date": "2025-09-28T02:34:55.156736Z", "detected_at":
-        "2025-09-28T02:34:55.601861Z", "is_vcs_type": false, "last_detected_at": "2025-09-28T02:34:55.156736Z",
-        "last_seen_at": "2025-09-28T02:34:55.156736Z", "data": {}, "url": "", "source":
-        {"id": 22879703, "url": "", "type": "custom_source", "display_name": "GitHub
-        Gist Public Testing", "visibility": "private", "monitored": false, "source_criticality":
-        "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z", "default_branch":
-        null}, "regression": false, "content": 95659566, "secrets_engine_version":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "DeepSeek API Key", "severity_rule_config": {"id": 10858, "gg_created_at":
+        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
+        "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
+        "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
+        "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
+        "AND", "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path":
+        "issue.public_leak_range", "default": null}, "arg2": {"value": "0"}}}, {"operator":
+        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
+        "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
+        "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "", "name": "GitGuardian Sandbox [internal]"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
+        "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 87, "displayed_occurrence": {"id": 217590276,
+        "issue": 21250826, "account": 8, "kind": "RLTM", "element": "", "element_type":
+        "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
+        "", "value": null, "value_hash": "S9J90cfgfIz9/1KiWTklsCZsShVgIHiSFM0yUQf2i7lzzzxGfAxs12u2O6U6+pg/",
+        "published_at": "2025-09-28T02:34:55.156736Z", "date": "2025-09-28T02:34:55.156736Z",
+        "detected_at": "2025-09-28T02:34:55.601861Z", "is_vcs_type": false, "last_detected_at":
+        "2025-09-28T02:34:55.156736Z", "last_seen_at": "2025-09-28T02:34:55.156736Z",
+        "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
+        "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
+        false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
+        "default_branch": null}, "regression": false, "content": 95659566, "secrets_engine_version":
         "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
         "indice_start": 52030, "indice_end": 52065, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
@@ -226,41 +218,39 @@ interactions:
         "OpenWeatherMap Token", "date": "2025-09-28T00:51:42.265003Z", "last_trigger_published_at":
         "2025-09-28T00:51:42.265003Z", "last_triggered_at": "2025-09-28T00:51:42.545593Z",
         "last_trigger_detected_at": "2025-09-28T00:51:42.545593Z", "hash": "G+55CfHB8Ki7BeVzFjhNlgKGGKJH6+kZro1WRqPtPL10DyCT55bBE6WEo9rNnqWB",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "OpenWeatherMap Token", "severity_rule_config":
-        {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10, "rule": {"id":
-        745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at": "2026-02-12T15:13:36.079508Z",
-        "name": "Publicly leaked secrets", "description": "Publicly leaked secrets
-        outside perimeter", "json_rule": {"operator": "AND", "args": [{"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
-        "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
-        "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
-        {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
-        520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
-        Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
-        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        49, "displayed_occurrence": {"id": 217585090, "issue": 21249986, "account":
-        8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
-        "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
-        "osEp3GKX4ftrxTM5lNGzTdef2z+j0tc2XJHHJF2v91JTdYxPw5c2j2dU7D4EWOPl", "published_at":
-        "2025-09-28T00:51:42.265003Z", "date": "2025-09-28T00:51:42.265003Z", "detected_at":
-        "2025-09-28T00:51:42.321226Z", "is_vcs_type": false, "last_detected_at": "2025-09-28T00:51:42.265003Z",
-        "last_seen_at": "2025-09-28T00:51:42.265003Z", "data": {}, "url": "", "source":
-        {"id": 22879703, "url": "", "type": "custom_source", "display_name": "GitHub
-        Gist Public Testing", "visibility": "private", "monitored": false, "source_criticality":
-        "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z", "default_branch":
-        null}, "regression": false, "content": 95649476, "secrets_engine_version":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "OpenWeatherMap Token", "severity_rule_config": {"id": 10858, "gg_created_at":
+        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
+        "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
+        "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
+        "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
+        "AND", "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path":
+        "issue.public_leak_range", "default": null}, "arg2": {"value": "0"}}}, {"operator":
+        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
+        "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
+        "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
+        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
+        100, "authors": [{"info": "", "name": "GitGuardian Sandbox [internal]"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
+        "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 49, "displayed_occurrence": {"id": 217585090,
+        "issue": 21249986, "account": 8, "kind": "RLTM", "element": "", "element_type":
+        "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
+        "", "value": null, "value_hash": "osEp3GKX4ftrxTM5lNGzTdef2z+j0tc2XJHHJF2v91JTdYxPw5c2j2dU7D4EWOPl",
+        "published_at": "2025-09-28T00:51:42.265003Z", "date": "2025-09-28T00:51:42.265003Z",
+        "detected_at": "2025-09-28T00:51:42.321226Z", "is_vcs_type": false, "last_detected_at":
+        "2025-09-28T00:51:42.265003Z", "last_seen_at": "2025-09-28T00:51:42.265003Z",
+        "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
+        "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
+        false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
+        "default_branch": null}, "regression": false, "content": 95649476, "secrets_engine_version":
         "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
         "indice_start": 712505, "indice_end": 712537, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
@@ -278,7 +268,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '26675'
+      - '26241'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -286,7 +276,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:15:11 GMT
+      - Fri, 20 Mar 2026 15:57:43 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -296,11 +286,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '146'
+      - '180'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

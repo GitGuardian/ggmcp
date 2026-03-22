@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&date__le=2025-12-31&date__ge=2024-01-01
   response:
@@ -23,11 +23,10 @@ interactions:
         "AWS Keys", "date": "2025-12-16T17:22:08Z", "last_trigger_published_at": "2025-12-16T17:22:08Z",
         "last_triggered_at": "2025-12-16T18:22:25.117146Z", "last_trigger_detected_at":
         "2025-12-16T18:22:25.117146Z", "hash": "Bxk/2SaXQPI8yl7xAhB3l3Q9xdra8RHtG7PEK3Wc2BUYBzgKL4Qc71cZRqNcojMG",
-        "policy": 1, "ignored": true, "ignored_at": "2025-12-16T18:22:25.122585Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": null,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "ignored": true, "ignored_at": "2025-12-16T18:22:25.122585Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": null, "declarative_secret_status":
@@ -70,15 +69,14 @@ interactions:
         "2025-12-14T19:04:50Z", "last_trigger_published_at": "2025-12-14T19:04:50Z",
         "last_triggered_at": "2026-02-04T13:38:51.989716Z", "last_trigger_detected_at":
         "2026-02-04T13:38:51.989716Z", "hash": "BeW5KalXvUOy4RWl94KMO3C7iql7YdgzmiUOxsSbIvEcfisXp+KkPCNpyNbtXqJM",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "Square Token", "severity_rule_config":
-        null, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Square Token", "severity_rule_config": null, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
         "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
         false, "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
@@ -109,11 +107,10 @@ interactions:
         API Key", "date": "2025-12-14T19:04:50Z", "last_trigger_published_at": "2025-12-14T19:04:50Z",
         "last_triggered_at": "2026-02-04T13:38:51.992367Z", "last_trigger_detected_at":
         "2026-02-04T13:38:51.992367Z", "hash": "RiwXqKF/MH9aVvqy3SHVyjungan9+gseDRXLFLEeYlR4tCfeiwQ5Z8PP16EaJtIX",
-        "policy": 1, "ignored": true, "ignored_at": "2026-02-04T13:38:52.095775Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": null,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "ignored": true, "ignored_at": "2026-02-04T13:38:52.095775Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "Google API Key", "severity_rule_config": null, "declarative_secret_status":
@@ -150,26 +147,24 @@ interactions:
         URI", "date": "2025-12-14T19:04:50Z", "last_trigger_published_at": "2025-12-14T19:04:50Z",
         "last_triggered_at": "2026-02-04T13:38:51.992800Z", "last_trigger_detected_at":
         "2026-02-04T13:38:51.992800Z", "hash": "U0UpslQfYEt5UuEASStW1TUUjSlPPFgH/4x3zFEikLa/81d7feuh40iUuZt2nZY1",
-        "policy": 1, "ignored": false, "ignored_at": null, "ignore_reason": null,
-        "ignorer": null, "resolved": false, "resolved_at": null, "resolver": null,
-        "regression": false, "manual_severity_setter": null, "policy_name": "ensure_no_secrets",
-        "policy_display_name": "Secrets detection", "ignorer_display_name": "none",
-        "ignorer_type": "none", "resolver_display_name": "none", "resolver_type":
-        "none", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "TRIGGERED", "issue_name": "MongoDB Credentials", "severity_rule_config":
-        {"id": 10873, "gg_created_at": "2026-02-12T15:13:37.684368Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684372Z", "index": 160, "severity": 20, "rule": {"id":
-        516, "gg_created_at": "2025-03-18T08:57:54.142529Z", "gg_updated_at": "2025-03-18T08:57:54.142532Z",
-        "name": "Specific Database Credentials", "description": "Specific Database
-        Credentials", "json_rule": {"operator": "AND", "args": [{"operator": "EQ",
-        "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
-        "arg2": {"value": "data_storage"}}, {"operator": "EQ", "arg1": {"path": "issue.secret.detector.nature",
-        "default": null}, "arg2": {"value": "specific"}}]}, "is_global": true, "scope":
-        "private", "author": null}}, "declarative_secret_status": null, "assignee":
-        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
-        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "MongoDB Credentials", "severity_rule_config": {"id": 10873, "gg_created_at":
+        "2026-02-12T15:13:37.684368Z", "gg_updated_at": "2026-02-12T15:13:37.684372Z",
+        "index": 160, "severity": 20, "rule": {"id": 516, "gg_created_at": "2025-03-18T08:57:54.142529Z",
+        "gg_updated_at": "2025-03-18T08:57:54.142532Z", "name": "Specific Database
+        Credentials", "description": "Specific Database Credentials", "json_rule":
+        {"operator": "AND", "args": [{"operator": "EQ", "arg1": {"path": "issue.secret.detector.metadata.category",
+        "default": null}, "arg2": {"value": "data_storage"}}, {"operator": "EQ", "arg1":
+        {"path": "issue.secret.detector.nature", "default": null}, "arg2": {"value":
+        "specific"}}]}, "is_global": true, "scope": "private", "author": null}}, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
+        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
+        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
@@ -211,11 +206,10 @@ interactions:
         Personal Access Token", "date": "2025-12-11T10:20:33Z", "last_trigger_published_at":
         "2025-12-11T10:20:33Z", "last_triggered_at": "2025-12-12T13:42:33.638019Z",
         "last_trigger_detected_at": "2025-12-12T13:42:33.638019Z", "hash": "GE2F9myvPOY9d2s6Nfmk51d56pRf/vuWKlf6ibIMmsAAR5GdnkQX790L2ERUA9iz",
-        "policy": 1, "ignored": true, "ignored_at": "2025-12-12T13:42:33.647628Z",
-        "ignore_reason": "invalid", "ignorer": 491414, "resolved": false, "resolved_at":
-        null, "resolver": null, "regression": false, "manual_severity_setter": null,
-        "policy_name": "ensure_no_secrets", "policy_display_name": "Secrets detection",
-        "ignorer_display_name": "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "ignored": true, "ignored_at": "2025-12-12T13:42:33.647628Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "Figma Personal Access Token", "severity_rule_config": null, "declarative_secret_status":
@@ -255,7 +249,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '25360'
+      - '24925'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -263,7 +257,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:15:03 GMT
+      - Fri, 20 Mar 2026 15:56:42 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -273,11 +267,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '147'
+      - '152'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

@@ -13,20 +13,20 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&teams__in=1
   response:
     body:
-      string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?page=2&page_size=5&teams__in=1",
-        "previous": null, "results": []}'
+      string: '{"count": null, "page": 1, "next": null, "previous": null, "results":
+        []}'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '149'
+      - '64'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -34,7 +34,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Wed, 11 Mar 2026 20:15:04 GMT
+      - Fri, 20 Mar 2026 15:56:43 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -44,11 +44,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.410.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '74'
+      - '67'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

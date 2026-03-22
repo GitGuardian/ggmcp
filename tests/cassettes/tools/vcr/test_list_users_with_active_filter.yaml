@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/members?per_page=10&active=true
   response:
@@ -22,31 +22,31 @@ interactions:
         "bruce-wayne-gg@protonmail.com", "name": "Bruce Wayne", "created_at": "2020-01-15T15:07:36.510559Z",
         "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
         "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
-        "name": "Aymeric Sicard", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2026-02-02T15:18:27.122251Z", "active": true}, {"id": 2508, "role": "manager",
+        "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
+        "2026-03-16T16:36:17.030500Z", "active": true}, {"id": 2508, "role": "manager",
         "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
-        "name": "Guillaume Charpiat", "created_at": "2020-03-23T17:53:57.158457Z",
-        "last_login": "2026-01-29T15:06:07.929620Z", "active": true}, {"id": 37699,
+        "name": "Guillaume CHARPIAT", "created_at": "2020-03-23T17:53:57.158457Z",
+        "last_login": "2026-02-11T10:03:14.915916Z", "active": true}, {"id": 37699,
         "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
-        "name": "Alexis Larnaud", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
-        "2026-02-02T14:16:09.533692Z", "active": true}, {"id": 63809, "role": "manager",
+        "name": "Alexis LARNAUD", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
+        "2026-03-18T09:50:45.071495Z", "active": true}, {"id": 63809, "role": "manager",
         "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
-        "Orian Roturier", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
+        "Orian ROTURIER", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
         "2025-08-05T08:47:38.723615Z", "active": true}, {"id": 69474, "role": "member",
         "access_level": "member", "email": "elacaille0@gmail.com", "name": "Eric",
         "created_at": "2020-12-15T08:53:29.392054Z", "last_login": "2022-03-28T09:34:32.148429Z",
         "active": true}, {"id": 104544, "role": "manager", "access_level": "manager",
-        "email": "pierre.lalanne@gitguardian.com", "name": "Pierre Lalanne", "created_at":
-        "2021-04-07T13:54:43.138909Z", "last_login": "2026-02-03T09:54:59.923579Z",
+        "email": "pierre.lalanne@gitguardian.com", "name": "Pierre LALANNE", "created_at":
+        "2021-04-07T13:54:43.138909Z", "last_login": "2026-03-19T09:39:33.088766Z",
         "active": true}, {"id": 104916, "role": "manager", "access_level": "manager",
-        "email": "wassim.hana@gitguardian.com", "name": "wassim hana", "created_at":
-        "2021-04-08T14:54:40.049555Z", "last_login": "2026-02-04T12:28:29.773620Z",
+        "email": "wassim.hana@gitguardian.com", "name": "Wassim HANA", "created_at":
+        "2021-04-08T14:54:40.049555Z", "last_login": "2026-03-17T14:03:06.951359Z",
         "active": true}, {"id": 113168, "role": "owner", "access_level": "owner",
-        "email": "henri.hubert@gitguardian.com", "name": "Henri Hubert", "created_at":
-        "2021-05-04T08:20:06.714793Z", "last_login": "2026-02-03T08:44:31.829370Z",
+        "email": "henri.hubert@gitguardian.com", "name": "Henri HUBERT", "created_at":
+        "2021-05-04T08:20:06.714793Z", "last_login": "2026-03-16T09:28:31.918681Z",
         "active": true}, {"id": 136170, "role": "manager", "access_level": "manager",
-        "email": "eric.fourrier@gitguardian.com", "name": "Eric Fourrier", "created_at":
-        "2021-07-13T07:29:59.706367Z", "last_login": "2026-01-30T15:13:50.427516Z",
+        "email": "eric.fourrier@gitguardian.com", "name": "Eric FOURRIER", "created_at":
+        "2021-07-13T07:29:59.706367Z", "last_login": "2026-03-18T15:48:09.154345Z",
         "active": true}]'
     headers:
       access-control-expose-headers:
@@ -62,7 +62,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:03:35 GMT
+      - Fri, 20 Mar 2026 15:58:47 GMT
       link:
       - <https://api.gitguardian.com/v1/members?active=true&cursor=cD0xMzYxNzA%3D&per_page=10>;
         rel="next"
@@ -75,17 +75,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '37'
+      - '32'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:

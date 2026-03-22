@@ -13,7 +13,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=1
   response:
@@ -23,13 +23,13 @@ interactions:
         "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
         "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
         "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": "2026-01-26T14:36:19.333114Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "medium", "assignee_id":
-        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]",
-        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
-        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
+        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
+        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
+        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
         "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
         "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
         "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
@@ -37,12 +37,13 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 99, "is_vaulted": false, "ignore_reason":
-        "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLIC",
-        "PUBLICLY_EXPOSED"], "incident_name": "AWS IAM Keys", "public_exposure": null,
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLICLY_LEAKED"],
+        "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}]'
     headers:
@@ -51,7 +52,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '2071'
+      - '2149'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -59,7 +60,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:01:38 GMT
+      - Fri, 20 Mar 2026 15:56:20 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2MA%3D%3D&per_page=1>;
         rel="next"
@@ -72,17 +73,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '81'
+      - '70'
       x-frame-options:
       - DENY
       x-per-page:
       - '1'
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -102,7 +103,7 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460
   response:
@@ -112,13 +113,13 @@ interactions:
         "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
         "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
         "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": "2026-01-26T14:36:19.333114Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "medium", "assignee_id":
-        null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]",
-        "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at":
-        "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
+        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
+        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
+        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
+        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
         "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
         "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
         "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
@@ -126,14 +127,14 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 99, "is_vaulted": false, "ignore_reason":
-        "invalid", "occurrences": [{"id": 78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z",
+        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
+        null, "occurrences": [{"id": 78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z",
         "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
         [{"name": "client_id", "indice_start": 49, "indice_end": 69, "pre_line_start":
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
         "client_secret", "indice_start": 85, "indice_end": 125, "pre_line_start":
         4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
         "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
@@ -153,7 +154,7 @@ interactions:
         null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}, {"name":
         "client_secret", "indice_start": 128, "indice_end": 168, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}], "tags":
-        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
         "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
@@ -170,8 +171,9 @@ interactions:
         "deleted": true}}], "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
-        "tags": ["PUBLIC", "PUBLICLY_EXPOSED"], "incident_name": "AWS IAM Keys", "public_exposure":
-        null, "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link":
+        "tags": ["PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure":
+        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link":
         "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}], "custom_tags":
         []}'
     headers:
@@ -180,7 +182,7 @@ interactions:
       allow:
       - GET, PUT, PATCH, HEAD, OPTIONS
       content-length:
-      - '5360'
+      - '5438'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -188,7 +190,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 05 Feb 2026 08:01:39 GMT
+      - Fri, 20 Mar 2026 15:56:20 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -198,15 +200,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.384.0
+      - v2.417.1
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '443'
+      - '93'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.155.4
+      - 2.158.0
       x-xss-protection:
       - 1; mode=block
     status:
