@@ -2148,6 +2148,168 @@ class GitGuardianClient:
 
         return await self._request_get("/incidents-for-mcp", params=params)
 
+    async def count_incidents_for_mcp(
+        self,
+        # Search
+        search: str | None = None,
+        # Status and assignment filters
+        status: str | list[str] | None = None,
+        assignee_id: int | list[int] | None = None,
+        # Severity, score, and validity filters
+        severity: str | list[str] | None = None,
+        score__ge: int | None = None,
+        score__le: int | None = None,
+        validity: str | list[str] | None = None,
+        # Secret type filters
+        detector_group_name: str | list[str] | None = None,
+        detector_type: str | list[str] | None = None,
+        detector_category: str | list[str] | None = None,
+        issue_name: str | list[str] | None = None,
+        secret_category: str | list[str] | None = None,
+        secret_family: str | list[str] | None = None,
+        secret_provider: str | list[str] | None = None,
+        # Source filters
+        source: int | list[int] | None = None,
+        source_type: str | list[str] | None = None,
+        source_criticality: str | list[str] | None = None,
+        # Occurrence and presence filters
+        occurrence_count: str | None = None,
+        presence: str | list[str] | None = None,
+        # Date filters
+        opened_for: str | None = None,
+        # Tags and exposure filters
+        tags: str | list[str] | None = None,
+        public_exposure: str | list[str] | None = None,
+        # Integration filters
+        integration: str | list[str] | None = None,
+        issue_tracker: str | list[str] | None = None,
+        # Boolean filters
+        has_related_issues: bool | None = None,
+        location: bool | None = None,
+        feedback: bool | None = None,
+        publicly_shared: bool | None = None,
+        # Vault/Secret Manager filters
+        secret_manager_type: str | list[str] | None = None,
+        secret_manager_instance: int | list[int] | None = None,
+        # NHI (Non-Human Identity) filters
+        nhi_env: str | list[str] | None = None,
+        nhi_policy: str | list[str] | None = None,
+        # Team filters
+        teams: int | list[int] | None = None,
+        # Similar issues filter
+        similar_to: int | None = None,
+        # Date filters
+        date_before: str | None = None,
+        date_after: str | None = None,
+        # Secret scope filter
+        secret_scope: str | list[str] | None = None,
+        # Analyzer status filter
+        analyzer_status: str | list[str] | None = None,
+        # Custom tags filter
+        custom_tags: int | list[int] | None = None,
+        # Custom filters with operators
+        custom_filters: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Count secret incidents using the MCP-optimized count endpoint.
+
+        Accepts the same filters as list_incidents_for_mcp but returns only
+        the total count of matching incidents.
+
+        Returns:
+            Dictionary with a single "count" key, e.g. {"count": 42}
+        """
+        logger.info("Counting incidents for MCP")
+
+        params: dict[str, Any] = {}
+
+        def format_param(value: Any) -> str:
+            if isinstance(value, list):
+                return ",".join(str(v) for v in value)
+            return str(value)
+
+        if search:
+            params["search"] = search
+        if status:
+            params["status__in"] = format_param(status)
+        if assignee_id is not None:
+            params["assignee__in"] = format_param(assignee_id)
+        if severity:
+            params["severity__in"] = format_param(severity)
+        if score__ge is not None:
+            params["score__ge"] = score__ge
+        if score__le is not None:
+            params["score__le"] = score__le
+        if validity:
+            params["validity__in"] = format_param(validity)
+        if detector_group_name:
+            params["detector_group_name__in"] = format_param(detector_group_name)
+        if detector_type:
+            params["detector_type__in"] = format_param(detector_type)
+        if detector_category:
+            params["detector_category__in"] = format_param(detector_category)
+        if issue_name:
+            params["issue_name__in"] = format_param(issue_name)
+        if secret_category:
+            params["secret_category__in"] = format_param(secret_category)
+        if secret_family:
+            params["secret_family__in"] = format_param(secret_family)
+        if secret_provider:
+            params["secret_provider__in"] = format_param(secret_provider)
+        if source:
+            params["source__in"] = format_param(source)
+        if source_type:
+            params["source_type__in"] = format_param(source_type)
+        if source_criticality:
+            params["source_criticality__in"] = format_param(source_criticality)
+        if occurrence_count:
+            params["occurrence_count"] = occurrence_count
+        if presence:
+            params["presence__in"] = format_param(presence)
+        if opened_for:
+            params["opened_for"] = opened_for
+        if tags:
+            params["tags__in"] = format_param(tags)
+        if public_exposure:
+            params["public_exposure__in"] = format_param(public_exposure)
+        if integration:
+            params["integration__in"] = format_param(integration)
+        if issue_tracker:
+            params["issue_tracker__in"] = format_param(issue_tracker)
+        if has_related_issues is not None:
+            params["has_related_issues"] = str(has_related_issues).lower()
+        if location is not None:
+            params["location"] = str(location).lower()
+        if feedback is not None:
+            params["feedback"] = str(feedback).lower()
+        if publicly_shared is not None:
+            params["publicly_shared"] = str(publicly_shared).lower()
+        if secret_manager_type:
+            params["secret_manager_type__in"] = format_param(secret_manager_type)
+        if secret_manager_instance:
+            params["secret_manager_instance__in"] = format_param(secret_manager_instance)
+        if nhi_env:
+            params["nhi_env__in"] = format_param(nhi_env)
+        if nhi_policy:
+            params["nhi_policy__in"] = format_param(nhi_policy)
+        if teams:
+            params["teams__in"] = format_param(teams)
+        if similar_to is not None:
+            params["similar_to"] = similar_to
+        if date_before:
+            params["date__le"] = date_before
+        if date_after:
+            params["date__ge"] = date_after
+        if secret_scope:
+            params["secret_scope__in"] = format_param(secret_scope)
+        if analyzer_status:
+            params["analyzer_status__in"] = format_param(analyzer_status)
+        if custom_tags:
+            params["custom_tags__in"] = format_param(custom_tags)
+        if custom_filters:
+            params.update(custom_filters)
+
+        return await self._request_get("/incidents-for-mcp/count", params=params)
+
     async def list_detectors(
         self,
         search: str | None = None,
