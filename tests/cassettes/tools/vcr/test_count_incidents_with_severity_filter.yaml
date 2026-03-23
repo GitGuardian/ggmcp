@@ -1,0 +1,28 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?status__in=TRIGGERED%2CASSIGNED%2CRESOLVED&severity__in=10&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
+  response:
+    body:
+      string: '{"count": 23}'
+    headers:
+      Content-Type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+version: 1

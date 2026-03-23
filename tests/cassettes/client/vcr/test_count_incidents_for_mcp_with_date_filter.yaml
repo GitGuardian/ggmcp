@@ -1,0 +1,28 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?date__ge=2024-01-01&date__le=2025-12-31
+  response:
+    body:
+      string: '{"count": 98}'
+    headers:
+      Content-Type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+version: 1

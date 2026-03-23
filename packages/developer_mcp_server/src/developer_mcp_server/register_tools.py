@@ -1,4 +1,5 @@
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
+from gg_api_core.tools.count_incidents import count_incidents
 from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_incident import get_incident
@@ -76,6 +77,14 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         "Filter by repository (via source_ids), detector type, severity, status (TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
         "With mine=True, this tool only shows incidents assigned to the current user. "
         "Uses page-based pagination.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        count_incidents,
+        description="Count secret incidents matching the given filters without fetching the full list. "
+        "Accepts the same filters as list_incidents (status, severity, detector type, source, tags, etc.) "
+        "but returns only the total count. Useful for getting an overview of incident volume or checking filter results before paginating.",
         required_scopes=["incidents:read"],
     )
 
