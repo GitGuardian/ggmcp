@@ -688,7 +688,7 @@ class GitGuardianOAuthClient:
             headers: dict[str, str] = {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "X-Token-Name": str(self.token_name),  # Custom header with token name
-                "User-Agent": f"MCP-Server/{self.token_name}",  # Include in user agent
+                "User-Agent": f"GitGuardian-MCP-Server/{self.token_name}",  # Include in user agent
             }
 
             async with httpx.AsyncClient(follow_redirects=True) as client:

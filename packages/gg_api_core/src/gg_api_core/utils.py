@@ -66,6 +66,8 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     Args:
         personal_access_token: Optional PAT for explicit authentication.
+        user_agent: Optional User-Agent string. If not provided, automatically
+            extracted from incoming HTTP request headers (when available).
 
     Returns:
         GitGuardianClient: Client instance configured with appropriate authentication
@@ -74,6 +76,10 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
         RuntimeError: In single-tenant mode, if no token source is available
     """
+    # Extract caller User-Agent from HTTP headers if not explicitly provided
+    if user_agent is None:
+        user_agent = _get_caller_user_agent()
+
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
         logger.debug("Creating client with explicitly provided token")
@@ -105,6 +111,19 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         user_agent=user_agent,
     )
     return _client_singleton
+
+
+def _get_caller_user_agent() -> str | None:
+    """Try to extract User-Agent from the incoming MCP request headers.
+
+    Returns None if not available (e.g. stdio transport).
+    """
+    try:
+        headers = get_http_headers(include={"user-agent"})
+        return headers.get("user-agent") if headers else None
+    except Exception:
+        logger.exception("Error when trying to extract User-Agent from headers")
+        return None
 
 
 def _get_token_from_request_headers() -> str:
