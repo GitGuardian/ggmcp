@@ -501,6 +501,7 @@ class GitGuardianClient:
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
             "User-Agent": self._user_agent,
+            "X-Privacy-Mode": "true",
         }
         logger.debug("Using token for authorization")
 
@@ -736,6 +737,7 @@ class GitGuardianClient:
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
             "User-Agent": self._user_agent,
+            "X-Privacy-Mode": "true",
         }
         headers.update(kwargs.pop("headers", {}))
 
