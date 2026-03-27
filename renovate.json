@@ -4,6 +4,7 @@
     "config:recommended",
     "mergeConfidence:all-badges"
   ],
+  "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 8am on monday"]
