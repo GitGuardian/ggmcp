@@ -9,7 +9,7 @@ from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStat
 @pytest.fixture
 def client():
     """Fixture to create a client instance with OAuth authentication."""
-    with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://test.gitguardian.com"}):
+    with patch.dict(os.environ, {"GITGUARDIAN_URL": "https://gitguardian.mycompany.com"}):
         client = GitGuardianClient()
         # Mock the OAuth token to prevent OAuth flow during tests
         client._oauth_token = "test_oauth_token"
@@ -41,7 +41,7 @@ class TestGitGuardianClient:
 
     def test_init_with_env_vars(self, client):
         """Test client initialization with environment variables."""
-        assert client.public_api_url == "https://test.gitguardian.com/exposed/v1"
+        assert client.public_api_url == "https://gitguardian.mycompany.com/exposed/v1"
 
     def test_init_with_params(self):
         """Test client initialization with parameters."""

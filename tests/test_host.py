@@ -3,7 +3,7 @@
 import os
 from unittest.mock import patch
 
-from gg_api_core.host import SAAS_HOSTNAMES, is_self_hosted_instance
+from gg_api_core.host import SAAS_HOSTNAMES, _is_saas_hostname, is_self_hosted_instance
 
 
 class TestIsSelfHostedInstance:
@@ -104,12 +104,20 @@ class TestIsSelfHostedInstance:
 
     def test_url_with_basic_auth(self):
         """Test that URLs with basic auth credentials are handled correctly."""
-        # Note: urlparse includes credentials in netloc (e.g., "user:pass@hostname")
-        # Since "user:pass@dashboard.gitguardian.com" is not in SAAS_HOSTNAMES,
-        # the function returns True (treats it as self-hosted)
-        # This is an edge case where the current implementation doesn't strip credentials
-        assert is_self_hosted_instance("https://user:pass@dashboard.gitguardian.com") is True
+        # urlparse includes credentials in netloc (e.g., "user:pass@hostname")
+        # The suffix-based matching still recognizes the SaaS domain
+        assert is_self_hosted_instance("https://user:pass@dashboard.gitguardian.com") is False
         assert is_self_hosted_instance("https://user:pass@custom.domain.com") is True
+
+    def test_review_app_returns_false(self):
+        """Test that review-app URLs are recognized as SaaS-like (not self-hosted)."""
+        review_app_urls = [
+            "https://dashboard-23683.review-apps.preprod.gitguardian.tech",
+            "https://api-23683.review-apps.preprod.gitguardian.tech",
+            "https://dashboard-99999.review-apps.preprod.gitguardian.tech",
+        ]
+        for url in review_app_urls:
+            assert is_self_hosted_instance(url) is False, f"Expected False for {url}"
 
     def test_all_saas_hostnames_in_list(self):
         """Test that all hostnames in SAAS_HOSTNAMES are correctly identified."""
@@ -117,3 +125,17 @@ class TestIsSelfHostedInstance:
             # Construct a full URL for each hostname
             url = f"https://{hostname}"
             assert is_self_hosted_instance(url) is False, f"Expected False for {url}"
+
+
+class TestIsSaasHostname:
+    """Tests for the _is_saas_hostname function."""
+
+    def test_exact_match(self):
+        assert _is_saas_hostname("dashboard.gitguardian.com") is True
+
+    def test_suffix_match(self):
+        assert _is_saas_hostname("dashboard-23683.review-apps.preprod.gitguardian.tech") is True
+
+    def test_custom_domain_not_matched(self):
+        assert _is_saas_hostname("gitguardian.mycompany.com") is False
+        assert _is_saas_hostname("gg.internal.corp") is False

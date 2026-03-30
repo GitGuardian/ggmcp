@@ -10,6 +10,13 @@ SAAS_HOSTNAMES = [
     "dashboard.preprod.gitguardian.com",
 ]
 
+# Domain suffixes for dynamic SaaS-like environments (e.g. review-apps)
+# where hostnames include a dynamic ID like dashboard-23683.review-apps.preprod.gitguardian.tech
+SAAS_DOMAIN_SUFFIXES = [
+    ".gitguardian.com",
+    ".gitguardian.tech",
+]
+
 LOCAL_HOSTNAMES = ["localhost", "127.0.0.1"]
 
 
@@ -18,6 +25,14 @@ def _is_local_hostname(parsed_hostname: str | None) -> bool:
     if parsed_hostname is None:
         return False
     return parsed_hostname.lower() in LOCAL_HOSTNAMES
+
+
+def _is_saas_hostname(netloc: str) -> bool:
+    """Check if a netloc (host:port) belongs to a SaaS or SaaS-like environment."""
+    if netloc in SAAS_HOSTNAMES:
+        return True
+    # Match dynamic environments like review-apps (e.g. dashboard-23683.review-apps.preprod.gitguardian.tech)
+    return any(netloc.endswith(suffix) for suffix in SAAS_DOMAIN_SUFFIXES)
 
 
 def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
@@ -40,7 +55,7 @@ def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
             return False
         # For SaaS, check the full netloc (includes port)
         netloc = parsed.netloc.lower()
-        return netloc not in SAAS_HOSTNAMES
+        return not _is_saas_hostname(netloc)
     except Exception:
         # If parsing fails, assume self-hosted to be safe
         return True
