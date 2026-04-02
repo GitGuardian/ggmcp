@@ -49,7 +49,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 1, "score": 98, "displayed_occurrence":
+        "is_vaulted": false, "similar_issue_count": 1, "score": 97, "displayed_occurrence":
         {"id": 226113779, "issue": 22515404, "account": 8, "kind": "RLTM", "element":
         "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9", "element_type": "GIT_COMMIT",
         "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
@@ -99,7 +99,7 @@ interactions:
         [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
         Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        33, "displayed_occurrence": {"id": 217629888, "issue": 21256874, "account":
+        35, "displayed_occurrence": {"id": 217629888, "issue": 21256874, "account":
         8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
         "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
         "vaoX27XgrGUFeuRDLf1lGhRHkgfeKQkdi/3qMgXMYvxgUYRCJMTAoAK2DALLNEk3", "published_at":
@@ -146,7 +146,7 @@ interactions:
         [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
         Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        51, "displayed_occurrence": {"id": 217594938, "issue": 21251447, "account":
+        64, "displayed_occurrence": {"id": 217594938, "issue": 21251447, "account":
         8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
         "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
         "8WalVYdfAy9WWVLzVZBfOXcyF0UCcYGuYQrb3Wdix673pMDZxFC6e51x3UmXyF+6", "published_at":
@@ -193,7 +193,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
         "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 87, "displayed_occurrence": {"id": 217590276,
+        "similar_issue_count": 0, "score": 91, "displayed_occurrence": {"id": 217590276,
         "issue": 21250826, "account": 8, "kind": "RLTM", "element": "", "element_type":
         "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
         "", "value": null, "value_hash": "S9J90cfgfIz9/1KiWTklsCZsShVgIHiSFM0yUQf2i7lzzzxGfAxs12u2O6U6+pg/",
@@ -240,7 +240,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
         "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 49, "displayed_occurrence": {"id": 217585090,
+        "similar_issue_count": 0, "score": 54, "displayed_occurrence": {"id": 217585090,
         "issue": 21249986, "account": 8, "kind": "RLTM", "element": "", "element_type":
         "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
         "", "value": null, "value_hash": "osEp3GKX4ftrxTM5lNGzTdef2z+j0tc2XJHHJF2v91JTdYxPw5c2j2dU7D4EWOPl",
@@ -268,7 +268,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '26241'
+      - '27736'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -276,7 +276,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:43 GMT
+      - Thu, 02 Apr 2026 07:58:11 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -286,15 +286,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '180'
+      - '146'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

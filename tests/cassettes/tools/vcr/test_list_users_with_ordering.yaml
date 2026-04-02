@@ -18,40 +18,41 @@ interactions:
     uri: https://api.gitguardian.com/v1/members?per_page=10&ordering=-created_at
   response:
     body:
-      string: '[{"id": 1742128, "role": "member", "access_level": "member", "email":
-        "ben.martinmooney@gitguardian.com", "name": "Ben MARTINMOONEY", "created_at":
-        "2026-03-20T12:16:02.861151Z", "last_login": null, "active": true}, {"id":
-        1742004, "role": "member", "access_level": "member", "email": "alix.mouchet@gitguardian.com",
-        "name": "Alix MOUCHET", "created_at": "2026-03-20T10:06:13.001876Z", "last_login":
-        null, "active": true}, {"id": 1739935, "role": "member", "access_level": "member",
-        "email": "paula.kleine@gitguardian.com", "name": "Paula KLEINE", "created_at":
-        "2026-03-18T13:41:15.931617Z", "last_login": null, "active": true}, {"id":
-        1738757, "role": "member", "access_level": "member", "email": "lea.benouchene@gitguardian.com",
-        "name": "L\u00e9a BENOUCHENE", "created_at": "2026-03-17T15:15:39.089903Z",
-        "last_login": null, "active": true}, {"id": 1738448, "role": "member", "access_level":
-        "member", "email": "mariam.natishvili@gitguardian.com", "name": "Mariam NATISHVILI",
-        "created_at": "2026-03-17T10:15:52.343439Z", "last_login": "2026-03-17T10:17:00.847015Z",
-        "active": true}, {"id": 1737460, "role": "member", "access_level": "member",
-        "email": "samuel.tapsell@gitguardian.com", "name": "Samuel TAPSELL", "created_at":
-        "2026-03-16T14:21:00.723294Z", "last_login": null, "active": true}, {"id":
-        1737386, "role": "member", "access_level": "member", "email": "ella.clark@gitguardian.com",
-        "name": "Ella CLARK", "created_at": "2026-03-16T13:15:47.583115Z", "last_login":
-        null, "active": true}, {"id": 1737159, "role": "member", "access_level": "member",
-        "email": "allan.autard@gitguardian.com", "name": "Allan AUTARD", "created_at":
-        "2026-03-16T10:01:12.043897Z", "last_login": null, "active": true}, {"id":
-        1729561, "role": "manager", "access_level": "manager", "email": "tak.sur@gmail.com",
-        "name": "Surbhi Tak", "created_at": "2026-03-11T11:52:33.472411Z", "last_login":
-        "2026-03-11T11:53:30.340229Z", "active": true}, {"id": 1715472, "role": "member",
-        "access_level": "member", "email": "mia.mckie@gitguardian.com", "name": "Mia
-        MCKIE", "created_at": "2026-02-26T11:32:46.838682Z", "last_login": null, "active":
-        true}]'
+      string: '[{"id": 1755666, "role": "member", "access_level": "member", "email":
+        "ylan.cuvier@gitguardian.com", "name": "Ylan CUVIER", "created_at": "2026-03-31T10:09:24.169492Z",
+        "last_login": null, "active": true}, {"id": 1754656, "role": "manager", "access_level":
+        "manager", "email": "candidate.playground+eu@gitguardian.com", "name": "CandidateEU
+        DemoAccess", "created_at": "2026-03-30T14:33:58.378802Z", "last_login": "2026-04-01T14:26:13.997279Z",
+        "active": true}, {"id": 1754650, "role": "manager", "access_level": "manager",
+        "email": "candidate.playground+us@gitguardian.com", "name": "CandidateUS DemoAccess",
+        "created_at": "2026-03-30T14:30:34.889065Z", "last_login": "2026-03-30T14:42:58.800498Z",
+        "active": true}, {"id": 1748270, "role": "member", "access_level": "member",
+        "email": "mehdi.himmid@gitguardian.com", "name": "Mehdi HIMMID", "created_at":
+        "2026-03-25T16:06:35.423734Z", "last_login": null, "active": true}, {"id":
+        1748071, "role": "member", "access_level": "member", "email": "arthur.bernaille.chambille@gitguardian.com",
+        "name": "Arthur Bernaille", "created_at": "2026-03-25T13:13:55.261169Z", "last_login":
+        null, "active": false}, {"id": 1742128, "role": "member", "access_level":
+        "member", "email": "ben.martinmooney@gitguardian.com", "name": "Ben MARTINMOONEY",
+        "created_at": "2026-03-20T12:16:02.861151Z", "last_login": "2026-04-01T16:50:27.380456Z",
+        "active": true}, {"id": 1742004, "role": "member", "access_level": "member",
+        "email": "alix.mouchet@gitguardian.com", "name": "Alix MOUCHET", "created_at":
+        "2026-03-20T10:06:13.001876Z", "last_login": null, "active": true}, {"id":
+        1739935, "role": "member", "access_level": "member", "email": "paula.kleine@gitguardian.com",
+        "name": "Paula KLEINE", "created_at": "2026-03-18T13:41:15.931617Z", "last_login":
+        null, "active": false}, {"id": 1738757, "role": "member", "access_level":
+        "member", "email": "lea.benouchene@gitguardian.com", "name": "L\u00e9a BENOUCHENE",
+        "created_at": "2026-03-17T15:15:39.089903Z", "last_login": null, "active":
+        true}, {"id": 1738448, "role": "member", "access_level": "member", "email":
+        "mariam.natishvili@gitguardian.com", "name": "Mariam NATISHVILI", "created_at":
+        "2026-03-17T10:15:52.343439Z", "last_login": "2026-03-30T16:50:49.571834Z",
+        "active": true}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '1967'
+      - '2098'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -59,9 +60,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:58:47 GMT
+      - Thu, 02 Apr 2026 07:59:15 GMT
       link:
-      - <https://api.gitguardian.com/v1/members?cursor=cD0yMDI2LTAyLTI2KzExJTNBMzIlM0E0Ni44Mzg2ODIlMkIwMCUzQTAw&ordering=-created_at&per_page=10>;
+      - <https://api.gitguardian.com/v1/members?cursor=cD0yMDI2LTAzLTE3KzEwJTNBMTUlM0E1Mi4zNDM0MzklMkIwMCUzQTAw&ordering=-created_at&per_page=10>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -72,17 +73,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '31'
+      - '33'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

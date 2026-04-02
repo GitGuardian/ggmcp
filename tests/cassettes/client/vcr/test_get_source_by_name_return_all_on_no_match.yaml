@@ -29,37 +29,40 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "deleted": false}, {"id": 11363204, "type": "github", "full_name": "amascia-gg/ftn-test-circleci",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.354963Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11363204,
+        "type": "github", "full_name": "amascia-gg/ftn-test-circleci", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 2, "closed_incidents_count": 1, "last_scan":
+        {"date": "2025-10-09T16:45:43.354963Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
-        {"id": 11677085, "type": "github", "full_name": "peterringball/test", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": false, "visibility": "private", "external_id": "673461264",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
-        "deleted": false}, {"id": 11678252, "type": "github", "full_name": "tuches/Test",
-        "health": "safe", "source_criticality": "low", "default_branch": "master",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 5, "duration": "0.68205", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "291043633", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        "url": "https://github.com/amascia-gg/ftn-test-circleci", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11677085, "type": "github",
+        "full_name": "peterringball/test", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "673461264", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/tuches/Test", "deleted": false}, {"id": 11756704,
-        "type": "github", "full_name": "peterringball/test4", "health": "safe", "source_criticality":
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11678252,
+        "type": "github", "full_name": "tuches/Test", "health": "safe", "source_criticality":
+        "low", "default_branch": "master", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
+        "0.68205", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "291043633", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/tuches/Test", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11756704, "type": "github",
+        "full_name": "peterringball/test4", "health": "safe", "source_criticality":
         "low", "default_branch": "main", "default_branch_head": "d7d00895483d9e6fd62acf72594199ee5cabf7c7",
         "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
         "2025-10-09T16:45:43.353873Z", "status": "finished", "failing_reason": "",
@@ -69,83 +72,86 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test4",
-        "deleted": false}, {"id": 12322614, "type": "slack", "full_name": "Demo Slack
-        Integration / #test-timothe-delion", "health": "safe", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.449065Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.233054", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C06D386SZC0", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06D386SZC0",
-        "deleted": false}, {"id": 12470998, "type": "slack", "full_name": "Demo Slack
-        Integration / #test-channel-creation", "health": "safe", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.444580Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.23533", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C06EGV15G8Z", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EGV15G8Z",
-        "deleted": false}, {"id": 12482445, "type": "slack", "full_name": "Demo Slack
-        Integration / #test", "health": "safe", "source_criticality": "unknown", "default_branch":
-        null, "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:44:19.440496Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 0, "duration": "0.26622", "branches_scanned":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12322614,
+        "type": "slack", "full_name": "Demo Slack Integration / #test-timothe-delion",
+        "health": "safe", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": {"date": "2025-10-09T16:44:19.449065Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 0, "duration": "0.233054", "branches_scanned":
         0, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "C06EYF11U0G", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        "C06D386SZC0", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EYF11U0G", "deleted":
-        false}, {"id": 12662970, "type": "github", "full_name": "aymericGG/sample_secrets_Codacytest",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
-        2, "last_scan": {"date": "2025-10-09T16:45:43.354102Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 7, "duration": "2.949598", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "750268193", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/aymericGG/sample_secrets_Codacytest", "deleted":
-        false}, {"id": 12663154, "type": "github", "full_name": "aymericGG/juice-shop-Codacytest",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "master",
-        "default_branch_head": null, "open_incidents_count": 52, "closed_incidents_count":
-        33, "last_scan": {"date": "2026-01-15T16:49:11.671959Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
+        "url": "https://demoslackinte-0vf1761.slack.com/archives/C06D386SZC0", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 12470998, "type": "slack",
+        "full_name": "Demo Slack Integration / #test-channel-creation", "health":
+        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2025-10-09T16:44:19.444580Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.23533", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C06EGV15G8Z",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EGV15G8Z",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12482445,
+        "type": "slack", "full_name": "Demo Slack Integration / #test", "health":
+        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2025-10-09T16:44:19.440496Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.26622", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C06EYF11U0G",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EYF11U0G",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12662970,
+        "type": "github", "full_name": "aymericGG/sample_secrets_Codacytest", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 1, "closed_incidents_count": 2, "last_scan":
+        {"date": "2025-10-09T16:45:43.354102Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 7, "duration": "2.949598", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "750268193",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        0, "high": 1, "medium": 1, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/sample_secrets_Codacytest",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12663154,
+        "type": "github", "full_name": "aymericGG/juice-shop-Codacytest", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
+        null, "open_incidents_count": 52, "closed_incidents_count": 33, "last_scan":
+        {"date": "2026-01-15T16:49:11.671959Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         52, "severity_breakdown": {"critical": 27, "high": 25, "medium": 0, "low":
         0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
         {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
-        "url": "https://github.com/aymericGG/juice-shop-Codacytest", "deleted": false},
-        {"id": 13056005, "type": "github", "full_name": "amascia-gg/test_sca_scan",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "modified_def",
-        "default_branch_head": "80331d9b7d90ccc8e97f24a5712346b18712d016", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351336Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 283, "duration":
-        "0.993776", "branches_scanned": 3, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "608577245", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "url": "https://github.com/aymericGG/juice-shop-Codacytest", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 13056005, "type": "github",
+        "full_name": "amascia-gg/test_sca_scan", "health": "safe", "source_criticality":
+        "unknown", "default_branch": "modified_def", "default_branch_head": "80331d9b7d90ccc8e97f24a5712346b18712d016",
+        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
+        "2025-10-09T16:45:43.351336Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 283, "duration": "0.993776", "branches_scanned": 3, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "608577245",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/amascia-gg/test_sca_scan",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 13926516,
+        "type": "github", "full_name": "ferdi05/test_keys", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        2, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.353532Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 6, "duration":
+        "0.732485", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "791829364", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 2, "severity_breakdown": {"critical": 2, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/amascia-gg/test_sca_scan",
-        "deleted": false}, {"id": 13926516, "type": "github", "full_name": "ferdi05/test_keys",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.353532Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 6, "duration": "0.732485", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "791829364", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 2, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/ferdi05/test_keys", "deleted": false}, {"id": 16218896,
+        1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/ferdi05/test_keys",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218896,
         "type": "gitlab", "full_name": "qa / test-nriv", "health": "at_risk", "source_criticality":
         "unknown", "default_branch": "main", "default_branch_head": "1dee221c6baeb2677e1463ce1446b334fb5f007f",
         "open_incidents_count": 4, "closed_incidents_count": 9, "last_scan": {"date":
@@ -156,129 +162,134 @@ interactions:
         0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
         {"total": 9, "severity_breakdown": {"critical": 1, "high": 3, "medium": 0,
         "low": 0, "info": 0, "unknown": 5}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
-        "deleted": false}, {"id": 16218897, "type": "gitlab", "full_name": "dev /
-        Salome Test", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 5, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:33.652100Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 10, "duration": "4.211253", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "254", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 5,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 5}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/salome-test", "deleted":
-        false}, {"id": 16218898, "type": "gitlab", "full_name": "qa / test-r8327r",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 5, "closed_incidents_count":
-        5, "last_scan": {"date": "2026-02-18T22:22:35.009680Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 11, "duration": "5.2262", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "253", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 5,
-        "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0, "info":
-        0, "unknown": 3}}, "closed_secret_incidents": {"total": 5, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 4}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-r8327r", "deleted":
-        false}, {"id": 16218901, "type": "gitlab", "full_name": "QATeam / test-renovate-npm",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:39.531659Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 5, "duration": "1.013955", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "250", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/QATeam/test-renovate-npm",
-        "deleted": false}, {"id": 16218902, "type": "gitlab", "full_name": "QATeam
-        / test-renovate", "health": "safe", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:41.194813Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 13, "duration": "1.340437", "branches_scanned":
-        11, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218897,
+        "type": "gitlab", "full_name": "dev / Salome Test", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        5, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:22:33.652100Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 10, "duration":
+        "4.211253", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "254", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 5, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 5}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/salome-test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218898,
+        "type": "gitlab", "full_name": "qa / test-r8327r", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        5, "closed_incidents_count": 5, "last_scan": {"date": "2026-02-18T22:22:35.009680Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 11, "duration":
+        "5.2262", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "internal", "external_id": "253", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 5, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 0, "unknown": 3}}, "closed_secret_incidents": {"total":
+        5, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
+        "info": 0, "unknown": 4}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-r8327r",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218901,
+        "type": "gitlab", "full_name": "QATeam / test-renovate-npm", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:22:39.531659Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 5, "duration": "1.013955", "branches_scanned": 2, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "250", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/QATeam/test-renovate-npm",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218902,
+        "type": "gitlab", "full_name": "QATeam / test-renovate", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:22:41.194813Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 13, "duration": "1.340437", "branches_scanned": 11,
+        "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "249", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
         "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
         0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/QATeam/test-renovate", "deleted":
-        false}, {"id": 16218904, "type": "gitlab", "full_name": "qa-sca-iac / test_scan_ci",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:44.456605Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 28, "duration": "1.839371", "branches_scanned":
-        3, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "247", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 1,
-        "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa-sca-iac/test_scan_ci",
-        "deleted": false}, {"id": 16218905, "type": "gitlab", "full_name": "qa / test-adrien-4",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:45.881202Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 1, "duration": "2.691519", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "246", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-adrien-4", "deleted":
-        false}, {"id": 16218906, "type": "gitlab", "full_name": "sguillaume-test-group
-        / remediation-example", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 2, "last_scan": {"date": "2026-02-18T22:22:47.300341Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 2, "duration":
-        "2.18343", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "245", "secret_incidents_breakdown": {"open_secret_incidents":
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/QATeam/test-renovate", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218904, "type": "gitlab",
+        "full_name": "qa-sca-iac / test_scan_ci", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        1, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:22:44.456605Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 28, "duration":
+        "1.839371", "branches_scanned": 3, "progress": 100}, "monitored": true, "visibility":
+        "internal", "external_id": "247", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa-sca-iac/test_scan_ci",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218905,
+        "type": "gitlab", "full_name": "qa / test-adrien-4", "health": "safe", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:22:45.881202Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 1, "duration":
+        "2.691519", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "246", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 2}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/sguillaume-test-group/remediation-example",
-        "deleted": false}, {"id": 16218908, "type": "gitlab", "full_name": "qa / mdeclercq-test",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "master",
-        "default_branch_head": null, "open_incidents_count": 12, "closed_incidents_count":
-        1, "last_scan": {"date": "2026-02-18T22:22:50.344636Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 16, "duration": "3.738315", "branches_scanned":
-        3, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-adrien-4",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218906,
+        "type": "gitlab", "full_name": "sguillaume-test-group / remediation-example",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        2, "last_scan": {"date": "2026-02-18T22:22:47.300341Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 2, "duration": "2.18343", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "245", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
+        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 2}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/sguillaume-test-group/remediation-example",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218908,
+        "type": "gitlab", "full_name": "qa / mdeclercq-test", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
+        null, "open_incidents_count": 12, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:22:50.344636Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 16, "duration": "3.738315", "branches_scanned": 3,
+        "progress": 100}, "monitored": true, "visibility": "private", "external_id":
         "243", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 12,
         "severity_breakdown": {"critical": 1, "high": 3, "medium": 0, "low": 0, "info":
         0, "unknown": 8}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/mdeclercq-test", "deleted":
-        false}, {"id": 16218910, "type": "gitlab", "full_name": "sylvain-test-grp
-        / test-private-project", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:22:54.387619Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
-        "2.593891", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "241", "secret_incidents_breakdown": {"open_secret_incidents":
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/mdeclercq-test", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218910, "type": "gitlab",
+        "full_name": "sylvain-test-grp / test-private-project", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:22:54.387619Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 9, "duration": "2.593891", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "241", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/sylvain-test-grp/test-private-project",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218911,
+        "type": "gitlab", "full_name": "Achille / sca-on-prem-test", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 3, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:22:55.744591Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 13, "duration": "2.883655", "branches_scanned": 6,
+        "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "240", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
+        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 3}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/amascia/sca-on-prem-test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218913,
+        "type": "gitlab", "full_name": "qa / test", "health": "safe", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:22:57.069116Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 2, "duration":
+        "1.144702", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "internal", "external_id": "238", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/sylvain-test-grp/test-private-project",
-        "deleted": false}, {"id": 16218911, "type": "gitlab", "full_name": "Achille
-        / sca-on-prem-test", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        3, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:22:55.744591Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 13, "duration":
-        "2.883655", "branches_scanned": 6, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "240", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 3, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 3}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/amascia/sca-on-prem-test",
-        "deleted": false}, {"id": 16218913, "type": "gitlab", "full_name": "qa / test",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:22:57.069116Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 2, "duration": "1.144702", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "238", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test", "deleted": false},
-        {"id": 16218914, "type": "gitlab", "full_name": "gg-tools / Henritest", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218914,
+        "type": "gitlab", "full_name": "gg-tools / Henritest", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
         null, "open_incidents_count": 2, "closed_incidents_count": 0, "last_scan":
         {"date": "2026-02-18T22:22:58.438189Z", "status": "finished", "failing_reason":
         "", "commits_scanned": 4, "duration": "2.43681", "branches_scanned": 2, "progress":
@@ -287,152 +298,158 @@ interactions:
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gg-tools/Henritest",
-        "deleted": false}, {"id": 16218917, "type": "gitlab", "full_name": "test group
-        / dc comics / test subsubgroup / batman", "health": "safe", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:23:02.618235Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 2, "duration":
-        "1.149728", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "230", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/test-group/dc-comics/test-subsubgroup/batman",
-        "deleted": false}, {"id": 16218920, "type": "gitlab", "full_name": "qa / nathan
-        realtime test", "health": "safe", "source_criticality": "unknown", "default_branch":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218917,
+        "type": "gitlab", "full_name": "test group / dc comics / test subsubgroup
+        / batman", "health": "safe", "source_criticality": "unknown", "default_branch":
         "main", "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:23:06.993061Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 1, "duration": "1.038476", "branches_scanned":
+        1, "last_scan": {"date": "2026-02-18T22:23:02.618235Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 2, "duration": "1.149728", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "227", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
+        "230", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
         "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/nathan-realtime-test",
-        "deleted": false}, {"id": 16218921, "type": "gitlab", "full_name": "Alina
-        Tuholukova / testNewProject", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:23:08.474151Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
-        "3.825191", "branches_scanned": 2, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "226", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/atuholukova/testnewproject",
-        "deleted": false}, {"id": 16218922, "type": "gitlab", "full_name": "cgarcia
-        / TestNewProject", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
-        1, "last_scan": {"date": "2026-02-18T22:23:09.792745Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 5, "duration": "8.89352", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "225", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
-        "severity_breakdown": {"critical": 0, "high": 3, "medium": 0, "low": 0, "info":
         0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/cgarcia/TestNewProject",
-        "deleted": false}, {"id": 16218929, "type": "gitlab", "full_name": "dev /
-        pierre-test-repo", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
-        3, "last_scan": {"date": "2026-02-18T22:23:19.802234Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 10, "duration": "2.393559", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/test-group/dc-comics/test-subsubgroup/batman",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218920,
+        "type": "gitlab", "full_name": "qa / nathan realtime test", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:23:06.993061Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "1.038476", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "227", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/nathan-realtime-test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218921,
+        "type": "gitlab", "full_name": "Alina Tuholukova / testNewProject", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 1, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:23:08.474151Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 5, "duration": "3.825191", "branches_scanned": 2, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "226", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/atuholukova/testnewproject",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218922,
+        "type": "gitlab", "full_name": "cgarcia / TestNewProject", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 3, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:09.792745Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 5, "duration": "8.89352", "branches_scanned": 2, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "225", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/cgarcia/TestNewProject",
+        "provider_metadata": {"archived": true}, "deleted": false}, {"id": 16218929,
+        "type": "gitlab", "full_name": "dev / pierre-test-repo", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 3, "closed_incidents_count": 3, "last_scan":
+        {"date": "2026-02-18T22:23:19.802234Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 10, "duration": "2.393559", "branches_scanned": 2,
+        "progress": 100}, "monitored": true, "visibility": "private", "external_id":
         "218", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
         "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
         0, "unknown": 3}}, "closed_secret_incidents": {"total": 3, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 3}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/pierre-test-repo", "deleted":
-        false}, {"id": 16218932, "type": "gitlab", "full_name": "SE-test-group-access
-        / new-project-test-group-access", "health": "at_risk", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:23:23.975277Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
-        "1.470983", "branches_scanned": 2, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "214", "secret_incidents_breakdown": {"open_secret_incidents":
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/pierre-test-repo", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218932, "type": "gitlab",
+        "full_name": "SE-test-group-access / new-project-test-group-access", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 1, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:23.975277Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 3, "duration": "1.470983", "branches_scanned": 2, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "214", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/se-test-group-access/new-project-test-group-access",
-        "deleted": false}, {"id": 16218938, "type": "gitlab", "full_name": "dev /
-        xblanchot-test-sca", "health": "safe", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:23:30.978999Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 1, "duration": "2.543753", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "208", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/xblanchot-test-sca",
-        "deleted": false}, {"id": 16218940, "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto
-        / gim-qa-gitlabSandbox-Test-Longname-Repository", "health": "safe", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:23:33.853539Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
-        "1.665081", "branches_scanned": 2, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "203", "secret_incidents_breakdown": {"open_secret_incidents":
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/se-test-group-access/new-project-test-group-access",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218938,
+        "type": "gitlab", "full_name": "dev / xblanchot-test-sca", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:23:30.978999Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "2.543753", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "internal", "external_id": "208", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-test-longname-repository",
-        "deleted": false}, {"id": 16218942, "type": "gitlab", "full_name": "cgarcia
-        / TestHoneytoken", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 7, "closed_incidents_count":
-        10, "last_scan": {"date": "2026-02-18T22:23:37.127441Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 24, "duration": "3.716215", "branches_scanned":
-        6, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/xblanchot-test-sca",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218940,
+        "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-Test-Longname-Repository",
+        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        1, "last_scan": {"date": "2026-02-18T22:23:33.853539Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 3, "duration": "1.665081", "branches_scanned":
+        2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "203", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
+        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-test-longname-repository",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218942,
+        "type": "gitlab", "full_name": "cgarcia / TestHoneytoken", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 7, "closed_incidents_count": 10, "last_scan":
+        {"date": "2026-02-18T22:23:37.127441Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 24, "duration": "3.716215", "branches_scanned": 6,
+        "progress": 100}, "monitored": true, "visibility": "private", "external_id":
         "200", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 7,
         "severity_breakdown": {"critical": 0, "high": 5, "medium": 0, "low": 0, "info":
         0, "unknown": 2}}, "closed_secret_incidents": {"total": 10, "severity_breakdown":
         {"critical": 0, "high": 9, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
         "url": "https://gitlab-01.aws-qa-gitguardian.com/cgarcia/testhoneytoken",
-        "deleted": false}, {"id": 16218943, "type": "gitlab", "full_name": "dev /
-        Test New Integration", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:23:38.579980Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
-        "1.6112", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "198", "secret_incidents_breakdown": {"open_secret_incidents":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218943,
+        "type": "gitlab", "full_name": "dev / Test New Integration", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 1, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:38.579980Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 3, "duration": "1.6112", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "198", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
         {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/test_new_integration",
-        "deleted": false}, {"id": 16218945, "type": "gitlab", "full_name": "sguillaume-test-group
-        / pysimplesoap", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "master", "default_branch_head": null, "open_incidents_count": 11, "closed_incidents_count":
-        1, "last_scan": {"date": "2026-02-18T22:23:39.885259Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 547, "duration": "2.789674", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/test_new_integration",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218945,
+        "type": "gitlab", "full_name": "sguillaume-test-group / pysimplesoap", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
+        null, "open_incidents_count": 11, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:39.885259Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 547, "duration": "2.789674", "branches_scanned": 1,
+        "progress": 100}, "monitored": true, "visibility": "private", "external_id":
         "196", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 11,
         "severity_breakdown": {"critical": 8, "high": 0, "medium": 0, "low": 0, "info":
         0, "unknown": 3}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://gitlab-01.aws-qa-gitguardian.com/sguillaume-test-group/pysimplesoap",
-        "deleted": false}, {"id": 16218946, "type": "gitlab", "full_name": "Alina
-        Tuholukova / test_new_project", "health": "at_risk", "source_criticality":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218946,
+        "type": "gitlab", "full_name": "Alina Tuholukova / test_new_project", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 1, "closed_incidents_count": 2, "last_scan":
+        {"date": "2026-02-18T22:23:41.342033Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 5, "duration": "1.58631", "branches_scanned": 4, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "195", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/atuholukova/test_new_project",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218947,
+        "type": "gitlab", "full_name": "fperucki2 / fperucki-test", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "425f36647e5a5eb4db7b6ae6db8b9cf28ed55d2b", "open_incidents_count": 7, "closed_incidents_count":
+        0, "last_scan": {"date": "2026-02-18T22:23:42.881801Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 38, "duration": "2.070126", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "194", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 7,
+        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 7}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/fperucki2/test", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218948, "type": "gitlab",
+        "full_name": "amascia / test-sca-iac-repo-scanner", "health": "safe", "source_criticality":
         "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 2, "last_scan": {"date": "2026-02-18T22:23:41.342033Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
-        "1.58631", "branches_scanned": 4, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/atuholukova/test_new_project",
-        "deleted": false}, {"id": 16218947, "type": "gitlab", "full_name": "fperucki2
-        / fperucki-test", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": "425f36647e5a5eb4db7b6ae6db8b9cf28ed55d2b",
-        "open_incidents_count": 7, "closed_incidents_count": 0, "last_scan": {"date":
-        "2026-02-18T22:23:42.881801Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 38, "duration": "2.070126", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "194", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 7, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 7}}, "closed_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/fperucki2/test",
-        "deleted": false}, {"id": 16218948, "type": "gitlab", "full_name": "amascia
-        / test-sca-iac-repo-scanner", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
         0, "closed_incidents_count": 3, "last_scan": {"date": "2026-02-18T22:23:44.288065Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 4, "duration":
         "0.0", "branches_scanned": 4, "progress": 100}, "monitored": true, "visibility":
@@ -441,75 +458,79 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         3, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/amascia1/test-sca-iac-repo-scanner",
-        "deleted": false}, {"id": 16218949, "type": "gitlab", "full_name": "amascia
-        / test_sca_scan_repo_scanner", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:23:45.694811Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 17, "duration":
-        "0.0", "branches_scanned": 3, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "192", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/amascia1/test_sca_scan_repo_scanner",
-        "deleted": false}, {"id": 16218950, "type": "gitlab", "full_name": "dev /
-        test_davequin", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": "dfb493889c0f1c450926bcc61227da4347159a86",
-        "open_incidents_count": 3, "closed_incidents_count": 23, "last_scan": {"date":
-        "2026-02-18T22:23:47.006587Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 38, "duration": "7.517583", "branches_scanned": 2, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "191", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
-        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 23, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 22}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/test_davequin",
-        "deleted": false}, {"id": 16218953, "type": "gitlab", "full_name": "L\u00e9na
-        Cuissard / lena-swift-test", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": "master", "default_branch_head": "8a0153b9a7a9604f8a69b22857a8176fc23f3662",
-        "open_incidents_count": 3, "closed_incidents_count": 19, "last_scan": {"date":
-        "2026-02-18T22:23:51.223394Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 30, "duration": "5.430756", "branches_scanned": 15, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "188", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
-        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 19, "severity_breakdown": {"critical": 1, "high": 15, "medium":
-        0, "low": 0, "info": 0, "unknown": 3}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/lcuissard/lena-swift-test",
-        "deleted": false}, {"id": 16218954, "type": "gitlab", "full_name": "gg-tools
-        / Paulin Test", "health": "safe", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        1, "last_scan": {"date": "2026-02-18T22:23:53.263745Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 12, "duration": "1.456493", "branches_scanned":
-        4, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218949,
+        "type": "gitlab", "full_name": "amascia / test_sca_scan_repo_scanner", "health":
+        "safe", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:45.694811Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 17, "duration": "0.0", "branches_scanned": 3, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "192", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/amascia1/test_sca_scan_repo_scanner",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218950,
+        "type": "gitlab", "full_name": "dev / test_davequin", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "dfb493889c0f1c450926bcc61227da4347159a86", "open_incidents_count": 3, "closed_incidents_count":
+        23, "last_scan": {"date": "2026-02-18T22:23:47.006587Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 38, "duration": "7.517583", "branches_scanned":
+        2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "191", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
+        "severity_breakdown": {"critical": 3, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 0}}, "closed_secret_incidents": {"total": 23, "severity_breakdown":
+        {"critical": 1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 22}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/test_davequin", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218953, "type": "gitlab",
+        "full_name": "L\u00e9na Cuissard / lena-swift-test", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
+        "8a0153b9a7a9604f8a69b22857a8176fc23f3662", "open_incidents_count": 3, "closed_incidents_count":
+        19, "last_scan": {"date": "2026-02-18T22:23:51.223394Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 30, "duration": "5.430756", "branches_scanned":
+        15, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "188", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 3,
+        "severity_breakdown": {"critical": 3, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 0}}, "closed_secret_incidents": {"total": 19, "severity_breakdown":
+        {"critical": 1, "high": 15, "medium": 0, "low": 0, "info": 0, "unknown": 3}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/lcuissard/lena-swift-test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218954,
+        "type": "gitlab", "full_name": "gg-tools / Paulin Test", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
+        {"date": "2026-02-18T22:23:53.263745Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 12, "duration": "1.456493", "branches_scanned": 4,
+        "progress": 100}, "monitored": true, "visibility": "private", "external_id":
         "187", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
         "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
         0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/gg-tools/paulin-test", "deleted":
-        false}, {"id": 16218955, "type": "gitlab", "full_name": "qa / Adrien-testQA-4",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:23:53.960022Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 1, "duration": "0.898988", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "185", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/adrien-testqa-4", "deleted":
-        false}, {"id": 16218957, "type": "gitlab", "full_name": "Valentin Murat /
-        test-project", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": "e9841d32614c7ad22d40ff6a4154dd3129504813",
-        "open_incidents_count": 2, "closed_incidents_count": 3, "last_scan": {"date":
-        "2026-02-18T22:23:56.884117Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 9, "duration": "4.189152", "branches_scanned": 2, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "183", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
-        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
-        {"total": 3, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
-        "low": 0, "info": 1, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/vmurat/test-project",
-        "deleted": false}, {"id": 16218959, "type": "gitlab", "full_name": "cgarcia
-        / TestLanguages", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": "2f97737024395e59e7c7f1baa2b09a313c8beaf9",
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/gg-tools/paulin-test", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218955, "type": "gitlab",
+        "full_name": "qa / Adrien-testQA-4", "health": "safe", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-18T22:23:53.960022Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 1, "duration":
+        "0.898988", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "185", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/adrien-testqa-4",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218957,
+        "type": "gitlab", "full_name": "Valentin Murat / test-project", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "e9841d32614c7ad22d40ff6a4154dd3129504813", "open_incidents_count": 2, "closed_incidents_count":
+        3, "last_scan": {"date": "2026-02-18T22:23:56.884117Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 9, "duration": "4.189152", "branches_scanned":
+        2, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "183", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 2,
+        "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0, "info":
+        0, "unknown": 1}}, "closed_secret_incidents": {"total": 3, "severity_breakdown":
+        {"critical": 1, "high": 1, "medium": 0, "low": 0, "info": 1, "unknown": 0}}},
+        "url": "https://gitlab-01.aws-qa-gitguardian.com/vmurat/test-project", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 16218959, "type": "gitlab",
+        "full_name": "cgarcia / TestLanguages", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": "2f97737024395e59e7c7f1baa2b09a313c8beaf9",
         "open_incidents_count": 2, "closed_incidents_count": 15, "last_scan": {"date":
         "2026-02-18T22:24:01.792999Z", "status": "finished", "failing_reason": "",
         "commits_scanned": 30, "duration": "6.124585", "branches_scanned": 12, "progress":
@@ -518,20 +539,21 @@ interactions:
         0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 15, "severity_breakdown": {"critical": 1, "high": 10, "medium":
         0, "low": 0, "info": 0, "unknown": 4}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/cgarcia/test-languages",
-        "deleted": false}, {"id": 16218964, "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto
-        / testSCA", "health": "safe", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2026-02-18T22:24:06.513901Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 2, "duration": "1.059793", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "175", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0,
-        "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/testsca",
-        "deleted": false}, {"id": 16218966, "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto
-        / teamtestgitlab", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        "main", "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218964,
+        "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto / testSCA", "health":
+        "safe", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2026-02-18T22:24:06.513901Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 2, "duration": "1.059793", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "175", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/testsca",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218966,
+        "type": "gitlab", "full_name": "gim-qa-gitlabSandbox-auto / teamtestgitlab",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
         0, "last_scan": {"date": "2026-02-18T22:24:07.822623Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 3, "duration": "1.395084", "branches_scanned":
         1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
@@ -540,36 +562,36 @@ interactions:
         0, "unknown": 2}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/teamtestgitlab",
-        "deleted": false}, {"id": 16218967, "type": "gitlab", "full_name": "qa / test-nathan",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 11, "closed_incidents_count":
-        1, "last_scan": {"date": "2026-02-18T22:24:09.434190Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 13, "duration": "2.670679", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "168", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 11,
-        "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0, "info":
-        0, "unknown": 10}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-nathan", "deleted":
-        false}, {"id": 16218968, "type": "gitlab", "full_name": "qa / Adrien-testQA-3",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "trunk",
-        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
-        2, "last_scan": {"date": "2026-02-18T22:24:11.419809Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 8, "duration": "4.365037", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "internal", "external_id":
-        "167", "secret_incidents_breakdown": {"open_secret_incidents": {"total": 2,
-        "severity_breakdown": {"critical": 2, "high": 0, "medium": 0, "low": 0, "info":
-        0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
-        {"critical": 0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/adrien-testqa-3", "deleted":
-        false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218967,
+        "type": "gitlab", "full_name": "qa / test-nathan", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        11, "closed_incidents_count": 1, "last_scan": {"date": "2026-02-18T22:24:09.434190Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 13, "duration":
+        "2.670679", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "private", "external_id": "168", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 10}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 1}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/test-nathan",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 16218968,
+        "type": "gitlab", "full_name": "qa / Adrien-testQA-3", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "trunk", "default_branch_head":
+        null, "open_incidents_count": 2, "closed_incidents_count": 2, "last_scan":
+        {"date": "2026-02-18T22:24:11.419809Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 8, "duration": "4.365037", "branches_scanned": 2, "progress":
+        100}, "monitored": true, "visibility": "internal", "external_id": "167", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa/adrien-testqa-3",
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '41170'
+      - '43119'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -577,7 +599,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:11 GMT
+      - Thu, 02 Apr 2026 07:57:36 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xNjIxODk2OA%3D%3D&per_page=50&search=test>;
         rel="next"
@@ -590,17 +612,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '295'
+      - '174'
       x-frame-options:
       - DENY
       x-per-page:
       - '50'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

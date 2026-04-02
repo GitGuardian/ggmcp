@@ -19,8 +19,57 @@ interactions:
   response:
     body:
       string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?page=2&page_size=5&status__in=TRIGGERED",
-        "previous": null, "results": [{"id": 28905156, "account": 8, "criterion":
-        "GitLab Token", "date": "2026-03-17T14:35:54.643000Z", "last_trigger_published_at":
+        "previous": null, "results": [{"id": 29186788, "account": 8, "criterion":
+        "GitLab Token", "date": "2026-03-25T16:53:05.035206Z", "last_trigger_published_at":
+        "2026-03-25T16:53:05.035206Z", "last_triggered_at": "2026-03-25T16:53:05.853859Z",
+        "last_trigger_detected_at": "2026-03-25T16:53:05.853859Z", "hash": "SJOfhHk3hANA5qiK6fypwRpA6pyKIbh2xmK/JYKpXtMCszyZxGkRAPRx8mJAAtol",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "GitLab Token", "severity_rule_config": {"id": 10877, "gg_created_at": "2026-02-12T15:13:37.684430Z",
+        "gg_updated_at": "2026-02-12T15:13:37.684433Z", "index": 200, "severity":
+        20, "rule": {"id": 520, "gg_created_at": "2025-03-18T08:57:54.142633Z", "gg_updated_at":
+        "2025-03-18T08:57:54.142636Z", "name": "The secret is in a sensitive file",
+        "description": "Secret found in a sensitive file (.env, .pem key, dotfiles)",
+        "json_rule": {"operator": "CONTAINS_ANY", "arg1": {"path": "tag_names", "default":
+        null}, "arg2": {"value": ["SENSITIVE_FILE"]}}, "is_global": true, "scope":
+        "any", "author": null}}, "declarative_secret_status": null, "assignee": null,
+        "last_presence_check_at": null, "secret": "[REDACTED]", "severity": 100, "authors":
+        [{"info": "", "name": "GitGuardian Sandbox [internal]"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        3, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"name": "totaaa", "type": "custom_source",
+        "path": "totaaa", "source_criticality": "unknown"}, {"name": "totaaab", "type":
+        "custom_source", "path": "totaaab", "source_criticality": "unknown"}, {"name":
+        "totaaabccb", "type": "custom_source", "path": "totaaabccb", "source_criticality":
+        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
+        "similar_issue_count": 0, "score": 9, "displayed_occurrence": {"id": 253371418,
+        "issue": 29186788, "account": 8, "kind": "RLTM", "element": "", "element_type":
+        "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
+        "", "value": null, "value_hash": "bYdCbHZ101hGcZ6Q6XqcVQkGryoOAuqw4QxVXQLjQfpBf5OllP448kL+4h/ug/8v",
+        "published_at": "2026-03-25T16:53:05.035206Z", "date": "2026-03-25T16:53:05.035206Z",
+        "detected_at": "2026-03-25T16:53:05.737995Z", "is_vcs_type": false, "last_detected_at":
+        "2026-03-25T16:53:05.035206Z", "last_seen_at": "2026-03-25T16:53:05.035206Z",
+        "data": {}, "url": "", "source": {"id": 26968497, "url": "", "type": "custom_source",
+        "display_name": "totaaa", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 146400014, "secrets_engine_version": "2.158.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 123, "indice_end":
+        149, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [{"name": "sensitive_filepath", "source": "document", "metadata": {"sensitive_patterns":
+        [{"tags": [], "comment": "", "pattern": "\\.?env(?![^\\.])", "category": "filename",
+        "description": "Environment configuration file"}]}}], "filepath": "/tmp/tmpvcmhu56nggshield/home/hhubert/.env",
+        "filename": ".env", "presence": "visible", "last_presence_seen_at": "2026-03-25T16:53:05.897743Z",
+        "last_presence_check_at": "2026-03-25T16:53:05.897743Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": null, "full_tags": [{"type":
+        "SENSITIVE_FILE", "metadata": null}]}, "has_dropped_occurrences": false, "tags":
+        ["REVOCABLE_BY_GG", "SENSITIVE_FILE"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 3}, {"id": 28905156, "account": 8, "criterion": "GitLab
+        Token", "date": "2026-03-17T14:35:54.643000Z", "last_trigger_published_at":
         "2026-03-17T14:35:54.643000Z", "last_triggered_at": "2026-03-17T14:36:00.418064Z",
         "last_trigger_detected_at": "2026-03-17T14:36:00.418064Z", "hash": "kbVfTxt8mubX2vVRQN/wNxpT9vQMThT40ap5w7qZ8b20vI7qxGkRAPRx8mJAAtol",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
@@ -30,37 +79,42 @@ interactions:
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
         "GitLab Token", "severity_rule_config": null, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "<unknown>", "name": "GG Test Integrations"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "gg-test-integrations / My
-        Kanban Space", "type": "jira_cloud_project", "path": "gg-test-integrations
-        / My Kanban Space", "source_criticality": "unknown"}], "custom_tags": [],
+        "severity": 100, "authors": [{"info": "<unknown>", "name": "GG Test Integrations"},
+        {"info": "<unknown>", "name": "Unknown"}], "user_permission": 7, "is_publicly_shared":
+        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 4, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
+        "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"},
+        {"name": "gitguardian-team-vxrpkdpl / D\u00e9veloppement logiciel", "type":
+        "confluence_cloud_space", "path": "gitguardian-team-vxrpkdpl / D\u00e9veloppement
+        logiciel", "source_criticality": "unknown"}, {"name": "gitguardian-team-vxrpkdpl
+        / Philippe Gablain", "type": "confluence_cloud_space", "path": "gitguardian-team-vxrpkdpl
+        / Philippe Gablain", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        10, "displayed_occurrence": {"id": 251398324, "issue": 28905156, "account":
-        8, "kind": "RLTM", "element": "KAN-1/attachment/10003", "element_type": "JIRA_ATTACHMENT",
-        "author_name": "GG Test Integrations", "author_info": "<unknown>", "value":
-        null, "value_hash": "ANhrxxdlpUdBuuKCFgR9GCYhiQtUs9r3Zdbz3c2kuqZy+eS+jy+nX8JdITltnLl1",
-        "published_at": "2026-03-17T14:35:54.643000Z", "date": "2026-03-17T14:35:54.643000Z",
-        "detected_at": "2026-03-17T14:35:57.639696Z", "is_vcs_type": false, "last_detected_at":
-        "2026-03-17T14:35:54.643000Z", "last_seen_at": "2026-03-17T14:35:54.643000Z",
-        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
-        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
-        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
-        Space", "visibility": "private", "monitored": true, "source_criticality":
+        9, "displayed_occurrence": {"id": 252869959, "issue": 28905156, "account":
+        8, "kind": "HIST", "element": "attachment/att524290", "element_type": "CONFLUENCE_ATTACHMENT",
+        "author_name": "Unknown", "author_info": "<unknown>", "value": null, "value_hash":
+        "YZ0Me0zobvsKpuRIo4KGFLcQhBLa5wXObD6V1J3gm/iC+5COK1fW5YSNIAEU43PK", "published_at":
+        "2026-03-12T17:23:48.915000Z", "date": "2026-03-12T17:23:48.915000Z", "detected_at":
+        "2026-03-24T09:54:31.814599Z", "is_vcs_type": false, "last_detected_at": "2026-03-12T17:23:48.915000Z",
+        "last_seen_at": "2026-03-12T17:23:48.915000Z", "data": {}, "url": "https://gitguardian-team-vxrpkdpl.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5/pages/262177",
+        "source": {"id": 26936741, "url": "https://gitguardian-team-vxrpkdpl.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5",
+        "type": "confluence_cloud_space", "display_name": "gitguardian-team-vxrpkdpl
+        / Philippe Gablain", "visibility": "private", "monitored": true, "source_criticality":
         "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
         "content": 144316417, "secrets_engine_version": "2.158.0", "matches": [{"name":
         "apikey", "string_matched": "[REDACTED]", "indice_start": 106, "indice_end":
         132, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
         "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
-        [], "filepath": "https://gg-test-integrations.atlassian.net/rest/api/2/attachment/content/10003",
-        "filename": "toto9.txt", "presence": "visible", "last_presence_seen_at": "2026-03-17T14:36:00.446573Z",
-        "last_presence_check_at": "2026-03-17T14:36:00.446573Z", "first_presence_deleted_at":
-        null, "seen_in_default_branch": null, "change_type": null, "full_tags": []},
-        "has_dropped_occurrences": false, "tags": ["REVOCABLE_BY_GG"], "public_exposure":
-        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "occurrences_count": 2}, {"id": 28905136, "account": 8, "criterion":
-        "GitLab Token", "date": "2026-03-17T13:50:21.909000Z", "last_trigger_published_at":
+        [], "filepath": "/download/attachments/262177/toto9.txt?version=1&modificationDate=1773336228915&cacheVersion=1&api=v2",
+        "filename": "toto9.txt", "presence": "visible", "last_presence_seen_at": "2026-03-30T08:25:43.285668Z",
+        "last_presence_check_at": "2026-03-30T08:25:43.285668Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": null, "change_type": null, "full_tags": [{"type":
+        "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences": false,
+        "tags": ["FROM_HISTORICAL_SCAN", "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 4}, {"id": 28905136, "account": 8, "criterion": "GitLab
+        Token", "date": "2026-03-17T13:50:21.909000Z", "last_trigger_published_at":
         "2026-03-17T13:50:21.909000Z", "last_triggered_at": "2026-03-17T14:35:04.182999Z",
         "last_trigger_detected_at": "2026-03-17T14:35:04.182999Z", "hash": "WK++VMwWOtCgcJLB1bssA+LYOZibFxHq2PD3Gc27zcfd1zd3xGkRAPRx8mJAAtol",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
@@ -77,7 +131,7 @@ interactions:
         [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
         "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"}],
         "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 10, "displayed_occurrence": {"id": 251397394, "issue": 28905136,
+        0, "score": 9, "displayed_occurrence": {"id": 251397394, "issue": 28905136,
         "account": 8, "kind": "HIST", "element": "KAN-1/attachment/10000", "element_type":
         "JIRA_ATTACHMENT", "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
         "value": null, "value_hash": "HJeG3nW8vJKcwODm8fthKZ+emBqlOohKRUtdSDefI95yvYyjcl17awQJwJ+R7glD",
@@ -112,12 +166,12 @@ interactions:
         "Generic Password", "severity_rule_config": null, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 1, "sources": [{"name": "olaugier / test", "type":
         "gl_project", "path": "olaugier/test", "source_criticality": "unknown"}],
         "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 65, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
+        0, "score": 63, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
         "account": 8, "kind": "RLTM", "element": "876b995fcda9f3ebacdde3630fe8521c09e88a50",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "kqtDoOt2gXsDpCN6VFM6vvO0PUTxcS7pA+2Yu2AS9t2s4kcdjypyaVpjw9oi8GAg",
@@ -164,12 +218,12 @@ interactions:
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "Martin Faucheux / Repo A",
         "type": "gl_project", "path": "martin-faucheux/repo-a", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 40, "displayed_occurrence": {"id": 245063312,
+        "similar_issue_count": 0, "score": 36, "displayed_occurrence": {"id": 245063312,
         "issue": 27395126, "account": 8, "kind": "RLTM", "element": "7a6a765a03f640cf002e7d23040dad8a17fe4255",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "dLLMC28h0JB8KLz6ViyG9URvAnikbB5BBECedrqc2JmDHqkd2KVpMdI0NbaCVmKj",
@@ -193,53 +247,14 @@ interactions:
         [{"type": "TEST_FILE", "metadata": null}]}, "has_dropped_occurrences": false,
         "tags": ["TEST_FILE"], "public_exposure": {"source_publicly_visible": false,
         "public_incident_linked": false, "leaked_outside_perimeter": false}, "occurrences_count":
-        1}, {"id": 26805049, "account": 8, "criterion": "Generic High Entropy Secret",
-        "date": "2026-02-04T12:40:14Z", "last_trigger_published_at": "2026-02-04T12:40:14Z",
-        "last_triggered_at": "2026-02-04T13:38:51.993879Z", "last_trigger_detected_at":
-        "2026-02-04T13:38:51.993879Z", "hash": "WTaCT+UniPgL/yRBqvY08cAEfxZM20pDa9wMIFDtfg14lIkIp+KkPCNpyNbtXqJM",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "Square Token", "severity_rule_config": null, "declarative_secret_status":
-        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
-        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
-        "unknown"}], "custom_tags": [{"id": "95d1699b-48cf-4ff6-a63c-fe84962ae3d7",
-        "key": "review-now", "value": null}], "vault_metadata": null, "is_vaulted":
-        false, "similar_issue_count": 2, "score": 29, "displayed_occurrence": {"id":
-        241287705, "issue": 26805049, "account": 8, "kind": "HIST", "element": "5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8",
-        "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "GhRrj5e1kcvhEll7h1jzMp+OWqSKSo2NolskBvuPoBtWAGgECsEe4zatEBTLXqE2",
-        "published_at": "2026-02-04T12:40:14Z", "date": "2026-02-04T12:40:14Z", "detected_at":
-        "2026-02-04T13:38:46.386256Z", "is_vcs_type": true, "last_detected_at": "2026-02-04T12:40:14Z",
-        "last_seen_at": "2026-02-04T12:40:14Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/5198e8b1dbfceb42a733e2f96a8c737fa8bc5ee8#8b00584865b28d12f057cc2064a51a05b33603f1_None_20",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
-        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
-        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        "main"}, "regression": false, "content": 129708170, "secrets_engine_version":
-        "2.155.4", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 901, "indice_end": 963, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 20, "post_line_end": 20}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "bluethroat.py", "filename": "bluethroat.py",
-        "presence": "visible", "last_presence_seen_at": "2026-02-18T22:33:05.054565Z",
-        "last_presence_check_at": "2026-02-18T22:33:05.054565Z", "first_presence_deleted_at":
-        null, "seen_in_default_branch": null, "change_type": "addition", "full_tags":
-        [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["DEFAULT_BRANCH", "FROM_HISTORICAL_SCAN"], "public_exposure":
-        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "occurrences_count": 2}]}'
+        1}]}'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '24417'
+      - '26247'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -247,7 +262,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:26 GMT
+      - Thu, 02 Apr 2026 07:56:46 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -257,15 +272,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '132'
+      - '163'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

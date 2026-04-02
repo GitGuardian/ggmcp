@@ -18,8 +18,44 @@ interactions:
     uri: https://api.gitguardian.com/v1/honeytokens?ordering=-created_at&show_token=false&per_page=5
   response:
     body:
-      string: '[{"id": "eae1aaaf-d700-475d-b65a-ffd79f84806d", "name": "ggshield-Pya2g1xF",
-        "description": "description", "created_at": "2025-11-14T16:54:30.933576Z",
+      string: '[{"id": "51dc5671-8053-4b87-8174-975ccf7f249c", "name": "ggshield-DXGKK2gC",
+        "description": "description", "created_at": "2026-03-31T13:37:33.559937Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/51dc5671-8053-4b87-8174-975ccf7f249c",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "54e52712-a036-4e80-899b-c1a200610339",
+        "name": "ggshield-DZ5zVj1p", "description": "description", "created_at": "2026-03-31T13:37:32.513332Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/54e52712-a036-4e80-899b-c1a200610339",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "601c59d9-7579-402e-90c4-59da055a8d3b",
+        "name": "ggshield-YpbVgsRl", "description": "description", "created_at": "2026-03-31T13:32:29.820990Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/601c59d9-7579-402e-90c4-59da055a8d3b",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "e7daed77-1fa4-416d-88e2-473200b810aa",
+        "name": "ggshield-dqv39cn2", "description": "description", "created_at": "2026-03-31T13:32:28.824725Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/e7daed77-1fa4-416d-88e2-473200b810aa",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "e3f3ff14-a413-415e-a7c1-b91ea1f8ba40",
+        "name": "ggshield-FsL9dCzu", "description": "description", "created_at": "2026-03-31T13:26:21.681383Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/e3f3ff14-a413-415e-a7c1-b91ea1f8ba40",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "43fe49e2-a4e9-4050-9eb5-e89bacc45ba9",
+        "name": "ggshield-Z2Ji3PxX", "description": "description", "created_at": "2026-03-31T13:26:20.710346Z",
+        "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/43fe49e2-a4e9-4050-9eb5-e89bacc45ba9",
+        "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
+        "open_events_count": 0, "creator_id": 1094429, "revoker_id": null, "creator_api_token_id":
+        "8467d408-fe6a-4e53-bb63-ef439161d621", "revoker_api_token_id": null, "tags":
+        [], "labels": [], "custom_tags": [], "token": "[REDACTED]"}, {"id": "eae1aaaf-d700-475d-b65a-ffd79f84806d",
+        "name": "ggshield-Pya2g1xF", "description": "description", "created_at": "2025-11-14T16:54:30.933576Z",
         "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/eae1aaaf-d700-475d-b65a-ffd79f84806d",
         "status": "active", "triggered_at": null, "revoked_at": null, "type": "AWS",
         "open_events_count": 0, "creator_id": 160089, "revoker_id": null, "creator_api_token_id":
@@ -1176,7 +1212,7 @@ interactions:
         "name": "-demo-honeytoken-ctf-django-app-", "description": "", "created_at":
         "2023-09-06T11:33:27.376222Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ff623703-9ca1-4fba-99dc-c20110894ed3",
         "status": "triggered", "triggered_at": "2023-09-06T14:19:10.580142Z", "revoked_at":
-        null, "type": "AWS", "open_events_count": 1, "creator_id": null, "revoker_id":
+        null, "type": "AWS", "open_events_count": 3, "creator_id": null, "revoker_id":
         null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
         [], "labels": [{"id": "58717e34-f865-4d0b-bde9-677e027dbf11", "key": "event",
         "value": "cab"}], "custom_tags": [{"id": "58717e34-f865-4d0b-bde9-677e027dbf11",
@@ -1631,7 +1667,7 @@ interactions:
       allow:
       - GET, POST, HEAD, OPTIONS
       content-length:
-      - '136582'
+      - '139756'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -1639,7 +1675,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:05 GMT
+      - Thu, 02 Apr 2026 07:56:24 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -1649,15 +1685,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '709'
+      - '724'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

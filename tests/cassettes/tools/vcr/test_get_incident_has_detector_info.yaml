@@ -58,13 +58,14 @@ interactions:
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
         {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "deleted": true}}, {"id": 78198, "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z",
-        "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
-        [{"name": "client_id", "indice_start": 92, "indice_end": 112, "pre_line_start":
-        null, "pre_line_end": null, "post_line_start": 3, "post_line_end": 3}, {"name":
-        "client_secret", "indice_start": 128, "indice_end": 168, "pre_line_start":
-        null, "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}], "tags":
-        ["PUBLIC", "PUBLICLY_EXPOSED"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "provider_metadata": {"archived": false}, "deleted": true}}, {"id": 78198,
+        "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z", "filepath": "app.py",
+        "kind": "realtime", "presence": "removed", "matches": [{"name": "client_id",
+        "indice_start": 92, "indice_end": 112, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}, {"name": "client_secret",
+        "indice_start": 128, "indice_end": 168, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 4, "post_line_end": 4}], "tags": ["PUBLIC", "PUBLICLY_EXPOSED"],
+        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
         "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
@@ -78,9 +79,10 @@ interactions:
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
         {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "deleted": true}}], "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
-        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
-        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "provider_metadata": {"archived": false}, "deleted": true}}], "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
         "tags": ["PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure":
         {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
         false}, "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link":
@@ -92,7 +94,7 @@ interactions:
       allow:
       - GET, PUT, PATCH, HEAD, OPTIONS
       content-length:
-      - '5438'
+      - '5516'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -100,7 +102,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:22 GMT
+      - Thu, 02 Apr 2026 07:57:52 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -110,15 +112,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '66'
+      - '69'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

@@ -82,7 +82,7 @@ interactions:
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 29, "displayed_occurrence": {"id": 241287721,
+        "similar_issue_count": 0, "score": 30, "displayed_occurrence": {"id": 241287721,
         "issue": 26805045, "account": 8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
         "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "WE9RdxAVX6gbgtYpkWDapCSNR52nN4Dtf6NepeWQWpH1122NxY2lk0p41XlD3KA6",
@@ -168,7 +168,7 @@ interactions:
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 11, "score": 50, "displayed_occurrence": {"id": 241287710,
+        "similar_issue_count": 11, "score": 49, "displayed_occurrence": {"id": 241287710,
         "issue": 26805048, "account": 8, "kind": "HIST", "element": "fd56543c0a2594907b36ab59c885bd1d536a4957",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
         "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "MaZxnaQEbYuJeCHedgQlQjI92lEcfqKmpHQiHzv49fT/ENa8G+Sw9gDmAbwsAhz4",
@@ -220,7 +220,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "nriv/agar", "type": "azure_cr_repository",
         "path": "nriv/agar", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        8, "displayed_occurrence": {"id": 229731464, "issue": 23316251, "account":
+        9, "displayed_occurrence": {"id": 229731464, "issue": 23316251, "account":
         8, "kind": "HIST", "element": "{\"repository_name\": \"nriv/agar\", \"file_path\":
         \"main.py\"}", "element_type": "CONTAINER_LAYER", "author_name": "", "author_info":
         "", "value": null, "value_hash": "OsUesR0NJgwb7nf5Kfb6ySEtDSjDPObGt6O9YVAGqq+VsBrAMp3Kne4OXFGvqCq/",
@@ -249,7 +249,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '24925'
+      - '25266'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -257,7 +257,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:42 GMT
+      - Thu, 02 Apr 2026 07:57:05 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -267,15 +267,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '152'
+      - '127'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

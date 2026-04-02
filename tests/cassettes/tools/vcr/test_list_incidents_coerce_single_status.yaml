@@ -31,12 +31,12 @@ interactions:
         "Generic Password", "severity_rule_config": null, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 1, "sources": [{"name": "olaugier / test", "type":
         "gl_project", "path": "olaugier/test", "source_criticality": "unknown"}],
         "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 65, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
+        0, "score": 63, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
         "account": 8, "kind": "RLTM", "element": "876b995fcda9f3ebacdde3630fe8521c09e88a50",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "kqtDoOt2gXsDpCN6VFM6vvO0PUTxcS7pA+2Yu2AS9t2s4kcdjypyaVpjw9oi8GAg",
@@ -114,7 +114,7 @@ interactions:
         null, "locations_count": 1, "sources": [{"name": "dev / af-test", "type":
         "gl_project", "path": "dev/af-test", "source_criticality": "unknown"}], "custom_tags":
         [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 16, "displayed_occurrence": {"id": 244951506, "issue": 27376706,
+        "score": 17, "displayed_occurrence": {"id": 244951506, "issue": 27376706,
         "account": 8, "kind": "HIST", "element": "964cf6ffd1a7394dafa06c6ac2bea9cdbd26e271",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "yPHhVm3+xgFEqcd3lgG3sU/dBii/3F/OKPNx2tHffffXEO/OIlAnR+7CSJX89j/e",
@@ -152,7 +152,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "dev / af-test", "type":
         "gl_project", "path": "dev/af-test", "source_criticality": "unknown"}], "custom_tags":
         [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 52, "displayed_occurrence": {"id": 244951502, "issue": 27376707,
+        "score": 53, "displayed_occurrence": {"id": 244951502, "issue": 27376707,
         "account": 8, "kind": "HIST", "element": "ebf0a2ce7add36b9d8a0ae67097a30a5e60cf43a",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "BVJDQbByiB9ovuJtNn619r8AZGFSwmut5pVKEs7pZRsRXpWprzdNjzDjE4tYBaZ+",
@@ -190,7 +190,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "dev / af-test", "type":
         "gl_project", "path": "dev/af-test", "source_criticality": "unknown"}], "custom_tags":
         [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 52, "displayed_occurrence": {"id": 244951505, "issue": 27376705,
+        "score": 53, "displayed_occurrence": {"id": 244951505, "issue": 27376705,
         "account": 8, "kind": "HIST", "element": "dc4b7a1b011e6ffc42d7ce156d3264eac0af0659",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "d8CQ9io5iT+acZq5Pern6SMyGGuAIOhYrD9V3YsVjPoDpMribAYUwYgbthEFEoJO",
@@ -217,7 +217,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '22426'
+      - '22772'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -225,7 +225,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:40 GMT
+      - Thu, 02 Apr 2026 07:58:09 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -235,15 +235,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '822'
+      - '147'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

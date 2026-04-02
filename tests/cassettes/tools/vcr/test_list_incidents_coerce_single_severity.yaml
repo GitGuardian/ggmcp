@@ -49,7 +49,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 98, "displayed_occurrence":
+        "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
         {"id": 242021853, "issue": 26879946, "account": 8, "kind": "RLTM", "element":
         "e2cbc193a76a13b94e135c12a055d2083a233a89", "element_type": "GIT_COMMIT",
         "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
@@ -98,7 +98,7 @@ interactions:
         [{"name": "jira-data-center.do.gitguardian.dev / ChangingGCAM", "type": "jira_data_center_project",
         "path": "jira-data-center.do.gitguardian.dev / ChangingGCAM", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 87, "displayed_occurrence": {"id": 238634588,
+        "similar_issue_count": 0, "score": 86, "displayed_occurrence": {"id": 238634588,
         "issue": 26155836, "account": 8, "kind": "RLTM", "element": "https://jira-data-center.do.gitguardian.dev/browse/GCAM-2?focusedCommentId=11020#comment-11020",
         "element_type": "JIRA_COMMENT", "author_name": "gg-tools", "author_info":
         "gg-tools@gitguardian.com", "value": null, "value_hash": "eQvUyYdyG+FGWUNR0idFck7aRQRzU9rBJuNONSFQNBc/68hbESiZedNRnCS6CqCj",
@@ -149,7 +149,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 1, "score": 98, "displayed_occurrence":
+        "is_vaulted": false, "similar_issue_count": 1, "score": 97, "displayed_occurrence":
         {"id": 226113779, "issue": 22515404, "account": 8, "kind": "RLTM", "element":
         "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9", "element_type": "GIT_COMMIT",
         "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
@@ -246,7 +246,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "kevin-nedelec / Rayn-private",
         "type": "gl_project", "path": "kevin-nedelec/rayn-private", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 66, "displayed_occurrence": {"id": 222656412,
+        "similar_issue_count": 0, "score": 75, "displayed_occurrence": {"id": 222656412,
         "issue": 21857831, "account": 8, "kind": "HIST", "element": "49f8942dcaf2c9a180f5eb090270ffafe9ef813a",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "SQILbjvj8BY3EDFcUQtxuDQpSUDpcSrXrwvgmYepHQyiruiBfTTU7gIYYCLw5Cwr",
@@ -274,7 +274,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '27330'
+      - '27675'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -282,7 +282,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:41 GMT
+      - Thu, 02 Apr 2026 07:58:10 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -292,15 +292,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '132'
+      - '128'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

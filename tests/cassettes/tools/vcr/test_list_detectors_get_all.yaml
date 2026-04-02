@@ -128,7 +128,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:28 GMT
+      - Thu, 02 Apr 2026 07:57:57 GMT
       link:
       - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hbXFwX2NyZWRlbnRpYWxz&per_page=20>;
         rel="next"
@@ -141,17 +141,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '54'
+      - '45'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -288,7 +288,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:29 GMT
+      - Thu, 02 Apr 2026 07:57:58 GMT
       link:
       - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hd3NfYmVkcm9ja19sb25nX3Rlcm1fYXBpX2tleQ%3D%3D&per_page=20>;
         rel="next", <https://api.gitguardian.com/v1/secret_detectors?cursor=cj0xJnA9YW50aHJvcGljX2FkbWluX2tleQ%3D%3D&per_page=20>;
@@ -302,17 +302,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '70'
+      - '45'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -403,6 +403,11 @@ interactions:
         0.98, "use_with_validity_check_disabled": true, "scans_code_only": false,
         "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
         0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
+        "azure_computer_vision_key", "display_name": "Azure Computer Vision Key",
+        "is_active": true, "type": "specific", "category": "ai", "checkable": true,
+        "frequency": 0.03, "use_with_validity_check_disabled": true, "scans_code_only":
+        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
+        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
         "azure_container_registry_key", "display_name": "Azure Container Registry
         Key", "is_active": true, "type": "specific", "category": "cloud_provider",
         "checkable": true, "frequency": 0.01, "use_with_validity_check_disabled":
@@ -423,28 +428,24 @@ interactions:
         "cloud_provider", "checkable": false, "frequency": 40.2, "use_with_validity_check_disabled":
         true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 10, "ignored_incidents_count": 0, "resolved_incidents_count":
+        0}, {"name": "azure_document_intelligence_key", "display_name": "Azure Document
+        Intelligence Key", "is_active": true, "type": "specific", "category": "ai",
+        "checkable": true, "frequency": 0.06, "use_with_validity_check_disabled":
+        true, "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
+        null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
         0}, {"name": "azure_entra_access_token", "display_name": "Azure Entra Access
         Token", "is_active": true, "type": "specific", "category": "cloud_provider",
         "checkable": true, "frequency": 0.0, "use_with_validity_check_disabled": true,
         "scans_code_only": false, "is_recommended_for_business": true, "removed_at":
         null, "open_incidents_count": 0, "ignored_incidents_count": 0, "resolved_incidents_count":
-        0}, {"name": "azure_entra_app_secret", "display_name": "Azure Entra App Secret",
-        "is_active": true, "type": "specific", "category": "cloud_provider", "checkable":
-        true, "frequency": 2.73, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}, {"name":
-        "azure_entra_id_token", "display_name": "Azure Entra ID Token", "is_active":
-        true, "type": "specific", "category": "cloud_provider", "checkable": true,
-        "frequency": 0.0, "use_with_validity_check_disabled": true, "scans_code_only":
-        false, "is_recommended_for_business": true, "removed_at": null, "open_incidents_count":
-        0, "ignored_incidents_count": 0, "resolved_incidents_count": 0}]'
+        0}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '7601'
+      - '7606'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -452,9 +453,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:29 GMT
+      - Thu, 02 Apr 2026 07:57:58 GMT
       link:
-      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1henVyZV9lbnRyYV9pZF90b2tlbg%3D%3D&per_page=20>;
+      - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1henVyZV9lbnRyYV9hY2Nlc3NfdG9rZW4%3D&per_page=20>;
         rel="next", <https://api.gitguardian.com/v1/secret_detectors?cursor=cj0xJnA9YXdzX2NvZ25pdG9fb2F1dGhfY3JlZGVudGlhbHM%3D&per_page=20>;
         rel="prev"
       referrer-policy:
@@ -466,17 +467,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '52'
+      - '62'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

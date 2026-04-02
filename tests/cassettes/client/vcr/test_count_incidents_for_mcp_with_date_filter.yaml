@@ -15,13 +15,45 @@ interactions:
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
     method: GET
-    uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?date__ge=2024-01-01&date__le=2025-12-31
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?date__le=2025-12-31&date__ge=2024-01-01
   response:
     body:
-      string: '{"count": 98}'
+      string: '{"count": 6155}'
     headers:
-      Content-Type:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '14'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
       - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 02 Apr 2026 07:56:16 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.425.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '51'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.159.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK

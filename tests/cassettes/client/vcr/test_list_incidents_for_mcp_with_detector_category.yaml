@@ -19,51 +19,52 @@ interactions:
   response:
     body:
       string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?detector_category__in=specific&page=2&page_size=5",
-        "previous": null, "results": [{"id": 28905156, "account": 8, "criterion":
-        "GitLab Token", "date": "2026-03-17T14:35:54.643000Z", "last_trigger_published_at":
-        "2026-03-17T14:35:54.643000Z", "last_triggered_at": "2026-03-17T14:36:00.418064Z",
-        "last_trigger_detected_at": "2026-03-17T14:36:00.418064Z", "hash": "kbVfTxt8mubX2vVRQN/wNxpT9vQMThT40ap5w7qZ8b20vI7qxGkRAPRx8mJAAtol",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "GitLab Token", "severity_rule_config": null, "declarative_secret_status":
-        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "<unknown>", "name": "GG Test Integrations"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "gg-test-integrations / My
-        Kanban Space", "type": "jira_cloud_project", "path": "gg-test-integrations
-        / My Kanban Space", "source_criticality": "unknown"}], "custom_tags": [],
-        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        10, "displayed_occurrence": {"id": 251398324, "issue": 28905156, "account":
-        8, "kind": "RLTM", "element": "KAN-1/attachment/10003", "element_type": "JIRA_ATTACHMENT",
-        "author_name": "GG Test Integrations", "author_info": "<unknown>", "value":
-        null, "value_hash": "ANhrxxdlpUdBuuKCFgR9GCYhiQtUs9r3Zdbz3c2kuqZy+eS+jy+nX8JdITltnLl1",
-        "published_at": "2026-03-17T14:35:54.643000Z", "date": "2026-03-17T14:35:54.643000Z",
-        "detected_at": "2026-03-17T14:35:57.639696Z", "is_vcs_type": false, "last_detected_at":
-        "2026-03-17T14:35:54.643000Z", "last_seen_at": "2026-03-17T14:35:54.643000Z",
-        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
-        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
-        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
-        Space", "visibility": "private", "monitored": true, "source_criticality":
-        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
-        "content": 144316417, "secrets_engine_version": "2.158.0", "matches": [{"name":
-        "apikey", "string_matched": "[REDACTED]", "indice_start": 106, "indice_end":
-        132, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
-        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
-        [], "filepath": "https://gg-test-integrations.atlassian.net/rest/api/2/attachment/content/10003",
-        "filename": "toto9.txt", "presence": "visible", "last_presence_seen_at": "2026-03-17T14:36:00.446573Z",
-        "last_presence_check_at": "2026-03-17T14:36:00.446573Z", "first_presence_deleted_at":
+        "previous": null, "results": [{"id": 29305270, "account": 8, "criterion":
+        "OpenAI API Key", "date": "2026-03-27T13:47:01Z", "last_trigger_published_at":
+        "2026-03-27T13:47:01Z", "last_triggered_at": "2026-03-28T05:01:36.397561Z",
+        "last_trigger_detected_at": "2026-03-28T05:01:36.397561Z", "hash": "MTJFo5AaJdAJ7giIaJE2+Vn/3hEL1nR7oKsu0ry8AAS38W2S95GRLqiXIWrK60u6",
+        "ignored": true, "ignored_at": "2026-03-28T05:01:36.405919Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
+        "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
+        "OpenAI API Key", "severity_rule_config": null, "declarative_secret_status":
+        "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "gg-tools@gitguardianengineering.onmicrosoft.com",
+        "name": "gg-tools"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "gg-tools / OneDrive", "type": "microsoft_onedrive", "path": "gg-tools
+        / OneDrive", "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata":
+        null, "is_vaulted": false, "similar_issue_count": 0, "score": 6, "displayed_occurrence":
+        {"id": 255746729, "issue": 29305270, "account": 8, "kind": "RLTM", "element":
+        "{\"drive_id\": \"b!ifwT0vIqDE2MYP5tWpOaVJKsAA38ZA1PqHTPWAaO0Ovk8yFkaTlITKSgS6Y2Zlvu\",
+        \"parent_reference_path\": \"/drives/b!ifwT0vIqDE2MYP5tWpOaVJKsAA38ZA1PqHTPWAaO0Ovk8yFkaTlITKSgS6Y2Zlvu/root:/Recordings\",
+        \"file_id\": \"01ICX32E3NSJA7PEQVFZAKEEXG4DH65RP4\"}", "element_type": "SHAREPOINT_ONEDRIVE_FILE",
+        "author_name": "gg-tools", "author_info": "gg-tools@gitguardianengineering.onmicrosoft.com",
+        "value": null, "value_hash": "CFPFVOpXX+26OfRN+bRLyvVCXnQmU1Cpu36m73v5F4pgz7WMu+D6UW65wQZMF7kQ",
+        "published_at": "2026-03-27T13:47:01Z", "date": "2026-03-27T13:47:01Z", "detected_at":
+        "2026-03-28T04:58:40.843022Z", "is_vcs_type": false, "last_detected_at": "2026-03-27T13:47:01Z",
+        "last_seen_at": "2026-03-27T13:47:01Z", "data": {}, "url": "https://gitguardianengineering-my.sharepoint.com/personal/gg-tools_gitguardianengineering_onmicrosoft_com/Documents/Recordings/secret.txt",
+        "source": {"id": 19962591, "url": "https://onedrive.com/", "type": "microsoft_onedrive",
+        "display_name": "gg-tools / OneDrive", "visibility": "private", "monitored":
+        true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
+        null}, "regression": false, "content": 147214824, "secrets_engine_version":
+        "2.159.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
+        "indice_start": 8, "indice_end": 59, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
+        "apikey", "insights": [], "filepath": "Recordings/secret.txt", "filename":
+        "secret.txt", "presence": "visible", "last_presence_seen_at": "2026-03-28T05:01:36.456203Z",
+        "last_presence_check_at": "2026-03-28T05:01:36.456203Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": null, "change_type": null, "full_tags": []},
         "has_dropped_occurrences": false, "tags": ["REVOCABLE_BY_GG"], "public_exposure":
         {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "occurrences_count": 2}, {"id": 28905135, "account": 8, "criterion":
-        "Slack Bot Token", "date": "2026-03-17T13:50:44.593000Z", "last_trigger_published_at":
-        "2026-03-17T13:50:44.593000Z", "last_triggered_at": "2026-03-17T14:35:04.182936Z",
-        "last_trigger_detected_at": "2026-03-17T14:35:04.182936Z", "hash": "309P1XgaKYR7FzZGMd5i0zxesVleD684fYFlrVoGxd2P5zPPOMgPzYhV28m6OGG4",
-        "ignored": true, "ignored_at": "2026-03-17T14:35:04.192451Z", "ignore_reason":
+        false}, "occurrences_count": 1}, {"id": 29236129, "account": 8, "criterion":
+        "Slack Bot Token", "date": "2026-03-26T16:10:40Z", "last_trigger_published_at":
+        "2026-03-26T16:10:40Z", "last_triggered_at": "2026-03-26T16:10:55.648969Z",
+        "last_trigger_detected_at": "2026-03-26T16:10:55.648969Z", "hash": "0Y7z2cw2c6cwAdy+TeYUL5BKR7Lb/hDQRLHld5PCWUkg5Q0OOMgPzYhV28m6OGG4",
+        "ignored": true, "ignored_at": "2026-03-26T16:10:55.689671Z", "ignore_reason":
         "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
         null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
         "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
@@ -71,170 +72,170 @@ interactions:
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "Slack Bot Token", "severity_rule_config": null, "declarative_secret_status":
         "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "ggtestintegrations@proton.me", "name":
-        "GG Test Integrations"}], "user_permission": 7, "is_publicly_shared": false,
-        "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
-        "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"}],
-        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 19, "displayed_occurrence": {"id": 251397393, "issue": 28905135,
-        "account": 8, "kind": "HIST", "element": "KAN-1/attachment/10001", "element_type":
-        "JIRA_ATTACHMENT", "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
-        "value": null, "value_hash": "7p3ayHbEDu6T0dZsZYqPFbQXbCBux3iEUYYZWSEsb3DufvFyo8ertaRaUq6MtEyh",
-        "published_at": "2026-03-17T13:50:44.593000Z", "date": "2026-03-17T13:50:44.593000Z",
-        "detected_at": "2026-03-17T14:34:59.387226Z", "is_vcs_type": false, "last_detected_at":
-        "2026-03-17T13:50:44.593000Z", "last_seen_at": "2026-03-17T13:50:44.593000Z",
-        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
-        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
-        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
-        Space", "visibility": "private", "monitored": true, "source_criticality":
-        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
-        "content": 144316339, "secrets_engine_version": "2.158.0", "matches": [{"name":
-        "apikey", "string_matched": "[REDACTED]", "indice_start": 0, "indice_end":
-        42, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
-        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
-        [], "filepath": "https://api.atlassian.com/ex/jira/239c88bc-2664-4cb9-a422-e59dfaf60bf6/rest/api/3/attachment/content/10001",
-        "filename": "other_secret.txt", "presence": "visible", "last_presence_seen_at":
-        "2026-03-17T14:35:04.233212Z", "last_presence_check_at": "2026-03-17T14:35:04.233212Z",
-        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
-        null, "full_tags": [{"type": "FROM_HISTORICAL_SCAN", "metadata": null}]},
-        "has_dropped_occurrences": false, "tags": ["FROM_HISTORICAL_SCAN", "PUBLICLY_LEAKED",
-        "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible": false,
-        "public_incident_linked": true, "leaked_outside_perimeter": false}, "occurrences_count":
-        1}, {"id": 28905136, "account": 8, "criterion": "GitLab Token", "date": "2026-03-17T13:50:21.909000Z",
-        "last_trigger_published_at": "2026-03-17T13:50:21.909000Z", "last_triggered_at":
-        "2026-03-17T14:35:04.182999Z", "last_trigger_detected_at": "2026-03-17T14:35:04.182999Z",
-        "hash": "WK++VMwWOtCgcJLB1bssA+LYOZibFxHq2PD3Gc27zcfd1zd3xGkRAPRx8mJAAtol",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "GitLab Token", "severity_rule_config": null, "declarative_secret_status":
-        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "ggtestintegrations@proton.me", "name":
-        "GG Test Integrations"}], "user_permission": 7, "is_publicly_shared": false,
-        "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
-        "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"}],
-        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 10, "displayed_occurrence": {"id": 251397394, "issue": 28905136,
-        "account": 8, "kind": "HIST", "element": "KAN-1/attachment/10000", "element_type":
-        "JIRA_ATTACHMENT", "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
-        "value": null, "value_hash": "HJeG3nW8vJKcwODm8fthKZ+emBqlOohKRUtdSDefI95yvYyjcl17awQJwJ+R7glD",
-        "published_at": "2026-03-17T13:50:21.909000Z", "date": "2026-03-17T13:50:21.909000Z",
-        "detected_at": "2026-03-17T14:34:59.387226Z", "is_vcs_type": false, "last_detected_at":
-        "2026-03-17T13:50:21.909000Z", "last_seen_at": "2026-03-17T13:50:21.909000Z",
-        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-1",
-        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
-        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
-        Space", "visibility": "private", "monitored": true, "source_criticality":
-        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
-        "content": 144316340, "secrets_engine_version": "2.158.0", "matches": [{"name":
-        "apikey", "string_matched": "[REDACTED]", "indice_start": 107, "indice_end":
-        133, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
-        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
-        [], "filepath": "https://api.atlassian.com/ex/jira/239c88bc-2664-4cb9-a422-e59dfaf60bf6/rest/api/3/attachment/content/10000",
-        "filename": "toto.pdf", "presence": "visible", "last_presence_seen_at": "2026-03-17T14:35:04.233212Z",
-        "last_presence_check_at": "2026-03-17T14:35:04.233212Z", "first_presence_deleted_at":
-        null, "seen_in_default_branch": null, "change_type": null, "full_tags": [{"type":
-        "FROM_HISTORICAL_SCAN", "metadata": null}]}, "has_dropped_occurrences": false,
-        "tags": ["FROM_HISTORICAL_SCAN", "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible":
-        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "occurrences_count": 1}, {"id": 27966952, "account": 8, "criterion": "OpenAI
-        API Key", "date": "2026-03-06T06:44:00Z", "last_trigger_published_at": "2026-03-06T06:44:00Z",
-        "last_triggered_at": "2026-03-06T06:46:00.813247Z", "last_trigger_detected_at":
-        "2026-03-06T06:46:00.813247Z", "hash": "qAqxBGe/jVUeo2sH1EACPXT4xKnxJeIOJlp4g3WKNS64WAaZ95GRLqiXIWrK60u6",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": true, "resolved_at": "2026-03-12T18:05:49.089586Z", "resolver":
-        491414, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
-        "none", "ignorer_type": "none", "resolver_display_name": "8@bot.gitguardian.com",
-        "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
-        "none", "status": "RESOLVED", "issue_name": "OpenAI API Key", "severity_rule_config":
-        {"id": 10876, "gg_created_at": "2026-02-12T15:13:37.684414Z", "gg_updated_at":
-        "2026-02-12T15:13:37.684418Z", "index": 190, "severity": 20, "rule": {"id":
-        519, "gg_created_at": "2025-03-18T08:57:54.142609Z", "gg_updated_at": "2025-03-18T08:57:54.142612Z",
-        "name": "Valid secret", "description": "The secrets were valid when the incident
-        was discovered", "json_rule": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
-        "default": null}, "arg2": {"value": "valid"}}, "is_global": true, "scope":
-        "private", "author": null}}, "declarative_secret_status": "revoked", "assignee":
-        614347, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
-        Jouhannet"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        "severity": 100, "authors": [{"info": "pierre.lalanne@gitguardian.com", "name":
+        "Pierre Lalanne"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
         0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
-        [{"name": "RomainJ / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
-        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 71, "displayed_occurrence": {"id": 248062638,
-        "issue": 27966952, "account": 8, "kind": "RLTM", "element": "ffed371ff171aaf844c433d58ace37f0f7f3aba1",
-        "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "4sooonqBbWJu6Yf7TJItubjzIv+0+o8DtXQyynagLjSNV1GV7JDrI7vPyIRMpjWn",
-        "published_at": "2026-03-06T06:44:00Z", "date": "2026-03-06T06:44:00Z", "detected_at":
-        "2026-03-06T06:45:58.524698Z", "is_vcs_type": true, "last_detected_at": "2026-03-06T06:44:00Z",
-        "last_seen_at": "2026-03-06T06:44:00Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/ffed371ff171aaf844c433d58ace37f0f7f3aba1#057715000d77d4d956b27699e12440e405fb48ed_0_1",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
-        "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
-        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        "main"}, "regression": false, "content": 138922166, "secrets_engine_version":
-        "2.158.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 33, "indice_end": 84, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 1, "post_line_end": 1}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "local_scanning.txt", "filename": "local_scanning.txt",
-        "presence": "visible", "last_presence_seen_at": "2026-03-06T06:46:00.854986Z",
-        "last_presence_check_at": "2026-03-06T06:46:00.854986Z", "first_presence_deleted_at":
+        [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
+        "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 0, "displayed_occurrence":
+        {"id": 253938087, "issue": 29236129, "account": 8, "kind": "RLTM", "element":
+        "a6bbeb758a38c3b675189f0ef5693f94c5b865db", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "CEL9N36auQTdl9e+bqgAsGyWN0vVPYlqvHWSQMXxC/1zmdQrKYk359La8N2L+SIi",
+        "published_at": "2026-03-26T16:10:40Z", "date": "2026-03-26T16:10:40Z", "detected_at":
+        "2026-03-26T16:10:51.878216Z", "is_vcs_type": true, "last_detected_at": "2026-03-26T16:10:40Z",
+        "last_seen_at": "2026-03-26T16:10:40Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/a6bbeb758a38c3b675189f0ef5693f94c5b865db#diff-c318ddcb8028b7f023ee8a67737a24af2a6c37a69f7c385452cbaf6708673d49R1",
+        "source": {"id": 17188087, "url": "https://github.com/pierrelalanne/test_repo",
+        "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
+        "private", "monitored": true, "source_criticality": "critical", "deleted_at":
+        null, "default_branch": "main"}, "regression": false, "content": 146712049,
+        "secrets_engine_version": "2.159.0", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 60, "indice_end": 102, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 1, "post_line_end": 1}], "most_sensitive_match_name":
+        "apikey", "insights": [{"name": "test_file", "source": "document", "metadata":
+        null}], "filepath": "test_limits_1_secret.txt", "filename": "test_limits_1_secret.txt",
+        "presence": "visible", "last_presence_seen_at": "2026-03-26T16:10:55.988339Z",
+        "last_presence_check_at": "2026-03-26T16:10:55.988339Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
-        [{"type": "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG"], "public_exposure": {"source_publicly_visible":
-        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "occurrences_count": 1}, {"id": 27743219, "account": 8, "criterion": "Generic
-        Password", "date": "2026-03-02T08:03:19Z", "last_trigger_published_at": "2026-03-02T08:03:19Z",
-        "last_triggered_at": "2026-03-02T08:04:40.966599Z", "last_trigger_detected_at":
-        "2026-03-02T08:04:40.966599Z", "hash": "DIhTV8EvZb3qiiqNdZxIdx5KXxPM1+opgvbjqYv9ikr7Xshkfma8ieOEhD7igl+v",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "Generic Password", "severity_rule_config": null, "declarative_secret_status":
-        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 1, "sources": [{"name": "olaugier / test", "type":
-        "gl_project", "path": "olaugier/test", "source_criticality": "unknown"}],
-        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
-        0, "score": 65, "displayed_occurrence": {"id": 247153722, "issue": 27743219,
-        "account": 8, "kind": "RLTM", "element": "876b995fcda9f3ebacdde3630fe8521c09e88a50",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
-        "value": null, "value_hash": "kqtDoOt2gXsDpCN6VFM6vvO0PUTxcS7pA+2Yu2AS9t2s4kcdjypyaVpjw9oi8GAg",
-        "published_at": "2026-03-02T08:03:19Z", "date": "2026-03-02T08:03:19Z", "detected_at":
-        "2026-03-02T08:04:26.107138Z", "is_vcs_type": true, "last_detected_at": "2026-03-02T08:03:19Z",
-        "last_seen_at": "2026-03-02T08:03:19Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/olaugier/test/commit/876b995fcda9f3ebacdde3630fe8521c09e88a50#dbdb2e6bfc642ed0d0c5033e50062fe3ede15e4e_0_3",
-        "source": {"id": 23485701, "url": "https://gitlab-01.aws-qa-gitguardian.com/olaugier/test",
-        "type": "gl_project", "display_name": "olaugier / test", "visibility": "private",
-        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        "main"}, "regression": false, "content": 137431882, "secrets_engine_version":
-        "2.157.1", "matches": [{"name": "password", "string_matched": "[REDACTED]",
-        "indice_start": 67, "indice_end": 143, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 3, "post_line_end": 3}], "most_sensitive_match_name":
-        "password", "insights": [{"name": "minified", "source": "document", "metadata":
-        {"minified_probability": 0.0}}], "filepath": "configuration_15.txt", "filename":
-        "configuration_15.txt", "presence": "visible", "last_presence_seen_at": "2026-03-02T08:04:41.000526Z",
-        "last_presence_check_at": "2026-03-02T08:04:41.000526Z", "first_presence_deleted_at":
+        [{"type": "TEST_FILE", "metadata": null}, {"type": "DEFAULT_BRANCH", "metadata":
+        null}]}, "has_dropped_occurrences": false, "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG",
+        "TEST_FILE"], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "occurrences_count": 1}, {"id":
+        29236130, "account": 8, "criterion": "Slack Bot Token", "date": "2026-03-26T16:10:40Z",
+        "last_trigger_published_at": "2026-03-26T16:10:40Z", "last_triggered_at":
+        "2026-03-26T16:10:55.649133Z", "last_trigger_detected_at": "2026-03-26T16:10:55.649133Z",
+        "hash": "1d291ZrFV0RBbVE8r2t6EFI1jgdXhzZkb4RYrNKH10mjkZ9yOMgPzYhV28m6OGG4",
+        "ignored": true, "ignored_at": "2026-03-26T16:10:55.695057Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
+        "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
+        "Slack Bot Token", "severity_rule_config": null, "declarative_secret_status":
+        "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "pierre.lalanne@gitguardian.com", "name":
+        "Pierre Lalanne"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
+        [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
+        "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 10, "score": 0, "displayed_occurrence":
+        {"id": 253938082, "issue": 29236130, "account": 8, "kind": "RLTM", "element":
+        "a6bbeb758a38c3b675189f0ef5693f94c5b865db", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "8CeYKeR2kMER0aBlyGThkdNGWeRYfKFLPj1kOQJO8lH2bXzFs7jhuR1VfR21VK1W",
+        "published_at": "2026-03-26T16:10:40Z", "date": "2026-03-26T16:10:40Z", "detected_at":
+        "2026-03-26T16:10:51.878216Z", "is_vcs_type": true, "last_detected_at": "2026-03-26T16:10:40Z",
+        "last_seen_at": "2026-03-26T16:10:40Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/a6bbeb758a38c3b675189f0ef5693f94c5b865db#diff-c318ddcb8028b7f023ee8a67737a24af2a6c37a69f7c385452cbaf6708673d49R20",
+        "source": {"id": 17188087, "url": "https://github.com/pierrelalanne/test_repo",
+        "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
+        "private", "monitored": true, "source_criticality": "critical", "deleted_at":
+        null, "default_branch": "main"}, "regression": false, "content": 146712049,
+        "secrets_engine_version": "2.159.0", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 896, "indice_end": 938, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 20, "post_line_end": 20}], "most_sensitive_match_name":
+        "apikey", "insights": [{"name": "test_file", "source": "document", "metadata":
+        null}], "filepath": "test_limits_1_secret.txt", "filename": "test_limits_1_secret.txt",
+        "presence": "visible", "last_presence_seen_at": "2026-03-26T16:10:55.988339Z",
+        "last_presence_check_at": "2026-03-26T16:10:55.988339Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": true, "change_type": "addition", "full_tags":
-        [{"type": "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences":
-        false, "tags": ["DEFAULT_BRANCH"], "public_exposure": {"source_publicly_visible":
+        [{"type": "TEST_FILE", "metadata": null}, {"type": "DEFAULT_BRANCH", "metadata":
+        null}]}, "has_dropped_occurrences": false, "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG",
+        "TEST_FILE"], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "occurrences_count": 1}, {"id":
+        29236131, "account": 8, "criterion": "Slack Bot Token", "date": "2026-03-26T16:10:40Z",
+        "last_trigger_published_at": "2026-03-26T16:10:40Z", "last_triggered_at":
+        "2026-03-26T16:10:55.649314Z", "last_trigger_detected_at": "2026-03-26T16:10:55.649314Z",
+        "hash": "3hALwOgj5xsGsX7Xr2djpOQfm3fKZyceESwEaAHqV53W4r/4OMgPzYhV28m6OGG4",
+        "ignored": true, "ignored_at": "2026-03-26T16:10:55.698981Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
+        "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
+        "Slack Bot Token", "severity_rule_config": null, "declarative_secret_status":
+        "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "pierre.lalanne@gitguardian.com", "name":
+        "Pierre Lalanne"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
+        [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
+        "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 10, "score": 0, "displayed_occurrence":
+        {"id": 253938115, "issue": 29236131, "account": 8, "kind": "RLTM", "element":
+        "a6bbeb758a38c3b675189f0ef5693f94c5b865db", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "vAvNHLmfGcUlg2u5YpP6HYeqfGfqaoNr6UO/FF+gN5EZS8q/KCEKAv96lVFgc2Gd",
+        "published_at": "2026-03-26T16:10:40Z", "date": "2026-03-26T16:10:40Z", "detected_at":
+        "2026-03-26T16:10:51.878216Z", "is_vcs_type": true, "last_detected_at": "2026-03-26T16:10:40Z",
+        "last_seen_at": "2026-03-26T16:10:40Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/a6bbeb758a38c3b675189f0ef5693f94c5b865db#diff-c318ddcb8028b7f023ee8a67737a24af2a6c37a69f7c385452cbaf6708673d49R33",
+        "source": {"id": 17188087, "url": "https://github.com/pierrelalanne/test_repo",
+        "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
+        "private", "monitored": true, "source_criticality": "critical", "deleted_at":
+        null, "default_branch": "main"}, "regression": false, "content": 146712049,
+        "secrets_engine_version": "2.159.0", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 1468, "indice_end": 1510, "pre_line_start":
+        null, "pre_line_end": null, "post_line_start": 33, "post_line_end": 33}],
+        "most_sensitive_match_name": "apikey", "insights": [{"name": "test_file",
+        "source": "document", "metadata": null}], "filepath": "test_limits_1_secret.txt",
+        "filename": "test_limits_1_secret.txt", "presence": "visible", "last_presence_seen_at":
+        "2026-03-26T16:10:55.988339Z", "last_presence_check_at": "2026-03-26T16:10:55.988339Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": true, "change_type":
+        "addition", "full_tags": [{"type": "TEST_FILE", "metadata": null}, {"type":
+        "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences": false, "tags":
+        ["DEFAULT_BRANCH", "REVOCABLE_BY_GG", "TEST_FILE"], "public_exposure": {"source_publicly_visible":
         false, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "occurrences_count": 2}]}'
+        "occurrences_count": 1}, {"id": 29236132, "account": 8, "criterion": "Slack
+        Bot Token", "date": "2026-03-26T16:10:40Z", "last_trigger_published_at": "2026-03-26T16:10:40Z",
+        "last_triggered_at": "2026-03-26T16:10:55.649399Z", "last_trigger_detected_at":
+        "2026-03-26T16:10:55.649399Z", "hash": "BSCOzBXlG7sdaNBisTtS0YT7n9F4g/RNs99ei6DL/3l0L7tJOMgPzYhV28m6OGG4",
+        "ignored": true, "ignored_at": "2026-03-26T16:10:55.703657Z", "ignore_reason":
+        "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
+        null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
+        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
+        "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
+        "Slack Bot Token", "severity_rule_config": null, "declarative_secret_status":
+        "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "pierre.lalanne@gitguardian.com", "name":
+        "Pierre Lalanne"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
+        [{"name": "pierrelalanne/test_repo", "type": "gh_repository", "path": "pierrelalanne/test_repo",
+        "source_criticality": "critical"}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 1, "score": 0, "displayed_occurrence":
+        {"id": 253938110, "issue": 29236132, "account": 8, "kind": "RLTM", "element":
+        "a6bbeb758a38c3b675189f0ef5693f94c5b865db", "element_type": "GIT_COMMIT",
+        "author_name": "Pierre Lalanne", "author_info": "pierre.lalanne@gitguardian.com",
+        "value": null, "value_hash": "m4GM7BpskXJQUZEOA3E9VwY6driWpYHtGS8tHzbJ0Mwm62Q6W6xgPHGgog/9iUaw",
+        "published_at": "2026-03-26T16:10:40Z", "date": "2026-03-26T16:10:40Z", "detected_at":
+        "2026-03-26T16:10:51.878216Z", "is_vcs_type": true, "last_detected_at": "2026-03-26T16:10:40Z",
+        "last_seen_at": "2026-03-26T16:10:40Z", "data": {}, "url": "https://github.com/pierrelalanne/test_repo/commit/a6bbeb758a38c3b675189f0ef5693f94c5b865db#diff-c318ddcb8028b7f023ee8a67737a24af2a6c37a69f7c385452cbaf6708673d49R37",
+        "source": {"id": 17188087, "url": "https://github.com/pierrelalanne/test_repo",
+        "type": "gh_repository", "display_name": "pierrelalanne/test_repo", "visibility":
+        "private", "monitored": true, "source_criticality": "critical", "deleted_at":
+        null, "default_branch": "main"}, "regression": false, "content": 146712049,
+        "secrets_engine_version": "2.159.0", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 1644, "indice_end": 1686, "pre_line_start":
+        null, "pre_line_end": null, "post_line_start": 37, "post_line_end": 37}],
+        "most_sensitive_match_name": "apikey", "insights": [{"name": "test_file",
+        "source": "document", "metadata": null}], "filepath": "test_limits_1_secret.txt",
+        "filename": "test_limits_1_secret.txt", "presence": "visible", "last_presence_seen_at":
+        "2026-03-26T16:10:55.988339Z", "last_presence_check_at": "2026-03-26T16:10:55.988339Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": true, "change_type":
+        "addition", "full_tags": [{"type": "TEST_FILE", "metadata": null}, {"type":
+        "DEFAULT_BRANCH", "metadata": null}]}, "has_dropped_occurrences": false, "tags":
+        ["DEFAULT_BRANCH", "REVOCABLE_BY_GG", "TEST_FILE"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "occurrences_count": 1}]}'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '23927'
+      - '23899'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -242,7 +243,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:38 GMT
+      - Thu, 02 Apr 2026 07:57:00 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -252,15 +253,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '104'
+      - '151'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
