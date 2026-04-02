@@ -9,10 +9,10 @@ os.environ["MCP_HOST"] = os.environ.get("MCP_HOST", "127.0.0.1")
 
 if __name__ == "__main__":
     # For SecOps server:
-    from secops_mcp_server.server import run_mcp_server
+    from secops_mcp_server.run import run_mcp_server
 
     # Or for Developer server:
-    # from developer_mcp_server.server import run_mcp_server
+    # from developer_mcp_server.run import run_mcp_server
 
     # Run the server
     run_mcp_server()
