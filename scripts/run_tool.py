@@ -1,6 +1,6 @@
 from gg_api_core.tools.assign_incident import assign_incident, AssignIncidentParams
 from gg_api_core.tools.find_current_source_id import find_current_source_id
-from gg_api_core.tools.list_honey_tokens import ListHoneytokensParams, list_honeytokens
+from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
 from gg_api_core.tools.list_incidents import ListIncidentsParams, list_incidents
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 import asyncio

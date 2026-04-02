@@ -113,9 +113,8 @@ def test_server_classes():
     print("\n== Testing server classes ==")
 
     try:
-        from gg_api_core.mcp_server import GitGuardianFastMCP
+        from gg_api_core.mcp_server import get_mcp_server
 
-        # Just instantiate the class to test it
         get_mcp_server("Test Core")
         print("✅ Successfully created GitGuardianFastMCP instance")
     except Exception as e:
@@ -123,14 +122,16 @@ def test_server_classes():
         return False
 
     try:
-        # Import the server module (with its mcp instance)
+        import developer_mcp_server.server  # noqa: F401
+
         print("✅ Successfully imported developer MCP server module")
     except Exception as e:
         print(f"❌ Failed to import developer MCP server module: {e}")
         return False
 
     try:
-        # Import the server module (with its mcp instance)
+        import secops_mcp_server.server  # noqa: F401
+
         print("✅ Successfully imported SecOps MCP server module")
     except Exception as e:
         print(f"❌ Failed to import SecOps MCP server module: {e}")
