@@ -44,12 +44,12 @@ interactions:
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"name": "Martin Faucheux / Repo A",
         "type": "gl_project", "path": "martin-faucheux/repo-a", "source_criticality":
         "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 40, "displayed_occurrence": {"id": 245063312,
+        "similar_issue_count": 0, "score": 36, "displayed_occurrence": {"id": 245063312,
         "issue": 27395126, "account": 8, "kind": "RLTM", "element": "7a6a765a03f640cf002e7d23040dad8a17fe4255",
         "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
         "value": null, "value_hash": "dLLMC28h0JB8KLz6ViyG9URvAnikbB5BBECedrqc2JmDHqkd2KVpMdI0NbaCVmKj",
@@ -103,7 +103,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 98, "displayed_occurrence":
+        "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
         {"id": 242021853, "issue": 26879946, "account": 8, "kind": "RLTM", "element":
         "e2cbc193a76a13b94e135c12a055d2083a233a89", "element_type": "GIT_COMMIT",
         "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
@@ -157,7 +157,7 @@ interactions:
         null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 1, "score": 98, "displayed_occurrence":
+        "is_vaulted": false, "similar_issue_count": 1, "score": 97, "displayed_occurrence":
         {"id": 226113779, "issue": 22515404, "account": 8, "kind": "RLTM", "element":
         "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9", "element_type": "GIT_COMMIT",
         "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
@@ -207,7 +207,7 @@ interactions:
         [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
         Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        33, "displayed_occurrence": {"id": 217629888, "issue": 21256874, "account":
+        35, "displayed_occurrence": {"id": 217629888, "issue": 21256874, "account":
         8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
         "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
         "vaoX27XgrGUFeuRDLf1lGhRHkgfeKQkdi/3qMgXMYvxgUYRCJMTAoAK2DALLNEk3", "published_at":
@@ -254,7 +254,7 @@ interactions:
         [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
         Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
         "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        51, "displayed_occurrence": {"id": 217594938, "issue": 21251447, "account":
+        64, "displayed_occurrence": {"id": 217594938, "issue": 21251447, "account":
         8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
         "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
         "8WalVYdfAy9WWVLzVZBfOXcyF0UCcYGuYQrb3Wdix673pMDZxFC6e51x3UmXyF+6", "published_at":
@@ -282,7 +282,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '27625'
+      - '29121'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -290,7 +290,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:44 GMT
+      - Thu, 02 Apr 2026 07:57:06 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -300,15 +300,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '124'
+      - '137'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

@@ -29,7 +29,8 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/shared-app",
-        "deleted": false}, {"id": 12356, "type": "github", "full_name": "wayne-enterprises-gg/with-readme-repo-gg",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12356,
+        "type": "github", "full_name": "wayne-enterprises-gg/with-readme-repo-gg",
         "health": "safe", "source_criticality": "medium", "default_branch": "master",
         "default_branch_head": "21ca725ac5028cf45975b49f7b48928f34f73117", "open_incidents_count":
         0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352734Z",
@@ -40,30 +41,32 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/with-readme-repo-gg",
-        "deleted": false}, {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
-        "deleted": false}, {"id": 12369, "type": "github", "full_name": "aymericGG/hello-world",
-        "health": "safe", "source_criticality": "high", "default_branch": "master",
-        "default_branch_head": "665b4e495aef1d7b6737a503209407a297d37772", "open_incidents_count":
-        0, "closed_incidents_count": 3, "last_scan": {"date": "2025-10-09T16:45:43.352983Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 10, "duration":
-        "0.84662", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "175174005", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/hello-world",
-        "deleted": false}, {"id": 12370, "type": "github", "full_name": "aymericGG/Project-back",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "", "default_branch_head":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12364,
+        "type": "github", "full_name": "wayne-enterprises-gg/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "217533545", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 76, "severity_breakdown":
+        {"critical": 3, "high": 73, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/wayne-enterprises-gg/business-app", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 12369, "type": "github", "full_name":
+        "aymericGG/hello-world", "health": "safe", "source_criticality": "high", "default_branch":
+        "master", "default_branch_head": "665b4e495aef1d7b6737a503209407a297d37772",
+        "open_incidents_count": 0, "closed_incidents_count": 3, "last_scan": {"date":
+        "2025-10-09T16:45:43.352983Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 10, "duration": "0.84662", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "175174005",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/hello-world",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12370,
+        "type": "github", "full_name": "aymericGG/Project-back", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "", "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2025-10-09T16:45:43.353058Z", "status": "finished", "failing_reason":
         "", "commits_scanned": 0, "duration": "0.01237", "branches_scanned": 0, "progress":
@@ -72,14 +75,14 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-back",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4179'
+      - '4374'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -87,7 +90,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:56 GMT
+      - Thu, 02 Apr 2026 07:57:18 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&per_page=5>;
         rel="next"
@@ -100,17 +103,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '225'
+      - '219'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -145,58 +148,60 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-Front",
-        "deleted": false}, {"id": 9123340, "type": "github", "full_name": "orga-083643/solid-octo",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
-        "1.120819", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "630519649", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9123340,
+        "type": "github", "full_name": "orga-083643/solid-octo", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 7, "duration": "1.120819", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "630519649", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/solid-octo",
-        "deleted": false}, {"id": 9123465, "type": "github", "full_name": "orga-083643/expert-train",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "1e3f25567a57f788700cbe9b21a05fb2a3dd23f9", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.353647Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 4, "duration":
-        "4.092814", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "630525080", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/orga-083643/solid-octo", "provider_metadata": {"archived":
+        false}, "deleted": false}, {"id": 9123465, "type": "github", "full_name":
+        "orga-083643/expert-train", "health": "safe", "source_criticality": "unknown",
+        "default_branch": "main", "default_branch_head": "1e3f25567a57f788700cbe9b21a05fb2a3dd23f9",
+        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
+        "2025-10-09T16:45:43.353647Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 4, "duration": "4.092814", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "630525080",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/expert-train",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9123810,
+        "type": "github", "full_name": "orga-083643/ideal-journey", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count": 0, "closed_incidents_count":
+        1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 3, "duration": "0.866616", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "630531940", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/expert-train",
-        "deleted": false}, {"id": 9123810, "type": "github", "full_name": "orga-083643/ideal-journey",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 3, "duration":
-        "0.866616", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "630531940", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 1, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/ideal-journey",
-        "deleted": false}, {"id": 9123882, "type": "github", "full_name": "orga-083643/analytics-test",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352186Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
-        "0.942938", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "630536182", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "deleted": false}]'
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/orga-083643/ideal-journey", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 9123882, "type": "github",
+        "full_name": "orga-083643/analytics-test", "health": "safe", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845",
+        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
+        "2025-10-09T16:45:43.352186Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 7, "duration": "0.942938", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "630536182",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4132'
+      - '4327'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -204,7 +209,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:04 GMT
+      - Thu, 02 Apr 2026 07:57:28 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD05MTIzODgy&per_page=5>; rel="next",
         <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTIzNzE%3D&per_page=5>;
@@ -218,17 +223,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '6921'
+      - '9339'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -264,58 +269,60 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/improved-carnival",
-        "deleted": false}, {"id": 10294451, "type": "github", "full_name": "babassov/PrivateVB",
-        "health": "safe", "source_criticality": "critical", "default_branch": "main",
-        "default_branch_head": "346eeb121643aa8ab28828719d94d33664a55839", "open_incidents_count":
-        0, "closed_incidents_count": 12, "last_scan": {"date": "2025-10-09T16:45:43.353950Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 14, "duration":
-        "1.396871", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "614802635", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        12, "severity_breakdown": {"critical": 0, "high": 12, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/babassov/PrivateVB",
-        "deleted": false}, {"id": 10836673, "type": "github", "full_name": "leakymcgee/secretproject",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "6fa238be5c8773d3560627df4597c1b0cddc708d", "open_incidents_count":
-        6, "closed_incidents_count": 2, "last_scan": {"date": "2025-10-09T16:45:43.354139Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 9, "duration":
-        "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "684998195", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/secretproject",
-        "deleted": false}, {"id": 11018378, "type": "github", "full_name": "leakymcgee/ggshield",
-        "health": "at_risk", "source_criticality": "high", "default_branch": "main",
-        "default_branch_head": "261ad38336f401683315c9dd30d792d3043f1751", "open_incidents_count":
-        13, "closed_incidents_count": 5, "last_scan": {"date": "2025-10-09T16:45:43.353684Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1515, "duration":
-        "12.404975", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "691584428", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 13, "severity_breakdown": {"critical": 12, "high": 1, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        5, "severity_breakdown": {"critical": 4, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
-        "deleted": false}, {"id": 11260258, "type": "github", "full_name": "gitjez/git_playground",
-        "health": "at_risk", "source_criticality": "high", "default_branch": "main",
-        "default_branch_head": "21de97f3a7ab7346d33f92479c6266ed29086642", "open_incidents_count":
-        11, "closed_incidents_count": 13, "last_scan": {"date": "2025-10-09T16:45:43.354669Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 104, "duration":
-        "5.271635", "branches_scanned": 15, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "602034939", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 11, "severity_breakdown": {"critical": 2, "high": 9, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        13, "severity_breakdown": {"critical": 1, "high": 12, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/gitjez/git_playground",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 10294451,
+        "type": "github", "full_name": "babassov/PrivateVB", "health": "safe", "source_criticality":
+        "critical", "default_branch": "main", "default_branch_head": "346eeb121643aa8ab28828719d94d33664a55839",
+        "open_incidents_count": 0, "closed_incidents_count": 12, "last_scan": {"date":
+        "2025-10-09T16:45:43.353950Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 14, "duration": "1.396871", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "private", "external_id": "614802635",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 12, "severity_breakdown": {"critical":
+        0, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/babassov/PrivateVB",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 10836673,
+        "type": "github", "full_name": "leakymcgee/secretproject", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "6fa238be5c8773d3560627df4597c1b0cddc708d", "open_incidents_count": 6, "closed_incidents_count":
+        2, "last_scan": {"date": "2025-10-09T16:45:43.354139Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 9, "duration": "0.0", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "684998195", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
+        {"critical": 0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/leakymcgee/secretproject", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11018378, "type": "github",
+        "full_name": "leakymcgee/ggshield", "health": "at_risk", "source_criticality":
+        "high", "default_branch": "main", "default_branch_head": "261ad38336f401683315c9dd30d792d3043f1751",
+        "open_incidents_count": 13, "closed_incidents_count": 5, "last_scan": {"date":
+        "2025-10-09T16:45:43.353684Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 1515, "duration": "12.404975", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "691584428",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 13, "severity_breakdown":
+        {"critical": 12, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 5, "severity_breakdown": {"critical":
+        4, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11260258,
+        "type": "github", "full_name": "gitjez/git_playground", "health": "at_risk",
+        "source_criticality": "high", "default_branch": "main", "default_branch_head":
+        "21de97f3a7ab7346d33f92479c6266ed29086642", "open_incidents_count": 11, "closed_incidents_count":
+        13, "last_scan": {"date": "2025-10-09T16:45:43.354669Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 104, "duration": "5.271635", "branches_scanned":
+        15, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "602034939", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        11, "severity_breakdown": {"critical": 2, "high": 9, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 13, "severity_breakdown":
+        {"critical": 1, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/gitjez/git_playground", "provider_metadata": {"archived":
+        false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4183'
+      - '4378'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -323,7 +330,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:06 GMT
+      - Thu, 02 Apr 2026 07:57:31 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTI2MDI1OA%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9OTEyNDE0Nw%3D%3D&per_page=5>;
@@ -337,17 +344,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '1913'
+      - '2024'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -383,58 +390,58 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         19, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 1, "unknown": 18}}}, "url": "https://github.com/gitjez/private_repo",
-        "deleted": false}, {"id": 11270152, "type": "slack", "full_name": "Demo Slack
-        Integration / #general", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        4, "closed_incidents_count": 6, "last_scan": {"date": "2025-10-09T16:44:19.448855Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "2.282765", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C05V11N7B1T", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 4, "severity_breakdown": {"critical": 2, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
-        6, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0, "low": 0,
-        "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
-        "deleted": false}, {"id": 11270153, "type": "slack", "full_name": "Demo Slack
-        Integration / #random", "health": "safe", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.448890Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.215615", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C0602J433A5", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0602J433A5",
-        "deleted": false}, {"id": 11328061, "type": "slack", "full_name": "Demo Slack
-        Integration / #demo-231009", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        2, "closed_incidents_count": 4, "last_scan": {"date": "2025-10-09T16:44:19.448925Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.206472", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C05VBD2TDST", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 2, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        4, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
-        "info": 1, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05VBD2TDST",
-        "deleted": false}, {"id": 11348776, "type": "slack", "full_name": "Demo Slack
-        Integration / #demo-231011", "health": "safe", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:44:19.448960Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.22554", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C061AL994KS", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C061AL994KS",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11270152,
+        "type": "slack", "full_name": "Demo Slack Integration / #general", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 4, "closed_incidents_count": 6, "last_scan":
+        {"date": "2025-10-09T16:44:19.448855Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "2.282765", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C05V11N7B1T",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 4, "severity_breakdown":
+        {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 1}},
+        "closed_secret_incidents": {"total": 6, "severity_breakdown": {"critical":
+        3, "high": 1, "medium": 0, "low": 0, "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11270153,
+        "type": "slack", "full_name": "Demo Slack Integration / #random", "health":
+        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2025-10-09T16:44:19.448890Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.215615", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C0602J433A5",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0602J433A5",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11328061,
+        "type": "slack", "full_name": "Demo Slack Integration / #demo-231009", "health":
+        "at_risk", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 2, "closed_incidents_count": 4, "last_scan":
+        {"date": "2025-10-09T16:44:19.448925Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.206472", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C05VBD2TDST",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 2, "severity_breakdown":
+        {"critical": 0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
+        1, "high": 1, "medium": 0, "low": 0, "info": 1, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05VBD2TDST",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11348776,
+        "type": "slack", "full_name": "Demo Slack Integration / #demo-231011", "health":
+        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
+        {"date": "2025-10-09T16:44:19.448960Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.22554", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C061AL994KS",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C061AL994KS",
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4132'
+      - '4327'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -442,7 +449,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:07 GMT
+      - Thu, 02 Apr 2026 07:57:32 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEyNjAyNTk%3D&per_page=5>;
@@ -456,17 +463,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '289'
+      - '293'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -501,32 +508,33 @@ interactions:
         2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
-        {"id": 11379320, "type": "slack", "full_name": "Demo Slack Integration / #public-channel",
-        "health": "safe", "source_criticality": "unknown", "default_branch": null,
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        3, "last_scan": {"date": "2025-10-09T16:44:19.448995Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 0, "duration": "0.221121", "branches_scanned":
-        0, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "C0610066CUD", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 3, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 2, "unknown": 0}}},
-        "url": "https://demoslackinte-0vf1761.slack.com/archives/C0610066CUD", "deleted":
-        false}, {"id": 11411960, "type": "github", "full_name": "leakymcgee/nodejs-goof",
-        "health": "at_risk", "source_criticality": "critical", "default_branch": "main",
-        "default_branch_head": "8cacb884e328f0f883b934d427122e8fe8ad8b1c", "open_incidents_count":
-        3, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.354368Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 113, "duration":
-        "3.560034", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "705767874", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 3, "severity_breakdown": {"critical": 3, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/nodejs-goof",
-        "deleted": false}, {"id": 11454870, "type": "slack", "full_name": "Demo Slack
-        Integration / #demo-231020", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        "url": "https://github.com/amascia-gg/ftn-test-circleci", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11379320, "type": "slack",
+        "full_name": "Demo Slack Integration / #public-channel", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 3, "last_scan":
+        {"date": "2025-10-09T16:44:19.448995Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "0.221121", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "C0610066CUD",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        0, "high": 1, "medium": 0, "low": 0, "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0610066CUD",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11411960,
+        "type": "github", "full_name": "leakymcgee/nodejs-goof", "health": "at_risk",
+        "source_criticality": "critical", "default_branch": "main", "default_branch_head":
+        "8cacb884e328f0f883b934d427122e8fe8ad8b1c", "open_incidents_count": 3, "closed_incidents_count":
+        0, "last_scan": {"date": "2025-10-09T16:45:43.354368Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 113, "duration": "3.560034", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "705767874", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        3, "severity_breakdown": {"critical": 3, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/leakymcgee/nodejs-goof", "provider_metadata": {"archived":
+        false}, "deleted": false}, {"id": 11454870, "type": "slack", "full_name":
+        "Demo Slack Integration / #demo-231020", "health": "at_risk", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
         1, "closed_incidents_count": 3, "last_scan": {"date": "2025-10-09T16:44:19.449030Z",
         "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
         "0.218781", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
@@ -535,25 +543,26 @@ interactions:
         "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
         3, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
         "info": 0, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C062255B9R8",
-        "deleted": false}, {"id": 11600587, "type": "github", "full_name": "peterringball/terragoatGGDemoProd",
-        "health": "at_risk", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "d1138f0813f335cd09babbc2863e84ea8d462468", "open_incidents_count":
-        1, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.354179Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 18, "duration":
-        "3.934015", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "713321698", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/terragoatGGDemoProd",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11600587,
+        "type": "github", "full_name": "peterringball/terragoatGGDemoProd", "health":
+        "at_risk", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "d1138f0813f335cd09babbc2863e84ea8d462468", "open_incidents_count": 1, "closed_incidents_count":
+        0, "last_scan": {"date": "2025-10-09T16:45:43.354179Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 18, "duration": "3.934015", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
+        "713321698", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/peterringball/terragoatGGDemoProd", "provider_metadata":
+        {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4172'
+      - '4367'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -561,7 +570,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:08 GMT
+      - Thu, 02 Apr 2026 07:57:33 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTYwMDU4Nw%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=5>;
@@ -575,17 +584,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '499'
+      - '514'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

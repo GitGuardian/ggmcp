@@ -56,7 +56,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:24 GMT
+      - Thu, 02 Apr 2026 07:57:54 GMT
       link:
       - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD1hZGFmcnVpdF9pb19hcGlrZXk%3D&per_page=5>;
         rel="next"
@@ -69,17 +69,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '63'
+      - '62'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

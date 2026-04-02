@@ -29,7 +29,8 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/shared-app",
-        "deleted": false}, {"id": 12356, "type": "github", "full_name": "wayne-enterprises-gg/with-readme-repo-gg",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12356,
+        "type": "github", "full_name": "wayne-enterprises-gg/with-readme-repo-gg",
         "health": "safe", "source_criticality": "medium", "default_branch": "master",
         "default_branch_head": "21ca725ac5028cf45975b49f7b48928f34f73117", "open_incidents_count":
         0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352734Z",
@@ -40,30 +41,32 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/with-readme-repo-gg",
-        "deleted": false}, {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
-        "deleted": false}, {"id": 12369, "type": "github", "full_name": "aymericGG/hello-world",
-        "health": "safe", "source_criticality": "high", "default_branch": "master",
-        "default_branch_head": "665b4e495aef1d7b6737a503209407a297d37772", "open_incidents_count":
-        0, "closed_incidents_count": 3, "last_scan": {"date": "2025-10-09T16:45:43.352983Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 10, "duration":
-        "0.84662", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "175174005", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/hello-world",
-        "deleted": false}, {"id": 12370, "type": "github", "full_name": "aymericGG/Project-back",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "", "default_branch_head":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12364,
+        "type": "github", "full_name": "wayne-enterprises-gg/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
+        "217533545", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 76, "severity_breakdown":
+        {"critical": 3, "high": 73, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://github.com/wayne-enterprises-gg/business-app", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 12369, "type": "github", "full_name":
+        "aymericGG/hello-world", "health": "safe", "source_criticality": "high", "default_branch":
+        "master", "default_branch_head": "665b4e495aef1d7b6737a503209407a297d37772",
+        "open_incidents_count": 0, "closed_incidents_count": 3, "last_scan": {"date":
+        "2025-10-09T16:45:43.352983Z", "status": "finished", "failing_reason": "",
+        "commits_scanned": 10, "duration": "0.84662", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "visibility": "public", "external_id": "175174005",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/hello-world",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12370,
+        "type": "github", "full_name": "aymericGG/Project-back", "health": "safe",
+        "source_criticality": "unknown", "default_branch": "", "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2025-10-09T16:45:43.353058Z", "status": "finished", "failing_reason":
         "", "commits_scanned": 0, "duration": "0.01237", "branches_scanned": 0, "progress":
@@ -72,14 +75,14 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-back",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4179'
+      - '4374'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -87,7 +90,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:53 GMT
+      - Thu, 02 Apr 2026 07:57:14 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&per_page=5>;
         rel="next"
@@ -100,17 +103,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '219'
+      - '228'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

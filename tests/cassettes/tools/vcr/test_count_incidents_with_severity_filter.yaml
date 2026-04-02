@@ -18,10 +18,42 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?status__in=TRIGGERED%2CASSIGNED%2CRESOLVED&severity__in=10&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
   response:
     body:
-      string: '{"count": 23}'
+      string: '{"count": 1288}'
     headers:
-      Content-Type:
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      content-length:
+      - '14'
+      content-security-policy:
+      - frame-ancestors 'none'
+      content-type:
       - application/json
+      cross-origin-opener-policy:
+      - same-origin
+      date:
+      - Thu, 02 Apr 2026 07:57:49 GMT
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - istio-envoy
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.425.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '2903'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.159.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK

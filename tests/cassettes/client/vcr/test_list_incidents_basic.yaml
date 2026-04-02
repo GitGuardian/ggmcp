@@ -65,7 +65,7 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "important info."}]}],
-        "risk_score": 60, "is_vaulted": false, "ignore_reason": null, "occurrences":
+        "risk_score": 72, "is_vaulted": false, "ignore_reason": null, "occurrences":
         null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21461",
@@ -85,7 +85,7 @@ interactions:
         null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
         "secret_revoked": false, "validity": "invalid", "severity": "high", "assignee_id":
         10, "assignee_email": "bruce-wayne-gg@protonmail.com", "share_url": "[REDACTED]",
-        "feedback_list": [], "risk_score": 19, "is_vaulted": false, "ignore_reason":
+        "feedback_list": [], "risk_score": 23, "is_vaulted": false, "ignore_reason":
         "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
@@ -103,7 +103,7 @@ interactions:
         "2023-04-21T12:50:04.503620Z", "resolver_id": null, "resolver_api_token_id":
         null, "secret_revoked": true, "validity": "no_checker", "severity": "high",
         "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "risk_score": 60, "is_vaulted": false, "ignore_reason": null, "occurrences":
+        [], "risk_score": 72, "is_vaulted": false, "ignore_reason": null, "occurrences":
         null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21463",
@@ -143,7 +143,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:15 GMT
+      - Thu, 02 Apr 2026 07:56:34 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2NA%3D%3D&per_page=5>;
         rel="next"
@@ -156,17 +156,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '113'
+      - '132'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

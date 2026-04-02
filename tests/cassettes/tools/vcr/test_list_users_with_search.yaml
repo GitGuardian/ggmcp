@@ -20,34 +20,34 @@ interactions:
     body:
       string: '[{"id": 13, "role": "manager", "access_level": "manager", "email":
         "aymeric.sicard@gitguardian.com", "name": "Aymeric SICARD", "created_at":
-        "2020-01-21T09:35:47.907207Z", "last_login": "2026-03-16T16:36:17.030500Z",
+        "2020-01-21T09:35:47.907207Z", "last_login": "2026-04-01T10:58:24.108304Z",
         "active": true}, {"id": 2508, "role": "manager", "access_level": "manager",
         "email": "guillaume.charpiat@gitguardian.com", "name": "Guillaume CHARPIAT",
-        "created_at": "2020-03-23T17:53:57.158457Z", "last_login": "2026-02-11T10:03:14.915916Z",
+        "created_at": "2020-03-23T17:53:57.158457Z", "last_login": "2026-03-25T10:56:33.130265Z",
         "active": true}, {"id": 37699, "role": "manager", "access_level": "manager",
         "email": "alexis.larnaud@gitguardian.com", "name": "Alexis LARNAUD", "created_at":
-        "2020-09-03T11:16:05.980606Z", "last_login": "2026-03-18T09:50:45.071495Z",
+        "2020-09-03T11:16:05.980606Z", "last_login": "2026-03-31T09:14:08.791897Z",
         "active": true}, {"id": 63809, "role": "manager", "access_level": "manager",
         "email": "orian.roturier@gitguardian.com", "name": "Orian ROTURIER", "created_at":
         "2020-11-25T14:01:01.749542Z", "last_login": "2025-08-05T08:47:38.723615Z",
         "active": true}, {"id": 104544, "role": "manager", "access_level": "manager",
         "email": "pierre.lalanne@gitguardian.com", "name": "Pierre LALANNE", "created_at":
-        "2021-04-07T13:54:43.138909Z", "last_login": "2026-03-19T09:39:33.088766Z",
+        "2021-04-07T13:54:43.138909Z", "last_login": "2026-03-30T12:53:52.525598Z",
         "active": true}, {"id": 104916, "role": "manager", "access_level": "manager",
         "email": "wassim.hana@gitguardian.com", "name": "Wassim HANA", "created_at":
-        "2021-04-08T14:54:40.049555Z", "last_login": "2026-03-17T14:03:06.951359Z",
+        "2021-04-08T14:54:40.049555Z", "last_login": "2026-03-30T13:36:52.170984Z",
         "active": true}, {"id": 113168, "role": "owner", "access_level": "owner",
         "email": "henri.hubert@gitguardian.com", "name": "Henri HUBERT", "created_at":
-        "2021-05-04T08:20:06.714793Z", "last_login": "2026-03-16T09:28:31.918681Z",
+        "2021-05-04T08:20:06.714793Z", "last_login": "2026-03-25T20:59:02.655910Z",
         "active": true}, {"id": 136170, "role": "manager", "access_level": "manager",
         "email": "eric.fourrier@gitguardian.com", "name": "Eric FOURRIER", "created_at":
-        "2021-07-13T07:29:59.706367Z", "last_login": "2026-03-18T15:48:09.154345Z",
+        "2021-07-13T07:29:59.706367Z", "last_login": "2026-04-01T21:38:49.870359Z",
         "active": true}, {"id": 160089, "role": "manager", "access_level": "manager",
         "email": "aurelien.gateau@gitguardian.com", "name": "Aur\u00e9lien G\u00c2TEAU",
-        "created_at": "2021-09-08T14:07:28.496410Z", "last_login": "2026-03-19T09:23:09.734125Z",
+        "created_at": "2021-09-08T14:07:28.496410Z", "last_login": "2026-03-31T13:14:57.104011Z",
         "active": true}, {"id": 166199, "role": "manager", "access_level": "manager",
         "email": "stanislas.crepin@gitguardian.com", "name": "Stanislas CR\u00c9PIN",
-        "created_at": "2021-09-24T14:02:28.853139Z", "last_login": "2026-03-19T10:40:04.911833Z",
+        "created_at": "2021-09-24T14:02:28.853139Z", "last_login": "2026-03-30T09:03:13.001496Z",
         "active": true}]'
     headers:
       access-control-expose-headers:
@@ -63,7 +63,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:58:46 GMT
+      - Thu, 02 Apr 2026 07:59:14 GMT
       link:
       - <https://api.gitguardian.com/v1/members?cursor=cD0xNjYxOTk%3D&per_page=10&search=gitguardian>;
         rel="next"
@@ -76,17 +76,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '59'
+      - '35'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

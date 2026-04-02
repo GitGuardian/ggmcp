@@ -29,7 +29,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        59, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        72, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
         {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
         "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
         2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21467",
@@ -47,7 +47,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        60, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        72, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
         {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
         "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
         2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21469",
@@ -64,7 +64,7 @@ interactions:
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "no_checker", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 54, "is_vaulted":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 62, "is_vaulted":
         false, "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
@@ -82,7 +82,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "critical", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        17, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        20, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
         {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
         "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
         2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21486",
@@ -109,7 +109,7 @@ interactions:
         {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
         secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
         "field_label": "Additional remarks", "text": "Please take a look at this."}]}],
-        "risk_score": 60, "is_vaulted": false, "ignore_reason": null, "occurrences":
+        "risk_score": 72, "is_vaulted": false, "ignore_reason": null, "occurrences":
         null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21488",
@@ -132,7 +132,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:15 GMT
+      - Thu, 02 Apr 2026 07:56:35 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ4OA%3D%3D&per_page=5&status=TRIGGERED>;
         rel="next"
@@ -145,17 +145,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '79'
+      - '100'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

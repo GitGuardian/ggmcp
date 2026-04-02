@@ -20,7 +20,7 @@ interactions:
     body:
       string: '{"id": 13, "role": "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
         "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2026-03-16T16:36:17.030500Z", "active": true}'
+        "2026-04-01T10:58:24.108304Z", "active": true}'
     headers:
       access-control-expose-headers:
       - X-App-Version
@@ -35,7 +35,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:57:24 GMT
+      - Thu, 02 Apr 2026 07:57:54 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -45,15 +45,15 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '26'
+      - '30'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

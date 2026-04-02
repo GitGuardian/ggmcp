@@ -18,8 +18,48 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
   response:
     body:
-      string: '[{"id": 24386450, "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2
-        / Guy Le Gardien", "health": "unknown", "source_criticality": "unknown", "default_branch":
+      string: '[{"id": 19962412, "type": "sharepoint_online_drive", "full_name": "Public
+        Team-Private Channel (document libraries) / Documents", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": false, "visibility": "private", "external_id": "b!C5YczjFyTUinl2obIwRKlXXwKsAgEFlOjSl76KC8e4UAdjygb_0kTqYbpTRQsLyd",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/PublicTeam-PrivateChannel/Shared%20Documents",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26301895,
+        "type": "sharepoint_online_drive", "full_name": "Olivier Local testing (document
+        libraries) / Documents", "health": "unknown", "source_criticality": "unknown",
+        "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "b!228zEW-fFkq1-2oX01HbwHGZCWcIaVdMoP3Smh_fYPO2jtDlq8vWRaNE2VXTEJXs",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting/Shared%20Documents",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22181104,
+        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Granite
+        Car", "health": "at_risk", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
+        "109642050", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        3, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total": 6, "severity_breakdown":
+        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 5}}},
+        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/GRAN490879",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22181102,
+        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Ergonomic
+        Wooden Fish", "health": "at_risk", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        1, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
+        "109150224", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
+        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/ERGO649007",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 24386450,
+        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Guy Le
+        Gardien", "health": "unknown", "source_criticality": "unknown", "default_branch":
         null, "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
         0, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
         "160333826", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
@@ -27,51 +67,14 @@ interactions:
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
         "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/~7120208c85ff27afcf42759cf871afc56f13fd",
-        "deleted": false}, {"id": 26301895, "type": "sharepoint_online_drive", "full_name":
-        "Olivier Local testing (document libraries) / Documents", "health": "unknown",
-        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": false, "visibility": "private", "external_id": "b!228zEW-fFkq1-2oX01HbwHGZCWcIaVdMoP3Smh_fYPO2jtDlq8vWRaNE2VXTEJXs",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting/Shared%20Documents",
-        "deleted": false}, {"id": 26301896, "type": "sharepoint_online_pages", "full_name":
-        "Olivier Local testing / Olivier Local testing (pages)", "health": "unknown",
-        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": false, "visibility": "private", "external_id": "gitguardianengineering.sharepoint.com,11336fdb-9f6f-4a16-b5fb-6a17d351dbc0,67099971-6908-4c57-a0fd-d29a1fdf60f3:pages",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting",
-        "deleted": false}, {"id": 19962503, "type": "sharepoint_online_pages", "full_name":
-        "gg-tools / gg-tools (pages)", "health": "safe", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "gitguardianengineering-my.sharepoint.com,d213fc89-2af2-4d0c-8c60-fe6d5a939a54,0d00ac92-64fc-4f0d-a874-cf58068ed0eb:pages",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering-my.sharepoint.com/personal/gg-tools_gitguardianengineering_onmicrosoft_com",
-        "deleted": false}, {"id": 19962372, "type": "sharepoint_online_drive", "full_name":
-        "GGSim - 83de42a6-75fa-4f4f-8f01-4ede7ff2f0c6 (document libraries) / Documents",
-        "health": "safe", "source_criticality": "unknown", "default_branch": null,
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
-        "b!qhIeeQWxzkK3AzzhWguCKMLUcZ69LHhMup9fA90-hS3zyWRREgYuTrsMQV27I2ON", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/GGSim-83de42a6-75fa-4f4f-8f01-4ede7ff2f0c6/Shared%20Documents",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4041'
+      - '3932'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -79,7 +82,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:55 GMT
+      - Thu, 02 Apr 2026 07:57:17 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
         rel="next"
@@ -92,17 +95,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '216'
+      - '331'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:

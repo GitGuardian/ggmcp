@@ -29,37 +29,40 @@ interactions:
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "deleted": false}, {"id": 11363204, "type": "github", "full_name": "amascia-gg/ftn-test-circleci",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.354963Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11363204,
+        "type": "github", "full_name": "amascia-gg/ftn-test-circleci", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        null, "open_incidents_count": 2, "closed_incidents_count": 1, "last_scan":
+        {"date": "2025-10-09T16:45:43.354963Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
         2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
         "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
         2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
         "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
         {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/amascia-gg/ftn-test-circleci", "deleted": false},
-        {"id": 11677085, "type": "github", "full_name": "peterringball/test", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": false, "visibility": "private", "external_id": "673461264",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
-        "deleted": false}, {"id": 11678252, "type": "github", "full_name": "tuches/Test",
-        "health": "safe", "source_criticality": "low", "default_branch": "master",
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 5, "duration": "0.68205", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "291043633", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        "url": "https://github.com/amascia-gg/ftn-test-circleci", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11677085, "type": "github",
+        "full_name": "peterringball/test", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
+        "private", "external_id": "673461264", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/tuches/Test", "deleted": false}, {"id": 11756704,
-        "type": "github", "full_name": "peterringball/test4", "health": "safe", "source_criticality":
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11678252,
+        "type": "github", "full_name": "tuches/Test", "health": "safe", "source_criticality":
+        "low", "default_branch": "master", "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z",
+        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
+        "0.68205", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
+        "public", "external_id": "291043633", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/tuches/Test", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 11756704, "type": "github",
+        "full_name": "peterringball/test4", "health": "safe", "source_criticality":
         "low", "default_branch": "main", "default_branch_head": "d7d00895483d9e6fd62acf72594199ee5cabf7c7",
         "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
         "2025-10-09T16:45:43.353873Z", "status": "finished", "failing_reason": "",
@@ -69,14 +72,14 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test4",
-        "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '3886'
+      - '4081'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -84,7 +87,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Fri, 20 Mar 2026 15:56:54 GMT
+      - Thu, 02 Apr 2026 07:57:15 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTc1NjcwNA%3D%3D&per_page=5&search=test>;
         rel="next"
@@ -97,17 +100,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.417.1
+      - v2.425.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '245'
+      - '258'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.158.0
+      - 2.159.0
       x-xss-protection:
       - 1; mode=block
     status:
