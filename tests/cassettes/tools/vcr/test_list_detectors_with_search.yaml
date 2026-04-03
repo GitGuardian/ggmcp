@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/secret_detectors?search=aws&per_page=10
   response:
@@ -72,7 +74,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:55 GMT
+      - Fri, 03 Apr 2026 08:43:36 GMT
       link:
       - ''
       referrer-policy:
@@ -84,11 +86,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '110'
+      - '71'
       x-frame-options:
       - DENY
       x-per-page:

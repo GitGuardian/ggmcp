@@ -14,59 +14,68 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/audit_logs?per_page=10
   response:
     body:
-      string: '[{"id": 20290245, "api_token_id": null, "member_id": 1139585, "member_email":
-        "ghislain.casier@gitguardian.com", "member_name": "Ghislain CASIER", "date":
-        "2026-04-02T07:24:14.392589Z", "data": {"type": "saml_sso"}, "event_name":
-        "user.logged_in", "action_type": "OTHER", "target_ids": ["1137449"], "ip_address":
-        "185.175.151.131"}, {"id": 20289873, "api_token_id": null, "member_id": 1322458,
-        "member_email": "hugo.guiheneuf@gitguardian.com", "member_name": "Hugo GUIH\u00c9NEUF",
-        "date": "2026-04-02T07:07:18.407023Z", "data": {"name": "ggshield token 2026-04-02",
-        "expire_at": null}, "event_name": "personal_access_token.created", "action_type":
-        "CREATE", "target_ids": ["c3d1071f-572f-478f-a511-c8edaf03bb8f"], "ip_address":
-        "185.175.151.131"}, {"id": 20289870, "api_token_id": null, "member_id": 1322458,
-        "member_email": "hugo.guiheneuf@gitguardian.com", "member_name": "Hugo GUIH\u00c9NEUF",
-        "date": "2026-04-02T07:07:06.778442Z", "data": {"type": "saml_sso"}, "event_name":
-        "user.logged_in", "action_type": "OTHER", "target_ids": ["1320326"], "ip_address":
-        "185.175.151.131"}, {"id": 20284990, "api_token_id": null, "member_id": 1121302,
-        "member_email": "candidate.playground+eu5@gitguardian.com", "member_name":
-        "Candidate EU5", "date": "2026-04-02T03:16:45.050099Z", "data": null, "event_name":
-        "secret_incident.viewed", "action_type": "READ", "target_ids": ["8137955"],
-        "ip_address": "108.46.132.81"}, {"id": 20284732, "api_token_id": null, "member_id":
-        1121302, "member_email": "candidate.playground+eu5@gitguardian.com", "member_name":
-        "Candidate EU5", "date": "2026-04-02T02:57:03.248265Z", "data": null, "event_name":
-        "playbook.activated", "action_type": "UPDATE", "target_ids": ["9503"], "ip_address":
-        "108.46.132.81"}, {"id": 20284731, "api_token_id": null, "member_id": 1121302,
-        "member_email": "candidate.playground+eu5@gitguardian.com", "member_name":
-        "Candidate EU5", "date": "2026-04-02T02:57:01.205835Z", "data": null, "event_name":
-        "playbook.deactivated", "action_type": "UPDATE", "target_ids": ["9503"], "ip_address":
-        "108.46.132.81"}, {"id": 20284413, "api_token_id": null, "member_id": 1121302,
-        "member_email": "candidate.playground+eu5@gitguardian.com", "member_name":
-        "Candidate EU5", "date": "2026-04-02T02:33:28.193702Z", "data": {"type": "basic"},
-        "event_name": "user.logged_in", "action_type": "OTHER", "target_ids": ["1119171"],
-        "ip_address": "108.46.132.81"}, {"id": 20281814, "api_token_id": null, "member_id":
-        354585, "member_email": "dwayne.mcdaniel@gitguardian.com", "member_name":
-        "Dwayne MCDANIEL", "date": "2026-04-01T23:08:18.257162Z", "data": {"type":
-        "saml_sso"}, "event_name": "user.logged_in", "action_type": "OTHER", "target_ids":
-        ["353767"], "ip_address": "205.178.114.18"}, {"id": 20280512, "api_token_id":
-        null, "member_id": 136170, "member_email": "eric.fourrier@gitguardian.com",
-        "member_name": "Eric FOURRIER", "date": "2026-04-01T21:38:49.883744Z", "data":
+      string: '[{"id": 20321653, "api_token_id": null, "member_id": 937958, "member_email":
+        "daniele.brusca@gitguardian.com", "member_name": "Daniele BRUSCA", "date":
+        "2026-04-03T08:20:24.694817Z", "data": {"scopes": ["scan", "incidents:read",
+        "incidents:write", "incidents:share", "members:read", "members:write", "audit_logs:read",
+        "teams:read", "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write", "health_checks:read",
+        "health_checks:write"], "expire_at": "2026-04-13T08:20:24.655856+00:00"},
+        "event_name": "personal_access_token.created", "action_type": "CREATE", "target_ids":
+        ["ce80d253-c672-4c2e-ad86-c2a127fbe0ff"], "ip_address": "54.212.233.107"},
+        {"id": 20321531, "api_token_id": null, "member_id": 1121302, "member_email":
+        "candidate.playground+eu5@gitguardian.com", "member_name": "Candidate EU5",
+        "date": "2026-04-03T08:16:13.796999Z", "data": null, "event_name": "secret_incident.viewed",
+        "action_type": "READ", "target_ids": ["11038927"], "ip_address": "92.170.72.162"},
+        {"id": 20321452, "api_token_id": null, "member_id": 1121302, "member_email":
+        "candidate.playground+eu5@gitguardian.com", "member_name": "Candidate EU5",
+        "date": "2026-04-03T08:10:59.237953Z", "data": {"type": "basic"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["1119171"], "ip_address":
+        "92.170.72.162"}, {"id": 20320840, "api_token_id": null, "member_id": 701514,
+        "member_email": "pierre.leclezio@gitguardian.com", "member_name": "Pierre
+        LE CLEZIO", "date": "2026-04-03T07:38:22.311430Z", "data": {"type": "saml_sso"},
+        "event_name": "user.logged_in", "action_type": "OTHER", "target_ids": ["700455"],
+        "ip_address": "35.161.89.114"}, {"id": 20319386, "api_token_id": null, "member_id":
+        1754656, "member_email": "candidate.playground+eu@gitguardian.com", "member_name":
+        "CandidateEU DemoAccess", "date": "2026-04-03T06:31:23.572560Z", "data": null,
+        "event_name": "user.logged_out", "action_type": "OTHER", "target_ids": ["1751937"],
+        "ip_address": "35.83.131.170"}, {"id": 20319205, "api_token_id": null, "member_id":
+        1754656, "member_email": "candidate.playground+eu@gitguardian.com", "member_name":
+        "CandidateEU DemoAccess", "date": "2026-04-03T06:24:50.609968Z", "data": {"type":
+        "basic"}, "event_name": "user.logged_in", "action_type": "OTHER", "target_ids":
+        ["1751937"], "ip_address": "35.83.131.170"}, {"id": 20318988, "api_token_id":
+        null, "member_id": 1222731, "member_email": "anh.trinh.ext@gitguardian.com",
+        "member_name": "Anh TRINH", "date": "2026-04-03T06:16:35.002089Z", "data":
+        null, "event_name": "user.logged_out", "action_type": "OTHER", "target_ids":
+        ["1220552"], "ip_address": "35.83.131.170"}, {"id": 20318965, "api_token_id":
+        null, "member_id": 1222731, "member_email": "anh.trinh.ext@gitguardian.com",
+        "member_name": "Anh TRINH", "date": "2026-04-03T06:14:58.839802Z", "data":
         {"type": "saml_sso"}, "event_name": "user.logged_in", "action_type": "OTHER",
-        "target_ids": ["9"], "ip_address": "86.195.76.88"}, {"id": 20272536, "api_token_id":
-        null, "member_id": 964023, "member_email": "allan.konar@gitguardian.com",
-        "member_name": "Allan Konar", "date": "2026-04-01T17:12:08.669786Z", "data":
-        null, "event_name": "secret_incident.viewed", "action_type": "READ", "target_ids":
-        ["21797995"], "ip_address": "96.237.233.220"}]'
+        "target_ids": ["1220552"], "ip_address": "35.83.131.170"}, {"id": 20318962,
+        "api_token_id": null, "member_id": 1754656, "member_email": "candidate.playground+eu@gitguardian.com",
+        "member_name": "CandidateEU DemoAccess", "date": "2026-04-03T06:14:34.508430Z",
+        "data": null, "event_name": "user.logged_out", "action_type": "OTHER", "target_ids":
+        ["1751937"], "ip_address": "35.83.131.170"}, {"id": 20318944, "api_token_id":
+        null, "member_id": 1754656, "member_email": "candidate.playground+eu@gitguardian.com",
+        "member_name": "CandidateEU DemoAccess", "date": "2026-04-03T06:12:43.256657Z",
+        "data": {"type": "basic"}, "event_name": "user.logged_in", "action_type":
+        "OTHER", "target_ids": ["1751937"], "ip_address": "35.83.131.170"}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '3119'
+      - '3680'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -74,9 +83,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:20 GMT
+      - Fri, 03 Apr 2026 08:42:10 GMT
       link:
-      - <https://api.gitguardian.com/v1/audit_logs?cursor=cD0yMDI3MjUzNg%3D%3D&per_page=10>;
+      - <https://api.gitguardian.com/v1/audit_logs?cursor=cD0yMDMxODk0NA%3D%3D&per_page=10>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -87,11 +96,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '437'
+      - '31'
       x-frame-options:
       - DENY
       x-per-page:

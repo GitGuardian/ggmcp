@@ -14,12 +14,53 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&ordering=-date&status__in=TRIGGERED&severity__in=10%2C20%2C30%2C100&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED
   response:
     body:
       string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-date&page=2&page_size=5&severity__in=10%2C20%2C30%2C100&status__in=TRIGGERED&tags__nin=TEST_FILE%2CFALSE_POSITIVE%2CCHECK_RUN_SKIP_FALSE_POSITIVE%2CCHECK_RUN_SKIP_LOW_RISK%2CCHECK_RUN_SKIP_TEST_CRED&validity__in=valid%2Cfailed_to_check%2Cno_checker%2Cnot_checked",
-        "previous": null, "results": [{"id": 27743219, "account": 8, "criterion":
+        "previous": null, "results": [{"id": 29487335, "account": 8, "criterion":
+        "Stripe Webhook Secret", "date": "2026-04-02T16:22:33.518000Z", "last_trigger_published_at":
+        "2026-04-02T16:22:33.518000Z", "last_triggered_at": "2026-04-02T16:22:34.233032Z",
+        "last_trigger_detected_at": "2026-04-02T16:22:34.233032Z", "hash": "JquJu98wTd0k40t3UsNgP22P+ywFCrsGM1VDRg3oZBdGXhRWbjOMbKAG+JtXZUOK",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Stripe Webhook Secret", "severity_rule_config": null, "declarative_secret_status":
+        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
+        "severity": 100, "authors": [{"info": "ggtestintegrations@proton.me", "name":
+        "GG Test Integrations"}], "user_permission": 7, "is_publicly_shared": true,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"name": "gg-test-integrations / My Kanban Space", "type": "jira_cloud_project",
+        "path": "gg-test-integrations / My Kanban Space", "source_criticality": "unknown"}],
+        "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
+        0, "score": 62, "displayed_occurrence": {"id": 256867982, "issue": 29487335,
+        "account": 8, "kind": "RLTM", "element": "KAN-8?focusedCommentId=10014", "element_type":
+        "JIRA_COMMENT", "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
+        "value": null, "value_hash": "o40+pCpgMCFgcapQEEdZ3imjEpSONYcgy0J+gLe5ygKDJctj7Ro4REsJrqbUl0yj",
+        "published_at": "2026-04-02T16:22:33.518000Z", "date": "2026-04-02T16:22:33.518000Z",
+        "detected_at": "2026-04-02T16:22:34.031682Z", "is_vcs_type": false, "last_detected_at":
+        "2026-04-02T16:22:33.518000Z", "last_seen_at": "2026-04-02T16:22:33.518000Z",
+        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/KAN-8?focusedCommentId=10014",
+        "source": {"id": 26780039, "url": "https://gg-test-integrations.atlassian.net/browse/KAN",
+        "type": "jira_cloud_project", "display_name": "gg-test-integrations / My Kanban
+        Space", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null}, "regression": false,
+        "content": 148603941, "secrets_engine_version": "2.159.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 25, "indice_end":
+        63, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-04-02T16:22:34.268883Z", "last_presence_check_at": "2026-04-02T16:22:34.268883Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 1}, {"id": 27743219, "account": 8, "criterion":
         "Generic Password", "date": "2026-03-02T08:03:19Z", "last_trigger_published_at":
         "2026-03-02T08:03:19Z", "last_triggered_at": "2026-03-02T08:04:40.966599Z",
         "last_trigger_detected_at": "2026-03-02T08:04:40.966599Z", "hash": "DIhTV8EvZb3qiiqNdZxIdx5KXxPM1+opgvbjqYv9ikr7Xshkfma8ieOEhD7igl+v",
@@ -172,52 +213,14 @@ interactions:
         null, "change_type": "addition", "full_tags": [{"type": "FROM_HISTORICAL_SCAN",
         "metadata": null}]}, "has_dropped_occurrences": false, "tags": ["FROM_HISTORICAL_SCAN"],
         "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 1}, {"id":
-        27376705, "account": 8, "criterion": "Generic High Entropy Secret", "date":
-        "2026-02-03T17:51:38Z", "last_trigger_published_at": "2026-02-03T17:51:38Z",
-        "last_triggered_at": "2026-02-18T22:30:10.841368Z", "last_trigger_detected_at":
-        "2026-02-18T22:30:10.841368Z", "hash": "B9vHdhp5T8dURPHrin31KSBRW6rOzfjPV5LqtMk62fnAFxsVp+KkPCNpyNbtXqJM",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "Generic High Entropy Secret", "severity_rule_config": null, "declarative_secret_status":
-        null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        2, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "dev / af-test", "type":
-        "gl_project", "path": "dev/af-test", "source_criticality": "unknown"}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 53, "displayed_occurrence": {"id": 244951505, "issue": 27376705,
-        "account": 8, "kind": "HIST", "element": "dc4b7a1b011e6ffc42d7ce156d3264eac0af0659",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
-        "value": null, "value_hash": "d8CQ9io5iT+acZq5Pern6SMyGGuAIOhYrD9V3YsVjPoDpMribAYUwYgbthEFEoJO",
-        "published_at": "2026-02-03T17:51:38Z", "date": "2026-02-03T17:51:38Z", "detected_at":
-        "2026-02-18T22:30:10.259311Z", "is_vcs_type": true, "last_detected_at": "2026-02-03T17:51:38Z",
-        "last_seen_at": "2026-02-03T17:51:38Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/af-test/commit/dc4b7a1b011e6ffc42d7ce156d3264eac0af0659#451872b483a0c013a933a253dbb6e06aba019ed5_None_1",
-        "source": {"id": 16824393, "url": "https://gitlab-01.aws-qa-gitguardian.com/dev/af-test",
-        "type": "gl_project", "display_name": "dev / af-test", "visibility": "private",
-        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        "main"}, "regression": false, "content": 134319829, "secrets_engine_version":
-        "2.156.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 30, "indice_end": 80, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 1, "post_line_end": 1}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "file.py", "filename": "file.py", "presence":
-        "visible", "last_presence_seen_at": "2026-02-18T22:30:10.880417Z", "last_presence_check_at":
-        "2026-02-18T22:30:10.880417Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        null, "change_type": "addition", "full_tags": [{"type": "FROM_HISTORICAL_SCAN",
-        "metadata": null}]}, "has_dropped_occurrences": false, "tags": ["FROM_HISTORICAL_SCAN"],
-        "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 2}]}'
+        false, "leaked_outside_perimeter": false}, "occurrences_count": 1}]}'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '22772'
+      - '22778'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -225,7 +228,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:58:09 GMT
+      - Fri, 03 Apr 2026 08:43:50 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -235,11 +238,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '147'
+      - '130'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

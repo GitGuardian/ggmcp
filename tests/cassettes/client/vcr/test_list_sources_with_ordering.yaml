@@ -14,19 +14,48 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
   response:
     body:
-      string: '[{"id": 19962412, "type": "sharepoint_online_drive", "full_name": "Public
-        Team-Private Channel (document libraries) / Documents", "health": "safe",
-        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+      string: '[{"id": 26694167, "type": "slack", "full_name": "Testing Slack / #social",
+        "health": "unknown", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": null, "monitored": true, "visibility": "public", "external_id":
+        "C0ADVSNQBAN", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
+        "url": "https://11deletetestingslack.slack.com/archives/C0ADVSNQBAN", "provider_metadata":
+        {"archived": false}, "deleted": false}, {"id": 26694166, "type": "slack",
+        "full_name": "Testing Slack / #nouveau-canal", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "visibility":
+        "public", "external_id": "C0ADSEJ45RT", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://11deletetestingslack.slack.com/archives/C0ADSEJ45RT",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26694165,
+        "type": "slack", "full_name": "Testing Slack / #tous-testing-slack", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": false, "visibility": "private", "external_id": "b!C5YczjFyTUinl2obIwRKlXXwKsAgEFlOjSl76KC8e4UAdjygb_0kTqYbpTRQsLyd",
+        null, "monitored": true, "visibility": "public", "external_id": "C0ADEDK2DN3",
         "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/PublicTeam-PrivateChannel/Shared%20Documents",
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://11deletetestingslack.slack.com/archives/C0ADEDK2DN3",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22877000,
+        "type": "custom_source", "full_name": "GitHub Gist", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 4, "closed_incidents_count": 20, "last_scan":
+        null, "monitored": true, "visibility": "private", "external_id": "6345947b-7ae5-406e-8655-6ea41785dba1",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 4, "severity_breakdown":
+        {"critical": 3, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 20, "severity_breakdown": {"critical":
+        0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 9}}}, "url": "",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26301895,
         "type": "sharepoint_online_drive", "full_name": "Olivier Local testing (document
         libraries) / Documents", "health": "unknown", "source_criticality": "unknown",
@@ -37,36 +66,6 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting/Shared%20Documents",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22181104,
-        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Granite
-        Car", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        null, "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
-        6, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
-        "109642050", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 2}}, "closed_secret_incidents": {"total": 6, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 5}}},
-        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/GRAN490879",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22181102,
-        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Ergonomic
-        Wooden Fish", "health": "at_risk", "source_criticality": "unknown", "default_branch":
-        null, "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
-        1, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
-        "109150224", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}},
-        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/ERGO649007",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 24386450,
-        "type": "confluence_cloud", "full_name": "nathan-riviere-nksfwf2 / Guy Le
-        Gardien", "health": "unknown", "source_criticality": "unknown", "default_branch":
-        null, "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
-        "160333826", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://nathan-riviere-nksfwf2.atlassian.net/wiki/spaces/~7120208c85ff27afcf42759cf871afc56f13fd",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
@@ -74,7 +73,7 @@ interactions:
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '3932'
+      - '3633'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -82,7 +81,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:17 GMT
+      - Fri, 03 Apr 2026 08:43:00 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
         rel="next"
@@ -95,11 +94,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '331'
+      - '393'
       x-frame-options:
       - DENY
       x-per-page:

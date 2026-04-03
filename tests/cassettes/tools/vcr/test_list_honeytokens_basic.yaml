@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/honeytokens?show_token=false&per_page=5
   response:
@@ -468,7 +470,7 @@ interactions:
         "name": "-demo-honeytoken-ctf-django-app-", "description": "", "created_at":
         "2023-09-06T11:33:27.376222Z", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/honeytokens/ff623703-9ca1-4fba-99dc-c20110894ed3",
         "status": "triggered", "triggered_at": "2023-09-06T14:19:10.580142Z", "revoked_at":
-        null, "type": "AWS", "open_events_count": 3, "creator_id": null, "revoker_id":
+        null, "type": "AWS", "open_events_count": 4, "creator_id": null, "revoker_id":
         null, "creator_api_token_id": null, "revoker_api_token_id": null, "tags":
         [], "labels": [{"id": "58717e34-f865-4d0b-bde9-677e027dbf11", "key": "event",
         "value": "cab"}], "custom_tags": [{"id": "58717e34-f865-4d0b-bde9-677e027dbf11",
@@ -1677,7 +1679,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:58:00 GMT
+      - Fri, 03 Apr 2026 08:43:41 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -1687,11 +1689,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '808'
+      - '716'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&source_criticality__in=critical%2Chigh
   response:
@@ -244,7 +246,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:53 GMT
+      - Fri, 03 Apr 2026 08:42:38 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
       server:
@@ -254,11 +256,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '5430'
+      - '314'
       x-frame-options:
       - DENY
       x-secrets-engine-version:

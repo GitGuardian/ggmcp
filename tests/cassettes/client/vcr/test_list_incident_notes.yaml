@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=1
   response:
@@ -60,7 +62,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:43 GMT
+      - Fri, 03 Apr 2026 08:42:33 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2MA%3D%3D&per_page=1>;
         rel="next"
@@ -73,11 +75,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '78'
+      - '80'
       x-frame-options:
       - DENY
       x-per-page:
@@ -104,6 +106,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/notes
   response:
@@ -123,7 +127,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:44 GMT
+      - Fri, 03 Apr 2026 08:42:34 GMT
       link:
       - ''
       referrer-policy:
@@ -135,11 +139,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '99'
+      - '29'
       x-frame-options:
       - DENY
       x-per-page:

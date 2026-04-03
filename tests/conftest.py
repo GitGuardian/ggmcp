@@ -41,6 +41,7 @@ ALLOWED_HEADERS = {
     "date",
     "host",
     "user-agent",
+    "x-privacy-mode",
 }
 
 # Placeholder for redacted values
