@@ -85,8 +85,10 @@ DEFAULT_PAGINATION_MAX_BYTES = 20_000
 # Prevents runaway loops regardless of byte limit effectiveness
 MAX_PAGINATION_PAGES = 10
 
-# Default HTTP timeout in seconds (to handle slow pagination)
-DEFAULT_HTTP_TIMEOUT = 20
+# Default HTTP timeout in seconds (to handle slow pagination).
+# Override with GGMCP_HTTP_TIMEOUT env var for environments with higher latency
+# (e.g. E2E tests where the MCP server calls back to Django through a proxy).
+DEFAULT_HTTP_TIMEOUT = int(os.environ.get("GGMCP_HTTP_TIMEOUT", "20"))
 
 
 class PaginatedResult(TypedDict):
