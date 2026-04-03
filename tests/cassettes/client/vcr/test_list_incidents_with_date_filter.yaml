@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets?from_date=2024-01-01&to_date=2024-12-31&per_page=5
   response:
@@ -143,7 +145,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:37 GMT
+      - Fri, 03 Apr 2026 08:42:27 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2NA%3D%3D&from_date=2024-01-01&per_page=5&to_date=2024-12-31>;
         rel="next"
@@ -156,11 +158,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '106'
+      - '88'
       x-frame-options:
       - DENY
       x-per-page:

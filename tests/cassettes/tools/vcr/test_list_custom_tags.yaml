@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/custom_tags
   response:
@@ -53,7 +55,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:59:16 GMT
+      - Fri, 03 Apr 2026 08:44:56 GMT
       link:
       - <https://api.gitguardian.com/v1/custom_tags?cursor=cD1sb2NhdGlvbiUzQXNvdXJjZWNvZGU%3D>;
         rel="next"
@@ -66,11 +68,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '23'
+      - '30'
       x-frame-options:
       - DENY
       x-per-page:

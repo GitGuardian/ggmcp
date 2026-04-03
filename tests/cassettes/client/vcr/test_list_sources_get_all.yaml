@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5
   response:
@@ -90,7 +92,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:18 GMT
+      - Fri, 03 Apr 2026 08:43:01 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjM3MA%3D%3D&per_page=5>;
         rel="next"
@@ -103,11 +105,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '219'
+      - '208'
       x-frame-options:
       - DENY
       x-per-page:
@@ -134,6 +136,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMjM3MA%3D%3D
   response:
@@ -209,7 +213,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:28 GMT
+      - Fri, 03 Apr 2026 08:43:12 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD05MTIzODgy&per_page=5>; rel="next",
         <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTIzNzE%3D&per_page=5>;
@@ -223,11 +227,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '9339'
+      - '9744'
       x-frame-options:
       - DENY
       x-per-page:
@@ -254,6 +258,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD05MTIzODgy
   response:
@@ -330,7 +336,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:31 GMT
+      - Fri, 03 Apr 2026 08:43:15 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTI2MDI1OA%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9OTEyNDE0Nw%3D%3D&per_page=5>;
@@ -344,11 +350,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '2024'
+      - '2099'
       x-frame-options:
       - DENY
       x-per-page:
@@ -375,6 +381,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMTI2MDI1OA%3D%3D
   response:
@@ -449,7 +457,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:32 GMT
+      - Fri, 03 Apr 2026 08:43:15 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEyNjAyNTk%3D&per_page=5>;
@@ -463,11 +471,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '293'
+      - '297'
       x-frame-options:
       - DENY
       x-per-page:
@@ -494,6 +502,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?per_page=5&cursor=cD0xMTM0ODc3Ng%3D%3D
   response:
@@ -570,7 +580,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:33 GMT
+      - Fri, 03 Apr 2026 08:43:16 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTYwMDU4Nw%3D%3D&per_page=5>;
         rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=5>;
@@ -584,11 +594,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '514'
+      - '542'
       x-frame-options:
       - DENY
       x-per-page:

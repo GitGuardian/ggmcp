@@ -14,14 +14,52 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets?per_page=5&ordering=-date
   response:
     body:
-      string: '[{"id": 29305270, "detector": {"name": "openai_apikey", "display_name":
-        "OpenAI API Key", "nature": "specific", "family": "token", "detector_group_name":
-        "openai_apikey", "detector_group_display_name": "OpenAI API Key"}, "date":
-        "2026-03-27T13:47:01Z", "secret_id": 30183432, "secret_hash": "MTJFo5AaJdAJ7giIaJE2+Vn/3hEL1nR7oKsu0ry8AAS38W2S95GRLqiXIWrK60u6",
+      string: '[{"id": 29487335, "detector": {"name": "stripe_webhook_secret", "display_name":
+        "Stripe Webhook Secret", "nature": "specific", "family": "token", "detector_group_name":
+        "stripe_webhook_secret", "detector_group_display_name": "Stripe Webhook Secret"},
+        "date": "2026-04-02T16:22:33.518000Z", "secret_id": 30393936, "secret_hash":
+        "JquJu98wTd0k40t3UsNgP22P+ywFCrsGM1VDRg3oZBdGXhRWbjOMbKAG+JtXZUOK", "hmsl_hash":
+        "2ff36381d6ac8340ab574aee45e128e5f6b983ec78fe761ccc88da5e4a0f8698", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2026-04-02T16:22:34.233032Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "no_checker", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 62, "is_vaulted":
+        false, "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/29487335", "tags":
+        [], "incident_name": "Stripe Webhook Secret", "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "destination_tickets": [{"id": "AEF-2330", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-2330"}],
+        "custom_tags": []}, {"id": 29487333, "detector": {"name": "slackbototken",
+        "display_name": "Slack Bot Token", "nature": "specific", "family": "token",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2026-04-02T16:22:26.591000Z", "secret_id": 30393934,
+        "secret_hash": "UeONCI+H/I19fHV7Ge45VQxOI0/YUY6CYZu9psQ6W53s6W+UOMgPzYhV28m6OGG4",
+        "hmsl_hash": "ddfd57b5fd9d223785d498b53bc03e096771b6fa3a9b747fea5a065c1f5204a1",
+        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2026-04-02T16:22:27.578209Z",
+        "ignored_at": "2026-04-02T16:22:27.592459Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 11, "is_vaulted": false, "ignore_reason": "invalid", "occurrences":
+        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 1, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/29487333",
+        "tags": ["REVOCABLE_BY_GG"], "incident_name": "Slack Bot Token", "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [], "custom_tags": []}, {"id": 29305270, "detector":
+        {"name": "openai_apikey", "display_name": "OpenAI API Key", "nature": "specific",
+        "family": "token", "detector_group_name": "openai_apikey", "detector_group_display_name":
+        "OpenAI API Key"}, "date": "2026-03-27T13:47:01Z", "secret_id": 30183432,
+        "secret_hash": "MTJFo5AaJdAJ7giIaJE2+Vn/3hEL1nR7oKsu0ry8AAS38W2S95GRLqiXIWrK60u6",
         "hmsl_hash": "1d83cdea747cb8f141183f5453b8a91afc30d8124da43f904a2ff3f4fae18d5a",
         "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2026-03-28T05:01:36.397561Z",
         "ignored_at": "2026-03-28T05:01:36.405919Z", "ignorer_id": 492181, "ignorer_api_token_id":
@@ -49,7 +87,7 @@ interactions:
         null, "secret_presence": {"files_requiring_code_fix": 1, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/29236167",
-        "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH", "TEST_FILE"], "incident_name":
+        "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG", "TEST_FILE"], "incident_name":
         "Slack Bot Token", "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
         false, "leaked_outside_perimeter": false}, "destination_tickets": [], "custom_tags":
         []}, {"id": 29236166, "detector": {"name": "slackbototken", "display_name":
@@ -66,51 +104,17 @@ interactions:
         null, "secret_presence": {"files_requiring_code_fix": 1, "files_pending_merge":
         0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
         1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/29236166",
-        "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH", "TEST_FILE"], "incident_name":
+        "tags": ["DEFAULT_BRANCH", "REVOCABLE_BY_GG", "TEST_FILE"], "incident_name":
         "Slack Bot Token", "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
         false, "leaked_outside_perimeter": false}, "destination_tickets": [], "custom_tags":
-        []}, {"id": 29236165, "detector": {"name": "slackbototken", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "detector_group_name":
-        "slackbot_token", "detector_group_display_name": "Slack Bot Token"}, "date":
-        "2026-03-26T16:10:40Z", "secret_id": 30092108, "secret_hash": "xAXFVgC1vyci5lgM+VvJE5/o2pgdWRROEiZqwq31YjgQ7VBsOMgPzYhV28m6OGG4",
-        "hmsl_hash": "da7357ed2602514af56a58dfff67f45422df09b6b27910e02234d3ed915c469e",
-        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2026-03-26T16:10:55.651787Z",
-        "ignored_at": "2026-03-26T16:10:55.842545Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
-        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "risk_score": 0, "is_vaulted": false, "ignore_reason": "invalid", "occurrences":
-        null, "secret_presence": {"files_requiring_code_fix": 1, "files_pending_merge":
-        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
-        1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/29236165",
-        "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH", "TEST_FILE"], "incident_name":
-        "Slack Bot Token", "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "destination_tickets": [], "custom_tags":
-        []}, {"id": 29236164, "detector": {"name": "slackbototken", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "detector_group_name":
-        "slackbot_token", "detector_group_display_name": "Slack Bot Token"}, "date":
-        "2026-03-26T16:10:40Z", "secret_id": 14594118, "secret_hash": "whPUSpIpSou34wUIyXDn8iIviI4ARLMlUHl9fU4CRkLT/BLsOMgPzYhV28m6OGG4",
-        "hmsl_hash": "de6fc8e101d020c30a7cd50b98d99a161c3feb180299dc02ad075d8dabee82e3",
-        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2026-03-26T16:10:55.651725Z",
-        "ignored_at": "2026-03-26T16:10:55.838705Z", "ignorer_id": 492181, "ignorer_api_token_id":
-        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
-        "secret_revoked": false, "validity": "invalid", "severity": "unknown", "assignee_id":
-        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "risk_score": 0, "is_vaulted": false, "ignore_reason": "invalid", "occurrences":
-        null, "secret_presence": {"files_requiring_code_fix": 1, "files_pending_merge":
-        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
-        1, "removed_in_vcs": 0}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/29236164",
-        "tags": ["REVOCABLE_BY_GG", "DEFAULT_BRANCH", "PUBLICLY_LEAKED", "TEST_FILE"],
-        "incident_name": "Slack Bot Token", "public_exposure": {"source_publicly_visible":
-        false, "public_incident_linked": true, "leaked_outside_perimeter": false},
-        "destination_tickets": [], "custom_tags": []}]'
+        []}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '6965'
+      - '7034'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -118,9 +122,9 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:56:36 GMT
+      - Fri, 03 Apr 2026 08:42:26 GMT
       link:
-      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=bz00JnA9MjAyNi0wMy0yNysxMyUzQTQ3JTNBMDElMkIwMCUzQTAw&ordering=-date&per_page=5>;
+      - <https://api.gitguardian.com/v1/incidents/secrets?cursor=bz0yJnA9MjAyNi0wMy0yNysxMyUzQTQ3JTNBMDElMkIwMCUzQTAw&ordering=-date&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
@@ -131,11 +135,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '81'
+      - '72'
       x-frame-options:
       - DENY
       x-per-page:

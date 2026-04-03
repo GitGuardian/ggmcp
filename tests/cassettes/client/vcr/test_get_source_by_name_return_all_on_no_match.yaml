@@ -14,6 +14,8 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=50
   response:
@@ -599,7 +601,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:57:36 GMT
+      - Fri, 03 Apr 2026 08:43:20 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=cD0xNjIxODk2OA%3D%3D&per_page=50&search=test>;
         rel="next"
@@ -612,11 +614,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '174'
+      - '188'
       x-frame-options:
       - DENY
       x-per-page:

@@ -14,29 +14,39 @@ interactions:
       - api.gitguardian.com
       User-Agent:
       - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
   response:
     body:
-      string: '[{"id": 19962429, "type": "sharepoint_online_drive", "full_name": "Team
-        Site (document libraries) / Documents", "health": "safe", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "b!d9AOuHSFJkW7ATwYrYby7iETJKMqoUBAmM2v9M9L6tSkPoPVlY-1Sb-xT0DtOu-M",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/contentTypeHub/Shared%20Documents",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26301895,
-        "type": "sharepoint_online_drive", "full_name": "Olivier Local testing (document
-        libraries) / Documents", "health": "unknown", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "b!228zEW-fFkq1-2oX01HbwHGZCWcIaVdMoP3Smh_fYPO2jtDlq8vWRaNE2VXTEJXs",
+      string: '[{"id": 22877000, "type": "custom_source", "full_name": "GitHub Gist",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        20, "last_scan": null, "monitored": true, "visibility": "private", "external_id":
+        "6345947b-7ae5-406e-8655-6ea41785dba1", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 4, "severity_breakdown": {"critical": 3, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        20, "severity_breakdown": {"critical": 0, "high": 10, "medium": 1, "low":
+        0, "info": 0, "unknown": 9}}}, "url": "", "provider_metadata": {"archived":
+        false}, "deleted": false}, {"id": 26301895, "type": "sharepoint_online_drive",
+        "full_name": "Olivier Local testing (document libraries) / Documents", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": false, "visibility": "private", "external_id": "b!228zEW-fFkq1-2oX01HbwHGZCWcIaVdMoP3Smh_fYPO2jtDlq8vWRaNE2VXTEJXs",
         "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting/Shared%20Documents",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26694166,
+        "type": "slack", "full_name": "Testing Slack / #nouveau-canal", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": true, "visibility": "public", "external_id": "C0ADSEJ45RT",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://11deletetestingslack.slack.com/archives/C0ADSEJ45RT",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26301896,
         "type": "sharepoint_online_pages", "full_name": "Olivier Local testing / Olivier
         Local testing (pages)", "health": "unknown", "source_criticality": "unknown",
@@ -47,33 +57,24 @@ interactions:
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 19962484,
-        "type": "sharepoint_online_pages", "full_name": "ODS Team Private Site / ODS
-        Team Private Site (pages)", "health": "safe", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "gitguardianengineering.sharepoint.com,fa7aebe9-b1e8-4115-91b3-4b5ee154c72a,2473ed83-2de9-4087-837e-bb4efc067605:pages",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/ODSTeamPrivateSite",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26968253,
-        "type": "custom_source", "full_name": "toto", "health": "unknown", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "visibility":
-        "private", "external_id": "6ead8cda-6270-4d35-aef3-9bcfb328d2a7", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "", "provider_metadata": {"archived":
-        false}, "deleted": false}]'
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 19962427,
+        "type": "sharepoint_online_drive", "full_name": "general (document libraries)
+        / Documents", "health": "at_risk", "source_criticality": "unknown", "default_branch":
+        null, "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        1, "last_scan": null, "monitored": false, "visibility": "private", "external_id":
+        "b!I-MdHUXO9kiy2OmlVlg6PnySr3C4I49Cl0Q2EMNTyLC1yg1Wdp7qTpcJu1zCcTNy", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/general/Shared%20Documents",
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       content-length:
-      - '4053'
+      - '3900'
       content-security-policy:
       - frame-ancestors 'none'
       content-type:
@@ -81,7 +82,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       date:
-      - Thu, 02 Apr 2026 07:58:53 GMT
+      - Fri, 03 Apr 2026 08:44:32 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
         rel="next"
@@ -94,11 +95,11 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.425.0
+      - v2.426.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '269'
+      - '321'
       x-frame-options:
       - DENY
       x-per-page:
