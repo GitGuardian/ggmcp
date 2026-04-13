@@ -14,6 +14,7 @@ from developer_mcp_server.server import mcp
 http_app = create_streamable_http_app(
     server=mcp,
     streamable_http_path="/mcp",
+    auth=mcp.auth,
     json_response=True,
     stateless_http=True,
 )

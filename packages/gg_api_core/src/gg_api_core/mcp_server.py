@@ -9,14 +9,21 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
-from fastmcp.server.dependencies import get_http_headers
+from fastmcp.server.dependencies import get_access_token, get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
 
-from gg_api_core.client import GitGuardianClient
+from gg_api_core.client import DownstreamUnauthorizedError, GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
+from gg_api_core.oauth_proxy_auth import (
+    PassThroughTokenVerifier,
+    create_oauth_proxy,
+    mark_downstream_unauthorized,
+)
+from gg_api_core.oauth_proxy_auth import create_oauth_proxy
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client
+
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -31,6 +38,9 @@ class AuthenticationMode(Enum):
     PERSONAL_ACCESS_TOKEN_ENV_VAR = "PERSONAL_ACCESS_TOKEN_ENV_VAR"
     # Use per-request Authorization header
     AUTHORIZATION_HEADER = "AUTHORIZATION_HEADER"
+    # Use FastMCP OAuthProxy : declares the MCP server as a Protected Resource (RFC 9728)
+    # whose Authorization Server is api.gitguardian.com
+    OAUTH_PROXY = "OAUTH_PROXY"
 
 
 class CachedTokenInfoMixin:
@@ -92,6 +102,22 @@ class CachedTokenInfoMixin:
         return self._token_info
 
 
+class DownstreamUnauthorizedMiddleware(Middleware):
+    """Flag the request when a tool surfaces a downstream 401.
+
+    The exception still propagates so FastMCP serializes a JSON-RPC error
+    body for clients that ignore the HTTP status. The ASGI middleware
+    rewrites the status to 401 based on the flag set here.
+    """
+
+    async def on_message(self, context, call_next):
+        try:
+            return await call_next(context)
+        except DownstreamUnauthorizedError:
+            mark_downstream_unauthorized()
+            raise
+
+
 class ScopeFilteringMiddleware(Middleware):
     """Middleware to filter tools based on token scopes."""
 
@@ -143,6 +169,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         self._tool_scopes: dict[str, set[str]] = {}
 
         self.add_middleware(ScopeFilteringMiddleware(self))
+        self.add_middleware(DownstreamUnauthorizedMiddleware())
 
     def clear_cache(self) -> None:
         """Clear cached data. Override in subclasses that cache."""
@@ -371,10 +398,41 @@ class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
         return await self._fetch_token_info_from_api()
 
 
+class GitGuardianOAuthProxyMCP(AbstractGitGuardianFastMCP):
+    """GitGuardian MCP server with thin OAuth proxy to the GG dashboard.
+
+    Same-origin OAuth endpoints proxy auth requests to the GG dashboard.
+    The MCP client gets the real GG PAT directly as Bearer token.
+    """
+
+    authentication_mode = AuthenticationMode.OAUTH_PROXY
+
+    def get_personal_access_token(self) -> str:
+        # TODO(TIM): Why different than GitGuardianAuthorizationHeaderMCP ?
+        access_token = get_access_token()
+
+        if not access_token:
+            raise ValidationError("No access token available - OAuth proxy authentication required")
+        return access_token.token
+
+    async def get_token_info(self) -> dict[str, Any]:
+        return await self._fetch_token_info_from_api()
+
+
 def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
     kwargs.setdefault("icons", get_gitguardian_icons())
 
     settings = get_settings()
+
+    if settings.is_oauth_proxy_enabled:
+        oauth_proxy = create_oauth_proxy(
+            base_url=settings.mcp_base_url,
+            gg_url=settings.gitguardian_url,
+            gg_api_url=settings.gitguardian_api_url,
+            advertised_scopes=settings.effective_scopes,
+        )
+        return GitGuardianOAuthProxyMCP(*args, auth=oauth_proxy, **kwargs)
+
     if settings.is_oauth_enabled:
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 

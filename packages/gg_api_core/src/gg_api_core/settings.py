@@ -19,6 +19,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .scopes import ServerProfile
 
+
 TRUTHY_ENV_VALUES = frozenset(
     {
         "true",
@@ -28,7 +29,9 @@ TRUTHY_ENV_VALUES = frozenset(
 )
 
 
-def string_env_to_bool(value: str) -> bool:
+def string_env_to_bool(value: str | None) -> bool:
+    if value is None:
+        return False
     return value.lower() in TRUTHY_ENV_VALUES
 
 
@@ -42,6 +45,7 @@ class Settings(BaseSettings):
 
     # --- GitGuardian core ---
     gitguardian_url: str = "https://dashboard.gitguardian.com"
+    gitguardian_api_url: str | None = None
     gitguardian_personal_access_token: str | None = None
 
     # GITGUARDIAN_REQUESTED_SCOPES is the legacy name kept for backward compat.
@@ -61,6 +65,10 @@ class Settings(BaseSettings):
     multi_tenancy_enabled: str = ""
     # None ⇒ unset (default: True). Empty/anything-but-"true" ⇒ False.
     enable_local_oauth: str | None = None
+
+    # --- OAuth proxy ---
+    mcp_oauth_proxy_enabled: str | None = None
+    mcp_base_url: str = "http://localhost:8000"
 
     # --- Server profile ---
     # Set by each server entry-point (e.g. developer_mcp_server/server.py) to
@@ -94,6 +102,10 @@ class Settings(BaseSettings):
     @property
     def use_dashboard_authenticated_page(self) -> bool:
         return string_env_to_bool(self.gitguardian_use_dashboard_authenticated_page)
+
+    @property
+    def is_oauth_proxy_enabled(self) -> bool:
+        return string_env_to_bool(self.mcp_oauth_proxy_enabled)
 
     @property
     def requested_scopes(self) -> list[str]:
@@ -135,7 +147,9 @@ class Settings(BaseSettings):
         if self.server_profile is None:
             return self.requested_scopes
 
-        restricted = is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url)
+        restricted = is_self_hosted_instance(
+            self.gitguardian_url
+        ) and not is_local_instance(self.gitguardian_url)
         allowed = set(self.server_profile.max_scopes(restricted=restricted))
         requested = set(self.requested_scopes)
         return sorted(allowed & requested if requested else allowed)

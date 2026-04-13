@@ -10,11 +10,18 @@ from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
 
-from gg_api_core.host import is_self_hosted_instance
 from gg_api_core.settings import get_settings
 
 # Setup logger
 logger = logging.getLogger(__name__)
+
+
+class DownstreamUnauthorizedError(Exception):
+    """Raised when the downstream GitGuardian API returns 401.
+
+    Bridged to an HTTP 401 + ``WWW-Authenticate`` response by middleware so
+    the MCP client can re-run the OAuth flow.
+    """
 
 
 class IncidentSeverity(str, Enum):
@@ -277,10 +284,12 @@ class GitGuardianClient:
         self._token_info: Any | None = None
 
     def _init_urls(self, gitguardian_url: str | None = None):
+        from .urls import derive_public_api_url
+
         # Use provided raw URL or get from environment with default fallback
         raw_url = gitguardian_url or get_settings().gitguardian_url
 
-        self.public_api_url = self._normalize_api_url(raw_url)
+        self.public_api_url = derive_public_api_url(raw_url)
         logger.info(f"Using API URL: {self.public_api_url}")
 
         # Extract the base URL for dashboard (needed for OAuth)
@@ -288,72 +297,6 @@ class GitGuardianClient:
         logger.info(f"Using dashboard URL: {self.dashboard_url}")
         self.private_api_url = f"{self.dashboard_url}/api/v1"
         logger.info(f"Using private API URL: {self.private_api_url}")
-
-    def _normalize_api_url(self, api_url: str) -> str:
-        """
-        Normalize the API URL for different GitGuardian instance types.
-
-        Args:
-            api_url: Raw API URL or base URL
-
-        Returns:
-            str: Normalized API URL
-        """
-        from urllib.parse import urlparse
-
-        # Strip trailing slashes
-        api_url = api_url.rstrip("/")
-
-        try:
-            parsed = urlparse(api_url)
-
-            # Special handling for localhost and 127.0.0.1 - always treat as self-hosted
-            # regardless of SAAS_HOSTNAMES list (used for local development)
-            is_localhost = parsed.netloc.startswith("localhost") or parsed.netloc.startswith("127.0.0.1")
-
-            # Check if this is a SaaS URL (dashboard or API)
-            if not is_localhost and not is_self_hosted_instance(api_url):
-                # Convert dashboard URLs to API URLs with /v1 suffix
-                if "dashboard" in parsed.netloc:
-                    api_netloc = parsed.netloc.replace("dashboard", "api")
-                    normalized_url = f"{parsed.scheme}://{api_netloc}/v1"
-                    logger.debug(f"Normalized SaaS dashboard URL: {api_url} -> {normalized_url}")
-                    return normalized_url
-                # For API URLs, ensure they have /v1 suffix
-                elif not parsed.path.endswith("/v1"):
-                    normalized_url = f"{api_url}/v1"
-                    logger.debug(f"Normalized SaaS API URL: {api_url} -> {normalized_url}")
-                    return normalized_url
-                else:
-                    logger.debug(f"SaaS API URL already has /v1: {api_url}")
-                    return api_url
-
-            # Check if this already has the API path structure
-            path = parsed.path.lower()
-            if path.endswith("/v1") or path.endswith("/exposed/v1"):
-                logger.debug(f"API URL already has API path: {api_url}")
-                return api_url
-
-            # This appears to be a self-hosted base URL - append the API path
-            if not path or path == "/" or not path.startswith("/exposed"):
-                normalized_url = f"{api_url}/exposed/v1"
-                logger.info(f"Normalized self-hosted base URL: {api_url} -> {normalized_url}")
-                return normalized_url
-
-            # If it has /exposed but no /v1, append /v1
-            if path.startswith("/exposed") and not path.endswith("/v1"):
-                normalized_url = f"{api_url}/v1"
-                logger.info(f"Normalized self-hosted API URL: {api_url} -> {normalized_url}")
-                return normalized_url
-
-            # Default: return as-is
-            logger.debug(f"Using API URL as provided: {api_url}")
-            return api_url
-
-        except Exception as e:
-            logger.warning(f"Failed to parse API URL '{api_url}': {e}")
-            logger.warning("Using API URL as provided")
-            return api_url
 
     def _get_dashboard_url(self) -> str:
         """
@@ -603,6 +546,10 @@ class GitGuardianClient:
                 logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 logger.debug(f"Error response content: {e.response.text}")
                 logger.debug(f"Failed URL: {url}")
+                if e.response.status_code == 401:
+                    raise DownstreamUnauthorizedError(
+                        f"GitGuardian API returned 401 for {url}"
+                    ) from e
                 raise
             except httpx.RequestError as e:
                 logger.exception(f"Request error occurred: {str(e)}")
