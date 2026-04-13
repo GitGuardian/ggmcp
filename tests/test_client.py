@@ -125,6 +125,29 @@ class TestGitGuardianClient:
                 await client._request_get("/test")
 
     @pytest.mark.asyncio
+    async def test_request_401_raises_downstream_unauthorized(self, client, mock_httpx_client):
+        """Downstream 401 should surface as DownstreamUnauthorizedError so middleware can rewrite to HTTP 401."""
+        from gg_api_core.client import DownstreamUnauthorizedError
+
+        mock_request = MagicMock()
+        mock_response = MagicMock()
+        mock_response.status_code = 401
+        mock_response.reason_phrase = "Unauthorized"
+        mock_response.text = "Unauthorized"
+        mock_response.json.return_value = {"detail": "Invalid API key."}
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "401", request=mock_request, response=mock_response
+        )
+
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+        mock_httpx_client.request = AsyncMock(return_value=mock_response)
+
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            with pytest.raises(DownstreamUnauthorizedError):
+                await client._request_get("/test")
+
+    @pytest.mark.asyncio
     async def test_create_honeytoken(self, client):
         """Test create_honeytoken method."""
         expected_response = {

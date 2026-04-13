@@ -27,6 +27,7 @@ init_sentry()
 app = create_streamable_http_app(
     server=mcp,
     streamable_http_path="/mcp",
+    auth=mcp.auth,
     json_response=True,
     stateless_http=True,
 )
