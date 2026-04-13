@@ -1,6 +1,7 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
+import os
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
@@ -9,7 +10,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
-from fastmcp.server.dependencies import get_http_headers
+from fastmcp.server.dependencies import get_access_token, get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
 
@@ -18,6 +19,7 @@ from gg_api_core.client import (
     get_personal_access_token_from_env,
     is_oauth_enabled,
 )
+from gg_api_core.oauth_proxy_auth import create_oauth_proxy
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -33,6 +35,9 @@ class AuthenticationMode(Enum):
     PERSONAL_ACCESS_TOKEN_ENV_VAR = "PERSONAL_ACCESS_TOKEN_ENV_VAR"
     # Use per-request Authorization header
     AUTHORIZATION_HEADER = "AUTHORIZATION_HEADER"
+    # Use FastMCP OAuthProxy : declares the MCP server as a Protected Resource (RFC 9728)
+    # whose Authorization Server is api.gitguardian.com
+    OAUTH_PROXY = "OAUTH_PROXY"
 
 
 class CachedTokenInfoMixin:
@@ -373,7 +378,44 @@ class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
         return await self._fetch_token_info_from_api()
 
 
+class GitGuardianOAuthProxyMCP(AbstractGitGuardianFastMCP):
+    """GitGuardian MCP server with thin OAuth proxy to the GG dashboard.
+
+    Same-origin OAuth endpoints proxy auth requests to the GG dashboard.
+    The MCP client gets the real GG PAT directly as Bearer token.
+    """
+
+    authentication_mode = AuthenticationMode.OAUTH_PROXY
+
+    def get_personal_access_token(self) -> str:
+        access_token = get_access_token()  # TODO(TIM): Why different than AbstractGitGuardianFastMCP ?
+        if not access_token:
+            raise ValidationError("No access token available - OAuth proxy authentication required")
+        return access_token.token
+
+    async def get_token_info(self) -> dict[str, Any]:
+        return await self._fetch_token_info_from_api()
+
+
+def is_oauth_proxy_enabled() -> bool:
+    """Check if OAuthProxy mode is enabled via environment variable."""
+    return os.environ.get("MCP_OAUTH_PROXY_ENABLED", "").lower() == "true"
+
+
 def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
+    if is_oauth_proxy_enabled():
+        # TODO(TIM): Fetch these values from base functions ?
+        base_url = os.environ.get("MCP_BASE_URL", "http://localhost:8000")
+        gg_url = os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
+        gg_api_url = os.environ.get("GITGUARDIAN_API_URL")
+
+        oauth_proxy = create_oauth_proxy(
+            base_url=base_url,
+            gg_url=gg_url,
+            gg_api_url=gg_api_url,
+        )
+        return GitGuardianOAuthProxyMCP(*args, auth=oauth_proxy, **kwargs)
+
     if is_oauth_enabled():
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 
