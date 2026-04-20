@@ -121,6 +121,27 @@ Each tool requires specific API token scopes to function correctly.
 If you receive an error when calling a tool, it may be because your API token does not have the required scopes.
 Check the required scopes for each tool below and don't use another tool instead of the one that requires the missing scope.
 
+## Two incident categories — pick the right tool
+
+GitGuardian surfaces two distinct, non-overlapping categories of secret incidents:
+
+- **Internal incidents** — detected in sources the workspace has explicitly integrated:
+  private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
+  Identified by a `source_id`. Default category for most customer workflows.
+  Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
+  `remediate_secret_incidents`, `list_sources`, `find_current_source_id`.
+  Write tools: `manage_private_incident`, `update_incident_status`, `assign_incident`,
+  `update_or_create_incident_custom_tags`, `create_code_fix_request`.
+- **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
+  perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
+  Read tools: `list_public_incidents`, `list_public_occurrences`.
+  (Write actions on public incidents are not yet wrapped by this server.)
+
+Incident IDs are **not** interchangeable between the two categories. If the user's intent is
+about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
+use the `list_public_*` tools. Otherwise default to the internal tools. Invoking an internal
+write tool with a public incident ID (or vice versa) will silently 404.
+
 Available capabilities:
 
 1. Honeytoken Management:
@@ -129,12 +150,12 @@ Available capabilities:
    - Get detailed information about tokens
 
 2. Incident Management:
-   - List and filter incidents by various criteria
-   - Manage incidents (assign, resolve, ignore)
-   - Update incident status and add custom tags
+   - List and filter incidents by various criteria (internal and public)
+   - Manage internal incidents (assign, resolve, ignore)
+   - Update internal incident status and add custom tags
 
 3. Repository Analysis:
-   - List incidents by repository
+   - List incidents by repository (internal)
    - Get detailed information about repository security status
 
 IMPORTANT:
@@ -183,13 +204,15 @@ async def get_current_token_info() -> dict[str, Any]:
 
 mcp.tool(
     update_or_create_incident_custom_tags,
-    description="Update or create custom tags for a secret incident",
+    description="(Internal sources only) Update or create custom tags for an internal secret incident. "
+    "Does not work on public-monitoring incident IDs.",
     required_scopes=["incidents:write", "custom_tags:write"],
 )
 
 mcp.tool(
     update_incident_status,
-    description="Update a secret incident with status",
+    description="(Internal sources only) Update an internal secret incident with status. "
+    "Does not work on public-monitoring incident IDs.",
     required_scopes=["incidents:write"],
 )
 
@@ -207,25 +230,30 @@ mcp.tool(
 
 mcp.tool(
     manage_private_incident,
-    description="Manage a secret incident (assign, unassign, resolve, ignore, reopen)",
+    description="(Internal sources only) Manage an internal secret incident (assign, unassign, resolve, ignore, reopen). "
+    "Does not work on public-monitoring incident IDs.",
     required_scopes=["incidents:write"],
 )
 
 mcp.tool(
     revoke_secret,
-    description="Revoke a secret by its ID through the GitGuardian API",
+    description="Revoke a secret by its ID through the GitGuardian API. Operates on a secret_id regardless of whether "
+    "the incident surfaced on an internal source or via Public Monitoring.",
     required_scopes=["write:secret"],
 )
 
 mcp.tool(
     assign_incident,
-    description="Assign a secret incident to a specific member or to the current user",
+    description="(Internal sources only) Assign an internal secret incident to a specific member or to the current user. "
+    "Does not work on public-monitoring incident IDs.",
     required_scopes=["incidents:write"],
 )
 
 mcp.tool(
     create_code_fix_request,
-    description="Create code fix requests for multiple secret incidents with their locations. This will generate pull requests to automatically remediate the detected secrets.",
+    description="(Internal sources only) Create code fix requests for multiple internal secret incidents with their "
+    "locations. This will generate pull requests to automatically remediate detected secrets in the repositories the "
+    "workspace monitors. Does not apply to public-monitoring incidents.",
     required_scopes=["incidents:write"],
 )
 
