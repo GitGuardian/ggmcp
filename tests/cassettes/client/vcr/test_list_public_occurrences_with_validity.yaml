@@ -1,0 +1,83 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3759/occurrences?per_page=5&validity=valid%2Cinvalid%2Cno_checker
+  response:
+    body:
+      string: '[{"id": 9846, "incident_id": 3759, "date": "2023-03-03T15:22:18Z",
+        "filepath": "peer/peer-0.10.0.tar.gz/peer/local_settings.py", "kind": "historical",
+        "presence": "removed", "matches": [{"name": "apikey", "indice_start": 295,
+        "indice_end": 335, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        14, "post_line_end": 14}], "tags": ["FROM_HISTORICAL_SCAN"], "sha": "2c9877a3019d6c2e261054f8e2fe6c11032ed880",
+        "url": "https://github.com/pypi-data/pypi-code-2/commit/2c9877a3019d6c2e261054f8e2fe6c11032ed880#diff-63ebc151c08e8db0fd7e76e4d9329829c970d3ce7d3cc38b81ba0ab27107a282R14",
+        "source": {"id": 455, "type": "github", "name": "pypi-data/pypi-code-2", "url":
+        "https://github.com/pypi-data/pypi-code-2"}, "actor": {"id": 11, "type": "github_user",
+        "name": "orf", "email": "tom@tomforb.es", "url": "https://github.com/orf"},
+        "attachment_reasons": ["by_dev_from_perimeter"]}]'
+    headers:
+      CF-RAY:
+      - 9ef48734ad29d477-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 20 Apr 2026 13:34:44 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '833'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '80'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,146 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&validity=valid
+  response:
+    body:
+      string: '[{"id": 52, "detector": {"name": "aws_iam", "display_name": "AWS IAM
+        Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
+        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
+        Keys"}, "date": "2024-12-17T10:19:33Z", "secret_id": 14592883, "secret_hash":
+        "jfpGRuRzwwkh+0rO1sdbA98K4zuSMBfQHlBIXMm5dQVFAmmDL4Qc71cZRqNcojMG", "hmsl_hash":
+        "e50cad6b8e0ca71b4e13b0091d440308990047320f621fadabfb37916010e8ad", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.777462Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
+        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/52",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "AWS IAM Keys"}, {"id": 57, "detector": {"name": "gitguardian_test_token_checked",
+        "display_name": "GitGuardian Test Token Checked", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token_checked",
+        "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
+        "2021-12-10T10:36:08Z", "secret_id": 7970357, "secret_hash": "cfDzN5RpdE7fN0bd474gxh8fBT9kKunY+sHOlD+OeXGzGAkSCxpDOKaZihAFaYMH",
+        "hmsl_hash": "49b26d210036e493d068e32207ab35c98242c41d82db746b1342ef497560195e",
+        "occurrences_count": 187, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:03.015423Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 27, "severity_rule_id":
+        10866, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
+        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Test Token Checked"}, {"id": 123, "detector": {"name": "aws_iam",
+        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
+        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
+        "AWS IAM Keys"}, "date": "2024-10-08T08:06:58Z", "secret_id": 14592939, "secret_hash":
+        "Ic0b2F+nC6t10UFsL2q4RoCOnxbICIPG8le5eLah1r7yCUW4L4Qc71cZRqNcojMG", "hmsl_hash":
+        "79daedb7dbd145002662f320d5b3497fe9f99eee48534675db9f85425e87c90f", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:03.922766Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
+        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/123",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "AWS IAM Keys"}, {"id": 133, "detector": {"name": "aws_iam",
+        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
+        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
+        "AWS IAM Keys"}, "date": "2023-06-20T17:37:11Z", "secret_id": 14592949, "secret_hash":
+        "xREUeCg4rijhFTi2xfwsH3UKQ1nmE772jLaXnIwSSQX13b29L4Qc71cZRqNcojMG", "hmsl_hash":
+        "cf6f1f93b8a8c05eaec32d63ea56648a7f72805a9cbb9250ba543bcf32e25685", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:04.018836Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
+        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/133",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "AWS IAM Keys"}, {"id": 142, "detector": {"name": "gitguardian_test_token_checked",
+        "display_name": "GitGuardian Test Token Checked", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token_checked",
+        "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
+        "2024-08-20T12:45:39Z", "secret_id": 14592957, "secret_hash": "F0v+rUbWNYEaACUQ7e+WD6aGK44ETtBdLu7hJcwYHwAmM46HCxpDOKaZihAFaYMH",
+        "hmsl_hash": "4a715e13b9ac2f1822fa5e59bb2b74ed57214806134df7b76b86e13f2b525b03",
+        "occurrences_count": 6, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:04.191605Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 60, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/142",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "GitGuardian Test Token Checked"}]'
+    headers:
+      CF-RAY:
+      - 9ef486f8a860034a-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 20 Apr 2026 13:34:34 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5848'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0xNDI%3D&per_page=5&validity=valid>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '91'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

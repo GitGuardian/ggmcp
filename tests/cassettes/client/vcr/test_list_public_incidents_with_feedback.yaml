@@ -1,0 +1,113 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&feedback=true
+  response:
+    body:
+      string: '[{"id": 6987, "detector": {"name": "aws_iam", "display_name": "AWS
+        IAM Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
+        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
+        Keys"}, "date": "2025-02-06T13:11:21Z", "secret_id": 14955862, "secret_hash":
+        "kk/auvq83sqNMAD36RivDckUaWd4ApXgmnqrw+x7idvGjJAzL4Qc71cZRqNcojMG", "hmsl_hash":
+        "4ff38bc8f1670f5a260989ea723e576278bafa82a2524902093bddbf3b8c054e", "occurrences_count":
+        5, "status": "TRIGGERED", "triggered_at": "2025-02-06T13:16:24.742696Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [{"created_at": "2025-07-10T09:52:12.844648Z",
+        "updated_at": "2025-07-10T09:52:12.844658Z", "email": "candidate.playground+eu4@gitguardian.com",
+        "member_id": 937472, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no",
+        "field_label": "Has this secret been revoked?", "boolean": true}, {"type":
+        "text", "field_ref": "remarks_text", "field_label": "Additional remarks",
+        "text": ""}]}], "risk_score": 97, "severity_rule_id": 10860, "is_vaulted":
+        false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
+        null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6987",
+        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "AWS IAM Keys"}, {"id": 286920, "detector": {"name": "generic_high_entropy_secret",
+        "display_name": "Generic High Entropy Secret", "nature": "generic", "family":
+        "other", "category": "other", "detector_group_name": "generic_high_entropy_secret",
+        "detector_group_display_name": "Generic High Entropy Secret"}, "date": "2025-09-23T14:49:55Z",
+        "secret_id": 20803772, "secret_hash": "MOfkjSPfFFdio2Jr+E5Jzb/2j5hKrE6hk1wdg3C9wydzfQv0p+KkPCNpyNbtXqJM",
+        "hmsl_hash": "c95719c30ec3b52e90326d04712dae47fb3b80357926d3da17f5e918a97ef9ed",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-09-23T14:56:34.672998Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [{"created_at":
+        "2025-09-26T13:41:25.581098Z", "updated_at": "2025-09-26T13:41:25.581115Z",
+        "email": "pierre.dethoisy@gitguardian.com", "member_id": 309802, "answers":
+        [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "hello, first message"}]}], "risk_score":
+        83, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/286920", "tags":
+        [], "custom_tags": [], "destination_tickets": [], "incident_name": "Amazon
+        AWS Credentials"}]'
+    headers:
+      CF-RAY:
+      - 9ef48709df860b18-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 20 Apr 2026 13:34:37 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '3020'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '79'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
