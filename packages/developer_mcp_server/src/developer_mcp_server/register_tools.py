@@ -9,6 +9,8 @@ from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incident_members import list_incident_members
 from gg_api_core.tools.list_incident_teams import list_incident_teams
 from gg_api_core.tools.list_incidents import list_incidents
+from gg_api_core.tools.list_public_incidents import list_public_incidents
+from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.list_users import list_users
@@ -95,6 +97,22 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
         description="List secret occurrences for a specific repository with exact match locations. "
         "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
         "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        list_public_incidents,
+        description="List public secret incidents detected by GitGuardian Public Monitoring on public sources "
+        "(e.g. public GitHub repositories), as opposed to incidents from internal sources monitored by the workspace. "
+        "Use this when investigating secrets leaked outside the organization perimeter. Uses cursor-based pagination.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        list_public_occurrences,
+        description="List occurrences of a specific public secret incident detected by GitGuardian Public Monitoring on"
+        " public sources, including filepath, commit sha, source repository, "
+        "actor, and attachment reasons. Use this after list_public_incidents to drill into a specific public incident.",
         required_scopes=["incidents:read"],
     )
 

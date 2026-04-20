@@ -1,0 +1,530 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=20&status=IGNORED
+  response:
+    body:
+      string: '[{"id": 1, "detector": {"name": "stripe", "display_name": "Stripe Keys",
+        "nature": "specific", "family": "token", "category": "payment_system", "detector_group_name":
+        "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2022-09-21T12:48:20Z",
+        "secret_id": 14030708, "secret_hash": "oRwIqXVsin9BmHcHQx6WhicHNz4oNA/2C46qrJwl9Mn9/1HViIVhmFkAG+mbE/6F",
+        "hmsl_hash": "413ceb0ac344f91b4de665e1c6d73af3a46a26b6562b4a934fe143a900acbeb6",
+        "occurrences_count": 5, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:02.721195Z",
+        "ignored_at": "2025-07-30T12:45:49.970856Z", "ignorer_id": null, "ignorer_api_token_id":
+        "e9a6365c-e79a-4ad9-b851-29489298e615", "resolved_at": null, "resolver_id":
+        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
+        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
+        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
+        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1",
+        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "Stripe Keys"}, {"id": 62, "detector":
+        {"name": "generic_high_entropy_secret", "display_name": "Generic High Entropy
+        Secret", "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_high_entropy_secret", "detector_group_display_name": "Generic High
+        Entropy Secret"}, "date": "2021-05-05T14:31:57Z", "secret_id": 7970372, "secret_hash":
+        "E0P08MxvQ0WZh0WYjvO9IPqXps/WBpCKl5ky7B6EaoHJVYxpp+KkPCNpyNbtXqJM", "hmsl_hash":
+        "92bbc73f409d7552c3889f8fabf7bb81d6ed1002010c81fa5c402c48ca907db2", "occurrences_count":
+        19, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.060154Z", "ignored_at":
+        "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/62", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags":
+        [], "destination_tickets": [], "incident_name": "Generic High Entropy Secret"},
+        {"id": 66, "detector": {"name": "slackbototken", "display_name": "Slack Bot
+        Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2020-01-22T16:27:45Z", "secret_id": 14592889, "secret_hash":
+        "nV1M0zZt+z5hJwJWUBIrwV51arxFuS6Su4vfoVFWMQOOQyxjOMgPzYhV28m6OGG4", "hmsl_hash":
+        "a670081af75ed42cafef61b1e66c4e2c647463a2ae6e2dfe0a2a0b9b5ec91c0e", "occurrences_count":
+        6, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.251612Z", "ignored_at":
+        "2025-07-30T14:24:19.005229Z", "ignorer_id": null, "ignorer_api_token_id":
+        "41447876-2e7c-4494-b19d-fcda2e53268c", "resolved_at": null, "resolver_id":
+        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
+        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
+        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
+        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/66",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Slack Bot Token"}, {"id": 79, "detector": {"name": "generic_terraform_variable",
+        "display_name": "Generic Terraform Variable Secret", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_terraform_variable",
+        "detector_group_display_name": "Generic Terraform Variable Secret"}, "date":
+        "2023-03-14T00:33:11Z", "secret_id": 14592903, "secret_hash": "F4uzB9Mc2KXzFdf7yLcnXOuu1ghVQbj2RoQ577Y6+rq2CVD9G3w5187y9MPmpVZx",
+        "hmsl_hash": "8c2589fbf3405dddced25128d773be5bc921bca7b3861d8786d0080321d7110a",
+        "occurrences_count": 24, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.270897Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/79", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Terraform Variable Secret"}, {"id": 179, "detector":
+        {"name": "generic_password", "display_name": "Generic Password", "nature":
+        "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_password", "detector_group_display_name": "Generic Password"}, "date":
+        "2021-08-30T15:51:42Z", "secret_id": 14592995, "secret_hash": "wz0gASuuiXlK4FKKh/bYND0E6N3c/BY0REO27cRD9ZZ7pMA2fma8ieOEhD7igl+v",
+        "hmsl_hash": "dadb024dfeb09add6534a5e1be832a3307ad29a2a2494b8f7c90437ab52b7cd6",
+        "occurrences_count": 4, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:04.467468Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/179", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 180, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2021-08-30T15:51:42Z",
+        "secret_id": 14592996, "secret_hash": "f5xTPMMJbam57hBHEv5fHlMYBQl4MfPkk5uMsjcY2TwF+U2yfma8ieOEhD7igl+v",
+        "hmsl_hash": "db7cda617fc9a0ceb14de1707cc3847974d298ca5fb71024574c16c29a3fc22a",
+        "occurrences_count": 3, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:04.467468Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/180", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 198, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2024-08-22T09:38:10Z",
+        "secret_id": 14593009, "secret_hash": "r6+cW2T3+RPDyw/VfOF+TPj8HyX53dNCN9EnJeLcjARY+lU4fma8ieOEhD7igl+v",
+        "hmsl_hash": "c27a45b0ea3e2513340676331d4cbb7e6f31dadfa4f44bcec7367c12179307f5",
+        "occurrences_count": 10, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:04.719652Z",
+        "ignored_at": "2025-03-06T17:18:10.404562Z", "ignorer_id": 319222, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/198", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 227, "detector": {"name":
+        "generic_high_entropy_secret", "display_name": "Generic High Entropy Secret",
+        "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_high_entropy_secret", "detector_group_display_name": "Generic High
+        Entropy Secret"}, "date": "2024-06-11T14:23:52Z", "secret_id": 14589070, "secret_hash":
+        "fjZ3jyx2auRab756YeJR8bzqlM2E3wrNg+2Mwj/Esf3MFc8Bp+KkPCNpyNbtXqJM", "hmsl_hash":
+        "534acd03d083a37e0f4a0b567111580cd5a643cc1ac70d24d16c6bce2657e601", "occurrences_count":
+        18, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:05.087393Z", "ignored_at":
+        "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "high", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 0, "severity_rule_id": 10284, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/227", "tags":
+        ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FALSE_POSITIVE", "FROM_HISTORICAL_SCAN",
+        "IS_COMPANY_CONTEXT", "TEST_FILE", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "SendGrid Token"}, {"id": 422,
+        "detector": {"name": "generic_password", "display_name": "Generic Password",
+        "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_password", "detector_group_display_name": "Generic Password"}, "date":
+        "2023-03-06T04:27:29Z", "secret_id": 14593217, "secret_hash": "fH/D7uyKXL4l/wGUt9hYDiKD2KKucBCDTwoJDQk14bAGaVllfma8ieOEhD7igl+v",
+        "hmsl_hash": "495ef58eb13281619e87d36ebbdb266de976aff7ec2884554f832a806f8a4f4d",
+        "occurrences_count": 22, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:08.556172Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 0, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/422", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 426, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2020-12-14T17:26:35Z",
+        "secret_id": 14593221, "secret_hash": "r0IbxB09R6E9Tdr5Xc8McfILDTMuce6g/XUNS6cd56olQ75mfma8ieOEhD7igl+v",
+        "hmsl_hash": "fa551f7cc08d0375b5caac8ceb361f1c0aac68b2b227b46490ab8bf74fe3b3a3",
+        "occurrences_count": 7, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:08.393298Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/426", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 624, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2022-12-22T09:23:46Z",
+        "secret_id": 14593401, "secret_hash": "2Bg5LocdONb1TycjSLnI3oVkzqCyCkfboRlzoq2FD3ZrdaI6fma8ieOEhD7igl+v",
+        "hmsl_hash": "60e9aa8e6c5f70201ad4a87daa186f9f1f0c191dbfc9df43dca8c4d9d88d0bef",
+        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:16.720377Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/624", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 776, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2023-03-03T12:25:11Z",
+        "secret_id": 14593527, "secret_hash": "u2wWbraery0GZ5ZDgaKzy4vL+HQ1tKJITJG/yxLdihQoGqCUfma8ieOEhD7igl+v",
+        "hmsl_hash": "1d0e0950b0a366949b432ae647e989938ec0c2cbba7b4cb7f66d23dfa5448055",
+        "occurrences_count": 7, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:22.678748Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/776", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 852, "detector": {"name":
+        "generic_high_entropy_secret", "display_name": "Generic High Entropy Secret",
+        "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_high_entropy_secret", "detector_group_display_name": "Generic High
+        Entropy Secret"}, "date": "2021-10-28T08:52:53Z", "secret_id": 7970370, "secret_hash":
+        "/9Jx8+5p1ES4Xv+4bmo4dVbUZdiD9aPM/p3NguJ/Vq/sbAcCp+KkPCNpyNbtXqJM", "hmsl_hash":
+        "1c0679275244bac0e363bb1536259d50e21ac47774cc19631d7c554cb4e617ec", "occurrences_count":
+        5, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:24.952734Z", "ignored_at":
+        "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/852", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags":
+        [], "destination_tickets": [], "incident_name": "Generic High Entropy Secret"},
+        {"id": 1000, "detector": {"name": "generic_password", "display_name": "Generic
+        Password", "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_password", "detector_group_display_name": "Generic Password"}, "date":
+        "2023-03-06T04:19:11Z", "secret_id": 14593742, "secret_hash": "jFiFCjvAC2jMKuDtyh84KDc2UPFXcBkjXs6XAMmMVy7Jjz0gfma8ieOEhD7igl+v",
+        "hmsl_hash": "c580fade721cbdda6b882e7212b4a53fc2253e4a69fccf7786c19cb868d5c8e7",
+        "occurrences_count": 109, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:32.642553Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1000", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 1072, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2023-02-05T22:20:54Z",
+        "secret_id": 14593811, "secret_hash": "xWYIw4eU3ZqlH+xIcv9KagLuZWV0NETIKkxpnObp9PJMtP6Kfma8ieOEhD7igl+v",
+        "hmsl_hash": "367b5e85457267797179d466e17413e56ad19d9c1a12500fe87e6a77bc25a47f",
+        "occurrences_count": 4, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:38.888955Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1072", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 1081, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2023-01-12T13:25:57Z",
+        "secret_id": 14593820, "secret_hash": "ULO+2cM2kBOUZKHgYACs99IOIRTPb68MNCXEBQ0d0Em9jvDKfma8ieOEhD7igl+v",
+        "hmsl_hash": "04a1ccf3575d9cd5fbc75399543fd040bced703bf175175721eff00533a98600",
+        "occurrences_count": 9, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:39.482840Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1081", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 1107, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2023-03-06T05:14:42Z",
+        "secret_id": 14593842, "secret_hash": "WE+GlGSUW54mas4LpbsJ4sSb8owCLtsu3L2pu1frRqpwpu2xfma8ieOEhD7igl+v",
+        "hmsl_hash": "3de415d6755f3c4404ea89bf20200344344c200538e9eb7a79ebdcca4eb8de44",
+        "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:39.711268Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1107", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 1163, "detector": {"name":
+        "authentication_tuple", "display_name": "Authentication Tuple", "nature":
+        "generic", "family": "other", "category": "other", "detector_group_name":
+        "authentication_tuple", "detector_group_display_name": "Authentication Tuple"},
+        "date": "2023-01-14T21:38:45Z", "secret_id": 14593893, "secret_hash": "rLH1WuC/WtEvrNpgeEqNlvqM6B1mHpjvIfJcvt7EiGaG4yk6owwkpy6zKO2CufGR",
+        "hmsl_hash": "ba8179c6fd7aabd9714f4f5523dde1244878871127e00e8563c94eec136e0edd",
+        "occurrences_count": 1, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:42.390701Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1163", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Authentication Tuple"}, {"id": 1193, "detector": {"name":
+        "authentication_tuple", "display_name": "Authentication Tuple", "nature":
+        "generic", "family": "other", "category": "other", "detector_group_name":
+        "authentication_tuple", "detector_group_display_name": "Authentication Tuple"},
+        "date": "2023-01-14T21:45:02Z", "secret_id": 14593919, "secret_hash": "XOg8TKMKJbkSuq1VIOO8hr8re/ShY53Z4x2X7ZtWgRFw6hQUowwkpy6zKO2CufGR",
+        "hmsl_hash": "e428efe790abdddf877e0235787f922143123216081cf17f579568c9ef6517bc",
+        "occurrences_count": 3, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:43.231473Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1193", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Authentication Tuple"}, {"id": 1194, "detector": {"name":
+        "authentication_tuple", "display_name": "Authentication Tuple", "nature":
+        "generic", "family": "other", "category": "other", "detector_group_name":
+        "authentication_tuple", "detector_group_display_name": "Authentication Tuple"},
+        "date": "2023-01-14T21:45:02Z", "secret_id": 14593920, "secret_hash": "nrHWMb2GxEktp0dvRqbujh2j8DBYpoFsIxfMxz5coMyzedm7owwkpy6zKO2CufGR",
+        "hmsl_hash": "70d5379b85d729d5835516f6314eb620f91c633360f2febe38ef146450446770",
+        "occurrences_count": 3, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:43.231473Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1194", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Authentication Tuple"}]'
+    headers:
+      CF-RAY:
+      - 9efb6de7dd36d6e2-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 21 Apr 2026 09:40:48 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '24203'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0xMTk0&per_page=20&status=IGNORED>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '233'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&ignorer_id=492181
+  response:
+    body:
+      string: '[{"id": 62, "detector": {"name": "generic_high_entropy_secret", "display_name":
+        "Generic High Entropy Secret", "nature": "generic", "family": "other", "category":
+        "other", "detector_group_name": "generic_high_entropy_secret", "detector_group_display_name":
+        "Generic High Entropy Secret"}, "date": "2021-05-05T14:31:57Z", "secret_id":
+        7970372, "secret_hash": "E0P08MxvQ0WZh0WYjvO9IPqXps/WBpCKl5ky7B6EaoHJVYxpp+KkPCNpyNbtXqJM",
+        "hmsl_hash": "92bbc73f409d7552c3889f8fabf7bb81d6ed1002010c81fa5c402c48ca907db2",
+        "occurrences_count": 19, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.060154Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/62", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags":
+        [], "destination_tickets": [], "incident_name": "Generic High Entropy Secret"},
+        {"id": 79, "detector": {"name": "generic_terraform_variable", "display_name":
+        "Generic Terraform Variable Secret", "nature": "generic", "family": "other",
+        "category": "other", "detector_group_name": "generic_terraform_variable",
+        "detector_group_display_name": "Generic Terraform Variable Secret"}, "date":
+        "2023-03-14T00:33:11Z", "secret_id": 14592903, "secret_hash": "F4uzB9Mc2KXzFdf7yLcnXOuu1ghVQbj2RoQ577Y6+rq2CVD9G3w5187y9MPmpVZx",
+        "hmsl_hash": "8c2589fbf3405dddced25128d773be5bc921bca7b3861d8786d0080321d7110a",
+        "occurrences_count": 24, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.270897Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/79", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Terraform Variable Secret"}, {"id": 179, "detector":
+        {"name": "generic_password", "display_name": "Generic Password", "nature":
+        "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_password", "detector_group_display_name": "Generic Password"}, "date":
+        "2021-08-30T15:51:42Z", "secret_id": 14592995, "secret_hash": "wz0gASuuiXlK4FKKh/bYND0E6N3c/BY0REO27cRD9ZZ7pMA2fma8ieOEhD7igl+v",
+        "hmsl_hash": "dadb024dfeb09add6534a5e1be832a3307ad29a2a2494b8f7c90437ab52b7cd6",
+        "occurrences_count": 4, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:04.467468Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/179", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 180, "detector": {"name":
+        "generic_password", "display_name": "Generic Password", "nature": "generic",
+        "family": "other", "category": "other", "detector_group_name": "generic_password",
+        "detector_group_display_name": "Generic Password"}, "date": "2021-08-30T15:51:42Z",
+        "secret_id": 14592996, "secret_hash": "f5xTPMMJbam57hBHEv5fHlMYBQl4MfPkk5uMsjcY2TwF+U2yfma8ieOEhD7igl+v",
+        "hmsl_hash": "db7cda617fc9a0ceb14de1707cc3847974d298ca5fb71024574c16c29a3fc22a",
+        "occurrences_count": 3, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:04.467468Z",
+        "ignored_at": "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "unknown",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 7, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/180", "tags":
+        ["FALSE_POSITIVE", "FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Generic Password"}, {"id": 227, "detector": {"name":
+        "generic_high_entropy_secret", "display_name": "Generic High Entropy Secret",
+        "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "generic_high_entropy_secret", "detector_group_display_name": "Generic High
+        Entropy Secret"}, "date": "2024-06-11T14:23:52Z", "secret_id": 14589070, "secret_hash":
+        "fjZ3jyx2auRab756YeJR8bzqlM2E3wrNg+2Mwj/Esf3MFc8Bp+KkPCNpyNbtXqJM", "hmsl_hash":
+        "534acd03d083a37e0f4a0b567111580cd5a643cc1ac70d24d16c6bce2657e601", "occurrences_count":
+        18, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:05.087393Z", "ignored_at":
+        "2025-11-06T17:18:56.471707Z", "ignorer_id": 492181, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "high", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 0, "severity_rule_id": 10284, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/227", "tags":
+        ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FALSE_POSITIVE", "FROM_HISTORICAL_SCAN",
+        "IS_COMPANY_CONTEXT", "TEST_FILE", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "SendGrid Token"}]'
+    headers:
+      CF-RAY:
+      - 9efb6dec3987d155-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 21 Apr 2026 09:40:49 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '6212'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0yMjc%3D&ignorer_id=492181&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '149'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

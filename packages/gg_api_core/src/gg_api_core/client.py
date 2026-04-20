@@ -89,6 +89,15 @@ MAX_PAGINATION_PAGES = 10
 DEFAULT_HTTP_TIMEOUT = 20
 
 
+def _serialize_enum_filter(value: Any) -> str:
+    """Serialize a single enum/string or a list of them into a comma-separated API query value."""
+    if isinstance(value, list):
+        return ",".join(v.value if isinstance(v, Enum) else str(v) for v in value)
+    if isinstance(value, Enum):
+        return value.value
+    return str(value)
+
+
 class PaginatedResult(TypedDict):
     """Result from paginate_all with size limit protection."""
 
@@ -1714,6 +1723,222 @@ class GitGuardianClient:
         # Otherwise, get a single page
         logger.info(f"Getting occurrences with params: {params}")
         return await self._request_list("occurrences/secrets", params=params)
+
+    async def list_public_incidents(
+        self,
+        cursor: str | None = None,
+        per_page: int = 20,
+        date_before: str | None = None,
+        date_after: str | None = None,
+        triggered_at_before: str | None = None,
+        triggered_at_after: str | None = None,
+        assignee_email: str | None = None,
+        assignee_id: int | None = None,
+        status: IncidentStatus | str | list[IncidentStatus | str] | None = None,
+        severity: IncidentSeverity | str | list[IncidentSeverity | str] | None = None,
+        validity: IncidentValidity | str | list[IncidentValidity | str] | None = None,
+        tags: str | None = None,
+        custom_tags: str | None = None,
+        custom_tag_key: str | None = None,
+        custom_tag_value: str | None = None,
+        ordering: str | None = None,
+        detector_group_name: str | None = None,
+        ignorer_id: int | None = None,
+        ignorer_api_token_id: str | None = None,
+        resolver_id: int | None = None,
+        resolver_api_token_id: str | None = None,
+        feedback: bool | None = None,
+        declarative_secret_status: str | None = None,
+        risk_score_min: int | None = None,
+        risk_score_max: int | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List public secret incidents (from public sources like public GitHub).
+
+        Wraps GET /v1/public-incidents/secrets.
+
+        Args:
+            cursor: Pagination cursor.
+            per_page: Number of results per page (1-100, default 20).
+            date_before: Entries found before this date (ISO datetime).
+            date_after: Entries found after this date (ISO datetime).
+            triggered_at_before: Incidents triggered before this date (ISO datetime).
+            triggered_at_after: Incidents triggered after this date (ISO datetime).
+            assignee_email: Incidents assigned to this email.
+            assignee_id: Incidents assigned to this user id.
+            status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED).
+                Accepts a single value or a list (sent as comma-separated; the API
+                accepts multi-value filters here, like the sibling /incidents/secrets endpoint).
+            severity: Filter by severity (critical, high, medium, low, info, unknown).
+                Accepts a single value or a list (comma-separated).
+            validity: Filter by validity (valid, invalid, failed_to_check, no_checker, unknown).
+                Accepts a single value or a list (comma-separated).
+            tags: Filter by tags (comma-separated tag names, or "NONE" for incidents without tags).
+            custom_tags: Filter by custom tag UUIDs (comma-separated).
+            custom_tag_key: Filter by custom tag key.
+            custom_tag_value: Filter by custom tag value.
+            ordering: Sort field (date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at,
+                risk_score, -risk_score).
+            detector_group_name: Filter by detector group name.
+            ignorer_id: Incidents ignored by this user id.
+            ignorer_api_token_id: Incidents ignored by this API token id.
+            resolver_id: Incidents resolved by this user id.
+            resolver_api_token_id: Incidents resolved by this API token id.
+            feedback: Filter by presence of feedback.
+            declarative_secret_status: Filter by declarative secret status (revoked, active,
+                test_credential, false_positive, low_risk).
+            risk_score_min: Minimum risk score (0-100).
+            risk_score_max: Maximum risk score (0-100).
+            get_all: If True, fetch all results using cursor-based pagination.
+
+        Returns:
+            ListResponse with public incident data, cursor, and has_more flag.
+        """
+        logger.info("Listing public secret incidents")
+
+        params: dict[str, Any] = {}
+        if cursor:
+            params["cursor"] = cursor
+        if per_page:
+            params["per_page"] = str(per_page)
+        if date_before:
+            params["date_before"] = date_before
+        if date_after:
+            params["date_after"] = date_after
+        if triggered_at_before:
+            params["triggered_at_before"] = triggered_at_before
+        if triggered_at_after:
+            params["triggered_at_after"] = triggered_at_after
+        if assignee_email:
+            params["assignee_email"] = assignee_email
+        if assignee_id is not None:
+            params["assignee_id"] = str(assignee_id)
+        if status:
+            params["status"] = _serialize_enum_filter(status)
+        if severity:
+            params["severity"] = _serialize_enum_filter(severity)
+        if validity:
+            params["validity"] = _serialize_enum_filter(validity)
+        if tags:
+            params["tags"] = tags
+        if custom_tags:
+            params["custom_tags"] = custom_tags
+        if custom_tag_key:
+            params["custom_tag_key"] = custom_tag_key
+        if custom_tag_value:
+            params["custom_tag_value"] = custom_tag_value
+        if ordering:
+            params["ordering"] = ordering
+        if detector_group_name:
+            params["detector_group_name"] = detector_group_name
+        if ignorer_id is not None:
+            params["ignorer_id"] = str(ignorer_id)
+        if ignorer_api_token_id:
+            params["ignorer_api_token_id"] = ignorer_api_token_id
+        if resolver_id is not None:
+            params["resolver_id"] = str(resolver_id)
+        if resolver_api_token_id:
+            params["resolver_api_token_id"] = resolver_api_token_id
+        if feedback is not None:
+            params["feedback"] = str(feedback).lower()
+        if declarative_secret_status:
+            params["declarative_secret_status"] = declarative_secret_status
+        if risk_score_min is not None:
+            params["risk_score_min"] = str(risk_score_min)
+        if risk_score_max is not None:
+            params["risk_score_max"] = str(risk_score_max)
+
+        endpoint = "/public-incidents/secrets"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
+    async def list_public_occurrences(
+        self,
+        incident_id: int,
+        cursor: str | None = None,
+        per_page: int = 20,
+        date_before: str | None = None,
+        date_after: str | None = None,
+        source_id: int | None = None,
+        presence: str | None = None,
+        sha: str | None = None,
+        filepath: str | None = None,
+        attachment_reason: str | None = None,
+        severity: str | None = None,
+        status: str | None = None,
+        validity: str | None = None,
+        tags: str | None = None,
+        ordering: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List occurrences of a public secret incident.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}/occurrences.
+
+        Args:
+            incident_id: The id of the public incident to list occurrences for.
+            cursor: Pagination cursor.
+            per_page: Number of results per page (1-100, default 20).
+            date_before: Entries found before this date (ISO datetime).
+            date_after: Entries found after this date (ISO datetime).
+            source_id: Filter by source ID.
+            presence: Filter by presence status (present, removed).
+            sha: Filter by commit sha (>=3 characters).
+            filepath: Filter by filepath (>=3 characters).
+            attachment_reason: Filter by attachment reason
+                (by_dev_from_perimeter, on_github_org_in_perimeter, from_secret_grasper).
+                Multiple values can be comma-separated.
+            severity: Filter by incident severity (comma-separated allowed).
+            status: Filter by incident status (comma-separated allowed).
+            validity: Filter by secret validity (comma-separated allowed).
+            tags: Filter by tags (comma-separated, or "NONE" for occurrences without tags).
+            ordering: Sort field (id, -id, date, -date).
+            get_all: If True, fetch all results using cursor-based pagination.
+
+        Returns:
+            ListResponse with occurrence data, cursor, and has_more flag.
+        """
+        logger.info(f"Listing public occurrences for incident {incident_id}")
+
+        params: dict[str, Any] = {}
+        if cursor:
+            params["cursor"] = cursor
+        if per_page:
+            params["per_page"] = str(per_page)
+        if date_before:
+            params["date_before"] = date_before
+        if date_after:
+            params["date_after"] = date_after
+        if source_id is not None:
+            params["source_id"] = str(source_id)
+        if presence:
+            params["presence"] = presence
+        if sha:
+            params["sha"] = sha
+        if filepath:
+            params["filepath"] = filepath
+        if attachment_reason:
+            params["attachment_reason"] = attachment_reason
+        if severity:
+            params["severity"] = severity
+        if status:
+            params["status"] = status
+        if validity:
+            params["validity"] = validity
+        if tags:
+            params["tags"] = tags
+        if ordering:
+            params["ordering"] = ordering
+
+        endpoint = f"/public-incidents/secrets/{incident_id}/occurrences"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
 
     async def list_source_incidents(self, source_id: str, **kwargs) -> dict[str, Any]:
         """List secret incidents of a source.

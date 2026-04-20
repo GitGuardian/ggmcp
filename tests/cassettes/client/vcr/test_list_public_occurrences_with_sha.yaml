@@ -1,0 +1,565 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=20
+  response:
+    body:
+      string: '[{"id": 1, "detector": {"name": "stripe", "display_name": "Stripe Keys",
+        "nature": "specific", "family": "token", "category": "payment_system", "detector_group_name":
+        "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2022-09-21T12:48:20Z",
+        "secret_id": 14030708, "secret_hash": "oRwIqXVsin9BmHcHQx6WhicHNz4oNA/2C46qrJwl9Mn9/1HViIVhmFkAG+mbE/6F",
+        "hmsl_hash": "413ceb0ac344f91b4de665e1c6d73af3a46a26b6562b4a934fe143a900acbeb6",
+        "occurrences_count": 5, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:02.721195Z",
+        "ignored_at": "2025-07-30T12:45:49.970856Z", "ignorer_id": null, "ignorer_api_token_id":
+        "e9a6365c-e79a-4ad9-b851-29489298e615", "resolved_at": null, "resolver_id":
+        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
+        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
+        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
+        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1",
+        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "Stripe Keys"}, {"id": 2, "detector":
+        {"name": "slackbototken", "display_name": "Slack Bot Token", "nature": "specific",
+        "family": "token", "category": "messaging_system", "detector_group_name":
+        "slackbot_token", "detector_group_display_name": "Slack Bot Token"}, "date":
+        "2024-05-14T08:57:46Z", "secret_id": 14592835, "secret_hash": "X/Zvbsaxe42JEhaT3zKDBzG7y7ttdN2JNe4t5HOXYxsmOaHROMgPzYhV28m6OGG4",
+        "hmsl_hash": "d2fe5a505156deed0d96e6ee0731deef2d459e652b237c25a72ceb67d0abe1c3",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737359Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/2", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}, {"id": 3, "detector": {"name": "gitguardian_test_token",
+        "display_name": "GitGuardian Development Secret", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token",
+        "detector_group_display_name": "GitGuardian Development Secret"}, "date":
+        "2019-11-19T14:11:01Z", "secret_id": 14592836, "secret_hash": "UkaGM2d1NaALSIkUqCBkEgY+xnpQYM3vPZeWQp9v/O680MxYd9tR0/CjGaYu0TLp",
+        "hmsl_hash": "2cc5873afae5ee7747e26e2d73f7b8abe0ac63e7971442ceb50be7c4bf5c77c9",
+        "occurrences_count": 13, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737783Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/3", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Development Secret"}, {"id": 4, "detector": {"name": "gitguardian_test_token",
+        "display_name": "GitGuardian Development Secret", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token",
+        "detector_group_display_name": "GitGuardian Development Secret"}, "date":
+        "2019-11-19T14:11:01Z", "secret_id": 14592837, "secret_hash": "QFGnJCVo4W6AJ4o0xMe5qNi3TJmztqPMnHaoV0BUE6USNFd+d9tR0/CjGaYu0TLp",
+        "hmsl_hash": "8d750888a3f74d018e742b42dfb51c60907b26c49fdad4ebdabe1350eedfe0fb",
+        "occurrences_count": 10, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737783Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/4", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Development Secret"}, {"id": 5, "detector": {"name": "slackbototken",
+        "display_name": "Slack Bot Token", "nature": "specific", "family": "token",
+        "category": "messaging_system", "detector_group_name": "slackbot_token", "detector_group_display_name":
+        "Slack Bot Token"}, "date": "2024-05-24T12:18:15Z", "secret_id": 14592838,
+        "secret_hash": "Z5EChCcGXgX/eXhBjNhs4sGINbMdnzWjcD4m3l7naZmf7qCBOMgPzYhV28m6OGG4",
+        "hmsl_hash": "dc66b2a9c718f0d32581426943c736bfed9bcfd865c77712ca43d96faf97f731",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.739857Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/5", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}, {"id": 8, "detector": {"name": "sendgrid", "display_name":
+        "SendGrid Key", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "sendgrid_key", "detector_group_display_name": "SendGrid
+        Key"}, "date": "2019-02-11T12:36:02Z", "secret_id": 14592841, "secret_hash":
+        "56VyXyYsEkRVqTiCem+I1NhoZNp0IQKqlPItH+mlIkMmFjfwOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "31198eeb074a1722b082a6ea94edc8a133b115d7201acb47361741b236966830", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.746711Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/8",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "SendGrid Key"}, {"id": 9, "detector": {"name": "slackbototken",
+        "display_name": "Slack Bot Token", "nature": "specific", "family": "token",
+        "category": "messaging_system", "detector_group_name": "slackbot_token", "detector_group_display_name":
+        "Slack Bot Token"}, "date": "2024-10-17T13:35:42Z", "secret_id": 14592842,
+        "secret_hash": "iPhCz0hiEKKcYiKnWwMgF+iE0K4tHJTBECUI1m+w7wJpZCyyOMgPzYhV28m6OGG4",
+        "hmsl_hash": "35764f7687c768b9e42ce14f6b7f4eece8d1cd71d4c63c8fd614b23a8e8c1c7d",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.747147Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/9", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}, {"id": 10, "detector": {"name": "generic_password", "display_name":
+        "Generic Password", "nature": "generic", "family": "other", "category": "other",
+        "detector_group_name": "generic_password", "detector_group_display_name":
+        "Generic Password"}, "date": "2022-06-20T16:04:33Z", "secret_id": 14592843,
+        "secret_hash": "1rC83I0fTz8CLTr6Tz7usCc9nbtqZqUU2qXEU2V6CGzNxOl3fma8ieOEhD7igl+v",
+        "hmsl_hash": "9f54d16410ea8fae5f1389bcfa2d48539da4491cf4998d5d8cbcb9b4b946255f",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.749479Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        51, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/10", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Generic Password"}, {"id": 17, "detector": {"name": "sendgrid", "display_name":
+        "SendGrid Key", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "sendgrid_key", "detector_group_display_name": "SendGrid
+        Key"}, "date": "2019-01-08T19:14:00Z", "secret_id": 14592850, "secret_hash":
+        "IRfE2CM4LTU9zkWZl7wtWYTnBxQiaOHtAcZ3uhDrcvPg22qYOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "046f4d07330d592e729e6a072661070a3686a0616bf1e72209789656ca471b17", "occurrences_count":
+        4, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.753585Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/17",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "SendGrid Key"}, {"id": 18, "detector": {"name": "sendgrid",
+        "display_name": "SendGrid Key", "nature": "specific", "family": "token", "category":
+        "messaging_system", "detector_group_name": "sendgrid_key", "detector_group_display_name":
+        "SendGrid Key"}, "date": "2019-01-08T19:14:00Z", "secret_id": 14592851, "secret_hash":
+        "Uuk6ATzxus6ReU1GDCXUwr7vwE8ViniGIZwfovTm021h+oKmOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "99185204219cfb8df5e777a66f95fd7df357fed56ab23836bbaf6ea2514f961a", "occurrences_count":
+        4, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.753585Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/18",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "SendGrid Key"}, {"id": 19, "detector": {"name": "sendgrid",
+        "display_name": "SendGrid Key", "nature": "specific", "family": "token", "category":
+        "messaging_system", "detector_group_name": "sendgrid_key", "detector_group_display_name":
+        "SendGrid Key"}, "date": "2019-01-08T19:14:00Z", "secret_id": 14592852, "secret_hash":
+        "GPMde0PsT+7OW6y5RryDp/j+pXQkud3HsGpajUFu0Tzqx9pZOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "694403f25caf188319a9b5df5776a6795ac760ad443807047f0771e3119ccd56", "occurrences_count":
+        4, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.753585Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/19",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "SendGrid Key"}, {"id": 20, "detector": {"name": "sendgrid",
+        "display_name": "SendGrid Key", "nature": "specific", "family": "token", "category":
+        "messaging_system", "detector_group_name": "sendgrid_key", "detector_group_display_name":
+        "SendGrid Key"}, "date": "2019-01-08T19:14:00Z", "secret_id": 14592853, "secret_hash":
+        "bBXl1L03BPejq0HJOOIJN/egKAz5enmLatAafFYLw00oSifLOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "cf9bc1eaab8460fbeaaf779e9756c8a586a8f366debb06d2e937e4d85365ad9e", "occurrences_count":
+        4, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.753585Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/20",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "SendGrid Key"}, {"id": 21, "detector": {"name": "aws_iam",
+        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
+        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
+        "AWS IAM Keys"}, "date": "2023-05-16T12:28:32Z", "secret_id": 14592854, "secret_hash":
+        "Xy7y/46z9WKji2j3qEcqzGFPKjkOeenb1PfQsvoEj05SynaIL4Qc71cZRqNcojMG", "hmsl_hash":
+        "dbbfaacc45fe15df6fc8445e5c8a9af230c5ec380ba8944a440009d4b58e8b68", "occurrences_count":
+        1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.757884Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/21",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "AWS IAM Keys"}, {"id": 23, "detector": {"name": "sendgrid",
+        "display_name": "SendGrid Key", "nature": "specific", "family": "token", "category":
+        "messaging_system", "detector_group_name": "sendgrid_key", "detector_group_display_name":
+        "SendGrid Key"}, "date": "2022-07-19T09:52:09Z", "secret_id": 7970364, "secret_hash":
+        "CBz9BMCUQDF3+MCOXcTqfTSvrVZTp8XQF+z38O1amQpnfh2zOwbZvYHhb+uS0r+s", "hmsl_hash":
+        "049d5bbb613a172b0eb21c73a827ae34a30233dbfc9e9b75377a4743082bd447", "occurrences_count":
+        527, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.760032Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "high", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 0, "severity_rule_id":
+        10872, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/23",
+        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "SendGrid Key"}, {"id": 24, "detector": {"name": "gitguardian_test_token",
+        "display_name": "GitGuardian Development Secret", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token",
+        "detector_group_display_name": "GitGuardian Development Secret"}, "date":
+        "2022-07-19T09:52:09Z", "secret_id": 7970365, "secret_hash": "DQ6dPu9BXyq1FZTNVzfsEpxI24qF82fR4BvL62o1Q7AVIqBId9tR0/CjGaYu0TLp",
+        "hmsl_hash": "19c5c04da7b3d2372f1ab65fa2f311aff6ee3a0bfe37d4608797d5546814c335",
+        "occurrences_count": 190, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.760032Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        14, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/24", "tags":
+        ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Development Secret"}, {"id": 25, "detector": {"name": "stripe",
+        "display_name": "Stripe Keys", "nature": "specific", "family": "token", "category":
+        "payment_system", "detector_group_name": "stripe_keys", "detector_group_display_name":
+        "Stripe Keys"}, "date": "2018-12-10T21:48:19Z", "secret_id": 14592856, "secret_hash":
+        "6tsYM/861fChIu3lkD9zTIE4r+Ye4PBnYxO1wHC4R2WAM9tMiIVhmFkAG+mbE/6F", "hmsl_hash":
+        "3321c774dd4bff3b29cbae9b5ccfc64033ca13a397039769ea185509a247b8b2", "occurrences_count":
+        6, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.761962Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/25",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}, {"id": 26, "detector": {"name": "stripe",
+        "display_name": "Stripe Keys", "nature": "specific", "family": "token", "category":
+        "payment_system", "detector_group_name": "stripe_keys", "detector_group_display_name":
+        "Stripe Keys"}, "date": "2018-12-10T21:48:19Z", "secret_id": 14592857, "secret_hash":
+        "MitOZYWU/47TOCVlJ8xs0iLON2e7+dG8ZogVwnscopqJ56XGiIVhmFkAG+mbE/6F", "hmsl_hash":
+        "ca5b862ee181bfd49edd91e65ee018b8109e624b6679d0a780eed0591bc03f14", "occurrences_count":
+        7, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.761962Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/26",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}, {"id": 27, "detector": {"name": "stripe",
+        "display_name": "Stripe Keys", "nature": "specific", "family": "token", "category":
+        "payment_system", "detector_group_name": "stripe_keys", "detector_group_display_name":
+        "Stripe Keys"}, "date": "2018-12-10T21:48:19Z", "secret_id": 14592858, "secret_hash":
+        "bhbBm4t+But3lH43U3ossWK1Xe5Xh8AC0io3FirV6kuFeJYwiIVhmFkAG+mbE/6F", "hmsl_hash":
+        "47286022d32f48fe490e4c2fb25e73cdba391b974662e10aac440bbd32154890", "occurrences_count":
+        6, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.761962Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/27",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}, {"id": 28, "detector": {"name": "stripe",
+        "display_name": "Stripe Keys", "nature": "specific", "family": "token", "category":
+        "payment_system", "detector_group_name": "stripe_keys", "detector_group_display_name":
+        "Stripe Keys"}, "date": "2018-12-10T21:48:19Z", "secret_id": 14592859, "secret_hash":
+        "ZnxXuxqfCDl+HlqBWZKEO7H2L1fXnhwHImxR1f28xgkJuUB1iIVhmFkAG+mbE/6F", "hmsl_hash":
+        "84e555e48b1ed023a553264e9724fe9fa0b5421f8209d5a986f8985c58915ead", "occurrences_count":
+        7, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.761962Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/28",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}, {"id": 29, "detector": {"name": "stripe",
+        "display_name": "Stripe Keys", "nature": "specific", "family": "token", "category":
+        "payment_system", "detector_group_name": "stripe_keys", "detector_group_display_name":
+        "Stripe Keys"}, "date": "2018-12-10T21:48:19Z", "secret_id": 14592860, "secret_hash":
+        "qeoBkkmxoCbogO0cHEb8YDWNgokqR0foCqyClIti/qc9PkCHiIVhmFkAG+mbE/6F", "hmsl_hash":
+        "f82922f64e2a32d86e7c939c405d9949701e6479ac42d22e4d6549ebec6bce3b", "occurrences_count":
+        7, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.761962Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/29",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}]'
+    headers:
+      CF-RAY:
+      - 9efb6e08dafef864-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 21 Apr 2026 09:40:53 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '22866'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0yOQ%3D%3D&per_page=20>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '98'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/1/occurrences?per_page=5
+  response:
+    body:
+      string: '[{"id": 1, "incident_id": 1, "date": "2022-09-21T12:48:20Z", "filepath":
+        "hello.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 52, "indice_end": 84, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "7474a92c9f1f5da3a71fcf4a6a395118ad780fe2", "url":
+        "https://github.com/guillaume-malle/test/commit/7474a92c9f1f5da3a71fcf4a6a395118ad780fe2#diff-d9972c0502bd2119acc4368f9d34b3310c6841190ded5fcece8aa9b66b845103R3",
+        "source": {"id": 1, "type": "github", "name": "guillaume-malle/test", "url":
+        "https://github.com/guillaume-malle/test"}, "actor": {"id": 1, "type": "github_user",
+        "name": "guillaume-malle", "email": "110610637+guillaume-malle@users.noreply.github.com",
+        "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]},
+        {"id": 212, "incident_id": 1, "date": "2022-08-09T08:29:08Z", "filepath":
+        "hello.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 50, "indice_end": 82, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "b45f9204145211197fb32f0e10fec4f115f7b290", "url":
+        "https://github.com/guillaume-malle/test/commit/b45f9204145211197fb32f0e10fec4f115f7b290#diff-d9972c0502bd2119acc4368f9d34b3310c6841190ded5fcece8aa9b66b845103R3",
+        "source": {"id": 1, "type": "github", "name": "guillaume-malle/test", "url":
+        "https://github.com/guillaume-malle/test"}, "actor": {"id": 1, "type": "github_user",
+        "name": "guillaume-malle", "email": "110610637+guillaume-malle@users.noreply.github.com",
+        "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]},
+        {"id": 2718, "incident_id": 1, "date": "2022-10-06T13:57:38Z", "filepath":
+        "hello.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 50, "indice_end": 82, "pre_line_start": 3, "pre_line_end":
+        3, "post_line_start": 3, "post_line_end": 3}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "e1c2d9ef179795f195e89ed6a0bf21831fdca527", "url":
+        "https://github.com/guillaume-malle/test/commit/e1c2d9ef179795f195e89ed6a0bf21831fdca527#diff-d9972c0502bd2119acc4368f9d34b3310c6841190ded5fcece8aa9b66b845103L3",
+        "source": {"id": 1, "type": "github", "name": "guillaume-malle/test", "url":
+        "https://github.com/guillaume-malle/test"}, "actor": {"id": 1, "type": "github_user",
+        "name": "guillaume-malle", "email": "110610637+guillaume-malle@users.noreply.github.com",
+        "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]},
+        {"id": 2733, "incident_id": 1, "date": "2023-03-14T13:42:20Z", "filepath":
+        "stripe1.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 23, "indice_end": 55, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 1, "post_line_end": 1}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "2b9ef5781791f7f4a54af30a254bab215cf97e51", "url":
+        "https://github.com/ssokgg/tetris1/commit/2b9ef5781791f7f4a54af30a254bab215cf97e51#diff-706a1ecbc3c67f839c5b9103d4f96e3da1c61e28591053d120c97292b1492b7bR1",
+        "source": {"id": 11, "type": "github", "name": "ssokgg/tetris1", "url": "https://github.com/ssokgg/tetris1"},
+        "actor": {"id": 85, "type": "github_user", "name": "ssokgg", "email": "sandra.sok@gitguardian.com",
+        "url": "https://github.com/ssokgg"}, "attachment_reasons": ["by_dev_from_perimeter"]},
+        {"id": 4691, "incident_id": 1, "date": "2022-09-21T12:45:39Z", "filepath":
+        "hello.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 50, "indice_end": 82, "pre_line_start": 3, "pre_line_end":
+        3, "post_line_start": null, "post_line_end": null}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "768e248cc3cc3022226de014e9051689b9c7be97", "url":
+        "https://github.com/guillaume-malle/test/commit/768e248cc3cc3022226de014e9051689b9c7be97#diff-d9972c0502bd2119acc4368f9d34b3310c6841190ded5fcece8aa9b66b845103L3",
+        "source": {"id": 1, "type": "github", "name": "guillaume-malle/test", "url":
+        "https://github.com/guillaume-malle/test"}, "actor": {"id": 1, "type": "github_user",
+        "name": "guillaume-malle", "email": "110610637+guillaume-malle@users.noreply.github.com",
+        "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]}]'
+    headers:
+      CF-RAY:
+      - 9efb6e0c7c0a9ebc-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 21 Apr 2026 09:40:54 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '4235'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '56'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/1/occurrences?per_page=5&sha=7474a92c9f
+  response:
+    body:
+      string: '[{"id": 1, "incident_id": 1, "date": "2022-09-21T12:48:20Z", "filepath":
+        "hello.py", "kind": "historical", "presence": "present", "matches": [{"name":
+        "apikey", "indice_start": 52, "indice_end": 84, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}], "tags": ["FROM_HISTORICAL_SCAN",
+        "INTERNALLY_LEAKED"], "sha": "7474a92c9f1f5da3a71fcf4a6a395118ad780fe2", "url":
+        "https://github.com/guillaume-malle/test/commit/7474a92c9f1f5da3a71fcf4a6a395118ad780fe2#diff-d9972c0502bd2119acc4368f9d34b3310c6841190ded5fcece8aa9b66b845103R3",
+        "source": {"id": 1, "type": "github", "name": "guillaume-malle/test", "url":
+        "https://github.com/guillaume-malle/test"}, "actor": {"id": 1, "type": "github_user",
+        "name": "guillaume-malle", "email": "110610637+guillaume-malle@users.noreply.github.com",
+        "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]}]'
+    headers:
+      CF-RAY:
+      - 9efb6e0e79b64bb5-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 21 Apr 2026 09:40:54 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '858'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '52'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

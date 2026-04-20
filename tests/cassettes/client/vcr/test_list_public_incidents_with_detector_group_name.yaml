@@ -1,0 +1,148 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&detector_group_name=slackbot_token
+  response:
+    body:
+      string: '[{"id": 2, "detector": {"name": "slackbototken", "display_name": "Slack
+        Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-05-14T08:57:46Z", "secret_id": 14592835, "secret_hash":
+        "X/Zvbsaxe42JEhaT3zKDBzG7y7ttdN2JNe4t5HOXYxsmOaHROMgPzYhV28m6OGG4", "hmsl_hash":
+        "d2fe5a505156deed0d96e6ee0731deef2d459e652b237c25a72ceb67d0abe1c3", "occurrences_count":
+        2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737359Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/2",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Slack Bot Token"}, {"id": 5, "detector": {"name": "slackbototken",
+        "display_name": "Slack Bot Token", "nature": "specific", "family": "token",
+        "category": "messaging_system", "detector_group_name": "slackbot_token", "detector_group_display_name":
+        "Slack Bot Token"}, "date": "2024-05-24T12:18:15Z", "secret_id": 14592838,
+        "secret_hash": "Z5EChCcGXgX/eXhBjNhs4sGINbMdnzWjcD4m3l7naZmf7qCBOMgPzYhV28m6OGG4",
+        "hmsl_hash": "dc66b2a9c718f0d32581426943c736bfed9bcfd865c77712ca43d96faf97f731",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.739857Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/5", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}, {"id": 9, "detector": {"name": "slackbototken", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-10-17T13:35:42Z", "secret_id": 14592842, "secret_hash":
+        "iPhCz0hiEKKcYiKnWwMgF+iE0K4tHJTBECUI1m+w7wJpZCyyOMgPzYhV28m6OGG4", "hmsl_hash":
+        "35764f7687c768b9e42ce14f6b7f4eece8d1cd71d4c63c8fd614b23a8e8c1c7d", "occurrences_count":
+        2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.747147Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/9",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Slack Bot Token"}, {"id": 30, "detector": {"name": "slackbototken",
+        "display_name": "Slack Bot Token", "nature": "specific", "family": "token",
+        "category": "messaging_system", "detector_group_name": "slackbot_token", "detector_group_display_name":
+        "Slack Bot Token"}, "date": "2022-09-01T12:15:30Z", "secret_id": 14592861,
+        "secret_hash": "UcHRteKCwroK47xMicSu6b7x3bMi6jvwgYV4DzuatWRC3HXYOMgPzYhV28m6OGG4",
+        "hmsl_hash": "6e9d452d4b21ac2c8f0cbefb99199985801619e77ad5e35f65d651320d9450a5",
+        "occurrences_count": 1, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.766850Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/30", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}, {"id": 66, "detector": {"name": "slackbototken", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2020-01-22T16:27:45Z", "secret_id": 14592889, "secret_hash":
+        "nV1M0zZt+z5hJwJWUBIrwV51arxFuS6Su4vfoVFWMQOOQyxjOMgPzYhV28m6OGG4", "hmsl_hash":
+        "a670081af75ed42cafef61b1e66c4e2c647463a2ae6e2dfe0a2a0b9b5ec91c0e", "occurrences_count":
+        6, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:03.251612Z", "ignored_at":
+        "2025-07-30T14:24:19.005229Z", "ignorer_id": null, "ignorer_api_token_id":
+        "41447876-2e7c-4494-b19d-fcda2e53268c", "resolved_at": null, "resolver_id":
+        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
+        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
+        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
+        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/66",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Slack Bot Token"}]'
+    headers:
+      CF-RAY:
+      - 9ef48703ee6f701a-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 20 Apr 2026 13:34:36 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5748'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD02Ng%3D%3D&detector_group_name=slackbot_token&per_page=5>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.437.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '111'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.161.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
