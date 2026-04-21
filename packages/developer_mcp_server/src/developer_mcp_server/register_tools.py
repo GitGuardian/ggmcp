@@ -4,6 +4,7 @@ from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_member import get_member
+from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incidents import list_incidents
@@ -31,7 +32,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   `remediate_secret_incidents`, `list_sources`, `find_current_source_id`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
-  Tools: `list_public_incidents`, `list_public_occurrences`.
+  Tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -130,6 +131,15 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
     )
 
     mcp.tool(
+        get_public_incident,
+        description="(Public Monitoring only — for internal sources use get_incident) "
+        "Retrieve a single public secret incident by id, with detector, status, severity, "
+        "validity, risk_score, tags, timestamps, assignee, and share_url. Incident IDs here "
+        "are NOT interchangeable with internal incident IDs.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
         list_public_occurrences,
         description="(Public Monitoring only — for internal sources use list_repo_occurrences) "
         "List occurrences of a specific public secret incident detected by GitGuardian Public Monitoring on "
@@ -181,7 +191,7 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
 
     mcp.tool(
         get_incident,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub incidents there is no equivalent retrieval tool yet) "
+        description="(Internal sources only - for public GitHub/gists/Docker Hub incidents use get_public_incident)"
         "Retrieve a specific internal secret incident by its ID with detailed information including occurrences, "
         "detector info, assignee details, and custom tags.",
         required_scopes=["incidents:read"],

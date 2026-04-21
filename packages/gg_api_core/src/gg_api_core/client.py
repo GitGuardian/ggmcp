@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+from collections.abc import Sequence
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Dict, Optional, TypedDict, cast
@@ -92,9 +93,9 @@ DEFAULT_HTTP_TIMEOUT = 20
 def _serialize_enum_filter(value: Any) -> str:
     """Serialize a single enum/string or a list of them into a comma-separated API query value."""
     if isinstance(value, list):
-        return ",".join(v.value if isinstance(v, Enum) else str(v) for v in value)
+        return ",".join(str(v.value) if isinstance(v, Enum) else str(v) for v in value)
     if isinstance(value, Enum):
-        return value.value
+        return str(value.value)
     return str(value)
 
 
@@ -1698,9 +1699,9 @@ class GitGuardianClient:
         triggered_at_after: str | None = None,
         assignee_email: str | None = None,
         assignee_id: int | None = None,
-        status: IncidentStatus | str | list[IncidentStatus | str] | None = None,
-        severity: IncidentSeverity | str | list[IncidentSeverity | str] | None = None,
-        validity: IncidentValidity | str | list[IncidentValidity | str] | None = None,
+        status: IncidentStatus | str | Sequence[IncidentStatus | str] | None = None,
+        severity: IncidentSeverity | str | Sequence[IncidentSeverity | str] | None = None,
+        validity: IncidentValidity | str | Sequence[IncidentValidity | str] | None = None,
         tags: str | None = None,
         custom_tags: str | None = None,
         custom_tag_key: str | None = None,
@@ -1818,6 +1819,20 @@ class GitGuardianClient:
             return await self.paginate_all(endpoint, params)
 
         return await self._request_list(endpoint, params=params)
+
+    async def get_public_incident(self, incident_id: int) -> dict[str, Any]:
+        """Retrieve a single public secret incident by id.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}.
+
+        Args:
+            incident_id: The id of the public incident to retrieve.
+
+        Returns:
+            Detailed public incident data.
+        """
+        logger.info(f"Getting public incident {incident_id}")
+        return await self._request_get(f"/public-incidents/secrets/{incident_id}")
 
     async def list_public_occurrences(
         self,
