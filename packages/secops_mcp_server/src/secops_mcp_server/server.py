@@ -134,7 +134,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   `update_or_create_incident_custom_tags`, `create_code_fix_request`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
-  Read tools: `list_public_incidents`, `list_public_occurrences`.
+  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
   (Write actions on public incidents are not yet wrapped by this server.)
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is

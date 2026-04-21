@@ -3,9 +3,34 @@ VCR tests for GitGuardianClient public-incident methods.
 
 These tests cover every query parameter of:
 - list_public_incidents(...)
+- get_public_incident(incident_id)
 """
 
 import pytest
+
+
+class TestGetPublicIncident:
+    """Tests for retrieving a single public secret incident."""
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_get_public_incident_returns_same_id(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key and at least one public incident
+        WHEN we retrieve it by id via get_public_incident
+        THEN the returned payload's id matches and carries the documented core fields
+        """
+        with use_cassette("test_get_public_incident_returns_same_id"):
+            page = await real_client.list_public_incidents(per_page=1)
+            if not page["data"]:
+                pytest.skip("No public incidents available")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.get_public_incident(incident_id=incident_id)
+
+            assert result["id"] == incident_id
+            for key in ("status", "severity", "validity", "detector", "date", "occurrences_count"):
+                assert key in result
 
 
 class TestListPublicIncidents:
