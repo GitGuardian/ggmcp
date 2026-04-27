@@ -207,12 +207,16 @@ def register_developer_tools(mcp: AbstractGitGuardianFastMCP):
 
     mcp.tool(
         list_incident_members,
-        description="List members with access to a secret incident. Filter by access level, search by name/email, and filter on direct or indirect accesses.",
+        description="(Internal sources only)"
+        "List members with access to a secret incident. Filter by access level, search by name/email,"
+        " and filter on direct or indirect accesses.",
         required_scopes=["incidents:read"],
     )
 
     mcp.tool(
         list_incident_teams,
-        description="List teams with access to a secret incident. Search by team name/description and filter on direct or indirect accesses.",
+        description="(Internal sources only)"
+        "List teams with access to a secret incident."
+        " Search by team name/description and filter on direct or indirect accesses.",
         required_scopes=["incidents:read"],
     )
