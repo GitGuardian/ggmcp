@@ -1870,6 +1870,50 @@ class GitGuardianClient:
         logger.info(f"Getting public incident {incident_id}")
         return await self._request_get(f"/public-incidents/secrets/{incident_id}")
 
+    async def assign_public_incident(
+        self,
+        incident_id: int,
+        assignee_id: int | str | None = None,
+        email: str | None = None,
+        send_email: bool | None = None,
+    ) -> dict[str, Any]:
+        """Assign a public secret incident to a workspace member.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/assign.
+
+        Args:
+            incident_id: The id of the public incident to assign.
+            assignee_id: Member id to assign the incident to. Mutually exclusive with email.
+            email: Email of the member to assign the incident to. Mutually exclusive with
+                assignee_id.
+            send_email: If False, skip notifying the assignee. Defaults to the API default
+                (True) when omitted.
+
+        Returns:
+            The updated public incident payload.
+        """
+        if assignee_id is not None and email is not None:
+            raise ValueError("either email or assignee_id should be provided. Not both")
+        if assignee_id is None and email is None:
+            raise ValueError("either email or assignee_id must be provided")
+
+        logger.info(f"Assigning public incident {incident_id} to member {assignee_id or email}")
+
+        payload: dict[str, Any] = {}
+        if assignee_id is not None:
+            payload["member_id"] = int(assignee_id)
+        if email is not None:
+            payload["email"] = email
+
+        kwargs: dict[str, Any] = {"json": payload}
+        if send_email is not None:
+            kwargs["params"] = {"send_email": str(send_email).lower()}
+
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/assign",
+            **kwargs,
+        )
+
     async def list_public_occurrences(
         self,
         incident_id: int,

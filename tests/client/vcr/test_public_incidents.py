@@ -4,6 +4,7 @@ VCR tests for GitGuardianClient public-incident methods.
 These tests cover every query parameter of:
 - list_public_incidents(...)
 - get_public_incident(incident_id)
+- assign_public_incident(incident_id, ...)
 """
 
 import pytest
@@ -399,3 +400,109 @@ class TestListPublicIncidents:
             assert "has_more" in result
             assert isinstance(result["has_more"], bool)
             assert "cursor" in result
+
+
+class TestAssignPublicIncident:
+    """Tests for assigning a public secret incident to a workspace member."""
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_assign_public_incident_by_member_id(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key with incidents:write scope and a public incident
+        WHEN we assign it to a member by member_id
+        THEN the API returns the updated incident with assignee_id set to that member
+        """
+        with use_cassette("test_assign_public_incident_by_member_id"):
+            token_info = await real_client.get_current_token_info()
+            assignee_id = token_info["member_id"]
+
+            page = await real_client.list_public_incidents(per_page=1)
+            if not page["data"]:
+                pytest.skip("No public incidents available")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.assign_public_incident(
+                incident_id=incident_id,
+                assignee_id=assignee_id,
+            )
+
+            assert result["id"] == incident_id
+            assert result["assignee_id"] == assignee_id
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_assign_public_incident_by_email(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key and a public incident
+        WHEN we assign it by email
+        THEN the API resolves the member and returns the incident with the right assignee_email
+        """
+        with use_cassette("test_assign_public_incident_by_email"):
+            token_info = await real_client.get_current_token_info()
+            current_member = await real_client.get_current_member()
+            email = current_member["email"]
+
+            page = await real_client.list_public_incidents(per_page=1)
+            if not page["data"]:
+                pytest.skip("No public incidents available")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.assign_public_incident(
+                incident_id=incident_id,
+                email=email,
+            )
+
+            assert result["id"] == incident_id
+            assert result["assignee_email"] == email
+            assert result["assignee_id"] == token_info["member_id"]
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_assign_public_incident_send_email_false(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key and a public incident
+        WHEN we assign it with send_email=False
+        THEN the assignment succeeds (the API accepts the query parameter)
+        """
+        with use_cassette("test_assign_public_incident_send_email_false"):
+            token_info = await real_client.get_current_token_info()
+            assignee_id = token_info["member_id"]
+
+            page = await real_client.list_public_incidents(per_page=1)
+            if not page["data"]:
+                pytest.skip("No public incidents available")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.assign_public_incident(
+                incident_id=incident_id,
+                assignee_id=assignee_id,
+                send_email=False,
+            )
+
+            assert result["id"] == incident_id
+            assert result["assignee_id"] == assignee_id
+
+    @pytest.mark.asyncio
+    async def test_assign_public_incident_rejects_both_email_and_id(self, real_client):
+        """
+        GIVEN a real client
+        WHEN we call assign_public_incident with both email and assignee_id
+        THEN a ValueError is raised before any HTTP call is made
+        """
+        with pytest.raises(ValueError, match="either email or assignee_id"):
+            await real_client.assign_public_incident(
+                incident_id=1,
+                assignee_id=42,
+                email="user@example.com",
+            )
+
+    @pytest.mark.asyncio
+    async def test_assign_public_incident_rejects_neither_email_nor_id(self, real_client):
+        """
+        GIVEN a real client
+        WHEN we call assign_public_incident without an assignee
+        THEN a ValueError is raised before any HTTP call is made
+        """
+        with pytest.raises(ValueError, match="either email or assignee_id"):
+            await real_client.assign_public_incident(incident_id=1)

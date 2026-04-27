@@ -10,6 +10,7 @@ from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
 from gg_api_core.scopes import set_secops_scopes
 from gg_api_core.tools.assign_incident import assign_incident
+from gg_api_core.tools.assign_public_incident import assign_public_incident
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request
 from gg_api_core.tools.manage_incident import (
     manage_private_incident,
@@ -135,7 +136,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
-  (Write actions on public incidents are not yet wrapped by this server.)
+  Write tools: `assign_public_incident`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -246,6 +247,15 @@ mcp.tool(
     assign_incident,
     description="(Internal sources only) Assign an internal secret incident to a specific member or to the current user. "
     "Does not work on public-monitoring incident IDs.",
+    required_scopes=["incidents:write"],
+)
+
+mcp.tool(
+    assign_public_incident,
+    description="(Public Monitoring only — for internal sources use assign_incident) "
+    "Assign a public secret incident detected by GitGuardian Public Monitoring to a specific "
+    "member or to the current user. Public incident IDs are NOT interchangeable with internal "
+    "incident IDs.",
     required_scopes=["incidents:write"],
 )
 
