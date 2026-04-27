@@ -1,0 +1,104 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/api_tokens/self
+  response:
+    body:
+      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+        "type": "personal_access_token", "scopes": ["scan", "incidents:read", "incidents:write",
+        "members:read"], "member_id": 480870, "workspace_id": 8, "created_at": "2025-12-07T14:13:08.044416Z",
+        "last_used_at": "2026-04-27T08:43:00Z", "expire_at": null, "revoked_at": null,
+        "status": "active", "creator_id": 480870}'
+    headers:
+      content-type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=1
+  response:
+    body:
+      string: '[{"id": 3759, "detector": {"name": "slack_bot_token", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
+        "TRIGGERED", "validity": "valid", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "tags": ["FROM_HISTORICAL_SCAN"], "risk_score": 80,
+        "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3759"}]'
+    headers:
+      content-type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"member_id": 480870}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '21'
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: POST
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3759/assign
+  response:
+    body:
+      string: '{"id": 3759, "detector": {"name": "slack_bot_token", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
+        "ASSIGNED", "validity": "valid", "severity": "high", "assignee_id": 480870,
+        "assignee_email": "ci@gitguardian.com", "tags": ["FROM_HISTORICAL_SCAN"],
+        "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3759"}'
+    headers:
+      content-type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+version: 1
