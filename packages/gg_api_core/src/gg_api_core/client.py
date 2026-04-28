@@ -1914,6 +1914,57 @@ class GitGuardianClient:
             **kwargs,
         )
 
+    async def resolve_public_incident(self, incident_id: int, resolve_reason: str) -> dict[str, Any]:
+        """Resolve a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/resolve.
+
+        Args:
+            incident_id: The id of the public incident to resolve.
+            resolve_reason: Reason for resolving (revoked, dmca_request, source_deleted).
+
+        Returns:
+            The updated public incident payload.
+        """
+        logger.info(f"Resolving public incident {incident_id} (resolve_reason={resolve_reason})")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/resolve",
+            json={"resolve_reason": resolve_reason},
+        )
+
+    async def ignore_public_incident(self, incident_id: int, ignore_reason: str) -> dict[str, Any]:
+        """Ignore a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/ignore.
+
+        Args:
+            incident_id: The id of the public incident to ignore.
+            ignore_reason: Reason for ignoring (test_credential, false_positive, low_risk,
+                invalid, ignore_actor, ignore_secret).
+
+        Returns:
+            The updated public incident payload.
+        """
+        logger.info(f"Ignoring public incident {incident_id} with reason: {ignore_reason}")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/ignore",
+            json={"ignore_reason": ignore_reason},
+        )
+
+    async def reopen_public_incident(self, incident_id: int) -> dict[str, Any]:
+        """Reopen a public secret incident that was previously resolved or ignored.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/reopen.
+
+        Args:
+            incident_id: The id of the public incident to reopen.
+
+        Returns:
+            The updated public incident payload.
+        """
+        logger.info(f"Reopening public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/reopen")
+
     async def list_public_occurrences(
         self,
         incident_id: int,
