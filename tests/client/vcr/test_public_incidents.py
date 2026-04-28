@@ -5,6 +5,9 @@ These tests cover every query parameter of:
 - list_public_incidents(...)
 - get_public_incident(incident_id)
 - assign_public_incident(incident_id, ...)
+- resolve_public_incident(incident_id, resolve_reason)
+- ignore_public_incident(incident_id, ignore_reason)
+- reopen_public_incident(incident_id)
 """
 
 import pytest
@@ -506,3 +509,81 @@ class TestAssignPublicIncident:
         """
         with pytest.raises(ValueError, match="either email or assignee_id"):
             await real_client.assign_public_incident(incident_id=1)
+
+
+class TestResolvePublicIncident:
+    """Tests for resolving a public secret incident."""
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_resolve_public_incident_with_revoked(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key with incidents:write scope and an open public incident
+        WHEN we resolve it with resolve_reason='revoked'
+        THEN the API returns the updated incident with status=RESOLVED
+        """
+        with use_cassette("test_resolve_public_incident_with_revoked"):
+            page = await real_client.list_public_incidents(status="TRIGGERED", per_page=1)
+            if not page["data"]:
+                pytest.skip("No open public incident available to resolve")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.resolve_public_incident(
+                incident_id=incident_id,
+                resolve_reason="revoked",
+            )
+
+            assert result["id"] == incident_id
+            assert result["status"] == "RESOLVED"
+            assert result["resolve_reason"] == "revoked"
+
+
+class TestIgnorePublicIncident:
+    """Tests for ignoring a public secret incident."""
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_ignore_public_incident_with_test_credential(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key with incidents:write scope and an open public incident
+        WHEN we ignore it with ignore_reason='test_credential'
+        THEN the API returns the updated incident with status=IGNORED
+        """
+        with use_cassette("test_ignore_public_incident_with_test_credential"):
+            page = await real_client.list_public_incidents(status="TRIGGERED", per_page=1)
+            if not page["data"]:
+                pytest.skip("No open public incident available to ignore")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.ignore_public_incident(
+                incident_id=incident_id,
+                ignore_reason="test_credential",
+            )
+
+            assert result["id"] == incident_id
+            assert result["status"] == "IGNORED"
+            assert result["ignore_reason"] == "test_credential"
+
+
+class TestReopenPublicIncident:
+    """Tests for reopening a public secret incident."""
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
+    async def test_reopen_public_incident(self, real_client, use_cassette):
+        """
+        GIVEN a valid GitGuardian API key and a public incident that was previously
+              resolved or ignored
+        WHEN we reopen it via reopen_public_incident
+        THEN the API returns the updated incident with status=TRIGGERED
+        """
+        with use_cassette("test_reopen_public_incident"):
+            page = await real_client.list_public_incidents(status=["RESOLVED", "IGNORED"], per_page=1)
+            if not page["data"]:
+                pytest.skip("No resolved or ignored public incident available to reopen")
+            incident_id = page["data"][0]["id"]
+
+            result = await real_client.reopen_public_incident(incident_id=incident_id)
+
+            assert result["id"] == incident_id
+            assert result["status"] == "TRIGGERED"

@@ -1,0 +1,72 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=1&status=RESOLVED%2CIGNORED
+  response:
+    body:
+      string: '[{"id": 3760, "detector": {"name": "slack_bot_token", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
+        "RESOLVED", "validity": "valid", "severity": "high", "assignee_id": 480870,
+        "assignee_email": "ci@gitguardian.com", "resolved_at": "2026-04-20T10:00:00Z",
+        "resolver_id": 480870, "resolve_reason": "revoked", "tags": ["FROM_HISTORICAL_SCAN"],
+        "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3760"}]'
+    headers:
+      content-type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: POST
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3760/reopen
+  response:
+    body:
+      string: '{"id": 3760, "detector": {"name": "slack_bot_token", "display_name":
+        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
+        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
+        "TRIGGERED", "validity": "valid", "severity": "high", "assignee_id": null,
+        "assignee_email": null, "resolved_at": null, "resolver_id": null, "tags":
+        ["FROM_HISTORICAL_SCAN"], "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/3760"}'
+    headers:
+      content-type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+version: 1
