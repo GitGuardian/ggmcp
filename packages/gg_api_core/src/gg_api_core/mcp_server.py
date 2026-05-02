@@ -18,6 +18,7 @@ from gg_api_core.client import (
     get_personal_access_token_from_env,
     is_oauth_enabled,
 )
+from gg_api_core.icons import get_gitguardian_icons
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -374,6 +375,8 @@ class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
 
 
 def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
+    kwargs.setdefault("icons", get_gitguardian_icons())
+
     if is_oauth_enabled():
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 
