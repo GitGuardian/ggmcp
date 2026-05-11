@@ -12,7 +12,24 @@ test fixtures using ``patch.dict(os.environ, ...)`` or
 ``monkeypatch.setenv`` continue to work without cache invalidation.
 """
 
+from typing import Any
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from .scopes import ServerProfile
+
+TRUTHY_ENV_VALUES = frozenset(
+    {
+        "true",
+        "1",
+        "yes",
+    }
+)
+
+
+def string_env_to_bool(value: str) -> bool:
+    return value.lower() in TRUTHY_ENV_VALUES
 
 
 class Settings(BaseSettings):
@@ -45,12 +62,22 @@ class Settings(BaseSettings):
     # None ⇒ unset (default: True). Empty/anything-but-"true" ⇒ False.
     enable_local_oauth: str | None = None
 
+    # --- Server profile ---
+    # Set by each server entry-point (e.g. developer_mcp_server/server.py) to
+    # signal which scope-set the OAuth flow may request. ``None`` means no
+    # profile is active — used by the OAuth helper script and tests.
+    server_profile: ServerProfile | None = None
+
     # --- System ---
     xdg_config_home: str | None = None
 
-    # Note: Sentry config lives in :class:`SentrySettings` (instantiated lazily
-    # inside ``init_sentry``) so a malformed ``SENTRY_*`` value cannot poison
-    # unrelated code paths that build the main ``Settings``.
+    @field_validator("server_profile", mode="before")
+    @classmethod
+    def _empty_profile_is_none(cls, v: Any) -> Any:
+        """Treat ``SERVER_PROFILE=""`` as unset, matching the other env knobs."""
+        if v == "":
+            return None
+        return v
 
     # --- Derived helpers ---
     @property
@@ -58,20 +85,60 @@ class Settings(BaseSettings):
         """OAuth is enabled by default; only an explicit non-"true" value disables it."""
         if self.enable_local_oauth is None:
             return True
-        return self.enable_local_oauth.lower() == "true"
+        return string_env_to_bool(self.enable_local_oauth)
 
     @property
     def is_multi_tenant(self) -> bool:
-        return self.multi_tenancy_enabled.lower() == "true"
+        return string_env_to_bool(self.multi_tenancy_enabled)
 
     @property
     def use_dashboard_authenticated_page(self) -> bool:
-        return self.gitguardian_use_dashboard_authenticated_page.lower() in ("true", "1", "yes")
+        return string_env_to_bool(self.gitguardian_use_dashboard_authenticated_page)
 
     @property
-    def scopes_str(self) -> str | None:
-        """GITGUARDIAN_SCOPES with GITGUARDIAN_REQUESTED_SCOPES fallback."""
-        return self.gitguardian_scopes or self.gitguardian_requested_scopes
+    def requested_scopes(self) -> list[str]:
+        """Scopes the user asked for via env, parsed and validated.
+
+        Reads ``GITGUARDIAN_SCOPES`` (with ``GITGUARDIAN_REQUESTED_SCOPES``
+        as a legacy fallback), splits on commas, and validates each entry
+        against :data:`gg_api_core.scopes.ALL_SCOPES`. Returns an empty
+        list when neither env var is set.
+
+        Raises:
+            ValueError: if any requested scope is not a known scope.
+        """
+        from .scopes import validate_scopes
+
+        raw = self.gitguardian_scopes or self.gitguardian_requested_scopes
+        if not raw:
+            return []
+        return validate_scopes(raw)
+
+    @property
+    def effective_scopes(self) -> list[str]:
+        """Final scope set the OAuth flow should request.
+
+        Inputs (all read from env, in one place):
+            * ``GITGUARDIAN_SCOPES`` — the user's requested scopes
+            * ``GITGUARDIAN_URL`` — non-local self-hosted instances are
+              capped to :data:`MINIMAL_SCOPES`
+            * ``SERVER_PROFILE`` — ``developer`` and ``secops`` cap to
+              different maximum scope sets
+
+        With no profile active, returns the user's requested scopes as-is
+        (used by ``scripts/run_oauth_flow.py``).
+        """
+        # Lazy import: ``host`` reads back from ``Settings``, so importing
+        # it at module top would create a cycle.
+        from .host import is_local_instance, is_self_hosted_instance
+
+        if self.server_profile is None:
+            return self.requested_scopes
+
+        restricted = is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url)
+        allowed = set(self.server_profile.max_scopes(restricted=restricted))
+        requested = set(self.requested_scopes)
+        return sorted(allowed & requested if requested else allowed)
 
 
 class SentrySettings(BaseSettings):

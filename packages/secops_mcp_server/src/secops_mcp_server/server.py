@@ -1,29 +1,34 @@
 """GitGuardian MCP server for SecOps teams with incident management tools."""
 
 import logging
-from typing import Any, Literal
+import os
 
-from developer_mcp_server.add_health_check import add_health_check
-from developer_mcp_server.register_tools import register_developer_tools
-from fastmcp.exceptions import ToolError
-from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
-from gg_api_core.mcp_server import get_mcp_server, register_common_tools
-from gg_api_core.scopes import set_secops_scopes
-from gg_api_core.tools.assign_incident import assign_incident
-from gg_api_core.tools.assign_public_incident import assign_public_incident
-from gg_api_core.tools.create_code_fix_request import create_code_fix_request
-from gg_api_core.tools.manage_incident import (
+# Declare this process's profile before anything in gg_api_core reads Settings.
+# Used by ``Settings.effective_scopes`` to cap the OAuth scope set.
+os.environ.setdefault("SERVER_PROFILE", "secops")
+
+from typing import Any, Literal  # noqa: E402
+
+from developer_mcp_server.add_health_check import add_health_check  # noqa: E402
+from developer_mcp_server.register_tools import register_developer_tools  # noqa: E402
+from fastmcp.exceptions import ToolError  # noqa: E402
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES  # noqa: E402
+from gg_api_core.mcp_server import get_mcp_server, register_common_tools  # noqa: E402
+from gg_api_core.tools.assign_incident import assign_incident  # noqa: E402
+from gg_api_core.tools.assign_public_incident import assign_public_incident  # noqa: E402
+from gg_api_core.tools.create_code_fix_request import create_code_fix_request  # noqa: E402
+from gg_api_core.tools.manage_incident import (  # noqa: E402
     manage_private_incident,
     update_incident_status,
 )
-from gg_api_core.tools.read_custom_tags import read_custom_tags
-from gg_api_core.tools.revoke_secret import revoke_secret
-from gg_api_core.tools.update_public_incident_status import update_public_incident_status
-from gg_api_core.tools.write_custom_tags import (
+from gg_api_core.tools.read_custom_tags import read_custom_tags  # noqa: E402
+from gg_api_core.tools.revoke_secret import revoke_secret  # noqa: E402
+from gg_api_core.tools.update_public_incident_status import update_public_incident_status  # noqa: E402
+from gg_api_core.tools.write_custom_tags import (  # noqa: E402
     update_or_create_incident_custom_tags,
     write_custom_tags,
 )
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field  # noqa: E402
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -111,8 +116,6 @@ class ListHoneytokensParams(BaseModel):
 
 
 # ===== End of Pydantic Models =====
-
-set_secops_scopes()
 
 SECOPS_INSTRUCTIONS = """
 # GitGuardian SecOps Tools

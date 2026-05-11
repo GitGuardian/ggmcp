@@ -1,12 +1,16 @@
 """GitGuardian MCP server for developers with remediation tools."""
 
 import logging
+import os
 
-from gg_api_core.mcp_server import get_mcp_server
-from gg_api_core.scopes import set_developer_scopes
+# Declare this process's profile before anything in gg_api_core reads Settings.
+# Used by ``Settings.effective_scopes`` to cap the OAuth scope set.
+os.environ.setdefault("SERVER_PROFILE", "developer")
 
-from developer_mcp_server.add_health_check import add_health_check
-from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools
+from gg_api_core.mcp_server import get_mcp_server  # noqa: E402
+
+from developer_mcp_server.add_health_check import add_health_check  # noqa: E402
+from developer_mcp_server.register_tools import DEVELOPER_INSTRUCTIONS, register_developer_tools  # noqa: E402
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -21,7 +25,5 @@ mcp = get_mcp_server(
 
 register_developer_tools(mcp)
 add_health_check(mcp)
-
-set_developer_scopes()
 
 logger.info("Developer MCP server instance created and configured")

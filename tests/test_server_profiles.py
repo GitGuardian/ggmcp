@@ -23,22 +23,13 @@ def mock_env_no_http():
 
 @pytest.fixture
 def mock_gitguardian_modules():
-    """Mock GitGuardian API modules to avoid actual API calls during import."""
-    with (
-        patch("gg_api_core.utils.get_client") as mock_get_client,
-        patch("gg_api_core.scopes.set_developer_scopes") as mock_set_dev_scopes,
-        patch("gg_api_core.scopes.set_secops_scopes") as mock_set_secops_scopes,
-    ):
-        # Mock client
+    """Mock the GitGuardian client to avoid actual API calls during import."""
+    with patch("gg_api_core.utils.get_client") as mock_get_client:
         mock_client = MagicMock()
         mock_client.get_current_token_info = AsyncMock(return_value={"scopes": ["scan"]})
         mock_get_client.return_value = mock_client
 
-        yield {
-            "get_client": mock_get_client,
-            "set_dev_scopes": mock_set_dev_scopes,
-            "set_secops_scopes": mock_set_secops_scopes,
-        }
+        yield {"get_client": mock_get_client}
 
 
 def clean_module_imports(module_name: str):
