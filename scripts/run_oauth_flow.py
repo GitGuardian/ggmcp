@@ -30,7 +30,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "packages" / "gg_api_core" / "src"))
 
 from gg_api_core.oauth import GitGuardianOAuthClient
-from gg_api_core.scopes import get_scopes_from_env_var, ALL_SCOPES
+from gg_api_core.scopes import ALL_SCOPES
+from gg_api_core.settings import get_settings
 
 os.environ["GITGUARDIAN_SCOPES"] = ",".join(ALL_SCOPES)
 
@@ -132,7 +133,7 @@ async def run_oauth_flow():
     dashboard_url = get_dashboard_url(api_url)
 
     # Get scopes from environment or use defaults
-    scopes = get_scopes_from_env_var()
+    scopes = get_settings().requested_scopes
 
     # Get token name
     token_name = os.environ.get("GITGUARDIAN_TOKEN_NAME", "MCP OAuth Test Token")

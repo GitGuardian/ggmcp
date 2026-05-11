@@ -1,9 +1,6 @@
-"""GitGuardian API scope definitions for different server types."""
+"""GitGuardian API scope definitions and server profiles."""
 
-import os
-
-from gg_api_core.host import is_local_instance, is_self_hosted_instance
-from gg_api_core.settings import get_settings
+from enum import Enum
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -48,96 +45,48 @@ ALL_READ_SCOPES = [
 ]
 
 
-def get_developer_scopes(gitguardian_url: str | None = None) -> list[str]:
+class ServerProfile(str, Enum):
+    """Which gg-mcp server profile is running.
+
+    The profile caps which scopes the OAuth flow may request. Set by each
+    server entry-point (e.g. ``developer_mcp_server/server.py``) via the
+    ``SERVER_PROFILE`` env var, then read through :class:`Settings`.
     """
-    Get developer scopes appropriate for the GitGuardian instance type.
 
-    Args:
-        gitguardian_url: GitGuardian URL to check instance type
+    DEVELOPER = "developer"
+    SECOPS = "secops"
 
-    Returns:
-        list[str]: List of appropriate scopes
-    """
-    if is_self_hosted_instance(gitguardian_url) and not is_local_instance(gitguardian_url):
-        # For non-local self-hosted instances, return minimal scopes
-        return MINIMAL_SCOPES
-    else:
-        return [
-            *ALL_READ_SCOPES,
-            "honeytokens:write",
-        ]
+    def max_scopes(self, *, restricted: bool) -> list[str]:
+        """Return the largest scope set this profile may request.
 
-
-def get_secops_scopes(gitguardian_url: str | None = None) -> list[str]:
-    """
-    Get SecOps scopes appropriate for the GitGuardian instance type.
-
-    Args:
-        gitguardian_url: GitGuardian URL to check instance type
-
-    Returns:
-        list[str]: List of appropriate scopes
-    """
-    if is_self_hosted_instance(gitguardian_url) and not is_local_instance(gitguardian_url):
-        # For non-local self-hosted instances, return minimal scopes
-        return MINIMAL_SCOPES
-    else:
+        Args:
+            restricted: True for non-local self-hosted instances, which
+                are capped to :data:`MINIMAL_SCOPES` regardless of profile.
+        """
+        if restricted:
+            return MINIMAL_SCOPES
+        if self is ServerProfile.DEVELOPER:
+            return [*ALL_READ_SCOPES, "honeytokens:write"]
         return ALL_SCOPES
 
 
 def validate_scopes(scopes_str: str) -> list[str]:
-    """
-    Validate and filter user-provided scopes against ALL_SCOPES.
+    """Parse and validate a comma-separated list of scopes.
 
     Args:
-        scopes_str: Comma-separated string of scopes
+        scopes_str: Comma-separated string of scopes.
 
     Returns:
-        list[str]: List of valid scopes
+        List of valid scopes (in the order they were requested).
 
     Raises:
-        ValueError: If any invalid scopes are provided
+        ValueError: If any requested scope is not in :data:`ALL_SCOPES`.
     """
     if not scopes_str:
         return []
 
-    # Parse the scopes string
-    requested_scopes = [scope.strip() for scope in scopes_str.split(",") if scope.strip()]
-
-    # Check for invalid scopes
-    invalid_scopes = [scope for scope in requested_scopes if scope not in ALL_SCOPES]
-
-    if invalid_scopes:
-        raise ValueError(
-            f"Invalid scopes provided: {', '.join(invalid_scopes)}. Valid scopes are: {', '.join(ALL_SCOPES)}"
-        )
-
-    return requested_scopes
-
-
-def get_scopes_from_env_var() -> list[str]:
-    # Support GITGUARDIAN_REQUESTED_SCOPES for backward compatibility from previous versions
-    scopes_str = get_settings().scopes_str
-    if not scopes_str:
-        return []
-    return validate_scopes(scopes_str)
-
-
-DEVELOPER_SCOPES = get_developer_scopes()
-SECOPS_SCOPES = get_secops_scopes()
-
-
-def set_secops_scopes():
-    # Filter the GITGUARDIAN_SCOPES env variable to only include secops scopes. If empty, use default secops scopes.
-    # Write again the result on the env variable
-    scopes_from_env_var = set(get_scopes_from_env_var())
-    scopes = set(SECOPS_SCOPES) & scopes_from_env_var if scopes_from_env_var else set(SECOPS_SCOPES)
-    os.environ["GITGUARDIAN_SCOPES"] = ",".join(scopes)
-
-
-def set_developer_scopes():
-    # Filter the GITGUARDIAN_SCOPES env variable to only include secops scopes. If empty, use default secops scopes.
-    # Write again the result on the env variable
-    scopes_from_env_var = set(get_scopes_from_env_var())
-    scopes = set(DEVELOPER_SCOPES) & scopes_from_env_var if scopes_from_env_var else set(DEVELOPER_SCOPES)
-    os.environ["GITGUARDIAN_SCOPES"] = ",".join(scopes)
+    requested = [scope.strip() for scope in scopes_str.split(",") if scope.strip()]
+    invalid = [scope for scope in requested if scope not in ALL_SCOPES]
+    if invalid:
+        raise ValueError(f"Invalid scopes provided: {', '.join(invalid)}. Valid scopes are: {', '.join(ALL_SCOPES)}")
+    return requested

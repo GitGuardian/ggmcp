@@ -156,10 +156,9 @@ async def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
         RuntimeError: If OAuth flow fails
     """
     from .oauth import GitGuardianOAuthClient
-    from .scopes import get_scopes_from_env_var
 
     settings = get_settings()
-    scopes = get_scopes_from_env_var()
+    scopes = settings.effective_scopes
     login_path = settings.gitguardian_login_path
     token_name = settings.gitguardian_token_name
 
