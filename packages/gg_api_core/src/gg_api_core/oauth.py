@@ -3,7 +3,6 @@
 import datetime
 import json
 import logging
-import os
 import threading
 import time
 import webbrowser
@@ -15,6 +14,8 @@ from urllib.parse import parse_qs, urlparse
 from mcp.client.auth import TokenStorage
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import BaseModel, Field
+
+from .settings import get_settings
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -68,7 +69,6 @@ class FileTokenStorage:
         """
         if token_file is None:
             # Determine platform-appropriate config directory
-            import os
             import platform
 
             system = platform.system()
@@ -80,7 +80,7 @@ class FileTokenStorage:
                 gitguardian_dir = app_support_dir / "GitGuardian"
             else:  # Linux and other Unix-like systems - follow XDG spec
                 # Use XDG_CONFIG_HOME if defined, otherwise ~/.config
-                xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+                xdg_config_home = get_settings().xdg_config_home
                 if xdg_config_home:
                     config_dir = Path(xdg_config_home)
                 else:
@@ -455,7 +455,7 @@ class GitGuardianOAuthClient:
         # Special value 'never' or -1 means token never expires
         self.token_lifetime = token_lifetime
         if self.token_lifetime is None:
-            lifetime_env = os.environ.get("GITGUARDIAN_TOKEN_LIFETIME", "30")
+            lifetime_env = get_settings().gitguardian_token_lifetime
             if lifetime_env.lower() == "never":
                 self.token_lifetime = -1  # -1 indicates no expiration
             else:
@@ -545,11 +545,7 @@ class GitGuardianOAuthClient:
         logger.info(f"Starting OAuth authentication with GitGuardian at {server_url}")
 
         # Check if we should use the dashboard authenticated page from environment variable
-        use_dashboard_page = os.environ.get("GITGUARDIAN_USE_DASHBOARD_AUTHENTICATED_PAGE", "").lower() in (
-            "true",
-            "1",
-            "yes",
-        )
+        use_dashboard_page = get_settings().use_dashboard_authenticated_page
 
         # Set up callback server with the use_dashboard_page option
         callback_server = CallbackServer(dashboard_url=self.dashboard_url, use_dashboard_page=use_dashboard_page)
@@ -610,7 +606,7 @@ class GitGuardianOAuthClient:
             )
 
             # Get OAuth client ID from environment variable or use default
-            client_id = os.environ.get("GITGUARDIAN_CLIENT_ID", "ggshield_oauth")
+            client_id = get_settings().gitguardian_client_id
 
             # 2. Create the authorization URL with the appropriate parameters
             auth_url = f"{server_url}/auth/login?"

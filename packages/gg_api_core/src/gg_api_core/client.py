@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-import os
 import re
 from collections.abc import Sequence
 from enum import Enum
@@ -12,6 +11,7 @@ from urllib.parse import quote_plus, unquote, urlparse
 import httpx
 
 from gg_api_core.host import is_self_hosted_instance
+from gg_api_core.settings import get_settings
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -107,20 +107,6 @@ class PaginatedResult(TypedDict):
     has_more: bool  # True if results were capped by size limit OR more pages exist
 
 
-def is_oauth_enabled() -> bool:
-    """
-    Check if OAuth authentication is enabled via environment variable.
-    """
-    if os.environ.get("ENABLE_LOCAL_OAUTH") is None:
-        # Default value is True
-        return True
-    return os.environ.get("ENABLE_LOCAL_OAUTH", "").lower() == "true"
-
-
-def get_personal_access_token_from_env() -> str | None:
-    return os.environ.get("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
-
-
 def _derive_urls_from_env() -> tuple[str, str]:
     """Derive dashboard_url and public_api_url from environment.
 
@@ -129,8 +115,7 @@ def _derive_urls_from_env() -> tuple[str, str]:
     """
     # Create a temporary client just to get normalized URLs
     temp_client = GitGuardianClient.__new__(GitGuardianClient)
-    gitguardian_url = os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
-    temp_client._init_urls(gitguardian_url)
+    temp_client._init_urls(get_settings().gitguardian_url)
     return temp_client.dashboard_url, temp_client.public_api_url
 
 
@@ -173,9 +158,10 @@ async def _run_oauth_flow(dashboard_url: str, public_api_url: str) -> str:
     from .oauth import GitGuardianOAuthClient
     from .scopes import get_scopes_from_env_var
 
+    settings = get_settings()
     scopes = get_scopes_from_env_var()
-    login_path = os.environ.get("GITGUARDIAN_LOGIN_PATH", "auth/login")
-    token_name = os.environ.get("GITGUARDIAN_TOKEN_NAME", "MCP Token")
+    login_path = settings.gitguardian_login_path
+    token_name = settings.gitguardian_token_name
 
     oauth_client = GitGuardianOAuthClient(
         api_url=public_api_url,
@@ -221,7 +207,7 @@ async def acquire_single_tenant_token(
         RuntimeError: If no token source is available
     """
     # 1. Check env var first
-    if env_pat := get_personal_access_token_from_env():
+    if env_pat := get_settings().gitguardian_personal_access_token:
         logger.info("Using PAT from GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var")
         return env_pat
 
@@ -236,7 +222,7 @@ async def acquire_single_tenant_token(
         return stored_token
 
     # 3. Trigger OAuth flow if enabled
-    if is_oauth_enabled():
+    if get_settings().is_oauth_enabled:
         logger.info("No stored token, triggering OAuth flow")
         return await _run_oauth_flow(dashboard_url, public_api_url)
 
@@ -293,7 +279,7 @@ class GitGuardianClient:
 
     def _init_urls(self, gitguardian_url: str | None = None):
         # Use provided raw URL or get from environment with default fallback
-        raw_url = gitguardian_url or os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
+        raw_url = gitguardian_url or get_settings().gitguardian_url
 
         self.public_api_url = self._normalize_api_url(raw_url)
         logger.info(f"Using API URL: {self.public_api_url}")

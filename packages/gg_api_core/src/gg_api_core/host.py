@@ -1,5 +1,6 @@
-import os
 from urllib.parse import urlparse
+
+from .settings import get_settings
 
 SAAS_HOSTNAMES = [
     "dashboard.gitguardian.com",
@@ -46,7 +47,7 @@ def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
         bool: True if self-hosted, False if SaaS
     """
     if not gitguardian_url:
-        gitguardian_url = os.environ.get("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
+        gitguardian_url = get_settings().gitguardian_url
 
     try:
         parsed = urlparse(gitguardian_url)

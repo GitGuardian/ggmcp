@@ -5,69 +5,70 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastmcp.exceptions import ValidationError
-from gg_api_core.utils import _get_caller_user_agent, get_client, get_mcp_port_or_none, is_multi_tenant_mode
+from gg_api_core.settings import get_settings
+from gg_api_core.utils import _get_caller_user_agent, get_client
 
 
-class TestGetMcpPortOrNone:
-    """Tests for get_mcp_port_or_none() helper."""
+class TestMcpPortSetting:
+    """Tests for Settings.mcp_port."""
 
     def test_returns_none_when_not_set(self):
         """
         GIVEN MCP_PORT is not set
-        WHEN get_mcp_port_or_none is called
+        WHEN get_settings().mcp_port is read
         THEN it returns None
         """
         with patch.dict(os.environ, {}, clear=True):
-            assert get_mcp_port_or_none() is None
+            assert get_settings().mcp_port is None
 
     def test_returns_port_when_set(self):
         """
         GIVEN MCP_PORT is set
-        WHEN get_mcp_port_or_none is called
+        WHEN get_settings().mcp_port is read
         THEN it returns the port value
         """
         with patch.dict(os.environ, {"MCP_PORT": "8080"}, clear=True):
-            assert get_mcp_port_or_none() == "8080"
+            assert get_settings().mcp_port == "8080"
 
 
-class TestIsMultiTenantMode:
-    """Tests for is_multi_tenant_mode() helper function."""
+class TestIsMultiTenant:
+    """Tests for Settings.is_multi_tenant."""
 
     def test_returns_false_by_default(self):
         """
         GIVEN no env vars are set
-        WHEN is_multi_tenant_mode is called
+        WHEN get_settings().is_multi_tenant is read
         THEN it returns False (single-tenant is the default)
         """
         with patch.dict(os.environ, {}, clear=True):
-            assert is_multi_tenant_mode() is False
+            assert get_settings().is_multi_tenant is False
 
     def test_returns_true_when_enabled(self):
         """
         GIVEN MULTI_TENANCY_ENABLED=true
-        WHEN is_multi_tenant_mode is called
+        WHEN get_settings().is_multi_tenant is read
         THEN it returns True
         """
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true"}, clear=True):
-            assert is_multi_tenant_mode() is True
+            assert get_settings().is_multi_tenant is True
 
     def test_returns_false_when_disabled(self):
         """
         GIVEN MULTI_TENANCY_ENABLED=false
-        WHEN is_multi_tenant_mode is called
+        WHEN get_settings().is_multi_tenant is read
         THEN it returns False
         """
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "false"}, clear=True):
-            assert is_multi_tenant_mode() is False
+            assert get_settings().is_multi_tenant is False
 
     def test_case_insensitive(self):
         """
         GIVEN MULTI_TENANCY_ENABLED=TRUE (uppercase)
-        WHEN is_multi_tenant_mode is called
+        WHEN get_settings().is_multi_tenant is read
         THEN it returns True
         """
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "TRUE"}, clear=True):
-            assert is_multi_tenant_mode() is True
+            assert get_settings().is_multi_tenant is True
 
 
 class TestGetClientExplicitPAT:

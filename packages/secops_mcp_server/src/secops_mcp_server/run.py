@@ -6,9 +6,9 @@ This module provides different ways to run the MCP server:
 """
 
 import logging
-import os
 
 from gg_api_core.sentry_integration import init_sentry
+from gg_api_core.settings import get_settings
 
 from secops_mcp_server.server import mcp
 
@@ -36,8 +36,9 @@ def run_http_with_uvicorn():
 
     init_sentry()
     # Get host and port from environment variables
-    mcp_port = int(os.environ.get("MCP_PORT", "8000"))
-    mcp_host = os.environ.get("MCP_HOST", "127.0.0.1")
+    settings = get_settings()
+    mcp_port = int(settings.mcp_port or "8000")
+    mcp_host = settings.mcp_host
 
     # Use StreamableHTTP transport with stateless JSON mode for scalability
     import uvicorn
@@ -56,9 +57,7 @@ def run_mcp_server():
     If MCP_PORT is set, uses StreamableHTTP transport.
     Otherwise, uses stdio transport (default).
     """
-    mcp_port = os.environ.get("MCP_PORT")
-
-    if mcp_port:
+    if get_settings().mcp_port:
         run_http_with_uvicorn()
     else:
         run_stdio()

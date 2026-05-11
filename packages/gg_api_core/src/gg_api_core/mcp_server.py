@@ -13,12 +13,9 @@ from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
 
-from gg_api_core.client import (
-    GitGuardianClient,
-    get_personal_access_token_from_env,
-    is_oauth_enabled,
-)
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
+from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -377,10 +374,11 @@ class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
 def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
     kwargs.setdefault("icons", get_gitguardian_icons())
 
-    if is_oauth_enabled():
+    settings = get_settings()
+    if settings.is_oauth_enabled:
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 
-    if personal_access_token := get_personal_access_token_from_env():
+    if personal_access_token := settings.gitguardian_personal_access_token:
         return GitGuardianPATEnvMCP(*args, personal_access_token=personal_access_token, **kwargs)
 
     return GitGuardianAuthorizationHeaderMCP(*args, **kwargs)

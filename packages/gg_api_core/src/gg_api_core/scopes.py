@@ -3,6 +3,7 @@
 import os
 
 from gg_api_core.host import is_local_instance, is_self_hosted_instance
+from gg_api_core.settings import get_settings
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -116,7 +117,7 @@ def validate_scopes(scopes_str: str) -> list[str]:
 
 def get_scopes_from_env_var() -> list[str]:
     # Support GITGUARDIAN_REQUESTED_SCOPES for backward compatibility from previous versions
-    scopes_str = os.environ.get("GITGUARDIAN_SCOPES") or os.environ.get("GITGUARDIAN_REQUESTED_SCOPES")
+    scopes_str = get_settings().scopes_str
     if not scopes_str:
         return []
     return validate_scopes(scopes_str)

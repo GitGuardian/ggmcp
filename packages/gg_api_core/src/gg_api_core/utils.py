@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 from urllib.parse import urljoin as urllib_urljoin
 
@@ -7,6 +6,7 @@ from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 
 from .client import GitGuardianClient, acquire_single_tenant_token
+from .settings import get_settings
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -19,27 +19,6 @@ def urljoin(base: str, url: str) -> str:
 
 # Singleton client instance - only used in single-tenant mode
 _client_singleton: GitGuardianClient | None = None
-
-
-def get_mcp_port_or_none() -> str | None:
-    """Get MCP_PORT environment variable value or None.
-
-    Single source of truth for MCP_PORT access.
-    """
-    return os.environ.get("MCP_PORT")
-
-
-def is_multi_tenant_mode() -> bool:
-    """Check if multi-tenant mode is enabled (explicit opt-in).
-
-    Multi-tenant mode requires explicit opt-in via MULTI_TENANCY_ENABLED=true.
-    When enabled, MCP_PORT must also be set (raises error if not).
-
-    Returns:
-        True if MULTI_TENANCY_ENABLED=true
-        False otherwise (single-tenant is the default)
-    """
-    return os.environ.get("MULTI_TENANCY_ENABLED", "").lower() == "true"
 
 
 async def get_client(personal_access_token: str | None = None, user_agent: str | None = None) -> GitGuardianClient:
@@ -86,9 +65,9 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         return GitGuardianClient(personal_access_token=personal_access_token, user_agent=user_agent)
 
     # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
-    if is_multi_tenant_mode():
-        mcp_port = get_mcp_port_or_none()
-        if not mcp_port:
+    settings = get_settings()
+    if settings.is_multi_tenant:
+        if not settings.mcp_port:
             raise ValidationError(
                 "MULTI_TENANCY_ENABLED=true requires MCP_PORT to be set. "
                 "Multi-tenant mode only works with HTTP transport."
