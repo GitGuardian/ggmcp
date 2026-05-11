@@ -45,15 +45,12 @@ class Settings(BaseSettings):
     # None ⇒ unset (default: True). Empty/anything-but-"true" ⇒ False.
     enable_local_oauth: str | None = None
 
-    # --- Sentry ---
-    sentry_dsn: str | None = None
-    sentry_environment: str = "production"
-    sentry_release: str | None = None
-    sentry_traces_sample_rate: float = 0.1
-    sentry_profiles_sample_rate: float = 0.1
-
     # --- System ---
     xdg_config_home: str | None = None
+
+    # Note: Sentry config lives in :class:`SentrySettings` (instantiated lazily
+    # inside ``init_sentry``) so a malformed ``SENTRY_*`` value cannot poison
+    # unrelated code paths that build the main ``Settings``.
 
     # --- Derived helpers ---
     @property
@@ -75,6 +72,27 @@ class Settings(BaseSettings):
     def scopes_str(self) -> str | None:
         """GITGUARDIAN_SCOPES with GITGUARDIAN_REQUESTED_SCOPES fallback."""
         return self.gitguardian_scopes or self.gitguardian_requested_scopes
+
+
+class SentrySettings(BaseSettings):
+    """Sentry-specific settings, instantiated lazily by ``init_sentry``.
+
+    Kept separate from :class:`Settings` so that malformed numeric values
+    (e.g. ``SENTRY_TRACES_SAMPLE_RATE=abc``) only break the Sentry code
+    path, not every caller that needs an unrelated setting.
+    """
+
+    model_config = SettingsConfigDict(
+        env_prefix="SENTRY_",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    dsn: str | None = None
+    environment: str = "production"
+    release: str | None = None
+    traces_sample_rate: float = 0.1
+    profiles_sample_rate: float = 0.1
 
 
 def get_settings() -> Settings:
