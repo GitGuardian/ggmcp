@@ -13,8 +13,9 @@ Environment Variables:
 """
 
 import logging
-import os
 from typing import Any
+
+from .settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,8 @@ def init_sentry() -> bool:
         >>> init_sentry()
         True
     """
-    dsn = os.environ.get("SENTRY_DSN")
+    settings = get_settings()
+    dsn = settings.sentry_dsn
 
     if not dsn:
         logger.debug("SENTRY_DSN not configured, skipping Sentry initialization")
@@ -49,11 +51,10 @@ def init_sentry() -> bool:
         logger.warning("Sentry SDK not installed")
         return False
 
-    # Get optional configuration from environment
-    environment = os.environ.get("SENTRY_ENVIRONMENT", "production")
-    release = os.environ.get("SENTRY_RELEASE")
-    traces_sample_rate = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
-    profiles_sample_rate = float(os.environ.get("SENTRY_PROFILES_SAMPLE_RATE", "0.1"))
+    environment = settings.sentry_environment
+    release = settings.sentry_release
+    traces_sample_rate = settings.sentry_traces_sample_rate
+    profiles_sample_rate = settings.sentry_profiles_sample_rate
 
     # Configure logging integration
     logging_integration = LoggingIntegration(
