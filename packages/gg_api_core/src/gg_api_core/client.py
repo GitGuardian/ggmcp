@@ -547,9 +547,7 @@ class GitGuardianClient:
                 logger.debug(f"Error response content: {e.response.text}")
                 logger.debug(f"Failed URL: {url}")
                 if e.response.status_code == 401:
-                    raise DownstreamUnauthorizedError(
-                        f"GitGuardian API returned 401 for {url}"
-                    ) from e
+                    raise DownstreamUnauthorizedError(f"GitGuardian API returned 401 for {url}") from e
                 raise
             except httpx.RequestError as e:
                 logger.exception(f"Request error occurred: {str(e)}")

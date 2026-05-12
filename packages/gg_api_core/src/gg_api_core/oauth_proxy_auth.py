@@ -29,6 +29,63 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 logger = logging.getLogger(__name__)
 
 
+_downstream_unauthorized: ContextVar[bool] = ContextVar("downstream_unauthorized", default=False)
+
+
+def mark_downstream_unauthorized() -> None:
+    """Signal that the downstream GG API rejected the current request as unauthorized.
+
+    Call this from anywhere inside the request task (typically a FastMCP
+    middleware catching :class:`DownstreamUnauthorizedError`). The outgoing
+    response will then carry HTTP 401 instead of the JSON-RPC error envelope
+    FastMCP would otherwise serialize, letting the MCP client re-run the
+    OAuth flow.
+    """
+    _downstream_unauthorized.set(True)
+
+
+class PassThroughTokenVerifier(TokenVerifier):
+    """Token verifier that trusts the bearer token without contacting the IdP.
+
+    Used by MCP modes where the GG API is the source of truth: the verifier
+    accepts the token so it lands in the request scope, and downstream calls
+    fail with a real 401 if the token is invalid.
+    """
+
+    async def verify_token(self, token: str) -> AccessToken | None:
+        return AccessToken(token=token, client_id="unknown", scopes=[])
+
+
+class TranslateDownstreamUnauthorizedMiddleware:
+    """Convert flagged tool responses into HTTP 401.
+
+    Reads the request-scoped flag set by :func:`mark_downstream_unauthorized`
+    and rewrites the outgoing status to 401 when set. Pairs with
+    :class:`AdvertiseAuthorizationServerMetadataMiddleware` which then
+    ensures ``WWW-Authenticate`` is present.
+    """
+
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        token = _downstream_unauthorized.set(False)
+
+        async def send_wrapper(message: Message) -> None:
+            if message["type"] == "http.response.start" and _downstream_unauthorized.get():
+                message["status"] = 401
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_wrapper)
+        finally:
+            _downstream_unauthorized.reset(token)
+
+
 class AdvertiseAuthorizationServerMetadataMiddleware:
     """Append the AS metadata URL to ``WWW-Authenticate`` on 401 responses.
 
@@ -67,7 +124,7 @@ class AdvertiseAuthorizationServerMetadataMiddleware:
         await self.app(scope, receive, send_wrapper)
 
 
-class GitGuardianOAuthThinProxy(TokenVerifier):
+class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
     """Thin OAuth proxy that routes auth requests to the GG dashboard.
 
     Serves same-origin OAuth endpoints so MCP clients that require
@@ -96,32 +153,6 @@ class GitGuardianOAuthThinProxy(TokenVerifier):
     @property
     def scopes_supported(self) -> list[str]:
         return self._advertised_scopes or ["scan"]
-
-    # TODO(TIM): Should we implement this method or let actual calls fail with 401 ?
-    async def verify_token(self, token: str) -> AccessToken | None:
-        """Validate a GG PAT by calling /api_tokens/self."""
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.get(
-                    f"{self.gg_api_url}/api_tokens/self",
-                    headers={"Authorization": f"Token {token}"},
-                )
-
-            if response.status_code != 200:
-                logger.warning(f"Token verification failed: HTTP {response.status_code}")
-                return None
-
-            token_info = response.json()
-            scopes = token_info.get("scopes", [])
-
-            return AccessToken(
-                token=token,
-                client_id=token_info.get("id", "unknown"),
-                scopes=scopes,
-            )
-        except Exception:
-            logger.exception("Error verifying upstream token")
-            return None
 
     def get_middleware(self) -> list:
         """Add downstream-401 handling and WWW-Authenticate advertising.
