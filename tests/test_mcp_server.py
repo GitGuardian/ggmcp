@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -192,81 +193,27 @@ class TestGitGuardianFastMCP:
             # The teams:write tool should be excluded since the required scope is missing
             assert "tool_with_teams_write" not in tool_names
 
-    def test_extract_token_from_header(self):
-        """Test extracting tokens from various Authorization header formats."""
+    @patch("gg_api_core.mcp_server.get_access_token")
+    def test_get_personal_access_token_returns_scope_token(self, mock_get_access_token):
+        """get_personal_access_token() returns the bearer token installed in the request scope."""
         from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
 
-        # Test Bearer format
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Bearer test-token-123")
-        assert token == "test-token-123"
+        access_token = SimpleNamespace(token="test-pat-token-123")
+        mock_get_access_token.return_value = access_token
 
-        # Test Token format
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Token another-token-456")
-        assert token == "another-token-456"
-
-        # Test raw token (no prefix)
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("raw-token-789")
-        assert token == "raw-token-789"
-
-        # Test case insensitivity
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("bearer lowercase-token")
-        assert token == "lowercase-token"
-
-        # Test with extra whitespace
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("Bearer   token-with-spaces   ")
-        assert token == "token-with-spaces"
-
-        # Test empty string
-        token = GitGuardianAuthorizationHeaderMCP._default_extract_token("")
-        assert token is None
-
-    @patch("gg_api_core.mcp_server.get_http_headers")
-    @patch("gg_api_core.mcp_server.get_client")
-    def test_get_client_with_authorization_header(self, mock_get_client, mock_get_http_headers):
-        """Test that get_personal_access_token extracts token from Authorization header."""
-        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
-
-        # Mock HTTP headers with Authorization header
-        mock_get_http_headers.return_value = {"authorization": "Bearer test-pat-token-123"}
-
-        # Create MCP with Authorization header mode
         mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
-        # Call get_personal_access_token
-        token = mcp.get_personal_access_token()
+        assert mcp.get_personal_access_token() == "test-pat-token-123"
 
-        # Verify token was extracted correctly
-        assert token == "test-pat-token-123"
-
-    @patch("gg_api_core.mcp_server.get_http_headers")
-    @patch("gg_api_core.mcp_server.get_client")
-    def test_get_client_without_authorization_header(self, mock_get_client, mock_get_http_headers):
-        """Test that get_personal_access_token raises ValidationError when no Authorization header."""
+    @patch("gg_api_core.mcp_server.get_access_token")
+    def test_get_personal_access_token_raises_without_scope_token(self, mock_get_access_token):
+        """get_personal_access_token() raises ValidationError when no AccessToken is in the request scope."""
         from fastmcp.exceptions import ValidationError
         from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
 
-        # Mock HTTP headers without Authorization header
-        mock_get_http_headers.return_value = {}
+        mock_get_access_token.return_value = None
 
-        # Create MCP with Authorization header mode
         mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
-        # Call get_personal_access_token - should raise ValidationError
-        with pytest.raises(ValidationError, match="Authorization header required"):
-            mcp.get_personal_access_token()
-
-    @patch("gg_api_core.mcp_server.get_http_headers")
-    @patch("gg_api_core.mcp_server.get_client")
-    def test_get_client_no_http_context(self, mock_get_client, mock_get_http_headers):
-        """Test that get_personal_access_token propagates RuntimeError when no HTTP context."""
-        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
-
-        # Mock get_http_headers to raise exception (no HTTP context)
-        mock_get_http_headers.side_effect = RuntimeError("No HTTP context")
-
-        # Create MCP with Authorization header mode
-        mcp = GitGuardianAuthorizationHeaderMCP("test_server")
-
-        # Call get_personal_access_token - should raise RuntimeError
-        with pytest.raises(RuntimeError, match="No HTTP context"):
+        with pytest.raises(ValidationError, match="No access token available"):
             mcp.get_personal_access_token()

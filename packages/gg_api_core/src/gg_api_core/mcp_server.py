@@ -9,7 +9,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
-from fastmcp.server.dependencies import get_access_token, get_http_headers
+from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.middleware import Middleware
 from fastmcp.tools import Tool
 
@@ -20,10 +20,8 @@ from gg_api_core.oauth_proxy_auth import (
     create_oauth_proxy,
     mark_downstream_unauthorized,
 )
-from gg_api_core.oauth_proxy_auth import create_oauth_proxy
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client
-
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -352,53 +350,32 @@ class GitGuardianPATEnvMCP(CachedTokenInfoMixin, AbstractGitGuardianFastMCP):
         return self.personal_access_token
 
 
-class GitGuardianAuthorizationHeaderMCP(AbstractGitGuardianFastMCP):
-    """GitGuardian MCP server using per-request Authorization header (HTTP/SSE mode)."""
+class _BearerTokenMCP(AbstractGitGuardianFastMCP):
+    """Base for modes where the bearer token is installed in the request scope.
 
-    authentication_mode = AuthenticationMode.AUTHORIZATION_HEADER
+    Requires an ``auth=`` provider that populates an ``AccessToken`` on the
+    request — :class:`PassThroughTokenVerifier` for raw header mode, or
+    :class:`GitGuardianOAuthThinProxy` for OAuth proxy mode. Both classes
+    below differ only in :attr:`authentication_mode`.
+    """
 
     def get_personal_access_token(self) -> str:
-        headers = get_http_headers(include={"authorization"})
-        if not headers:
-            raise ValidationError("No HTTP headers available - Authorization header required")
-
-        auth_header = headers.get("authorization")
-        if not auth_header:
-            raise ValidationError("Missing Authorization header")
-
-        token = self._default_extract_token(auth_header)
-        if not token:
-            raise ValidationError("Invalid Authorization header format")
-
-        return token
-
-    @staticmethod
-    def _default_extract_token(auth_header: str) -> str | None:
-        """Extract token from Authorization header.
-
-        Supports formats:
-        - Bearer <token>
-        - Token <token>
-        - <token> (raw)
-        """
-        auth_header = auth_header.strip()
-
-        if auth_header.lower().startswith("bearer "):
-            return auth_header[7:].strip()
-
-        if auth_header.lower().startswith("token "):
-            return auth_header[6:].strip()
-
-        if auth_header:
-            return auth_header
-
-        return None
+        access_token = get_access_token()
+        if not access_token:
+            raise ValidationError("No access token available - bearer authentication required")
+        return access_token.token
 
     async def get_token_info(self) -> dict[str, Any]:
         return await self._fetch_token_info_from_api()
 
 
-class GitGuardianOAuthProxyMCP(AbstractGitGuardianFastMCP):
+class GitGuardianAuthorizationHeaderMCP(_BearerTokenMCP):
+    """GitGuardian MCP server using per-request Authorization header (HTTP/SSE mode)."""
+
+    authentication_mode = AuthenticationMode.AUTHORIZATION_HEADER
+
+
+class GitGuardianOAuthProxyMCP(_BearerTokenMCP):
     """GitGuardian MCP server with thin OAuth proxy to the GG dashboard.
 
     Same-origin OAuth endpoints proxy auth requests to the GG dashboard.
@@ -406,17 +383,6 @@ class GitGuardianOAuthProxyMCP(AbstractGitGuardianFastMCP):
     """
 
     authentication_mode = AuthenticationMode.OAUTH_PROXY
-
-    def get_personal_access_token(self) -> str:
-        # TODO(TIM): Why different than GitGuardianAuthorizationHeaderMCP ?
-        access_token = get_access_token()
-
-        if not access_token:
-            raise ValidationError("No access token available - OAuth proxy authentication required")
-        return access_token.token
-
-    async def get_token_info(self) -> dict[str, Any]:
-        return await self._fetch_token_info_from_api()
 
 
 def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
@@ -439,4 +405,4 @@ def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
     if personal_access_token := settings.gitguardian_personal_access_token:
         return GitGuardianPATEnvMCP(*args, personal_access_token=personal_access_token, **kwargs)
 
-    return GitGuardianAuthorizationHeaderMCP(*args, **kwargs)
+    return GitGuardianAuthorizationHeaderMCP(*args, auth=PassThroughTokenVerifier(), **kwargs)

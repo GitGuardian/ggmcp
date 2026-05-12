@@ -19,7 +19,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .scopes import ServerProfile
 
-
 TRUTHY_ENV_VALUES = frozenset(
     {
         "true",
@@ -147,9 +146,7 @@ class Settings(BaseSettings):
         if self.server_profile is None:
             return self.requested_scopes
 
-        restricted = is_self_hosted_instance(
-            self.gitguardian_url
-        ) and not is_local_instance(self.gitguardian_url)
+        restricted = is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url)
         allowed = set(self.server_profile.max_scopes(restricted=restricted))
         requested = set(self.requested_scopes)
         return sorted(allowed & requested if requested else allowed)
