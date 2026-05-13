@@ -49,7 +49,9 @@ async def test_translate_passthrough_when_flag_unset():
 
 
 @pytest.mark.asyncio
-async def test_advertise_adds_as_metadata_param_to_401():
+async def test_advertise_synthesizes_header_with_both_params():
+    """Bridged 401 (no existing WWW-Authenticate) gets resource_metadata + as_metadata."""
+
     async def inner_app(scope, receive, send):
         mark_downstream_unauthorized()
         await send({"type": "http.response.start", "status": 200, "headers": []})
@@ -59,9 +61,68 @@ async def test_advertise_adds_as_metadata_param_to_401():
     stacked = AdvertiseAuthorizationServerMetadataMiddleware(
         TranslateDownstreamUnauthorizedMiddleware(inner_app),
         as_metadata_url="https://mcp.example.com/.well-known/oauth-authorization-server",
+        resource_metadata_url_provider=lambda: "https://mcp.example.com/.well-known/oauth-protected-resource/mcp",
     )
     status, headers = await _drive(stacked)
     assert status == 401
     header_map = {name.decode(): value.decode() for name, value in headers}
-    assert "www-authenticate" in header_map
-    assert "as_metadata=" in header_map["www-authenticate"]
+    www_auth = header_map["www-authenticate"]
+    assert www_auth.startswith("Bearer ")
+    assert 'resource_metadata="https://mcp.example.com/.well-known/oauth-protected-resource/mcp"' in www_auth
+    assert 'as_metadata="https://mcp.example.com/.well-known/oauth-authorization-server"' in www_auth
+
+
+@pytest.mark.asyncio
+async def test_advertise_synthesizes_header_without_resource_metadata_when_unavailable():
+    """If the resource URL isn't set yet, fall back to as_metadata-only."""
+
+    async def inner_app(scope, receive, send):
+        mark_downstream_unauthorized()
+        await send({"type": "http.response.start", "status": 200, "headers": []})
+        await send({"type": "http.response.body", "body": b""})
+
+    stacked = AdvertiseAuthorizationServerMetadataMiddleware(
+        TranslateDownstreamUnauthorizedMiddleware(inner_app),
+        as_metadata_url="https://mcp.example.com/.well-known/oauth-authorization-server",
+        resource_metadata_url_provider=lambda: None,
+    )
+    status, headers = await _drive(stacked)
+    assert status == 401
+    header_map = {name.decode(): value.decode() for name, value in headers}
+    www_auth = header_map["www-authenticate"]
+    assert "resource_metadata=" not in www_auth
+    assert "as_metadata=" in www_auth
+
+
+@pytest.mark.asyncio
+async def test_advertise_appends_as_metadata_to_existing_header():
+    """When FastMCP's auth already emitted WWW-Authenticate, just append as_metadata."""
+
+    async def inner_app(scope, receive, send):
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 401,
+                "headers": [
+                    (
+                        b"www-authenticate",
+                        b'Bearer resource_metadata="https://mcp.example.com/.well-known/oauth-protected-resource/mcp"',
+                    )
+                ],
+            }
+        )
+        await send({"type": "http.response.body", "body": b""})
+
+    stacked = AdvertiseAuthorizationServerMetadataMiddleware(
+        inner_app,
+        as_metadata_url="https://mcp.example.com/.well-known/oauth-authorization-server",
+        resource_metadata_url_provider=lambda: "https://should-not-be-used.example.com",
+    )
+    status, headers = await _drive(stacked)
+    assert status == 401
+    header_map = {name.decode(): value.decode() for name, value in headers}
+    www_auth = header_map["www-authenticate"]
+    # The original resource_metadata is preserved; only as_metadata is appended.
+    assert www_auth.count("resource_metadata=") == 1
+    assert "should-not-be-used" not in www_auth
+    assert ", as_metadata=" in www_auth

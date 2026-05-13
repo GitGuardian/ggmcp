@@ -15,6 +15,7 @@ The MCP client gets the real GG PAT directly and sends it as Bearer token.
 
 import logging
 import os
+from collections.abc import Callable
 from contextvars import ContextVar
 from urllib.parse import urlencode
 
@@ -87,18 +88,36 @@ class TranslateDownstreamUnauthorizedMiddleware:
 
 
 class AdvertiseAuthorizationServerMetadataMiddleware:
-    """Append the AS metadata URL to ``WWW-Authenticate`` on 401 responses.
+    """Ensure 401 responses advertise both ``resource_metadata`` and ``as_metadata``.
 
-    Claude.ai does not follow ``authorization_servers`` from RFC 9728 protected
-    resource metadata (https://github.com/anthropics/claude-ai-mcp/issues/82),
-    so we expose the AS metadata location directly via an ``as_metadata``
-    parameter alongside the existing ``resource_metadata`` one.
+    * **Augment branch.** When FastMCP's auth backend already emitted a 401
+      with ``WWW-Authenticate: Bearer resource_metadata="..."``, append
+      ``, as_metadata="..."`` so Claude.ai (which does not follow RFC 9728
+      ``authorization_servers``, see
+      https://github.com/anthropics/claude-ai-mcp/issues/82) can locate the
+      AS metadata directly.
+    * **Synthesize branch.** When a 401 carries no ``WWW-Authenticate`` at
+      all (the case after :class:`TranslateDownstreamUnauthorizedMiddleware`
+      flips a 200 into a 401), build one with **both** ``resource_metadata``
+      (so spec-compliant clients can discover via the standard chain) and
+      ``as_metadata`` (so Claude.ai can shortcut).
+
+    ``resource_metadata_url`` is resolved lazily on each request because
+    FastMCP constructs the middleware before calling ``set_mcp_path()`` on
+    the auth provider — the resource URL isn't known at middleware
+    construction time.
     """
 
-    def __init__(self, app: ASGIApp, as_metadata_url: str):
+    def __init__(
+        self,
+        app: ASGIApp,
+        as_metadata_url: str,
+        resource_metadata_url_provider: Callable[[], str | None] | None = None,
+    ):
         self.app = app
-        self._param = f'as_metadata="{as_metadata_url}"'
-        self._param_bytes = self._param.encode()
+        self._as_param = f'as_metadata="{as_metadata_url}"'
+        self._append_suffix = f", {self._as_param}".encode()
+        self._resource_metadata_url_provider = resource_metadata_url_provider
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -108,20 +127,25 @@ class AdvertiseAuthorizationServerMetadataMiddleware:
         async def send_wrapper(message: Message) -> None:
             if message["type"] == "http.response.start" and message.get("status") == 401:
                 headers = list(message.get("headers", []))
-                rewritten = []
-                found = False
-                for name, value in headers:
+                for i, (name, value) in enumerate(headers):
                     if name.lower() == b"www-authenticate":
-                        found = True
-                        rewritten.append((name, value + b", " + self._param_bytes))
-                    else:
-                        rewritten.append((name, value))
-                if not found:
-                    rewritten.append((b"www-authenticate", f"Bearer {self._param}".encode()))
-                message["headers"] = rewritten
+                        headers[i] = (name, value + self._append_suffix)
+                        break
+                else:
+                    headers.append((b"www-authenticate", self._build_synth_header()))
+                message["headers"] = headers
             await send(message)
 
         await self.app(scope, receive, send_wrapper)
+
+    def _build_synth_header(self) -> bytes:
+        parts: list[str] = []
+        if self._resource_metadata_url_provider is not None:
+            rm_url = self._resource_metadata_url_provider()
+            if rm_url:
+                parts.append(f'resource_metadata="{rm_url}"')
+        parts.append(self._as_param)
+        return f"Bearer {', '.join(parts)}".encode()
 
 
 class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
@@ -159,9 +183,9 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
 
         Order matters. ``TranslateDownstreamUnauthorizedMiddleware`` runs
         first so a flagged response becomes a 401; then
-        ``AdvertiseAuthorizationServerMetadataMiddleware`` appends the
-        ``as_metadata`` parameter to the resulting ``WWW-Authenticate``
-        header.
+        ``AdvertiseAuthorizationServerMetadataMiddleware`` enriches the
+        resulting ``WWW-Authenticate`` header with ``resource_metadata``
+        and ``as_metadata`` parameters.
         """
         middleware = super().get_middleware()
         middleware.append(Middleware(TranslateDownstreamUnauthorizedMiddleware))
@@ -171,9 +195,24 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
                 Middleware(
                     AdvertiseAuthorizationServerMetadataMiddleware,
                     as_metadata_url=f"{base}/.well-known/oauth-authorization-server",
+                    resource_metadata_url_provider=self._build_resource_metadata_url,
                 )
             )
         return middleware
+
+    def _build_resource_metadata_url(self) -> str | None:
+        """Resolve the RFC 9728 protected-resource metadata URL.
+
+        Called lazily per request because ``set_mcp_path()`` runs after
+        ``get_middleware()`` during FastMCP's app construction — at
+        middleware-construction time ``self._resource_url`` is still ``None``.
+        """
+        from mcp.server.auth.routes import build_resource_metadata_url
+
+        resource_url = getattr(self, "_resource_url", None)
+        if not resource_url:
+            return None
+        return str(build_resource_metadata_url(resource_url))
 
     def get_routes(self, mcp_path: str | None = None) -> list[Route]:
         """Return OAuth proxy routes alongside discovery metadata."""
