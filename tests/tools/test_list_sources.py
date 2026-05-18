@@ -257,6 +257,31 @@ class TestListSources:
         assert len(result.sources) == 1
 
     @pytest.mark.asyncio
+    async def test_list_sources_with_team_id_filter(self, mock_gitguardian_client):
+        """
+        GIVEN: A team_id filter parameter
+        WHEN: Listing sources with team_id filter
+        THEN: The API is called with correct team_id parameter
+        """
+        mock_response = {
+            "data": [
+                {
+                    "id": 1,
+                    "type": "github",
+                }
+            ],
+            "cursor": None,
+            "has_more": False,
+        }
+        mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
+
+        result = await list_sources(ListSourcesParams(team_id=42))
+
+        call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
+        assert call_kwargs["team_id"] == 42
+        assert len(result.sources) == 1
+
+    @pytest.mark.asyncio
     async def test_list_sources_with_ordering(self, mock_gitguardian_client):
         """
         GIVEN: An ordering parameter

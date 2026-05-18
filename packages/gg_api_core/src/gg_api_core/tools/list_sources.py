@@ -87,6 +87,10 @@ class ListSourcesParams(BaseModel):
         default=None,
         description="Filter by monitored status (true/false)",
     )
+    team_id: int | None = Field(
+        default=None,
+        description="Filter sources by team id. Only sources belonging to the given team's perimeter are returned.",
+    )
     per_page: int = Field(
         default=20,
         description="Number of results per page (default: 20, min: 1, max: 100)",
@@ -148,6 +152,7 @@ async def list_sources(params: ListSourcesParams) -> ListSourcesResult:
             external_id=params.external_id,
             source_criticality=params.source_criticality,
             monitored=params.monitored,
+            team_id=params.team_id,
             per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
