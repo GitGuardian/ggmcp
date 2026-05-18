@@ -2031,6 +2031,7 @@ class GitGuardianClient:
         external_id: str | None = None,
         source_criticality: str | None = None,
         monitored: bool | None = None,
+        team_id: int | None = None,
         per_page: int = 20,
         cursor: str | None = None,
         get_all: bool = False,
@@ -2047,6 +2048,7 @@ class GitGuardianClient:
             external_id: Filter by specific external id
             source_criticality: Filter by source criticality ('critical', 'high', 'medium', 'low', 'unknown')
             monitored: Filter by monitored value (true/false)
+            team_id: Filter by team id (sources within the given team's perimeter)
             per_page: Number of results per page (default: 20, min: 1, max: 100)
             cursor: Pagination cursor (for cursor-based pagination)
             get_all: If True, fetch all results using cursor-based pagination
@@ -2076,6 +2078,8 @@ class GitGuardianClient:
             params["source_criticality"] = source_criticality
         if monitored is not None:
             params["monitored"] = str(monitored).lower()
+        if team_id is not None:
+            params["team_id"] = str(team_id)
         if per_page:
             params["per_page"] = str(per_page)
         if cursor:
