@@ -295,6 +295,32 @@ class TestListSourcesVCR:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
+    async def test_list_sources_with_team_id_filter(self, real_client, use_cassette):
+        """
+        GIVEN: A valid GitGuardian API key with sources:read scope
+        WHEN: Calling list_sources with a team_id filter
+        THEN: The team_id query param is forwarded and a valid response is returned
+        """
+        with use_cassette("test_list_sources_with_team_id_filter"):
+            with patch(
+                "gg_api_core.tools.list_sources.get_client",
+                return_value=real_client,
+            ):
+                params = ListSourcesParams(
+                    team_id=1,
+                    per_page=10,
+                    get_all=False,
+                )
+
+                result = await list_sources(params)
+
+                assert result is not None
+                assert isinstance(result, ListSourcesResult)
+                assert result.sources is not None
+                assert isinstance(result.sources, list)
+
+    @pytest.mark.vcr_test
+    @pytest.mark.asyncio
     async def test_list_sources_with_monitored_filter(self, real_client, use_cassette):
         """
         GIVEN: A valid GitGuardian API key with sources:read scope
