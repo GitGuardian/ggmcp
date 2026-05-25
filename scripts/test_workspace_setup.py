@@ -77,10 +77,8 @@ def test_imports():
     import_tests = [
         # Core package
         ("gg_api_core", ["gg_api_core.client", "gg_api_core.mcp_server", "gg_api_core.utils", "gg_api_core.oauth"]),
-        # Developer MCP server
-        ("developer_mcp_server", ["developer_mcp_server.server"]),
-        # SecOps MCP server
-        ("secops_mcp_server", ["secops_mcp_server.server"]),
+        # Unified MCP server
+        ("gg_mcp_server", ["gg_mcp_server.server"]),
     ]
 
     failures = []
@@ -122,19 +120,11 @@ def test_server_classes():
         return False
 
     try:
-        import developer_mcp_server.server  # noqa: F401
+        import gg_mcp_server.server  # noqa: F401
 
-        print("✅ Successfully imported developer MCP server module")
+        print("✅ Successfully imported GitGuardian MCP server module")
     except Exception as e:
-        print(f"❌ Failed to import developer MCP server module: {e}")
-        return False
-
-    try:
-        import secops_mcp_server.server  # noqa: F401
-
-        print("✅ Successfully imported SecOps MCP server module")
-    except Exception as e:
-        print(f"❌ Failed to import SecOps MCP server module: {e}")
+        print(f"❌ Failed to import GitGuardian MCP server module: {e}")
         return False
 
     return True
@@ -147,11 +137,10 @@ def verify_package_structure():
     print("\n== Verifying Package Structure ==")
 
     # Define expected structure
-    expected_packages = ["gg_api_core", "developer_mcp_server", "secops_mcp_server"]
+    expected_packages = ["gg_api_core", "gg_mcp_server"]
     expected_files = {
         "gg_api_core": ["client.py", "mcp_server.py", "utils.py", "oauth.py"],
-        "developer_mcp_server": ["server.py"],
-        "secops_mcp_server": ["server.py"],
+        "gg_mcp_server": ["server.py"],
     }
 
     all_found = True

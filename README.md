@@ -64,11 +64,9 @@ The MCP server supports both GitGuardian SaaS and self-hosted instances.
 
 **Quick Install with One-Click Buttons** (Cursor >= 1.0):
 
-For Developer MCP Server:
+[![Install GitGuardian MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=GitGuardian&config=eyJjb21tYW5kIjogInV2eCIsICJhcmdzIjogWyItLWZyb20iLCAiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9HaXRHdWFyZGlhbi9nZy1tY3AuZ2l0IiwgImdnLW1jcC1zZXJ2ZXIiXSwgImVudiI6IHt9fQ%3D%3D)
 
-[![Install Developer MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=GitGuardianDeveloper&config=eyJjb21tYW5kIjoidXZ4IC0tZnJvbSBnaXQraHR0cHM6Ly9naXRodWIuY29tL0dpdEd1YXJkaWFuL2dnLW1jcC5naXQgZGV2ZWxvcGVyLW1jcC1zZXJ2ZXIiLCJlbnYiOnt9fQ%3D%3D)
-
-> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS or self-hosted instances, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances).
+> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS or self-hosted instances, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances). A single MCP server now serves both developer and SecOps audiences — the tools exposed to your agent depend on the OAuth scopes granted to the access token. The deprecated `developer-mcp-server` and `secops-mcp-server` entry points still work for one release but emit a `DeprecationWarning`; migrate to `gg-mcp-server`.
 
 **Manual Configuration**:
 
@@ -79,12 +77,12 @@ For Developer MCP Server:
    ```json
    {
      "mcpServers": {
-       "GitGuardianDeveloper": {
+       "GitGuardian": {
          "command": "uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/ggmcp.git",
-           "developer-mcp-server"
+           "gg-mcp-server"
          ]
        }
      }
@@ -103,12 +101,12 @@ For Developer MCP Server:
    ```json
    {
      "mcpServers": {
-       "GitGuardianDeveloper": {
+       "GitGuardian": {
          "command": "/path/to/uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/ggmcp.git",
-           "developer-mcp-server"
+           "gg-mcp-server"
          ]
        }
      }
@@ -137,13 +135,13 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
    {
      "mcp": {
        "servers": {
-         "GitGuardianDeveloper": {
+         "GitGuardian": {
            "type": "stdio",
            "command": "uvx",
            "args": [
              "--from",
              "git+https://github.com/GitGuardian/ggmcp.git",
-             "developer-mcp-server"
+             "gg-mcp-server"
            ]
          }
        }
@@ -162,13 +160,13 @@ To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
 
    ```json
    {
-     "GitGuardianDeveloper": {
+     "GitGuardian": {
        "command": {
          "path": "uvx",
          "args": [
            "--from",
            "git+https://github.com/GitGuardian/ggmcp.git",
-           "developer-mcp-server"
+           "gg-mcp-server"
          ]
        }
      }
@@ -194,12 +192,12 @@ When using stdio transport (the default for desktop IDE integrations), the serve
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "developer-mcp-server"
+        "gg-mcp-server"
       ]
     }
   }
@@ -211,12 +209,12 @@ When using stdio transport (the default for desktop IDE integrations), the serve
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "developer-mcp-server"
+        "gg-mcp-server"
       ],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
@@ -239,12 +237,12 @@ For non-interactive environments, CI/CD pipelines, or when you prefer not to use
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "developer-mcp-server"
+        "gg-mcp-server"
       ],
       "env": {
         "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_personal_access_token_here"
@@ -262,7 +260,7 @@ When using HTTP/SSE transport (with `MCP_PORT` set), the server expects authenti
 
 ```bash
 # Start server with HTTP transport (OAuth must be disabled)
-ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git developer-mcp-server
+ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git gg-mcp-server
 
 # Make authenticated request
 curl -X POST http://127.0.0.1:8000/tools/list \
@@ -304,12 +302,12 @@ To enable HTTP/SSE transport, set the `MCP_PORT` environment variable. **Importa
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "developer-mcp-server"
+        "gg-mcp-server"
       ],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
@@ -327,7 +325,7 @@ You can also run the server directly with HTTP transport:
 
 ```bash
 # Run with HTTP transport (must disable OAuth)
-ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git developer-mcp-server
+ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git gg-mcp-server
 ```
 
 The server will automatically start on `http://127.0.0.1:8000` and be accessible for remote integrations.
@@ -398,9 +396,9 @@ For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment var
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local"
       }
@@ -416,9 +414,9 @@ If your self-hosted instance has honeytokens enabled and your user has the requi
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local",
         "GITGUARDIAN_SCOPES": "scan,incidents:read,sources:read,honeytokens:read,honeytokens:write"
@@ -435,9 +433,9 @@ For the GitGuardian EU instance, use:
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
       "env": {
         "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
       }
@@ -453,9 +451,9 @@ If you have your own OAuth application configured in GitGuardian, you can specif
 ```json
 {
   "mcpServers": {
-    "GitGuardianDeveloper": {
+    "GitGuardian": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "developer-mcp-server"],
+      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
       "env": {
         "GITGUARDIAN_CLIENT_ID": "my-custom-oauth-client"
       }

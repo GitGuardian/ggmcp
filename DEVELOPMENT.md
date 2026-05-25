@@ -143,7 +143,7 @@ The GitGuardian MCP server supports two authentication modes:
 For desktop applications using stdio transport, OAuth authentication is available:
 
 ```bash
-ENABLE_LOCAL_OAUTH=true developer-mcp-server
+ENABLE_LOCAL_OAUTH=true gg-mcp-server
 ```
 
 This will:
@@ -155,7 +155,7 @@ This will:
 For server deployments using HTTP/SSE transport, use per-request PAT authentication:
 
 ```bash
-MCP_PORT=8080 MCP_HOST=127.0.0.1 developer-mcp-server
+MCP_PORT=8080 MCP_HOST=127.0.0.1 gg-mcp-server
 ```
 
 Clients must provide authentication via the Authorization header:
@@ -169,7 +169,7 @@ Authorization: Bearer <your-personal-access-token>
 For all transport modes, you can provide a PAT via environment variable:
 
 ```bash
-GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> developer-mcp-server
+GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> gg-mcp-server
 ```
 
 ## Optional Dependencies
@@ -195,21 +195,20 @@ When running the server with `uvx` from Git, you can include optional dependenci
 
 ```bash
 # Include extras using the #egg syntax
-uvx --from 'git+https://github.com/GitGuardian/ggmcp.git@main#egg=secops-mcp-server[sentry]' secops-mcp-server
+uvx --from 'git+https://github.com/GitGuardian/ggmcp.git@main#egg=gg-mcp-server[sentry]' gg-mcp-server
 
 # Or install the optional dependency separately
 uv pip install sentry-sdk
-uvx --from git+https://github.com/GitGuardian/ggmcp.git@main secops-mcp-server
+uvx --from git+https://github.com/GitGuardian/ggmcp.git@main gg-mcp-server
 ```
 
 ### Current Optional Dependencies
 
 - **sentry**: Adds Sentry SDK for error tracking and performance monitoring
   - Core package: `gg-api-core[sentry]`
-  - Available in: `developer-mcp-server[sentry]`, `secops-mcp-server[sentry]`
+  - Available in: `gg-mcp-server[sentry]`
   - Implementation: `gg_api_core/src/gg_api_core/sentry_integration.py`
   - Used for: Production error monitoring and alerting
-  - See individual package READMEs for configuration details
 
 ## Testing
 
