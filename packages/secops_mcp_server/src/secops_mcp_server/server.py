@@ -14,6 +14,7 @@ from developer_mcp_server.register_tools import register_developer_tools  # noqa
 from fastmcp.exceptions import ToolError  # noqa: E402
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES  # noqa: E402
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools  # noqa: E402
+from gg_api_core.prompts.register_prompts import register_hil_prompts  # noqa: E402
 from gg_api_core.tools.assign_incident import assign_incident  # noqa: E402
 from gg_api_core.tools.assign_public_incident import assign_public_incident  # noqa: E402
 from gg_api_core.tools.create_code_fix_request import create_code_fix_request  # noqa: E402
@@ -29,6 +30,8 @@ from gg_api_core.tools.write_custom_tags import (  # noqa: E402
     write_custom_tags,
 )
 from pydantic import BaseModel, Field  # noqa: E402
+
+from secops_mcp_server.register_hil import register_hil_tools  # noqa: E402
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -281,5 +284,9 @@ mcp.tool(
 )
 
 register_common_tools(mcp)
+
+# HIL (High Impact Leak) capabilities — atomic tools + orchestration prompts.
+register_hil_tools(mcp)
+register_hil_prompts(mcp)
 
 logger.info("SecOps MCP server instance created and configured")

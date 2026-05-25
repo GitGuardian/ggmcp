@@ -52,6 +52,7 @@ dev = [
     "ruff~=0.14",
     "vcrpy~=8.0",
     "pyyaml~=6.0",
+    "respx~=0.22",
 ]
 
 [project.scripts]

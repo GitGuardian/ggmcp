@@ -75,6 +75,11 @@ class Settings(BaseSettings):
     # profile is active — used by the OAuth helper script and tests.
     server_profile: ServerProfile | None = None
 
+    # --- GitHub (optional, used by HIL GitHub tools) ---
+    # Without a token, GitHub anonymous rate limits apply (60 req/h). With one,
+    # 5000 req/h. Code search requires a token.
+    github_token: str | None = None
+
     # --- System ---
     xdg_config_home: str | None = None
 

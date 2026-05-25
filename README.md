@@ -26,6 +26,11 @@ Resolve security incidents without context switching to the GitGuardian console.
 - **Honeytokens**: Create honeytokens to detect unauthorized access
 - **Authentication Management**: Get authenticated user information and token details
 - **Token Management**: Revoke current API tokens
+- **HIL-style triage & qualification (SecOps server)**: Atomic DNS/RDAP/SSL/GitHub
+  tools plus orchestration prompts (`triage_public_secret_leak`,
+  `qualify_high_impact_leak`, `investigate_secret_repository`) that ship the
+  same decision logic GitGuardian's internal High Impact Leak agents follow.
+  See [`packages/secops_mcp_server/README.md`](packages/secops_mcp_server/README.md#hil-atomic-tools).
 
 > **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/ggmcp/issues) to help us prioritize new MCP server capabilities.
 

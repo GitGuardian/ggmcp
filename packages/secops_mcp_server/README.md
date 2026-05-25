@@ -13,6 +13,51 @@ This package provides a comprehensive MCP server for security operations teams, 
 - Custom tag management
 - Repository incident analysis
 - Secret scanning for code files
+- **HIL (High Impact Leak) triage and qualification** — atomic ownership-evidence
+  tools (DNS, RDAP, TLS certificate, GitHub) plus orchestration prompts that
+  ship the same decision logic GitGuardian's internal HIL agents follow.
+
+### HIL atomic tools
+
+All HIL atomic tools have `required_scopes=[]` (they don't hit the GG API).
+
+| Tool | Purpose |
+|---|---|
+| `dns_lookup` | Resolve A/AAAA/CNAME/MX/TXT/NS records for a hostname. |
+| `reverse_dns_lookup` | PTR lookup for an IP address. |
+| `rdap_domain_lookup` | Registrant org / country / NS for a domain (modern WHOIS). |
+| `rdap_ip_lookup` | Network owner / ASN / country for an IP. |
+| `check_host_reachability` | DNS → TCP → HTTPS probe, with WAF (Cloudflare/CloudFront/Akamai/Fastly) detection. |
+| `check_ssl_certificate` | Subject O / CN / SANs / issuer for a host's TLS cert. |
+| `search_github_issues` | Search GitHub issues, optionally scoped to a repo. |
+| `search_github_code` | Search GitHub code (requires `GITHUB_TOKEN`). |
+| `get_github_repo_metadata` | Repo + owner metadata, incl. `owner.company` for orgs. |
+| `list_github_repo_contributors` | Top contributors + their public profile data. |
+
+`GITHUB_TOKEN` (optional, no scope required) raises the GitHub anonymous
+rate limit from 60 req/h to 5000 req/h and unlocks `search_github_code`.
+
+### HIL prompts
+
+| Prompt | Inputs | Purpose |
+|---|---|---|
+| `triage_public_secret_leak` | `incident_id`, optional `target_company` | One-shot classifier mirroring the upstream `SecretTriageOutput` schema. |
+| `qualify_high_impact_leak` | `incident_id`, optional `triage_summary`, optional `target_company` | Multi-step DNS→SSL→RDAP→repo→validity playbook with a hard 8-call budget, returning `DeepIncidentAnalysisOutput`. |
+| `investigate_secret_repository` | `repo`, `task`, optional `incident_id` | Reader playbook for a single repo under a 6-call budget, returning `ReaderTaskResult`. |
+
+These prompts embed the full output schema and decision rules — the client's
+model does the orchestration.
+
+### Deferred (not yet shipped)
+
+- `check_secret_validity`, `list_secret_checkers` — pending confirmation of the
+  public GG API endpoint that exposes single-secret validity checking.
+- `get_public_occurrence_patch` — pending confirmation of a per-occurrence
+  patch endpoint on the public GG API. `list_public_occurrences` already
+  returns filepath/commit/repo, which is enough for the current prompts.
+
+See `docs/HIL_PLAN.md` and the `# TODO(HIL)` notes in
+`packages/gg_api_core/src/gg_api_core/tools/{check_secret_validity,list_secret_checkers,get_public_occurrence_patch}.py`.
 
 ## Usage
 
