@@ -1,10 +1,13 @@
-from starlette.requests import Request
-from starlette.responses import PlainTextResponse
+"""Deprecated compatibility shim — use ``gg_mcp_server.add_health_check`` instead."""
 
+import warnings
 
-def add_health_check(mcp):
-    """Add a health check endpoint"""
+from gg_mcp_server.add_health_check import add_health_check
 
-    @mcp.custom_route("/health", methods=["GET"])
-    async def health_check(request: Request) -> PlainTextResponse:
-        return PlainTextResponse("OK")
+warnings.warn(
+    "developer_mcp_server.add_health_check is deprecated; use gg_mcp_server.add_health_check instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+__all__ = ["add_health_check"]

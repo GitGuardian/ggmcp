@@ -1,7 +1,7 @@
 [project]
-name = "secops-mcp-server"
+name = "gg-mcp-server"
 version = "0.1.0"
-description = "GitGuardian MCP server for SecOps with comprehensive security tools"
+description = "GitGuardian MCP server (unified developer + SecOps surface)"
 authors = [
     { name = "GitGuardian", email = "support@gitguardian.com" },
 ]
@@ -9,7 +9,7 @@ maintainers = [
     {name = "GitGuardian", email = "support@gitguardian.com"},
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: System Administrators",
@@ -25,16 +25,21 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 dependencies = [
-    "gg-mcp-server",
+    "fastmcp~=3.0",
+    "httpx~=0.28",
+    "pydantic~=2.12",
+    "gg-api-core",
+    "uvicorn~=0.34",
+    "gunicorn~=23.0",
 ]
 
 [project.optional-dependencies]
 sentry = [
-    "gg-mcp-server[sentry]",
+    "gg-api-core[sentry]",
 ]
 
 [project.scripts]
-secops-mcp-server = "secops_mcp_server.run:run_mcp_server"
+gg-mcp-server = "gg_mcp_server.run:run_mcp_server"
 
 [build-system]
 requires = ["hatchling"]

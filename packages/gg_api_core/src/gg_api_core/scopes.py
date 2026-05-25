@@ -1,6 +1,4 @@
-"""GitGuardian API scope definitions and server profiles."""
-
-from enum import Enum
+"""GitGuardian API scope definitions."""
 
 # All available GitGuardian API scopes as per documentation
 # https://docs.gitguardian.com/api-docs/authentication#scopes
@@ -32,42 +30,6 @@ ALL_SCOPES = [
     "secrets:write",
     "secrets:read",
 ]
-
-ALL_READ_SCOPES = [
-    *MINIMAL_SCOPES,
-    "honeytokens:read",
-    "members:read",
-    "audit_logs:read",
-    "api_tokens:read",
-    "ip_allowlist:read",
-    "custom_tags:read",
-    "secrets:read",
-]
-
-
-class ServerProfile(str, Enum):
-    """Which gg-mcp server profile is running.
-
-    The profile caps which scopes the OAuth flow may request. Set by each
-    server entry-point (e.g. ``developer_mcp_server/server.py``) via the
-    ``SERVER_PROFILE`` env var, then read through :class:`Settings`.
-    """
-
-    DEVELOPER = "developer"
-    SECOPS = "secops"
-
-    def max_scopes(self, *, restricted: bool) -> list[str]:
-        """Return the largest scope set this profile may request.
-
-        Args:
-            restricted: True for non-local self-hosted instances, which
-                are capped to :data:`MINIMAL_SCOPES` regardless of profile.
-        """
-        if restricted:
-            return MINIMAL_SCOPES
-        if self is ServerProfile.DEVELOPER:
-            return [*ALL_READ_SCOPES, "honeytokens:write"]
-        return ALL_SCOPES
 
 
 def validate_scopes(scopes_str: str) -> list[str]:

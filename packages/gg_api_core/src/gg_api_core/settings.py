@@ -12,12 +12,7 @@ test fixtures using ``patch.dict(os.environ, ...)`` or
 ``monkeypatch.setenv`` continue to work without cache invalidation.
 """
 
-from typing import Any
-
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from .scopes import ServerProfile
 
 TRUTHY_ENV_VALUES = frozenset(
     {
@@ -69,22 +64,8 @@ class Settings(BaseSettings):
     mcp_oauth_proxy_enabled: str | None = None
     mcp_base_url: str = "http://localhost:8000"
 
-    # --- Server profile ---
-    # Set by each server entry-point (e.g. developer_mcp_server/server.py) to
-    # signal which scope-set the OAuth flow may request. ``None`` means no
-    # profile is active — used by the OAuth helper script and tests.
-    server_profile: ServerProfile | None = None
-
     # --- System ---
     xdg_config_home: str | None = None
-
-    @field_validator("server_profile", mode="before")
-    @classmethod
-    def _empty_profile_is_none(cls, v: Any) -> Any:
-        """Treat ``SERVER_PROFILE=""`` as unset, matching the other env knobs."""
-        if v == "":
-            return None
-        return v
 
     # --- Derived helpers ---
     @property
@@ -129,27 +110,28 @@ class Settings(BaseSettings):
     def effective_scopes(self) -> list[str]:
         """Final scope set the OAuth flow should request.
 
-        Inputs (all read from env, in one place):
-            * ``GITGUARDIAN_SCOPES`` — the user's requested scopes
-            * ``GITGUARDIAN_URL`` — non-local self-hosted instances are
-              capped to :data:`MINIMAL_SCOPES`
-            * ``SERVER_PROFILE`` — ``developer`` and ``secops`` cap to
-              different maximum scope sets
+        - If the user explicitly set ``GITGUARDIAN_SCOPES``, that list is used as-is.
+        - Otherwise the full :data:`ALL_SCOPES` set is requested.
+        - Non-local self-hosted instances are capped to :data:`MINIMAL_SCOPES`
+          (older self-hosted dashboards may not recognise newer scopes).
 
-        With no profile active, returns the user's requested scopes as-is
-        (used by ``scripts/run_oauth_flow.py``).
+        The dashboard's OAuth consent UI ultimately decides which scopes the
+        access token receives; runtime tool visibility is then driven by the
+        token's actual scopes via the scope-filtering middleware.
         """
-        # Lazy import: ``host`` reads back from ``Settings``, so importing
-        # it at module top would create a cycle.
+        # Lazy import: ``host`` and ``scopes`` could otherwise cycle through
+        # this module via their own imports.
         from .host import is_local_instance, is_self_hosted_instance
+        from .scopes import ALL_SCOPES, MINIMAL_SCOPES
 
-        if self.server_profile is None:
-            return self.requested_scopes
+        requested = self.requested_scopes
 
-        restricted = is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url)
-        allowed = set(self.server_profile.max_scopes(restricted=restricted))
-        requested = set(self.requested_scopes)
-        return sorted(allowed & requested if requested else allowed)
+        if is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url):
+            if not requested:
+                return list(MINIMAL_SCOPES)
+            return sorted(set(MINIMAL_SCOPES) & set(requested))
+
+        return requested if requested else list(ALL_SCOPES)
 
 
 class SentrySettings(BaseSettings):

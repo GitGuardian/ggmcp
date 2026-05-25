@@ -23,6 +23,7 @@ COPY src ./src
 # Build wheels for all workspace packages
 # This creates distributable .whl files that can be installed anywhere
 RUN uv build --package gg-api-core --out-dir /dist && \
+    uv build --package gg-mcp-server --out-dir /dist && \
     uv build --package developer-mcp-server --out-dir /dist && \
     uv build --package secops-mcp-server --out-dir /dist
 

@@ -79,8 +79,8 @@ async def main():
 async def main():
     print(await list_incidents(params=ListIncidentsParams()))
 
-async def init_secops_server():
-    from secops_mcp_server.server import mcp
+async def init_server():
+    from gg_mcp_server.server import mcp
     print(await mcp.call_tool("list_users", {"params": {}}))
 
 

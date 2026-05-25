@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from developer_mcp_server import server
 from fastmcp.exceptions import ToolError
+from gg_mcp_server import server
 
 
 @pytest.mark.skip(reason="generate_honeytoken is disabled (TODO: APPAI-28)")

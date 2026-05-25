@@ -24,16 +24,12 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 dependencies = [
-    "fastmcp~=3.0",
-    "httpx~=0.28",
-    "pydantic~=2.12",
-    "gg-api-core",
-    "uvicorn~=0.34"
+    "gg-mcp-server",
 ]
 
 [project.optional-dependencies]
 sentry = [
-    "gg-api-core[sentry]",
+    "gg-mcp-server[sentry]",
 ]
 
 
