@@ -1,210 +1,161 @@
 # GitGuardian MCP Server
 
-Stay focused on building your product while your AI assistant handles the security heavy lifting with GitGuardian's comprehensive protection.
-
-This MCP server enables your AI agent to scan projects using GitGuardian's industry-leading API, featuring over 500 secret detectors to prevent credential leaks before they reach public repositories.
-
-Resolve security incidents without context switching to the GitGuardian console. Take advantage of rich contextual data to enhance your agent's remediation capabilities, enabling rapid resolution and automated removal of hardcoded secrets.
-
-## Disclaimer
+Bring GitGuardian's secret detection and incident management into your AI agent.
+Scan code for credentials before they leak, triage existing incidents, generate
+honeytokens, and remediate findings — all from inside your IDE or chat client,
+backed by GitGuardian's 500+ detectors.
 
 > [!CAUTION]
-> MCP servers are an emerging and rapidly evolving technology. While they can significantly boost productivity and improve the developer experience, their use with various agents and models should always be supervised.
->
-> Agents act on your behalf and under your responsibility. Always use MCP servers from trusted sources (just as you would with any dependency), and carefully review agent actions when they interact with MCP server tools.
->
-> To better assist you in safely using this server, we have:
->
-> (1) Designed our MCP server to operate with "read-only" permissions, minimizing the access level granted to your agent. This helps ensure that, even if the agent tries to perform unintended actions, its capabilities remain limited to safe, non-destructive operations.
->
-> (2) Released this official MCP server to ensure you are using a legitimate and trusted implementation.
+> MCP servers are an emerging technology. Agents act on your behalf and under
+> your responsibility. Use trusted MCP servers and review agent actions when
+> they interact with tools. To limit blast radius the server defaults to
+> read-only-leaning permissions; what is actually exposed is determined by
+> the OAuth scopes your access token holds.
 
-## Features supported
+## What it does
 
-- **Secret Scanning**: Scan code for leaked secrets, credentials, and API keys
-- **Incident Management**: View security incidents related to the project you are currently working.
-- **Honeytokens**: Create honeytokens to detect unauthorized access
-- **Authentication Management**: Get authenticated user information and token details
-- **Token Management**: Revoke current API tokens
+- **Secret scanning** — proactively scan files for leaked credentials.
+- **Incident management** — list, filter, assign, resolve, and tag incidents
+  (both internal and Public Monitoring incidents).
+- **Honeytokens** — generate honeytokens and list existing ones.
+- **Code-fix automation** — open pull requests that remediate secrets in
+  repositories your workspace monitors.
 
-> **Want more features?** Have a use case that's not covered? We'd love to hear from you! Submit your ideas and feedback by [opening an issue on GitHub](https://github.com/GitGuardian/ggmcp/issues) to help us prioritize new MCP server capabilities.
+The exact set of tools exposed to your agent depends on the OAuth scopes
+granted to your access token.
 
-## Prompts examples
+## Prompt examples
 
-`Remediate all incidents related to my project`
+```
+Scan this codebase for any leaked secrets or credentials.
+```
 
-`Scan this codebase for any leaked secrets or credentials`
+```
+Remediate all incidents related to my project.
+```
 
-`Check if there are any new security incidents assigned to me`
+```
+Check if there are any new security incidents assigned to me.
+```
 
-`Help me understand this security incident and provide remediation steps`
+```
+Help me understand this security incident and provide remediation steps.
+```
 
-`List all my active honeytokens`
+```
+List all my active honeytokens.
+```
 
-`Generate a new honeytoken for monitoring AWS credential access`
+```
+Generate a new honeytoken for monitoring AWS credential access.
+```
 
-`Show me my most recent honeytoken and help me embed it in my codebase`
+```
+Create a honeytoken named 'dev-database' and hide it in config files.
+```
 
-`Create a honeytoken named 'dev-database' and hide it in config files`
+## Quick start
 
-## Prerequisites
+The recommended way to run the GitGuardian MCP server is to point your MCP
+client at the hosted server. The MCP client handles OAuth automatically; no
+local install, no token to manage, no `uvx`.
 
-Before installing the GitGuardian MCP servers, ensure you have the following prerequisites:
+Pick the URL that matches your GitGuardian region:
 
-- **uv**: This project uses uv for package installation and dependency management.
-  Install uv by following the instructions at: https://docs.astral.sh/uv/getting-started/installation/
+| Region      | URL                                                             |
+|-------------|-----------------------------------------------------------------|
+| US SaaS     | `https://mcp.gitguardian.com/mcp`                               |
+| EU SaaS     | `https://mcp.eu1.gitguardian.com/mcp`                           |
+| Self-hosted | See [Self-hosting the MCP server](#self-hosting-the-mcp-server) |
 
-## Installation
+### Cursor
 
-Below are instructions for installing the GitGuardian MCP servers with various AI editors and interfaces.
+Edit `~/.cursor/mcp.json`:
 
-The MCP server supports both GitGuardian SaaS and self-hosted instances.
+```json
+{
+  "mcpServers": {
+    "GitGuardian": {
+      "type": "http",
+      "url": "https://mcp.gitguardian.com/mcp"
+    }
+  }
+}
+```
 
-### Installation with Cursor
+### Claude Desktop
 
-**Quick Install with One-Click Buttons** (Cursor >= 1.0):
+Edit `~/Library/Application Support/Claude Desktop/mcp.json` (macOS) or
+`%APPDATA%\Claude Desktop\mcp.json` (Windows). Same JSON as Cursor. Claude
+Desktop versions that pre-date HTTP MCP support need the
+[Local stdio fallback](#local-stdio-mode-pat-only).
 
-[![Install GitGuardian MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=GitGuardian&config=eyJjb21tYW5kIjogInV2eCIsICJhcmdzIjogWyItLWZyb20iLCAiZ2l0K2h0dHBzOi8vZ2l0aHViLmNvbS9HaXRHdWFyZGlhbi9nZy1tY3AuZ2l0IiwgImdnLW1jcC1zZXJ2ZXIiXSwgImVudiI6IHt9fQ%3D%3D)
+### Claude.ai (web)
 
-> **Note**: The one-click install sets up the default US SaaS configuration. For EU SaaS or self-hosted instances, you'll need to manually add environment variables as shown in the [Configuration section](#configuration-for-different-gitguardian-instances). A single MCP server now serves both developer and SecOps audiences — the tools exposed to your agent depend on the OAuth scopes granted to the access token. The deprecated `developer-mcp-server` and `secops-mcp-server` entry points still work for one release but emit a `DeprecationWarning`; migrate to `gg-mcp-server`.
+Add the server in **Settings → Connectors → Add custom connector** with the
+URL above. OAuth is handled in the browser tab.
 
-**Manual Configuration**:
+### Windsurf
 
-1. Edit your Cursor MCP configuration file located at `~/.cursor/mcp.json`
+Edit `~/Library/Application Support/Windsurf/mcp.json` (or
+`~/.config/Windsurf/mcp.json` on Linux):
 
-2. Add the GitGuardian MCP server configuration:
+```json
+{
+  "mcp": {
+    "servers": {
+      "GitGuardian": {
+        "type": "http",
+        "url": "https://mcp.gitguardian.com/mcp"
+      }
+    }
+  }
+}
+```
 
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardian": {
-         "command": "uvx",
-         "args": [
-           "--from",
-           "git+https://github.com/GitGuardian/ggmcp.git",
-           "gg-mcp-server"
-         ]
-       }
-     }
-   }
-   ```
+### Zed
 
-### Installation with Claude Desktop
+Edit `~/Library/Application Support/Zed/mcp.json` (or
+`~/.config/Zed/mcp.json` on Linux) with the same `type: http` snippet.
 
-1. Edit your Claude Desktop MCP configuration file located at:
+## Choosing a deployment
 
-   - macOS: `~/Library/Application Support/Claude Desktop/mcp.json`
-   - Windows: `%APPDATA%\Claude Desktop\mcp.json`
+Two deployment paths are supported. Pick based on where your GitGuardian
+instance lives and what tradeoffs you accept.
 
-2. Add the GitGuardian MCP server configuration:
-
-   ```json
-   {
-     "mcpServers": {
-       "GitGuardian": {
-         "command": "/path/to/uvx",
-         "args": [
-           "--from",
-           "git+https://github.com/GitGuardian/ggmcp.git",
-           "gg-mcp-server"
-         ]
-       }
-     }
-   }
-   ```
-
-3. Replace `/path/to/uvx` with the **absolute path** to the uvx executable on your system.
-
-   > ⚠️ **WARNING**: For Claude Desktop, you must specify the full absolute path to the `uvx` executable, not just `"command": "uvx"`. This is different from other MCP clients.
-
-4. Restart Claude Desktop to apply the changes.
-
-### Installation with Windsurf
-
-To use the GitGuardian MCP server with [Windsurf](https://www.windsurf.ai/):
-
-1. Edit your Windsurf MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Windsurf/mcp.json`
-   - Windows: `%APPDATA%\Windsurf\mcp.json`
-   - Linux: `~/.config/Windsurf/mcp.json`
-
-2. Add the following entry to the configuration file:
-
-   ```json
-   {
-     "mcp": {
-       "servers": {
-         "GitGuardian": {
-           "type": "stdio",
-           "command": "uvx",
-           "args": [
-             "--from",
-             "git+https://github.com/GitGuardian/ggmcp.git",
-             "gg-mcp-server"
-           ]
-         }
-       }
-     }
-   }
-   ```
-
-### Installation with Zed Editor
-
-1. Edit your Zed MCP configuration file located at:
-
-   - macOS: `~/Library/Application Support/Zed/mcp.json`
-   - Linux: `~/.config/Zed/mcp.json`
-
-2. Add the GitGuardian MCP server configuration:
-
-   ```json
-   {
-     "GitGuardian": {
-       "command": {
-         "path": "uvx",
-         "args": [
-           "--from",
-           "git+https://github.com/GitGuardian/ggmcp.git",
-           "gg-mcp-server"
-         ]
-       }
-     }
-   }
-   ```
+| Deployment                                                 | When to use                                                                                                              |
+|------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| **Hosted MCP** (Quick start above)                         | GitGuardian SaaS (US/EU) and you accept that requests transit `mcp.gitguardian.com` in addition to `api.gitguardian.com` |
+| **Self-hosted MCP** ([§](#self-hosting-the-mcp-server))    | Self-hosted GitGuardian, airgapped environments, or you want the MCP server on your own infrastructure                   |
+| **Local stdio with PAT** ([§](#local-stdio-mode-pat-only)) | CI/CD, scripts, one-off invocations, or older MCP clients without `type: http` support                                   |
 
 ## Authentication
 
-The GitGuardian MCP server supports multiple authentication methods depending on your deployment mode.
+> Most users do not need to touch this — the [Quick start](#quick-start)
+> config implicitly uses the **OAuth proxy** mode on the hosted server, and the
+[Local stdio](#local-stdio-mode-pat-only) config uses **PAT env**.
 
-### OAuth Authentication (Default for stdio transport)
+There are four authentication modes the server can run in; you pick one via
+env vars.
 
-When using stdio transport (the default for desktop IDE integrations), the server uses OAuth for authentication by default:
+| Mode                                   | Configuration                                                          | Used by                                                                                                             |
+|----------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `ENABLE_LOCAL_OAUTH=false`            | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
+| **Raw bearer** (HTTP)                  | `ENABLE_LOCAL_OAUTH=false` + `MCP_PORT` set                            | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
+| **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
+| **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy `uvx --from …` flow that opens a localhost callback and stores the PAT on disk.                              |
 
-1. OAuth is **enabled by default** (`ENABLE_LOCAL_OAUTH=true`) for local-first usage
-2. When you start the server, it will automatically open a browser window to authenticate with GitGuardian
-3. After you log in to GitGuardian and authorize the application, you'll be redirected back to the local server
-4. The authentication token will be securely stored in `~/.gitguardian/` for future use
-5. The next time you start the server, it will reuse the stored token without requiring re-authentication
+> [!NOTE]
+> Browser-driven OAuth in stdio mode is **deprecated**. New stdio deployments
+> should authenticate with a PAT; OAuth-driven flows should use the hosted or
+> self-hosted HTTP server. The stdio OAuth code path will be removed in a
+> future release; until then it remains the default in stdio for backward
+> compatibility.
 
-**Example configuration (OAuth is enabled by default, no need to specify):**
+## Local stdio mode (PAT-only)
 
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ]
-    }
-  }
-}
-```
-
-**To disable OAuth** (e.g., for using PAT instead):
+For CI/CD, airgapped environments, or older MCP clients, run the server
+locally over stdio with a PAT:
 
 ```json
 {
@@ -218,280 +169,77 @@ When using stdio transport (the default for desktop IDE integrations), the serve
       ],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
-        "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here"
+        "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here",
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"
       }
     }
   }
 }
 ```
 
-### Personal Access Token (PAT) Authentication
+Create a PAT in your GitGuardian dashboard under **API → Personal Access
+Tokens**. The set of tools the server exposes depends on the PAT's scopes.
 
-For non-interactive environments, CI/CD pipelines, or when you prefer not to use OAuth, you can authenticate using a Personal Access Token:
+For Claude Desktop on macOS, the `command` field needs the **absolute path**
+to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
+`$PATH` for MCP servers.
 
-1. Create a Personal Access Token in your GitGuardian dashboard
-2. Set the `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` environment variable
+## Self-hosting the MCP server
 
-**Example configuration with PAT:**
+> The MCP server will be soon available out of the box as part of your GitGuardian self-hosted deployment (Helm chart).
+> This section is only meant to describe how it works, but you don't have to set it up.
 
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ],
-      "env": {
-        "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_personal_access_token_here"
-      }
-    }
-  }
-}
-```
+A Docker image is published at `ghcr.io/gitguardian/ggmcp`. Run it behind a
+reverse proxy that terminates TLS, then point your MCP clients at it. The
+container exposes the StreamableHTTP transport on port 8000 by default.
 
-### Per-Request Authentication (HTTP/SSE transport)
-
-When using HTTP/SSE transport (with `MCP_PORT` set), the server expects authentication via the `Authorization` header in each HTTP request. This is the recommended approach for server deployments.
-
-**Important:** Since `ENABLE_LOCAL_OAUTH` defaults to `true`, you **must explicitly set it to `false`** when using HTTP/SSE mode:
+Minimum configuration:
 
 ```bash
-# Start server with HTTP transport (OAuth must be disabled)
-ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git gg-mcp-server
-
-# Make authenticated request
-curl -X POST http://127.0.0.1:8000/tools/list \
-  -H "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{}'
+docker run -p 8000:8000 \
+  -e GITGUARDIAN_URL=https://dashboard.gitguardian.mycorp.local \
+  -e MCP_BASE_URL=https://mcp.mycorp.local \
+  -e MCP_OAUTH_PROXY_ENABLED=true \
+  -e ENABLE_LOCAL_OAUTH=false \
+  ghcr.io/gitguardian/ggmcp:latest \
+  gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
+           -b 0.0.0.0:8000 gg_mcp_server.http_app:app
 ```
 
-**Configuration validation:** The server will raise an error if both `MCP_PORT` and `ENABLE_LOCAL_OAUTH=true` are set, as HTTP/SSE mode requires per-request authentication for security reasons.
+`MCP_OAUTH_PROXY_ENABLED=true` makes the server advertise itself as an OAuth
+Protected Resource (RFC 9728) and proxy `/authorize`, `/token`, `/register`
+to your GitGuardian dashboard. MCP clients then run the OAuth flow against
+your domain.
 
-## Configuration for Different GitGuardian Instances
+## Configuration reference
 
-The MCP server uses OAuth authentication and defaults to GitGuardian SaaS (US region) at `https://dashboard.gitguardian.com`. For other instances, you'll need to specify the URL:
+| Variable                            | Description                                      | Default                             |
+|-------------------------------------|--------------------------------------------------|-------------------------------------|
+| `GITGUARDIAN_URL`                   | GitGuardian dashboard URL                        | `https://dashboard.gitguardian.com` |
+| `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | PAT (overrides OAuth)                            | Unset                               |
+| `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | Auto                                |
+| `GITGUARDIAN_CLIENT_ID`             | OAuth client ID                                  | `ggshield_oauth`                    |
+| `GITGUARDIAN_TOKEN_NAME`            | Display name for OAuth-issued PATs               | `MCP Token`                         |
+| `GITGUARDIAN_TOKEN_LIFETIME`        | PAT lifetime in days (or `never`)                | `30`                                |
+| `MCP_PORT`                          | Port for HTTP transport (unset ⇒ stdio)          | Unset                               |
+| `MCP_HOST`                          | Bind address for HTTP transport                  | `127.0.0.1`                         |
+| `MCP_BASE_URL`                      | Public URL of this MCP server (OAuth proxy mode) | `http://localhost:8000`             |
+| `MCP_OAUTH_PROXY_ENABLED`           | Advertise OAuth Protected Resource metadata      | `false`                             |
+| `ENABLE_LOCAL_OAUTH`                | Legacy: enable stdio OAuth flow (deprecated)     | `true`                              |
 
-### Environment Variables
+## Migration notes
 
-The following environment variables can be configured:
+The `developer-mcp-server` and `secops-mcp-server` console scripts are
+deprecated and re-export the unified `gg-mcp-server`. Update your MCP client
+configuration to invoke `gg-mcp-server` directly; both old scripts will be
+removed in a future release.
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `GITGUARDIAN_URL` | GitGuardian instance URL | `https://dashboard.gitguardian.com` | `https://dashboard.eu1.gitguardian.com` |
-| `GITGUARDIAN_CLIENT_ID` | OAuth client ID | `ggshield_oauth` | `my-custom-oauth-client` |
-| `GITGUARDIAN_SCOPES` | OAuth scopes to request | Auto-detected based on instance type | `scan,incidents:read,sources:read,honeytokens:read,honeytokens:write` |
-| `GITGUARDIAN_TOKEN_NAME` | Name for the OAuth token | Auto-generated based on server type | `"Developer MCP Token"` |
-| `GITGUARDIAN_TOKEN_LIFETIME` | Token lifetime in days | `30` | `60` or `never` |
-| `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | Personal Access Token for authentication (alternative to OAuth) | Not set | `YOUR_PAT_TOKEN` |
-| `ENABLE_LOCAL_OAUTH` | Enable local OAuth flow (stdio mode only, cannot be used with `MCP_PORT`) | `true` (enabled by default for local-first usage) | `false` |
-| `MCP_PORT` | Port for HTTP/SSE transport (when set, enables HTTP transport instead of stdio, requires `ENABLE_LOCAL_OAUTH=false`) | Not set (uses stdio) | `8000` |
-| `MCP_HOST` | Host address for HTTP/SSE transport | `127.0.0.1` | `0.0.0.0` |
+## Want more?
 
-### HTTP/SSE Transport
-
-By default, the MCP server uses **stdio transport** for local IDE integrations. If you need to expose the MCP server over HTTP (for remote access or custom integrations), you can use the `MCP_PORT` and `MCP_HOST` environment variables.
-
-#### Enabling HTTP Transport
-
-To enable HTTP/SSE transport, set the `MCP_PORT` environment variable. **Important:** You must also set `ENABLE_LOCAL_OAUTH=false` since OAuth defaults to enabled:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ],
-      "env": {
-        "ENABLE_LOCAL_OAUTH": "false",
-        "MCP_PORT": "8000",
-        "MCP_HOST": "127.0.0.1"
-      }
-    }
-  }
-}
-```
-
-#### Running the server directly with HTTP transport
-
-You can also run the server directly with HTTP transport:
-
-```bash
-# Run with HTTP transport (must disable OAuth)
-ENABLE_LOCAL_OAUTH=false MCP_PORT=8000 MCP_HOST=127.0.0.1 uvx --from git+https://github.com/GitGuardian/ggmcp.git gg-mcp-server
-```
-
-The server will automatically start on `http://127.0.0.1:8000` and be accessible for remote integrations.
-
-#### Authentication via Authorization Header
-
-When using HTTP/SSE transport, authentication is done via the `Authorization` header on each request. See the [Per-Request Authentication](#per-request-authentication-httpsse-transport) section for detailed configuration.
-
-**Supported header formats:**
-- `Authorization: Bearer <token>`
-- `Authorization: Token <token>`
-- `Authorization: <token>`
-
-**Example using curl:**
-
-```bash
-# List available tools
-curl -X POST http://127.0.0.1:8000/tools/list \
-  -H "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{}'
-
-# Call a tool
-curl -X POST http://127.0.0.1:8000/tools/call \
-  -H "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "get_authenticated_user_info", "arguments": {}}'
-```
-
-**Example using Python:**
-
-```python
-import httpx
-
-headers = {
-    "Authorization": "Bearer YOUR_PERSONAL_ACCESS_TOKEN",
-    "Content-Type": "application/json"
-}
-
-async with httpx.AsyncClient() as client:
-    response = await client.post(
-        "http://127.0.0.1:8000/tools/list",
-        headers=headers,
-        json={}
-    )
-    tools = response.json()
-```
-
-**Authentication Priority:**
-
-When using HTTP transport, the authentication priority is:
-1. **Authorization header** (if present in the HTTP request) - recommended for HTTP/SSE mode
-2. **GITGUARDIAN_PERSONAL_ACCESS_TOKEN** environment variable - fallback option
-
-Note that OAuth (`ENABLE_LOCAL_OAUTH=true`) is not supported in HTTP/SSE mode for security reasons. Each HTTP request must include its own authentication credentials.
-
-**Notes:**
-- `uvicorn` is included as a dependency - no additional installation needed.
-- When `MCP_PORT` is not set, the server uses stdio transport (default behavior).
-- `MCP_HOST` defaults to `127.0.0.1` (localhost only). Use `0.0.0.0` to allow connections from any network interface.
-- The HTTP/SSE transport is useful for remote access, but stdio is recommended for local IDE integrations.
-- Each HTTP request can have its own Authorization header, allowing multi-tenant use cases.
-
-### Self-Hosted GitGuardian
-
-For self-hosted GitGuardian instances, add the `GITGUARDIAN_URL` environment variable to your MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
-      "env": {
-        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local"
-      }
-    }
-  }
-}
-```
-
-### Self-Hosted with Honeytoken Support
-
-If your self-hosted instance has honeytokens enabled and your user has the required permissions ("manager" role), you can explicitly request honeytoken scopes:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
-      "env": {
-        "GITGUARDIAN_URL": "https://dashboard.gitguardian.mycorp.local",
-        "GITGUARDIAN_SCOPES": "scan,incidents:read,sources:read,honeytokens:read,honeytokens:write"
-      }
-    }
-  }
-}
-```
-
-### GitGuardian EU Instance
-
-For the GitGuardian EU instance, use:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
-      "env": {
-        "GITGUARDIAN_URL": "https://dashboard.eu1.gitguardian.com"
-      }
-    }
-  }
-}
-```
-
-### Custom OAuth Client
-
-If you have your own OAuth application configured in GitGuardian, you can specify a custom client ID:
-
-```json
-{
-  "mcpServers": {
-    "GitGuardian": {
-      "command": "uvx",
-      "args": ["--from", "git+https://github.com/GitGuardian/ggmcp.git", "gg-mcp-server"],
-      "env": {
-        "GITGUARDIAN_CLIENT_ID": "my-custom-oauth-client"
-      }
-    }
-  }
-}
-```
+Have a use case that isn't covered? [Open an issue](https://github.com/GitGuardian/ggmcp/issues)
+with your idea.
 
 ## Development
 
-If you want to contribute to this project or add new tools, please see the [Development Guide](DEVELOPMENT.md).
-
-## Testing
-
-This project includes a comprehensive test suite to ensure functionality and prevent regressions.
-
-### Running Tests
-
-1. Install development dependencies:
-   ```bash
-   uv sync --dev
-   ```
-
-2. Run the test suite:
-   ```bash
-   ENABLE_LOCAL_OAUTH=false uv run pytest
-   ```
-
-   Note: Tests disable OAuth by default via the `ENABLE_LOCAL_OAUTH=false` environment variable to prevent OAuth prompts during test execution.
-
-3. Run tests with verbose output:
-   ```bash
-   ENABLE_LOCAL_OAUTH=false uv run pytest -v
-   ```
-
-4. Run tests with coverage:
-   ```bash
-   ENABLE_LOCAL_OAUTH=false uv run pytest --cov=packages --cov-report=html
-   ```
-
-This will run all tests and generate a coverage report showing which parts of the codebase are covered by tests.
+See [`DEVELOPMENT.md`](DEVELOPMENT.md) for contributing, running tests, and
+adding new tools.

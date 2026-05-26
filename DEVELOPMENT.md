@@ -137,40 +137,42 @@ for tool in example_tools:
 
 ## Authentication Modes
 
-The GitGuardian MCP server supports two authentication modes:
+The server picks an authentication mode based on env vars and transport.
+User-facing details live in the project README; this section is for
+contributors who need to know how the selection happens internally.
 
-### 1. Local OAuth (stdio transport)
-For desktop applications using stdio transport, OAuth authentication is available:
+### OAuth proxy (HTTP, recommended)
 
-```bash
-ENABLE_LOCAL_OAUTH=true gg-mcp-server
-```
+Set `MCP_OAUTH_PROXY_ENABLED=true` on an HTTP deployment. The server
+advertises OAuth Protected Resource metadata (RFC 9728) and proxies
+`/authorize`, `/token`, `/register` to the GG dashboard. MCP clients run
+the OAuth flow themselves and send `Authorization: Bearer <PAT>` on every
+request. This is what the hosted server at `mcp.gitguardian.com` runs.
 
-This will:
-- Open a browser for OAuth authentication
-- Store the token locally in `~/.gitguardian/`
-- Reuse the token across sessions
+### Per-request bearer (HTTP fallback)
 
-### 2. Per-Request Authentication (HTTP/SSE transport)
-For server deployments using HTTP/SSE transport, use per-request PAT authentication:
+When `ENABLE_LOCAL_OAUTH=false` and `MCP_OAUTH_PROXY_ENABLED` is unset on
+HTTP, clients pass `Authorization: Bearer <PAT>` directly; the server
+forwards verbatim. Used by raw HTTP integrations and the production Helm
+chart's gunicorn target.
 
-```bash
-MCP_PORT=8080 MCP_HOST=127.0.0.1 gg-mcp-server
-```
-
-Clients must provide authentication via the Authorization header:
-```
-Authorization: Bearer <your-personal-access-token>
-```
-
-**Important:** You cannot use both modes simultaneously. The server will raise an error if both `MCP_PORT` and `ENABLE_LOCAL_OAUTH=true` are set.
-
-### 3. Environment Variable PAT
-For all transport modes, you can provide a PAT via environment variable:
+### PAT environment variable (any transport)
 
 ```bash
 GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> gg-mcp-server
 ```
+
+The server uses the PAT for every GitGuardian API call. Useful for CI,
+scripts, and the recommended path for local stdio.
+
+### Local OAuth flow (stdio, deprecated)
+
+The legacy `ENABLE_LOCAL_OAUTH=true` flow in stdio opens a browser and
+runs a localhost callback on a port in 29170-29998, storing the PAT under
+`~/Library/Application Support/GitGuardian/` (macOS) or
+`$XDG_CONFIG_HOME/gitguardian/` (Linux). This mode is deprecated; new
+stdio deployments should use a PAT. The code path will be removed in a
+future release.
 
 ## Optional Dependencies
 
