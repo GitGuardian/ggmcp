@@ -1,14 +1,18 @@
 """Test ``Settings.effective_scopes`` — the readout combining
 ``GITGUARDIAN_SCOPES`` and the self-hosted ``GITGUARDIAN_URL`` cap.
 
-The old per-server-profile cap was removed: runtime tool visibility is now
-driven by the access token's actual scopes via ``ScopeFilteringMiddleware``.
+The self-hosted cap intersects against ``SCOPES_SUPPORTED_IN_SELF_HOSTED``
+(self-hosted releases lag SaaS, so a scope available in SaaS may not yet be
+available in self-hosted). Tests that exercise the cap mechanism patch
+``SCOPES_SUPPORTED_IN_SELF_HOSTED`` so they don't depend on the constant's
+current value.
 """
 
 import os
 from unittest.mock import patch
 
-from gg_api_core.scopes import ALL_SCOPES, MINIMAL_SCOPES
+from gg_api_core import scopes as scopes_module
+from gg_api_core.scopes import ALL_SCOPES
 from gg_api_core.settings import get_settings
 
 
@@ -53,25 +57,35 @@ class TestEffectiveScopesSaaS:
 
 
 class TestEffectiveScopesSelfHostedCap:
-    def test_non_local_self_hosted_caps_to_minimal_when_no_user_scopes(self):
+    def test_non_local_self_hosted_caps_to_supported_set_when_no_user_scopes(self, monkeypatch):
         """
-        GIVEN GITGUARDIAN_URL is a non-local self-hosted instance and no GITGUARDIAN_SCOPES
+        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED is a subset of ALL_SCOPES
+        AND GITGUARDIAN_URL is a non-local self-hosted instance
+        AND GITGUARDIAN_SCOPES is unset
         WHEN effective_scopes is read
-        THEN it is capped to MINIMAL_SCOPES
+        THEN it is capped to SCOPES_SUPPORTED_IN_SELF_HOSTED
         """
+        narrowed = ["scan", "incidents:read", "sources:read"]
+        monkeypatch.setattr(scopes_module, "SCOPES_SUPPORTED_IN_SELF_HOSTED", narrowed)
         with patch.dict(
             os.environ,
             {"GITGUARDIAN_URL": "https://gitguardian.mycompany.com"},
             clear=True,
         ):
-            assert sorted(get_settings().effective_scopes) == sorted(MINIMAL_SCOPES)
+            assert sorted(get_settings().effective_scopes) == sorted(narrowed)
 
-    def test_non_local_self_hosted_intersects_with_user_scopes(self):
+    def test_non_local_self_hosted_intersects_with_user_scopes(self, monkeypatch):
         """
-        GIVEN GITGUARDIAN_SCOPES asks for a mix of minimal-allowed and disallowed scopes
+        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED excludes some SaaS-only scopes
+        AND GITGUARDIAN_SCOPES asks for a mix of supported and unsupported scopes
         WHEN effective_scopes is read on a non-local self-hosted instance
-        THEN only the minimal-allowed subset is returned
+        THEN only the supported subset is returned
         """
+        monkeypatch.setattr(
+            scopes_module,
+            "SCOPES_SUPPORTED_IN_SELF_HOSTED",
+            ["scan", "incidents:read"],
+        )
         with patch.dict(
             os.environ,
             {
@@ -82,6 +96,20 @@ class TestEffectiveScopesSelfHostedCap:
         ):
             effective = set(get_settings().effective_scopes)
             assert effective == {"scan", "incidents:read"}
+
+    def test_self_hosted_full_parity_when_supported_set_equals_all(self):
+        """
+        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED equals ALL_SCOPES (today's default)
+        WHEN effective_scopes is read on a non-local self-hosted instance
+        THEN the full ALL_SCOPES set is returned — no SaaS/self-hosted gap
+        """
+        # Don't patch — exercise the current default value.
+        with patch.dict(
+            os.environ,
+            {"GITGUARDIAN_URL": "https://gitguardian.mycompany.com"},
+            clear=True,
+        ):
+            assert sorted(get_settings().effective_scopes) == sorted(scopes_module.SCOPES_SUPPORTED_IN_SELF_HOSTED)
 
     def test_local_instance_is_not_treated_as_self_hosted(self):
         """

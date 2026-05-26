@@ -31,6 +31,10 @@ ALL_SCOPES = [
     "secrets:read",
 ]
 
+# Self-hosted releases are delayed compared to SaaS, so an API scope available in SaaS may not be already available
+# in self-hosted. This variable allows to reflect this difference.
+SCOPES_SUPPORTED_IN_SELF_HOSTED = ALL_SCOPES
+
 
 def validate_scopes(scopes_str: str) -> list[str]:
     """Parse and validate a comma-separated list of scopes.
