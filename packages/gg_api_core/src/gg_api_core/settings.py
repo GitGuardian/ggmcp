@@ -112,8 +112,10 @@ class Settings(BaseSettings):
 
         - If the user explicitly set ``GITGUARDIAN_SCOPES``, that list is used as-is.
         - Otherwise the full :data:`ALL_SCOPES` set is requested.
-        - Non-local self-hosted instances are capped to :data:`MINIMAL_SCOPES`
-          (older self-hosted dashboards may not recognise newer scopes).
+        - Non-local self-hosted instances are capped to
+          :data:`SCOPES_SUPPORTED_IN_SELF_HOSTED` (self-hosted releases lag
+          behind SaaS, so a scope available in SaaS may not yet be available
+          in self-hosted; we intersect to avoid requesting unknown scopes).
 
         The dashboard's OAuth consent UI ultimately decides which scopes the
         access token receives; runtime tool visibility is then driven by the
@@ -122,14 +124,14 @@ class Settings(BaseSettings):
         # Lazy import: ``host`` and ``scopes`` could otherwise cycle through
         # this module via their own imports.
         from .host import is_local_instance, is_self_hosted_instance
-        from .scopes import ALL_SCOPES, MINIMAL_SCOPES
+        from .scopes import ALL_SCOPES, SCOPES_SUPPORTED_IN_SELF_HOSTED
 
         requested = self.requested_scopes
 
         if is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url):
             if not requested:
-                return list(MINIMAL_SCOPES)
-            return sorted(set(MINIMAL_SCOPES) & set(requested))
+                return list(SCOPES_SUPPORTED_IN_SELF_HOSTED)
+            return sorted(set(SCOPES_SUPPORTED_IN_SELF_HOSTED) & set(requested))
 
         return requested if requested else list(ALL_SCOPES)
 
