@@ -5,8 +5,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastmcp.exceptions import ValidationError
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import _get_caller_user_agent, get_client
+
+# Prefix every outgoing User-Agent carries, regardless of transport.
+UA_PREFIX = GitGuardianClient.DEFAULT_USER_AGENT
 
 
 class TestMcpPortSetting:
@@ -86,7 +90,12 @@ class TestGetClientExplicitPAT:
 
         result = await get_client(personal_access_token="explicit-token")
 
-        mock_client_class.assert_called_once_with(personal_access_token="explicit-token", user_agent=None)
+        mock_client_class.assert_called_once()
+        call_kwargs = mock_client_class.call_args.kwargs
+        assert call_kwargs["personal_access_token"] == "explicit-token"
+        # User-Agent now always carries the server prefix + transport marker
+        assert call_kwargs["user_agent"].startswith(UA_PREFIX)
+        assert "transport=" in call_kwargs["user_agent"]
         assert result == mock_client
 
     @patch("gg_api_core.utils.GitGuardianClient")
@@ -102,7 +111,11 @@ class TestGetClientExplicitPAT:
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
             result = await get_client(personal_access_token="explicit-token")
 
-        mock_client_class.assert_called_once_with(personal_access_token="explicit-token", user_agent=None)
+        # MCP_PORT is set, so the transport marker is http (no caller header here)
+        mock_client_class.assert_called_once_with(
+            personal_access_token="explicit-token",
+            user_agent=f"{UA_PREFIX} (transport=http)",
+        )
         assert result == mock_client
 
 
@@ -138,7 +151,11 @@ class TestGetClientMultiTenantMode:
         with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
             result = await get_client()
 
-        mock_client_class.assert_called_once_with(personal_access_token="request-token", user_agent=None)
+        # No user-agent header on the request, so only the transport marker is added
+        mock_client_class.assert_called_once_with(
+            personal_access_token="request-token",
+            user_agent=f"{UA_PREFIX} (transport=http)",
+        )
         assert result == mock_client
 
     @patch("gg_api_core.utils.get_http_headers")
@@ -148,7 +165,7 @@ class TestGetClientMultiTenantMode:
         GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
         AND request has both Authorization and User-Agent headers
         WHEN get_client is called
-        THEN the caller's User-Agent is forwarded to GitGuardianClient
+        THEN the caller's User-Agent is preserved as client=... in the UA string
         """
         mock_get_headers.return_value = {
             "authorization": "Bearer request-token",
@@ -162,7 +179,7 @@ class TestGetClientMultiTenantMode:
 
         mock_client_class.assert_called_once_with(
             personal_access_token="request-token",
-            user_agent="GitGuardian-In-App-Agent",
+            user_agent=f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)",
         )
         assert result == mock_client
 
@@ -431,7 +448,7 @@ class TestCallerUserAgentExtraction:
         """
         GIVEN an HTTP request with User-Agent header
         WHEN get_client() is called without explicit user_agent (as tool handlers do)
-        THEN the caller's User-Agent is automatically forwarded to GitGuardianClient
+        THEN the caller's User-Agent is preserved as client=... in the built UA
         """
         mock_get_headers.return_value = {
             "authorization": "Bearer request-token",
@@ -444,7 +461,7 @@ class TestCallerUserAgentExtraction:
 
         mock_client_class.assert_called_once_with(
             personal_access_token="request-token",
-            user_agent="GitGuardian-In-App-Agent",
+            user_agent=f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)",
         )
 
     @patch("gg_api_core.utils.get_http_headers")
