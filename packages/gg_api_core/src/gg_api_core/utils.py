@@ -5,7 +5,7 @@ from urllib.parse import urljoin as urllib_urljoin
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 
-from .client import GitGuardianClient, acquire_single_tenant_token
+from .client import DEFAULT_USER_AGENT, GitGuardianClient, acquire_single_tenant_token
 from .settings import get_settings
 
 # Setup logger
@@ -45,8 +45,9 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     Args:
         personal_access_token: Optional PAT for explicit authentication.
-        user_agent: Optional User-Agent string. If not provided, automatically
-            extracted from incoming HTTP request headers (when available).
+        user_agent: Optional User-Agent string. If not provided, one is built
+            via :func:`_build_user_agent` (server identity + transport marker,
+            plus the caller's User-Agent when the request came over HTTP).
 
     Returns:
         GitGuardianClient: Client instance configured with appropriate authentication
@@ -55,9 +56,9 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
         RuntimeError: In single-tenant mode, if no token source is available
     """
-    # Extract caller User-Agent from HTTP headers if not explicitly provided
+    # Build the User-Agent for outgoing API calls if not explicitly provided
     if user_agent is None:
-        user_agent = _get_caller_user_agent()
+        user_agent = _build_user_agent()
 
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
@@ -103,6 +104,28 @@ def _get_caller_user_agent() -> str | None:
     except Exception:
         logger.exception("Error when trying to extract User-Agent from headers")
         return None
+
+
+def _build_user_agent() -> str:
+    """Build the User-Agent sent on outgoing GitGuardian API calls.
+
+    The string always starts with ``GitGuardian-MCP-Server/<version>`` so that
+    monitoring filtering on that substring keeps matching every MCP request,
+    regardless of transport. A ``transport=stdio|http`` marker is appended to
+    tell legacy local (stdio) clients apart from the hosted HTTP server, and
+    when the request arrives over HTTP the calling client's own User-Agent is
+    preserved as ``client=...`` for per-client analytics.
+
+    Examples:
+        - stdio:  ``GitGuardian-MCP-Server/0.5.0 (transport=stdio)``
+        - hosted: ``GitGuardian-MCP-Server/0.5.0 (transport=http; client=Claude-Code/1.2)``
+    """
+    transport = "http" if get_settings().mcp_port else "stdio"
+    parts = [f"transport={transport}"]
+    caller = _get_caller_user_agent()
+    if caller:
+        parts.append(f"client={caller}")
+    return f"{DEFAULT_USER_AGENT} ({'; '.join(parts)})"
 
 
 def _get_token_from_request_headers() -> str:

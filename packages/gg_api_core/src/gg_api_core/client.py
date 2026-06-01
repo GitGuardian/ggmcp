@@ -16,6 +16,12 @@ from gg_api_core.settings import get_settings
 logger = logging.getLogger(__name__)
 
 
+try:
+    DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
+except PackageNotFoundError:
+    DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
+
+
 class DownstreamUnauthorizedError(Exception):
     """Raised when the downstream GitGuardian API returns 401.
 
@@ -249,10 +255,7 @@ class GitGuardianClient:
     before this client is instantiated.
     """
 
-    try:
-        DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
-    except PackageNotFoundError:
-        DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
+    DEFAULT_USER_AGENT = DEFAULT_USER_AGENT
 
     def __init__(
         self,
