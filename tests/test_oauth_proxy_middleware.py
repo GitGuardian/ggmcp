@@ -1,9 +1,12 @@
 """Tests for the OAuth-proxy ASGI middleware that converts downstream 401s."""
 
+import json
+
 import pytest
 from gg_api_core.oauth_proxy_auth import (
     AdvertiseAuthorizationServerMetadataMiddleware,
     TranslateDownstreamUnauthorizedMiddleware,
+    create_oauth_proxy,
     mark_downstream_unauthorized,
 )
 
@@ -126,3 +129,37 @@ async def test_advertise_appends_as_metadata_to_existing_header():
     assert www_auth.count("resource_metadata=") == 1
     assert "should-not-be-used" not in www_auth
     assert ", as_metadata=" in www_auth
+
+
+@pytest.mark.asyncio
+async def test_authorization_server_metadata_is_accurate():
+    """AS metadata advertises only the auth methods the GG backend accepts and
+    a spec-compliant issuer (no trailing slash)."""
+    proxy = create_oauth_proxy(base_url="https://mcp.example.com")
+    proxy.get_routes("/mcp")  # sets the resource URL via set_mcp_path
+
+    resp = await proxy._handle_authorization_server_metadata(request=None)
+    meta = json.loads(resp.body)
+
+    # RFC 8414 §3.3: issuer == base used to build the well-known URL, no slash.
+    assert meta["issuer"] == "https://mcp.example.com"
+    # Mirrors ClientRegistrationRequestSerializer — no client_secret_basic.
+    assert meta["token_endpoint_auth_methods_supported"] == [
+        "none",
+        "client_secret_post",
+    ]
+    assert meta["authorization_endpoint"] == "https://mcp.example.com/authorize"
+    assert meta["code_challenge_methods_supported"] == ["S256"]
+
+
+@pytest.mark.asyncio
+async def test_resource_metadata_authorization_servers_match_issuer():
+    """RFC 9728 authorization_servers must match the AS metadata issuer exactly."""
+    proxy = create_oauth_proxy(base_url="https://mcp.example.com")
+    proxy.get_routes("/mcp")
+
+    as_meta = json.loads((await proxy._handle_authorization_server_metadata(request=None)).body)
+    rm_meta = json.loads((await proxy._handle_resource_metadata(request=None)).body)
+
+    assert rm_meta["authorization_servers"] == [as_meta["issuer"]]
+    assert rm_meta["authorization_servers"] == ["https://mcp.example.com"]
