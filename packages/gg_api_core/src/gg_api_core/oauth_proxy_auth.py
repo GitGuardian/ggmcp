@@ -241,16 +241,22 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         base = str(self.base_url).rstrip("/")
         return JSONResponse(
             {
-                "issuer": f"{base}/",
+                # RFC 8414 §3.3: the issuer MUST equal the value used to build
+                # the well-known URL (this server's base, no trailing slash).
+                "issuer": base,
                 "authorization_endpoint": f"{base}/authorize",
                 "token_endpoint": f"{base}/token",
                 "registration_endpoint": f"{base}/register",
                 "scopes_supported": self.scopes_supported,
                 "response_types_supported": ["code"],
                 "grant_types_supported": ["authorization_code"],
+                # Mirror what the GG backend actually accepts at /register and
+                # /token (its DCR serializer only permits "none" and
+                # "client_secret_post"). Advertising client_secret_basic would
+                # let a confidential client pick a method registration rejects.
                 "token_endpoint_auth_methods_supported": [
+                    "none",
                     "client_secret_post",
-                    "client_secret_basic",
                 ],
                 "code_challenge_methods_supported": ["S256"],
             },
@@ -263,7 +269,8 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         return JSONResponse(
             {
                 "resource": str(self._resource_url),
-                "authorization_servers": [f"{base}/"],
+                # Must match the AS metadata issuer exactly (no trailing slash).
+                "authorization_servers": [base],
                 "scopes_supported": self.scopes_supported,
                 "bearer_methods_supported": ["header"],
             },
