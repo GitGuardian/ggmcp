@@ -304,8 +304,9 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         params = dict(request.query_params)
         params.setdefault("client_id", self.gg_client_id)
 
-        # Add GG-specific params
-        params.setdefault("auth_mode", "ggshield_login")
+        # Add GG-specific params. "oauth2_login" is the canonical auth_mode the
+        # dashboard expects; "ggshield_login" is its still-accepted legacy alias.
+        params.setdefault("auth_mode", "oauth2_login")
         params.setdefault("utm_source", "mcp")
         params.setdefault("utm_medium", "oauth_proxy")
 

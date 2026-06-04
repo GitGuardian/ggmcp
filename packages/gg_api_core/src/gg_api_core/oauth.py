@@ -618,7 +618,8 @@ class GitGuardianOAuthClient:
                 "state": state,
                 "code_challenge": code_challenge,
                 "code_challenge_method": "S256",
-                "auth_mode": "ggshield_login",
+                # Canonical auth_mode; "ggshield_login" remains a legacy alias.
+                "auth_mode": "oauth2_login",
                 "name": self.token_name,  # Try with 'name' instead of 'token_name'
                 "token_name": self.token_name,  # Keep original in case it's needed
                 "utm_source": "cli",  # Match the working URL parameters
