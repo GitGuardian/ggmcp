@@ -6,9 +6,18 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client, parse_repo_url
 
 logger = logging.getLogger(__name__)
+
+GIT_REMOTE_SUGGESTION = (
+    "This MCP server runs remotely and cannot access your local filesystem or git repository. "
+    "To find the source_id for the current repository, run "
+    "`git config --get remote.origin.url` in the repository directory yourself "
+    "(e.g. with a shell/Bash tool), then call this tool again passing the output as the "
+    "`remote_url` argument."
+)
 
 
 class SourceCandidate(BaseModel):
@@ -34,6 +43,18 @@ class FindCurrentSourceIdResult(BaseModel):
     )
 
 
+class FindCurrentSourceIdSuggestion(BaseModel):
+    """Returned when the server cannot detect the repository itself.
+
+    The hosted (HTTP) server has no access to the user's filesystem or ``git``
+    binary, so it asks the calling agent to run git locally and call the tool
+    again with the resulting ``remote_url``.
+    """
+
+    suggestion: str = Field(description="Instructions for the agent to obtain the repository remote URL")
+    message: str = Field(description="User-friendly explanation of why detection could not run server-side")
+
+
 class FindCurrentSourceIdError(BaseModel):
     """Error result from finding source ID."""
 
@@ -44,23 +65,33 @@ class FindCurrentSourceIdError(BaseModel):
     suggestion: str | None = Field(default=None, description="Suggestions for resolving the error")
 
 
-async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourceIdResult | FindCurrentSourceIdError:
+async def find_current_source_id(
+    repository_path: str = ".", remote_url: str | None = None
+) -> FindCurrentSourceIdResult | FindCurrentSourceIdError | FindCurrentSourceIdSuggestion:
     """
     Find the GitGuardian source_id for a repository.
 
     This tool:
-    1. Attempts to get the repository name from git remote URL
-    2. If git fails, falls back to using the directory name
-    3. Searches GitGuardian for matching sources
-    4. Returns the source_id if an exact match is found
-    5. If no exact match, returns all search results for the model to choose from
+    1. Determines the repository name from the git remote URL
+    2. Searches GitGuardian for matching sources
+    3. Returns the source_id if an exact match is found
+    4. If no exact match, returns all search results for the model to choose from
+
+    The remote URL is resolved as follows:
+    - If ``remote_url`` is passed, it is used directly (no git/filesystem access required).
+      This is the path to use against the hosted (HTTP) server, which has no access to your
+      local repository: run ``git config --get remote.origin.url`` yourself and pass the result.
+    - Otherwise, when running locally (stdio transport), the tool runs ``git`` in
+      ``repository_path`` and falls back to the directory name if git is unavailable.
+    - Otherwise, when running on the hosted server with no ``remote_url``, the tool returns a
+      suggestion asking the agent to obtain the remote URL and call again.
 
     Args:
         repository_path: Path to the repository directory. Defaults to "." (current directory).
-                        If you're working in a specific repository, provide the full path to ensure
-                        the correct repository is analyzed (e.g., "/home/user/my-project").
-                        Note: If the directory is not a git repository, the tool will use the
-                        directory name as the repository name.
+                        Only used when the tool runs git locally (stdio transport).
+        remote_url: The repository's git remote URL (e.g. the output of
+                    ``git config --get remote.origin.url``). Provide this when the server cannot
+                    access your local repository.
 
     Returns:
         FindCurrentSourceIdResult: Pydantic model containing:
@@ -70,6 +101,11 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
             - message: Status or informational message
             - suggestion: Suggestions for next steps
             - candidates: List of SourceCandidate objects (if no exact match but potential matches found)
+
+        FindCurrentSourceIdSuggestion: Pydantic model returned when the server cannot detect the
+            repository itself and needs the agent to run git locally:
+            - suggestion: Instructions to obtain the remote URL and call again
+            - message: Explanation of why detection could not run server-side
 
         FindCurrentSourceIdError: Pydantic model containing:
             - error: Error message
@@ -82,38 +118,55 @@ async def find_current_source_id(repository_path: str = ".") -> FindCurrentSourc
     logger.debug(f"Finding source_id for repository at path: {repository_path}")
 
     repository_name = None
-    remote_url = None
     detection_method = None
 
     try:
-        # Try Method 1: Get repository name from git remote URL
-        try:
-            result = subprocess.run(
-                ["git", "config", "--get", "remote.origin.url"],
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=5,
-                cwd=repository_path,
-            )
-            remote_url = result.stdout.strip()
+        if remote_url is not None:
+            # Caller already resolved the remote URL (e.g. ran git locally). Use it directly.
             parsed_url = parse_repo_url(remote_url)
-            if parsed_url:
-                repository_name = parsed_url.split("/")[-1]
-            else:
-                repository_name = None
-            detection_method = "git remote URL"
-            logger.debug(f"Found remote URL: {remote_url}, parsed repository name: {repository_name}")
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-            logger.debug(f"Git remote detection failed: {e}, falling back to directory name")
+            repository_name = parsed_url.split("/")[-1] if parsed_url else None
+            detection_method = "provided remote URL"
+            logger.debug(f"Using provided remote URL: {remote_url}, parsed repository name: {repository_name}")
+        elif get_settings().mcp_port:
+            # Hosted (HTTP) transport: no access to the user's filesystem or git binary.
+            # Ask the agent to resolve the remote URL locally and call again.
+            logger.info("No remote_url provided on HTTP transport; returning suggestion to run git locally")
+            return FindCurrentSourceIdSuggestion(
+                suggestion=GIT_REMOTE_SUGGESTION,
+                message="The repository could not be detected server-side.",
+            )
+        else:
+            # Local (stdio) transport: detect the repository name from git, like before.
+            try:
+                result = subprocess.run(
+                    ["git", "config", "--get", "remote.origin.url"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=5,
+                    cwd=repository_path,
+                )
+                detected_url = result.stdout.strip()
+                parsed_url = parse_repo_url(detected_url)
+                repository_name = parsed_url.split("/")[-1] if parsed_url else None
+                detection_method = "git remote URL"
+                logger.debug(f"Found remote URL: {detected_url}, parsed repository name: {repository_name}")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as e:
+                logger.debug(f"Git remote detection failed: {e}, falling back to directory name")
 
-            # Fallback Method 2: Use the directory name as repository name
-            abs_path = os.path.abspath(repository_path)
-            repository_name = Path(abs_path).name
-            detection_method = "directory name"
-            logger.info(f"Using directory name as repository name: {repository_name}")
+                # Fallback: Use the directory name as repository name
+                abs_path = os.path.abspath(repository_path)
+                repository_name = Path(abs_path).name
+                detection_method = "directory name"
+                logger.info(f"Using directory name as repository name: {repository_name}")
 
         if not repository_name:
+            if detection_method == "provided remote URL":
+                return FindCurrentSourceIdError(
+                    error="Could not determine repository name",
+                    message=f"The provided remote_url '{remote_url}' could not be parsed into a repository name.",
+                    suggestion="Provide a valid git remote URL (e.g. the output of `git config --get remote.origin.url`).",
+                )
             return FindCurrentSourceIdError(
                 error="Could not determine repository name",
                 message="Failed to determine repository name from both git remote and directory name.",

@@ -2,7 +2,11 @@ import subprocess
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from gg_api_core.tools.find_current_source_id import find_current_source_id
+from gg_api_core.tools.find_current_source_id import (
+    FindCurrentSourceIdError,
+    FindCurrentSourceIdSuggestion,
+    find_current_source_id,
+)
 
 
 class TestFindCurrentSourceId:
@@ -397,3 +401,90 @@ class TestFindCurrentSourceId:
             assert hasattr(result, "error")
             assert "not found in GitGuardian" in result.error
             assert "directory name" in result.message
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_with_remote_url_skips_git(self, mock_gitguardian_client):
+        """
+        GIVEN: A remote_url is passed explicitly (e.g. resolved by the calling agent)
+        WHEN: Finding the source_id
+        THEN: The git subprocess is not invoked and the URL is parsed directly
+        """
+        mock_response = {
+            "id": "source_remote",
+            "full_name": "GitGuardian/ggmcp",
+            "url": "https://github.com/GitGuardian/ggmcp",
+        }
+        mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
+
+        with patch("subprocess.run") as mock_run:
+            result = await find_current_source_id(remote_url="https://github.com/GitGuardian/ggmcp.git")
+
+            # git must not be called when the remote URL is provided
+            mock_run.assert_not_called()
+
+        mock_gitguardian_client.get_source_by_name.assert_called_once_with("ggmcp", return_all_on_no_match=True)
+        assert result.repository_name == "ggmcp"
+        assert result.source_id == "source_remote"
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_with_empty_remote_url(self, mock_gitguardian_client):
+        """
+        GIVEN: An empty remote_url that cannot be parsed into a repository name
+        WHEN: Finding the source_id
+        THEN: An error explaining the bad remote_url is returned
+        """
+        with patch("subprocess.run") as mock_run:
+            result = await find_current_source_id(remote_url="")
+            mock_run.assert_not_called()
+
+        assert isinstance(result, FindCurrentSourceIdError)
+        assert "could not be parsed" in result.message
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_http_transport_returns_suggestion(self, mock_gitguardian_client):
+        """
+        GIVEN: The server runs over HTTP transport (mcp_port set) and no remote_url is provided
+        WHEN: Finding the source_id
+        THEN: A suggestion is returned asking the agent to run git locally, without touching subprocess
+        """
+        with (
+            patch("gg_api_core.tools.find_current_source_id.get_settings") as mock_settings,
+            patch("subprocess.run") as mock_run,
+        ):
+            mock_settings.return_value = MagicMock(mcp_port="8000")
+
+            result = await find_current_source_id()
+
+            mock_run.assert_not_called()
+
+        assert isinstance(result, FindCurrentSourceIdSuggestion)
+        assert "remote_url" in result.suggestion
+        assert "git config --get remote.origin.url" in result.suggestion
+
+    @pytest.mark.asyncio
+    async def test_find_current_source_id_git_binary_missing_fallback(self, mock_gitguardian_client):
+        """
+        GIVEN: The git binary is not installed (FileNotFoundError) on stdio transport
+        WHEN: Finding the source_id without a remote_url
+        THEN: The tool falls back to the directory name instead of crashing
+        """
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("os.path.abspath") as mock_abspath,
+            patch("pathlib.Path") as mock_path,
+        ):
+            mock_run.side_effect = FileNotFoundError(2, "No such file or directory: 'git'")
+            mock_abspath.return_value = "/some/path/no-git-repo"
+
+            mock_path_instance = MagicMock()
+            mock_path_instance.name = "no-git-repo"
+            mock_path.return_value = mock_path_instance
+
+            mock_response = {"id": "source_nogit", "full_name": "org/no-git-repo"}
+            mock_gitguardian_client.get_source_by_name = AsyncMock(return_value=mock_response)
+
+            result = await find_current_source_id()
+
+        assert result.repository_name == "no-git-repo"
+        assert result.source_id == "source_nogit"
+        assert "directory name" in result.message

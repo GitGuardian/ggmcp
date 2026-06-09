@@ -187,9 +187,11 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     mcp.tool(
         find_current_source_id,
         description="(Internal sources only) Find the GitGuardian source_id for the current repository in the workspace's "
-        "internal perimeter. This tool automatically detects the current git repository and searches for its source_id "
-        "among the sources the workspace monitors. Useful when you need to reference the repository in other internal-incident "
-        "API calls. Does not apply to public GitHub / Public Monitoring.",
+        "internal perimeter, searching among the sources the workspace monitors. Useful when you need to reference the "
+        "repository in other internal-incident API calls. This server runs remotely and cannot access your local "
+        "repository: run `git config --get remote.origin.url` yourself and pass the result as the `remote_url` argument. "
+        "If you call it without `remote_url`, it returns a suggestion telling you to do exactly that. "
+        "Does not apply to public GitHub / Public Monitoring.",
         required_scopes=["sources:read"],
     )
 
