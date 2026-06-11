@@ -12,18 +12,73 @@ env:
   IMAGE_NAME: mcp-server
   REGISTRY: ghcr.io
 
+# Serialize releases: two merges close together must tag sequentially.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  build-and-push-docker:
+  tag-version:
     runs-on: ubuntu-latest
-    name: Build and Push Docker Image
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_type == 'tag' || github.ref == 'refs/heads/main'))
+    name: Tag New Version
+    # A release happens when a merge on main changes the version in
+    # pyproject.toml. Manual dispatch from main re-runs the same check.
+    if: |
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
-      contents: read
-      packages: write
+      contents: write
+    outputs:
+      tagged: ${{ steps.tag.outputs.tagged }}
+      tag: ${{ steps.tag.outputs.tag }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Tag if pyproject.toml version is new
+        id: tag
+        run: |
+          version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::pyproject.toml version '$version' is not X.Y.Z semver"
+            exit 1
+          fi
+          tag="v${version}"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/${tag}")" ]; then
+            echo "Tag ${tag} already exists, nothing to release."
+            echo "tagged=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git tag "${tag}"
+          git push origin "refs/tags/${tag}"
+          echo "tagged=true" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    needs: [ tag-version ]
+    # Two entry points: a version tag pushed by a human, or a tag freshly
+    # created by tag-version (tags pushed with GITHUB_TOKEN do not trigger
+    # workflows, hence the same-run dependency instead of a tag trigger).
+    if: |
+      always() &&
+      (
+        (github.event_name == 'push' && github.ref_type == 'tag') ||
+        needs.tag-version.outputs.tagged == 'true'
+      )
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,14 +96,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,prefix={{branch}}-
-            type=sha,prefix={{branch}}-,suffix=-${{ github.run_number }},enable={{is_default_branch}}
+            type=semver,pattern={{version}},value=${{ env.RELEASE_TAG }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.RELEASE_TAG }}
+            type=raw,value=latest
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -188,12 +238,10 @@ jobs:
   create-github-release:
     runs-on: ubuntu-latest
     name: Create GitHub Release
-    needs: [ build-and-push-docker, publish-to-pypi ]
+    needs: [ tag-version, build-and-push-docker, publish-to-pypi ]
     if: |
       always() &&
-      github.event_name == 'push' &&
-      github.ref_type == 'tag' &&
-      (needs.build-and-push-docker.result == 'success' || needs.build-and-push-docker.result == 'skipped') &&
+      needs.build-and-push-docker.result == 'success' &&
       (needs.publish-to-pypi.result == 'success' || needs.publish-to-pypi.result == 'skipped')
     permissions:
       contents: write
@@ -201,10 +249,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
           draft: false
           generate_release_notes: true
           make_latest: true

@@ -52,7 +52,21 @@ The workflow needs these permissions (already configured in the workflow):
 
 ## Publishing a New Version
 
-### Method 1: Using commitizen (Recommended)
+### Method 1: Bump the version in pyproject.toml (Default)
+
+A release is triggered by changing `[project] version` in `pyproject.toml`
+and merging to `main`. The `tag-version` job in `release.yml` then:
+
+- reads the version from `pyproject.toml` and checks it is `X.Y.Z` semver
+- if the tag `vX.Y.Z` does not exist yet, creates and pushes it
+- the same workflow run builds and pushes the Docker image tagged
+  `X.Y.Z`, `X.Y`, and `latest`, and creates the GitHub release
+- merges that don't touch the version are no-ops (no tag, no image)
+
+So: bump the version (and ideally `CHANGELOG.md`) in your PR — you can use
+`cz bump --files-only` to do both — merge, and watch the Release workflow.
+
+### Method 2: Using commitizen manually
 
 ```bash
 # Bump version and create tag
@@ -68,7 +82,7 @@ This will:
 - Create a git tag (`v0.5.1`, etc.)
 - Trigger the publish workflow
 
-### Method 2: Manual Tag
+### Method 3: Manual Tag
 
 ```bash
 # Update version in pyproject.toml manually
@@ -77,7 +91,7 @@ git tag v0.5.1
 git push origin v0.5.1
 ```
 
-### Method 3: Manual Workflow Trigger
+### Method 4: Manual Workflow Trigger
 
 For testing or special cases:
 
