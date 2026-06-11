@@ -63,20 +63,23 @@ jobs:
     # created by tag-version (tags pushed with GITHUB_TOKEN do not trigger
     # workflows, hence the same-run dependency instead of a tag trigger).
     # Manual dispatch from a non-main branch builds a <branch>-<sha> image
-    # (no semver, no latest) for testing.
+    # (no semver, no latest) for testing. Every push to main also refreshes
+    # the mutable `main` tag (rolling dev image), release or not.
     if: |
       always() &&
       (
         (github.event_name == 'push' && github.ref_type == 'tag') ||
         needs.tag-version.outputs.tagged == 'true' ||
-        (github.event_name == 'workflow_dispatch' && github.ref_type == 'branch' && github.ref != 'refs/heads/main')
+        github.ref == 'refs/heads/main' ||
+        (github.event_name == 'workflow_dispatch' && github.ref_type == 'branch')
       )
     permissions:
       contents: read
       packages: write
     env:
-      # Empty on branch dispatch: switches image tags to <branch>/<branch>-<sha>.
+      # Empty outside releases: switches image tags to main / <branch>-<sha>.
       RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
+      IS_MAIN: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - name: Checkout repository
@@ -103,8 +106,9 @@ jobs:
             type=semver,pattern={{version}},value=${{ env.RELEASE_TAG || 'v0.0.0' }},enable=${{ env.RELEASE_TAG != '' }}
             type=semver,pattern={{major}}.{{minor}},value=${{ env.RELEASE_TAG || 'v0.0.0' }},enable=${{ env.RELEASE_TAG != '' }}
             type=raw,value=latest,enable=${{ env.RELEASE_TAG != '' }}
-            type=ref,event=branch,enable=${{ env.RELEASE_TAG == '' }}
-            type=sha,prefix={{branch}}-,enable=${{ env.RELEASE_TAG == '' }}
+            type=raw,value=main,enable=${{ env.IS_MAIN == 'true' }}
+            type=ref,event=branch,enable=${{ env.RELEASE_TAG == '' && env.IS_MAIN != 'true' }}
+            type=sha,prefix={{branch}}-,enable=${{ env.RELEASE_TAG == '' && env.IS_MAIN != 'true' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -245,8 +249,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Create GitHub Release
     needs: [ tag-version, build-and-push-docker, publish-to-pypi ]
+    # The release-tag guard matters: main pushes without a version bump still
+    # build the rolling `main` image but must not create a GitHub release.
     if: |
       always() &&
+      (github.ref_type == 'tag' || needs.tag-version.outputs.tagged == 'true') &&
       needs.build-and-push-docker.result == 'success' &&
       (needs.publish-to-pypi.result == 'success' || needs.publish-to-pypi.result == 'skipped')
     permissions:
