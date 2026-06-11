@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ggmcp"
-version = "0.5.0"
+version = "0.6.0"
 description = "MCP server for GitGuardian"
 authors = [
     { name = "GitGuardian", email = "support@gitguardian.com" },
@@ -37,7 +37,7 @@ dependencies = [
     "gg-mcp-server",
     "developer-mcp-server",
     "secops-mcp-server",
-    "mcp~=1.24",  # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
+    "mcp~=1.24", # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
 ]
 
 [project.urls]
