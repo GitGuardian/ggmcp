@@ -138,8 +138,8 @@ pretty = true
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
+# Read and bump [project] version directly (without this, cz bump fails with
+# NO_VERSION_SPECIFIED and makes version_files redundant).
+version_provider = "pep621"
 update_changelog_on_bump = true
 gpg_sign = true
-version_files = [
-    "pyproject.toml:version",
-]
