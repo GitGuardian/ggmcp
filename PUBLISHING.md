@@ -61,7 +61,8 @@ and merging to `main`. The `tag-version` job in `release.yml` then:
 - if the tag `vX.Y.Z` does not exist yet, creates and pushes it
 - the same workflow run builds and pushes the Docker image tagged
   `X.Y.Z`, `X.Y`, and `latest`, and creates the GitHub release
-- merges that don't touch the version are no-ops (no tag, no image)
+- merges that don't touch the version only refresh the mutable `main`
+  image tag (rolling dev image — never `latest`, no git tag, no release)
 
 So: bump the version (and ideally `CHANGELOG.md`) in your PR — you can use
 `cz bump --files-only` to do both — merge, and watch the Release workflow.

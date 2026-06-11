@@ -293,8 +293,8 @@ This project uses semantic versioning. To release, bump `[project] version`
 in `pyproject.toml` (and update `CHANGELOG.md`) in your PR. When it merges to
 `main`, the `tag-version` job in `.github/workflows/release.yml` tags
 `vX.Y.Z` and publishes the Docker image (`X.Y.Z`, `X.Y`, `latest`). Merges
-that don't change the version release nothing. See `PUBLISHING.md` for
-manual fallbacks.
+that don't change the version only refresh the rolling `main` image tag.
+See `PUBLISHING.md` for manual fallbacks.
 
 ## Python 3.13 Features
 
