@@ -95,12 +95,13 @@ git push origin v0.5.1
 
 For testing or special cases:
 
-1. Go to: https://github.com/GitGuardian/ggmcp/actions/workflows/publish.yml
-2. Click "Run workflow"
-3. Choose options:
-   - ✅ Publish to PyPI
-   - ✅ Publish to MCP Registry
-4. Click "Run workflow"
+1. Go to: https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml
+2. Click "Run workflow" and pick a ref:
+   - **a branch other than `main`**: builds and pushes a test image tagged
+     `<branch>` and `<branch>-<short-sha>` (no semver tags, no `latest`,
+     no git tag, no GitHub release)
+   - **`main`**: re-runs the release check (tags and publishes only if the
+     `pyproject.toml` version has no `vX.Y.Z` tag yet)
 
 ## What Happens During Publishing
 

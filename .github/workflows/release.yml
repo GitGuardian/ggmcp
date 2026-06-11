@@ -62,16 +62,20 @@ jobs:
     # Two entry points: a version tag pushed by a human, or a tag freshly
     # created by tag-version (tags pushed with GITHUB_TOKEN do not trigger
     # workflows, hence the same-run dependency instead of a tag trigger).
+    # Manual dispatch from a non-main branch builds a <branch>-<sha> image
+    # (no semver, no latest) for testing.
     if: |
       always() &&
       (
         (github.event_name == 'push' && github.ref_type == 'tag') ||
-        needs.tag-version.outputs.tagged == 'true'
+        needs.tag-version.outputs.tagged == 'true' ||
+        (github.event_name == 'workflow_dispatch' && github.ref_type == 'branch' && github.ref != 'refs/heads/main')
       )
     permissions:
       contents: read
       packages: write
     env:
+      # Empty on branch dispatch: switches image tags to <branch>/<branch>-<sha>.
       RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
 
     steps:
@@ -96,9 +100,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},value=${{ env.RELEASE_TAG }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ env.RELEASE_TAG }}
-            type=raw,value=latest
+            type=semver,pattern={{version}},value=${{ env.RELEASE_TAG || 'v0.0.0' }},enable=${{ env.RELEASE_TAG != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.RELEASE_TAG || 'v0.0.0' }},enable=${{ env.RELEASE_TAG != '' }}
+            type=raw,value=latest,enable=${{ env.RELEASE_TAG != '' }}
+            type=ref,event=branch,enable=${{ env.RELEASE_TAG == '' }}
+            type=sha,prefix={{branch}}-,enable=${{ env.RELEASE_TAG == '' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
