@@ -50,6 +50,27 @@ The workflow needs these permissions (already configured in the workflow):
 - `id-token: write` - For PyPI trusted publishing
 - `contents: write` - For creating GitHub releases
 
+## Docker Image Tag Matrix
+
+What `release.yml` pushes to `ghcr.io/gitguardian/mcp-server`, per event:
+
+| Event | Image tags pushed | Git tag / GitHub release |
+|---|---|---|
+| Merge to `main` **with** `pyproject.toml` version bump | `X.Y.Z`, `X.Y`, `latest`, `main` | `vX.Y.Z` + release |
+| Merge to `main` **without** version bump | `main` | — |
+| `workflow_dispatch` from a non-main branch | `<branch>`, `<branch>-<sha>` | — |
+| Human-pushed `v*.*.*` git tag | `X.Y.Z`, `X.Y`, `latest`, `main` | release |
+
+Semantics:
+
+- **`latest`** — most recent release. Only moves when a version is released.
+  This is what the Helm chart defaults point at.
+- **`main`** — rolling dev image, tip of the `main` branch (release or not).
+  Use for preprod/smoke-testing ahead of releases.
+- **`X.Y.Z`** — immutable release tags. Production pins these (Renovate
+  tracks them with strict semver, which ignores `latest`, `main`, `X.Y`
+  and branch tags).
+
 ## Publishing a New Version
 
 ### Method 1: Bump the version in pyproject.toml (Default)
