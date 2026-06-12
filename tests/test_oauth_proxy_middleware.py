@@ -163,3 +163,51 @@ async def test_resource_metadata_authorization_servers_match_issuer():
 
     assert rm_meta["authorization_servers"] == [as_meta["issuer"]]
     assert rm_meta["authorization_servers"] == ["https://mcp.example.com"]
+
+
+def _route_paths(proxy) -> set[str]:
+    return {route.path for route in proxy.get_routes("/mcp")}
+
+
+def test_discovery_routes_dedicated_subdomain():
+    """Path-less base (mcp.<domain>): metadata served at the bare well-known
+    paths, exactly as before single-domain support."""
+    proxy = create_oauth_proxy(base_url="https://mcp.example.com")
+    paths = _route_paths(proxy)
+
+    assert "/.well-known/oauth-protected-resource/mcp" in paths
+    assert "/.well-known/oauth-authorization-server" in paths
+    # No spurious path-inserted duplicate when the issuer has no path component.
+    assert not any(p.startswith("/.well-known/oauth-authorization-server/") for p in paths)
+
+
+def test_discovery_routes_single_domain_base_path():
+    """Single-domain base (https://gg.example.com/mcp-server): metadata served
+    at the RFC 9728 / RFC 8414 §3.1 host-root path-insertion locations, i.e.
+    where a spec-compliant client actually looks — NOT under the /mcp-server
+    prefix."""
+    proxy = create_oauth_proxy(base_url="https://gg.example.com/mcp-server")
+    paths = _route_paths(proxy)
+
+    # RFC 9728: resource https://gg.example.com/mcp-server/mcp -> metadata at
+    # host root with the full resource path inserted.
+    assert "/.well-known/oauth-protected-resource/mcp-server/mcp" in paths
+    # RFC 8414 §3.1: issuer https://gg.example.com/mcp-server -> insertion form.
+    assert "/.well-known/oauth-authorization-server/mcp-server" in paths
+    # Bare path kept too: reached after the reverse proxy strips /mcp-server,
+    # and where Claude.ai's as_metadata shortcut points.
+    assert "/.well-known/oauth-authorization-server" in paths
+
+
+@pytest.mark.asyncio
+async def test_resource_metadata_resource_matches_route_under_base_path():
+    """The PRM route path must equal the path of the advertised `resource`
+    metadata so the reverse proxy can pass through without rewriting."""
+    proxy = create_oauth_proxy(base_url="https://gg.example.com/mcp-server")
+    paths = _route_paths(proxy)
+
+    rm_meta = json.loads((await proxy._handle_resource_metadata(request=None)).body)
+    assert rm_meta["resource"] == "https://gg.example.com/mcp-server/mcp"
+    assert rm_meta["authorization_servers"] == ["https://gg.example.com/mcp-server"]
+    # Route is registered at exactly the RFC 9728 URL we advertise.
+    assert "/.well-known/oauth-protected-resource/mcp-server/mcp" in paths

@@ -17,7 +17,7 @@ import logging
 import os
 from collections.abc import Callable
 from contextvars import ContextVar
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 import httpx
 from fastmcp.server.auth.auth import AccessToken, TokenVerifier
@@ -209,32 +209,75 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         """
         from mcp.server.auth.routes import build_resource_metadata_url
 
-        resource_url = getattr(self, "_resource_url", None)
-        if not resource_url:
+        if not self._resource_url:
             return None
-        return str(build_resource_metadata_url(resource_url))
+        return str(build_resource_metadata_url(self._resource_url))
 
     def get_routes(self, mcp_path: str | None = None) -> list[Route]:
-        """Return OAuth proxy routes alongside discovery metadata."""
+        """Return OAuth proxy routes alongside discovery metadata.
+
+        When ``base_url`` carries a path component (e.g.
+        ``https://gg.example.com/mcp-server`` instead of a dedicated
+        ``mcp.<domain>`` subdomain), RFC 9728 / RFC 8414 §3.1 mandate the
+        metadata live at the *host root* with that path inserted into the
+        well-known URI (``/.well-known/oauth-protected-resource/mcp-server/mcp``),
+        NOT under the ``/mcp-server`` prefix. Serving the route where we
+        advertise it keeps the reverse proxy a dumb pass-through (no path
+        rewrite).
+
+        For a path-less base (dedicated subdomain) these reduce to usual ``/.well-known/...{mcp_path}`` form
+        """
         self.set_mcp_path(mcp_path)
 
-        return [
+        routes = [
             Route(
-                f"/.well-known/oauth-protected-resource{mcp_path or ''}",
+                self._resource_metadata_path(),
                 self._handle_resource_metadata,
                 methods=["GET"],
             ),
-            # The following routes are served to workaround Claude.ai issue regarding
-            # Protected Resource metadata (RFC 9728) : https://github.com/anthropics/claude-ai-mcp/issues/82
-            Route(
-                "/.well-known/oauth-authorization-server",
-                self._handle_authorization_server_metadata,
-                methods=["GET"],
-            ),
+        ]
+        routes += [
+            Route(path, self._handle_authorization_server_metadata, methods=["GET"])
+            for path in self._authorization_server_metadata_paths()
+        ]
+        routes += [
             Route("/authorize", self._handle_authorize, methods=["GET"]),
             Route("/token", self._handle_token, methods=["POST"]),
             Route("/register", self._handle_register, methods=["POST"]),
         ]
+        return routes
+
+    def _authorization_server_metadata_paths(self) -> list[str]:
+        """Paths to serve RFC 8414 AS metadata — every location a client may probe.
+
+        - ``/.well-known/oauth-authorization-server``: the bare path, reached
+          directly on a dedicated subdomain, or after a single-domain reverse
+          proxy strips the base-path prefix; also where Claude.ai's
+          ``as_metadata`` shortcut points (see issue #82 above).
+        - ``/.well-known/oauth-authorization-server<base-path>``: the RFC 8414
+          §3.1 path-insertion form a spec-compliant client derives from an
+          issuer that carries a path component (single-domain deployments).
+        """
+        paths = {"/.well-known/oauth-authorization-server"}
+        base_path = urlparse(str(self.base_url)).path.rstrip("/") if self.base_url else ""
+        if base_path:
+            paths.add(f"/.well-known/oauth-authorization-server{base_path}")
+        return sorted(paths)
+
+    def _resource_metadata_path(self) -> str:
+        """Path of the RFC 9728 protected-resource metadata URL we advertise.
+
+        Built with the same root-insertion the SDK uses for the advertised
+        ``resource_metadata`` URL (and the ``WWW-Authenticate`` header), so the
+        served route is byte-for-byte the URL clients dereference — including
+        any ``base_url`` path component. Falls back to the bare
+        ``mcp_path``-suffixed form when the resource URL is unknown.
+        """
+        from mcp.server.auth.routes import build_resource_metadata_url
+
+        if not self._resource_url:
+            return f"/.well-known/oauth-protected-resource{self._mcp_path or ''}"
+        return urlparse(str(build_resource_metadata_url(self._resource_url))).path
 
     async def _handle_authorization_server_metadata(self, request: Request) -> JSONResponse:
         """Serve OAuth Authorization Server metadata (RFC 8414)."""
