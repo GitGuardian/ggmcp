@@ -2285,7 +2285,7 @@ class GitGuardianClient:
             ordering: Sort field (e.g., '-date' for newest first)
             search: Search term to filter incidents
             status: Filter by status (TRIGGERED, ASSIGNED, RESOLVED, IGNORED)
-            assignee_id: Filter by assignee ID(s), use 0 for unassigned
+            assignee_id: Filter by assignee member ID(s), use 0 for unassigned
             severity: Filter by severity level(s) - uses numeric values (10=critical, 20=high, etc.)
             score__ge: Filter incidents with score >= this value (0-100)
             score__le: Filter incidents with score <= this value (0-100)
@@ -2348,7 +2348,11 @@ class GitGuardianClient:
         if status:
             params["status__in"] = format_param(status)
         if assignee_id is not None:
-            params["assignee__in"] = format_param(assignee_id)
+            # assignee_id is a *member* id (the public-API identity). The MCP
+            # incidents endpoint resolves it to the underlying user id via the
+            # dedicated assignee_member_id filter; the raw assignee__in filter
+            # would expect a user id and silently match nothing.
+            params["assignee_member_id"] = format_param(assignee_id)
         if severity:
             params["severity__in"] = format_param(severity)
         if score__ge is not None:
@@ -2542,7 +2546,11 @@ class GitGuardianClient:
         if status:
             params["status__in"] = format_param(status)
         if assignee_id is not None:
-            params["assignee__in"] = format_param(assignee_id)
+            # assignee_id is a *member* id (the public-API identity). The MCP
+            # incidents endpoint resolves it to the underlying user id via the
+            # dedicated assignee_member_id filter; the raw assignee__in filter
+            # would expect a user id and silently match nothing.
+            params["assignee_member_id"] = format_param(assignee_id)
         if severity:
             params["severity__in"] = format_param(severity)
         if score__ge is not None:
