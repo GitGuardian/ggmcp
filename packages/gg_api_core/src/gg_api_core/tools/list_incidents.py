@@ -152,9 +152,41 @@ def _build_filter_info(params: "ListIncidentsParams") -> dict[str, Any]:
     return filters
 
 
+def _build_default_filters_notice(params: "ListIncidentsParams") -> list[str]:
+    """Describe the noise-reducing default filters still in effect.
+
+    These filters are applied silently when the caller does not override them, so
+    the result set is narrower than "all incidents". We surface them explicitly so
+    the agent can tell the user what is being hidden behind the scenes and avoid
+    misreporting the defaults as a real discrepancy.
+    """
+    notices: list[str] = []
+
+    if params.validity == DEFAULT_VALIDITIES:
+        notices.append("Invalid secrets are hidden (validity 'invalid' excluded)")
+    if params.severity == DEFAULT_SEVERITIES:
+        notices.append("LOW and INFO severity incidents are hidden")
+    if params.exclude_tags == DEFAULT_EXCLUDED_TAGS:
+        notices.append(
+            "Incidents tagged TEST_FILE, FALSE_POSITIVE, or CHECK_RUN_SKIP_* are hidden"
+        )
+    if params.status == DEFAULT_STATUSES:
+        notices.append("IGNORED incidents are hidden")
+
+    return notices
+
+
 def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> str:
     """Build a suggestion message based on applied filters and results."""
     suggestions = []
+
+    default_notices = _build_default_filters_notice(params)
+    if default_notices:
+        suggestions.append(
+            "This list is filtered by default to reduce noise. Tell the user these "
+            "incidents are NOT shown: " + "; ".join(default_notices) + ". "
+            "To include them, override the validity, severity, exclude_tags, or status filters."
+        )
 
     if params.mine:
         suggestions.append("Incidents are filtered to show only those assigned to current user")
@@ -469,6 +501,15 @@ class ListIncidentsResult(BaseModel):
         description="True if results were truncated due to size limit (only relevant when get_all=True)",
     )
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
+    active_default_filters: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Human-readable list of noise-reducing default filters silently applied "
+            "(e.g. invalid secrets, LOW/INFO severity, TEST_FILE/FALSE_POSITIVE tags, "
+            "IGNORED incidents). The agent should disclose these to the user when listing "
+            "incidents so the filtered view is not mistaken for the full set."
+        ),
+    )
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
 
 
@@ -493,6 +534,12 @@ async def list_incidents(
      'TRIGGERED OR ASSIGNED'
     - Rich filtering options for detector types, secret categories, and public exposure
     - Returns detailed incident data including custom tags, vault metadata, and similar issue counts
+
+    Noise-reducing default filters are applied silently when not overridden: invalid
+    secrets, LOW/INFO severity, TEST_FILE/FALSE_POSITIVE/CHECK_RUN_SKIP_* tags, and
+    IGNORED incidents are excluded. These active defaults are reported in the
+    'active_default_filters' field and the 'suggestion' field; always disclose them to
+    the user so the filtered view is not mistaken for the complete set of incidents.
 
     Args:
         params: ListIncidentsParams model containing all filtering options.
@@ -708,6 +755,7 @@ async def list_incidents(
                 has_previous=False,
                 has_more=has_more,
                 applied_filters=_build_filter_info(params),
+                active_default_filters=_build_default_filters_notice(params),
                 suggestion=_build_suggestion(params, len(all_incidents)),
             )
         else:
@@ -732,6 +780,7 @@ async def list_incidents(
                 has_previous=has_previous,
                 has_more=False,
                 applied_filters=_build_filter_info(params),
+                active_default_filters=_build_default_filters_notice(params),
                 suggestion=_build_suggestion(params, len(incidents_data)),
             )
 

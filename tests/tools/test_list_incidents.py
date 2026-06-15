@@ -9,6 +9,8 @@ from gg_api_core.tools.list_incidents import (
     DEFAULT_VALIDITIES,
     ListIncidentsParams,
     SeverityValues,
+    _build_default_filters_notice,
+    _build_suggestion,
 )
 
 
@@ -126,6 +128,77 @@ class TestListIncidentsParamsDefaults:
         params = ListIncidentsParams(exclude_tags=["CUSTOM_TAG"])
 
         assert params.exclude_tags == ["CUSTOM_TAG"]
+
+
+class TestDefaultFiltersNotice:
+    """Tests that silently-applied default filters are surfaced to the user."""
+
+    def test_notice_lists_all_default_exclusions(self):
+        """
+        GIVEN: No filters are overridden
+        WHEN: Building the default filters notice
+        THEN: All four noise-reducing defaults are reported
+        """
+        notices = _build_default_filters_notice(ListIncidentsParams())
+
+        assert any("Invalid secrets" in n for n in notices)
+        assert any("LOW and INFO" in n for n in notices)
+        assert any("TEST_FILE" in n and "FALSE_POSITIVE" in n for n in notices)
+        assert any("IGNORED" in n for n in notices)
+
+    def test_notice_omits_overridden_validity(self):
+        """
+        GIVEN: validity is explicitly overridden to include invalid secrets
+        WHEN: Building the default filters notice
+        THEN: The invalid-secrets notice is not reported
+        """
+        notices = _build_default_filters_notice(ListIncidentsParams(validity=["invalid"]))
+
+        assert not any("Invalid secrets" in n for n in notices)
+
+    def test_notice_omits_overridden_severity(self):
+        """
+        GIVEN: severity is explicitly overridden
+        WHEN: Building the default filters notice
+        THEN: The severity notice is not reported
+        """
+        notices = _build_default_filters_notice(
+            ListIncidentsParams(severity=[SeverityValues.LOW])
+        )
+
+        assert not any("LOW and INFO" in n for n in notices)
+
+    def test_notice_omits_overridden_exclude_tags(self):
+        """
+        GIVEN: exclude_tags is explicitly overridden to an empty list
+        WHEN: Building the default filters notice
+        THEN: The tag-exclusion notice is not reported
+        """
+        notices = _build_default_filters_notice(ListIncidentsParams(exclude_tags=[]))
+
+        assert not any("TEST_FILE" in n for n in notices)
+
+    def test_notice_omits_overridden_status(self):
+        """
+        GIVEN: status is explicitly overridden to include IGNORED
+        WHEN: Building the default filters notice
+        THEN: The IGNORED notice is not reported
+        """
+        notices = _build_default_filters_notice(ListIncidentsParams(status=["IGNORED"]))
+
+        assert not any("IGNORED" in n for n in notices)
+
+    def test_suggestion_leads_with_default_filter_disclosure(self):
+        """
+        GIVEN: Default filters are in effect
+        WHEN: Building the suggestion message
+        THEN: It explicitly tells the user which incidents are hidden behind the scenes
+        """
+        suggestion = _build_suggestion(ListIncidentsParams(), incidents_count=5)
+
+        assert "filtered by default" in suggestion
+        assert "Invalid secrets are hidden" in suggestion
+        assert "LOW and INFO severity incidents are hidden" in suggestion
 
 
 class TestListIncidentsParamsOtherDefaults:
