@@ -17,10 +17,10 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: GET
-    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&assignee__in=0
+    uri: https://api.gitguardian.com/v1/incidents-for-mcp?page=1&page_size=5&assignee_member_id=0
   response:
     body:
-      string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?assignee__in=0&page=2&page_size=5",
+      string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?assignee_member_id=0&page=2&page_size=5",
         "previous": null, "results": [{"id": 29487335, "account": 8, "criterion":
         "Stripe Webhook Secret", "date": "2026-04-02T16:22:33.518000Z", "last_trigger_published_at":
         "2026-04-02T16:22:33.518000Z", "last_triggered_at": "2026-04-02T16:22:34.233032Z",

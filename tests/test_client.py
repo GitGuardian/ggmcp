@@ -622,3 +622,55 @@ class TestCursorPagination:
         cursor = client._extract_next_cursor(headers)
 
         assert cursor is None
+
+
+class TestIncidentsForMCPAssigneeFilter:
+    """The MCP incidents endpoint identifies assignees by *member* id, which it
+    resolves to user ids server-side via the dedicated assignee_member_id filter.
+    The client must therefore send assignee_member_id, not the raw assignee__in
+    filter (which expects a user id and would silently match nothing)."""
+
+    @pytest.mark.asyncio
+    async def test_list_incidents_for_mcp_maps_assignee_to_member_id(self, client):
+        """
+        GIVEN an assignee_id (a member id)
+        WHEN calling list_incidents_for_mcp
+        THEN the request uses the assignee_member_id query param, not assignee__in
+        """
+        client._request_get = AsyncMock(return_value={"results": []})
+
+        await client.list_incidents_for_mcp(assignee_id=938094)
+
+        params = client._request_get.call_args.kwargs["params"]
+        assert params["assignee_member_id"] == "938094"
+        assert "assignee__in" not in params
+
+    @pytest.mark.asyncio
+    async def test_count_incidents_for_mcp_maps_assignee_to_member_id(self, client):
+        """
+        GIVEN an assignee_id (a member id)
+        WHEN calling count_incidents_for_mcp
+        THEN the request uses the assignee_member_id query param, not assignee__in
+        """
+        client._request_get = AsyncMock(return_value={"count": 0})
+
+        await client.count_incidents_for_mcp(assignee_id=938094)
+
+        params = client._request_get.call_args.kwargs["params"]
+        assert params["assignee_member_id"] == "938094"
+        assert "assignee__in" not in params
+
+    @pytest.mark.asyncio
+    async def test_list_incidents_for_mcp_unassigned_uses_member_id_filter(self, client):
+        """
+        GIVEN assignee_id=0 (unassigned)
+        WHEN calling list_incidents_for_mcp
+        THEN the assignee_member_id query param carries the 0 sentinel
+        """
+        client._request_get = AsyncMock(return_value={"results": []})
+
+        await client.list_incidents_for_mcp(assignee_id=0)
+
+        params = client._request_get.call_args.kwargs["params"]
+        assert params["assignee_member_id"] == "0"
+        assert "assignee__in" not in params

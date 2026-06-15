@@ -2,6 +2,9 @@
 Tests for the list_incidents tool.
 """
 
+from unittest.mock import AsyncMock, patch
+
+import pytest
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
@@ -9,6 +12,7 @@ from gg_api_core.tools.list_incidents import (
     DEFAULT_VALIDITIES,
     ListIncidentsParams,
     SeverityValues,
+    list_incidents,
 )
 
 
@@ -414,3 +418,45 @@ class TestListIncidentsParamsCoercion:
         assert params.presence == ["present"]
         assert params.source_type == ["github"]
         assert params.source_criticality == ["high"]
+
+
+class TestListIncidentsMine:
+    """Tests for the 'mine' assignee filter."""
+
+    @pytest.mark.asyncio
+    async def test_mine_uses_current_member_id_as_assignee(self):
+        """
+        GIVEN: mine=True
+        WHEN: listing incidents
+        THEN: the current member's id is fetched and passed as assignee_id
+              (which the client maps to the assignee_member_id filter)
+        """
+        mock_client = AsyncMock()
+        mock_client.get_current_member.return_value = {"id": 938094}
+        mock_client.list_incidents_for_mcp.return_value = {"results": [], "next": None, "previous": None}
+
+        params = ListIncidentsParams(mine=True)
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+            await list_incidents(params)
+
+        call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
+        assert call_kwargs["assignee_id"] == 938094
+
+    @pytest.mark.asyncio
+    async def test_mine_conflict_with_assignee_id(self):
+        """
+        GIVEN: mine=True and a conflicting explicit assignee_id
+        WHEN: listing incidents
+        THEN: an error is returned instead of a silent mismatch
+        """
+        mock_client = AsyncMock()
+        mock_client.get_current_member.return_value = {"id": 938094}
+
+        params = ListIncidentsParams(mine=True, assignee_id=50)
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+            result = await list_incidents(params)
+
+        assert hasattr(result, "error")
+        mock_client.list_incidents_for_mcp.assert_not_called()
