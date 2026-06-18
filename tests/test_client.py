@@ -148,6 +148,44 @@ class TestGitGuardianClient:
                 await client._request_get("/test")
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("status_code", [401, 403])
+    async def test_request_auth_errors_logged_as_warning_not_error(
+        self, client, mock_httpx_client, caplog, status_code
+    ):
+        """Auth failures (401/403) are expected client conditions and must NOT be
+        logged at ERROR level, otherwise they surface as Sentry noise (GIM-MCP-SERVER-3)."""
+        import logging
+
+        from gg_api_core.client import DownstreamUnauthorizedError
+
+        mock_request = MagicMock()
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.reason_phrase = "Unauthorized" if status_code == 401 else "Forbidden"
+        mock_response.text = "auth error"
+        mock_response.json.return_value = {"detail": "Invalid API key."}
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            str(status_code), request=mock_request, response=mock_response
+        )
+
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+        mock_httpx_client.request = AsyncMock(return_value=mock_response)
+
+        # 401 is translated to DownstreamUnauthorizedError; 403 re-raises the original.
+        expected_exc = DownstreamUnauthorizedError if status_code == 401 else httpx.HTTPStatusError
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+                with pytest.raises(expected_exc):
+                    await client._request_get("/test")
+
+        errors = [r for r in caplog.records if r.levelno >= logging.ERROR]
+        assert not errors, f"auth {status_code} should not be logged at ERROR level: {errors}"
+        assert any(r.levelno == logging.WARNING and str(status_code) in r.getMessage() for r in caplog.records), (
+            "expected a WARNING log mentioning the auth status code"
+        )
+
+    @pytest.mark.asyncio
     async def test_create_honeytoken(self, client):
         """Test create_honeytoken method."""
         expected_response = {
