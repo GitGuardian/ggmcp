@@ -546,7 +546,20 @@ class GitGuardianClient:
                             # If we can't parse the error response, continue with normal error handling
                             pass
 
-                logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
+                # 401/403 from the GitGuardian API are expected, handled client
+                # conditions — the caller's token is invalid/expired/revoked or
+                # lacks the required scope — not server faults. Log them at warning
+                # level so they do not surface as Sentry errors (logger.exception
+                # would). The 401 path still raises DownstreamUnauthorizedError,
+                # which middleware rewrites to an MCP 401 so clients can re-auth.
+                if e.response.status_code in (401, 403):
+                    logger.warning(
+                        f"GitGuardian API returned {e.response.status_code} "
+                        f"{e.response.reason_phrase} for {url} - token may be invalid, "
+                        "expired, revoked, or lacking the required scope"
+                    )
+                else:
+                    logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 logger.debug(f"Error response content: {e.response.text}")
                 logger.debug(f"Failed URL: {url}")
                 if e.response.status_code == 401:
