@@ -19,6 +19,7 @@ from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_member import get_member
 from gg_api_core.tools.get_public_incident import get_public_incident
+from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incident_members import list_incident_members
@@ -239,6 +240,14 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         get_member,
         description="Retrieve a specific member by their ID with information including name, email, role, access level, and activity status.",
         required_scopes=["members:read"],
+    )
+
+    mcp.tool(
+        get_remediation_workflow,
+        description="Retrieve the workspace remediation workflow — the ordered, step-by-step guidance shown for secret "
+        "incidents. Returns the configured custom workflow if one exists, otherwise the default workflow. Use this to "
+        "remediate an incident following the same instructions a human sees in the dashboard.",
+        required_scopes=["incidents:read"],
     )
 
     mcp.tool(

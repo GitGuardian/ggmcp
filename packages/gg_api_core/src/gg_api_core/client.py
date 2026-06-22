@@ -2198,6 +2198,19 @@ class GitGuardianClient:
         logger.info(f"Getting member details for ID: {member_id}")
         return await self._request_get(f"/members/{member_id}")
 
+    async def get_remediation_workflow(self) -> dict[str, Any]:
+        """Get the workspace's remediation workflow.
+
+        Wraps GET /v1/remediation-workflow. Returns the account's custom
+        remediation workflow if one is configured, otherwise a default workflow.
+
+        Returns:
+            Remediation workflow data including the ordered ``steps`` and, for a
+            configured custom workflow, ``id``/``created_at``/``updated_at``.
+        """
+        logger.info("Getting remediation workflow")
+        return await self._request_get("/remediation-workflow")
+
     async def get_current_member(self):
         """Get the current user's information."""
         data = await self.get_current_token_info()

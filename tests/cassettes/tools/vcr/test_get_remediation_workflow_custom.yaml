@@ -1,0 +1,86 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/remediation-workflow
+  response:
+    body:
+      string: '{"id": 6, "account_id": 8, "steps": [{"title": "Step 1. Investigate
+        the incident.", "description": "Why did you hardcode this secret? Is it valid?
+        What sensitive resources does it give access to?", "link": {"text": "Contact
+        security", "url": "https://securityportal.company.com"}}, {"title": "Step
+        2. Revoke the secret", "description": "Contact DevOps to revoke the secret.",
+        "link": {"text": "Create a ticket for DevOps (internal portal)", "url": "https://docs.gitguardian.com"}},
+        {"title": "Step 3. Rotate the secret.", "description": "Contact DevOps to
+        rotate the key. Make sure other users of the service are aware of this operation.",
+        "link": {"text": "Create a ticket for DevOps (internal portal)", "url": "https://docs.gitguardian.com"}},
+        {"title": "Step 4. Re-deploy impacted services.", "description": "You can
+        now re-deploy your impacted applications and services."}, {"title": "Step
+        5. Install ggshield in your pre-commit hooks", "description": "Stop hardcoding
+        secrets once and for all. Install **ggshield CLI** on your local workstation,
+        please!", "link": {"text": "Read ggshield docs", "url": "https://docs.gitguardian.com/"}},
+        {"title": "Title", "description": "Body", "link": {"text": "Learn More", "url":
+        "{{revoke_documentation_link}}"}}], "created_at": "2022-12-15T09:58:14.315507Z",
+        "updated_at": "2026-06-23T12:23:58.290253Z"}'
+    headers:
+      CF-RAY:
+      - a10379974b10cea9-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:25:22 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1290'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '44'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
