@@ -37,13 +37,13 @@ interactions:
         "destination_tickets": [], "incident_name": "Stripe Keys"}]'
     headers:
       CF-RAY:
-      - 9ef488d96c25d877-CDG
+      - a103964beaf12a76-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:35:51 GMT
+      - Tue, 23 Jun 2026 12:44:57 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -70,17 +70,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '68'
+      - '54'
       x-frame-options:
       - DENY
       x-per-page:
       - '1'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -116,21 +116,22 @@ interactions:
         2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737359Z", "ignored_at":
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
-        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 11, "severity_rule_id":
-        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/2",
-        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "Slack Bot Token"}]'
+        "validity": "failed_to_check", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/2", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}]'
     headers:
       CF-RAY:
-      - 9ef488dbae346fbe-CDG
+      - a103964dddffbb60-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:35:51 GMT
+      - Tue, 23 Jun 2026 12:44:58 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -142,7 +143,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1137'
+      - '1145'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -158,17 +159,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '72'
+      - '69'
       x-frame-options:
       - DENY
       x-per-page:
       - '1'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

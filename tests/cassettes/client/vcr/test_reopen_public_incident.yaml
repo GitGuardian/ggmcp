@@ -20,17 +20,69 @@ interactions:
     uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=1&status=RESOLVED%2CIGNORED
   response:
     body:
-      string: '[{"id": 3760, "detector": {"name": "slack_bot_token", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
-        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
-        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
-        "RESOLVED", "validity": "valid", "severity": "high", "assignee_id": 480870,
-        "assignee_email": "ci@gitguardian.com", "resolved_at": "2026-04-20T10:00:00Z",
-        "resolver_id": 480870, "resolve_reason": "revoked", "tags": ["FROM_HISTORICAL_SCAN"],
-        "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3760"}]'
+      string: '[{"id": 1, "detector": {"name": "stripe", "display_name": "Stripe Keys",
+        "nature": "specific", "family": "token", "category": "payment_system", "detector_group_name":
+        "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2022-09-21T12:48:20Z",
+        "secret_id": 14030708, "secret_hash": "oRwIqXVsin9BmHcHQx6WhicHNz4oNA/2C46qrJwl9Mn9/1HViIVhmFkAG+mbE/6F",
+        "hmsl_hash": "413ceb0ac344f91b4de665e1c6d73af3a46a26b6562b4a934fe143a900acbeb6",
+        "occurrences_count": 5, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:02.721195Z",
+        "ignored_at": "2025-07-30T12:45:49.970856Z", "ignorer_id": null, "ignorer_api_token_id":
+        "e9a6365c-e79a-4ad9-b851-29489298e615", "resolved_at": null, "resolver_id":
+        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
+        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
+        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
+        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
+        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1",
+        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "Stripe Keys"}]'
     headers:
-      content-type:
+      CF-RAY:
+      - a103967d4a558a38-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:05 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1195'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0x&per_page=1&status=RESOLVED%2CIGNORED>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '64'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '1'
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK
@@ -43,6 +95,8 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
+      Content-Length:
+      - '0'
       Content-Type:
       - application/json
       Host:
@@ -52,20 +106,67 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: POST
-    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3760/reopen
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/1/reopen
   response:
     body:
-      string: '{"id": 3760, "detector": {"name": "slack_bot_token", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
-        "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
-        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
-        "TRIGGERED", "validity": "valid", "severity": "high", "assignee_id": null,
-        "assignee_email": null, "resolved_at": null, "resolver_id": null, "tags":
-        ["FROM_HISTORICAL_SCAN"], "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/public-incidents/3760"}'
+      string: '{"id": 1, "detector": {"name": "stripe", "display_name": "Stripe Keys",
+        "nature": "specific", "family": "token", "category": "payment_system", "detector_group_name":
+        "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2022-09-21T12:48:20Z",
+        "secret_id": 14030708, "secret_hash": "oRwIqXVsin9BmHcHQx6WhicHNz4oNA/2C46qrJwl9Mn9/1HViIVhmFkAG+mbE/6F",
+        "hmsl_hash": "413ceb0ac344f91b4de665e1c6d73af3a46a26b6562b4a934fe143a900acbeb6",
+        "occurrences_count": 5, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.721195Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        9, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1", "tags":
+        ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}'
     headers:
-      content-type:
+      CF-RAY:
+      - a103967f2da4468e-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:06 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - POST, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1130'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '101'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK

@@ -13,7 +13,9 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/members?per_page=5
   response:
@@ -21,53 +23,61 @@ interactions:
       string: '[{"id": 10, "member_id": 10, "role": "manager", "name": "Bruce Wayne",
         "email": "bruce-wayne-gg@protonmail.com", "incident_id": 21460, "incident_permission":
         "full_access"}, {"id": 13, "member_id": 13, "role": "manager", "name": "Aymeric
-        Sicard", "email": "aymeric.sicard@gitguardian.com", "incident_id": 21460,
+        SICARD", "email": "aymeric.sicard@gitguardian.com", "incident_id": 21460,
         "incident_permission": "full_access"}, {"id": 2508, "member_id": 2508, "role":
-        "manager", "name": "Guillaume Charpiat", "email": "guillaume.charpiat@gitguardian.com",
+        "manager", "name": "Guillaume CHARPIAT", "email": "guillaume.charpiat@gitguardian.com",
         "incident_id": 21460, "incident_permission": "full_access"}, {"id": 37699,
-        "member_id": 37699, "role": "manager", "name": "Alexis Larnaud", "email":
+        "member_id": 37699, "role": "manager", "name": "Alexis LARNAUD", "email":
         "alexis.larnaud@gitguardian.com", "incident_id": 21460, "incident_permission":
         "full_access"}, {"id": 63809, "member_id": 63809, "role": "manager", "name":
-        "Orian Roturier", "email": "orian.roturier@gitguardian.com", "incident_id":
+        "Orian ROTURIER", "email": "orian.roturier@gitguardian.com", "incident_id":
         21460, "incident_permission": "full_access"}]'
     headers:
+      CF-RAY:
+      - a10397acfd17d343-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:54 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '836'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Wed, 04 Mar 2026 11:39:06 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets/21460/members?cursor=cD02MzgwOQ%3D%3D&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.404.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '47'
+      - '42'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.157.1
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

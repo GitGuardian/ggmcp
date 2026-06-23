@@ -20,102 +20,110 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?visibility=private&per_page=5
   response:
     body:
-      string: '[{"id": 9123340, "type": "github", "full_name": "orga-083643/solid-octo",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
-        "1.120819", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "630519649", "secret_incidents_breakdown": {"open_secret_incidents":
+      string: '[{"id": 12259, "type": "github", "full_name": "lonely/cowboy", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "23", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/solid-octo",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9123810,
-        "type": "github", "full_name": "orga-083643/ideal-journey", "health": "safe",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count": 0, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 3, "duration": "0.866616", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "630531940", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/cowboy",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12265,
+        "type": "github", "full_name": "my-testing-org/louis_vuitton", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:32.770273Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "1.141495", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "13", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/orga-083643/ideal-journey", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 9123882, "type": "github",
-        "full_name": "orga-083643/analytics-test", "health": "safe", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845",
-        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.352186Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 7, "duration": "0.942938", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "630536182",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9124147,
-        "type": "github", "full_name": "orga-083643/improved-carnival", "health":
-        "safe", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "cdaa5dd8497a52a75702879823adc18141ad88b4", "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.354520Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 4, "duration": "3.881061", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "630548292", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/louis_vuitton",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12266,
+        "type": "github", "full_name": "my-testing-org/lagarfeld", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:33.598712Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "1.253906", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "29", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/orga-083643/improved-carnival", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 10294451, "type": "github",
-        "full_name": "babassov/PrivateVB", "health": "safe", "source_criticality":
-        "critical", "default_branch": "main", "default_branch_head": "346eeb121643aa8ab28828719d94d33664a55839",
-        "open_incidents_count": 0, "closed_incidents_count": 12, "last_scan": {"date":
-        "2025-10-09T16:45:43.353950Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 14, "duration": "1.396871", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "614802635",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 12, "severity_breakdown": {"critical":
-        0, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/babassov/PrivateVB",
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/lagarfeld",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12270,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2021-04",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        4, "last_scan": {"date": "2021-05-12T13:40:00.804955Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 419, "duration": "2.634533", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "358427683", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 4, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 1, "unknown": 2}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2021-04",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12271,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-2021-03",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        7, "last_scan": {"date": "2021-05-12T13:40:00.809898Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1216, "duration": "8.598146", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "343245836", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 4, "unknown": 1}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-2021-03",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
+      CF-RAY:
+      - a10396e0fda4d477-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:22 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '4382'
+      - '4316'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:59 GMT
       link:
-      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMDI5NDQ1MQ%3D%3D&per_page=5&visibility=private>;
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjI3MQ%3D%3D&per_page=5&visibility=private>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '215'
+      - '473'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

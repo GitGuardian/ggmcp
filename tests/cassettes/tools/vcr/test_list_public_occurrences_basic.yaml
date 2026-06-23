@@ -25,25 +25,25 @@ interactions:
         "stripe_keys", "detector_group_display_name": "Stripe Keys"}, "date": "2022-09-21T12:48:20Z",
         "secret_id": 14030708, "secret_hash": "oRwIqXVsin9BmHcHQx6WhicHNz4oNA/2C46qrJwl9Mn9/1HViIVhmFkAG+mbE/6F",
         "hmsl_hash": "413ceb0ac344f91b4de665e1c6d73af3a46a26b6562b4a934fe143a900acbeb6",
-        "occurrences_count": 5, "status": "IGNORED", "triggered_at": "2025-01-07T18:06:02.721195Z",
-        "ignored_at": "2025-07-30T12:45:49.970856Z", "ignorer_id": null, "ignorer_api_token_id":
-        "e9a6365c-e79a-4ad9-b851-29489298e615", "resolved_at": null, "resolver_id":
-        null, "resolver_api_token_id": null, "secret_revoked": false, "validity":
-        "invalid", "severity": "unknown", "assignee_id": null, "assignee_email": null,
-        "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 9, "severity_rule_id":
-        null, "is_vaulted": false, "declarative_secret_status": "invalid", "resolve_reason":
-        null, "ignore_reason": "invalid", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1",
-        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
-        "destination_tickets": [], "incident_name": "Stripe Keys"}]'
+        "occurrences_count": 5, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.721195Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        9, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1", "tags":
+        ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Stripe Keys"}]'
     headers:
       CF-RAY:
-      - 9ef49a650cf33d13-CDG
+      - a10397d2dd5a6f33-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:47:50 GMT
+      - Tue, 23 Jun 2026 12:46:00 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -55,7 +55,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1195'
+      - '1132'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -70,17 +70,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '175'
+      - '63'
       x-frame-options:
       - DENY
       x-per-page:
       - '1'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -158,13 +158,13 @@ interactions:
         "url": "https://github.com/guillaume-malle"}, "attachment_reasons": ["by_dev_from_perimeter"]}]'
     headers:
       CF-RAY:
-      - 9ef49a67bd922c31-CDG
+      - a10397d4be8c0d9a-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:47:50 GMT
+      - Tue, 23 Jun 2026 12:46:00 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -190,17 +190,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '74'
+      - '38'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

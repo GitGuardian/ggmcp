@@ -420,9 +420,9 @@ class TestAssignPublicIncident:
             token_info = await real_client.get_current_token_info()
             assignee_id = token_info["member_id"]
 
-            page = await real_client.list_public_incidents(per_page=1)
+            page = await real_client.list_public_incidents(status="TRIGGERED", per_page=1)
             if not page["data"]:
-                pytest.skip("No public incidents available")
+                pytest.skip("No open public incident available to assign")
             incident_id = page["data"][0]["id"]
 
             result = await real_client.assign_public_incident(
@@ -446,9 +446,9 @@ class TestAssignPublicIncident:
             current_member = await real_client.get_current_member()
             email = current_member["email"]
 
-            page = await real_client.list_public_incidents(per_page=1)
+            page = await real_client.list_public_incidents(status="TRIGGERED", per_page=1)
             if not page["data"]:
-                pytest.skip("No public incidents available")
+                pytest.skip("No open public incident available to assign")
             incident_id = page["data"][0]["id"]
 
             result = await real_client.assign_public_incident(
@@ -472,9 +472,9 @@ class TestAssignPublicIncident:
             token_info = await real_client.get_current_token_info()
             assignee_id = token_info["member_id"]
 
-            page = await real_client.list_public_incidents(per_page=1)
+            page = await real_client.list_public_incidents(status="TRIGGERED", per_page=1)
             if not page["data"]:
-                pytest.skip("No public incidents available")
+                pytest.skip("No open public incident available to assign")
             incident_id = page["data"][0]["id"]
 
             result = await real_client.assign_public_incident(

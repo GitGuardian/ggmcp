@@ -20,14 +20,60 @@ interactions:
     uri: https://api.gitguardian.com/v1/api_tokens/self
   response:
     body:
-      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+      string: '{"id": "d0ca9877-641f-4c37-8857-c08e0ae148c4", "name": "ggmcp CI (April)",
         "type": "personal_access_token", "scopes": ["scan", "incidents:read", "incidents:write",
-        "members:read"], "member_id": 480870, "workspace_id": 8, "created_at": "2025-12-07T14:13:08.044416Z",
-        "last_used_at": "2026-04-27T08:43:00Z", "expire_at": null, "revoked_at": null,
+        "incidents:share", "members:read", "members:write", "audit_logs:read", "teams:read",
+        "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write", "sources:scan"],
+        "member_id": 480870, "workspace_id": 8, "created_at": "2026-04-20T13:31:42.422943Z",
+        "last_used_at": "2026-06-23T12:52:00Z", "expire_at": null, "revoked_at": null,
         "status": "active", "creator_id": 480870}'
     headers:
-      content-type:
+      CF-RAY:
+      - a103a182fb1788f4-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:52:37 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '802'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '20'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK
@@ -52,14 +98,60 @@ interactions:
     uri: https://api.gitguardian.com/v1/api_tokens/self
   response:
     body:
-      string: '{"id": "8a262c6a-832d-49e5-8744-23c743ff25ac", "name": "ggmcp CI",
+      string: '{"id": "d0ca9877-641f-4c37-8857-c08e0ae148c4", "name": "ggmcp CI (April)",
         "type": "personal_access_token", "scopes": ["scan", "incidents:read", "incidents:write",
-        "members:read"], "member_id": 480870, "workspace_id": 8, "created_at": "2025-12-07T14:13:08.044416Z",
-        "last_used_at": "2026-04-27T08:43:00Z", "expire_at": null, "revoked_at": null,
+        "incidents:share", "members:read", "members:write", "audit_logs:read", "teams:read",
+        "teams:write", "honeytokens:read", "honeytokens:write", "api_tokens:read",
+        "api_tokens:write", "ip_allowlist:read", "ip_allowlist:write", "sources:read",
+        "sources:write", "nhi:send-inventory", "nhi:write-vault", "custom_tags:read",
+        "custom_tags:write", "secrets:read", "secrets:write", "scan:create-incidents",
+        "public-perimeter:read", "nhi:ownership:read", "nhi:ownership:write", "sources:scan"],
+        "member_id": 480870, "workspace_id": 8, "created_at": "2026-04-20T13:31:42.422943Z",
+        "last_used_at": "2026-06-23T12:52:00Z", "expire_at": null, "revoked_at": null,
         "status": "active", "creator_id": 480870}'
     headers:
-      content-type:
+      CF-RAY:
+      - a103a184ac45dd47-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:52:37 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, DELETE, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '802'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '26'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK
@@ -84,12 +176,53 @@ interactions:
     uri: https://api.gitguardian.com/v1/members/480870
   response:
     body:
-      string: '{"id": 480870, "email": "ci@gitguardian.com", "name": "GG CI", "role":
-        "manager", "access_level": "manager", "active": true, "created_at": "2024-01-01T00:00:00Z",
-        "last_login_at": "2026-04-27T08:43:00Z"}'
+      string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
+        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 DELION", "created_at":
+        "2023-06-26T12:41:18.599497Z", "last_login": "2026-06-23T12:20:54.639679Z",
+        "active": true}'
     headers:
-      content-type:
+      CF-RAY:
+      - a103a186781d2a4f-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:52:37 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '221'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '38'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK
@@ -111,24 +244,78 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: GET
-    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=1
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=1&status=TRIGGERED
   response:
     body:
-      string: '[{"id": 3759, "detector": {"name": "slack_bot_token", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+      string: '[{"id": 5, "detector": {"name": "slackbototken", "display_name": "Slack
+        Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
         "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
-        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
-        "TRIGGERED", "validity": "valid", "severity": "high", "assignee_id": null,
-        "assignee_email": null, "tags": ["FROM_HISTORICAL_SCAN"], "risk_score": 80,
-        "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3759"}]'
+        Bot Token"}, "date": "2024-05-24T12:18:15Z", "secret_id": 14592838, "secret_hash":
+        "Z5EChCcGXgX/eXhBjNhs4sGINbMdnzWjcD4m3l7naZmf7qCBOMgPzYhV28m6OGG4", "hmsl_hash":
+        "dc66b2a9c718f0d32581426943c736bfed9bcfd865c77712ca43d96faf97f731", "occurrences_count":
+        2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.739857Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "failed_to_check", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
+        44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/5", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Slack Bot Token"}]'
     headers:
-      content-type:
+      CF-RAY:
+      - a103a1888bd4eba6-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:52:38 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1145'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD01&per_page=1&status=TRIGGERED>;
+        rel="next"
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '78'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '1'
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK
 - request:
-    body: '{"email": "ci@gitguardian.com"}'
+    body: '{"email": "timothe.delion@gitguardian.com"}'
     headers:
       Accept:
       - '*/*'
@@ -137,7 +324,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '31'
+      - '42'
       Content-Type:
       - application/json
       Host:
@@ -147,19 +334,68 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: POST
-    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3759/assign
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/5/assign
   response:
     body:
-      string: '{"id": 3759, "detector": {"name": "slack_bot_token", "display_name":
-        "Slack Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
+      string: '{"id": 5, "detector": {"name": "slackbototken", "display_name": "Slack
+        Bot Token", "nature": "specific", "family": "token", "category": "messaging_system",
         "detector_group_name": "slackbot_token", "detector_group_display_name": "Slack
-        Bot Token"}, "date": "2024-08-22T14:15:22Z", "occurrences_count": 4, "status":
-        "ASSIGNED", "validity": "valid", "severity": "high", "assignee_id": 480870,
-        "assignee_email": "ci@gitguardian.com", "tags": ["FROM_HISTORICAL_SCAN"],
-        "risk_score": 80, "share_url": "[REDACTED]", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/3759"}'
+        Bot Token"}, "date": "2024-05-24T12:18:15Z", "secret_id": 14592838, "secret_hash":
+        "Z5EChCcGXgX/eXhBjNhs4sGINbMdnzWjcD4m3l7naZmf7qCBOMgPzYhV28m6OGG4", "hmsl_hash":
+        "dc66b2a9c718f0d32581426943c736bfed9bcfd865c77712ca43d96faf97f731", "occurrences_count":
+        2, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:06:02.739857Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "failed_to_check", "severity": "unknown", "assignee_id": 480870,
+        "assignee_email": "timothe.delion@gitguardian.com", "share_url": "[REDACTED]",
+        "feedback_list": [], "risk_score": 44, "severity_rule_id": null, "is_vaulted":
+        false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
+        null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Slack Bot Token"}'
     headers:
-      content-type:
+      CF-RAY:
+      - a103a18b183c5858-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
       - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:52:38 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - POST, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1172'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '172'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
     status:
       code: 200
       message: OK

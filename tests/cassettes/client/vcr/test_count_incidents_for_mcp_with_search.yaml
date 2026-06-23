@@ -20,40 +20,46 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?search=aws
   response:
     body:
-      string: '{"count": 1104}'
+      string: '{"count": 1114}'
     headers:
+      CF-RAY:
+      - a10394b55b5e9952-CDG
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '14'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:43:54 GMT
+      Server:
+      - cloudflare
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
-      content-length:
-      - '14'
+      cf-cache-status:
+      - DYNAMIC
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:08 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '143'
+      - '1424'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

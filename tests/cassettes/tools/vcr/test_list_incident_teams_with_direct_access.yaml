@@ -13,7 +13,9 @@ interactions:
       Host:
       - api.gitguardian.com
       User-Agent:
-      - GitGuardian-MCP-Server/1.0
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
     method: GET
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/teams?per_page=10&direct_access=true
   response:
@@ -21,44 +23,56 @@ interactions:
       string: '[{"team_id": 304856, "incident_id": 21460, "incident_permission": "full_access"},
         {"team_id": 305252, "incident_id": 21460, "incident_permission": "full_access"},
         {"team_id": 306598, "incident_id": 21460, "incident_permission": "full_access"},
-        {"team_id": 337146, "incident_id": 21460, "incident_permission": "full_access"}]'
+        {"team_id": 337146, "incident_id": 21460, "incident_permission": "full_access"},
+        {"team_id": 470245, "incident_id": 21460, "incident_permission": "full_access"},
+        {"team_id": 491687, "incident_id": 21460, "incident_permission": "full_access"},
+        {"team_id": 574615, "incident_id": 21460, "incident_permission": "full_access"},
+        {"team_id": 931424, "incident_id": 21460, "incident_permission": "full_access"}]'
     headers:
+      CF-RAY:
+      - a10397bac9b1d578-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:56 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '301'
+      - '601'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Wed, 04 Mar 2026 11:39:11 GMT
       link:
       - ''
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.404.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '38'
+      - '48'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.157.1
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

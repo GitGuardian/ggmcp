@@ -20,272 +20,281 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?per_page=20
   response:
     body:
-      string: '[{"id": 12338, "type": "github", "full_name": "wayne-enterprises-gg/shared-app",
-        "health": "safe", "source_criticality": "low", "default_branch": "master",
-        "default_branch_head": "a219c18ff8e913427c38fc7d90756d6bb1bb5b43", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2026-02-02T10:49:30.905195Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 544, "duration":
-        "0.0", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "218964926", "secret_incidents_breakdown": {"open_secret_incidents":
+      string: '[{"id": 12259, "type": "github", "full_name": "lonely/cowboy", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "23", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/shared-app",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12356,
-        "type": "github", "full_name": "wayne-enterprises-gg/with-readme-repo-gg",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "21ca725ac5028cf45975b49f7b48928f34f73117", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352734Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1, "duration":
-        "3.265244", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "234115319", "secret_incidents_breakdown": {"open_secret_incidents":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/cowboy",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12260,
+        "type": "github", "full_name": "lonely/hunter", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "22", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/hunter",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12261,
+        "type": "github", "full_name": "lonely/time", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "25", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/time",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12262,
+        "type": "github", "full_name": "lonely/tower", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "24", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/tower",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12263,
+        "type": "github", "full_name": "my-testing-org/christian_dior", "health":
+        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:39.211442Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "1.218169", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "12", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/with-readme-repo-gg",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12364,
-        "type": "github", "full_name": "wayne-enterprises-gg/business-app", "health":
-        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
-        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
-        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "217533545", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 76, "severity_breakdown":
-        {"critical": 3, "high": 73, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/wayne-enterprises-gg/business-app", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 12369, "type": "github", "full_name":
-        "aymericGG/hello-world", "health": "safe", "source_criticality": "high", "default_branch":
-        "master", "default_branch_head": "665b4e495aef1d7b6737a503209407a297d37772",
-        "open_incidents_count": 0, "closed_incidents_count": 3, "last_scan": {"date":
-        "2025-10-09T16:45:43.352983Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 10, "duration": "0.84662", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "175174005",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
-        0, "high": 3, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/hello-world",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12370,
-        "type": "github", "full_name": "aymericGG/Project-back", "health": "safe",
-        "source_criticality": "unknown", "default_branch": "", "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        {"date": "2025-10-09T16:45:43.353058Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.01237", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "253745397",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-back",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12371,
-        "type": "github", "full_name": "aymericGG/Project-Front", "health": "safe",
-        "source_criticality": "high", "default_branch": "", "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        {"date": "2025-10-09T16:45:43.353136Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.012344", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "253745330",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/Project-Front",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9123340,
-        "type": "github", "full_name": "orga-083643/solid-octo", "health": "safe",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "1218ef7297f84f36297c0111ea88b54b9befd365", "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.351408Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 7, "duration": "1.120819", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "630519649", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/orga-083643/solid-octo", "provider_metadata": {"archived":
-        false}, "deleted": false}, {"id": 9123465, "type": "github", "full_name":
-        "orga-083643/expert-train", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "main", "default_branch_head": "1e3f25567a57f788700cbe9b21a05fb2a3dd23f9",
-        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.353647Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 4, "duration": "4.092814", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "630525080",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/expert-train",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9123810,
-        "type": "github", "full_name": "orga-083643/ideal-journey", "health": "safe",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "ab24e2860796dff2a67c4915b1a6d745b13bdd76", "open_incidents_count": 0, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.354999Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 3, "duration": "0.866616", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "630531940", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/orga-083643/ideal-journey", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 9123882, "type": "github",
-        "full_name": "orga-083643/analytics-test", "health": "safe", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845",
-        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.352186Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 7, "duration": "0.942938", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "630536182",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 9124147,
-        "type": "github", "full_name": "orga-083643/improved-carnival", "health":
-        "safe", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "cdaa5dd8497a52a75702879823adc18141ad88b4", "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.354520Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 4, "duration": "3.881061", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "630548292", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/orga-083643/improved-carnival", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 10294451, "type": "github",
-        "full_name": "babassov/PrivateVB", "health": "safe", "source_criticality":
-        "critical", "default_branch": "main", "default_branch_head": "346eeb121643aa8ab28828719d94d33664a55839",
-        "open_incidents_count": 0, "closed_incidents_count": 12, "last_scan": {"date":
-        "2025-10-09T16:45:43.353950Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 14, "duration": "1.396871", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "614802635",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 12, "severity_breakdown": {"critical":
-        0, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/babassov/PrivateVB",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 10836673,
-        "type": "github", "full_name": "leakymcgee/secretproject", "health": "at_risk",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        "6fa238be5c8773d3560627df4597c1b0cddc708d", "open_incidents_count": 6, "closed_incidents_count":
-        2, "last_scan": {"date": "2025-10-09T16:45:43.354139Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 9, "duration": "0.0", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "684998195", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        6, "severity_breakdown": {"critical": 5, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 2, "severity_breakdown":
-        {"critical": 0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/leakymcgee/secretproject", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11018378, "type": "github",
-        "full_name": "leakymcgee/ggshield", "health": "at_risk", "source_criticality":
-        "high", "default_branch": "main", "default_branch_head": "261ad38336f401683315c9dd30d792d3043f1751",
-        "open_incidents_count": 13, "closed_incidents_count": 5, "last_scan": {"date":
-        "2025-10-09T16:45:43.353684Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 1515, "duration": "12.404975", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "691584428",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 13, "severity_breakdown":
-        {"critical": 12, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 5, "severity_breakdown": {"critical":
-        4, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/leakymcgee/ggshield",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11260258,
-        "type": "github", "full_name": "gitjez/git_playground", "health": "at_risk",
-        "source_criticality": "high", "default_branch": "main", "default_branch_head":
-        "21de97f3a7ab7346d33f92479c6266ed29086642", "open_incidents_count": 11, "closed_incidents_count":
-        13, "last_scan": {"date": "2025-10-09T16:45:43.354669Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 104, "duration": "5.271635", "branches_scanned":
-        15, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "602034939", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        11, "severity_breakdown": {"critical": 2, "high": 9, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 13, "severity_breakdown":
-        {"critical": 1, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/gitjez/git_playground", "provider_metadata": {"archived":
-        false}, "deleted": false}, {"id": 11260259, "type": "github", "full_name":
-        "gitjez/private_repo", "health": "safe", "source_criticality": "high", "default_branch":
-        "main", "default_branch_head": "a8102e99d82504517c016fd20aa499209c65e41d",
-        "open_incidents_count": 0, "closed_incidents_count": 19, "last_scan": {"date":
-        "2025-10-09T16:45:43.354706Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 10, "duration": "3.11961", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "699836994",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 19, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 1, "unknown": 18}}}, "url": "https://github.com/gitjez/private_repo",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11270152,
-        "type": "slack", "full_name": "Demo Slack Integration / #general", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 4, "closed_incidents_count": 6, "last_scan":
-        {"date": "2025-10-09T16:44:19.448855Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "2.282765", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "C05V11N7B1T",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 4, "severity_breakdown":
-        {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 1}},
-        "closed_secret_incidents": {"total": 6, "severity_breakdown": {"critical":
-        3, "high": 1, "medium": 0, "low": 0, "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05V11N7B1T",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11270153,
-        "type": "slack", "full_name": "Demo Slack Integration / #random", "health":
-        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        {"date": "2025-10-09T16:44:19.448890Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.215615", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "C0602J433A5",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0602J433A5",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11328061,
-        "type": "slack", "full_name": "Demo Slack Integration / #demo-231009", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 2, "closed_incidents_count": 4, "last_scan":
-        {"date": "2025-10-09T16:44:19.448925Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.206472", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "C05VBD2TDST",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 2, "severity_breakdown":
-        {"critical": 0, "high": 2, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
-        1, "high": 1, "medium": 0, "low": 0, "info": 1, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C05VBD2TDST",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11348776,
-        "type": "slack", "full_name": "Demo Slack Integration / #demo-231011", "health":
-        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/christian_dior",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12264,
+        "type": "github", "full_name": "my-testing-org/armani_code", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
-        {"date": "2025-10-09T16:44:19.448960Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.22554", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "C061AL994KS",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
-        0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C061AL994KS",
+        {"date": "2020-06-04T09:06:33.833273Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 2, "duration": "2.830578", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "30", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 1}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12265,
+        "type": "github", "full_name": "my-testing-org/louis_vuitton", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:32.770273Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "1.141495", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "13", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/louis_vuitton",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12266,
+        "type": "github", "full_name": "my-testing-org/lagarfeld", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:33.598712Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "1.253906", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "29", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/lagarfeld",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12267,
+        "type": "github", "full_name": "my-testing-org/saint_laurent", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-10-09T12:55:14.542227Z", "status": "canceled", "failing_reason":
+        "", "commits_scanned": 0, "duration": "1.684644", "branches_scanned": 0, "progress":
+        0}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "28", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/saint_laurent",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12268,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-2021-04",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        3, "last_scan": {"date": "2021-05-12T13:40:00.812612Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 686, "duration": "2.80448", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "353525015", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        1, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 3, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-2021-04",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12269,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2021-02",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        9, "last_scan": {"date": "2021-05-12T13:40:00.842952Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1474, "duration": "4.569221", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "339243552", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 9, "severity_breakdown": {"critical": 0, "high": 9, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2021-02",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12270,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2021-04",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        4, "last_scan": {"date": "2021-05-12T13:40:00.804955Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 419, "duration": "2.634533", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "358427683", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 4, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 1, "unknown": 2}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2021-04",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12271,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-2021-03",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        7, "last_scan": {"date": "2021-05-12T13:40:00.809898Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1216, "duration": "8.598146", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "343245836", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 2}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0,
+        "low": 0, "info": 4, "unknown": 1}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-2021-03",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12272,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2021-03",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        1, "last_scan": {"date": "2021-05-12T13:40:00.801498Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 940, "duration": "6.936519", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "348161051", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2021-03",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12273,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2021-03",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": {"date": "2021-05-12T13:40:00.818740Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 990, "duration": "6.295876", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "348161060", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2021-03",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12274,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-2020-07",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": {"date": "2020-09-24T09:06:39.253667Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1408, "duration": "4.083977", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "276237250", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-07",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12275,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-08",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        9, "last_scan": {"date": "2020-09-24T09:06:39.215897Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 656, "duration": "5.5968", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "287845935", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 9, "severity_breakdown": {"critical": 0, "high": 9, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-08",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12276,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2020-12",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        6, "last_scan": {"date": "2021-02-01T15:38:48.535700Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1040, "duration": "2.651208", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "317380020", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2020-12",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12277,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-2020-08",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        4, "last_scan": {"date": "2020-09-24T09:06:39.225976Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 913, "duration": "2.608482", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "284154416", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 4, "severity_breakdown": {"critical": 0, "high": 4, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-2020-08",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12278,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-11",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        7, "last_scan": {"date": "2021-02-01T15:38:48.535276Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1282, "duration": "3.557603", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "313150729", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 7, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-11",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
+      CF-RAY:
+      - a103989fcd413d10-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:46:33 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '17403'
+      - '17318'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:44:42 GMT
       link:
-      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTM0ODc3Ng%3D%3D&per_page=20>;
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjI3OA%3D%3D&per_page=20>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '7839'
+      - '501'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -309,274 +318,278 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: GET
-    uri: https://api.gitguardian.com/v1/sources?per_page=20&cursor=cD0xMTM0ODc3Ng%3D%3D
+    uri: https://api.gitguardian.com/v1/sources?per_page=20&cursor=cD0xMjI3OA%3D%3D
   response:
     body:
-      string: '[{"id": 11363204, "type": "github", "full_name": "amascia-gg/ftn-test-circleci",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": "main",
+      string: '[{"id": 12279, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-01",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        3, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "234319360", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 3, "severity_breakdown": {"critical": 0, "high": 3, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-01",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12280,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2020-12",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        7, "last_scan": {"date": "2021-03-05T16:32:08.931273Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1343, "duration": "3.700622", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "321822525", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 7, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-12",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12281,
+        "type": "github", "full_name": "wayne-enterprises-gg/empty-repo", "health":
+        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-01-27T09:14:01.990109Z", "status": "failed", "failing_reason":
+        "Unknown error", "commits_scanned": 0, "duration": "0.0", "branches_scanned":
+        0, "progress": 0}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "236453863", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/empty-repo",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12282,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-07",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
-        1, "last_scan": {"date": "2025-10-09T16:45:43.354963Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/amascia-gg/ftn-test-circleci", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11379320, "type": "slack",
-        "full_name": "Demo Slack Integration / #public-channel", "health": "safe",
-        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 3, "last_scan":
-        {"date": "2025-10-09T16:44:19.448995Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 0, "duration": "0.221121", "branches_scanned": 0, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "C0610066CUD",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
-        0, "high": 1, "medium": 0, "low": 0, "info": 2, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C0610066CUD",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11411960,
-        "type": "github", "full_name": "leakymcgee/nodejs-goof", "health": "at_risk",
-        "source_criticality": "critical", "default_branch": "main", "default_branch_head":
-        "8cacb884e328f0f883b934d427122e8fe8ad8b1c", "open_incidents_count": 3, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.354368Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 113, "duration": "3.560034", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "705767874", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 3, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/leakymcgee/nodejs-goof", "provider_metadata": {"archived":
-        false}, "deleted": false}, {"id": 11454870, "type": "slack", "full_name":
-        "Demo Slack Integration / #demo-231020", "health": "at_risk", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 3, "last_scan": {"date": "2025-10-09T16:44:19.449030Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.218781", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C062255B9R8", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}, "closed_secret_incidents": {"total":
-        3, "severity_breakdown": {"critical": 0, "high": 2, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C062255B9R8",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11600587,
-        "type": "github", "full_name": "peterringball/terragoatGGDemoProd", "health":
-        "at_risk", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
-        "d1138f0813f335cd09babbc2863e84ea8d462468", "open_incidents_count": 1, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:45:43.354179Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 18, "duration": "3.934015", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "private", "external_id":
-        "713321698", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/peterringball/terragoatGGDemoProd", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11677085, "type": "github",
-        "full_name": "peterringball/test", "health": "unknown", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "673461264", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11678252,
-        "type": "github", "full_name": "tuches/Test", "health": "safe", "source_criticality":
-        "low", "default_branch": "master", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
-        "0.68205", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "291043633", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/tuches/Test", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11678253, "type": "github",
-        "full_name": "tuches/x", "health": "safe", "source_criticality": "unknown",
-        "default_branch": "master", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352117Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1, "duration":
-        "0.440233", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "299562498", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/tuches/x", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11679819, "type": "github",
-        "full_name": "peterringball/cfngoat", "health": "at_risk", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        1, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352774Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1, "duration":
-        "1.096922", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "713839011", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 1, "severity_breakdown": {"critical": 1, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/cfngoat",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11756704,
-        "type": "github", "full_name": "peterringball/test4", "health": "safe", "source_criticality":
-        "low", "default_branch": "main", "default_branch_head": "d7d00895483d9e6fd62acf72594199ee5cabf7c7",
-        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.353873Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 32, "duration": "3.878778", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "684649378",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test4",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12322614,
-        "type": "slack", "full_name": "Demo Slack Integration / #test-timothe-delion",
+        9, "last_scan": {"date": "2020-09-24T09:06:39.281285Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1146, "duration": "5.695658", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "280012005", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 9, "severity_breakdown": {"critical": 0, "high": 9, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-07",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12283,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2020-09",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        5, "last_scan": {"date": "2020-09-24T09:06:39.249695Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 405, "duration": "4.641103", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "291853911", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 5, "severity_breakdown": {"critical": 0, "high": 5, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2020-09",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12284,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2020-06",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        10, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "272571163", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 10, "severity_breakdown": {"critical": 0, "high": 10, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-06",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12285,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-04",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        5, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "256067455", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 5, "severity_breakdown": {"critical": 0, "high": 5, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-04",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12286,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-2020-11",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:44:19.449065Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 0, "duration": "0.233054", "branches_scanned":
-        0, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "C06D386SZC0", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://demoslackinte-0vf1761.slack.com/archives/C06D386SZC0", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 12455380, "type": "slack",
-        "full_name": "Demo Slack Integration / #honeytoken", "health": "safe", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.449100Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.210458", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C06DJ0ZCSAK", "secret_incidents_breakdown": {"open_secret_incidents":
+        11, "last_scan": {"date": "2021-01-26T16:46:38.539876Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1486, "duration": "2.780691", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "308995512", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 11, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-2020-11",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12287,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-2020-04",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 6, "closed_incidents_count":
+        11, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "252029776", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 6, "severity_breakdown": {"critical":
+        6, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 11, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-2020-04",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12288,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-12",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": {"date": "2021-03-11T11:00:13.725202Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1429, "duration": "2.608724", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "321822539", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-12",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12289,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2020-02",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 1, "closed_incidents_count":
+        0, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "237538596", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 1, "severity_breakdown": {"critical":
+        1, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06DJ0ZCSAK",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12470998,
-        "type": "slack", "full_name": "Demo Slack Integration / #test-channel-creation",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2020-02",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12290,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2020-05",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
+        8, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "264326539", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 8, "severity_breakdown": {"critical": 0, "high": 8, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-05",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12291,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2020-07",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 6, "closed_incidents_count":
+        7, "last_scan": {"date": "2020-09-24T09:06:39.268982Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1442, "duration": "4.222266", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "276237232", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 6, "severity_breakdown": {"critical":
+        5, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 7, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2020-07",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12292,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-app-gg-bis-2020-08",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        13, "last_scan": {"date": "2020-11-04T14:06:32.755685Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1450, "duration": "2.440167", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "287845929", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
+        4, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 13, "severity_breakdown": {"critical": 0, "high": 13, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-app-gg-bis-2020-08",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12293,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2020-03",
+        "health": "unknown", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        8, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "244061781", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 8, "severity_breakdown": {"critical": 0, "high": 8, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2020-03",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12294,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-2021-03",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 5, "closed_incidents_count":
+        7, "last_scan": {"date": "2021-05-12T13:40:00.845299Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1247, "duration": "5.565196", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "343245830", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 5, "severity_breakdown": {"critical":
+        4, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 7, "severity_breakdown": {"critical": 0, "high": 7, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-2021-03",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12295,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-02",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        1, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "240807321", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-02",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12296,
+        "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-08",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        6, "last_scan": {"date": "2020-11-02T19:32:24.488911Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1414, "duration": "4.213635", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "287845921", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-08",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12297,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-2020-08",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": {"date": "2025-10-09T16:44:19.444580Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 0, "duration": "0.23533", "branches_scanned":
-        0, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "C06EGV15G8Z", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EGV15G8Z", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 12482445, "type": "slack",
-        "full_name": "Demo Slack Integration / #test", "health": "safe", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:44:19.440496Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 0, "duration":
-        "0.26622", "branches_scanned": 0, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "C06EYF11U0G", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://demoslackinte-0vf1761.slack.com/archives/C06EYF11U0G",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12662970,
-        "type": "github", "full_name": "aymericGG/sample_secrets_Codacytest", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        null, "open_incidents_count": 1, "closed_incidents_count": 2, "last_scan":
-        {"date": "2025-10-09T16:45:43.354102Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 7, "duration": "2.949598", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "750268193",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 1, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
-        0, "high": 1, "medium": 1, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/aymericGG/sample_secrets_Codacytest",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12663154,
-        "type": "github", "full_name": "aymericGG/juice-shop-Codacytest", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
-        null, "open_incidents_count": 52, "closed_incidents_count": 33, "last_scan":
-        {"date": "2026-01-15T16:49:11.671959Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 19830, "duration": "82.392816", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "750273107", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        52, "severity_breakdown": {"critical": 27, "high": 25, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 33, "severity_breakdown":
-        {"critical": 2, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 30}}},
-        "url": "https://github.com/aymericGG/juice-shop-Codacytest", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 12842035, "type": "github",
-        "full_name": "ZGuardian/GitGoat", "health": "at_risk", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": "a7cbebb5a8449be04121bfe23d381fb61c4214ef",
-        "open_incidents_count": 11, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.352323Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 91, "duration": "1.635283", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "public", "external_id": "644504052",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 11, "severity_breakdown":
-        {"critical": 6, "high": 5, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ZGuardian/GitGoat",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12842036,
-        "type": "github", "full_name": "ZGuardian/wrongsecrets", "health": "at_risk",
-        "source_criticality": "critical", "default_branch": "master", "default_branch_head":
-        null, "open_incidents_count": 40, "closed_incidents_count": 24, "last_scan":
-        {"date": "2025-10-09T16:45:43.352396Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 2903, "duration": "28.527595", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "644518416", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        40, "severity_breakdown": {"critical": 35, "high": 5, "medium": 0, "low":
-        0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 24, "severity_breakdown":
-        {"critical": 7, "high": 17, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/ZGuardian/wrongsecrets", "provider_metadata": {"archived":
-        false}, "deleted": false}, {"id": 12842037, "type": "github", "full_name":
-        "ZGuardian/terragoat", "health": "at_risk", "source_criticality": "unknown",
-        "default_branch": "master", "default_branch_head": null, "open_incidents_count":
-        2, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352470Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 259, "duration":
-        "8.001244", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "644519103", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/ZGuardian/terragoat",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12842038,
-        "type": "github", "full_name": "ZGuardian/sample_secrets", "health": "at_risk",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        null, "open_incidents_count": 2, "closed_incidents_count": 9, "last_scan":
-        {"date": "2025-10-09T16:45:43.352543Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 14, "duration": "5.126184", "branches_scanned": 3,
-        "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "644877809", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 0, "high": 1, "medium": 1, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 9, "severity_breakdown":
-        {"critical": 0, "high": 8, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/ZGuardian/sample_secrets", "provider_metadata":
-        {"archived": false}, "deleted": false}]'
+        11, "last_scan": {"date": "2020-09-24T09:06:39.261262Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 928, "duration": "3.06658", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "284154426", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 11, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-08",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12298,
+        "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-05",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 3, "closed_incidents_count":
+        8, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "264326547", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 3, "severity_breakdown": {"critical":
+        3, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 8, "severity_breakdown": {"critical": 0, "high": 8, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-05",
+        "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
+      CF-RAY:
+      - a10398a59c80c2cf-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:46:34 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '16951'
+      - '16935'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:44:44 GMT
       link:
-      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjg0MjAzOA%3D%3D&per_page=20>;
-        rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTEzNjMyMDQ%3D&per_page=20>;
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjI5OA%3D%3D&per_page=20>;
+        rel="next", <https://api.gitguardian.com/v1/sources?cursor=cj0xJnA9MTIyNzk%3D&per_page=20>;
         rel="prev"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '1394'
+      - '451'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

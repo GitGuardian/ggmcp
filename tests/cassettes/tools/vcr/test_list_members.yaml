@@ -25,54 +25,62 @@ interactions:
         "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
         "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
         "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2026-04-02T08:21:40.877924Z", "active": true}, {"id": 2508, "role": "manager",
+        "2026-06-22T14:20:46.680540Z", "active": true}, {"id": 2508, "role": "manager",
         "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
         "name": "Guillaume CHARPIAT", "created_at": "2020-03-23T17:53:57.158457Z",
-        "last_login": "2026-03-25T10:56:33.130265Z", "active": true}, {"id": 37699,
+        "last_login": "2026-06-10T11:29:54.420261Z", "active": true}, {"id": 37699,
         "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
         "name": "Alexis LARNAUD", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
-        "2026-03-31T09:14:08.791897Z", "active": true}, {"id": 63809, "role": "manager",
+        "2026-06-22T09:33:43.124144Z", "active": true}, {"id": 63809, "role": "manager",
         "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
         "Orian ROTURIER", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
         "2025-08-05T08:47:38.723615Z", "active": true}]'
     headers:
+      CF-RAY:
+      - a10398c8de77e8c9-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:46:39 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '1098'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:44:53 GMT
       link:
       - <https://api.gitguardian.com/v1/members?cursor=cD02MzgwOQ%3D%3D&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '36'
+      - '41'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

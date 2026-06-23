@@ -21,71 +21,80 @@ interactions:
   response:
     body:
       string: '[{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
-        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
-        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
-        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
-        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
-        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
-        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
-        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
-        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
-        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
-        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
-        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
-        give or has given access to any sensitive information or services?", "boolean":
-        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
-        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
-        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
-        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        IAM Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
+        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
+        Keys"}, "date": "2020-10-29T13:19:59.005564Z", "secret_id": 70588, "secret_hash":
+        "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG", "hmsl_hash":
+        "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7", "occurrences_count":
+        2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-03-11T22:41:04.525493Z",
+        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
+        "validity": "invalid", "severity": "medium", "assignee_id": null, "assignee_email":
+        "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
+        "email": "stanislas.crepin@gitguardian.com", "member_id": null, "answers":
+        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
+        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
+        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
+        given access to any sensitive information or services?", "boolean": true},
+        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Hasn''t been revoked yet because
+        X"}]}], "risk_score": 100, "severity_rule_id": null, "is_vaulted": false,
+        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLICLY_LEAKED"],
-        "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["REVOCABLE_BY_GG",
+        "PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
         true, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}]'
     headers:
+      CF-RAY:
+      - a103954f1a327012-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:17 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '2149'
+      - '2219'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:33 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2MA%3D%3D&per_page=1>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '80'
+      - '96'
       x-frame-options:
       - DENY
       x-per-page:
       - '1'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -114,42 +123,48 @@ interactions:
     body:
       string: '[]'
     headers:
+      CF-RAY:
+      - a10395516e449e96-CDG
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:17 GMT
+      Server:
+      - cloudflare
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, POST, HEAD, OPTIONS
-      content-length:
-      - '2'
+      cf-cache-status:
+      - DYNAMIC
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:34 GMT
       link:
       - ''
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '29'
+      - '84'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
