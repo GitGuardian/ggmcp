@@ -1513,39 +1513,64 @@ class GitGuardianClient:
         logger.info(f"Getting impacted perimeter for incident {incident_id}")
         return await self._request_get(f"/incidents/secrets/{incident_id}/perimeter")
 
-    # Secret Incident Notes management
-    async def list_incident_notes(self, incident_id: str) -> dict[str, Any]:
-        """List notes on a secret incident.
+    # Secret Incident Notes (comments) management
+    #
+    # Notes are free-form comments left by members or API tokens on an incident.
+    # The public API exposes them under ``.../notes`` and the comment body is
+    # carried in the ``comment`` field (1-10000 characters). Internal incidents
+    # live under ``/incidents/secrets/{id}/notes`` while Public Monitoring
+    # incidents live under ``/public-incidents/secrets/{id}/notes``; the note ids
+    # are not interchangeable between the two perimeters.
+    async def list_incident_notes(
+        self,
+        incident_id: int | str,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List notes (comments) on an internal secret incident.
+
+        Wraps GET /v1/incidents/secrets/{incident_id}/notes.
 
         Args:
             incident_id: ID of the secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
 
         Returns:
-            List of notes attached to the incident
+            ListResponse with data, cursor, and has_more fields
         """
         logger.info(f"Listing notes for incident {incident_id}")
-        return await self._request_get(f"/incidents/secrets/{incident_id}/notes")
+        endpoint = f"/incidents/secrets/{incident_id}/notes"
 
-    async def create_incident_note(self, incident_id: str, content: str) -> dict[str, Any]:
-        """Create a note on a secret incident.
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
+    async def create_incident_note(self, incident_id: int | str, comment: str) -> dict[str, Any]:
+        """Create a note (comment) on an internal secret incident.
+
+        Wraps POST /v1/incidents/secrets/{incident_id}/notes.
 
         Args:
             incident_id: ID of the secret incident
-            content: Content of the note
+            comment: Content of the comment (1-10000 characters)
 
         Returns:
             Created note details
         """
         logger.info(f"Creating note for incident {incident_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/notes", json={"content": content})
+        return await self._request_post(f"/incidents/secrets/{incident_id}/notes", json={"comment": comment})
 
-    async def update_incident_note(self, incident_id: str, note_id: str, content: str) -> dict[str, Any]:
-        """Update a note on a secret incident.
+    async def update_incident_note(self, incident_id: int | str, note_id: int | str, comment: str) -> dict[str, Any]:
+        """Update a note (comment) on an internal secret incident.
+
+        Wraps PATCH /v1/incidents/secrets/{incident_id}/notes/{note_id}.
 
         Args:
             incident_id: ID of the secret incident
             note_id: ID of the note to update
-            content: New content for the note
+            comment: New content for the comment (1-10000 characters)
 
         Returns:
             Updated note details
@@ -1553,11 +1578,13 @@ class GitGuardianClient:
         logger.info(f"Updating note {note_id} for incident {incident_id}")
         return await self._request_patch(
             f"/incidents/secrets/{incident_id}/notes/{note_id}",
-            json={"content": content},
+            json={"comment": comment},
         )
 
-    async def delete_incident_note(self, incident_id: str, note_id: str) -> dict[str, Any]:
-        """Delete a note from a secret incident.
+    async def delete_incident_note(self, incident_id: int | str, note_id: int | str) -> dict[str, Any]:
+        """Delete a note (comment) from an internal secret incident.
+
+        Wraps DELETE /v1/incidents/secrets/{incident_id}/notes/{note_id}.
 
         Args:
             incident_id: ID of the secret incident
@@ -1568,6 +1595,83 @@ class GitGuardianClient:
         """
         logger.info(f"Deleting note {note_id} from incident {incident_id}")
         return await self._request_delete(f"/incidents/secrets/{incident_id}/notes/{note_id}")
+
+    async def list_public_incident_notes(
+        self,
+        incident_id: int | str,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List notes (comments) on a public secret incident.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}/notes.
+
+        Args:
+            incident_id: ID of the public secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
+
+        Returns:
+            ListResponse with data, cursor, and has_more fields
+        """
+        logger.info(f"Listing notes for public incident {incident_id}")
+        endpoint = f"/public-incidents/secrets/{incident_id}/notes"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
+    async def create_public_incident_note(self, incident_id: int | str, comment: str) -> dict[str, Any]:
+        """Create a note (comment) on a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/notes.
+
+        Args:
+            incident_id: ID of the public secret incident
+            comment: Content of the comment (1-10000 characters)
+
+        Returns:
+            Created note details
+        """
+        logger.info(f"Creating note for public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/notes", json={"comment": comment})
+
+    async def update_public_incident_note(
+        self, incident_id: int | str, note_id: int | str, comment: str
+    ) -> dict[str, Any]:
+        """Update a note (comment) on a public secret incident.
+
+        Wraps PATCH /v1/public-incidents/secrets/{incident_id}/notes/{note_id}.
+
+        Args:
+            incident_id: ID of the public secret incident
+            note_id: ID of the note to update
+            comment: New content for the comment (1-10000 characters)
+
+        Returns:
+            Updated note details
+        """
+        logger.info(f"Updating note {note_id} for public incident {incident_id}")
+        return await self._request_patch(
+            f"/public-incidents/secrets/{incident_id}/notes/{note_id}",
+            json={"comment": comment},
+        )
+
+    async def delete_public_incident_note(self, incident_id: int | str, note_id: int | str) -> dict[str, Any]:
+        """Delete a note (comment) from a public secret incident.
+
+        Wraps DELETE /v1/public-incidents/secrets/{incident_id}/notes/{note_id}.
+
+        Args:
+            incident_id: ID of the public secret incident
+            note_id: ID of the note to delete
+
+        Returns:
+            Status of the operation
+        """
+        logger.info(f"Deleting note {note_id} from public incident {incident_id}")
+        return await self._request_delete(f"/public-incidents/secrets/{incident_id}/notes/{note_id}")
 
     # Secret Occurrences management
     async def list_secret_occurrences(self, incident_id: str) -> dict[str, Any]:

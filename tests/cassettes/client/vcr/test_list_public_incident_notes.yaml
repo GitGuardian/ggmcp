@@ -1,0 +1,76 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets/3759/notes
+  response:
+    body:
+      string: '[{"id": 5132786, "member_id": 480870, "api_token_id": "d0ca9877-641f-4c37-8857-c08e0ae148c4",
+        "created_at": "2026-06-23T14:12:49.055117Z", "updated_at": "2026-06-23T14:12:49.360819Z",
+        "comment": "Actor confirmed rotation", "incident_id": 3759}]'
+    headers:
+      CF-RAY:
+      - a10417019cc9229d-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 14:12:49 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, POST, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '231'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '34'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '20'
+      x-secrets-engine-version:
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
