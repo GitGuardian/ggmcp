@@ -21,8 +21,55 @@ interactions:
   response:
     body:
       string: '{"count": null, "page": 1, "next": "https://api.gitguardian.com/exposed/v1/incidents-for-mcp?ordering=-date&page=2&page_size=5&severity__in=10&status__in=TRIGGERED&tags__nin=TEST_FILE&validity__in=valid",
-        "previous": null, "results": [{"id": 22515404, "account": 8, "criterion":
-        "AWS Keys", "date": "2025-11-17T17:16:25Z", "last_trigger_published_at": "2025-11-17T17:16:25Z",
+        "previous": null, "results": [{"id": 32985083, "account": 8, "criterion":
+        "Google API Key", "date": "2026-05-19T09:33:23Z", "last_trigger_published_at":
+        "2026-05-19T09:33:23Z", "last_triggered_at": "2026-05-19T09:36:55.570755Z",
+        "last_trigger_detected_at": "2026-05-19T09:36:55.570755Z", "hash": "pHE0O7zGgt2lhT0TLQzB2cwgMuZgrhqH4vSIGV5fw5ao1EL3iwQ5Z8PP16EaJtIX",
+        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
+        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
+        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
+        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
+        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
+        "Google API Key", "severity_rule_config": {"id": 11883, "gg_created_at": "2026-05-20T08:56:10.055321Z",
+        "gg_updated_at": "2026-05-20T08:56:10.055331Z", "index": 10, "severity": 10,
+        "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at":
+        "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets", "description":
+        "Publicly leaked secrets outside perimeter", "json_rule": {"operator": "AND",
+        "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.public_leak_range",
+        "default": null}, "arg2": {"value": "0"}}}, {"operator": "NOT", "arg1": {"operator":
+        "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
+        {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
+        520858}}, "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
+        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
+        [{"id": 16218896, "name": "qa / test-nriv", "type": "gl_project", "path":
+        "qa1/test-nriv", "source_criticality": "unknown", "monitoring_status": "active",
+        "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
+        false, "similar_issue_count": 0, "score": 64, "displayed_occurrence": {"id":
+        268288466, "issue": 32985083, "account": 8, "kind": "RLTM", "element": "9181621d49e910c3d2393f2373e52c04b26c7adb",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "y0o7bgCt8InKo3/G0QE6WaG+gU32WlUdYH0N4oUFXredK2KoKwrhfI+hoCMCs6v6",
+        "published_at": "2026-05-19T09:33:23Z", "date": "2026-05-19T09:33:23Z", "detected_at":
+        "2026-05-19T09:36:53.339083Z", "is_vcs_type": true, "last_detected_at": "2026-05-19T09:33:23Z",
+        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
+        "source": {"id": 16218896, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
+        "type": "gl_project", "display_name": "qa / test-nriv", "visibility": "internal",
+        "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
+        "main", "monitoring_status": "active"}, "regression": false, "content": 162813398,
+        "secrets_engine_version": "2.162.0", "matches": [{"name": "apikey", "string_matched":
+        "[REDACTED]", "indice_start": 307, "indice_end": 346, "pre_line_start": null,
+        "pre_line_end": null, "post_line_start": 4, "post_line_end": 4}], "most_sensitive_match_name":
+        "apikey", "insights": [], "filepath": ".envrc", "filename": ".envrc", "presence":
+        "visible", "last_presence_seen_at": "2026-05-19T09:36:55.598741Z", "last_presence_check_at":
+        "2026-05-19T09:36:55.598741Z", "first_presence_deleted_at": null, "seen_in_default_branch":
+        true, "change_type": "addition", "full_tags": [{"type": "DEFAULT_BRANCH",
+        "metadata": null, "field": "content"}]}, "has_dropped_occurrences": false,
+        "tags": ["DEFAULT_BRANCH", "PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
+        false, "public_incident_linked": false, "leaked_outside_perimeter": true},
+        "occurrences_count": 2}, {"id": 22515404, "account": 8, "criterion": "AWS
+        Keys", "date": "2025-11-17T17:16:25Z", "last_trigger_published_at": "2025-11-17T17:16:25Z",
         "last_triggered_at": "2025-11-17T17:18:18.706440Z", "last_trigger_detected_at":
         "2025-11-17T17:18:18.706440Z", "hash": "6y4trbQi60aNmDEFQe0tJH3jke+8j18I9t2sKfgaunTYEUdZL4Qc71cZRqNcojMG",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
@@ -30,8 +77,8 @@ interactions:
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
         "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "AWS IAM Keys", "severity_rule_config": {"id": 10860, "gg_created_at": "2026-02-12T15:13:37.684167Z",
-        "gg_updated_at": "2026-02-12T15:13:37.684171Z", "index": 30, "severity": 10,
+        "AWS IAM Keys", "severity_rule_config": {"id": 11885, "gg_created_at": "2026-05-20T08:56:10.055362Z",
+        "gg_updated_at": "2026-05-20T08:56:10.055364Z", "index": 30, "severity": 10,
         "rule": {"id": 503, "gg_created_at": "2025-03-18T08:57:54.142008Z", "gg_updated_at":
         "2025-04-02T13:15:43.307296Z", "name": "Valid secrets related to highly sensitive
         detectors", "description": "Secrets related to highly sensitive detectors
@@ -48,44 +95,44 @@ interactions:
         "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
         "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "gim-qa-gitlabSandbox-auto
+        null, "locations_count": 0, "sources": [{"id": 16219056, "name": "gim-qa-gitlabSandbox-auto
         / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
-        "source_criticality": "unknown"}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 1, "score": 97, "displayed_occurrence":
-        {"id": 226113779, "issue": 22515404, "account": 8, "kind": "RLTM", "element":
-        "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9", "element_type": "GIT_COMMIT",
-        "author_name": "dev", "author_info": "gim+dev@gitguardian.com", "value": null,
-        "value_hash": "yEDhOhQ6p7D5/7TcJR5YtztO3INO1WgqiWd2qPiA0XRele/bong1Td3XczdQcVM3",
+        "source_criticality": "critical", "monitoring_status": "active", "deleted_at":
+        null}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
+        1, "score": 97, "displayed_occurrence": {"id": 226113779, "issue": 22515404,
+        "account": 8, "kind": "RLTM", "element": "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "value": null, "value_hash": "yEDhOhQ6p7D5/7TcJR5YtztO3INO1WgqiWd2qPiA0XRele/bong1Td3XczdQcVM3",
         "published_at": "2025-11-17T17:16:25Z", "date": "2025-11-17T17:16:25Z", "detected_at":
         "2025-11-17T17:18:16.645938Z", "is_vcs_type": true, "last_detected_at": "2025-11-17T17:16:25Z",
         "last_seen_at": "2025-11-17T17:16:25Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging/commit/95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9#34c8dc1a12161a07003ebd2c3145185257f0cd94_0_3",
         "source": {"id": 16219056, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "type": "gl_project", "display_name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
-        "visibility": "private", "monitored": true, "source_criticality": "unknown",
-        "deleted_at": null, "default_branch": "main"}, "regression": false, "content":
-        105863010, "secrets_engine_version": "2.150.0", "matches": [{"name": "client_id",
-        "string_matched": "[REDACTED]", "indice_start": 45, "indice_end": 65, "pre_line_start":
-        null, "pre_line_end": null, "post_line_start": 2, "post_line_end": 2}, {"name":
-        "client_secret", "string_matched": "[REDACTED]", "indice_start": 82, "indice_end":
-        122, "pre_line_start": null, "pre_line_end": null, "post_line_start": 3, "post_line_end":
-        3}], "most_sensitive_match_name": "client_secret", "insights": [], "filepath":
-        "aws_api_access.yml", "filename": "aws_api_access.yml", "presence": "visible",
-        "last_presence_seen_at": "2026-02-18T22:30:08.818671Z", "last_presence_check_at":
-        "2026-02-18T22:30:08.818671Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        false, "change_type": "addition", "full_tags": []}, "has_dropped_occurrences":
-        false, "tags": [], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 1}, {"id":
-        21256874, "account": 8, "criterion": "Google API Key", "date": "2025-09-28T15:22:38.271649Z",
-        "last_trigger_published_at": "2025-09-28T15:22:38.271649Z", "last_triggered_at":
-        "2025-09-28T15:22:38.612424Z", "last_trigger_detected_at": "2025-09-28T15:22:38.612424Z",
-        "hash": "Jxnz5kPob11xLvEtZ86g47aESTtckctpj4bPLy+pvS9PIsSDiwQ5Z8PP16EaJtIX",
+        "visibility": "private", "monitored": true, "source_criticality": "critical",
+        "deleted_at": null, "default_branch": "main", "monitoring_status": "active"},
+        "regression": false, "content": 105863010, "secrets_engine_version": "2.150.0",
+        "matches": [{"name": "client_id", "string_matched": "[REDACTED]", "indice_start":
+        45, "indice_end": 65, "pre_line_start": null, "pre_line_end": null, "post_line_start":
+        2, "post_line_end": 2}, {"name": "client_secret", "string_matched": "[REDACTED]",
+        "indice_start": 82, "indice_end": 122, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}], "most_sensitive_match_name":
+        "client_secret", "insights": [], "filepath": "aws_api_access.yml", "filename":
+        "aws_api_access.yml", "presence": "visible", "last_presence_seen_at": "2026-06-04T08:10:24.433576Z",
+        "last_presence_check_at": "2026-06-04T08:10:24.433576Z", "first_presence_deleted_at":
+        null, "seen_in_default_branch": false, "change_type": "addition", "full_tags":
+        []}, "has_dropped_occurrences": false, "tags": ["REVOCABLE_BY_GG"], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 1}, {"id": 21256874, "account": 8, "criterion":
+        "Google API Key", "date": "2025-09-28T15:22:38.271649Z", "last_trigger_published_at":
+        "2025-09-28T15:22:38.271649Z", "last_triggered_at": "2025-09-28T15:22:38.612424Z",
+        "last_trigger_detected_at": "2025-09-28T15:22:38.612424Z", "hash": "Jxnz5kPob11xLvEtZ86g47aESTtckctpj4bPLy+pvS9PIsSDiwQ5Z8PP16EaJtIX",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
         "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
         "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "Google API Key", "severity_rule_config": {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z",
-        "gg_updated_at": "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10,
+        "Google API Key", "severity_rule_config": {"id": 11883, "gg_created_at": "2026-05-20T08:56:10.055321Z",
+        "gg_updated_at": "2026-05-20T08:56:10.055331Z", "index": 10, "severity": 10,
         "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at":
         "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets", "description":
         "Publicly leaked secrets outside perimeter", "json_rule": {"operator": "AND",
@@ -98,24 +145,26 @@ interactions:
         "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
         false, "feedbacks_count": 0, "occurrences_presence_seen_count": 3, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
-        Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
-        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        35, "displayed_occurrence": {"id": 217629888, "issue": 21256874, "account":
-        8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
-        "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
-        "vaoX27XgrGUFeuRDLf1lGhRHkgfeKQkdi/3qMgXMYvxgUYRCJMTAoAK2DALLNEk3", "published_at":
-        "2025-09-28T15:22:38.271649Z", "date": "2025-09-28T15:22:38.271649Z", "detected_at":
-        "2025-09-28T15:22:38.386090Z", "is_vcs_type": false, "last_detected_at": "2025-09-28T15:22:38.271649Z",
-        "last_seen_at": "2025-09-28T15:22:38.271649Z", "data": {}, "url": "", "source":
-        {"id": 22879703, "url": "", "type": "custom_source", "display_name": "GitHub
-        Gist Public Testing", "visibility": "private", "monitored": false, "source_criticality":
-        "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z", "default_branch":
-        null}, "regression": false, "content": 95760168, "secrets_engine_version":
-        "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 715525, "indice_end": 715564, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "public_github_sagarchittaragi_75a7ce7770d67624fd77656f0d3ad099",
+        [{"id": 22879703, "name": "GitHub Gist Public Testing", "type": "custom_source",
+        "path": "GitHub Gist Public Testing", "source_criticality": "unknown", "monitoring_status":
+        "disabled", "deleted_at": "2025-09-30T09:36:56.792947+00:00"}], "custom_tags":
+        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
+        "score": 35, "displayed_occurrence": {"id": 217629888, "issue": 21256874,
+        "account": 8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT",
+        "author_name": "GitGuardian Sandbox [internal]", "author_info": "", "value":
+        null, "value_hash": "vaoX27XgrGUFeuRDLf1lGhRHkgfeKQkdi/3qMgXMYvxgUYRCJMTAoAK2DALLNEk3",
+        "published_at": "2025-09-28T15:22:38.271649Z", "date": "2025-09-28T15:22:38.271649Z",
+        "detected_at": "2025-09-28T15:22:38.386090Z", "is_vcs_type": false, "last_detected_at":
+        "2025-09-28T15:22:38.271649Z", "last_seen_at": "2025-09-28T15:22:38.271649Z",
+        "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
+        "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
+        false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
+        "default_branch": null, "monitoring_status": "disabled"}, "regression": false,
+        "content": 95760168, "secrets_engine_version": "2.148.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 715525, "indice_end":
+        715564, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": "public_github_sagarchittaragi_75a7ce7770d67624fd77656f0d3ad099",
         "filename": "public_github_sagarchittaragi_75a7ce7770d67624fd77656f0d3ad099",
         "presence": "visible", "last_presence_seen_at": "2025-09-28T15:22:38.645860Z",
         "last_presence_check_at": "2025-09-28T15:22:38.645860Z", "first_presence_deleted_at":
@@ -131,8 +180,8 @@ interactions:
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
         "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "Google API Key", "severity_rule_config": {"id": 10858, "gg_created_at": "2026-02-12T15:13:37.684102Z",
-        "gg_updated_at": "2026-02-12T15:13:37.684119Z", "index": 10, "severity": 10,
+        "Google API Key", "severity_rule_config": {"id": 11883, "gg_created_at": "2026-05-20T08:56:10.055321Z",
+        "gg_updated_at": "2026-05-20T08:56:10.055331Z", "index": 10, "severity": 10,
         "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z", "gg_updated_at":
         "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets", "description":
         "Publicly leaked secrets outside perimeter", "json_rule": {"operator": "AND",
@@ -145,24 +194,26 @@ interactions:
         "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
         false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"name": "GitHub Gist Public Testing", "type": "custom_source", "path": "GitHub
-        Gist Public Testing", "source_criticality": "unknown"}], "custom_tags": [],
-        "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0, "score":
-        64, "displayed_occurrence": {"id": 217594938, "issue": 21251447, "account":
-        8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT", "author_name":
-        "GitGuardian Sandbox [internal]", "author_info": "", "value": null, "value_hash":
-        "8WalVYdfAy9WWVLzVZBfOXcyF0UCcYGuYQrb3Wdix673pMDZxFC6e51x3UmXyF+6", "published_at":
-        "2025-09-28T04:37:26.780820Z", "date": "2025-09-28T04:37:26.780820Z", "detected_at":
-        "2025-09-28T04:37:26.850787Z", "is_vcs_type": false, "last_detected_at": "2025-09-28T04:37:26.780820Z",
-        "last_seen_at": "2025-09-28T04:37:26.780820Z", "data": {}, "url": "", "source":
-        {"id": 22879703, "url": "", "type": "custom_source", "display_name": "GitHub
-        Gist Public Testing", "visibility": "private", "monitored": false, "source_criticality":
-        "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z", "default_branch":
-        null}, "regression": false, "content": 95670280, "secrets_engine_version":
-        "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 4660, "indice_end": 4699, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "public_github_youngbee369_a8de7dcd6c0ff078c7f99a4d1622ad45",
+        [{"id": 22879703, "name": "GitHub Gist Public Testing", "type": "custom_source",
+        "path": "GitHub Gist Public Testing", "source_criticality": "unknown", "monitoring_status":
+        "disabled", "deleted_at": "2025-09-30T09:36:56.792947+00:00"}], "custom_tags":
+        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
+        "score": 64, "displayed_occurrence": {"id": 217594938, "issue": 21251447,
+        "account": 8, "kind": "RLTM", "element": "", "element_type": "CUSTOM_ELEMENT",
+        "author_name": "GitGuardian Sandbox [internal]", "author_info": "", "value":
+        null, "value_hash": "8WalVYdfAy9WWVLzVZBfOXcyF0UCcYGuYQrb3Wdix673pMDZxFC6e51x3UmXyF+6",
+        "published_at": "2025-09-28T04:37:26.780820Z", "date": "2025-09-28T04:37:26.780820Z",
+        "detected_at": "2025-09-28T04:37:26.850787Z", "is_vcs_type": false, "last_detected_at":
+        "2025-09-28T04:37:26.780820Z", "last_seen_at": "2025-09-28T04:37:26.780820Z",
+        "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
+        "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
+        false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
+        "default_branch": null, "monitoring_status": "disabled"}, "regression": false,
+        "content": 95670280, "secrets_engine_version": "2.148.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 4660, "indice_end":
+        4699, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": "public_github_youngbee369_a8de7dcd6c0ff078c7f99a4d1622ad45",
         "filename": "public_github_youngbee369_a8de7dcd6c0ff078c7f99a4d1622ad45",
         "presence": "visible", "last_presence_seen_at": "2025-09-28T04:37:27.121112Z",
         "last_presence_check_at": "2025-09-28T04:37:27.121112Z", "first_presence_deleted_at":
@@ -178,8 +229,8 @@ interactions:
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
         "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "DeepSeek API Key", "severity_rule_config": {"id": 10858, "gg_created_at":
-        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
+        "DeepSeek API Key", "severity_rule_config": {"id": 11883, "gg_created_at":
+        "2026-05-20T08:56:10.055321Z", "gg_updated_at": "2026-05-20T08:56:10.055331Z",
         "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
         "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
         "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
@@ -192,111 +243,74 @@ interactions:
         100, "authors": [{"info": "", "name": "GitGuardian Sandbox [internal]"}],
         "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
-        "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
-        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 91, "displayed_occurrence": {"id": 217590276,
-        "issue": 21250826, "account": 8, "kind": "RLTM", "element": "", "element_type":
-        "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
-        "", "value": null, "value_hash": "S9J90cfgfIz9/1KiWTklsCZsShVgIHiSFM0yUQf2i7lzzzxGfAxs12u2O6U6+pg/",
+        null, "locations_count": 0, "sources": [{"id": 22879703, "name": "GitHub Gist
+        Public Testing", "type": "custom_source", "path": "GitHub Gist Public Testing",
+        "source_criticality": "unknown", "monitoring_status": "disabled", "deleted_at":
+        "2025-09-30T09:36:56.792947+00:00"}], "custom_tags": [], "vault_metadata":
+        null, "is_vaulted": false, "similar_issue_count": 0, "score": 91, "displayed_occurrence":
+        {"id": 217590276, "issue": 21250826, "account": 8, "kind": "RLTM", "element":
+        "", "element_type": "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox
+        [internal]", "author_info": "", "value": null, "value_hash": "S9J90cfgfIz9/1KiWTklsCZsShVgIHiSFM0yUQf2i7lzzzxGfAxs12u2O6U6+pg/",
         "published_at": "2025-09-28T02:34:55.156736Z", "date": "2025-09-28T02:34:55.156736Z",
         "detected_at": "2025-09-28T02:34:55.601861Z", "is_vcs_type": false, "last_detected_at":
         "2025-09-28T02:34:55.156736Z", "last_seen_at": "2025-09-28T02:34:55.156736Z",
         "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
         "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
         false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
-        "default_branch": null}, "regression": false, "content": 95659566, "secrets_engine_version":
-        "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 52030, "indice_end": 52065, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "public_github_HugsLibRecordKeeper_e0e10d04d64bf1543f67a3abf9816cab",
+        "default_branch": null, "monitoring_status": "disabled"}, "regression": false,
+        "content": 95659566, "secrets_engine_version": "2.148.0", "matches": [{"name":
+        "apikey", "string_matched": "[REDACTED]", "indice_start": 52030, "indice_end":
+        52065, "pre_line_start": null, "pre_line_end": null, "post_line_start": null,
+        "post_line_end": null}], "most_sensitive_match_name": "apikey", "insights":
+        [], "filepath": "public_github_HugsLibRecordKeeper_e0e10d04d64bf1543f67a3abf9816cab",
         "filename": "public_github_HugsLibRecordKeeper_e0e10d04d64bf1543f67a3abf9816cab",
         "presence": "visible", "last_presence_seen_at": "2025-09-28T02:34:55.830969Z",
         "last_presence_check_at": "2025-09-28T02:34:55.830969Z", "first_presence_deleted_at":
         null, "seen_in_default_branch": null, "change_type": null, "full_tags": []},
         "has_dropped_occurrences": false, "tags": ["PUBLICLY_LEAKED"], "public_exposure":
         {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
-        true}, "occurrences_count": 1}, {"id": 21249986, "account": 8, "criterion":
-        "OpenWeatherMap Token", "date": "2025-09-28T00:51:42.265003Z", "last_trigger_published_at":
-        "2025-09-28T00:51:42.265003Z", "last_triggered_at": "2025-09-28T00:51:42.545593Z",
-        "last_trigger_detected_at": "2025-09-28T00:51:42.545593Z", "hash": "G+55CfHB8Ki7BeVzFjhNlgKGGKJH6+kZro1WRqPtPL10DyCT55bBE6WEo9rNnqWB",
-        "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
-        "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
-        "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
-        "OpenWeatherMap Token", "severity_rule_config": {"id": 10858, "gg_created_at":
-        "2026-02-12T15:13:37.684102Z", "gg_updated_at": "2026-02-12T15:13:37.684119Z",
-        "index": 10, "severity": 10, "rule": {"id": 745, "gg_created_at": "2026-02-12T15:13:36.079495Z",
-        "gg_updated_at": "2026-02-12T15:13:36.079508Z", "name": "Publicly leaked secrets",
-        "description": "Publicly leaked secrets outside perimeter", "json_rule": {"operator":
-        "AND", "args": [{"operator": "NOT", "arg1": {"operator": "EQ", "arg1": {"path":
-        "issue.public_leak_range", "default": null}, "arg2": {"value": "0"}}}, {"operator":
-        "NOT", "arg1": {"operator": "EQ", "arg1": {"path": "issue.secret.validity_status",
-        "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
-        "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
-        null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "", "name": "GitGuardian Sandbox [internal]"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"name": "GitHub Gist Public Testing",
-        "type": "custom_source", "path": "GitHub Gist Public Testing", "source_criticality":
-        "unknown"}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false,
-        "similar_issue_count": 0, "score": 54, "displayed_occurrence": {"id": 217585090,
-        "issue": 21249986, "account": 8, "kind": "RLTM", "element": "", "element_type":
-        "CUSTOM_ELEMENT", "author_name": "GitGuardian Sandbox [internal]", "author_info":
-        "", "value": null, "value_hash": "osEp3GKX4ftrxTM5lNGzTdef2z+j0tc2XJHHJF2v91JTdYxPw5c2j2dU7D4EWOPl",
-        "published_at": "2025-09-28T00:51:42.265003Z", "date": "2025-09-28T00:51:42.265003Z",
-        "detected_at": "2025-09-28T00:51:42.321226Z", "is_vcs_type": false, "last_detected_at":
-        "2025-09-28T00:51:42.265003Z", "last_seen_at": "2025-09-28T00:51:42.265003Z",
-        "data": {}, "url": "", "source": {"id": 22879703, "url": "", "type": "custom_source",
-        "display_name": "GitHub Gist Public Testing", "visibility": "private", "monitored":
-        false, "source_criticality": "unknown", "deleted_at": "2025-09-30T09:36:56.792947Z",
-        "default_branch": null}, "regression": false, "content": 95649476, "secrets_engine_version":
-        "2.148.0", "matches": [{"name": "apikey", "string_matched": "[REDACTED]",
-        "indice_start": 712505, "indice_end": 712537, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": null, "post_line_end": null}], "most_sensitive_match_name":
-        "apikey", "insights": [], "filepath": "public_github_mitch1490_ee46d407faf56d69d50085548e31ebfb",
-        "filename": "public_github_mitch1490_ee46d407faf56d69d50085548e31ebfb", "presence":
-        "visible", "last_presence_seen_at": "2025-09-28T00:51:42.568747Z", "last_presence_check_at":
-        "2025-09-28T00:51:42.568747Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        null, "change_type": null, "full_tags": []}, "has_dropped_occurrences": false,
-        "tags": ["PUBLICLY_LEAKED"], "public_exposure": {"source_publicly_visible":
-        false, "public_incident_linked": false, "leaked_outside_perimeter": true},
-        "occurrences_count": 1}]}'
+        true}, "occurrences_count": 1}]}'
     headers:
+      CF-RAY:
+      - a10397c8683b6f66-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:58 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '27736'
+      - '28403'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:43:52 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '158'
+      - '199'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

@@ -31,7 +31,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 100, "severity_rule_id":
-        10861, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11886, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5207",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "DigitalOcean Token"}, {"id": 5208, "detector": {"name":
@@ -45,7 +45,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 100, "severity_rule_id":
-        10861, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11886, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5208",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "DigitalOcean Token"}, {"id": 1142573, "detector": {"name":
@@ -74,7 +74,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
-        10862, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11887, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6431",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "GitHub OAuth App Keys"}, {"id": 6430, "detector": {"name":
@@ -88,68 +88,70 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
-        10862, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11887, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6430",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "Bitbucket Keys"}, {"id": 120, "detector": {"name": "aws_iam",
-        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
-        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
-        "AWS IAM Keys"}, "date": "2022-09-21T07:47:10Z", "secret_id": 14592936, "secret_hash":
-        "HCWrG3nEt9czkeRivsO5t2mdGFXFrkwOSPchO87xypH14P2ML4Qc71cZRqNcojMG", "hmsl_hash":
-        "44126737df445f6b9468541f77e5c5bdac71b057644a7fe1c8c219940948acc4", "occurrences_count":
-        1, "status": "RESOLVED", "triggered_at": "2025-01-07T18:06:03.840266Z", "ignored_at":
-        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-01-26T14:38:12.774362Z",
-        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
-        "validity": "invalid", "severity": "critical", "assignee_id": null, "assignee_email":
+        [], "incident_name": "Bitbucket Keys"}, {"id": 4956, "detector": {"name":
+        "google_oauth2", "display_name": "Google OAuth2 Keys", "nature": "specific",
+        "family": "credentials", "category": "cloud_provider", "detector_group_name":
+        "google_oauth2_keys", "detector_group_display_name": "Google OAuth2 Keys"},
+        "date": "2023-03-06T00:16:20Z", "secret_id": 14597586, "secret_hash": "GzQ+h5u2VDpOURkCJwl8sXStbutRBP4wCnMlY8GovIWXb3NNGNXwbhGU7EDDkdC0",
+        "hmsl_hash": "7aede9f1814164ead51a330256a4189cc72ec3cc07e12b4b2f9403f691ce1690",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:09:54.854532Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "unknown", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        7263, "is_vaulted": false, "declarative_secret_status": "revoked", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/120",
+        null, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/4956",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "AWS IAM Keys"}, {"id": 1112, "detector": {"name": "aws_iam",
-        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
-        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
-        "AWS IAM Keys"}, "date": "2022-09-14T07:50:20Z", "secret_id": 14593846, "secret_hash":
-        "dEfda3BVSUK9yc1JYPEqSufAdUxQUQ9AqXCVJ1nQKyznAYCnL4Qc71cZRqNcojMG", "hmsl_hash":
-        "0847969d69f0208c61843d6e844e9a0aec67df7d818ac44b906f5671dd538794", "occurrences_count":
-        1, "status": "RESOLVED", "triggered_at": "2025-01-07T18:06:39.804910Z", "ignored_at":
-        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-01-26T14:38:12.774362Z",
-        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
-        "validity": "invalid", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        7263, "is_vaulted": false, "declarative_secret_status": "revoked", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1112",
-        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "AWS IAM Keys"}, {"id": 6663, "detector": {"name": "aws_iam",
-        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
-        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
-        "AWS IAM Keys"}, "date": "2025-01-14T14:28:59Z", "secret_id": 14663989, "secret_hash":
-        "mKvfyERvoW7Jo+/nDXJ/tcfbWqS4tGEO+1j6vf7vlmpyzHHhL4Qc71cZRqNcojMG", "hmsl_hash":
-        "04d0ef9d0b87b0ad5c9e1da99a7e6015bfab50127cbea8d9ff09356021f65998", "occurrences_count":
-        7, "status": "RESOLVED", "triggered_at": "2025-01-14T14:34:01.621378Z", "ignored_at":
-        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-01-26T14:38:12.774362Z",
-        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
-        "validity": "invalid", "severity": "unknown", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        null, "is_vaulted": false, "declarative_secret_status": "revoked", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6663",
-        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
-        "AWS IAM Keys"}, {"id": 518, "detector": {"name": "aws_iam", "display_name":
+        [], "incident_name": "Google OAuth2 Keys"}, {"id": 1112, "detector": {"name":
+        "aws_iam", "display_name": "AWS IAM Keys", "nature": "specific", "family":
+        "credentials", "category": "cloud_provider", "detector_group_name": "aws_iam",
+        "detector_group_display_name": "AWS IAM Keys"}, "date": "2022-09-14T07:50:20Z",
+        "secret_id": 14593846, "secret_hash": "dEfda3BVSUK9yc1JYPEqSufAdUxQUQ9AqXCVJ1nQKyznAYCnL4Qc71cZRqNcojMG",
+        "hmsl_hash": "0847969d69f0208c61843d6e844e9a0aec67df7d818ac44b906f5671dd538794",
+        "occurrences_count": 1, "status": "RESOLVED", "triggered_at": "2025-01-07T18:06:39.804910Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2026-01-26T14:38:12.774362Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "critical",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 97, "severity_rule_id": 7263, "is_vaulted": false, "declarative_secret_status":
+        "revoked", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1112", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "AWS IAM Keys"}, {"id": 1757, "detector": {"name": "aws_iam", "display_name":
         "AWS IAM Keys", "nature": "specific", "family": "credentials", "category":
         "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
-        "AWS IAM Keys"}, "date": "2023-10-19T12:06:07Z", "secret_id": 14593309, "secret_hash":
-        "aQL+3fwIPTpy/G2vW31cL2nAoP8QUXwn3RsexMv3kL2xtBnKL4Qc71cZRqNcojMG", "hmsl_hash":
-        "c1150af7814de655b6069ae54839018ab8350dec4151a441fa5d40bd0b489fd5", "occurrences_count":
-        9, "status": "RESOLVED", "triggered_at": "2025-01-07T18:06:11.066572Z", "ignored_at":
+        "AWS IAM Keys"}, "date": "2022-10-26T17:51:02Z", "secret_id": 5040480, "secret_hash":
+        "9iOcecIDUnwTswf4LBKhEr1f7h+yKuXPUh8Ts6MQ0Em4ZtnDL4Qc71cZRqNcojMG", "hmsl_hash":
+        "9d34dc7a860e4868c3093156278fc8e65f0ceabd9d8fd087022bd09d20f6c6ad", "occurrences_count":
+        1, "status": "RESOLVED", "triggered_at": "2025-01-07T18:07:03.136672Z", "ignored_at":
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-01-26T14:38:12.774362Z",
         "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
         "validity": "invalid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
         7263, "is_vaulted": false, "declarative_secret_status": "revoked", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/518",
-        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "AWS IAM Keys"}, {"id": 385, "detector": {"name": "aws_iam",
-        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
-        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1757",
+        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "AWS IAM Keys"}, {"id": 518, "detector":
+        {"name": "aws_iam", "display_name": "AWS IAM Keys", "nature": "specific",
+        "family": "credentials", "category": "cloud_provider", "detector_group_name":
+        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2023-10-19T12:06:07Z",
+        "secret_id": 14593309, "secret_hash": "aQL+3fwIPTpy/G2vW31cL2nAoP8QUXwn3RsexMv3kL2xtBnKL4Qc71cZRqNcojMG",
+        "hmsl_hash": "c1150af7814de655b6069ae54839018ab8350dec4151a441fa5d40bd0b489fd5",
+        "occurrences_count": 9, "status": "RESOLVED", "triggered_at": "2025-01-07T18:06:11.066572Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        "2026-01-26T14:38:12.774362Z", "resolver_id": 492181, "resolver_api_token_id":
+        null, "secret_revoked": true, "validity": "invalid", "severity": "critical",
+        "assignee_id": null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 97, "severity_rule_id": 7263, "is_vaulted": false, "declarative_secret_status":
+        "revoked", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/518", "tags":
+        ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "AWS IAM Keys"}, {"id": 385, "detector": {"name": "aws_iam", "display_name":
+        "AWS IAM Keys", "nature": "specific", "family": "credentials", "category":
+        "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
         "AWS IAM Keys"}, "date": "2023-07-06T12:36:07Z", "secret_id": 9181441, "secret_hash":
         "mKn4Nj0bR4rIic8L5Vdx8VllYYtf+CISEyDv7GToL66gKwIWL4Qc71cZRqNcojMG", "hmsl_hash":
         "838d881ae00bfb022f27c3b2e57e4927d7a2ef12c4a2f75b8b6730c80dba47b3", "occurrences_count":
@@ -164,13 +166,13 @@ interactions:
         "destination_tickets": [], "incident_name": "AWS IAM Keys"}]'
     headers:
       CF-RAY:
-      - 9efb6e1e7aaf46a0-CDG
+      - a10397d09a73d152-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 21 Apr 2026 09:40:57 GMT
+      - Tue, 23 Jun 2026 12:46:00 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -182,7 +184,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '11567'
+      - '11634'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -197,17 +199,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '198'
+      - '97'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

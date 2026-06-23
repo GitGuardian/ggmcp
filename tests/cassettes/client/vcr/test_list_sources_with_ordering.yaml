@@ -20,91 +20,108 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?ordering=-last_scan_date&per_page=5
   response:
     body:
-      string: '[{"id": 26694167, "type": "slack", "full_name": "Testing Slack / #social",
-        "health": "unknown", "source_criticality": "unknown", "default_branch": null,
-        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
-        0, "last_scan": null, "monitored": true, "visibility": "public", "external_id":
-        "C0ADVSNQBAN", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://11deletetestingslack.slack.com/archives/C0ADVSNQBAN", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 26694166, "type": "slack",
-        "full_name": "Testing Slack / #nouveau-canal", "health": "unknown", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "visibility":
-        "public", "external_id": "C0ADSEJ45RT", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://11deletetestingslack.slack.com/archives/C0ADSEJ45RT",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26694165,
-        "type": "slack", "full_name": "Testing Slack / #tous-testing-slack", "health":
+      string: '[{"id": 17543488, "type": "microsoft_teams", "full_name": "GitGuardian
+        Engineering / Team 10 / 227 - a5c6943a5f124a5c96fe5b6c390a6f73", "health":
         "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": true, "visibility": "public", "external_id": "C0ADEDK2DN3",
+        null, "monitored": false, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "19:a31d8cc11fcd40b983dbbb907c92e054@thread.tacv2",
         "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://11deletetestingslack.slack.com/archives/C0ADEDK2DN3",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 22877000,
-        "type": "custom_source", "full_name": "GitHub Gist", "health": "at_risk",
-        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 4, "closed_incidents_count": 20, "last_scan":
-        null, "monitored": true, "visibility": "private", "external_id": "6345947b-7ae5-406e-8655-6ea41785dba1",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 4, "severity_breakdown":
-        {"critical": 3, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 20, "severity_breakdown": {"critical":
-        0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 9}}}, "url": "",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 26301895,
-        "type": "sharepoint_online_drive", "full_name": "Olivier Local testing (document
-        libraries) / Documents", "health": "unknown", "source_criticality": "unknown",
-        "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "b!228zEW-fFkq1-2oX01HbwHGZCWcIaVdMoP3Smh_fYPO2jtDlq8vWRaNE2VXTEJXs",
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://teams.microsoft.com/l/channel/19:a31d8cc11fcd40b983dbbb907c92e054@thread.tacv2/227
+        - a5c6943a5f124a5c96fe5b6c390a6f73?groupId=3246a4a0-4abf-453d-a53a-f4d4f8b3cbf5&tenantId=1eb62cd2-9303-4be2-8187-2404c20ba039",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 17535269,
+        "type": "microsoft_teams", "full_name": "GitGuardian Engineering / team 12
+        / 177 - 522d63b20b20462fa75d3914f8ca2b12", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "19:7257a9a9f2574b82b07f0871fe665290@thread.tacv2",
         "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
         {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
         "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://gitguardianengineering.sharepoint.com/sites/OlivierLocaltesting/Shared%20Documents",
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://teams.microsoft.com/l/channel/19:7257a9a9f2574b82b07f0871fe665290@thread.tacv2/177
+        - 522d63b20b20462fa75d3914f8ca2b12?groupId=5dd00fc6-e9f1-40f6-994f-f8dca95b85bd&tenantId=1eb62cd2-9303-4be2-8187-2404c20ba039",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 17535276,
+        "type": "microsoft_teams", "full_name": "GitGuardian Engineering / team 12
+        / 959 - 522d63b20b20462fa75d3914f8ca2b12", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "19:75394b5732b24ce59ddebea2a98e5df0@thread.tacv2",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://teams.microsoft.com/l/channel/19:75394b5732b24ce59ddebea2a98e5df0@thread.tacv2/959
+        - 522d63b20b20462fa75d3914f8ca2b12?groupId=5dd00fc6-e9f1-40f6-994f-f8dca95b85bd&tenantId=1eb62cd2-9303-4be2-8187-2404c20ba039",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 17535268,
+        "type": "microsoft_teams", "full_name": "GitGuardian Engineering / team 12
+        / 239 - 522d63b20b20462fa75d3914f8ca2b12", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "19:72068fa0511d42e7990d567928a8d00d@thread.tacv2",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://teams.microsoft.com/l/channel/19:72068fa0511d42e7990d567928a8d00d@thread.tacv2/239
+        - 522d63b20b20462fa75d3914f8ca2b12?groupId=5dd00fc6-e9f1-40f6-994f-f8dca95b85bd&tenantId=1eb62cd2-9303-4be2-8187-2404c20ba039",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 17535267,
+        "type": "microsoft_teams", "full_name": "GitGuardian Engineering / team 12
+        / 569 - 522d63b20b20462fa75d3914f8ca2b12", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
+        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "monitoring_status":
+        "deleted_on_remote", "visibility": "public", "external_id": "19:7203d468f9a941d795344dfb9d260039@thread.tacv2",
+        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
+        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
+        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://teams.microsoft.com/l/channel/19:7203d468f9a941d795344dfb9d260039@thread.tacv2/569
+        - 522d63b20b20462fa75d3914f8ca2b12?groupId=5dd00fc6-e9f1-40f6-994f-f8dca95b85bd&tenantId=1eb62cd2-9303-4be2-8187-2404c20ba039",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
+      CF-RAY:
+      - a10396e558a67031-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:24 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '3633'
+      - '4991'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:43:00 GMT
       link:
       - <https://api.gitguardian.com/v1/sources?cursor=bz01&ordering=-last_scan_date&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '393'
+      - '1805'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

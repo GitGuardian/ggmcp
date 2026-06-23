@@ -20,10 +20,30 @@ interactions:
     uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&feedback=true
   response:
     body:
-      string: '[{"id": 6987, "detector": {"name": "aws_iam", "display_name": "AWS
-        IAM Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
-        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
-        Keys"}, "date": "2025-02-06T13:11:21Z", "secret_id": 14955862, "secret_hash":
+      string: '[{"id": 57, "detector": {"name": "gitguardian_test_token_checked",
+        "display_name": "GitGuardian Test Token Checked", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token_checked",
+        "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
+        "2021-12-10T10:36:08Z", "secret_id": 7970357, "secret_hash": "cfDzN5RpdE7fN0bd474gxh8fBT9kKunY+sHOlD+OeXGzGAkSCxpDOKaZihAFaYMH",
+        "hmsl_hash": "49b26d210036e493d068e32207ab35c98242c41d82db746b1342ef497560195e",
+        "occurrences_count": 187, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:06:03.015423Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": 1778296,
+        "assignee_email": "zeke@binion.io", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at": "2026-04-23T00:37:26.701660Z",
+        "email": "zeke@binion.io", "member_id": 1778296, "answers": [{"type": "boolean",
+        "field_ref": "revoked_yes_no", "field_label": "Has this secret been revoked?",
+        "boolean": true}, {"type": "text", "field_ref": "remarks_text", "field_label":
+        "Additional remarks", "text": ""}]}], "risk_score": 27, "severity_rule_id":
+        11891, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
+        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Test Token Checked"}, {"id": 6987, "detector": {"name": "aws_iam",
+        "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
+        "category": "cloud_provider", "detector_group_name": "aws_iam", "detector_group_display_name":
+        "AWS IAM Keys"}, "date": "2025-02-06T13:11:21Z", "secret_id": 14955862, "secret_hash":
         "kk/auvq83sqNMAD36RivDckUaWd4ApXgmnqrw+x7idvGjJAzL4Qc71cZRqNcojMG", "hmsl_hash":
         "4ff38bc8f1670f5a260989ea723e576278bafa82a2524902093bddbf3b8c054e", "occurrences_count":
         5, "status": "TRIGGERED", "triggered_at": "2025-02-06T13:16:24.742696Z", "ignored_at":
@@ -35,7 +55,7 @@ interactions:
         "member_id": 937472, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no",
         "field_label": "Has this secret been revoked?", "boolean": true}, {"type":
         "text", "field_ref": "remarks_text", "field_label": "Additional remarks",
-        "text": ""}]}], "risk_score": 97, "severity_rule_id": 10860, "is_vaulted":
+        "text": ""}]}], "risk_score": 97, "severity_rule_id": 11885, "is_vaulted":
         false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
         null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6987",
         "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -59,16 +79,56 @@ interactions:
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/286920", "tags":
         [], "custom_tags": [], "destination_tickets": [], "incident_name": "Amazon
-        AWS Credentials"}]'
+        AWS Credentials"}, {"id": 1554830, "detector": {"name": "generic_high_entropy_secret",
+        "display_name": "Generic High Entropy Secret", "nature": "generic", "family":
+        "other", "category": "other", "detector_group_name": "generic_high_entropy_secret",
+        "detector_group_display_name": "Generic High Entropy Secret"}, "date": "2026-03-27T18:11:26Z",
+        "secret_id": 30166297, "secret_hash": "PGGOlbTiQZGqXXA3Vj88RduN0f+72Aha3hUU4MwsiKW7Qj8dp+KkPCNpyNbtXqJM",
+        "hmsl_hash": "e2d81242e3b11cd65b823f92e2dde252dadd99821d401c06f00a8b08994d6e54",
+        "occurrences_count": 18, "status": "IGNORED", "triggered_at": "2026-03-27T18:16:57.754167Z",
+        "ignored_at": "2026-04-27T11:43:00.636684Z", "ignorer_id": 790733, "ignorer_api_token_id":
+        null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
+        "secret_revoked": false, "validity": "no_checker", "severity": "low", "assignee_id":
+        790733, "assignee_email": "romain.jouhannet@gitguardian.com", "share_url":
+        "[REDACTED]", "feedback_list": [{"created_at": "2026-04-27T11:34:43.510449Z",
+        "updated_at": "2026-04-27T11:34:43.510469Z", "email": "romain.jouhannet@gitguardian.com",
+        "member_id": 790733, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no",
+        "field_label": "Has this secret been revoked?", "boolean": false}, {"type":
+        "text", "field_ref": "remarks_text", "field_label": "Additional remarks",
+        "text": "hello world 2"}]}], "risk_score": 9, "severity_rule_id": null, "is_vaulted":
+        false, "declarative_secret_status": "fp", "resolve_reason": null, "ignore_reason":
+        "false_positive", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1554830",
+        "tags": ["FALSE_POSITIVE"], "custom_tags": [], "destination_tickets": [],
+        "incident_name": "Generic High Entropy Secret"}, {"id": 2268786, "detector":
+        {"name": "openai_apikey", "display_name": "OpenAI API Key", "nature": "specific",
+        "family": "token", "category": "ai", "detector_group_name": "openai_apikey",
+        "detector_group_display_name": "OpenAI API Key"}, "date": "2026-05-29T05:03:46Z",
+        "secret_id": 33497976, "secret_hash": "+clEGvuyd9XKpD04OzDCWviJivsV0XKnMcYyUenUhZm+Db3Q95GRLqiXIWrK60u6",
+        "hmsl_hash": "dd49b2d58b151dc16df4c6b7905178d2c3825001b80641310d3f2695222c80c6",
+        "occurrences_count": 1, "status": "TRIGGERED", "triggered_at": "2026-05-29T05:10:28.967226Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
+        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [{"created_at":
+        "2026-06-03T08:25:41.332652Z", "updated_at": "2026-06-03T08:25:41.332665Z",
+        "email": "romain.jouhannet@gitguardian.com", "member_id": 790733, "answers":
+        [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Hello <@M319222>"}]}], "risk_score":
+        6, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/2268786",
+        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "OpenAI API Key"}]'
     headers:
       CF-RAY:
-      - 9ef48709df860b18-CDG
+      - a10396425cf50080-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:37 GMT
+      - Tue, 23 Jun 2026 12:44:56 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -80,13 +140,14 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '3020'
+      - '7761'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
       - same-origin
       link:
-      - ''
+      - <https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0yMjY4Nzg2&feedback=true&per_page=5>;
+        rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
       strict-transport-security:
@@ -94,17 +155,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '79'
+      - '101'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

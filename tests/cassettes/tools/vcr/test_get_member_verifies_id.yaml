@@ -22,40 +22,48 @@ interactions:
     body:
       string: '{"id": 13, "role": "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
         "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2026-04-02T08:21:40.877924Z", "active": true}'
+        "2026-06-22T14:20:46.680540Z", "active": true}'
     headers:
+      CF-RAY:
+      - a103975c6d62bb76-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:41 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '216'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:43:35 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '37'
+      - '27'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

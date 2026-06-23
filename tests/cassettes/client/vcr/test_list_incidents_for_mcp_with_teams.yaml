@@ -23,38 +23,46 @@ interactions:
       string: '{"count": null, "page": 1, "next": null, "previous": null, "results":
         []}'
     headers:
+      CF-RAY:
+      - a10395afaa59e887-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:32 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '64'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:49 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '63'
+      - '51'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

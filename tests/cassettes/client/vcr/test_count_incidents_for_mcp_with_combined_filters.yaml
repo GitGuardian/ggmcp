@@ -20,40 +20,46 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents-for-mcp/count?status__in=TRIGGERED%2CASSIGNED&severity__in=10%2C20&validity__in=valid
   response:
     body:
-      string: '{"count": 143}'
+      string: '{"count": 150}'
     headers:
+      CF-RAY:
+      - a10394a44ed579d6-CDG
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '13'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:43:51 GMT
+      Server:
+      - cloudflare
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
-      content-length:
-      - '13'
+      cf-cache-status:
+      - DYNAMIC
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:07 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '52'
+      - '1075'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

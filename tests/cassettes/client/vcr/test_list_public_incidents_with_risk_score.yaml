@@ -76,7 +76,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/52",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 63, "detector": {"name": "generic_high_entropy_secret",
@@ -97,13 +97,13 @@ interactions:
         "Generic High Entropy Secret"}]'
     headers:
       CF-RAY:
-      - 9ef4870efd38bb22-CDG
+      - a1039646894ed140-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:38 GMT
+      - Tue, 23 Jun 2026 12:44:56 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -130,17 +130,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '91'
+      - '84'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

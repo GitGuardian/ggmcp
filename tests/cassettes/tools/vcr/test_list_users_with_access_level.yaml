@@ -25,69 +25,77 @@ interactions:
         "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
         "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
         "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
-        "2026-04-02T08:21:40.877924Z", "active": true}, {"id": 2508, "role": "manager",
+        "2026-06-22T14:20:46.680540Z", "active": true}, {"id": 2508, "role": "manager",
         "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
         "name": "Guillaume CHARPIAT", "created_at": "2020-03-23T17:53:57.158457Z",
-        "last_login": "2026-03-25T10:56:33.130265Z", "active": true}, {"id": 37699,
+        "last_login": "2026-06-10T11:29:54.420261Z", "active": true}, {"id": 37699,
         "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
         "name": "Alexis LARNAUD", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
-        "2026-03-31T09:14:08.791897Z", "active": true}, {"id": 63809, "role": "manager",
+        "2026-06-22T09:33:43.124144Z", "active": true}, {"id": 63809, "role": "manager",
         "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
         "Orian ROTURIER", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
         "2025-08-05T08:47:38.723615Z", "active": true}, {"id": 104544, "role": "manager",
         "access_level": "manager", "email": "pierre.lalanne@gitguardian.com", "name":
         "Pierre LALANNE", "created_at": "2021-04-07T13:54:43.138909Z", "last_login":
-        "2026-04-02T15:39:43.217674Z", "active": true}, {"id": 104916, "role": "manager",
+        "2026-06-22T08:37:50.823418Z", "active": true}, {"id": 104916, "role": "manager",
         "access_level": "manager", "email": "wassim.hana@gitguardian.com", "name":
         "Wassim HANA", "created_at": "2021-04-08T14:54:40.049555Z", "last_login":
-        "2026-03-30T13:36:52.170984Z", "active": true}, {"id": 136170, "role": "manager",
+        "2026-06-22T07:42:16.988277Z", "active": true}, {"id": 136170, "role": "manager",
         "access_level": "manager", "email": "eric.fourrier@gitguardian.com", "name":
         "Eric FOURRIER", "created_at": "2021-07-13T07:29:59.706367Z", "last_login":
-        "2026-04-01T21:38:49.870359Z", "active": true}, {"id": 160089, "role": "manager",
+        "2026-06-23T12:05:26.347426Z", "active": true}, {"id": 160089, "role": "manager",
         "access_level": "manager", "email": "aurelien.gateau@gitguardian.com", "name":
         "Aur\u00e9lien G\u00c2TEAU", "created_at": "2021-09-08T14:07:28.496410Z",
-        "last_login": "2026-03-31T13:14:57.104011Z", "active": true}, {"id": 166199,
+        "last_login": "2026-06-22T12:34:48.437530Z", "active": true}, {"id": 166199,
         "role": "manager", "access_level": "manager", "email": "stanislas.crepin@gitguardian.com",
         "name": "Stanislas CR\u00c9PIN", "created_at": "2021-09-24T14:02:28.853139Z",
-        "last_login": "2026-04-02T09:05:55.887447Z", "active": true}]'
+        "last_login": "2026-06-22T12:24:56.053377Z", "active": true}]'
     headers:
+      CF-RAY:
+      - a10398cc9c7b6ed2-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:46:40 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '2204'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:44:54 GMT
       link:
       - <https://api.gitguardian.com/v1/members?access_level=manager&cursor=cD0xNjYxOTk%3D&per_page=10>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '40'
+      - '35'
       x-frame-options:
       - DENY
       x-per-page:
       - '10'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

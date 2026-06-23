@@ -36,43 +36,51 @@ interactions:
         true, "removed_at": null, "open_incidents_count": 1, "ignored_incidents_count":
         0, "resolved_incidents_count": 0}]'
     headers:
+      CF-RAY:
+      - a103976d19fdf4ff-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:44 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
       - '1089'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:43:37 GMT
       link:
       - <https://api.gitguardian.com/v1/secret_detectors?cursor=cD04X2JsYWJsYXRvdG9fYmlz&per_page=3>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '49'
+      - '41'
       x-frame-options:
       - DENY
       x-per-page:
       - '3'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

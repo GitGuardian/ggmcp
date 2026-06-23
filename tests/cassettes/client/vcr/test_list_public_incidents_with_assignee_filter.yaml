@@ -20,26 +20,108 @@ interactions:
     uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=20&status=ASSIGNED
   response:
     body:
-      string: '[]'
+      string: '[{"id": 57, "detector": {"name": "gitguardian_test_token_checked",
+        "display_name": "GitGuardian Test Token Checked", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token_checked",
+        "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
+        "2021-12-10T10:36:08Z", "secret_id": 7970357, "secret_hash": "cfDzN5RpdE7fN0bd474gxh8fBT9kKunY+sHOlD+OeXGzGAkSCxpDOKaZihAFaYMH",
+        "hmsl_hash": "49b26d210036e493d068e32207ab35c98242c41d82db746b1342ef497560195e",
+        "occurrences_count": 187, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:06:03.015423Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": 1778296,
+        "assignee_email": "zeke@binion.io", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at": "2026-04-23T00:37:26.701660Z",
+        "email": "zeke@binion.io", "member_id": 1778296, "answers": [{"type": "boolean",
+        "field_ref": "revoked_yes_no", "field_label": "Has this secret been revoked?",
+        "boolean": true}, {"type": "text", "field_ref": "remarks_text", "field_label":
+        "Additional remarks", "text": ""}]}], "risk_score": 27, "severity_rule_id":
+        11891, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
+        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Test Token Checked"}, {"id": 2816, "detector": {"name": "postgres_assignment_attached_port",
+        "display_name": "PostgreSQL Credentials", "nature": "specific", "family":
+        "identifiers", "category": "data_storage", "detector_group_name": "postgresql_credentials",
+        "detector_group_display_name": "PostgreSQL Credentials"}, "date": "2023-02-15T14:47:35Z",
+        "secret_id": 6608759, "secret_hash": "i/hwSGTtVTth0XrZbsg40m1CTTZOW/mZhf2/9VbpC/6mLCFlkwaXJ+SYISDbzGjw",
+        "hmsl_hash": "a70052862d08d1c087c292e91f422614c69c90daf6f177af4f7b3b1cb325d702",
+        "occurrences_count": 1, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:07:49.067090Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "failed_to_check", "severity": "unknown", "assignee_id":
+        269050, "assignee_email": "achille.mascia@gitguardian.com", "share_url": "[REDACTED]",
+        "feedback_list": [], "risk_score": 84, "severity_rule_id": null, "is_vaulted":
+        false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
+        null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/2816",
+        "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
+        "destination_tickets": [], "incident_name": "PostgreSQL Credentials"}, {"id":
+        1965689, "detector": {"name": "username_password", "display_name": "Username
+        Password", "nature": "generic", "family": "other", "category": "other", "detector_group_name":
+        "username_password", "detector_group_display_name": "Username Password"},
+        "date": "2026-05-14T12:25:53Z", "secret_id": 32601569, "secret_hash": "Prcd+9rYpuYBxwJxBt+E++RO850oPMI2m+mgPT4dAzzUAyoGP4G6lsSULyTx/pbN",
+        "hmsl_hash": "af45447beb31cca5cced133291285ff868da14ecb05c8a888e9712cca475928b",
+        "occurrences_count": 1, "status": "ASSIGNED", "triggered_at": "2026-05-14T12:31:54.372745Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "no_checker", "severity": "unknown", "assignee_id": 795293,
+        "assignee_email": "yanne.bensafia@gitguardian.com", "share_url": "[REDACTED]",
+        "feedback_list": [], "risk_score": 53, "severity_rule_id": null, "is_vaulted":
+        false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
+        null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1965689",
+        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Username Password"}, {"id": 2171929, "detector": {"name": "asana_access_token",
+        "display_name": "Asana Key", "nature": "specific", "family": "token", "category":
+        "collaboration_tool", "detector_group_name": "asana_access_token", "detector_group_display_name":
+        "Asana Key"}, "date": "2026-05-20T08:15:06Z", "secret_id": 32960996, "secret_hash":
+        "x5jLcns+8oqLHpL6OVrtwqAva3HriqHxbBPogO1PCY64ynpb/5YCUcBVz6EmTEcj", "hmsl_hash":
+        "6db8a453c7b1f9c86f2399e2bc96ea617749b94855dbd14f739aa767fc5f3e01", "occurrences_count":
+        2, "status": "ASSIGNED", "triggered_at": "2026-05-20T08:20:12.896567Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": 795293, "assignee_email":
+        "yanne.bensafia@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 9, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/2171929",
+        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Asana Key"}, {"id": 2174697, "detector": {"name": "asana_access_token", "display_name":
+        "Asana Key", "nature": "specific", "family": "token", "category": "collaboration_tool",
+        "detector_group_name": "asana_access_token", "detector_group_display_name":
+        "Asana Key"}, "date": "2026-05-20T08:24:40Z", "secret_id": 32964274, "secret_hash":
+        "efDFonOFCBMZ0ZwcL4L0xi1Kbwnf3ld2M23i7vqPOwUAGXjo/5YCUcBVz6EmTEcj", "hmsl_hash":
+        "eb0b76a61746c5f8981c7782b90bffa8afd1a1f032fb67cf032f27691e46f685", "occurrences_count":
+        2, "status": "ASSIGNED", "triggered_at": "2026-05-20T08:30:46.126558Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
+        "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
+        "validity": "invalid", "severity": "unknown", "assignee_id": 795293, "assignee_email":
+        "yanne.bensafia@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 9, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/2174697",
+        "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "Asana Key"}]'
     headers:
       CF-RAY:
-      - 9efb6ddf5ff5d125-CDG
+      - a103962bba7d7015-CDG
       Connection:
       - keep-alive
-      Content-Length:
-      - '2'
       Content-Type:
       - application/json
       Date:
-      - Tue, 21 Apr 2026 09:40:46 GMT
+      - Tue, 23 Jun 2026 12:44:52 GMT
       Server:
       - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
       cf-cache-status:
       - DYNAMIC
+      content-length:
+      - '6333'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -53,17 +135,109 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '151'
+      - '102'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/public-incidents/secrets?per_page=5&assignee_id=1778296
+  response:
+    body:
+      string: '[{"id": 57, "detector": {"name": "gitguardian_test_token_checked",
+        "display_name": "GitGuardian Test Token Checked", "nature": "specific", "family":
+        "token", "category": "internal", "detector_group_name": "gitguardian_test_token_checked",
+        "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
+        "2021-12-10T10:36:08Z", "secret_id": 7970357, "secret_hash": "cfDzN5RpdE7fN0bd474gxh8fBT9kKunY+sHOlD+OeXGzGAkSCxpDOKaZihAFaYMH",
+        "hmsl_hash": "49b26d210036e493d068e32207ab35c98242c41d82db746b1342ef497560195e",
+        "occurrences_count": 187, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:06:03.015423Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": 1778296,
+        "assignee_email": "zeke@binion.io", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at": "2026-04-23T00:37:26.701660Z",
+        "email": "zeke@binion.io", "member_id": 1778296, "answers": [{"type": "boolean",
+        "field_ref": "revoked_yes_no", "field_label": "Has this secret been revoked?",
+        "boolean": true}, {"type": "text", "field_ref": "remarks_text", "field_label":
+        "Additional remarks", "text": ""}]}], "risk_score": 27, "severity_rule_id":
+        11891, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
+        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
+        "GitGuardian Test Token Checked"}]'
+    headers:
+      CF-RAY:
+      - a103962de928d62e-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:53 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1631'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      link:
+      - ''
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '63'
+      x-frame-options:
+      - DENY
+      x-per-page:
+      - '5'
+      x-secrets-engine-version:
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

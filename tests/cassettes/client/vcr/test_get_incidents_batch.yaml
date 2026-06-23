@@ -21,36 +21,37 @@ interactions:
   response:
     body:
       string: '[{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
-        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
-        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
-        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
-        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
-        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
-        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
-        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
-        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
-        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
-        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
-        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
-        give or has given access to any sensitive information or services?", "boolean":
-        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
-        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
-        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
-        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        IAM Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
+        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
+        Keys"}, "date": "2020-10-29T13:19:59.005564Z", "secret_id": 70588, "secret_hash":
+        "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG", "hmsl_hash":
+        "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7", "occurrences_count":
+        2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-03-11T22:41:04.525493Z",
+        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
+        "validity": "invalid", "severity": "medium", "assignee_id": null, "assignee_email":
+        "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
+        "email": "stanislas.crepin@gitguardian.com", "member_id": null, "answers":
+        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
+        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
+        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
+        given access to any sensitive information or services?", "boolean": true},
+        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Hasn''t been revoked yet because
+        X"}]}], "risk_score": 100, "severity_rule_id": null, "is_vaulted": false,
+        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
         0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
         0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["PUBLICLY_LEAKED"],
-        "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["REVOCABLE_BY_GG",
+        "PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
         true, "public_incident_linked": false, "leaked_outside_perimeter": false},
         "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}, {"id": 21461, "detector": {"name": "private_key_dsa",
         "display_name": "DSA Private Key", "nature": "specific", "family": "cryptographic_key",
-        "detector_group_name": "private_key_dsa", "detector_group_display_name": "DSA
-        Private Key"}, "date": "2020-10-29T09:19:54.249454Z", "secret_id": 70589,
+        "category": "private_key", "detector_group_name": "private_key_dsa", "detector_group_display_name":
+        "DSA Private Key"}, "date": "2020-10-29T09:19:54.249454Z", "secret_id": 70589,
         "secret_hash": "FNJbfEKG/ZXHjBfeEDa+45ryvtA8AC1egwR+QsSqIDlRVNh2Z/McHLTpLI6+WVL/",
         "hmsl_hash": "ae092263bbe1c8bbcc5e8e4dd785681b62e9d48226d66cb28f5d305fa5ef8e68",
         "occurrences_count": 2, "status": "ASSIGNED", "triggered_at": "2021-02-11T14:23:22.947605Z",
@@ -67,201 +68,80 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "important info."}]}],
-        "risk_score": 72, "is_vaulted": false, "ignore_reason": null, "occurrences":
-        null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
-        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
-        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21461",
-        "tags": ["PUBLICLY_LEAKED"], "incident_name": "DSA Private Key", "public_exposure":
-        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "destination_tickets": [{"id": "JB-15", "type": "jira_cloud", "link":
-        "https://sandboxgitguardian.atlassian.net/browse/JB-15"}, {"id": "JB-14",
-        "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
+        "risk_score": 72, "severity_rule_id": 11883, "is_vaulted": false, "ignore_reason":
+        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
+        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
+        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/incidents/21461", "tags": ["PUBLICLY_LEAKED"],
+        "incident_name": "DSA Private Key", "public_exposure": {"source_publicly_visible":
+        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
+        "destination_tickets": [{"id": "JB-15", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-15"},
+        {"id": "JB-14", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
         "custom_tags": []}, {"id": 21462, "detector": {"name": "salesforce_oauth2",
         "display_name": "Salesforce Oauth2 Keys", "nature": "specific", "family":
-        "credentials", "detector_group_name": "salesforce_oauth2_keys", "detector_group_display_name":
-        "Salesforce Oauth2 Keys"}, "date": "2020-10-29T07:19:30.598398Z", "secret_id":
-        70590, "secret_hash": "c7Kwkwc1D3iO0XnbILGE93uD0GJXOV0CL1t/0icvVnmQUzR2LCAWyy4SR5jhsuGk",
+        "credentials", "category": "crm", "detector_group_name": "salesforce_oauth2_keys",
+        "detector_group_display_name": "Salesforce Oauth2 Keys"}, "date": "2020-10-29T07:19:30.598398Z",
+        "secret_id": 70590, "secret_hash": "c7Kwkwc1D3iO0XnbILGE93uD0GJXOV0CL1t/0icvVnmQUzR2LCAWyy4SR5jhsuGk",
         "hmsl_hash": "e2671771c77564e0f9b6dea27d7b71faa3e9566445b52e7ed403fc8f5e100390",
         "occurrences_count": 2, "status": "IGNORED", "triggered_at": "2021-02-11T14:23:22.947632Z",
         "ignored_at": "2025-07-28T09:27:09.871747Z", "ignorer_id": 492181, "ignorer_api_token_id":
         null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
         "secret_revoked": false, "validity": "invalid", "severity": "high", "assignee_id":
         10, "assignee_email": "bruce-wayne-gg@protonmail.com", "share_url": "[REDACTED]",
-        "feedback_list": [], "risk_score": 23, "is_vaulted": false, "ignore_reason":
-        "invalid", "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21462", "tags": ["PUBLICLY_LEAKED"],
-        "incident_name": "Salesforce Oauth2 Keys", "public_exposure": {"source_publicly_visible":
-        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "destination_tickets": [], "custom_tags": []}]'
+        "feedback_list": [], "risk_score": 23, "severity_rule_id": 31, "is_vaulted":
+        false, "ignore_reason": "invalid", "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21462",
+        "tags": ["PUBLICLY_LEAKED"], "incident_name": "Salesforce Oauth2 Keys", "public_exposure":
+        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [], "custom_tags": []}]'
     headers:
+      CF-RAY:
+      - a10395447a2b5d26-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:15 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '5802'
+      - '5961'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:31 GMT
       link:
       - <https://api.gitguardian.com/v1/incidents/secrets?cursor=cD0yMTQ2Mg%3D%3D&per_page=3>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '108'
+      - '97'
       x-frame-options:
       - DENY
       x-per-page:
       - '3'
       x-secrets-engine-version:
-      - 2.159.0
-      x-xss-protection:
-      - 1; mode=block
-    status:
-      code: 200
-      message: OK
-- request:
-    body: ''
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Host:
-      - api.gitguardian.com
-      User-Agent:
-      - GitGuardian-MCP-Server/0.5.0
-      X-Privacy-Mode:
-      - 'true'
-    method: GET
-    uri: https://api.gitguardian.com/v1/incidents/secrets/21460
-  response:
-    body:
-      string: '{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
-        IAM Keys", "nature": "specific", "family": "credentials", "detector_group_name":
-        "aws_iam", "detector_group_display_name": "AWS IAM Keys"}, "date": "2020-10-29T13:19:59.005564Z",
-        "secret_id": 70588, "secret_hash": "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG",
-        "hmsl_hash": "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7",
-        "occurrences_count": 2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z",
-        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        "2026-03-11T22:41:04.525493Z", "resolver_id": 492181, "resolver_api_token_id":
-        null, "secret_revoked": true, "validity": "invalid", "severity": "medium",
-        "assignee_id": null, "assignee_email": "vincent.boyer@gitguardian.com", "share_url":
-        "[REDACTED]", "feedback_list": [{"created_at": "2022-07-20T13:22:52.756189Z",
-        "updated_at": "2022-07-20T13:22:52.756207Z", "email": "stanislas.crepin@gitguardian.com",
-        "member_id": null, "answers": [{"type": "boolean", "field_ref": "actual_secret_yes_no",
-        "field_label": "Is this an actual secret?", "boolean": true}, {"type": "boolean",
-        "field_ref": "access_to_sensitive_yes_no", "field_label": "Does this secret
-        give or has given access to any sensitive information or services?", "boolean":
-        true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
-        this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
-        "remarks_text", "field_label": "Additional remarks", "text": "Hasn''t been
-        revoked yet because X"}]}], "risk_score": 100, "is_vaulted": false, "ignore_reason":
-        null, "occurrences": [{"id": 78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z",
-        "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
-        [{"name": "client_id", "indice_start": 49, "indice_end": 69, "pre_line_start":
-        3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
-        "client_secret", "indice_start": 85, "indice_end": 125, "pre_line_start":
-        4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
-        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
-        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
-        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "304477822", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
-        {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "provider_metadata": {"archived": false}, "deleted": true}}, {"id": 78198,
-        "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z", "filepath": "app.py",
-        "kind": "realtime", "presence": "removed", "matches": [{"name": "client_id",
-        "indice_start": 92, "indice_end": 112, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 3, "post_line_end": 3}, {"name": "client_secret",
-        "indice_start": 128, "indice_end": 168, "pre_line_start": null, "pre_line_end":
-        null, "post_line_start": 4, "post_line_end": 4}], "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
-        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
-        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
-        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
-        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "304477822", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        4, "severity_breakdown": {"critical": 4, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 11, "severity_breakdown":
-        {"critical": 0, "high": 10, "medium": 1, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
-        "provider_metadata": {"archived": false}, "deleted": true}}], "secret_presence":
-        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
-        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
-        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
-        "tags": ["PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure":
-        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link":
-        "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}], "custom_tags":
-        []}'
-    headers:
-      access-control-expose-headers:
-      - X-App-Version
-      allow:
-      - GET, PUT, PATCH, HEAD, OPTIONS
-      content-length:
-      - '5516'
-      content-security-policy:
-      - frame-ancestors 'none'
-      content-type:
-      - application/json
-      cross-origin-opener-policy:
-      - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:31 GMT
-      referrer-policy:
-      - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains
-      vary:
-      - Cookie
-      x-app-version:
-      - v2.426.0
-      x-content-type-options:
-      - nosniff
-      x-envoy-upstream-service-time:
-      - '88'
-      x-frame-options:
-      - DENY
-      x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -289,9 +169,10 @@ interactions:
   response:
     body:
       string: '{"id": 21461, "detector": {"name": "private_key_dsa", "display_name":
-        "DSA Private Key", "nature": "specific", "family": "cryptographic_key", "detector_group_name":
-        "private_key_dsa", "detector_group_display_name": "DSA Private Key"}, "date":
-        "2020-10-29T09:19:54.249454Z", "secret_id": 70589, "secret_hash": "FNJbfEKG/ZXHjBfeEDa+45ryvtA8AC1egwR+QsSqIDlRVNh2Z/McHLTpLI6+WVL/",
+        "DSA Private Key", "nature": "specific", "family": "cryptographic_key", "category":
+        "private_key", "detector_group_name": "private_key_dsa", "detector_group_display_name":
+        "DSA Private Key"}, "date": "2020-10-29T09:19:54.249454Z", "secret_id": 70589,
+        "secret_hash": "FNJbfEKG/ZXHjBfeEDa+45ryvtA8AC1egwR+QsSqIDlRVNh2Z/McHLTpLI6+WVL/",
         "hmsl_hash": "ae092263bbe1c8bbcc5e8e4dd785681b62e9d48226d66cb28f5d305fa5ef8e68",
         "occurrences_count": 2, "status": "ASSIGNED", "triggered_at": "2021-02-11T14:23:22.947605Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
@@ -307,8 +188,8 @@ interactions:
         true}, {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has
         this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
         "remarks_text", "field_label": "Additional remarks", "text": "important info."}]}],
-        "risk_score": 72, "is_vaulted": false, "ignore_reason": null, "occurrences":
-        [{"id": 78199, "incident_id": 21461, "date": "2020-10-29T10:19:39.723768Z",
+        "risk_score": 72, "severity_rule_id": 11883, "is_vaulted": false, "ignore_reason":
+        null, "occurrences": [{"id": 78199, "incident_id": 21461, "date": "2020-10-29T10:19:39.723768Z",
         "filepath": "app.py", "kind": "realtime", "presence": "removed", "matches":
         [{"name": "apikey", "indice_start": 48, "indice_end": 726, "pre_line_start":
         3, "pre_line_end": 14, "post_line_start": null, "post_line_end": null}], "tags":
@@ -320,17 +201,18 @@ interactions:
         "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
         13, "last_scan": {"date": "2020-12-10T10:45:12.775987Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 1524, "duration": "4.818047", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "295879950", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 2, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 13, "severity_breakdown":
-        {"critical": 1, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09", "provider_metadata":
-        {"archived": false}, "deleted": true}}, {"id": 78200, "incident_id": 21461,
-        "date": "2020-10-29T09:19:54.249454Z", "filepath": "app.py", "kind": "realtime",
-        "presence": "removed", "matches": [{"name": "apikey", "indice_start": 91,
-        "indice_end": 769, "pre_line_start": null, "pre_line_end": null, "post_line_start":
-        3, "post_line_end": 14}], "tags": ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "295879950", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09",
+        "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78200,
+        "incident_id": 21461, "date": "2020-10-29T09:19:54.249454Z", "filepath": "app.py",
+        "kind": "realtime", "presence": "removed", "matches": [{"name": "apikey",
+        "indice_start": 91, "indice_end": 769, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 14}], "tags": ["PUBLICLY_EXPOSED",
+        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
         "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
         "sha": "76dd4f31a31c78a151723031bfebff4d076751b2", "change_type": "addition",
         "source": {"id": 12320, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-09",
@@ -338,54 +220,202 @@ interactions:
         "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
         13, "last_scan": {"date": "2020-12-10T10:45:12.775987Z", "status": "finished",
         "failing_reason": "", "commits_scanned": 1524, "duration": "4.818047", "branches_scanned":
-        1, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "295879950", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 2, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 13, "severity_breakdown":
-        {"critical": 1, "high": 12, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09", "provider_metadata":
-        {"archived": false}, "deleted": true}}], "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21461", "tags": ["PUBLICLY_LEAKED"],
-        "incident_name": "DSA Private Key", "public_exposure": {"source_publicly_visible":
-        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "destination_tickets": [{"id": "JB-15", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-15"},
-        {"id": "JB-14", "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "295879950", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
+        2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09",
+        "provider_metadata": {"archived": false}, "deleted": false}}], "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21461",
+        "tags": ["PUBLICLY_LEAKED"], "incident_name": "DSA Private Key", "public_exposure":
+        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "destination_tickets": [{"id": "JB-15", "type": "jira_cloud", "link":
+        "https://sandboxgitguardian.atlassian.net/browse/JB-15"}, {"id": "JB-14",
+        "type": "jira_cloud", "link": "https://sandboxgitguardian.atlassian.net/browse/JB-14"}],
         "custom_tags": []}'
     headers:
+      CF-RAY:
+      - a10395469958d104-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:16 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, PUT, PATCH, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '5295'
+      - '5427'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:31 GMT
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '89'
+      - '80'
       x-frame-options:
       - DENY
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - api.gitguardian.com
+      User-Agent:
+      - GitGuardian-MCP-Server/0.5.0
+      X-Privacy-Mode:
+      - 'true'
+    method: GET
+    uri: https://api.gitguardian.com/v1/incidents/secrets/21460
+  response:
+    body:
+      string: '{"id": 21460, "detector": {"name": "aws_iam", "display_name": "AWS
+        IAM Keys", "nature": "specific", "family": "credentials", "category": "cloud_provider",
+        "detector_group_name": "aws_iam", "detector_group_display_name": "AWS IAM
+        Keys"}, "date": "2020-10-29T13:19:59.005564Z", "secret_id": 70588, "secret_hash":
+        "GxuGpow75lYUqq/11F2BTrhvz5MRq7Lp4iegdts1tBbsUTpYL4Qc71cZRqNcojMG", "hmsl_hash":
+        "786f2e4bbe2c1ca4c8d274306a4f598fd8403ec332c2a52e11c3eb2f473c08e7", "occurrences_count":
+        2, "status": "RESOLVED", "triggered_at": "2021-02-11T14:23:22.947577Z", "ignored_at":
+        null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-03-11T22:41:04.525493Z",
+        "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
+        "validity": "invalid", "severity": "medium", "assignee_id": null, "assignee_email":
+        "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
+        "email": "stanislas.crepin@gitguardian.com", "member_id": null, "answers":
+        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
+        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
+        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
+        given access to any sensitive information or services?", "boolean": true},
+        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
+        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "field_label": "Additional remarks", "text": "Hasn''t been revoked yet because
+        X"}]}], "risk_score": 100, "severity_rule_id": null, "is_vaulted": false,
+        "ignore_reason": null, "occurrences": [{"id": 78197, "incident_id": 21460,
+        "date": "2020-10-29T13:20:05.797462Z", "filepath": "app.py", "kind": "realtime",
+        "presence": "removed", "matches": [{"name": "client_id", "indice_start": 49,
+        "indice_end": 69, "pre_line_start": 3, "pre_line_end": 3, "post_line_start":
+        null, "post_line_end": null}, {"name": "client_secret", "indice_start": 85,
+        "indice_end": 125, "pre_line_start": 4, "pre_line_end": 4, "post_line_start":
+        null, "post_line_end": null}], "tags": ["PUBLIC", "PUBLICLY_EXPOSED"], "url":
+        "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
+        "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
+        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "304477822", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
+        4, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 9, "medium": 2,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78198,
+        "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z", "filepath": "app.py",
+        "kind": "realtime", "presence": "removed", "matches": [{"name": "client_id",
+        "indice_start": 92, "indice_end": 112, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 3, "post_line_end": 3}, {"name": "client_secret",
+        "indice_start": 128, "indice_end": 168, "pre_line_start": null, "pre_line_end":
+        null, "post_line_start": 4, "post_line_end": 4}], "tags": ["PUBLIC", "PUBLICLY_EXPOSED"],
+        "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
+        "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
+        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
+        11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 926, "duration": "2.398961", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "304477822", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
+        4, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 11, "severity_breakdown": {"critical": 0, "high": 9, "medium": 2,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "provider_metadata": {"archived": false}, "deleted": false}}], "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["REVOCABLE_BY_GG", "PUBLICLY_LEAKED"], "incident_name": "AWS IAM
+        Keys", "public_exposure": {"source_publicly_visible": true, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "destination_tickets": [{"id":
+        "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
+        "custom_tags": []}'
+    headers:
+      CF-RAY:
+      - a1039546896e3ce3-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:44:16 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      access-control-expose-headers:
+      - X-App-Version
+      allow:
+      - GET, PUT, PATCH, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '5666'
+      content-security-policy:
+      - frame-ancestors 'none'
+      cross-origin-opener-policy:
+      - same-origin
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Cookie
+      x-app-version:
+      - v2.521.0
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '94'
+      x-frame-options:
+      - DENY
+      x-secrets-engine-version:
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

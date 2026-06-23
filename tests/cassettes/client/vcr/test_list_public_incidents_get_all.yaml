@@ -43,9 +43,9 @@ interactions:
         "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.737359Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
-        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        false, "validity": "failed_to_check", "severity": "unknown", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/2", "tags":
         ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -88,22 +88,22 @@ interactions:
         "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.739857Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
-        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        false, "validity": "failed_to_check", "severity": "unknown", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/5", "tags":
         ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
         "Slack Bot Token"}]'
     headers:
       CF-RAY:
-      - 9ef487188cf60f1e-CDG
+      - a103964fdcac3cc1-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:39 GMT
+      - Tue, 23 Jun 2026 12:44:58 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -115,7 +115,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '5855'
+      - '5871'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -130,17 +130,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '77'
+      - '70'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -190,9 +190,9 @@ interactions:
         "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:02.747147Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
-        "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        11, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        false, "validity": "failed_to_check", "severity": "unknown", "assignee_id":
+        null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
+        [], "risk_score": 44, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/9", "tags":
         ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -242,13 +242,13 @@ interactions:
         [], "incident_name": "SendGrid Key"}]'
     headers:
       CF-RAY:
-      - 9ef4871afe6ad886-CDG
+      - a1039651bb64d476-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:40 GMT
+      - Tue, 23 Jun 2026 12:44:58 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -260,7 +260,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '5638'
+      - '5646'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -276,17 +276,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '63'
+      - '126'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -366,7 +366,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "invalid", "severity": "high", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 0, "severity_rule_id":
-        10872, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11897, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/23",
         "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
         "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -381,7 +381,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        14, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        14, "severity_rule_id": 11897, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/24", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
@@ -389,13 +389,13 @@ interactions:
         "GitGuardian Development Secret"}]'
     headers:
       CF-RAY:
-      - 9ef4871d0ea06ef7-CDG
+      - a10396540be645f1-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:40 GMT
+      - Tue, 23 Jun 2026 12:44:59 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -423,17 +423,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '77'
+      - '81'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
@@ -533,13 +533,13 @@ interactions:
         [], "incident_name": "Stripe Keys"}]'
     headers:
       CF-RAY:
-      - 9ef4871f39ded124-CDG
+      - a1039655f9846cc8-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:40 GMT
+      - Tue, 23 Jun 2026 12:44:59 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -567,17 +567,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '108'
+      - '64'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

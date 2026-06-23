@@ -31,7 +31,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 100, "severity_rule_id":
-        10861, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11886, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5208",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "DigitalOcean Token"}, {"id": 5207, "detector": {"name":
@@ -45,10 +45,39 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 100, "severity_rule_id":
-        10861, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11886, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5207",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "DigitalOcean Token"}, {"id": 1142573, "detector": {"name":
+        [], "incident_name": "DigitalOcean Token"}, {"id": 6431, "detector": {"name":
+        "github_oauth_app_keys", "display_name": "GitHub OAuth App Keys", "nature":
+        "specific", "family": "credentials", "category": "version_control_platform",
+        "detector_group_name": "github_oauth_app_keys", "detector_group_display_name":
+        "GitHub OAuth App Keys"}, "date": "2023-03-06T02:22:30Z", "secret_id": 14598994,
+        "secret_hash": "rguvfdbCkXIEiTcPcvvaKSTDL7C5GooKsnQSRXZ2KYadm7wi26bvJ9LImJ7n1yqO",
+        "hmsl_hash": "984f3c5814706bf57aad59c4a55aa353b4f87e111faf7d8262d6452445f5528c",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:12:04.175957Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
+        11887, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6431",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "GitHub OAuth App Keys"}, {"id": 6430, "detector": {"name":
+        "bitbucket_keys", "display_name": "Bitbucket Keys", "nature": "specific",
+        "family": "credentials", "category": "version_control_platform", "detector_group_name":
+        "bitbucket_keys", "detector_group_display_name": "Bitbucket Keys"}, "date":
+        "2023-03-06T02:22:30Z", "secret_id": 14598993, "secret_hash": "yVPk7/jXGjdN/GD51ZJVnAQGVLZp9OYkO5cNnoGIrw5N2hr6zxp9ieZfVrZIohiA",
+        "hmsl_hash": "be8bf8e2501a998c2910851ea4aa8dd70fafb9fdb942bdff1c168fab708c0596",
+        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:12:04.175957Z",
+        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
+        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
+        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
+        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
+        11887, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6430",
+        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
+        [], "incident_name": "Bitbucket Keys"}, {"id": 1142573, "detector": {"name":
         "gitlab_personal_token_v2", "display_name": "GitLab Token", "nature": "specific",
         "family": "token", "category": "version_control_platform", "detector_group_name":
         "gitlab_token", "detector_group_display_name": "GitLab Token"}, "date": "2026-01-20T12:25:14Z",
@@ -63,44 +92,16 @@ interactions:
         "revoked", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/1142573",
         "tags": [], "custom_tags": [], "destination_tickets": [], "incident_name":
-        "GitLab Token"}, {"id": 6431, "detector": {"name": "github_oauth_app_keys",
-        "display_name": "GitHub OAuth App Keys", "nature": "specific", "family": "credentials",
-        "category": "version_control_platform", "detector_group_name": "github_oauth_app_keys",
-        "detector_group_display_name": "GitHub OAuth App Keys"}, "date": "2023-03-06T02:22:30Z",
-        "secret_id": 14598994, "secret_hash": "rguvfdbCkXIEiTcPcvvaKSTDL7C5GooKsnQSRXZ2KYadm7wi26bvJ9LImJ7n1yqO",
-        "hmsl_hash": "984f3c5814706bf57aad59c4a55aa353b4f87e111faf7d8262d6452445f5528c",
-        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:12:04.175957Z",
-        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
-        10862, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6431",
-        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "GitHub OAuth App Keys"}, {"id": 6430, "detector": {"name":
-        "bitbucket_keys", "display_name": "Bitbucket Keys", "nature": "specific",
-        "family": "credentials", "category": "version_control_platform", "detector_group_name":
-        "bitbucket_keys", "detector_group_display_name": "Bitbucket Keys"}, "date":
-        "2023-03-06T02:22:30Z", "secret_id": 14598993, "secret_hash": "yVPk7/jXGjdN/GD51ZJVnAQGVLZp9OYkO5cNnoGIrw5N2hr6zxp9ieZfVrZIohiA",
-        "hmsl_hash": "be8bf8e2501a998c2910851ea4aa8dd70fafb9fdb942bdff1c168fab708c0596",
-        "occurrences_count": 2, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:12:04.175957Z",
-        "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
-        null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 99, "severity_rule_id":
-        10862, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/6430",
-        "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
-        [], "incident_name": "Bitbucket Keys"}]'
+        "GitLab Token"}]'
     headers:
       CF-RAY:
-      - 9ef487113db5023e-CDG
+      - a10396487fe7a289-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Mon, 20 Apr 2026 13:34:38 GMT
+      - Tue, 23 Jun 2026 12:44:57 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -112,7 +113,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '5823'
+      - '5840'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -127,17 +128,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '399'
+      - '270'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

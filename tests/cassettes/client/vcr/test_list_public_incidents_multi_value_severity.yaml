@@ -31,7 +31,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "invalid", "severity": "high", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 0, "severity_rule_id":
-        10872, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11897, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/23",
         "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
         "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -46,7 +46,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        14, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        14, "severity_rule_id": 11897, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/24", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
@@ -62,7 +62,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/52",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 57, "detector": {"name": "gitguardian_test_token_checked",
@@ -71,12 +71,17 @@ interactions:
         "detector_group_display_name": "GitGuardian Test Token Checked"}, "date":
         "2021-12-10T10:36:08Z", "secret_id": 7970357, "secret_hash": "cfDzN5RpdE7fN0bd474gxh8fBT9kKunY+sHOlD+OeXGzGAkSCxpDOKaZihAFaYMH",
         "hmsl_hash": "49b26d210036e493d068e32207ab35c98242c41d82db746b1342ef497560195e",
-        "occurrences_count": 187, "status": "TRIGGERED", "triggered_at": "2025-01-07T18:06:03.015423Z",
+        "occurrences_count": 187, "status": "ASSIGNED", "triggered_at": "2025-01-07T18:06:03.015423Z",
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
-        false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
-        null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 27, "severity_rule_id":
-        10866, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        false, "validity": "valid", "severity": "critical", "assignee_id": 1778296,
+        "assignee_email": "zeke@binion.io", "share_url": "[REDACTED]", "feedback_list":
+        [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at": "2026-04-23T00:37:26.701660Z",
+        "email": "zeke@binion.io", "member_id": 1778296, "answers": [{"type": "boolean",
+        "field_ref": "revoked_yes_no", "field_label": "Has this secret been revoked?",
+        "boolean": true}, {"type": "text", "field_ref": "remarks_text", "field_label":
+        "Additional remarks", "text": ""}]}], "risk_score": 27, "severity_rule_id":
+        11891, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
         "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
         "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
@@ -91,7 +96,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "failed_to_check", "severity": "critical", "assignee_id":
         null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
-        [], "risk_score": 45, "severity_rule_id": 10868, "is_vaulted": false, "declarative_secret_status":
+        [], "risk_score": 45, "severity_rule_id": 11893, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/59", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
@@ -107,7 +112,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        0, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        0, "severity_rule_id": 11897, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/64", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "IS_COMPANY_CONTEXT",
@@ -138,7 +143,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        9, "severity_rule_id": 10877, "is_vaulted": true, "declarative_secret_status":
+        9, "severity_rule_id": 11902, "is_vaulted": true, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/122", "tags":
         ["FROM_HISTORICAL_SCAN", "SENSITIVE_FILE", "INTERNALLY_LEAKED"], "custom_tags":
@@ -154,7 +159,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/123",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 133, "detector": {"name": "aws_iam",
@@ -168,7 +173,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/133",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 160, "detector": {"name": "username_password",
@@ -182,7 +187,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        24, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        24, "severity_rule_id": 11897, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/160", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE"],
@@ -198,7 +203,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/223",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 227, "detector": {"name": "generic_high_entropy_secret",
@@ -228,7 +233,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/245",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 252, "detector": {"name": "aws_iam",
@@ -242,7 +247,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/252",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 258, "detector": {"name": "aws_iam",
@@ -256,7 +261,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/258",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 381, "detector": {"name": "aws_iam",
@@ -270,7 +275,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/381",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}, {"id": 441, "detector": {"name": "basic_auth_string",
@@ -284,7 +289,7 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "no_checker", "severity": "high", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score":
-        20, "severity_rule_id": 10872, "is_vaulted": false, "declarative_secret_status":
+        20, "severity_rule_id": 11897, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
         "https://dashboard.gitguardian.com/workspace/8/public-incidents/441", "tags":
         ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
@@ -300,7 +305,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/465",
         "tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"], "custom_tags": [],
         "destination_tickets": [], "incident_name": "AWS IAM Keys"}, {"id": 472, "detector":
@@ -314,19 +319,19 @@ interactions:
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [], "risk_score": 97, "severity_rule_id":
-        10860, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
+        11885, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
         null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/472",
         "tags": ["FROM_HISTORICAL_SCAN"], "custom_tags": [], "destination_tickets":
         [], "incident_name": "AWS IAM Keys"}]'
     headers:
       CF-RAY:
-      - 9efb60b2daa42298-CDG
+      - a103961f7ac3a0cb-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 21 Apr 2026 09:31:47 GMT
+      - Tue, 23 Jun 2026 12:44:51 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -338,7 +343,7 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '23510'
+      - '23865'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -353,17 +358,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.437.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '221'
+      - '230'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.161.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

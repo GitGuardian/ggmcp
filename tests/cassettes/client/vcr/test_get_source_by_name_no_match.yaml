@@ -22,42 +22,48 @@ interactions:
     body:
       string: '[]'
     headers:
+      CF-RAY:
+      - a103971a5d738634-CDG
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:31 GMT
+      Server:
+      - cloudflare
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
-      content-length:
-      - '2'
+      cf-cache-status:
+      - DYNAMIC
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:43:19 GMT
       link:
       - ''
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '231'
+      - '536'
       x-frame-options:
       - DENY
       x-per-page:
       - '50'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:

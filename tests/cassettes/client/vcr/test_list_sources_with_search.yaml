@@ -20,99 +20,112 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=5
   response:
     body:
-      string: '[{"id": 9123882, "type": "github", "full_name": "orga-083643/analytics-test",
-        "health": "safe", "source_criticality": "unknown", "default_branch": "main",
-        "default_branch_head": "f19d79466ce40e0bb69c9ee0ea08787ead9b5845", "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": {"date": "2025-10-09T16:45:43.352186Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 7, "duration":
-        "0.942938", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "private", "external_id": "630536182", "secret_incidents_breakdown": {"open_secret_incidents":
+      string: '[{"id": 12263, "type": "github", "full_name": "my-testing-org/christian_dior",
+        "health": "safe", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": {"date": "2020-09-24T09:06:39.211442Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1, "duration": "1.218169", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "public", "external_id": "12", "secret_incidents_breakdown":
+        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
+        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/christian_dior",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12264,
+        "type": "github", "full_name": "my-testing-org/armani_code", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
+        {"date": "2020-06-04T09:06:33.833273Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 2, "duration": "2.830578", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "30", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 1}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12265,
+        "type": "github", "full_name": "my-testing-org/louis_vuitton", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:32.770273Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 0, "duration": "1.141495", "branches_scanned": 0, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "13", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/orga-083643/analytics-test",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11363204,
-        "type": "github", "full_name": "amascia-gg/ftn-test-circleci", "health": "at_risk",
-        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
-        null, "open_incidents_count": 2, "closed_incidents_count": 1, "last_scan":
-        {"date": "2025-10-09T16:45:43.354963Z", "status": "finished", "failing_reason":
-        "", "commits_scanned": 3121, "duration": "95.292729", "branches_scanned":
-        2, "progress": 100}, "monitored": true, "visibility": "public", "external_id":
-        "704004504", "secret_incidents_breakdown": {"open_secret_incidents": {"total":
-        2, "severity_breakdown": {"critical": 1, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total": 1, "severity_breakdown":
-        {"critical": 0, "high": 1, "medium": 0, "low": 0, "info": 0, "unknown": 0}}},
-        "url": "https://github.com/amascia-gg/ftn-test-circleci", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11677085, "type": "github",
-        "full_name": "peterringball/test", "health": "unknown", "source_criticality":
-        "unknown", "default_branch": "main", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": false, "visibility":
-        "private", "external_id": "673461264", "secret_incidents_breakdown": {"open_secret_incidents":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/louis_vuitton",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12266,
+        "type": "github", "full_name": "my-testing-org/lagarfeld", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-09-24T09:06:33.598712Z", "status": "finished", "failing_reason":
+        "", "commits_scanned": 1, "duration": "1.253906", "branches_scanned": 1, "progress":
+        100}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "private", "external_id": "29", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 11678252,
-        "type": "github", "full_name": "tuches/Test", "health": "safe", "source_criticality":
-        "low", "default_branch": "master", "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 1, "last_scan": {"date": "2025-10-09T16:45:43.352050Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 5, "duration":
-        "0.68205", "branches_scanned": 1, "progress": 100}, "monitored": true, "visibility":
-        "public", "external_id": "291043633", "secret_incidents_breakdown": {"open_secret_incidents":
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/lagarfeld",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12267,
+        "type": "github", "full_name": "my-testing-org/saint_laurent", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        {"date": "2020-10-09T12:55:14.542227Z", "status": "canceled", "failing_reason":
+        "", "commits_scanned": 0, "duration": "1.684644", "branches_scanned": 0, "progress":
+        0}, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "28", "secret_incidents_breakdown": {"open_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        1, "severity_breakdown": {"critical": 0, "high": 1, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://github.com/tuches/Test", "provider_metadata":
-        {"archived": false}, "deleted": false}, {"id": 11756704, "type": "github",
-        "full_name": "peterringball/test4", "health": "safe", "source_criticality":
-        "low", "default_branch": "main", "default_branch_head": "d7d00895483d9e6fd62acf72594199ee5cabf7c7",
-        "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan": {"date":
-        "2025-10-09T16:45:43.353873Z", "status": "finished", "failing_reason": "",
-        "commits_scanned": 32, "duration": "3.878778", "branches_scanned": 1, "progress":
-        100}, "monitored": true, "visibility": "private", "external_id": "684649378",
-        "secret_incidents_breakdown": {"open_secret_incidents": {"total": 0, "severity_breakdown":
-        {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}},
-        "closed_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/peterringball/test4",
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/saint_laurent",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
+      CF-RAY:
+      - a10396bbfac2f6b5-CDG
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 23 Jun 2026 12:45:21 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
       access-control-expose-headers:
       - X-App-Version
       allow:
       - GET, HEAD, OPTIONS
+      cf-cache-status:
+      - DYNAMIC
       content-length:
-      - '4081'
+      - '4421'
       content-security-policy:
       - frame-ancestors 'none'
-      content-type:
-      - application/json
       cross-origin-opener-policy:
       - same-origin
-      date:
-      - Fri, 03 Apr 2026 08:42:58 GMT
       link:
-      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMTc1NjcwNA%3D%3D&per_page=5&search=test>;
+      - <https://api.gitguardian.com/v1/sources?cursor=cD0xMjI2Nw%3D%3D&per_page=5&search=test>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
-      server:
-      - istio-envoy
       strict-transport-security:
       - max-age=31536000; includeSubDomains
       vary:
       - Cookie
       x-app-version:
-      - v2.426.0
+      - v2.521.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '187'
+      - '5654'
       x-frame-options:
       - DENY
       x-per-page:
       - '5'
       x-secrets-engine-version:
-      - 2.159.0
+      - 2.165.0
       x-xss-protection:
       - 1; mode=block
     status:
