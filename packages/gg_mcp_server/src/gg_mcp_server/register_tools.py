@@ -20,6 +20,12 @@ from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_member import get_member
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
+from gg_api_core.tools.incident_notes import (
+    list_incident_comments,
+    list_public_incident_comments,
+    manage_incident_comment,
+    manage_public_incident_comment,
+)
 from gg_api_core.tools.list_detectors import list_detectors
 from gg_api_core.tools.list_honeytokens import list_honeytokens
 from gg_api_core.tools.list_incident_members import list_incident_members
@@ -62,13 +68,14 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
   Identified by a `source_id`. Default category for most customer workflows.
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
-  `remediate_secret_incidents`, `list_sources`, `find_current_source_id`.
+  `remediate_secret_incidents`, `list_sources`, `find_current_source_id`, `list_incident_comments`.
   Write tools: `manage_private_incident`, `update_incident_status`, `assign_incident`,
-  `update_or_create_incident_custom_tags`, `create_code_fix_request`.
+  `update_or_create_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
-  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
-  Write tools: `assign_public_incident`, `update_public_incident_status`.
+  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`,
+  `list_public_incident_comments`.
+  Write tools: `assign_public_incident`, `update_public_incident_status`, `manage_public_incident_comment`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -266,6 +273,23 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         required_scopes=["incidents:read"],
     )
 
+    mcp.tool(
+        list_incident_comments,
+        description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_incident_comments) "
+        "List the comments (notes) left on an internal secret incident. Use this to read the discussion on an "
+        "incident and to find the comment_id of a comment you want to edit with manage_incident_comment.",
+        required_scopes=["incidents:read"],
+    )
+
+    mcp.tool(
+        list_public_incident_comments,
+        description="(Public Monitoring only — for internal sources use list_incident_comments) "
+        "List the comments (notes) left on a public secret incident detected by GitGuardian Public Monitoring. "
+        "Use this to read the discussion and to find the comment_id to edit with manage_public_incident_comment. "
+        "Public incident IDs are NOT interchangeable with internal incident IDs.",
+        required_scopes=["incidents:read"],
+    )
+
     # Write tools — previously SecOps-only.
 
     @mcp.tool(
@@ -353,5 +377,24 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Internal sources only) Create code fix requests for multiple internal secret incidents with their "
         "locations. This will generate pull requests to automatically remediate detected secrets in the repositories the "
         "workspace monitors. Does not apply to public-monitoring incidents.",
+        required_scopes=["incidents:write"],
+    )
+
+    mcp.tool(
+        manage_incident_comment,
+        description="(Internal sources only — for public GitHub/gists/Docker Hub use manage_public_incident_comment) "
+        "Add a comment (note) to an internal secret incident, or edit an existing one. Use action='add' to create a "
+        "new comment, or action='edit' with a comment_id (from list_incident_comments) to replace a comment's body. "
+        "Does not work on public-monitoring incident IDs.",
+        required_scopes=["incidents:write"],
+    )
+
+    mcp.tool(
+        manage_public_incident_comment,
+        description="(Public Monitoring only — for internal sources use manage_incident_comment) "
+        "Add a comment (note) to a public secret incident detected by GitGuardian Public Monitoring, or edit an "
+        "existing one. Use action='add' to create a new comment, or action='edit' with a comment_id (from "
+        "list_public_incident_comments) to replace a comment's body. Public incident IDs are NOT interchangeable "
+        "with internal incident IDs.",
         required_scopes=["incidents:write"],
     )
