@@ -368,6 +368,7 @@ def mock_gitguardian_client(request):
         "gg_api_core.tools.create_code_fix_request",
         "gg_api_core.tools.assign_incident",
         "gg_api_core.tools.assign_public_incident",
+        "gg_api_core.tools.activity_logs",
         "gg_api_core.tools.incident_notes",
         "gg_api_core.tools.manage_incident",
         "gg_api_core.tools.update_public_incident_status",

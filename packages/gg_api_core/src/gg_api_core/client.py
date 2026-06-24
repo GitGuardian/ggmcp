@@ -1673,6 +1673,58 @@ class GitGuardianClient:
         logger.info(f"Deleting note {note_id} from public incident {incident_id}")
         return await self._request_delete(f"/public-incidents/secrets/{incident_id}/notes/{note_id}")
 
+    async def list_incident_activity_logs(
+        self,
+        incident_id: int | str,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List the full activity log (user notes AND system actions) of an internal secret incident.
+
+        Wraps GET /v1/incidents/secrets/{incident_id}/activity-logs.
+
+        Args:
+            incident_id: ID of the secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
+
+        Returns:
+            ListResponse with data, cursor, and has_more fields
+        """
+        logger.info(f"Listing activity logs for incident {incident_id}")
+        endpoint = f"/incidents/secrets/{incident_id}/activity-logs"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
+    async def list_public_incident_activity_logs(
+        self,
+        incident_id: int | str,
+        params: dict[str, Any] | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List the full activity log (user notes AND system actions) of a public secret incident.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}/activity-logs.
+
+        Args:
+            incident_id: ID of the public secret incident
+            params: Optional query parameters for filtering and pagination
+            get_all: If True, fetch all pages using paginate_all
+
+        Returns:
+            ListResponse with data, cursor, and has_more fields
+        """
+        logger.info(f"Listing activity logs for public incident {incident_id}")
+        endpoint = f"/public-incidents/secrets/{incident_id}/activity-logs"
+
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+
+        return await self._request_list(endpoint, params=params)
+
     # Secret Occurrences management
     async def list_secret_occurrences(self, incident_id: str) -> dict[str, Any]:
         """List secret occurrences for an incident.
