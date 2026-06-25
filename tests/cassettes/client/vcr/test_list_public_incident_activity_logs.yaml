@@ -20,22 +20,23 @@ interactions:
     uri: https://api.gitguardian.com/v1/public-incidents/secrets/3759/activity-logs
   response:
     body:
-      string: '[{"id": 7101, "incident_id": 3759, "member": {"id": 480870, "name":
-        "Jane Doe", "email": "jane.doe@example.com", "access_level": "owner"}, "api_token_id":
-        "d0ca9877-641f-4c37-8857-c08e0ae148c4", "created_at": "2026-06-23T14:00:00.111111Z",
-        "updated_at": null, "content": {"type": "note", "comment": "Reported the leak
-        to the actor"}}, {"id": 7102, "incident_id": 3759, "member": null, "api_token_id":
-        null, "created_at": "2026-06-23T14:10:00.222222Z", "updated_at": null, "content":
-        {"type": "action", "content_key": "TRIGGER", "data": null}}]'
+      string: '[{"id": 3632, "member": null, "api_token_id": null, "created_at": "2025-01-07T18:59:16.484428Z",
+        "updated_at": null, "content": {"type": "action", "content_key": "TRIGGER",
+        "data": {"triggered_at": "2023-03-03T15:22:18+00:00"}}, "incident_id": 3759},
+        {"id": 5132786, "member": {"id": 480870, "name": "Timoth\u00e9 DELION", "email":
+        "timothe.delion@gitguardian.com", "access_level": "manager"}, "api_token_id":
+        "d0ca9877-641f-4c37-8857-c08e0ae148c4", "created_at": "2026-06-23T14:12:49.055117Z",
+        "updated_at": "2026-06-23T14:12:49.360819Z", "content": {"type": "note", "comment":
+        "Actor confirmed rotation"}, "incident_id": 3759}]'
     headers:
       CF-RAY:
-      - a10417019cc9229d-CDG
+      - a113f7bf6987ee96-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 23 Jun 2026 14:10:01 GMT
+      - Thu, 25 Jun 2026 12:27:41 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -46,6 +47,8 @@ interactions:
       - GET, HEAD, OPTIONS
       cf-cache-status:
       - DYNAMIC
+      content-length:
+      - '582'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
@@ -59,17 +62,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.521.0
+      - v2.524.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '31'
+      - '51'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.165.0
+      - 2.166.0
       x-xss-protection:
       - 1; mode=block
     status:

@@ -20,23 +20,87 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/activity-logs
   response:
     body:
-      string: '[{"id": 9001, "incident_id": 21460, "member": {"id": 480870, "name":
-        "Jane Doe", "email": "jane.doe@example.com", "access_level": "owner"}, "api_token_id":
-        null, "created_at": "2026-06-23T10:00:00.123456Z", "updated_at": null, "content":
-        {"type": "note", "comment": "Investigating this incident via MCP"}}, {"id":
-        9002, "incident_id": 21460, "member": {"id": 480870, "name": "Jane Doe", "email":
-        "jane.doe@example.com", "access_level": "owner"}, "api_token_id": null, "created_at":
-        "2026-06-23T10:05:00.654321Z", "updated_at": null, "content": {"type": "action",
-        "content_key": "RESOLVE", "data": {"resolution": "revoked"}}}]'
+      string: '[{"id": 92680, "member": null, "api_token_id": null, "created_at":
+        "2021-02-11T14:23:22.947577Z", "updated_at": null, "content": {"type": "action",
+        "content_key": "TRIGGER", "data": {"triggered_at": "2020-10-29T13:19:59.005564+00:00"}},
+        "incident_id": 21460}, {"id": 383926, "member": null, "api_token_id": null,
+        "created_at": "2021-03-10T09:59:27.398782Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "RESOLVE", "data": {"revoked": true}}, "incident_id":
+        21460}, {"id": 1394920, "member": null, "api_token_id": null, "created_at":
+        "2021-08-25T17:16:06.029941Z", "updated_at": null, "content": {"type": "action",
+        "content_key": "SHARE", "data": {"shared_at": "2021-08-25T17:16:06.026036+00:00"}},
+        "incident_id": 21460}, {"id": 1547962, "member": null, "api_token_id": null,
+        "created_at": "2021-08-30T17:29:48.326754Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "AUTO_UNSHARE", "data": {"issue_token_id":
+        5706}}, "incident_id": 21460}, {"id": 2918023, "member": {"id": 104916, "name":
+        "Wassim HANA", "email": "wassim.hana@gitguardian.com", "access_level": "manager"},
+        "api_token_id": null, "created_at": "2022-02-10T17:23:01.713143Z", "updated_at":
+        null, "content": {"type": "action", "content_key": "SHARE", "data": {"shared_at":
+        "2022-02-10T17:23:01.710300+00:00"}}, "incident_id": 21460}, {"id": 2918040,
+        "member": {"id": 104916, "name": "Wassim HANA", "email": "wassim.hana@gitguardian.com",
+        "access_level": "manager"}, "api_token_id": null, "created_at": "2022-02-10T17:31:53.593799Z",
+        "updated_at": null, "content": {"type": "action", "content_key": "UNSHARE",
+        "data": {"unshared_at": "2022-02-10T17:31:53.590070+00:00"}}, "incident_id":
+        21460}, {"id": 2999444, "member": null, "api_token_id": null, "created_at":
+        "2022-02-22T15:28:01.520877Z", "updated_at": null, "content": {"type": "action",
+        "content_key": "SET_SEVERITY", "data": {"severity": "critical", "previous_severity":
+        "unknown"}}, "incident_id": 21460}, {"id": 2999445, "member": null, "api_token_id":
+        null, "created_at": "2022-02-22T15:28:03.424967Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "SET_SEVERITY", "data": {"severity": "unknown",
+        "previous_severity": "critical"}}, "incident_id": 21460}, {"id": 2999446,
+        "member": null, "api_token_id": null, "created_at": "2022-02-22T15:28:16.658526Z",
+        "updated_at": null, "content": {"type": "action", "content_key": "UNRESOLVE",
+        "data": null}, "incident_id": 21460}, {"id": 2999447, "member": null, "api_token_id":
+        null, "created_at": "2022-02-22T15:28:21.081191Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "ASSIGN", "data": {"assignees": [9322]}},
+        "incident_id": 21460}, {"id": 2999451, "member": null, "api_token_id": null,
+        "created_at": "2022-02-22T15:29:24.093383Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "SHARE", "data": {"shared_at": "2022-02-22T15:29:24.089492+00:00"}},
+        "incident_id": 21460}, {"id": 3006072, "member": null, "api_token_id": null,
+        "created_at": "2022-02-23T08:46:36.367333Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "SET_SEVERITY", "data": {"severity": "critical",
+        "previous_severity": "unknown"}}, "incident_id": 21460}, {"id": 3212289, "member":
+        {"id": 104916, "name": "Wassim HANA", "email": "wassim.hana@gitguardian.com",
+        "access_level": "manager"}, "api_token_id": null, "created_at": "2022-03-21T15:29:47.748245Z",
+        "updated_at": null, "content": {"type": "action", "content_key": "UNSHARE",
+        "data": {"unshared_at": "2022-03-21T15:29:47.742352+00:00"}}, "incident_id":
+        21460}, {"id": 3212290, "member": {"id": 104916, "name": "Wassim HANA", "email":
+        "wassim.hana@gitguardian.com", "access_level": "manager"}, "api_token_id":
+        null, "created_at": "2022-03-21T15:29:49.559041Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "SHARE", "data": {"shared_at": "2022-03-21T15:29:49.555144+00:00"}},
+        "incident_id": 21460}, {"id": 3212296, "member": {"id": 104916, "name": "Wassim
+        HANA", "email": "wassim.hana@gitguardian.com", "access_level": "manager"},
+        "api_token_id": null, "created_at": "2022-03-21T15:31:55.109710Z", "updated_at":
+        null, "content": {"type": "action", "content_key": "UNSHARE", "data": {"unshared_at":
+        "2022-03-21T15:31:55.102196+00:00"}}, "incident_id": 21460}, {"id": 3212297,
+        "member": {"id": 104916, "name": "Wassim HANA", "email": "wassim.hana@gitguardian.com",
+        "access_level": "manager"}, "api_token_id": null, "created_at": "2022-03-21T15:31:56.619889Z",
+        "updated_at": null, "content": {"type": "action", "content_key": "SHARE",
+        "data": {"shared_at": "2022-03-21T15:31:56.616061+00:00"}}, "incident_id":
+        21460}, {"id": 3375781, "member": {"id": 104916, "name": "Wassim HANA", "email":
+        "wassim.hana@gitguardian.com", "access_level": "manager"}, "api_token_id":
+        null, "created_at": "2022-04-07T08:57:17.261089Z", "updated_at": null, "content":
+        {"type": "action", "content_key": "GRANT_ACCESS", "data": {"users": [235930]}},
+        "incident_id": 21460}, {"id": 3375810, "member": {"id": 104916, "name": "Wassim
+        HANA", "email": "wassim.hana@gitguardian.com", "access_level": "manager"},
+        "api_token_id": null, "created_at": "2022-04-07T08:58:41.738456Z", "updated_at":
+        null, "content": {"type": "action", "content_key": "REMOVE_ACCESS", "data":
+        {"users": [235930]}}, "incident_id": 21460}, {"id": 3927232, "member": null,
+        "api_token_id": null, "created_at": "2022-04-20T16:08:13.163800Z", "updated_at":
+        null, "content": {"type": "action", "content_key": "AUTO_UNSHARE", "data":
+        {"issue_token_id": 15403}}, "incident_id": 21460}, {"id": 4191956, "member":
+        null, "api_token_id": null, "created_at": "2022-05-10T13:29:35.406608Z", "updated_at":
+        null, "content": {"type": "action", "content_key": "SET_SEVERITY", "data":
+        {"severity": "medium", "previous_severity": "critical"}}, "incident_id": 21460}]'
     headers:
       CF-RAY:
-      - a10417019cc9229d-CDG
+      - a113f7bd3bf63c86-CDG
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 23 Jun 2026 10:05:01 GMT
+      - Thu, 25 Jun 2026 12:27:41 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -47,12 +111,15 @@ interactions:
       - GET, HEAD, OPTIONS
       cf-cache-status:
       - DYNAMIC
+      content-length:
+      - '5349'
       content-security-policy:
       - frame-ancestors 'none'
       cross-origin-opener-policy:
       - same-origin
       link:
-      - ''
+      - <https://api.gitguardian.com/v1/incidents/secrets/21460/activity-logs?cursor=cD00MTkxOTU2>;
+        rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin
       strict-transport-security:
@@ -60,17 +127,17 @@ interactions:
       vary:
       - Cookie
       x-app-version:
-      - v2.521.0
+      - v2.524.0
       x-content-type-options:
       - nosniff
       x-envoy-upstream-service-time:
-      - '28'
+      - '93'
       x-frame-options:
       - DENY
       x-per-page:
       - '20'
       x-secrets-engine-version:
-      - 2.165.0
+      - 2.166.0
       x-xss-protection:
       - 1; mode=block
     status:
