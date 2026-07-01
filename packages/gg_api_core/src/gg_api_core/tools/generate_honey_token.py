@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+import httpx
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
@@ -9,16 +10,39 @@ from gg_api_core.utils import get_client
 logger = logging.getLogger(__name__)
 
 
+def _extract_api_detail(response: httpx.Response) -> str:
+    """Pull a human-readable reason out of a GitGuardian API error response, so the
+    caller sees *why* the request was rejected rather than a bare status code."""
+    try:
+        body = response.json()
+    except Exception:
+        return response.text or f"HTTP {response.status_code}"
+    if isinstance(body, dict):
+        if body.get("detail"):
+            return str(body["detail"])
+        # DRF field errors, e.g. {"name": ["This field may not be blank."]}
+        field_errors = [
+            f"{field}: {'; '.join(errs) if isinstance(errs, list) else errs}" for field, errs in body.items()
+        ]
+        if field_errors:
+            return " | ".join(field_errors)
+    return str(body)
+
+
 class GenerateHoneytokenParams(BaseModel):
     """Parameters for generating a honeytoken."""
 
-    name: str = Field(description="Name for the honeytoken")
+    name: str = Field(
+        description="Name for the honeytoken. Must be UNIQUE among the workspace's active honeytokens — "
+        "reusing the name of an existing active token is rejected by the API. Pick a specific, descriptive "
+        "name (e.g. 'aws-prod-db-decoy-2026-07'), not a generic one."
+    )
     description: str = Field(default="", description="Description of what the honeytoken is used for")
     new_token: bool = Field(
         default=False,
-        description="If False, retrieves an existing active honeytoken created by you instead of generating a new one. "
-        "If no existing token is found, a new one will be created. "
-        "To generate a new token, set this to True.",
+        description="If False (default), reuse your most recent active honeytoken instead of generating a new one; "
+        "the name is only used when no reusable token exists and one must be created. "
+        "If True, always create a new honeytoken — this fails if the name is already taken, so pass a fresh unique name.",
     )
 
 
@@ -124,6 +148,17 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         }
 
         return GenerateHoneytokenResult(**creation_result)
+    except ToolError:
+        raise
+    except httpx.HTTPStatusError as e:
+        # The API rejected the request — most often because an active honeytoken with
+        # this name already exists (names are unique per workspace). This is an expected,
+        # caller-actionable condition, not a server fault: surface the API's reason so the
+        # client can retry with a different name (or adjust new_token). Log at warning so
+        # it does not surface as a Sentry error.
+        detail = _extract_api_detail(e.response)
+        logger.warning(f"Honeytoken creation rejected ({e.response.status_code}): {detail}")
+        raise ToolError(f"Could not create honeytoken: {detail}") from e
     except Exception as e:
         logger.exception(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")
