@@ -210,7 +210,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         generate_honeytoken,
-        description="Generate an AWS GitGuardian honeytoken and get injection recommendations",
+        description="Generate an AWS GitGuardian honeytoken and get injection recommendations. "
+        "Honeytoken names must be unique among the workspace's active honeytokens.",
         required_scopes=["honeytokens:write"],
     )
 

@@ -407,12 +407,18 @@ class GitGuardianClient:
             logger.warning(f"Could not refresh token: {e}")
             return False
 
-    async def _request(self, method: str, endpoint: str, **kwargs) -> Any:
+    async def _request(
+        self, method: str, endpoint: str, *, expected_client_errors: Sequence[int] = (), **kwargs
+    ) -> Any:
         """Make a request to the GitGuardian API (generic method).
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
+            expected_client_errors: Status codes (e.g. [400]) that this caller handles
+                itself and surfaces to the user; they are logged at warning instead of
+                exception so they don't become Sentry noise. List only the codes the
+                caller truly expects — any other error stays visible via logger.exception.
             **kwargs: Additional arguments to pass to requests
 
         Returns:
@@ -557,6 +563,15 @@ class GitGuardianClient:
                         f"GitGuardian API returned {e.response.status_code} "
                         f"{e.response.reason_phrase} for {url} - token may be invalid, "
                         "expired, revoked, or lacking the required scope"
+                    )
+                elif e.response.status_code in expected_client_errors:
+                    # This caller declared this status as one it handles itself (e.g. a
+                    # duplicate-name 400 on honeytoken creation) and surfaces to the user,
+                    # so it is an expected client condition, not a server fault. Warn
+                    # instead of logger.exception so it doesn't become Sentry noise. Any
+                    # status not listed still hits logger.exception below.
+                    logger.warning(
+                        f"GitGuardian API returned {e.response.status_code} {e.response.reason_phrase} for {url}"
                     )
                 else:
                     logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
@@ -851,7 +866,9 @@ class GitGuardianClient:
             "custom_tags": custom_tags or [],
         }
 
-        return await self._request_post("/honeytokens", json=data)
+        # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
+        # the caller, so it should not be logged as a server fault.
+        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400])
 
     async def create_honeytoken_with_context(
         self,

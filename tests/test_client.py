@@ -185,6 +185,52 @@ class TestGitGuardianClient:
             "expected a WARNING log mentioning the auth status code"
         )
 
+    def _mock_400(self, mock_httpx_client):
+        """Wire the mocked httpx client to raise a 400 on the next request."""
+        mock_request = MagicMock()
+        mock_response = MagicMock()
+        mock_response.status_code = 400
+        mock_response.reason_phrase = "Bad Request"
+        mock_response.text = "client error"
+        mock_response.json.return_value = {"detail": "rejected"}
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "400", request=mock_request, response=mock_response
+        )
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+        mock_httpx_client.request = AsyncMock(return_value=mock_response)
+        return async_client_instance
+
+    async def test_request_client_error_logged_as_error_by_default(self, client, mock_httpx_client, caplog):
+        """A 4xx is logged at ERROR by default, so unexpected client errors stay visible."""
+        import logging
+
+        async_client_instance = self._mock_400(mock_httpx_client)
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+                with pytest.raises(httpx.HTTPStatusError):
+                    await client._request("GET", "/test")
+
+        assert [r for r in caplog.records if r.levelno >= logging.ERROR], "default 4xx should be logged at ERROR"
+
+    async def test_request_client_error_warning_when_expected(self, client, mock_httpx_client, caplog):
+        """With the status listed in expected_client_errors (e.g. honeytoken creation
+        passing [400]), that 4xx is logged at warning, not error, so a handled rejection
+        like a duplicate-name 400 is not Sentry noise (GIM-MCP-SERVER-3 / GIM-MCP-SERVER-Z)."""
+        import logging
+
+        async_client_instance = self._mock_400(mock_httpx_client)
+        with patch("httpx.AsyncClient", return_value=async_client_instance):
+            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+                with pytest.raises(httpx.HTTPStatusError):
+                    await client._request("POST", "/test", expected_client_errors=[400])
+
+        errors = [r for r in caplog.records if r.levelno >= logging.ERROR]
+        assert not errors, f"an expected 4xx should not be logged at ERROR level: {errors}"
+        assert any(r.levelno == logging.WARNING and "400" in r.getMessage() for r in caplog.records), (
+            "expected a WARNING log mentioning the 400 status code"
+        )
+
     @pytest.mark.asyncio
     async def test_create_honeytoken(self, client):
         """Test create_honeytoken method."""
@@ -212,6 +258,7 @@ class TestGitGuardianClient:
                     "type": "AWS",
                     "custom_tags": [{"key": "test", "value": "value"}],
                 },
+                expected_client_errors=[400],
             )
 
             # Assert response
