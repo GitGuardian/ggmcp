@@ -42,7 +42,7 @@ from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.list_users import list_users
 from gg_api_core.tools.manage_incident import (
     manage_private_incident,
-    update_incident_status,
+    update_incident_severity,
 )
 from gg_api_core.tools.read_custom_tags import read_custom_tags
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
@@ -74,7 +74,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
   `remediate_secret_incidents`, `list_sources`, `find_current_source_id`, `list_incident_comments`,
   `list_incident_activity_logs`.
-  Write tools: `manage_private_incident`, `update_incident_status`, `assign_incident`,
+  Write tools: `manage_private_incident`, `update_incident_severity`, `assign_incident`,
   `update_or_create_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
@@ -339,8 +339,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        update_incident_status,
-        description="(Internal sources only) Update an internal secret incident with status. "
+        update_incident_severity,
+        description="(Internal sources only) Set the severity of an internal secret incident. "
         "Does not work on public-monitoring incident IDs.",
         required_scopes=["incidents:write"],
     )

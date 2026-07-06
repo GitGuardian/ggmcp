@@ -99,30 +99,32 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
         raise ToolError(f"Error: {str(e)}")
 
 
-class UpdateIncidentStatusParams(BaseModel):
-    """Parameters for updating incident status."""
+class UpdateIncidentSeverityParams(BaseModel):
+    """Parameters for updating incident severity."""
 
     incident_id: str | int = Field(description="ID of the secret incident")
-    status: str = Field(description="New status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED)")
+    severity: Literal["critical", "high", "medium", "low", "info", "unknown"] = Field(
+        description="New severity for the incident"
+    )
 
 
-async def update_incident_status(params: UpdateIncidentStatusParams) -> dict[str, Any]:
+async def update_incident_severity(params: UpdateIncidentSeverityParams) -> dict[str, Any]:
     """
-    Update a secret incident with status and/or custom tags.
+    Set the severity of a secret incident.
 
     Args:
-        params: UpdateIncidentStatusParams model containing status update configuration
+        params: UpdateIncidentSeverityParams model containing the severity update configuration
 
     Returns:
         Updated incident data
     """
     client = await get_client()
-    logger.debug(f"Updating incident {params.incident_id} status to {params.status}")
+    logger.debug(f"Updating incident {params.incident_id} severity to {params.severity}")
 
     try:
-        result = await client.update_incident(incident_id=str(params.incident_id), status=params.status)
-        logger.debug(f"Updated incident {params.incident_id} status to {params.status}")
+        result = await client.update_incident(incident_id=str(params.incident_id), severity=params.severity)
+        logger.debug(f"Updated incident {params.incident_id} severity to {params.severity}")
         return result
     except Exception as e:
-        logger.exception(f"Error updating incident status: {str(e)}")
+        logger.exception(f"Error updating incident severity: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

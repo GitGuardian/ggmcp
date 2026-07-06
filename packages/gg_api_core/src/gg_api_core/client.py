@@ -1102,7 +1102,7 @@ class GitGuardianClient:
     async def update_incident(
         self,
         incident_id: str,
-        status: str | None = None,
+        severity: str | None = None,
         custom_tags: list | None = None,
     ) -> dict[str, Any]:
         """Update a secret incident.
@@ -1116,16 +1116,16 @@ class GitGuardianClient:
         Returns:
             Updated incident data
         """
-        logger.info(f"Updating incident {incident_id} with status={status}, custom_tags={custom_tags}")
+        logger.info(f"Updating incident {incident_id} with severity={severity}, custom_tags={custom_tags}")
 
         payload: dict[str, Any] = {}
-        if status:
-            payload["status"] = status
+        if severity:
+            payload["severity"] = severity
         if custom_tags:
             payload["custom_tags"] = custom_tags
 
         if not payload:
-            raise ValueError("At least one of status or custom_tags must be provided")
+            raise ValueError("At least one of severity or custom_tags must be provided")
 
         return await self._request_patch(f"/incidents/secrets/{incident_id}", json=payload)
 
