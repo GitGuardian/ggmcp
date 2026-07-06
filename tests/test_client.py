@@ -759,3 +759,22 @@ class TestIncidentsForMCPAssigneeFilter:
         params = client._request_get.call_args.kwargs["params"]
         assert params["assignee_member_id"] == "0"
         assert "assignee__in" not in params
+
+    @pytest.mark.asyncio
+    async def test_list_incidents_for_mcp_truncates_datetime_bounds_to_date(self, client):
+        """
+        GIVEN ISO datetime date bounds
+        WHEN calling list_incidents_for_mcp
+        THEN date__ge / date__le are sent as date-only values (the endpoint
+             filters on a date-only field and 400s on datetimes)
+        """
+        client._request_get = AsyncMock(return_value={"results": []})
+
+        await client.list_incidents_for_mcp(
+            date_after="2026-07-01T00:00:00Z",
+            date_before="2026-08-01T00:00:00Z",
+        )
+
+        params = client._request_get.call_args.kwargs["params"]
+        assert params["date__ge"] == "2026-07-01"
+        assert params["date__le"] == "2026-08-01"

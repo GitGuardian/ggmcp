@@ -3,12 +3,14 @@ import json
 import logging
 import re
 from collections.abc import Sequence
+from datetime import datetime
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
+from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.settings import get_settings
 
@@ -20,6 +22,14 @@ try:
     DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
 except PackageNotFoundError:
     DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
+
+
+def _to_date_only(value: str) -> str:
+    """Normalize a date/datetime string to its ``YYYY-MM-DD`` portion."""
+    try:
+        return TypeAdapter(datetime).validate_python(value.strip()).date().isoformat()
+    except ValidationError as exc:
+        raise ValueError(f"Invalid date value: {value!r}") from exc
 
 
 class DownstreamUnauthorizedError(Exception):
@@ -2639,9 +2649,9 @@ class GitGuardianClient:
 
         # Date filters
         if date_before:
-            params["date__le"] = date_before
+            params["date__le"] = _to_date_only(date_before)
         if date_after:
-            params["date__ge"] = date_after
+            params["date__ge"] = _to_date_only(date_after)
 
         # Secret scope filter
         if secret_scope:
@@ -2812,10 +2822,11 @@ class GitGuardianClient:
             params["teams__in"] = format_param(teams)
         if similar_to is not None:
             params["similar_to"] = similar_to
+        # Date filters
         if date_before:
-            params["date__le"] = date_before
+            params["date__le"] = _to_date_only(date_before)
         if date_after:
-            params["date__ge"] = date_after
+            params["date__ge"] = _to_date_only(date_after)
         if secret_scope:
             params["secret_scope__in"] = format_param(secret_scope)
         if analyzer_status:
