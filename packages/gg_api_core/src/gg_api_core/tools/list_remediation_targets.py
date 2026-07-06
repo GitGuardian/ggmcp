@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 REMEDIATION_PROMPT_PATH = Path(__file__).parent / "remediation_prompt.md"
 
 
-class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
+class ListRepoOccurrencesParamsForTargets(ListRepoOccurrencesParams):
     # Overriding the tags one to add a default filter : for remediation, we're more interested in occurrences that
     # are in the branch the developer is currently on. And occurrences on DEFAULT_BRANCH are a heuristic for that
     tags: list[str] = Field(
@@ -28,8 +28,8 @@ class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
     )
 
 
-class RemediateSecretIncidentsParams(BaseModel):
-    """Parameters for remediating secret incidents."""
+class ListRemediationTargetsParams(BaseModel):
+    """Parameters for listing secret occurrences that are candidates for fixing."""
 
     source_id: str | int | None = Field(
         default=None,
@@ -44,73 +44,68 @@ class RemediateSecretIncidentsParams(BaseModel):
         description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
     )
 
-    # Behaviour
-    git_commands: bool = Field(
-        default=True,
-        description="Whether to include git commands to fix incidents in git history",
-    )
-    create_env_example: bool = Field(
-        default=True,
-        description="Whether to suggest creating a .env.example file with placeholders for detected secrets",
-    )
-    add_to_env: bool = Field(default=True, description="Whether to suggest adding secrets to .env file")
-
     # sub tools
-    list_repo_occurrences_params: ListRepoOccurrencesParamsForRemediate | None = Field(
+    list_repo_occurrences_params: ListRepoOccurrencesParamsForTargets | None = Field(
         default=None,
         description="Parameters for listing repository occurrences",
     )
 
     @model_validator(mode="after")
-    def populate_list_repo_occurrences_params(self) -> "RemediateSecretIncidentsParams":
+    def populate_list_repo_occurrences_params(self) -> "ListRemediationTargetsParams":
         """Populate list_repo_occurrences_params with repository info from parent if not provided."""
         if self.list_repo_occurrences_params is None:
             # Create with parent's source info
-            self.list_repo_occurrences_params = ListRepoOccurrencesParamsForRemediate(
+            self.list_repo_occurrences_params = ListRepoOccurrencesParamsForTargets(
                 source_id=self.source_id,
             )
         return self
 
 
-class RemediateSecretIncidentsResult(BaseModel):
-    """Result from remediating secret incidents."""
+class ListRemediationTargetsResult(BaseModel):
+    """Result from listing secret occurrences that are candidates for fixing."""
 
-    remediation_instructions: str = Field(default="", description="Instructions for remediating occurrences")
+    guidance: str = Field(
+        default="",
+        description="Fallback remediation guidance. Defer to a remediation skill/workflow when one is available.",
+    )
     occurrences_count: int = Field(default=0, description="Number of occurrences found")
-    suggested_occurrences_for_remediation_count: int = Field(
-        default=0, description="Number of occurrences suggested for remediation"
+    suggested_occurrences_count: int = Field(
+        default=0, description="Number of occurrences suggested as remediation targets"
     )
 
     sub_tools_results: dict[str, Any] = Field(default_factory=dict, description="Results from sub tools")
 
 
-class RemediateSecretIncidentsError(BaseModel):
-    """Error result from remediating secret incidents."""
+class ListRemediationTargetsError(BaseModel):
+    """Error result from listing remediation targets."""
 
     error: str = Field(description="Error message")
     sub_tools_results: dict[str, Any] = Field(default_factory=dict, description="Results from sub tools")
 
 
-async def remediate_secret_incidents(
-    params: RemediateSecretIncidentsParams,
-) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
+async def list_remediation_targets(
+    params: ListRemediationTargetsParams,
+) -> ListRemediationTargetsResult | ListRemediationTargetsError:
     """
-    Find and remediate secret incidents in the current repository.
+    List secret occurrences on the current branch that are candidates for fixing.
 
-    This tool uses the occurrences API to find secrets and provides simple remediation suggestions.
+    This tool returns occurrence data (file paths, line numbers, character indices) via the
+    occurrences API — it does NOT rotate credentials or modify any files. Use it to locate the
+    secrets worth fixing, then follow your remediation skill/workflow for how to fix them. The
+    ``guidance`` field is only a minimal rotation-first fallback for when no such skill is present.
 
     Args:
-        params: RemediateSecretIncidentsParams model containing remediation configuration
+        params: ListRemediationTargetsParams model containing configuration
 
     Returns:
-        RemediateSecretIncidentsResult or RemediateSecretIncidentsError
+        ListRemediationTargetsResult or ListRemediationTargetsError
     """
-    logger.debug(f"Using remediate_secret_incidents for source_id: {params.source_id}")
+    logger.debug(f"Using list_remediation_targets for source_id: {params.source_id}")
 
     try:
         # Use the list_repo_occurrences_params and update with parent-level repository info
         if params.list_repo_occurrences_params is None:
-            return RemediateSecretIncidentsError(error="list_repo_occurrences_params is required", sub_tools_results={})
+            return ListRemediationTargetsError(error="list_repo_occurrences_params is required", sub_tools_results={})
 
         occurrences_params = params.list_repo_occurrences_params.model_copy(
             update={
@@ -121,7 +116,7 @@ async def remediate_secret_incidents(
 
         occurrences_result = await list_repo_occurrences(occurrences_params)
         if isinstance(occurrences_result, ListRepoOccurrencesError):
-            return RemediateSecretIncidentsError(
+            return ListRemediationTargetsError(
                 error=occurrences_result.error,
                 sub_tools_results={"list_repo_occurrences": occurrences_result},
             )
@@ -133,29 +128,25 @@ async def remediate_secret_incidents(
         occurrences_result.occurrences = await trim_occurrences_for_remediation(occurrences)
 
         if not occurrences:
-            remediation_instructions = (
+            guidance = (
                 "No secret occurrences found for this repository that match the criteria. "
                 "Adjust 'list_repo_occurrences_params' to modify filtering."
             )
         else:
-            # Load and render the Jinja2 template
+            # Load and render the fallback guidance template
             template_content = REMEDIATION_PROMPT_PATH.read_text()
             template = Template(template_content)
-            remediation_instructions = template.render(
-                add_to_env=params.add_to_env,
-                env_example=params.create_env_example,
-                git_commands=params.git_commands,
-            )
-        return RemediateSecretIncidentsResult(
-            remediation_instructions=remediation_instructions,
+            guidance = template.render()
+        return ListRemediationTargetsResult(
+            guidance=guidance,
             sub_tools_results={"list_repo_occurrences": occurrences_result},
             occurrences_count=occurrences_count,
-            suggested_occurrences_for_remediation_count=len(occurrences),
+            suggested_occurrences_count=len(occurrences_result.occurrences),
         )
 
     except Exception as e:
-        logger.exception(f"Error remediating incidents: {str(e)}")
-        return RemediateSecretIncidentsError(error=f"Failed to remediate incidents: {str(e)}")
+        logger.exception(f"Error listing remediation targets: {str(e)}")
+        return ListRemediationTargetsError(error=f"Failed to list remediation targets: {str(e)}")
 
 
 async def filter_mine(occurrences):

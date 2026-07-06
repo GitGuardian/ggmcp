@@ -26,6 +26,7 @@ from gg_api_core.tools.list_incident_teams import list_incident_teams
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
+from gg_api_core.tools.list_remediation_targets import list_remediation_targets
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.list_users import list_users
@@ -34,7 +35,6 @@ from gg_api_core.tools.manage_incident import (
     update_incident_status,
 )
 from gg_api_core.tools.read_custom_tags import read_custom_tags
-from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
 from gg_api_core.tools.update_public_incident_status import update_public_incident_status
@@ -61,7 +61,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
   Identified by a `source_id`. Default category for most customer workflows.
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
-  `remediate_secret_incidents`, `list_sources`, `find_current_source_id`.
+  `list_remediation_targets`, `list_sources`, `find_current_source_id`.
   Write tools: `manage_private_incident`, `update_incident_status`, `assign_incident`,
   `update_or_create_incident_custom_tags`, `create_code_fix_request`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
@@ -85,8 +85,10 @@ write tool with a public incident ID (or vice versa) will silently 404.
 3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
    line numbers, and character indices.
 
-4. **Remediation** (`remediate_secret_incidents`, `create_code_fix_request`) — guided
-   secret removal with best-practice recommendations and automated pull requests.
+4. **Remediation** (`list_remediation_targets`, `create_code_fix_request`) — locate the
+   secret occurrences worth fixing and open automated pull requests. Remediation *doctrine*
+   (rotate-first, history handling) lives in the remediation skill/workflow, not in these
+   tools; follow it when available.
 
 5. **Honeytoken Management** — generate honeytokens, list and inspect existing ones.
 
@@ -107,9 +109,11 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     tools the access token cannot satisfy.
     """
     mcp.tool(
-        remediate_secret_incidents,
-        description="(Internal sources only) List secrets in a given source (identified by source_id) and return exact match locations (file paths, line numbers, character indices). "
-        "along with precise remediation instructions. This tool leverages the occurrences API."
+        list_remediation_targets,
+        description="(Internal sources only) Return the secret occurrences on the current branch that are candidates for fixing, "
+        "with exact match locations (file paths, line numbers, character indices), most-relevant first. This tool leverages the "
+        "occurrences API and returns data only — it does NOT rotate credentials or modify any files. Locate the secrets with this "
+        "tool, then follow your remediation skill/workflow for how to fix them (rotate first). "
         "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this source.",
         required_scopes=["incidents:read", "sources:read"],
     )

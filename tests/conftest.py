@@ -375,7 +375,7 @@ def mock_gitguardian_client(request):
         "gg_api_core.tools.list_repo_occurrences",
         "gg_api_core.tools.write_custom_tags",
         "gg_api_core.tools.revoke_secret",
-        "gg_api_core.tools.remediate_secret_incidents",
+        "gg_api_core.tools.list_remediation_targets",
         "gg_api_core.tools.read_custom_tags",
         "gg_api_core.tools.list_users",
         "gg_api_core.tools.list_incident_members",
