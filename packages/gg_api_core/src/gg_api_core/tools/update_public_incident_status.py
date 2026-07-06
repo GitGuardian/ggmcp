@@ -52,7 +52,7 @@ async def update_public_incident_status(params: UpdatePublicIncidentStatusParams
 
     Public incidents are surfaced by GitGuardian Public Monitoring (public GitHub repos/gists,
     Docker Hub, etc.). Public incident IDs are NOT interchangeable with internal incident IDs;
-    use this tool — not `manage_private_incident` / `update_incident_status` — when acting on
+    use this tool — not `manage_private_incident` — when acting on
     results from `list_public_incidents` or `get_public_incident`.
 
     Supported actions:
