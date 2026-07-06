@@ -27,6 +27,7 @@ dependencies = [
     "httpx~=0.28",
     "fastmcp~=3.0",
     "python-dotenv~=1.1",
+    "pydantic~=2.12",
     "pydantic-settings~=2.9",
     "jinja2~=3.1",
 ]
