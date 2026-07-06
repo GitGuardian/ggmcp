@@ -6,8 +6,8 @@ from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListR
 import asyncio
 
 from gg_api_core.tools.list_users import list_users, ListUsersParams
-from gg_api_core.tools.remediate_secret_incidents import RemediateSecretIncidentsParams, remediate_secret_incidents, \
-    ListRepoOccurrencesParamsForRemediate
+from gg_api_core.tools.list_remediation_targets import ListRemediationTargetsParams, list_remediation_targets, \
+    ListRepoOccurrencesParamsForTargets
 from gg_api_core.tools.revoke_secret import revoke_secret, RevokeSecretParams
 from gg_api_core.tools.scan_secret import scan_secrets, ScanSecretsParams
 
@@ -20,9 +20,9 @@ async def run_fetch_repo_occurrences():
     print(result)
 
 
-async def run_remediate_secret_incidents():
-    result = await remediate_secret_incidents(
-        RemediateSecretIncidentsParams(source_id="9036019")
+async def run_list_remediation_targets():
+    result = await list_remediation_targets(
+        ListRemediationTargetsParams(source_id="9036019")
     )
     print(result)
 
@@ -35,10 +35,10 @@ async def run_find_current_source_id():
 async def main():
     print(await run_find_current_source_id())
 
-    # Remediate
-    print(await remediate_secret_incidents(
-        RemediateSecretIncidentsParams(
-            list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(source_id="9036019")))
+    # Remediation targets
+    print(await list_remediation_targets(
+        ListRemediationTargetsParams(
+            list_repo_occurrences_params=ListRepoOccurrencesParamsForTargets(source_id="9036019")))
           )
 
     # Occurrences
