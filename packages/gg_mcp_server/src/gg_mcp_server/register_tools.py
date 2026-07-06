@@ -110,11 +110,12 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     """
     mcp.tool(
         list_remediation_targets,
-        description="(Internal sources only) Return the secret occurrences on the current branch that are candidates for fixing, "
-        "with exact match locations (file paths, line numbers, character indices), most-relevant first. This tool leverages the "
-        "occurrences API and returns data only — it does NOT rotate credentials or modify any files. Locate the secrets with this "
-        "tool, then follow your remediation skill/workflow for how to fix them (rotate first). "
-        "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this source.",
+        description="(Internal sources only) List the secret incidents on the current branch that are candidates for fixing, "
+        "grouped by incident (most recent first). Each incident carries a sample of its occurrences with exact match locations "
+        "(file paths, line numbers, character indices) plus the total occurrence count. Pass an incident_id to drill into a single "
+        "incident and get its COMPLETE occurrence set so you can fully remediate it. This tool returns data only — it does NOT rotate "
+        "credentials or modify any files; follow your remediation skill/workflow for how to fix them (rotate first). "
+        "Pass mine=True to only show incidents assigned to the current user.",
         required_scopes=["incidents:read", "sources:read"],
     )
 
