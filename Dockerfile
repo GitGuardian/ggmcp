@@ -47,11 +47,15 @@ COPY pyproject.toml uv.lock README.md ./
 COPY packages ./packages
 COPY src ./src
 
-# Install all packages from wheels
-# Using --system to install globally (not in a venv) since this is a container
-# Also install sentry-sdk for error monitoring in production
-RUN uv pip install --system /tmp/wheels/*.whl sentry-sdk && \
-    rm -rf /tmp/wheels
+# `uv pip install <wheel>` ignores uv.lock and re-resolves each wheel's `~=` ranges at build
+# time, so rebuilds drift. Install the locked deps instead, then the wheels with --no-deps.
+# gg-mcp-server[sentry] covers every member's deps plus sentry-sdk for prod monitoring.
+RUN uv export --frozen --no-dev --no-emit-workspace \
+        --package gg-mcp-server --extra sentry \
+        --format requirements-txt -o /tmp/requirements.txt && \
+    uv pip install --system --require-hashes -r /tmp/requirements.txt && \
+    uv pip install --system --no-deps /tmp/wheels/*.whl && \
+    rm -rf /tmp/wheels /tmp/requirements.txt
 
 # Install root package to get entry points (http-mcp-server, etc.)
 # This is a metadata-only package that provides entry point scripts
