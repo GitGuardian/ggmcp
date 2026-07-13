@@ -576,7 +576,7 @@ provides-extras = ["sentry"]
 
 [[package]]
 name = "ggmcp"
-version = "0.6.7"
+version = "0.6.8"
 source = { editable = "." }
 dependencies = [
     { name = "developer-mcp-server" },
