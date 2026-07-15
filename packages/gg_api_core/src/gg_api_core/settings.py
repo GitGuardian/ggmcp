@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     # --- OAuth proxy ---
     mcp_oauth_proxy_enabled: str | None = None
     mcp_base_url: str = "http://localhost:8000"
+    mcp_oauth_token_name: str = "MCP server token (OAuth Proxy)"
 
     # --- System ---
     xdg_config_home: str | None = None

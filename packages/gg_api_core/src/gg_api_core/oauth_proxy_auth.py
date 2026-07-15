@@ -14,7 +14,6 @@ The MCP client gets the real GG PAT directly and sends it as Bearer token.
 """
 
 import logging
-import os
 from collections.abc import Callable
 from contextvars import ContextVar
 from urllib.parse import urlencode, urlparse
@@ -26,6 +25,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.routing import Route
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+from .settings import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -381,11 +382,12 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         form_data.setdefault("client_id", self.gg_client_id)
 
         # Add token name
-        token_name = os.environ.get("MCP_OAUTH_TOKEN_NAME", "MCP server token (OAuth Proxy)")
+        settings = get_settings()
+        token_name = settings.mcp_oauth_token_name
         form_data.setdefault("name", token_name)
 
         # Add token lifetime
-        token_lifetime = os.environ.get("GITGUARDIAN_TOKEN_LIFETIME")
+        token_lifetime = settings.gitguardian_token_lifetime
         if token_lifetime and token_lifetime.lower() != "never":
             form_data.setdefault("lifetime", token_lifetime)
 
