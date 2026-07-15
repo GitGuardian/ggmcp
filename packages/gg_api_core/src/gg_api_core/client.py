@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import re
+import time
 from collections.abc import Sequence
 from datetime import datetime
 from enum import Enum
@@ -476,10 +477,13 @@ class GitGuardianClient:
             try:
                 async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
                     logger.debug(f"Sending {method} request to {url}")
+                    request_start = time.perf_counter()
                     response = await client.request(method, url, headers=headers, **kwargs)
+                    elapsed_ms = (time.perf_counter() - request_start) * 1000
+
+                logger.info(f"GG API {method} {endpoint} -> {response.status_code} ({elapsed_ms:.0f}ms)")
 
                 # Log detailed response information
-                logger.debug(f"Response status code: {response.status_code}")
                 logger.debug(f"Response headers: {dict(response.headers)}")
 
                 # Log response content if present
@@ -722,8 +726,11 @@ class GitGuardianClient:
         }
         headers.update(kwargs.pop("headers", {}))
 
+        request_start = time.perf_counter()
         async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
             response = await client.get(url, headers=headers, **kwargs)
+            elapsed_ms = (time.perf_counter() - request_start) * 1000
+            logger.info(f"GG API GET {endpoint} -> {response.status_code} ({elapsed_ms:.0f}ms)")
             response.raise_for_status()
 
             data = response.json() if response.content else {}
