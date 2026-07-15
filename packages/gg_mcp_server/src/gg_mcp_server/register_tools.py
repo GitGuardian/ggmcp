@@ -368,7 +368,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         revoke_secret,
         description="Revoke a secret by its ID through the GitGuardian API. Operates on a secret_id regardless of whether "
         "the incident surfaced on an internal source or via Public Monitoring.",
-        required_scopes=["write:secret"],
+        required_scopes=["secrets:write"],
     )
 
     mcp.tool(
