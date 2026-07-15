@@ -189,7 +189,7 @@ to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
 > The MCP server will be soon available out of the box as part of your GitGuardian self-hosted deployment (Helm chart).
 > This section is only meant to describe how it works, but you don't have to set it up.
 
-A Docker image is published at `ghcr.io/gitguardian/ggmcp`. Run it behind a
+A Docker image is published at `ghcr.io/gitguardian/mcp-server`. Run it behind a
 reverse proxy that terminates TLS, then point your MCP clients at it. The
 container exposes the StreamableHTTP transport on port 8000 by default.
 
@@ -201,7 +201,7 @@ docker run -p 8000:8000 \
   -e MCP_BASE_URL=https://mcp.mycorp.local \
   -e MCP_OAUTH_PROXY_ENABLED=true \
   -e ENABLE_LOCAL_OAUTH=false \
-  ghcr.io/gitguardian/ggmcp:latest \
+  ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
            -b 0.0.0.0:8000 gg_mcp_server.http_app:app
 ```
