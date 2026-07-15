@@ -397,12 +397,28 @@ def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
             gg_api_url=settings.gitguardian_api_url,
             advertised_scopes=settings.effective_scopes,
         )
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianOAuthProxyMCP.authentication_mode.value,
+        )
         return GitGuardianOAuthProxyMCP(*args, auth=oauth_proxy, **kwargs)
 
     if settings.is_oauth_enabled:
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianLocalOAuthMCP.authentication_mode.value,
+        )
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 
     if personal_access_token := settings.gitguardian_personal_access_token:
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianPATEnvMCP.authentication_mode.value,
+        )
         return GitGuardianPATEnvMCP(*args, personal_access_token=personal_access_token, **kwargs)
 
+    logger.info(
+        "Starting GitGuardian MCP server in %s mode",
+        GitGuardianAuthorizationHeaderMCP.authentication_mode.value,
+    )
     return GitGuardianAuthorizationHeaderMCP(*args, auth=PassThroughTokenVerifier(), **kwargs)
