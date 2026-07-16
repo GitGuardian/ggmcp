@@ -3,7 +3,9 @@
 import os
 from unittest.mock import patch
 
+import pytest
 from gg_api_core.host import SAAS_HOSTNAMES, _is_saas_hostname, is_self_hosted_instance
+from gg_api_core.urls import derive_public_api_url
 
 
 class TestIsSelfHostedInstance:
@@ -125,6 +127,45 @@ class TestIsSelfHostedInstance:
             # Construct a full URL for each hostname
             url = f"https://{hostname}"
             assert is_self_hosted_instance(url) is False, f"Expected False for {url}"
+
+
+class TestOnPremOverride:
+    """Tests for the ON_PREM environment variable override."""
+
+    @pytest.mark.parametrize(
+        ("on_prem", "url", "expected"),
+        [
+            ("true", "https://on-prem.preprod.gitguardian.tech", True),
+            ("true", "https://dashboard.gitguardian.com", True),
+            ("true", "https://gitguardian.mycompany.com", True),
+            ("false", "https://on-prem.preprod.gitguardian.tech", False),
+            ("false", "https://dashboard.gitguardian.com", False),
+            ("false", "https://gitguardian.mycompany.com", False),
+            (None, "https://dashboard.gitguardian.com", False),
+            (None, "https://gitguardian.mycompany.com", True),
+        ],
+    )
+    def test_on_prem_override(self, on_prem, url, expected):
+        """
+        GIVEN ON_PREM set to true, false, or unset
+        WHEN is_self_hosted_instance is called with any URL
+        THEN the override decides when set, and the hostname heuristic decides when unset
+        """
+        env = {"ON_PREM": on_prem} if on_prem is not None else {}
+        with patch.dict(os.environ, env, clear=True):
+            assert is_self_hosted_instance(url) is expected
+
+    def test_on_prem_true_derives_exposed_api_url(self):
+        """
+        GIVEN ON_PREM=true and a self-hosted instance under a SaaS-like domain
+        WHEN the public API URL is derived from the base URL
+        THEN the /exposed/v1 prefix is appended
+        """
+        with patch.dict(os.environ, {"ON_PREM": "true"}):
+            assert (
+                derive_public_api_url("https://on-prem.preprod.gitguardian.tech")
+                == "https://on-prem.preprod.gitguardian.tech/exposed/v1"
+            )
 
 
 class TestIsSaasHostname:
