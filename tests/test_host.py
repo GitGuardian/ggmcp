@@ -130,7 +130,7 @@ class TestIsSelfHostedInstance:
 
 
 class TestOnPremOverride:
-    """Tests for the ON_PREM environment variable override."""
+    """Tests for the IS_ON_PREM environment variable override."""
 
     @pytest.mark.parametrize(
         ("on_prem", "url", "expected"),
@@ -147,21 +147,21 @@ class TestOnPremOverride:
     )
     def test_on_prem_override(self, on_prem, url, expected):
         """
-        GIVEN ON_PREM set to true, false, or unset
+        GIVEN IS_ON_PREM set to true, false, or unset
         WHEN is_self_hosted_instance is called with any URL
         THEN the override decides when set, and the hostname heuristic decides when unset
         """
-        env = {"ON_PREM": on_prem} if on_prem is not None else {}
+        env = {"IS_ON_PREM": on_prem} if on_prem is not None else {}
         with patch.dict(os.environ, env, clear=True):
             assert is_self_hosted_instance(url) is expected
 
     def test_on_prem_true_derives_exposed_api_url(self):
         """
-        GIVEN ON_PREM=true and a self-hosted instance under a SaaS-like domain
+        GIVEN IS_ON_PREM=true and a self-hosted instance under a SaaS-like domain
         WHEN the public API URL is derived from the base URL
         THEN the /exposed/v1 prefix is appended
         """
-        with patch.dict(os.environ, {"ON_PREM": "true"}):
+        with patch.dict(os.environ, {"IS_ON_PREM": "true"}):
             assert (
                 derive_public_api_url("https://on-prem.preprod.gitguardian.tech")
                 == "https://on-prem.preprod.gitguardian.tech/exposed/v1"

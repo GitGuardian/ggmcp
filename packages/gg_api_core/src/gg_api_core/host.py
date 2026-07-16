@@ -40,7 +40,7 @@ def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
     """
     Determine if we're connecting to a self-hosted GitGuardian instance.
 
-    The ON_PREM environment variable, when set, is authoritative. When unset,
+    The IS_ON_PREM environment variable, when set, is authoritative. When unset,
     use a heuristic.
 
     Args:
