@@ -1528,18 +1528,6 @@ class GitGuardianClient:
 
         return await self._request_list(endpoint, params=params)
 
-    async def get_incident_impacted_perimeter(self, incident_id: str) -> dict[str, Any]:
-        """Retrieve the impacted perimeter of a secret incident.
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            Information about the impacted perimeter
-        """
-        logger.info(f"Getting impacted perimeter for incident {incident_id}")
-        return await self._request_get(f"/incidents/secrets/{incident_id}/perimeter")
-
     # Secret Incident Notes (comments) management
     #
     # Notes are free-form comments left by members or API tokens on an incident.
@@ -1751,19 +1739,6 @@ class GitGuardianClient:
             return await self.paginate_all(endpoint, params)
 
         return await self._request_list(endpoint, params=params)
-
-    # Secret Occurrences management
-    async def list_secret_occurrences(self, incident_id: str) -> dict[str, Any]:
-        """List secret occurrences for an incident.
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            List of secret occurrences
-        """
-        logger.info(f"Listing secret occurrences for incident ID: {incident_id}")
-        return await self._request_get(f"/incidents/{incident_id}/secret-occurrences")
 
     async def list_occurrences(
         self,
