@@ -40,14 +40,22 @@ def is_self_hosted_instance(gitguardian_url: str | None = None) -> bool:
     """
     Determine if we're connecting to a self-hosted GitGuardian instance.
 
+    The ON_PREM environment variable, when set, is authoritative. When unset,
+    use a heuristic.
+
     Args:
         gitguardian_url: GitGuardian URL to check, defaults to GITGUARDIAN_URL env var
 
     Returns:
         bool: True if self-hosted, False if SaaS
     """
+    settings = get_settings()
+
+    if settings.is_on_prem is not None:
+        return settings.is_on_prem
+
     if not gitguardian_url:
-        gitguardian_url = get_settings().gitguardian_url
+        gitguardian_url = settings.gitguardian_url
 
     try:
         parsed = urlparse(gitguardian_url)

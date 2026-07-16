@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     gitguardian_api_url: str | None = None
     gitguardian_personal_access_token: str | None = None
 
+    on_prem: str | None = None
+
     # GITGUARDIAN_REQUESTED_SCOPES is the legacy name kept for backward compat.
     gitguardian_scopes: str | None = None
     gitguardian_requested_scopes: str | None = None
@@ -74,6 +76,13 @@ class Settings(BaseSettings):
         if self.enable_local_oauth is None:
             return True
         return string_env_to_bool(self.enable_local_oauth)
+
+    @property
+    def is_on_prem(self) -> bool | None:
+        """Explicit self-hosted/SaaS declaration, or None when ON_PREM is unset."""
+        if self.on_prem is None:
+            return None
+        return string_env_to_bool(self.on_prem)
 
     @property
     def is_multi_tenant(self) -> bool:

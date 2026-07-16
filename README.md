@@ -198,6 +198,7 @@ Minimum configuration:
 ```bash
 docker run -p 8000:8000 \
   -e GITGUARDIAN_URL=https://dashboard.gitguardian.mycorp.local \
+  -e ON_PREM=true \
   -e MCP_BASE_URL=https://mcp.mycorp.local \
   -e MCP_OAUTH_PROXY_ENABLED=true \
   -e ENABLE_LOCAL_OAUTH=false \
@@ -205,6 +206,12 @@ docker run -p 8000:8000 \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
            -b 0.0.0.0:8000 gg_mcp_server.http_app:app
 ```
+
+`ON_PREM=true` tells the server it talks to a self-hosted GIM instance
+(API served under `/exposed/v1`, self-hosted scope set). When unset, the
+server guesses from the `GITGUARDIAN_URL` hostname, which fails for
+self-hosted instances deployed under a `gitguardian.com`/`gitguardian.tech`
+domain — set it explicitly for any self-hosted deployment.
 
 `MCP_OAUTH_PROXY_ENABLED=true` makes the server advertise itself as an OAuth
 Protected Resource (RFC 9728) and proxy `/authorize`, `/token`, `/register`
@@ -216,6 +223,7 @@ your domain.
 | Variable                            | Description                                      | Default                             |
 |-------------------------------------|--------------------------------------------------|-------------------------------------|
 | `GITGUARDIAN_URL`                   | GitGuardian dashboard URL                        | `https://dashboard.gitguardian.com` |
+| `ON_PREM`                           | `true` => self-hosted; `false` => SaaS; unset ⇒ guess from hostname | Unset            |
 | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | PAT (overrides OAuth)                            | Unset                               |
 | `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | Auto                                |
 | `GITGUARDIAN_CLIENT_ID`             | OAuth client ID                                  | `ggshield_oauth`                    |
