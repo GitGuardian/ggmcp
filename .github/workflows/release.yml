@@ -76,6 +76,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # keyless cosign signing (Sigstore/Rekor via GitHub OIDC)
     env:
       # Empty outside releases: switches image tags to main / <branch>-<sha>.
       RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
@@ -111,6 +112,7 @@ jobs:
             type=sha,prefix={{branch}}-,enable=${{ env.RELEASE_TAG == '' && env.IS_MAIN != 'true' }}
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -123,6 +125,17 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             PYTHON_VERSION=3.13
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      # Keyless signing (ggscout's pattern): signs by digest via Rekor/GitHub OIDC, --recursive for the multi-arch manifest.
+      - name: Sign image with cosign
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign --recursive --oidc-provider=github-actions \
+            "${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
 
   publish-to-pypi:
     runs-on: ubuntu-latest
