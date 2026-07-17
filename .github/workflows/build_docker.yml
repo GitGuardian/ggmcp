@@ -95,13 +95,16 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
 
-      # Keyless signing (ggscout's pattern): signs by digest via Rekor/GitHub OIDC, --recursive for the multi-arch manifest.
+      # Uses meta's already-lowercased tags for the ref - github.repository_owner keeps the org's real case ("GitGuardian"), which cosign rejects as an invalid OCI reference.
       - name: Sign image with cosign
         env:
           COSIGN_YES: "true"
+          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          cosign sign --recursive --oidc-provider=github-actions \
-            "${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
+          first_tag="$(head -n1 <<< "$IMAGE_TAGS")"
+          image_ref="${first_tag%:*}"
+          cosign sign --recursive --oidc-provider=github-actions "${image_ref}@${DIGEST}"
 
       # Scans the already-pushed digest directly from the registry (no local
       # docker load needed) - only enabled on the nightly path, so regular
