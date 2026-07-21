@@ -1,0 +1,49 @@
+name: Nightly Docker Rebuild
+
+# Rebuild and retag the latest released image with fresh base images to pick
+# up upstream Wolfi/Chainguard security patches, without cutting a new
+# release. Delegates to build_docker.yml so all build/push/sign logic lives
+# in one place, shared with the regular release path.
+
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'    # Weekdays at 01:00 UTC, same cadence as ggscout
+  workflow_dispatch: {}
+
+concurrency:
+  group: nightly-docker-rebuild
+  cancel-in-progress: true
+
+jobs:
+  resolve-latest-release:
+    name: Resolve latest release tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Get latest release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release view --repo "${{ github.repository }}" --json tagName -q .tagName)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Latest release: $tag"
+
+  rebuild:
+    name: Rebuild latest release with fresh base images
+    needs: [ resolve-latest-release ]
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/build_docker.yml
+    with:
+      ref: ${{ needs.resolve-latest-release.outputs.tag }}
+      release-tag: ${{ needs.resolve-latest-release.outputs.tag }}
+      is-main: false
+      no-cache: true
+      scan: true
+    secrets: inherit
