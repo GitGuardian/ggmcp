@@ -45,6 +45,7 @@ def run_http_with_uvicorn():
         mcp.http_app(path="/mcp", json_response=True, stateless_http=True),
         host=mcp_host,
         port=mcp_port,
+        log_config=None,
     )
 
 
