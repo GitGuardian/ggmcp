@@ -89,8 +89,6 @@ jobs:
           cache-from: ${{ inputs.no-cache && '' || 'type=gha' }}
           cache-to: ${{ inputs.no-cache && '' || 'type=gha,mode=max' }}
           platforms: linux/amd64,linux/arm64
-          build-args: |
-            PYTHON_VERSION=3.13
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
