@@ -386,8 +386,8 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         token_name = settings.mcp_oauth_token_name
         form_data.setdefault("name", token_name)
 
-        # Add token lifetime
-        token_lifetime = settings.gitguardian_token_lifetime
+        # Add token lifetime; unset ⇒ omitted ⇒ the server's DCR default/cap applies
+        token_lifetime = settings.mcp_oauth_token_lifetime
         if token_lifetime and token_lifetime.lower() != "never":
             form_data.setdefault("lifetime", token_lifetime)
 
