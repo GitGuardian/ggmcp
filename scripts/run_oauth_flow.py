@@ -14,7 +14,7 @@ Usage:
 Environment Variables:
     GITGUARDIAN_URL: GitGuardian instance URL (default: https://dashboard.gitguardian.com)
     GITGUARDIAN_CLIENT_ID: OAuth client ID (default: ggshield_oauth)
-    GITGUARDIAN_SCOPES: Space-separated list of OAuth scopes
+    GITGUARDIAN_SCOPES: Comma-separated list of OAuth scopes
     GITGUARDIAN_TOKEN_NAME: Name for the OAuth token (default: "MCP OAuth Test Token")
     GITGUARDIAN_TOKEN_LIFETIME: Token lifetime in days, or "never" for no expiration (default: 30)
 """
