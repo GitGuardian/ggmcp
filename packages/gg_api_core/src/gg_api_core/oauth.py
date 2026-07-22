@@ -587,20 +587,23 @@ class GitGuardianOAuthClient:
             # 1. Generate a random state and PKCE verifier
             import base64
             import hashlib
-            import random
+            import secrets
             import string
             import urllib.parse
 
-            # Create a state that includes the token name
+            # RFC 7636 unreserved chars
+            alphabet = string.ascii_letters + string.digits + "-._~"
+
+            # State carries the token name plus random data for CSRF protection
             state_data = {
                 "token_name": self.token_name,
-                "random": "".join(random.choices(string.ascii_letters + string.digits, k=8)),
+                "random": "".join(secrets.choice(alphabet) for _ in range(8)),
             }
             # Encode as JSON string
             state = json.dumps(state_data)
 
             # Generate PKCE code verifier and challenge
-            code_verifier = "".join(random.choices(string.ascii_letters + string.digits + "-._~", k=128))
+            code_verifier = "".join(secrets.choice(alphabet) for _ in range(128))
             code_challenge = (
                 base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).decode().rstrip("=")
             )
