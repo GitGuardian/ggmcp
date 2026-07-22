@@ -6,12 +6,12 @@
     "url": "https://github.com/GitGuardian/ggmcp",
     "source": "github"
   },
-  "version": "0.5.0",
+  "version": "0.6.10",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "ggmcp",
-      "version": "0.5.0",
+      "version": "0.6.10",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
