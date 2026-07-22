@@ -1,6 +1,7 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
+import time
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
@@ -147,6 +148,31 @@ class ScopeFilteringMiddleware(Middleware):
         return filtered_tools
 
 
+class ToolCallLoggingMiddleware(Middleware):
+    async def on_call_tool(self, context, call_next):
+        tool = getattr(context.message, "name", "unknown")
+        arguments = getattr(context.message, "arguments", None)
+        start = time.perf_counter()
+        try:
+            result = await call_next(context)
+        except Exception:
+            logger.exception(
+                "tool_call_failed",
+                extra={"tool": tool, "arguments": arguments, "elapsed_ms": round((time.perf_counter() - start) * 1000)},
+            )
+            raise
+        logger.info(
+            "tool_call",
+            extra={
+                "tool": tool,
+                "arguments": arguments,
+                "status": "ok",
+                "elapsed_ms": round((time.perf_counter() - start) * 1000),
+            },
+        )
+        return result
+
+
 class AbstractGitGuardianFastMCP(FastMCP, ABC):
     """Abstract base class for GitGuardian MCP servers with scope-based tool filtering.
 
@@ -168,6 +194,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
         self.add_middleware(ScopeFilteringMiddleware(self))
         self.add_middleware(DownstreamUnauthorizedMiddleware())
+        self.add_middleware(ToolCallLoggingMiddleware())
 
     def clear_cache(self) -> None:
         """Clear cached data. Override in subclasses that cache."""
