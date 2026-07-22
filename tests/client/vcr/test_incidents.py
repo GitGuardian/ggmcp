@@ -7,7 +7,6 @@ These tests cover:
 - get_incident(incident_id)
 - get_incidents(incident_ids)
 - list_incident_members(incident_id)
-- get_incident_impacted_perimeter(incident_id)
 - list_incident_notes(incident_id)
 """
 

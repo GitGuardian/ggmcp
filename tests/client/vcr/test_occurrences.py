@@ -3,7 +3,6 @@ VCR tests for GitGuardianClient occurrence methods.
 
 These tests cover:
 - list_occurrences(...)
-- list_secret_occurrences(incident_id)
 """
 
 import pytest
