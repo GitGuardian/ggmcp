@@ -6,12 +6,14 @@ current token cannot satisfy are filtered out at list-tools time.
 
 import logging
 
+from gg_api_core.logging_config import configure_logging_from_settings
 from gg_api_core.mcp_server import get_mcp_server, register_common_tools
+from gg_api_core.settings import get_settings
 
 from gg_mcp_server.add_health_check import add_health_check
 from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+configure_logging_from_settings(get_settings())
 
 logger = logging.getLogger(__name__)
 

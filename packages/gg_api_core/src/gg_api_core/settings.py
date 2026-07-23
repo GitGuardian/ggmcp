@@ -12,6 +12,8 @@ test fixtures using ``patch.dict(os.environ, ...)`` or
 ``monkeypatch.setenv`` continue to work without cache invalidation.
 """
 
+from typing import Literal
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -75,6 +77,9 @@ class Settings(BaseSettings):
 
     # --- System ---
     xdg_config_home: str | None = None
+    log_level: str = "INFO"
+    # "json" or "console"; unset ⇒ auto (console on a TTY, else json)
+    log_format: Literal["json", "console"] | None = None
 
     # --- Derived helpers ---
     @property

@@ -30,6 +30,7 @@ dependencies = [
     "pydantic~=2.12",
     "pydantic-settings~=2.9",
     "jinja2~=3.1",
+    "structlog~=26.1",
 ]
 
 [project.optional-dependencies]
