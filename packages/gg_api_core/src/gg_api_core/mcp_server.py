@@ -1,26 +1,26 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
 import logging
-import time
 from abc import ABC, abstractmethod
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Any
 
-import mcp.types as mt
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_access_token
-from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
-from fastmcp.tools import Tool, ToolResult
 
-from gg_api_core.client import DownstreamUnauthorizedError, GitGuardianClient
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
+from gg_api_core.middleware import (
+    DownstreamUnauthorizedMiddleware,
+    ScopeFilteringMiddleware,
+    ToolCallLoggingMiddleware,
+)
 from gg_api_core.oauth_proxy_auth import (
     PassThroughTokenVerifier,
     create_oauth_proxy,
-    mark_downstream_unauthorized,
 )
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client
@@ -100,82 +100,6 @@ class CachedTokenInfoMixin:
 
         self._token_info = await self._fetch_token_info_from_api()  # type: ignore[attr-defined]
         return self._token_info
-
-
-class DownstreamUnauthorizedMiddleware(Middleware):
-    """Flag the request when a tool surfaces a downstream 401.
-
-    The exception still propagates so FastMCP serializes a JSON-RPC error
-    body for clients that ignore the HTTP status. The ASGI middleware
-    rewrites the status to 401 based on the flag set here.
-    """
-
-    async def on_message(self, context, call_next):
-        try:
-            return await call_next(context)
-        except DownstreamUnauthorizedError:
-            mark_downstream_unauthorized()
-            raise
-
-
-class ScopeFilteringMiddleware(Middleware):
-    """Middleware to filter tools based on token scopes."""
-
-    def __init__(self, mcp_server: "AbstractGitGuardianFastMCP"):
-        self._mcp_server = mcp_server
-
-    async def on_list_tools(
-        self,
-        context,
-        call_next,
-    ) -> Sequence[Tool]:
-        """Filter tools based on the user's API token scopes."""
-        # Get all tools from the next middleware/handler
-        all_tools = await call_next(context)
-
-        # Filter tools by scopes
-        scopes = await self._mcp_server.get_scopes()
-        filtered_tools: list[Tool] = []
-        for tool in all_tools:
-            tool_name = tool.name
-            required_scopes = self._mcp_server._tool_scopes.get(tool_name, set())
-
-            if not required_scopes or required_scopes.issubset(scopes):
-                filtered_tools.append(tool)
-            else:
-                missing_scopes = required_scopes - scopes
-                logger.info(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
-
-        return filtered_tools
-
-
-class ToolCallLoggingMiddleware(Middleware):
-    async def on_call_tool(
-        self,
-        context: MiddlewareContext[mt.CallToolRequestParams],
-        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
-    ) -> ToolResult:
-        tool = context.message.name
-        arguments = context.message.arguments
-        start = time.perf_counter()
-        try:
-            result = await call_next(context)
-        except Exception:
-            logger.exception(
-                "tool_call_failed",
-                extra={"tool": tool, "arguments": arguments, "elapsed_ms": round((time.perf_counter() - start) * 1000)},
-            )
-            raise
-        logger.info(
-            "tool_call",
-            extra={
-                "tool": tool,
-                "arguments": arguments,
-                "status": "ok",
-                "elapsed_ms": round((time.perf_counter() - start) * 1000),
-            },
-        )
-        return result
 
 
 class AbstractGitGuardianFastMCP(FastMCP, ABC):
