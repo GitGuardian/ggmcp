@@ -22,7 +22,7 @@ REMEDIATION_PROMPT_PATH = Path(__file__).parent / "remediation_prompt.md"
 class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
     # Overriding the tags one to add a default filter : for remediation, we're more interested in occurrences that
     # are in the branch the developer is currently on. And occurrences on DEFAULT_BRANCH are a heuristic for that
-    tags: list[str] = Field(
+    tags: list[str] | None = Field(
         default=[TagNames.DEFAULT_BRANCH.value],
         description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
     )

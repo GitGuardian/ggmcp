@@ -175,7 +175,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         if args and callable(args[0]):
             # Direct call: mcp.tool(fn, required_scopes=...)
             fn = args[0]
-            name = kwargs.get("name", fn.__name__)
+            name: str = kwargs.get("name") or fn.__name__
             result = super().tool(*args, **kwargs)
             if required_scopes:
                 self._tool_scopes[name] = set(required_scopes)
@@ -185,7 +185,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             parent_decorator = super().tool(*args, **kwargs)
 
             def wrapper(fn):
-                name = kwargs.get("name", fn.__name__)
+                name: str = kwargs.get("name") or fn.__name__
                 result = parent_decorator(fn)
                 if required_scopes:
                     self._tool_scopes[name] = set(required_scopes)
