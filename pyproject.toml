@@ -45,7 +45,6 @@ Homepage = "https://github.com/GitGuardian/ggmcp"
 
 [dependency-groups]
 dev = [
-    "mypy~=1.18",
     "pytest~=8.4",
     "pytest-asyncio~=1.2",
     "pytest-cov~=7.0",
@@ -53,6 +52,7 @@ dev = [
     "ruff~=0.14",
     "vcrpy~=8.0",
     "pyyaml~=6.0",
+    "pyrefly>=1.1.1",
 ]
 
 [project.scripts]
@@ -121,20 +121,6 @@ markers = [
     "vcr_test", # mark a test as using VCR cassettes (disables auto-mocking)
 ]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-disallow_untyped_defs = false  # Start lenient, can be enabled later
-check_untyped_defs = true
-no_implicit_optional = true
-strict_optional = true
-ignore_missing_imports = true  # For packages without type stubs
-show_error_codes = true
-pretty = true
-
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
@@ -143,3 +129,7 @@ tag_format = "v$version"
 version_provider = "pep621"
 update_changelog_on_bump = true
 gpg_sign = true
+
+[tool.pyrefly]
+python-version = "3.11"
+ignore-missing-imports = ["*"]

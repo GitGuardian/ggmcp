@@ -31,8 +31,8 @@ run = ["uv run ruff check --fix"]
 
 [tasks."type:check"]
 alias = "typecheck"
-run = "uv run mypy packages/"
-description = "Check type hints with mypy"
+run = "uv run pyrefly check packages/"
+description = "Check type hints with pyrefly"
 
 [tasks.check]
 depends = ["format:check", "lint:check", "type:check"]

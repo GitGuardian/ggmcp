@@ -46,4 +46,4 @@ format:
 
 # Type checking
 typecheck:
-	uv run mypy .
+	uv run pyrefly check packages/
