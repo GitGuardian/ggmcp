@@ -80,3 +80,30 @@ def is_local_instance(gitguardian_url: str | None = None) -> bool:
 
 def has_exposed_prefix_for_api(gitguardian_url):
     return is_self_hosted_instance(gitguardian_url) or is_local_instance(gitguardian_url)
+
+
+def get_environment_name(gitguardian_url: str | None = None) -> str:
+    """Short label for the GitGuardian environment the server targets.
+
+    Used to tag log lines so aggregated logs can be sliced by environment.
+    Derived from the same signals that drive client routing: an explicit
+    self-hosted declaration, a local URL, or the SaaS hostname.
+
+    Returns one of: ``local``, ``self-hosted``, ``prod-eu``, ``preprod``,
+    ``staging``, ``prod``.
+    """
+    url = gitguardian_url or get_settings().gitguardian_url
+
+    if is_local_instance(url):
+        return "local"
+    if is_self_hosted_instance(url):
+        return "self-hosted"
+
+    hostname = (urlparse(url).hostname or "").lower()
+    if "eu1" in hostname:
+        return "prod-eu"
+    if "preprod" in hostname:
+        return "preprod"
+    if "staging" in hostname:
+        return "staging"
+    return "prod"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING
 
 import structlog
@@ -11,6 +12,15 @@ from gg_api_core.sanitization import scrub_by_name
 
 if TYPE_CHECKING:
     from gg_api_core.settings import Settings
+
+
+def _resolve_version() -> str:
+    """Running MCP server version, or ``unknown`` when not installed as a dist."""
+    try:
+        return version("ggmcp")
+    except PackageNotFoundError:
+        return "unknown"
+
 
 _RESERVED_KEYS = frozenset(
     {
@@ -51,10 +61,25 @@ def _add_exception_cls(logger: WrappedLogger, method_name: str, event_dict: Even
 
 
 def configure_logging(
-    *, log_level: str = "INFO", log_format: str | None = None, service: str = "gg-mcp-server"
+    *,
+    log_level: str = "INFO",
+    log_format: str | None = None,
+    service: str = "gg-mcp-server",
+    environment: str | None = None,
+    version: str | None = None,
 ) -> None:
-    def _add_service(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
-        event_dict["gg_service"] = service
+    if version is None:
+        version = _resolve_version()
+    if environment is None:
+        # Lazy import: host -> settings, keeping logging_config free of that chain at import time.
+        from gg_api_core.host import get_environment_name
+
+        environment = get_environment_name()
+
+    gg_fields = {"gg_service": service, "gg_version": version, "gg_environment": environment}
+
+    def _add_gg_fields(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+        event_dict.update(gg_fields)
         return event_dict
 
     shared: list[Processor] = [
@@ -63,7 +88,7 @@ def configure_logging(
         structlog.stdlib.add_logger_name,
         structlog.stdlib.ExtraAdder(),
         structlog.processors.TimeStamper(fmt="iso"),
-        _add_service,
+        _add_gg_fields,
         structlog.processors.StackInfoRenderer(),
         _add_exception_cls,
         structlog.processors.format_exc_info,
@@ -95,4 +120,10 @@ def configure_logging(
 
 
 def configure_logging_from_settings(settings: Settings) -> None:
-    configure_logging(log_level=settings.log_level, log_format=settings.log_format)
+    from gg_api_core.host import get_environment_name
+
+    configure_logging(
+        log_level=settings.log_level,
+        log_format=settings.log_format,
+        environment=get_environment_name(settings.gitguardian_url),
+    )

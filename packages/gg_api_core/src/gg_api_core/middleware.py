@@ -2,10 +2,13 @@
 
 import logging
 import time
+import uuid
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import mcp.types as mt
+import structlog
+from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import Tool, ToolResult
 
@@ -16,6 +19,53 @@ if TYPE_CHECKING:
     from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_request_id() -> str:
+    """Trace id for the request: the inbound X-Request-ID when present, else a fresh uuid4.
+
+    Reusing an upstream-supplied X-Request-ID lets a request be traced across
+    services; the uuid4 fallback guarantees stdio requests (no HTTP headers)
+    and header-less HTTP requests still get a unique id.
+    """
+    try:
+        request_id = get_http_headers().get("x-request-id")
+    except Exception:
+        request_id = None
+    return request_id or str(uuid.uuid4())
+
+
+class RequestLoggingContextMiddleware(Middleware):
+    """Bind per-request context so every log line of a request shares it.
+
+    Binds ``request_id`` (a trace id) on every request, and ``account_id``
+    (the authenticated workspace) only when the server already caches its
+    token info — single-tenant modes. HTTP bearer / OAuth-proxy modes do not
+    cache it, so we skip the bind there rather than add a token-info API call
+    to the per-message hot path. ``merge_contextvars`` (first in the logging
+    chain) then flows these onto both structlog and stdlib log lines.
+    """
+
+    def __init__(self, mcp_server: "AbstractGitGuardianFastMCP"):
+        self._mcp_server = mcp_server
+
+    async def _resolve_account_id(self) -> int | str | None:
+        if not getattr(self._mcp_server, "caches_token_info", False):
+            return None
+        try:
+            token_info = await self._mcp_server.get_token_info()
+            return token_info.get("workspace_id")
+        except Exception:
+            return None
+
+    async def on_message(self, context, call_next):
+        fields: dict[str, object] = {"request_id": _resolve_request_id()}
+        account_id = await self._resolve_account_id()
+        if account_id is not None:
+            fields["account_id"] = account_id
+
+        with structlog.contextvars.bound_contextvars(**fields):
+            return await call_next(context)
 
 
 class DownstreamUnauthorizedMiddleware(Middleware):

@@ -25,6 +25,16 @@ class TestConfigureLogging:
         assert payload["account_id"] == 475789
         assert payload["gg_service"] == "gg-mcp-server"
         assert payload["level"] == "info"
+        # Startup-constant context is on every line.
+        assert payload["gg_version"]
+        assert payload["gg_environment"]
+
+    def test_gg_version_and_environment_are_emitted(self, capsys):
+        configure_logging(log_level="DEBUG", log_format="json", environment="prod-eu", version="9.9.9")
+        structlog.get_logger("t").info("m")
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["gg_version"] == "9.9.9"
+        assert payload["gg_environment"] == "prod-eu"
 
     def test_structlog_kwargs_are_sanitized(self, capsys):
         _reconfigure_json()
