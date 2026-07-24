@@ -8,11 +8,12 @@ from contextlib import asynccontextmanager
 from enum import Enum
 from typing import Any
 
+import mcp.types as mt
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_access_token
-from fastmcp.server.middleware import Middleware
-from fastmcp.tools import Tool
+from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
+from fastmcp.tools import Tool, ToolResult
 
 from gg_api_core.client import DownstreamUnauthorizedError, GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
@@ -149,9 +150,13 @@ class ScopeFilteringMiddleware(Middleware):
 
 
 class ToolCallLoggingMiddleware(Middleware):
-    async def on_call_tool(self, context, call_next):
-        tool = getattr(context.message, "name", "unknown")
-        arguments = getattr(context.message, "arguments", None)
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[mt.CallToolRequestParams],
+        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        tool = context.message.name
+        arguments = context.message.arguments
         start = time.perf_counter()
         try:
             result = await call_next(context)
