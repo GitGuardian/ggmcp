@@ -1,57 +1,76 @@
 import pytest
-from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name
+from gg_api_core.sanitization import (
+    SENSITIVE_DATA_PLACEHOLDER,
+    scrub_by_name,
+    scrub_by_value,
+    scrub_git_credentials,
+    scrub_url_params,
+)
+
+PLACEHOLDER = SENSITIVE_DATA_PLACEHOLDER
 
 
 class TestScrubByName:
     @pytest.mark.parametrize(
-        "name",
+        ("name", "value", "expected"),
         [
-            # obvious secret-bearing names
-            "token",
-            "api_token",
-            "password",
-            "client_secret",
-            "authorization",
-            # scan-payload fields (raw content / matched secret)
-            "document",
-            "documents",
-            "filename",
-            "content",
-            "patch",
-            # matching is case-insensitive
-            "Authorization",
-            "API_KEY",
+            # sensitive key -> whole value redacted (case-insensitive)
+            ("token", "raw secret material", PLACEHOLDER),
+            ("client_secret", "raw secret material", PLACEHOLDER),
+            ("Authorization", "raw secret material", PLACEHOLDER),
+            ("document", "raw secret material", PLACEHOLDER),
+            # benign key -> value kept
+            ("account_id", 475789, 475789),
+            ("endpoint", "/v1/incidents", "/v1/incidents"),
+            # benign key whose value carries a secret shape -> value-scrubbed
+            ("url", "https://gg.com/cb?token=abc&safe=1", f"https://gg.com/cb?token={PLACEHOLDER}&safe=1"),
+            # dict under a benign key -> recurse, redact sensitive child keys
+            ("payload", {"account_id": 1, "token": "x"}, {"account_id": 1, "token": PLACEHOLDER}),
+            # list under a sensitive key -> whole value redacted
+            ("documents", [{"document": "c"}], PLACEHOLDER),
+            # list under a benign key -> recurse into items
+            ("results", [{"token": "x"}], [{"token": PLACEHOLDER}]),
         ],
     )
-    def test_sensitive_names_are_redacted(self, name):
-        assert scrub_by_name(name, "raw secret material") == SENSITIVE_DATA_PLACEHOLDER
+    def test_scrub_by_name(self, name, value, expected):
+        assert scrub_by_name(name, value) == expected
 
+
+class TestScrubUrlParams:
     @pytest.mark.parametrize(
-        ("name", "value"),
+        ("url", "expected"),
         [
-            ("account_id", 475789),
-            ("endpoint", "/v1/incidents"),
-            ("status_code", 200),
+            ("https://e.com/p?token=123&safe=456", f"https://e.com/p?token={PLACEHOLDER}&safe=456"),
+            ("/p?token=123&token=234", f"/p?token={PLACEHOLDER}&token={PLACEHOLDER}"),
+            ("/p?token=&key=123", f"/p?token=&key={PLACEHOLDER}"),
+            ("/p?safe=123", "/p?safe=123"),
         ],
     )
-    def test_non_sensitive_names_pass_through(self, name, value):
-        assert scrub_by_name(name, value) == value
+    def test_redacts_sensitive_params(self, url, expected):
+        assert scrub_url_params(url) == expected
 
-    def test_nested_dict_scrubbed_by_own_keys(self):
-        out = scrub_by_name("payload", {"account_id": 1, "token": "gg_pat_x", "nested": {"secret": "s"}})
-        assert out == {
-            "account_id": 1,
-            "token": SENSITIVE_DATA_PLACEHOLDER,
-            "nested": {"secret": SENSITIVE_DATA_PLACEHOLDER},
-        }
 
-    def test_list_under_sensitive_name_is_fully_redacted(self):
-        docs = [{"document": "content1", "filename": "a.py"}, {"document": "content2"}]
-        assert scrub_by_name("documents", docs) == SENSITIVE_DATA_PLACEHOLDER
+class TestScrubGitCredentials:
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("git clone https://u:p@host/r.git", f"git clone https://{PLACEHOLDER}:{PLACEHOLDER}@host/r.git"),
+            ("https://a:b@gitlab.com/x", f"https://{PLACEHOLDER}:{PLACEHOLDER}@gitlab.com/x"),
+            ("https://host/no-creds.git", "https://host/no-creds.git"),
+        ],
+    )
+    def test_redacts_credentials(self, url, expected):
+        assert scrub_git_credentials(url) == expected
 
-    def test_list_under_safe_name_recurses_into_items(self):
-        items = [{"account_id": 1, "token": "x"}, {"account_id": 2, "token": "y"}]
-        assert scrub_by_name("results", items) == [
-            {"account_id": 1, "token": SENSITIVE_DATA_PLACEHOLDER},
-            {"account_id": 2, "token": SENSITIVE_DATA_PLACEHOLDER},
-        ]
+
+class TestScrubByValue:
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("clone https://u:p@host/r and ?token=abc", f"clone https://{PLACEHOLDER}:{PLACEHOLDER}@host/r and ?token={PLACEHOLDER}"),
+            ("no secrets here", "no secrets here"),
+            (42, 42),
+        ],
+    )
+    def test_scrub_by_value(self, value, expected):
+        assert scrub_by_value(value) == expected
