@@ -2,7 +2,8 @@ import logging
 from types import SimpleNamespace
 
 import pytest
-from gg_api_core.middleware import ToolCallLoggingMiddleware
+import structlog
+from gg_api_core.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
 
 
 def _ctx(name, arguments=None):
@@ -36,3 +37,52 @@ class TestToolCallLoggingMiddleware:
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call_failed")
         assert rec.tool == "scan_secrets"
         assert rec.exc_info is not None
+
+
+class TestRequestLoggingContextMiddleware:
+    async def test_binds_request_id_and_clears_after(self):
+        seen: dict = {}
+
+        async def call_next(ctx):
+            seen.update(structlog.contextvars.get_contextvars())
+            return "ok"
+
+        server = SimpleNamespace(caches_token_info=False)
+        result = await RequestLoggingContextMiddleware(server).on_message(SimpleNamespace(), call_next)
+
+        assert result == "ok"
+        assert seen["request_id"]
+        assert "account_id" not in seen  # server does not cache token info
+        # binding does not leak past the request
+        assert "request_id" not in structlog.contextvars.get_contextvars()
+
+    async def test_binds_account_id_when_server_caches_token_info(self):
+        seen: dict = {}
+
+        async def call_next(ctx):
+            seen.update(structlog.contextvars.get_contextvars())
+            return "ok"
+
+        class Server:
+            caches_token_info = True
+
+            async def get_token_info(self):
+                return {"workspace_id": 780778}
+
+        await RequestLoggingContextMiddleware(Server()).on_message(SimpleNamespace(), call_next)
+
+        assert seen["account_id"] == 780778
+        assert seen["request_id"]
+
+    async def test_prefers_inbound_x_request_id_header(self, monkeypatch):
+        seen: dict = {}
+
+        async def call_next(ctx):
+            seen.update(structlog.contextvars.get_contextvars())
+            return "ok"
+
+        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "trace-123"})
+        server = SimpleNamespace(caches_token_info=False)
+        await RequestLoggingContextMiddleware(server).on_message(SimpleNamespace(), call_next)
+
+        assert seen["request_id"] == "trace-123"

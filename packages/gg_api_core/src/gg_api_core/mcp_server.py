@@ -15,6 +15,7 @@ from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
 from gg_api_core.middleware import (
     DownstreamUnauthorizedMiddleware,
+    RequestLoggingContextMiddleware,
     ScopeFilteringMiddleware,
     ToolCallLoggingMiddleware,
 )
@@ -49,6 +50,10 @@ class CachedTokenInfoMixin:
     Note: This mixin expects to be used with AbstractGitGuardianFastMCP which provides
     _fetch_token_scopes_from_api() and _fetch_token_info_from_api() methods.
     """
+
+    # Single identity for the whole server lifetime, so token info is cached and
+    # cheap to read — safe to bind as account_id on every log line.
+    caches_token_info = True
 
     _token_scopes: set[str] = set()
     _token_info: dict[str, Any] | None = None
@@ -111,6 +116,11 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
     authentication_mode: AuthenticationMode
 
+    # Whether get_token_info() is cached (single-tenant). When False (per-request
+    # HTTP identity), RequestLoggingContextMiddleware skips the account_id bind to
+    # avoid a token-info API call on every message.
+    caches_token_info: bool = False
+
     def __init__(self, *args, default_scopes: list[str] | None = None, **kwargs):
         """
         Initialize the GitGuardian MCP server.
@@ -121,6 +131,9 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
 
+        # Registered first so it is outermost: request_id / account_id are bound
+        # before any other middleware emits a log line for the request.
+        self.add_middleware(RequestLoggingContextMiddleware(self))
         self.add_middleware(ScopeFilteringMiddleware(self))
         self.add_middleware(DownstreamUnauthorizedMiddleware())
         self.add_middleware(ToolCallLoggingMiddleware())
