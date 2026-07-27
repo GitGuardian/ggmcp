@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import structlog
 from structlog.types import EventDict, Processor, WrappedLogger
 
-from gg_api_core.sanitization import scrub_by_name
+from gg_api_core.sanitization import scrub_by_name, scrub_by_value
 
 if TYPE_CHECKING:
     from gg_api_core.settings import Settings
@@ -30,10 +30,17 @@ _RESERVED_KEYS = frozenset(
 )
 
 
-def _sanitize_event_dict(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+def _scrub_sensitive_keys(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
     for key in list(event_dict.keys()):
         if key not in _RESERVED_KEYS:
             event_dict[key] = scrub_by_name(str(key), event_dict[key])
+    return event_dict
+
+
+def _scrub_reserved_values(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+    for key in list(event_dict.keys()):
+        if key in _RESERVED_KEYS:
+            event_dict[key] = scrub_by_value(event_dict[key])
     return event_dict
 
 
@@ -67,7 +74,8 @@ def configure_logging(
         structlog.processors.StackInfoRenderer(),
         _add_exception_cls,
         structlog.processors.format_exc_info,
-        _sanitize_event_dict,
+        _scrub_sensitive_keys,
+        _scrub_reserved_values,
     ]
 
     structlog.configure(
