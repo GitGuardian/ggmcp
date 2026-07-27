@@ -67,7 +67,10 @@ class TestScrubByValue:
     @pytest.mark.parametrize(
         ("value", "expected"),
         [
-            ("clone https://u:p@host/r and ?token=abc", f"clone https://{PLACEHOLDER}:{PLACEHOLDER}@host/r and ?token={PLACEHOLDER}"),
+            (
+                "clone https://u:p@host/r and ?token=abc",
+                f"clone https://{PLACEHOLDER}:{PLACEHOLDER}@host/r and ?token={PLACEHOLDER}",
+            ),
             ("no secrets here", "no secrets here"),
             (42, 42),
         ],
