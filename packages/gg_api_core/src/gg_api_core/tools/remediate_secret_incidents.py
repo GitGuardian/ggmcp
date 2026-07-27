@@ -22,7 +22,7 @@ REMEDIATION_PROMPT_PATH = Path(__file__).parent / "remediation_prompt.md"
 class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
     # Overriding the tags one to add a default filter : for remediation, we're more interested in occurrences that
     # are in the branch the developer is currently on. And occurrences on DEFAULT_BRANCH are a heuristic for that
-    tags: list[str] = Field(
+    tags: list[str] | None = Field(
         default=[TagNames.DEFAULT_BRANCH.value],
         description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
     )
@@ -158,7 +158,7 @@ async def remediate_secret_incidents(
         return RemediateSecretIncidentsError(error=f"Failed to remediate incidents: {str(e)}")
 
 
-async def filter_mine(occurrences):
+async def filter_mine(occurrences: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Filter occurrences create by the current user"""
     client = await get_client()
     try:
@@ -173,6 +173,6 @@ async def filter_mine(occurrences):
     return occurrences
 
 
-async def trim_occurrences_for_remediation(occurrences):
+async def trim_occurrences_for_remediation(occurrences: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Limit the number of occurrences to be remediated by the agent"""
     return occurrences[:10]

@@ -128,7 +128,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     # Create a new honeytoken if requested or if we couldn't find an existing one
     try:
         # Generate the honeytoken with default tags
-        custom_tags = [
+        custom_tags: list[dict[str, str | None]] = [
             {"key": "source", "value": "auto-generated"},
             {"key": "type", "value": "aws"},
         ]

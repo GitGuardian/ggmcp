@@ -1,8 +1,9 @@
+from fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import PlainTextResponse
 
 
-def add_health_check(mcp):
+def add_health_check(mcp: FastMCP) -> None:
     """Add a health check endpoint"""
 
     @mcp.custom_route("/health", methods=["GET"])

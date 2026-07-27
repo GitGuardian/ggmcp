@@ -3,11 +3,12 @@
 import logging
 import time
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import mcp.types as mt
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import Tool, ToolResult
+from typing_extensions import override
 
 from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
@@ -26,7 +27,8 @@ class DownstreamUnauthorizedMiddleware(Middleware):
     rewrites the status to 401 based on the flag set here.
     """
 
-    async def on_message(self, context, call_next):
+    @override
+    async def on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any:
         try:
             return await call_next(context)
         except DownstreamUnauthorizedError:
@@ -40,10 +42,11 @@ class ScopeFilteringMiddleware(Middleware):
     def __init__(self, mcp_server: "AbstractGitGuardianFastMCP"):
         self._mcp_server = mcp_server
 
+    @override
     async def on_list_tools(
         self,
-        context,
-        call_next,
+        context: MiddlewareContext[mt.ListToolsRequest],
+        call_next: CallNext[mt.ListToolsRequest, Sequence[Tool]],
     ) -> Sequence[Tool]:
         """Filter tools based on the user's API token scopes."""
         # Get all tools from the next middleware/handler
@@ -66,6 +69,7 @@ class ScopeFilteringMiddleware(Middleware):
 
 
 class ToolCallLoggingMiddleware(Middleware):
+    @override
     async def on_call_tool(
         self,
         context: MiddlewareContext[mt.CallToolRequestParams],

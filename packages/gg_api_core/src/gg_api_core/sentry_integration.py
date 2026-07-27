@@ -134,7 +134,7 @@ def set_sentry_user(user_info: dict[str, Any]) -> None:
         logger.debug(f"Failed to set Sentry user: {str(e)}")
 
 
-def capture_exception(exception: Exception, **kwargs) -> None:
+def capture_exception(exception: Exception, **kwargs: Any) -> None:
     """
     Manually capture an exception to Sentry.
 

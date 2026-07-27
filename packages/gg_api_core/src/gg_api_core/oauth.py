@@ -8,12 +8,13 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import parse_qs, urlparse
 
 from mcp.client.auth import TokenStorage
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import BaseModel, Field
+from typing_extensions import override
 
 from .settings import get_settings
 
@@ -60,7 +61,7 @@ _oauth_client_counter = 0
 class FileTokenStorage:
     """File-based storage for OAuth tokens to enable token reuse."""
 
-    def __init__(self, token_file=None):
+    def __init__(self, token_file: str | Path | None = None) -> None:
         """Initialize the token storage.
 
         Args:
@@ -94,7 +95,7 @@ class FileTokenStorage:
             # Ensure parent directory exists
             self.token_file.parent.mkdir(exist_ok=True, parents=True)
 
-    def load_tokens(self):
+    def load_tokens(self) -> dict[str, Any]:
         """Load tokens from the token file."""
         try:
             if self.token_file.exists():
@@ -104,7 +105,7 @@ class FileTokenStorage:
             logger.warning(f"Failed to load tokens from {self.token_file}: {e}")
         return {}
 
-    def save_token(self, instance_url, token_data):
+    def save_token(self, instance_url: str, token_data: dict[str, Any]) -> None:
         """Save a token for a specific instance URL."""
         tokens = self.load_tokens()
 
@@ -153,15 +154,19 @@ class InMemoryTokenStorage(TokenStorage):
         self._tokens: Optional[OAuthToken] = None
         self._client_info: Optional[OAuthClientInformationFull] = None
 
+    @override
     async def get_tokens(self) -> Optional[OAuthToken]:
         return self._tokens
 
+    @override
     async def set_tokens(self, tokens: OAuthToken) -> None:
         self._tokens = tokens
 
+    @override
     async def get_client_info(self) -> Optional[OAuthClientInformationFull]:
         return self._client_info
 
+    @override
     async def set_client_info(self, client_info: OAuthClientInformationFull) -> None:
         self._client_info = client_info
 
@@ -169,7 +174,7 @@ class InMemoryTokenStorage(TokenStorage):
 class CallbackHandler(BaseHTTPRequestHandler):
     """Simple HTTP handler to capture OAuth callback."""
 
-    def __init__(self, request, client_address, server, callback_data):
+    def __init__(self, request: Any, client_address: Any, server: Any, callback_data: dict[str, Any]) -> None:
         """Initialize with callback data storage."""
         self.callback_data = callback_data
         super().__init__(request, client_address, server)
@@ -296,7 +301,8 @@ class CallbackHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
 
-    def log_message(self, format, *args):
+    @override
+    def log_message(self, format: str, *args: Any) -> None:
         """Suppress default logging."""
         pass
 
@@ -304,7 +310,12 @@ class CallbackHandler(BaseHTTPRequestHandler):
 class CallbackServer:
     """Simple server to handle OAuth callbacks."""
 
-    def __init__(self, port_range=CALLBACK_PORT_RANGE, dashboard_url=None, use_dashboard_page=False):
+    def __init__(
+        self,
+        port_range: tuple[int, int] = CALLBACK_PORT_RANGE,
+        dashboard_url: str | None = None,
+        use_dashboard_page: bool = False,
+    ) -> None:
         """Initialize the callback server with a range of ports to try.
 
         Args:
@@ -313,9 +324,9 @@ class CallbackServer:
             use_dashboard_page: If True, redirect to dashboard authenticated page instead of showing local page
         """
         self.port_range = port_range
-        self.port = None
-        self.server = None
-        self.thread = None
+        self.port: int | None = None
+        self.server: HTTPServer | None = None
+        self.thread: threading.Thread | None = None
         self.callback_data = {
             "dashboard_url": dashboard_url,
             "authorization_code": None,
@@ -329,12 +340,12 @@ class CallbackServer:
         callback_data = self.callback_data
 
         class DataCallbackHandler(CallbackHandler):
-            def __init__(self, request, client_address, server):
+            def __init__(self, request: Any, client_address: Any, server: Any) -> None:
                 super().__init__(request, client_address, server, callback_data)
 
         return DataCallbackHandler
 
-    def is_port_available(self, port):
+    def is_port_available(self, port: int) -> bool:
         """Check if a port is available by attempting to bind to it.
 
         Args:
@@ -397,7 +408,7 @@ class CallbackServer:
         if self.thread:
             self.thread.join(timeout=1)
 
-    def wait_for_callback(self, timeout=300):
+    def wait_for_callback(self, timeout: float = 300):
         """Wait for OAuth callback with timeout."""
         start_time = time.time()
         while time.time() - start_time < timeout:
@@ -441,9 +452,9 @@ class GitGuardianOAuthClient:
         self.scopes = scopes or ["scan"]
         self.token_storage = InMemoryTokenStorage()
         self.file_token_storage = FileTokenStorage()
-        self.oauth_provider = None
-        self.access_token = None
-        self.token_info = None
+        self.oauth_provider: Any = None
+        self.access_token: str | None = None
+        self.token_info: APITokenInfo | None = None
 
         # Use provided token name or use the default "MCP server token"
         self.token_name = token_name

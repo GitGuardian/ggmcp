@@ -16,6 +16,7 @@ The MCP client gets the real GG PAT directly and sends it as Bearer token.
 import logging
 from collections.abc import Callable
 from contextvars import ContextVar
+from typing import Any
 from urllib.parse import urlencode, urlparse
 
 import httpx
@@ -25,6 +26,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.routing import Route
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
+from typing_extensions import override
 
 from .settings import get_settings
 
@@ -54,6 +56,7 @@ class PassThroughTokenVerifier(TokenVerifier):
     fail with a real 401 if the token is invalid.
     """
 
+    @override
     async def verify_token(self, token: str) -> AccessToken | None:
         return AccessToken(token=token, client_id="unknown", scopes=[])
 
@@ -165,8 +168,8 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         gg_api_url: str,
         gg_client_id: str = "ggshield_oauth",
         advertised_scopes: list[str] | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
         self.gg_authorize_url = gg_authorize_url
         self.gg_token_url = gg_token_url
@@ -176,10 +179,12 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         self._advertised_scopes = advertised_scopes
 
     @property
+    @override
     def scopes_supported(self) -> list[str]:
         return self._advertised_scopes or ["scan"]
 
-    def get_middleware(self) -> list:
+    @override
+    def get_middleware(self) -> list[Middleware]:
         """Add downstream-401 handling and WWW-Authenticate advertising.
 
         Order matters. ``TranslateDownstreamUnauthorizedMiddleware`` runs
@@ -214,6 +219,7 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
             return None
         return str(build_resource_metadata_url(self._resource_url))
 
+    @override
     def get_routes(self, mcp_path: str | None = None) -> list[Route]:
         """Return OAuth proxy routes alongside discovery metadata.
 
