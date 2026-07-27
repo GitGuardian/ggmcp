@@ -10,6 +10,7 @@ from typing import Any
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_access_token
+from typing_extensions import override
 
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
@@ -53,7 +54,7 @@ class CachedTokenInfoMixin:
     _token_scopes: set[str] = set()
     _token_info: dict[str, Any] | None = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         # Add a custom lifespan contextmanager that fetches and cache token scopes and infos
         original_lifespan = kwargs.get("lifespan")
         kwargs["lifespan"] = self._create_token_scope_lifespan(original_lifespan)
@@ -65,13 +66,13 @@ class CachedTokenInfoMixin:
         self._token_scopes = set()
         self._token_info = None
 
-    def _create_token_scope_lifespan(self, original_lifespan=None):
+    def _create_token_scope_lifespan(self, original_lifespan: Any = None) -> Any:
         """Create a lifespan context manager that fetches token scopes."""
 
         @asynccontextmanager
-        async def token_scope_lifespan(fastmcp) -> AsyncIterator[dict]:
+        async def token_scope_lifespan(fastmcp: FastMCP) -> AsyncIterator[dict[str, Any]]:
             """Lifespan context manager that fetches token scopes on startup."""
-            context_result = {}
+            context_result: dict[str, Any] = {}
 
             # Call the original lifespan if provided
             if original_lifespan:
@@ -111,7 +112,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
     authentication_mode: AuthenticationMode
 
-    def __init__(self, *args, default_scopes: list[str] | None = None, **kwargs):
+    def __init__(self, *args: Any, default_scopes: list[str] | None = None, **kwargs: Any) -> None:
         """
         Initialize the GitGuardian MCP server.
         """
@@ -157,7 +158,8 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             logger.exception(f"Error revoking current API token: {str(e)}")
             raise
 
-    def tool(self, *args, required_scopes: list[str] | None = None, **kwargs):
+    @override
+    def tool(self, *args: Any, required_scopes: list[str] | None = None, **kwargs: Any) -> Any:
         """
         Extended tool decorator that tracks required scopes.
 
@@ -184,7 +186,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             # Decorator usage: @mcp.tool(required_scopes=...)
             parent_decorator = super().tool(*args, **kwargs)
 
-            def wrapper(fn):
+            def wrapper(fn: Any) -> Any:
                 name: str = kwargs.get("name") or fn.__name__
                 result = parent_decorator(fn)
                 if required_scopes:
@@ -193,7 +195,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
             return wrapper
 
-    async def _fetch_token_scopes_from_api(self, client=None) -> set[str]:
+    async def _fetch_token_scopes_from_api(self, client: GitGuardianClient | None = None) -> set[str]:
         """Fetch token scopes from the GitGuardian API.
 
         Args:
@@ -288,6 +290,7 @@ class GitGuardianLocalOAuthMCP(CachedTokenInfoMixin, AbstractGitGuardianFastMCP)
 
     authentication_mode = AuthenticationMode.LOCAL_OAUTH_FLOW
 
+    @override
     def get_personal_access_token(self) -> str | None:
         # It will be actually provided within the client by the OAuth flow, or from the filesystem storage
         return None
@@ -298,10 +301,11 @@ class GitGuardianPATEnvMCP(CachedTokenInfoMixin, AbstractGitGuardianFastMCP):
 
     authentication_mode = AuthenticationMode.PERSONAL_ACCESS_TOKEN_ENV_VAR
 
-    def __init__(self, *args, personal_access_token: str, **kwargs):
+    def __init__(self, *args: Any, personal_access_token: str, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.personal_access_token = personal_access_token
 
+    @override
     def get_personal_access_token(self) -> str:
         return self.personal_access_token
 
@@ -315,12 +319,14 @@ class _BearerTokenMCP(AbstractGitGuardianFastMCP):
     below differ only in :attr:`authentication_mode`.
     """
 
+    @override
     def get_personal_access_token(self) -> str:
         access_token = get_access_token()
         if not access_token:
             raise ValidationError("No access token available - bearer authentication required")
         return access_token.token
 
+    @override
     async def get_token_info(self) -> dict[str, Any]:
         return await self._fetch_token_info_from_api()
 
@@ -341,7 +347,7 @@ class GitGuardianOAuthProxyMCP(_BearerTokenMCP):
     authentication_mode = AuthenticationMode.OAUTH_PROXY
 
 
-def get_mcp_server(*args, **kwargs) -> AbstractGitGuardianFastMCP:
+def get_mcp_server(*args: Any, **kwargs: Any) -> AbstractGitGuardianFastMCP:
     kwargs.setdefault("icons", get_gitguardian_icons())
 
     settings = get_settings()

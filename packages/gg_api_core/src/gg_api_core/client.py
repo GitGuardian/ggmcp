@@ -418,7 +418,7 @@ class GitGuardianClient:
             return False
 
     async def _request(
-        self, method: str, endpoint: str, *, expected_client_errors: Sequence[int] = (), **kwargs
+        self, method: str, endpoint: str, *, expected_client_errors: Sequence[int] = (), **kwargs: Any
     ) -> Any:
         """Make a request to the GitGuardian API (generic method).
 
@@ -508,12 +508,12 @@ class GitGuardianClient:
 
                 if response.status_code == 204:  # No content
                     logger.debug("Received 204 No Content response")
-                    return {}
+                    return cast(dict[str, Any], {})
 
                 try:
                     if not response.content or response.content.strip() == b"":
                         logger.debug("Received empty response content")
-                        return {}
+                        return cast(dict[str, Any], {})
 
                     data = response.json()
 
@@ -637,7 +637,7 @@ class GitGuardianClient:
         logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
         return cursor_decoded
 
-    async def _request_get(self, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _request_get(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
         """Make a GET request to the GitGuardian API.
 
         Args:
@@ -652,7 +652,7 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("GET", endpoint, **kwargs))
 
-    async def _request_post(self, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _request_post(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
         """Make a POST request to the GitGuardian API.
 
         Args:
@@ -667,7 +667,7 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("POST", endpoint, **kwargs))
 
-    async def _request_patch(self, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _request_patch(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
         """Make a PATCH request to the GitGuardian API.
 
         Args:
@@ -682,7 +682,7 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("PATCH", endpoint, **kwargs))
 
-    async def _request_delete(self, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _request_delete(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
         """Make a DELETE request to the GitGuardian API.
 
         Args:
@@ -697,7 +697,7 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("DELETE", endpoint, **kwargs))
 
-    async def _request_list(self, endpoint: str, **kwargs) -> ListResponse:
+    async def _request_list(self, endpoint: str, **kwargs: Any) -> ListResponse:
         """Make a request to a list endpoint that returns standardized ListResponse.
 
         This method handles list endpoints that may return either a list directly or
@@ -726,7 +726,7 @@ class GitGuardianClient:
             response = await client.get(url, headers=headers, **kwargs)
             response.raise_for_status()
 
-            data = response.json() if response.content else {}
+            data: Any = response.json() if response.content else {}
             response_headers = dict(response.headers)
 
         # Handle both direct list and dict with "results" or "data" key
@@ -856,7 +856,7 @@ class GitGuardianClient:
         }
 
     async def create_honeytoken(
-        self, name: str, description: str = "", custom_tags: list | None = None
+        self, name: str, description: str = "", custom_tags: list[dict[str, str | None]] | None = None
     ) -> dict[str, Any]:
         """Create a new honeytoken in GitGuardian.
 
@@ -884,7 +884,7 @@ class GitGuardianClient:
         self,
         name: str,
         description: str = "",
-        custom_tags: list | None = None,
+        custom_tags: list[dict[str, str | None]] | None = None,
         language: str | None = None,
         filename: str | None = None,
         project_extensions: str | None = None,
@@ -1103,7 +1103,7 @@ class GitGuardianClient:
         self,
         incident_id: str,
         severity: str | None = None,
-        custom_tags: list | None = None,
+        custom_tags: list[dict[str, str | None]] | None = None,
     ) -> dict[str, Any]:
         """Update a secret incident.
 
@@ -2154,7 +2154,7 @@ class GitGuardianClient:
 
         return await self._request_list(endpoint, params=params)
 
-    async def list_source_incidents(self, source_id: str, **kwargs) -> dict[str, Any]:
+    async def list_source_incidents(self, source_id: str, **kwargs: Any) -> dict[str, Any]:
         """List secret incidents of a source.
 
         Args:
@@ -2174,7 +2174,7 @@ class GitGuardianClient:
 
         return await self._request_get(endpoint)
 
-    async def list_member_incidents(self, member_id: str, **kwargs) -> dict[str, Any]:
+    async def list_member_incidents(self, member_id: str, **kwargs: Any) -> dict[str, Any]:
         """List secret incidents a member has access to.
 
         Args:
@@ -2340,7 +2340,7 @@ class GitGuardianClient:
         logger.info(f"Creating code fix request for {len(locations)} issue(s)")
         return await self._request_post("/code-fix-requests", json={"locations": locations})
 
-    async def list_members(self, params) -> ListResponse:
+    async def list_members(self, params: dict[str, Any]) -> ListResponse:
         """List all users in the account."""
         return await self._request_list("/members", params=params)
 

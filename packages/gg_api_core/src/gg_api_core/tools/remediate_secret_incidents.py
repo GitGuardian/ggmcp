@@ -158,7 +158,7 @@ async def remediate_secret_incidents(
         return RemediateSecretIncidentsError(error=f"Failed to remediate incidents: {str(e)}")
 
 
-async def filter_mine(occurrences):
+async def filter_mine(occurrences: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Filter occurrences create by the current user"""
     client = await get_client()
     try:
@@ -173,6 +173,6 @@ async def filter_mine(occurrences):
     return occurrences
 
 
-async def trim_occurrences_for_remediation(occurrences):
+async def trim_occurrences_for_remediation(occurrences: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Limit the number of occurrences to be remediated by the agent"""
     return occurrences[:10]
