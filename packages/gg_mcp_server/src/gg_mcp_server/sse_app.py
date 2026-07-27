@@ -7,15 +7,13 @@ use ``http_app.py`` instead which uses StreamableHTTP with JSON responses.
 
 import logging
 
-from gg_api_core.sentry_integration import init_sentry
+from fastmcp.server.http import create_sse_app
 
-init_sentry()
-
-from fastmcp.server.http import create_sse_app  # noqa: E402
-
-from gg_mcp_server.server import mcp  # noqa: E402
+from gg_mcp_server.server import get_server
 
 logger = logging.getLogger(__name__)
+
+mcp = get_server()
 
 sse_app = create_sse_app(
     server=mcp,
