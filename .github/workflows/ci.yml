@@ -57,7 +57,7 @@ jobs:
         run: uv sync --frozen --all-groups
 
       - name: Run pyrefly
-        run: uv run pyrefly check packages/
+        run: uv run pyrefly check
 
   test-unit:
     runs-on: ubuntu-latest

@@ -31,7 +31,7 @@ run = ["uv run ruff check --fix"]
 
 [tasks."type:check"]
 alias = "typecheck"
-run = "uv run pyrefly check packages/"
+run = "uv run pyrefly check"
 description = "Check type hints with pyrefly"
 
 [tasks.check]

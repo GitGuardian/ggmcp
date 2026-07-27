@@ -46,4 +46,4 @@ format:
 
 # Type checking
 typecheck:
-	uv run pyrefly check packages/
+	uv run pyrefly check

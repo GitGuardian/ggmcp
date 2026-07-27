@@ -131,5 +131,10 @@ update_changelog_on_bump = true
 gpg_sign = true
 
 [tool.pyrefly]
+preset = "strict"
 python-version = "3.11"
+project-includes = ["packages/**"]
+# uv installs the workspace packages as editable installs, so pyrefly's
+# heuristics would treat packages/*/src as site-packages and skip them.
+disable-project-excludes-heuristics = true
 ignore-missing-imports = ["*"]
