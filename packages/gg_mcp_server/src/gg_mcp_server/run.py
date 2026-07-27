@@ -10,8 +10,6 @@ import logging
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
 
-from gg_mcp_server.server import mcp
-
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +20,9 @@ def run_stdio():
     is invoked as a subprocess by MCP clients like Claude Desktop.
     """
     init_sentry()
+
+    from gg_mcp_server.server import mcp
+
     logger.info("GitGuardian MCP server running on stdio")
     mcp.run(show_banner=False)
 
@@ -33,6 +34,8 @@ def run_http_with_uvicorn():
     with uvicorn ASGI workers via ``gg_mcp_server.http_app:http_app``.
     """
     init_sentry()
+
+    from gg_mcp_server.server import mcp
 
     settings = get_settings()
     mcp_port = int(settings.mcp_port or "8000")
