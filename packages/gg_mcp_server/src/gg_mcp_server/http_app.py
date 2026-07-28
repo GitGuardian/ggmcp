@@ -10,13 +10,12 @@ For local development, use the run_http_with_uvicorn() function instead.
 import logging
 
 from fastmcp.server.http import create_streamable_http_app
-from gg_api_core.sentry_integration import init_sentry
 
-from gg_mcp_server.server import mcp
+from gg_mcp_server.server import get_server
 
 logger = logging.getLogger(__name__)
 
-init_sentry()
+mcp = get_server()
 
 # StreamableHTTP with json_response=True and stateless_http=True allows
 # horizontal scaling without sticky sessions since no session state is
