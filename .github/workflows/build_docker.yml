@@ -21,7 +21,7 @@ on:
         type: boolean
         required: false
         default: false
-        description: Whether to also push the rolling `main` tag.
+        description: Whether to also push the `main` and `main-<sha>-<seq>` tags.
       no-cache:
         type: boolean
         required: false
@@ -51,6 +51,24 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
+          fetch-depth: 0 # Required by git rev-list --count below
+
+      # PUBLISHING.md defines the tag format contract.
+      - name: Stamp the unique per-commit main tag
+        id: stamp
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" != false ]; then
+            echo "::error::full Git history is required to calculate the image sequence"
+            exit 1
+          fi
+          sha=$(git rev-parse HEAD)
+          seq=$(git rev-list --count HEAD)
+          tag="main-${sha:0:8}-${seq}"
+          if [[ ! $tag =~ ^main-[0-9a-f]{8}-[0-9]+$ ]]; then
+            echo "::error::tag '$tag' breaks the tag format contract in PUBLISHING.md"
+            exit 1
+          fi
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -72,8 +90,10 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.release-tag || 'v0.0.0' }},enable=${{ inputs.release-tag != '' }}
             type=raw,value=latest,enable=${{ inputs.release-tag != '' }}
             type=raw,value=main,enable=${{ inputs.is-main }}
-            type=ref,event=branch,enable=${{ inputs.release-tag == '' && !inputs.is-main }}
-            type=sha,prefix={{branch}}-,enable=${{ inputs.release-tag == '' && !inputs.is-main }}
+            type=raw,value=${{ steps.stamp.outputs.tag }},enable=${{ inputs.is-main }}
+            # Keep manual builds outside the reserved main-<sha>-<seq> namespace.
+            type=ref,event=branch,prefix=branch-,enable=${{ inputs.release-tag == '' && !inputs.is-main }}
+            type=sha,prefix=branch-{{branch}}-,enable=${{ inputs.release-tag == '' && !inputs.is-main }}
 
       - name: Build and push Docker image
         id: build

@@ -12,22 +12,13 @@ when a merge to `main` changes `[project] version` in `pyproject.toml`
 same workflow run builds the image and creates the GitHub release. CI never
 pushes commits to `main`.
 
-## Tag matrix
+## Tag matrix and semantics
 
-| Event | Image tags pushed | Git tag / GitHub release |
-|---|---|---|
-| Merge to `main` **with** version bump | `X.Y.Z`, `X.Y`, `latest`, `main` | `vX.Y.Z` + release |
-| Merge to `main` **without** version bump | `main` | — |
-| `workflow_dispatch` from a non-main branch | `<branch>`, `<branch>-<sha>` | — |
-| Human-pushed `v*.*.*` git tag | `X.Y.Z`, `X.Y`, `latest`, `main` | release |
-
-## Tag semantics
-
-- `latest` — most recent **release** (NOT tip of main). Helm chart defaults use it.
-- `main` — rolling dev image, tip of `main`, release or not. For preprod/smoke-testing.
-- `X.Y.Z` — immutable release tags. Production pins these; Renovate (in GitLab
-  `applications-configurations`, `gim/*/values-1-gim.yaml`) tracks them with
-  strict semver, which ignores `latest`, `main`, `X.Y` and branch tags.
+`PUBLISHING.md` ("Docker Image Tag Matrix") is canonical for what each event
+pushes, what each tag means, and the tag format contract that fixes the shape of
+`main-<sha>-<seq>`. Read it before changing how any tag is built. Short answer to
+"which tag do I deploy": `X.Y.Z` for prod, `main-<sha>-<seq>` for envs tracking
+tip-of-main, never `main` or `latest`.
 
 ## Gotchas
 
@@ -37,9 +28,6 @@ pushes commits to `main`.
 - Tags created in CI with `GITHUB_TOKEN` do not trigger workflows: the Docker
   build must stay in the same workflow run as `tag-version` (a `needs:`
   dependency), never behind an `on: push: tags` trigger.
-- The `create-github-release` job must stay gated on a release tag existing —
-  no-bump main pushes still build the `main` image and would otherwise try to
+- The `create-github-release` job must stay gated on a release tag existing:
+  no-bump main pushes still build the `main` images and would otherwise try to
   create a release with an empty tag name.
-- Never tag images with versions that outrank semver releases (e.g. a
-  CalVer-looking `2026.6.0`): Renovate's semver ordering would consider every
-  real `0.x.y` release "older" and stop proposing updates.
