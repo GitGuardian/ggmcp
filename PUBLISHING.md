@@ -56,20 +56,32 @@ What `release.yml` pushes to `ghcr.io/gitguardian/mcp-server`, per event:
 
 | Event | Image tags pushed | Git tag / GitHub release |
 |---|---|---|
-| Merge to `main` **with** `pyproject.toml` version bump | `X.Y.Z`, `X.Y`, `latest`, `main` | `vX.Y.Z` + release |
-| Merge to `main` **without** version bump | `main` | — |
-| `workflow_dispatch` from a non-main branch | `<branch>`, `<branch>-<sha>` | — |
-| Human-pushed `v*.*.*` git tag | `X.Y.Z`, `X.Y`, `latest`, `main` | release |
+| Merge to `main` **with** `pyproject.toml` version bump | `X.Y.Z`, `X.Y`, `latest`, `main`, `main-<sha>-<seq>` | `vX.Y.Z` + release |
+| Merge to `main` **without** version bump | `main`, `main-<sha>-<seq>` | — |
+| `workflow_dispatch` from `main` | as the two merge rows above (it re-runs the version check) | as above |
+| `workflow_dispatch` from a non-main branch | `branch-<branch>`, `branch-<branch>-<sha>` | — |
+| Human-pushed `v*.*.*` git tag | `X.Y.Z`, `X.Y`, `latest` | release |
 
-Semantics:
+The nightly rebuild republishes the release tags.
 
-- **`latest`** — most recent release. Only moves when a version is released.
-  This is what the Helm chart defaults point at.
-- **`main`** — rolling dev image, tip of the `main` branch (release or not).
-  Use for preprod/smoke-testing ahead of releases.
-- **`X.Y.Z`** — immutable release tags. Production pins these (Renovate
-  tracks them with strict semver, which ignores `latest`, `main`, `X.Y`
-  and branch tags).
+### Image tags
+
+- **`latest`**: most recent release.
+- **`main`**: current `main` image.
+- **`main-<sha>-<seq>`**: unique per-commit tag for `main`.
+- **`branch-<branch>`**: current image for a manually built branch.
+- **`branch-<branch>-<sha>`**: image for a specific manually built commit.
+- **`X.Y.Z`**: image for a release.
+
+For `main-<sha>-<seq>`, `<sha>` is the first 8 characters of the commit SHA and
+`<seq>` is the full-history commit count from `git rev-list --count`. Rebuilding
+the same commit produces the same tag.
+
+### Tag format contract
+
+Downstream deployment automation tracks `main-<sha>-<seq>` tags with
+`^main-[0-9a-f]{8}-(?<patch>\d+)$` and deploys the highest `<seq>`. The tag
+shape is a contract: changing how it is built silently breaks that tracking.
 
 ## Publishing a New Version
 
@@ -81,9 +93,10 @@ and merging to `main`. The `tag-version` job in `release.yml` then:
 - reads the version from `pyproject.toml` and checks it is `X.Y.Z` semver
 - if the tag `vX.Y.Z` does not exist yet, creates and pushes it
 - the same workflow run builds and pushes the Docker image tagged
-  `X.Y.Z`, `X.Y`, and `latest`, and creates the GitHub release
-- merges that don't touch the version only refresh the mutable `main`
-  image tag (rolling dev image — never `latest`, no git tag, no release)
+  `X.Y.Z`, `X.Y`, `latest`, `main` and `main-<sha>-<seq>`, and creates the
+  GitHub release
+- merges that don't touch the version only refresh `main` and
+  `main-<sha>-<seq>` (never `latest`, no git tag, no release)
 
 So: bump the version (and ideally `CHANGELOG.md`) in your PR — you can use
 `cz bump --files-only` to do both — merge, and watch the Release workflow.
@@ -120,8 +133,8 @@ For testing or special cases:
 1. Go to: https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml
 2. Click "Run workflow" and pick a ref:
    - **a branch other than `main`**: builds and pushes a test image tagged
-     `<branch>` and `<branch>-<short-sha>` (no semver tags, no `latest`,
-     no git tag, no GitHub release)
+     `branch-<branch>` and `branch-<branch>-<short-sha>` (no semver tags,
+     no `latest`, no git tag, no GitHub release)
    - **`main`**: re-runs the release check (tags and publishes only if the
      `pyproject.toml` version has no `vX.Y.Z` tag yet)
 

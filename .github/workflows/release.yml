@@ -54,12 +54,8 @@ jobs:
   build-and-push-docker:
     name: Build and Push Docker Image
     needs: [ tag-version ]
-    # Two entry points: a version tag pushed by a human, or a tag freshly
-    # created by tag-version (tags pushed with GITHUB_TOKEN do not trigger
-    # workflows, hence the same-run dependency instead of a tag trigger).
-    # Manual dispatch from a non-main branch builds a <branch>-<sha> image
-    # (no semver, no latest) for testing. Every push to main also refreshes
-    # the mutable `main` tag (rolling dev image), release or not.
+    # Release tags publish release images; branches publish namespaced test images.
+    # Every main push refreshes `main` and `main-<sha>-<seq>`.
     if: |
       always() &&
       (
@@ -74,7 +70,7 @@ jobs:
       id-token: write # keyless cosign signing (Sigstore/Rekor via GitHub OIDC)
     uses: ./.github/workflows/build_docker.yml
     with:
-      # Empty outside releases: build_docker.yml then falls back to `main` / <branch>-<sha> tags.
+      # Empty outside releases: build_docker.yml then falls back to `main` / branch-<branch>-<sha> tags.
       ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
       release-tag: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
       is-main: ${{ github.ref == 'refs/heads/main' }}
@@ -206,7 +202,7 @@ jobs:
     name: Create GitHub Release
     needs: [ tag-version, build-and-push-docker, publish-to-pypi ]
     # The release-tag guard matters: main pushes without a version bump still
-    # build the rolling `main` image but must not create a GitHub release.
+    # build the `main` images but must not create a GitHub release.
     if: |
       always() &&
       (github.ref_type == 'tag' || needs.tag-version.outputs.tagged == 'true') &&
