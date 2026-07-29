@@ -70,6 +70,15 @@ jobs:
           fi
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
 
+      # The one definition of the image reference, reused by every step below.
+      # github.repository_owner keeps the org's real case ("GitGuardian"), which
+      # is not a valid OCI reference, hence the lowercasing.
+      - name: Resolve image reference
+        id: image-ref
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: echo "image=${REGISTRY}/${OWNER,,}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -84,7 +93,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          images: ${{ steps.image-ref.outputs.image }}
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.release-tag || 'v0.0.0' }},enable=${{ inputs.release-tag != '' }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.release-tag || 'v0.0.0' }},enable=${{ inputs.release-tag != '' }}
@@ -113,16 +122,13 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
 
-      # Uses meta's already-lowercased tags for the ref - github.repository_owner keeps the org's real case ("GitGuardian"), which cosign rejects as an invalid OCI reference.
       - name: Sign image with cosign
         env:
           COSIGN_YES: "true"
-          IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
+          IMAGE: ${{ steps.image-ref.outputs.image }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          first_tag="$(head -n1 <<< "$IMAGE_TAGS")"
-          image_ref="${first_tag%:*}"
-          cosign sign --recursive --oidc-provider=github-actions "${image_ref}@${DIGEST}"
+          cosign sign --recursive --oidc-provider=github-actions "${IMAGE}@${DIGEST}"
 
       # Scans the already-pushed digest directly from the registry (no local
       # docker load needed) - only enabled on the nightly path, so regular
@@ -132,7 +138,7 @@ jobs:
         id: scan
         uses: anchore/scan-action@v7
         with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          image: ${{ steps.image-ref.outputs.image }}@${{ steps.build.outputs.digest }}
           fail-build: false
           output-format: sarif
 

@@ -14,56 +14,78 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  tag-version:
+  release-please:
     runs-on: ubuntu-latest
-    name: Tag New Version
-    # A release happens when a merge on main changes the version in
-    # pyproject.toml. Manual dispatch from main re-runs the same check.
+    name: Release Please
+    # Maintains a rolling "chore(main): release X.Y.Z" PR from conventional commits
+    # (version bumps in pyproject.toml + server.json + uv.lock, plus CHANGELOG.md;
+    # see release-please-config.json). Merging it creates the vX.Y.Z tag and a draft
+    # release, and outputs the tag for the docker build below; the draft is published
+    # only after that build succeeds. Manual dispatch from main refreshes the PR.
     if: |
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
-      contents: write
+      contents: write # create the release PR branch, the tag, and the release
+      issues: write # apply release lifecycle labels (GitHub auto-creates missing ones)
+      pull-requests: write # open/update the release PR
     outputs:
-      tagged: ${{ steps.tag.outputs.tagged }}
-      tag: ${{ steps.tag.outputs.tag }}
+      tag: ${{ steps.release-tag.outputs.tag }}
+      rebuild-blocked: ${{ steps.release-tag.outputs.rebuild-blocked }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - name: Run release-please
+        uses: googleapis/release-please-action@v4
 
-      - name: Tag if pyproject.toml version is new
-        id: tag
+      - name: Checkout release commit
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # all tags, for the lookups below
+
+      # The version tag at this commit, empty on ordinary merges. Read from git
+      # rather than the action's outputs so that a rerun finds the tag its first
+      # attempt created (force-tag-creation makes it, since drafts do not).
+      - name: Resolve release tag
+        id: release-tag
         run: |
-          version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::pyproject.toml version '$version' is not X.Y.Z semver"
+          semver_tags() { git tag --list 'v*.*.*' "$@" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; }
+
+          mapfile -t tags < <(semver_tags --points-at "$GITHUB_SHA")
+          if [ "${#tags[@]}" -gt 1 ]; then
+            echo "::error::Multiple version tags point at $GITHUB_SHA: ${tags[*]}"
             exit 1
           fi
-          tag="v${version}"
-          if [ -n "$(git ls-remote --tags origin "refs/tags/${tag}")" ]; then
-            echo "Tag ${tag} already exists, nothing to release."
-            echo "tagged=false" >> "$GITHUB_OUTPUT"
+          tag="${tags[0]:-}"
+
+          # Only the newest release may be rebuilt: an older one would steal the
+          # mutable latest/X.Y tags and rewind `main` onto an old commit. Signalled
+          # as an output rather than an exit code, so that a broken release-please
+          # still refreshes `main`. nightly_docker_rebuild.yml's `gh release view`
+          # lookup skips drafts, so it is not usable here.
+          newest=$(semver_tags | sort -V | tail -1)
+          if [ -n "$tag" ] && [ "$tag" != "$newest" ]; then
+            echo "::warning::Refusing to rebuild $tag: newer release $newest exists"
+            echo "rebuild-blocked=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git tag "${tag}"
-          git push origin "refs/tags/${tag}"
-          echo "tagged=true" >> "$GITHUB_OUTPUT"
-          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
   build-and-push-docker:
     name: Build and Push Docker Image
-    needs: [ tag-version ]
-    # Release tags publish release images; branches publish namespaced test images.
-    # Every main push refreshes `main` and `main-<sha>-<seq>`.
+    needs: [ release-please ]
+    # Two entry points: a version tag pushed by a human (escape hatch), or a tag
+    # freshly created by release-please (tags created with GITHUB_TOKEN do not
+    # trigger workflows, hence the same-run dependency). Manual dispatch from a
+    # non-main branch builds branch-<branch>-<sha> images for testing. Every push to
+    # main refreshes `main` and `main-<sha>-<seq>`, release or not, including when
+    # release-please failed.
+    #
+    # Nothing to build for a dispatch against a tag ref, or a rerun of a superseded
+    # release. A skipped release-please still builds, hence always().
     if: |
       always() &&
-      (
-        (github.event_name == 'push' && github.ref_type == 'tag') ||
-        needs.tag-version.outputs.tagged == 'true' ||
-        github.ref == 'refs/heads/main' ||
-        (github.event_name == 'workflow_dispatch' && github.ref_type == 'branch')
-      )
+      needs.release-please.outputs.rebuild-blocked != 'true' &&
+      !(github.event_name == 'workflow_dispatch' && github.ref_type == 'tag')
     permissions:
       contents: read
       packages: write
@@ -71,8 +93,8 @@ jobs:
     uses: ./.github/workflows/build_docker.yml
     with:
       # Empty outside releases: build_docker.yml then falls back to `main` / branch-<branch>-<sha> tags.
-      ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
-      release-tag: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
+      ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
+      release-tag: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
       is-main: ${{ github.ref == 'refs/heads/main' }}
     secrets: inherit
 
@@ -199,28 +221,28 @@ jobs:
 
   create-github-release:
     runs-on: ubuntu-latest
-    name: Create GitHub Release
-    needs: [ tag-version, build-and-push-docker, publish-to-pypi ]
-    # The release-tag guard matters: main pushes without a version bump still
-    # build the `main` images but must not create a GitHub release.
+    name: Publish GitHub Release
+    needs: [ release-please, build-and-push-docker ]
+    # Publish release-please's draft only once the image exists. On the escape-hatch
+    # path, create the release for the human-pushed tag after the same build.
     if: |
       always() &&
-      (github.ref_type == 'tag' || needs.tag-version.outputs.tagged == 'true') &&
-      needs.build-and-push-docker.result == 'success' &&
-      (needs.publish-to-pypi.result == 'success' || needs.publish-to-pypi.result == 'skipped')
+      (
+        (github.event_name == 'push' && github.ref_type == 'tag') ||
+        needs.release-please.outputs.tag != ''
+      ) &&
+      needs.build-and-push-docker.result == 'success'
     permissions:
       contents: write
 
+    # No checkout: publishing by tag_name is a pure API call.
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
-
-      - name: Create Release
+      - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.tag-version.outputs.tag }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
           draft: false
-          generate_release_notes: true
+          # Keep release-please's changelog notes; generate them only for the
+          # manual tag escape hatch.
+          generate_release_notes: ${{ github.ref_type == 'tag' }}
           make_latest: true

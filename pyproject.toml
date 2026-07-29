@@ -121,14 +121,12 @@ markers = [
     "vcr_test", # mark a test as using VCR cassettes (disables auto-mocking)
 ]
 
+# Kept for commit-message linting only (pre-commit hooks). Version bumps,
+# CHANGELOG.md, tags, and GitHub releases are owned by release-please — see
+# release-please-config.json. Never run `cz bump`: hand-editing the version
+# desyncs it from .release-please-manifest.json.
 [tool.commitizen]
 name = "cz_conventional_commits"
-tag_format = "v$version"
-# Read and bump [project] version directly (without this, cz bump fails with
-# NO_VERSION_SPECIFIED and makes version_files redundant).
-version_provider = "pep621"
-update_changelog_on_bump = true
-gpg_sign = true
 
 [tool.pyrefly]
 preset = "strict"
