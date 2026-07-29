@@ -79,9 +79,9 @@ the same commit produces the same tag.
 
 ### Tag format contract
 
-Downstream deployment automation tracks `main-<sha>-<seq>` tags with
-`^main-[0-9a-f]{8}-(?<patch>\d+)$` and deploys the highest `<seq>`. The tag
-shape is a contract: changing how it is built silently breaks that tracking.
+`main-<sha>-<seq>` is a stable tag format that consumers can pin or track, so
+changing how the tag is built is a breaking change. `build_docker.yml`
+validates the shape (`^main-[0-9a-f]{8}-[0-9]+$`) before pushing.
 
 ## Publishing a New Version
 
