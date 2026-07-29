@@ -20,18 +20,17 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/members?per_page=5
   response:
     body:
-      string: '[{"id": 10, "member_id": 10, "role": "manager", "name": "Bruce Wayne",
-        "email": "bruce-wayne-gg@protonmail.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 13, "member_id": 13, "role": "manager", "name": "Aymeric
-        SICARD", "email": "aymeric.sicard@gitguardian.com", "incident_id": 21460,
-        "incident_permission": "full_access"}, {"id": 2508, "member_id": 2508, "role":
-        "manager", "name": "Guillaume CHARPIAT", "email": "guillaume.charpiat@gitguardian.com",
-        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 37699,
-        "member_id": 37699, "role": "manager", "name": "Alexis LARNAUD", "email":
-        "alexis.larnaud@gitguardian.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 63809, "member_id": 63809, "role": "manager", "name":
-        "Orian ROTURIER", "email": "orian.roturier@gitguardian.com", "incident_id":
-        21460, "incident_permission": "full_access"}]'
+      string: '[{"id": 10, "member_id": 10, "role": "manager", "name": "User 2b03ad68",
+        "email": "user-324427de@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 13, "member_id": 13, "role": "manager", "name": "User
+        d0d18d7e", "email": "user-71ab73d0@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 2508, "member_id": 2508, "role": "manager", "name":
+        "User 793501dc", "email": "user-d9f863cd@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}, {"id": 37699, "member_id": 37699, "role":
+        "manager", "name": "User 40f52996", "email": "user-d3774a22@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 63809,
+        "member_id": 63809, "role": "manager", "name": "User 97a9750c", "email": "user-0222ba7e@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}]'
     headers:
       CF-RAY:
       - a10397acfd17d343-CDG

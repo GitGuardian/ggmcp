@@ -57,7 +57,7 @@ interactions:
         "tags": ["DEFAULT_BRANCH"], "incident_name": "Generic Password", "public_exposure":
         {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
         false}, "destination_tickets": [{"id": "AEF-2792", "type": "jira_cloud", "link":
-        "https://yanne-gg-integration.atlassian.net/browse/AEF-2792"}], "custom_tags":
+        "https://tenant-b6250acd.atlassian.net/browse/AEF-2792"}], "custom_tags":
         []}, {"id": 34181686, "detector": {"name": "microsoft_azure_storage_connection_string",
         "display_name": "Microsoft Azure Storage Connection String", "nature": "specific",
         "family": "credentials", "category": "cloud_provider", "detector_group_name":
@@ -95,7 +95,7 @@ interactions:
         "tags": ["DEFAULT_BRANCH"], "incident_name": "Generic Password", "public_exposure":
         {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
         false}, "destination_tickets": [{"id": "AEF-2791", "type": "jira_cloud", "link":
-        "https://yanne-gg-integration.atlassian.net/browse/AEF-2791"}], "custom_tags":
+        "https://tenant-b6250acd.atlassian.net/browse/AEF-2791"}], "custom_tags":
         []}, {"id": 34038186, "detector": {"name": "microsoft_azure_storage_connection_string",
         "display_name": "Microsoft Azure Storage Connection String", "nature": "specific",
         "family": "credentials", "category": "cloud_provider", "detector_group_name":

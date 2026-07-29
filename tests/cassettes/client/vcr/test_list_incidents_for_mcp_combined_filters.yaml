@@ -29,7 +29,7 @@ interactions:
         "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
         "manual_severity_setter": 910203, "ignorer_display_name": "none", "ignorer_type":
         "none", "resolver_display_name": "none", "resolver_type": "none", "manual_severity_setter_display_name":
-        "celine.agbo@gitguardian.com", "manual_severity_setter_type": "user", "status":
+        "user-faa5b70a@example.com", "manual_severity_setter_type": "user", "status":
         "ASSIGNED", "issue_name": "Artifactory Token", "severity_rule_config": {"id":
         11895, "gg_created_at": "2026-05-20T08:56:10.055460Z", "gg_updated_at": "2026-05-20T08:56:10.055463Z",
         "index": 130, "severity": 10, "rule": {"id": 513, "gg_created_at": "2025-03-18T08:57:54.142453Z",
@@ -39,23 +39,22 @@ interactions:
         "default": null}, "arg2": {"value": "package_registry"}}, "is_global": true,
         "scope": "private", "author": null}}, "declarative_secret_status": null, "assignee":
         550880, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        20, "authors": [{"info": "ggtestintegrations@proton.me", "name": "GG Test
-        Integrations"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"id": 27177247, "name": "gg-test-integrations / Payment Systems", "type":
-        "jira_cloud_project", "path": "gg-test-integrations / Payment Systems", "source_criticality":
-        "unknown", "monitoring_status": "active", "deleted_at": null}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 86, "displayed_occurrence": {"id": 272781097, "issue": 33929626,
-        "account": 8, "kind": "RLTM", "element": "PAY-4", "element_type": "JIRA_TICKET",
-        "author_name": "GG Test Integrations", "author_info": "ggtestintegrations@proton.me",
-        "value": null, "value_hash": "T71tr/N63V71e27iMbDQa9L9Oh/xkgVEZdomur2uk2WyqO/9fr4lNYuUjUFpuLDi",
+        20, "authors": [{"info": "user-556e25a3@example.com", "name": "User 4578e5a2"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"id": 27177247, "name": "gg-test-integrations
+        / Payment Systems", "type": "jira_cloud_project", "path": "gg-test-integrations
+        / Payment Systems", "source_criticality": "unknown", "monitoring_status":
+        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 86, "displayed_occurrence":
+        {"id": 272781097, "issue": 33929626, "account": 8, "kind": "RLTM", "element":
+        "PAY-4", "element_type": "JIRA_TICKET", "author_name": "GG Test Integrations",
+        "author_info": "user-556e25a3@example.com", "value": null, "value_hash": "T71tr/N63V71e27iMbDQa9L9Oh/xkgVEZdomur2uk2WyqO/9fr4lNYuUjUFpuLDi",
         "published_at": "2026-06-12T10:26:58.151000Z", "date": "2026-06-12T10:26:58.151000Z",
         "detected_at": "2026-06-12T11:57:58.655858Z", "is_vcs_type": false, "last_detected_at":
         "2026-06-12T10:26:58.151000Z", "last_seen_at": "2026-06-12T10:26:58.151000Z",
-        "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/PAY-4",
-        "source": {"id": 27177247, "url": "https://gg-test-integrations.atlassian.net/browse/PAY",
+        "data": {}, "url": "https://tenant-54c1a367.atlassian.net/browse/PAY-4", "source":
+        {"id": 27177247, "url": "https://tenant-54c1a367.atlassian.net/browse/PAY",
         "type": "jira_cloud_project", "display_name": "gg-test-integrations / Payment
         Systems", "visibility": "private", "monitored": true, "source_criticality":
         "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":
@@ -88,9 +87,9 @@ interactions:
         {"path": "issue.secret.detector.nature", "default": null}, "arg2": {"value":
         "specific"}}]}, "is_global": true, "scope": "private", "author": null}}, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
-        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        "severity": 100, "authors": [{"info": "user-46c1d11b@example.com", "name":
+        "User b090f14f"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 23485702, "name": "RomainJ / demo", "type": "gl_project", "path":
         "romain/demo", "source_criticality": "unknown", "monitoring_status": "active",
@@ -98,11 +97,11 @@ interactions:
         false, "similar_issue_count": 0, "score": 49, "displayed_occurrence": {"id":
         269728665, "issue": 33211589, "account": 8, "kind": "HIST", "element": "d189cab00bc31c4bed372402e031de0559fa9d70",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "4WO+NtMg1huWU4tghYRv7bPopKssi564RukxBZVA2Opur15IVmYm2YNGhd2mwbCp",
+        "user-46c1d11b@example.com", "value": null, "value_hash": "4WO+NtMg1huWU4tghYRv7bPopKssi564RukxBZVA2Opur15IVmYm2YNGhd2mwbCp",
         "published_at": "2026-05-27T09:42:47Z", "date": "2026-05-27T09:42:47Z", "detected_at":
         "2026-05-27T09:51:34.675578Z", "is_vcs_type": true, "last_detected_at": "2026-05-27T09:42:47Z",
-        "last_seen_at": "2026-05-27T09:42:47Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/d189cab00bc31c4bed372402e031de0559fa9d70#e1755a4a1df75fb12321bae878788f6ca914d373_None_1",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "last_seen_at": "2026-05-27T09:42:47Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c/commit/d189cab00bc31c4bed372402e031de0559fa9d70#e1755a4a1df75fb12321bae878788f6ca914d373_None_1",
+        "source": {"id": 23485702, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c",
         "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 164835166,
@@ -150,9 +149,9 @@ interactions:
         {"path": "issue.secret.detector.nature", "default": null}, "arg2": {"value":
         "specific"}}]}, "is_global": true, "scope": "private", "author": null}}, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
-        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        "severity": 100, "authors": [{"info": "user-46c1d11b@example.com", "name":
+        "User b090f14f"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 23485702, "name": "RomainJ / demo", "type": "gl_project", "path":
         "romain/demo", "source_criticality": "unknown", "monitoring_status": "active",
@@ -160,11 +159,11 @@ interactions:
         false, "similar_issue_count": 1, "score": 49, "displayed_occurrence": {"id":
         269727691, "issue": 33211407, "account": 8, "kind": "RLTM", "element": "d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "YU5lBhVgALxxn8rYMmJe6Uh0y3sUhot77BxviUqvi2cqEVzhNyDcgwtJW6F//p33",
+        "user-46c1d11b@example.com", "value": null, "value_hash": "YU5lBhVgALxxn8rYMmJe6Uh0y3sUhot77BxviUqvi2cqEVzhNyDcgwtJW6F//p33",
         "published_at": "2026-05-27T09:28:55Z", "date": "2026-05-27T09:28:55Z", "detected_at":
         "2026-05-27T09:32:59.686337Z", "is_vcs_type": true, "last_detected_at": "2026-05-27T09:28:55Z",
-        "last_seen_at": "2026-05-27T09:28:55Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb#3a94abefa57e93ce6945d8a053c37e4e2598dbee_0_7",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "last_seen_at": "2026-05-27T09:28:55Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c/commit/d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb#3a94abefa57e93ce6945d8a053c37e4e2598dbee_0_7",
+        "source": {"id": 23485702, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c",
         "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 164831857,
@@ -211,9 +210,9 @@ interactions:
         {"path": "issue.secret.detector.nature", "default": null}, "arg2": {"value":
         "specific"}}]}, "is_global": true, "scope": "private", "author": null}}, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "romain.jouhannet@gitguardian.com",
-        "name": "Romain Jouhannet"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        "severity": 100, "authors": [{"info": "user-46c1d11b@example.com", "name":
+        "User b090f14f"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 23485702, "name": "RomainJ / demo", "type": "gl_project", "path":
         "romain/demo", "source_criticality": "unknown", "monitoring_status": "active",
@@ -221,11 +220,11 @@ interactions:
         false, "similar_issue_count": 1, "score": 49, "displayed_occurrence": {"id":
         269727692, "issue": 33211409, "account": 8, "kind": "RLTM", "element": "d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "dGSO0UNu3ir5xB1mNC4rhS2IL21oXm+7tSQPn+qUFGZ3HkBlVp3JYrpf4ubmlbDB",
+        "user-46c1d11b@example.com", "value": null, "value_hash": "dGSO0UNu3ir5xB1mNC4rhS2IL21oXm+7tSQPn+qUFGZ3HkBlVp3JYrpf4ubmlbDB",
         "published_at": "2026-05-27T09:28:55Z", "date": "2026-05-27T09:28:55Z", "detected_at":
         "2026-05-27T09:32:59.686337Z", "is_vcs_type": true, "last_detected_at": "2026-05-27T09:28:55Z",
-        "last_seen_at": "2026-05-27T09:28:55Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb#7b83dc4c52bef56016855ec981bdf4b8425c6486_0_7",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "last_seen_at": "2026-05-27T09:28:55Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c/commit/d6361a080aa92dc554cd2b55f6f3a7dcf26d1dcb#7b83dc4c52bef56016855ec981bdf4b8425c6486_0_7",
+        "source": {"id": 23485702, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c",
         "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 164831858,
@@ -260,7 +259,7 @@ interactions:
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
         "resolved": false, "resolved_at": null, "resolver": 614347, "regression":
         true, "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
-        "none", "resolver_display_name": "romain.jouhannet@gitguardian.com", "resolver_type":
+        "none", "resolver_display_name": "user-46c1d11b@example.com", "resolver_type":
         "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "ASSIGNED", "issue_name": "MongoDB Credentials", "severity_rule_config":
         {"id": 11898, "gg_created_at": "2026-05-20T08:56:10.055489Z", "gg_updated_at":
@@ -273,21 +272,21 @@ interactions:
         "default": null}, "arg2": {"value": "specific"}}]}, "is_global": true, "scope":
         "private", "author": null}}, "declarative_secret_status": "revoked", "assignee":
         694621, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "romain.jouhannet@gitguardian.com", "name": "Romain
-        Jouhannet"}], "user_permission": 7, "is_publicly_shared": true, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 6, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
-        [{"id": 23485702, "name": "RomainJ / demo", "type": "gl_project", "path":
-        "romain/demo", "source_criticality": "unknown", "monitoring_status": "active",
-        "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
-        false, "similar_issue_count": 5, "score": 49, "displayed_occurrence": {"id":
-        268701358, "issue": 33049834, "account": 8, "kind": "RLTM", "element": "f13f8127edb3e5d386cb44679c12e5d6c3ce05be",
+        100, "authors": [{"info": "user-46c1d11b@example.com", "name": "User b090f14f"}],
+        "user_permission": 7, "is_publicly_shared": true, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        6, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 0, "sources": [{"id": 23485702, "name": "RomainJ
+        / demo", "type": "gl_project", "path": "romain/demo", "source_criticality":
+        "unknown", "monitoring_status": "active", "deleted_at": null}], "custom_tags":
+        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 5,
+        "score": 49, "displayed_occurrence": {"id": 268701358, "issue": 33049834,
+        "account": 8, "kind": "RLTM", "element": "f13f8127edb3e5d386cb44679c12e5d6c3ce05be",
         "element_type": "GIT_COMMIT", "author_name": "Romain Jouhannet", "author_info":
-        "romain.jouhannet@gitguardian.com", "value": null, "value_hash": "ElUKHxkW6poM78sJZq6fX/NNHh82/5I40MrYWprOWor+UttOwqRf0MFMFvJD2sMv",
+        "user-46c1d11b@example.com", "value": null, "value_hash": "ElUKHxkW6poM78sJZq6fX/NNHh82/5I40MrYWprOWor+UttOwqRf0MFMFvJD2sMv",
         "published_at": "2026-05-21T12:49:39Z", "date": "2026-05-21T12:49:39Z", "detected_at":
         "2026-05-21T12:51:02.846566Z", "is_vcs_type": true, "last_detected_at": "2026-05-21T12:51:02.846566Z",
-        "last_seen_at": "2026-05-21T12:51:02.846566Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo/commit/f13f8127edb3e5d386cb44679c12e5d6c3ce05be#f9553d98ad319e9f50f10ef0cf086752c16a337b_5_6",
-        "source": {"id": 23485702, "url": "https://gitlab-01.aws-qa-gitguardian.com/romain/demo",
+        "last_seen_at": "2026-05-21T12:51:02.846566Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c/commit/f13f8127edb3e5d386cb44679c12e5d6c3ce05be#f9553d98ad319e9f50f10ef0cf086752c16a337b_5_6",
+        "source": {"id": 23485702, "url": "https://host-a31e7ce0.example.com/ns-eb459aed/ns-2a97516c",
         "type": "gl_project", "display_name": "RomainJ / demo", "visibility": "private",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": true, "content": 163473773,

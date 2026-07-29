@@ -20,7 +20,7 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=5
   response:
     body:
-      string: '[{"id": 12263, "type": "github", "full_name": "my-testing-org/christian_dior",
+      string: '[{"id": 12263, "type": "github", "full_name": "ns-242f04fd/christian_dior",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
         0, "last_scan": {"date": "2020-09-24T09:06:39.211442Z", "status": "finished",
@@ -30,9 +30,9 @@ interactions:
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/christian_dior",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-eb7dee60",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12264,
-        "type": "github", "full_name": "my-testing-org/armani_code", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/armani_code", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
         {"date": "2020-06-04T09:06:33.833273Z", "status": "finished", "failing_reason":
@@ -42,9 +42,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code",
+        "info": 0, "unknown": 1}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-12b26c3e",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12265,
-        "type": "github", "full_name": "my-testing-org/louis_vuitton", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/louis_vuitton", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-09-24T09:06:32.770273Z", "status": "finished", "failing_reason":
@@ -54,9 +54,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/louis_vuitton",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-f6c46dcc",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12266,
-        "type": "github", "full_name": "my-testing-org/lagarfeld", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/lagarfeld", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-09-24T09:06:33.598712Z", "status": "finished", "failing_reason":
@@ -66,9 +66,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/lagarfeld",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-f7e0173c",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12267,
-        "type": "github", "full_name": "my-testing-org/saint_laurent", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/saint_laurent", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-10-09T12:55:14.542227Z", "status": "canceled", "failing_reason":
@@ -78,7 +78,7 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/saint_laurent",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-29961463",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       CF-RAY:

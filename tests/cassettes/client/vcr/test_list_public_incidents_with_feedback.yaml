@@ -30,15 +30,16 @@ interactions:
         "ignored_at": null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at":
         null, "resolver_id": null, "resolver_api_token_id": null, "secret_revoked":
         false, "validity": "valid", "severity": "critical", "assignee_id": 1778296,
-        "assignee_email": "zeke@binion.io", "share_url": "[REDACTED]", "feedback_list":
-        [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at": "2026-04-23T00:37:26.701660Z",
-        "email": "zeke@binion.io", "member_id": 1778296, "answers": [{"type": "boolean",
-        "field_ref": "revoked_yes_no", "field_label": "Has this secret been revoked?",
-        "boolean": true}, {"type": "text", "field_ref": "remarks_text", "field_label":
-        "Additional remarks", "text": ""}]}], "risk_score": 27, "severity_rule_id":
-        11891, "is_vaulted": false, "declarative_secret_status": "active", "resolve_reason":
-        null, "ignore_reason": null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/57",
-        "tags": ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
+        "assignee_email": "user-9c0c34df@example.com", "share_url": "[REDACTED]",
+        "feedback_list": [{"created_at": "2026-04-23T00:37:26.701645Z", "updated_at":
+        "2026-04-23T00:37:26.701660Z", "email": "user-9c0c34df@example.com", "member_id":
+        1778296, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label":
+        "Has this secret been revoked?", "boolean": true}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": ""}]}], "risk_score":
+        27, "severity_rule_id": 11891, "is_vaulted": false, "declarative_secret_status":
+        "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/57", "tags":
+        ["COMPANY_NAME_IN_COMMIT", "DOMAIN", "FROM_HISTORICAL_SCAN", "TEST_FILE",
         "INTERNALLY_LEAKED"], "custom_tags": [], "destination_tickets": [], "incident_name":
         "GitGuardian Test Token Checked"}, {"id": 6987, "detector": {"name": "aws_iam",
         "display_name": "AWS IAM Keys", "nature": "specific", "family": "credentials",
@@ -51,7 +52,7 @@ interactions:
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "valid", "severity": "critical", "assignee_id": null, "assignee_email":
         null, "share_url": "[REDACTED]", "feedback_list": [{"created_at": "2025-07-10T09:52:12.844648Z",
-        "updated_at": "2025-07-10T09:52:12.844658Z", "email": "candidate.playground+eu4@gitguardian.com",
+        "updated_at": "2025-07-10T09:52:12.844658Z", "email": "user-c11de935@example.com",
         "member_id": 937472, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no",
         "field_label": "Has this secret been revoked?", "boolean": true}, {"type":
         "text", "field_ref": "remarks_text", "field_label": "Additional remarks",
@@ -71,9 +72,9 @@ interactions:
         false, "validity": "no_checker", "severity": "unknown", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [{"created_at":
         "2025-09-26T13:41:25.581098Z", "updated_at": "2025-09-26T13:41:25.581115Z",
-        "email": "pierre.dethoisy@gitguardian.com", "member_id": 309802, "answers":
-        [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
-        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "email": "user-6eedc04a@example.com", "member_id": 309802, "answers": [{"type":
+        "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this secret
+        been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
         "field_label": "Additional remarks", "text": "hello, first message"}]}], "risk_score":
         83, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":
@@ -89,15 +90,15 @@ interactions:
         "ignored_at": "2026-04-27T11:43:00.636684Z", "ignorer_id": 790733, "ignorer_api_token_id":
         null, "resolved_at": null, "resolver_id": null, "resolver_api_token_id": null,
         "secret_revoked": false, "validity": "no_checker", "severity": "low", "assignee_id":
-        790733, "assignee_email": "romain.jouhannet@gitguardian.com", "share_url":
-        "[REDACTED]", "feedback_list": [{"created_at": "2026-04-27T11:34:43.510449Z",
-        "updated_at": "2026-04-27T11:34:43.510469Z", "email": "romain.jouhannet@gitguardian.com",
-        "member_id": 790733, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no",
-        "field_label": "Has this secret been revoked?", "boolean": false}, {"type":
-        "text", "field_ref": "remarks_text", "field_label": "Additional remarks",
-        "text": "hello world 2"}]}], "risk_score": 9, "severity_rule_id": null, "is_vaulted":
-        false, "declarative_secret_status": "fp", "resolve_reason": null, "ignore_reason":
-        "false_positive", "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/1554830",
+        790733, "assignee_email": "user-46c1d11b@example.com", "share_url": "[REDACTED]",
+        "feedback_list": [{"created_at": "2026-04-27T11:34:43.510449Z", "updated_at":
+        "2026-04-27T11:34:43.510469Z", "email": "user-46c1d11b@example.com", "member_id":
+        790733, "answers": [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label":
+        "Has this secret been revoked?", "boolean": false}, {"type": "text", "field_ref":
+        "remarks_text", "field_label": "Additional remarks", "text": "hello world
+        2"}]}], "risk_score": 9, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
+        "fp", "resolve_reason": null, "ignore_reason": "false_positive", "gitguardian_url":
+        "https://dashboard.gitguardian.com/workspace/8/public-incidents/1554830",
         "tags": ["FALSE_POSITIVE"], "custom_tags": [], "destination_tickets": [],
         "incident_name": "Generic High Entropy Secret"}, {"id": 2268786, "detector":
         {"name": "openai_apikey", "display_name": "OpenAI API Key", "nature": "specific",
@@ -111,9 +112,9 @@ interactions:
         false, "validity": "invalid", "severity": "unknown", "assignee_id": null,
         "assignee_email": null, "share_url": "[REDACTED]", "feedback_list": [{"created_at":
         "2026-06-03T08:25:41.332652Z", "updated_at": "2026-06-03T08:25:41.332665Z",
-        "email": "romain.jouhannet@gitguardian.com", "member_id": 790733, "answers":
-        [{"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
-        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
+        "email": "user-46c1d11b@example.com", "member_id": 790733, "answers": [{"type":
+        "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this secret
+        been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
         "field_label": "Additional remarks", "text": "Hello <@M319222>"}]}], "risk_score":
         6, "severity_rule_id": null, "is_vaulted": false, "declarative_secret_status":
         "active", "resolve_reason": null, "ignore_reason": null, "gitguardian_url":

@@ -20,45 +20,46 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?monitored=true&per_page=5
   response:
     body:
-      string: '[{"id": 12259, "type": "github", "full_name": "lonely/cowboy", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
-        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
-        null, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
-        "private", "external_id": "23", "secret_incidents_breakdown": {"open_secret_incidents":
-        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
-        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/cowboy",
-        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12260,
-        "type": "github", "full_name": "lonely/hunter", "health": "unknown", "source_criticality":
-        "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
-        0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
-        "deleted_on_remote", "visibility": "public", "external_id": "22", "secret_incidents_breakdown":
+      string: '[{"id": 12259, "type": "github", "full_name": "ns-1cb0f5a9/cowboy",
+        "health": "unknown", "source_criticality": "unknown", "default_branch": null,
+        "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
+        0, "last_scan": null, "monitored": true, "monitoring_status": "deleted_on_remote",
+        "visibility": "private", "external_id": "23", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/hunter",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-1cb0f5a9/ns-6d1173c4",
+        "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12260,
+        "type": "github", "full_name": "ns-1cb0f5a9/hunter", "health": "unknown",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
+        null, "monitored": true, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "22", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-1cb0f5a9/ns-e9a63a4e",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12261,
-        "type": "github", "full_name": "lonely/time", "health": "unknown", "source_criticality":
+        "type": "github", "full_name": "ns-1cb0f5a9/time", "health": "unknown", "source_criticality":
         "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
         0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
         "deleted_on_remote", "visibility": "public", "external_id": "25", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/time",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-1cb0f5a9/ns-33607480",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12262,
-        "type": "github", "full_name": "lonely/tower", "health": "unknown", "source_criticality":
+        "type": "github", "full_name": "ns-1cb0f5a9/tower", "health": "unknown", "source_criticality":
         "unknown", "default_branch": null, "default_branch_head": null, "open_incidents_count":
         0, "closed_incidents_count": 0, "last_scan": null, "monitored": true, "monitoring_status":
         "deleted_on_remote", "visibility": "public", "external_id": "24", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/lonely/tower",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-1cb0f5a9/ns-ad201526",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12263,
-        "type": "github", "full_name": "my-testing-org/christian_dior", "health":
-        "safe", "source_criticality": "unknown", "default_branch": null, "default_branch_head":
+        "type": "github", "full_name": "ns-242f04fd/christian_dior", "health": "safe",
+        "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-09-24T09:06:39.211442Z", "status": "finished", "failing_reason":
         "", "commits_scanned": 1, "duration": "1.218169", "branches_scanned": 1, "progress":
@@ -67,7 +68,7 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/christian_dior",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-eb7dee60",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       CF-RAY:

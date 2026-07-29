@@ -24,10 +24,10 @@ interactions:
         "filepath": "perfume.rb", "kind": "realtime", "presence": "present", "matches":
         [{"name": "apikey", "indice_start": 43, "indice_end": 107, "pre_line_start":
         null, "pre_line_end": null, "post_line_start": 2, "post_line_end": 2}], "tags":
-        [], "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code/commit/21e85fff4c6df92b43b2b886613e271ac9f952fc#diff-dc5b406fd39db8f08f10d865c326035fecda819f4b375022b242dc2dbfc6dea7R2",
-        "author_info": "noreply@ghe.dev.gitguardian.com", "author_name": "GitHub Enterprise",
+        [], "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-12b26c3e/commit/21e85fff4c6df92b43b2b886613e271ac9f952fc#diff-dc5b406fd39db8f08f10d865c326035fecda819f4b375022b242dc2dbfc6dea7R2",
+        "author_info": "user-263277f1@example.com", "author_name": "GitHub Enterprise",
         "sha": "21e85fff4c6df92b43b2b886613e271ac9f952fc", "change_type": "addition",
-        "source": {"id": 12264, "type": "github", "full_name": "my-testing-org/armani_code",
+        "source": {"id": 12264, "type": "github", "full_name": "ns-242f04fd/armani_code",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
         1, "last_scan": {"date": "2020-06-04T09:06:33.833273Z", "status": "finished",
@@ -37,83 +37,83 @@ interactions:
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code",
+        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-12b26c3e",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 79389,
         "incident_id": 21985, "date": "2020-01-16T13:19:57Z", "filepath": "app.py",
         "kind": "historical", "presence": "present", "matches": [{"name": "apikey",
         "indice_start": 46, "indice_end": 93, "pre_line_start": 3, "pre_line_end":
         3, "post_line_start": null, "post_line_end": null}], "tags": ["PUBLIC", "FROM_HISTORICAL_SCAN",
-        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/wayne-enterprises-gg/business-app/commit/ceb205b6eb487342c3a5fa931d480cbef12efeb2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "change_type": "deletion",
-        "source": {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "monitoring_status":
-        "active", "visibility": "public", "external_id": "217533545", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 76, "severity_breakdown": {"critical": 3, "high": 73, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
+        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/ns-80126292/business-app/commit/ceb205b6eb487342c3a5fa931d480cbef12efeb2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "change_type": "deletion", "source":
+        {"id": 12364, "type": "github", "full_name": "ns-80126292/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "active", "visibility":
+        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/business-app",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 79390,
         "incident_id": 21986, "date": "2020-01-16T12:19:38Z", "filepath": "app.py",
         "kind": "historical", "presence": "present", "matches": [{"name": "apikey",
         "indice_start": 46, "indice_end": 83, "pre_line_start": 3, "pre_line_end":
         3, "post_line_start": null, "post_line_end": null}], "tags": ["PUBLIC", "FROM_HISTORICAL_SCAN",
-        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/wayne-enterprises-gg/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "deletion",
-        "source": {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "monitoring_status":
-        "active", "visibility": "public", "external_id": "217533545", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 76, "severity_breakdown": {"critical": 3, "high": 73, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
+        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/ns-80126292/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "deletion", "source":
+        {"id": 12364, "type": "github", "full_name": "ns-80126292/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "active", "visibility":
+        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/business-app",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 79391,
         "incident_id": 21985, "date": "2020-01-16T12:19:38Z", "filepath": "app.py",
         "kind": "historical", "presence": "present", "matches": [{"name": "apikey",
         "indice_start": 92, "indice_end": 139, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 3, "post_line_end": 3}], "tags": ["PUBLIC", "FROM_HISTORICAL_SCAN",
-        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/wayne-enterprises-gg/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "addition",
-        "source": {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "monitoring_status":
-        "active", "visibility": "public", "external_id": "217533545", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 76, "severity_breakdown": {"critical": 3, "high": 73, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
+        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/ns-80126292/business-app/commit/6e2c8fceda3f185139cd95d0d6e9d71faf529048#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "6e2c8fceda3f185139cd95d0d6e9d71faf529048", "change_type": "addition", "source":
+        {"id": 12364, "type": "github", "full_name": "ns-80126292/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "active", "visibility":
+        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/business-app",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 79392,
         "incident_id": 21986, "date": "2020-01-16T11:19:36Z", "filepath": "app.py",
         "kind": "historical", "presence": "present", "matches": [{"name": "apikey",
         "indice_start": 89, "indice_end": 126, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 3, "post_line_end": 3}], "tags": ["PUBLIC", "FROM_HISTORICAL_SCAN",
-        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/wayne-enterprises-gg/business-app/commit/c2f01354e84ba1f5a88a2feb9d2a09be28451316#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "c2f01354e84ba1f5a88a2feb9d2a09be28451316", "change_type": "addition",
-        "source": {"id": 12364, "type": "github", "full_name": "wayne-enterprises-gg/business-app",
-        "health": "safe", "source_criticality": "medium", "default_branch": "master",
-        "default_branch_head": "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count":
-        0, "closed_incidents_count": 76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z",
-        "status": "finished", "failing_reason": "", "commits_scanned": 1242, "duration":
-        "9.779904", "branches_scanned": 1, "progress": 100}, "monitored": true, "monitoring_status":
-        "active", "visibility": "public", "external_id": "217533545", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 76, "severity_breakdown": {"critical": 3, "high": 73, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/business-app",
+        "PUBLICLY_EXPOSED", "DEFAULT_BRANCH"], "url": "https://github.com/ns-80126292/business-app/commit/c2f01354e84ba1f5a88a2feb9d2a09be28451316#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "c2f01354e84ba1f5a88a2feb9d2a09be28451316", "change_type": "addition", "source":
+        {"id": 12364, "type": "github", "full_name": "ns-80126292/business-app", "health":
+        "safe", "source_criticality": "medium", "default_branch": "master", "default_branch_head":
+        "ceb205b6eb487342c3a5fa931d480cbef12efeb2", "open_incidents_count": 0, "closed_incidents_count":
+        76, "last_scan": {"date": "2025-10-09T16:45:43.352908Z", "status": "finished",
+        "failing_reason": "", "commits_scanned": 1242, "duration": "9.779904", "branches_scanned":
+        1, "progress": 100}, "monitored": true, "monitoring_status": "active", "visibility":
+        "public", "external_id": "217533545", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        76, "severity_breakdown": {"critical": 3, "high": 73, "medium": 0, "low":
+        0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/business-app",
         "provider_metadata": {"archived": false}, "deleted": false}}]'
     headers:
       CF-RAY:

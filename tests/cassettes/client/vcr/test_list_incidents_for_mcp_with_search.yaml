@@ -28,14 +28,14 @@ interactions:
         "ignored": true, "ignored_at": "2026-05-13T15:25:06.323251Z", "ignore_reason":
         "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
         null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
-        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "user-7d8fb5e1@example.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": null, "declarative_secret_status":
         "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "ggtestintegrations@proton.me", "name":
-        "GG Test Integrations"}, {"info": "<unknown>", "name": "GG Test Integrations"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "severity": 100, "authors": [{"info": "user-556e25a3@example.com", "name":
+        "User 4578e5a2"}, {"info": "<unknown>", "name": "User 4578e5a2"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         3, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"id": 28093162, "name": "gg-test-integrations
         / QA SH Jira Space", "type": "jira_cloud_project", "path": "gg-test-integrations
@@ -44,12 +44,12 @@ interactions:
         "is_vaulted": false, "similar_issue_count": 0, "score": 0, "displayed_occurrence":
         {"id": 269409153, "issue": 32828142, "account": 8, "kind": "HIST", "element":
         "QJS-2", "element_type": "JIRA_TICKET", "author_name": "GG Test Integrations",
-        "author_info": "ggtestintegrations@proton.me", "value": null, "value_hash":
-        "mnhuCDXkjCXmXE4PfqGTgnchdepV6MVg3j0V4l5lv7W2jUxLFuVgLjxYdCAlSkbB", "published_at":
-        "2026-05-13T13:00:33.511000Z", "date": "2026-05-13T13:00:33.511000Z", "detected_at":
-        "2026-05-26T07:42:57.694929Z", "is_vcs_type": false, "last_detected_at": "2026-05-13T13:00:33.511000Z",
-        "last_seen_at": "2026-05-13T13:00:33.511000Z", "data": {}, "url": "https://gg-test-integrations.atlassian.net/browse/QJS-2",
-        "source": {"id": 28093162, "url": "https://gg-test-integrations.atlassian.net/browse/QJS",
+        "author_info": "user-556e25a3@example.com", "value": null, "value_hash": "mnhuCDXkjCXmXE4PfqGTgnchdepV6MVg3j0V4l5lv7W2jUxLFuVgLjxYdCAlSkbB",
+        "published_at": "2026-05-13T13:00:33.511000Z", "date": "2026-05-13T13:00:33.511000Z",
+        "detected_at": "2026-05-26T07:42:57.694929Z", "is_vcs_type": false, "last_detected_at":
+        "2026-05-13T13:00:33.511000Z", "last_seen_at": "2026-05-13T13:00:33.511000Z",
+        "data": {}, "url": "https://tenant-54c1a367.atlassian.net/browse/QJS-2", "source":
+        {"id": 28093162, "url": "https://tenant-54c1a367.atlassian.net/browse/QJS",
         "type": "jira_cloud_project", "display_name": "gg-test-integrations / QA SH
         Jira Space", "visibility": "private", "monitored": true, "source_criticality":
         "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":
@@ -73,13 +73,13 @@ interactions:
         "ignored": true, "ignored_at": "2026-05-07T18:37:25.902297Z", "ignore_reason":
         "invalid", "ignorer": 491414, "resolved": false, "resolved_at": null, "resolver":
         null, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
-        "8@bot.gitguardian.com", "ignorer_type": "user", "resolver_display_name":
+        "user-7d8fb5e1@example.com", "ignorer_type": "user", "resolver_display_name":
         "none", "resolver_type": "none", "manual_severity_setter_display_name": "none",
         "manual_severity_setter_type": "none", "status": "IGNORED", "issue_name":
         "AWS IAM Keys", "severity_rule_config": null, "declarative_secret_status":
         "invalid", "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gg-tools@gitguardian.com", "name":
-        "gim-dev"}, {"info": "mathieu.bellon@gitguardian.com", "name": "Mathieu Bellon"}],
+        "severity": 100, "authors": [{"info": "user-7ec2e474@example.com", "name":
+        "User e307c118"}, {"info": "user-da872230@example.com", "name": "User 32444b0e"}],
         "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         7, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"id": 27930579, "name": "gim-dev/snow-repro",
@@ -91,12 +91,12 @@ interactions:
         "is_vaulted": false, "similar_issue_count": 0, "score": 27, "displayed_occurrence":
         {"id": 266172913, "issue": 32567570, "account": 8, "kind": "RLTM", "element":
         "ee576e5cf318090b01602c5ffb24a9607fdd5be9", "element_type": "GIT_COMMIT",
-        "author_name": "gim-dev", "author_info": "gg-tools@gitguardian.com", "value":
+        "author_name": "gim-dev", "author_info": "user-7ec2e474@example.com", "value":
         null, "value_hash": "Wad93KyrKN6S2e6VpviT0T1KtPxF0Oav6XIf/DktZeaiy4obyw7Ogic3qDwsyV+Z",
         "published_at": "2026-05-07T18:37:22Z", "date": "2026-05-07T18:37:22Z", "detected_at":
         "2026-05-07T18:37:24.813406Z", "is_vcs_type": true, "last_detected_at": "2026-05-07T18:37:22Z",
-        "last_seen_at": "2026-05-07T18:37:22Z", "data": {}, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/snow-repro/commit/ee576e5cf318090b01602c5ffb24a9607fdd5be9#diff-b486b0402fa5438817157f04e64a1198fa657f9ce9de837cab3d7e48aaaa0748R7",
-        "source": {"id": 27930579, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/snow-repro",
+        "last_seen_at": "2026-05-07T18:37:22Z", "data": {}, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-1de96672/commit/ee576e5cf318090b01602c5ffb24a9607fdd5be9#diff-b486b0402fa5438817157f04e64a1198fa657f9ce9de837cab3d7e48aaaa0748R7",
+        "source": {"id": 27930579, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-1de96672",
         "type": "ghe_repository", "display_name": "gim-dev/snow-repro", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":
@@ -124,7 +124,7 @@ interactions:
         "none", "manual_severity_setter_type": "none", "status": "TRIGGERED", "issue_name":
         "Generic High Entropy Secret", "severity_rule_config": null, "declarative_secret_status":
         null, "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "admin@example.com", "name": "Administrator"}],
+        "severity": 100, "authors": [{"info": "admin@example.com", "name": "User e7d3e769"}],
         "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 1, "sources": [{"id": 27593417, "name": "analytics-report",
@@ -178,21 +178,22 @@ interactions:
         "gitlab_enterprise_token", "github_access_token", "aws_iam"]}}]}, "is_global":
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"id": 16218988, "name": "Martin Faucheux
-        / Repo A", "type": "gl_project", "path": "martin-faucheux/repo-a", "source_criticality":
-        "unknown", "monitoring_status": "active", "deleted_at": null}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 36, "displayed_occurrence": {"id": 245063312, "issue": 27395126,
-        "account": 8, "kind": "RLTM", "element": "7a6a765a03f640cf002e7d23040dad8a17fe4255",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
-        "value": null, "value_hash": "dLLMC28h0JB8KLz6ViyG9URvAnikbB5BBECedrqc2JmDHqkd2KVpMdI0NbaCVmKj",
+        "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com", "name":
+        "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"id": 16218988, "name": "Martin Faucheux / Repo A", "type": "gl_project",
+        "path": "martin-faucheux/repo-a", "source_criticality": "unknown", "monitoring_status":
+        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 36, "displayed_occurrence":
+        {"id": 245063312, "issue": 27395126, "account": 8, "kind": "RLTM", "element":
+        "7a6a765a03f640cf002e7d23040dad8a17fe4255", "element_type": "GIT_COMMIT",
+        "author_name": "dev", "author_info": "user-1ca9c7a6@example.com", "value":
+        null, "value_hash": "dLLMC28h0JB8KLz6ViyG9URvAnikbB5BBECedrqc2JmDHqkd2KVpMdI0NbaCVmKj",
         "published_at": "2026-02-19T14:36:24Z", "date": "2026-02-19T14:36:24Z", "detected_at":
         "2026-02-19T14:40:06.772801Z", "is_vcs_type": true, "last_detected_at": "2026-02-19T14:36:24Z",
-        "last_seen_at": "2026-02-19T14:36:24Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/martin-faucheux/repo-a/commit/7a6a765a03f640cf002e7d23040dad8a17fe4255#710a727ecafa5cfe744810c543a838230918ff04_0_4",
-        "source": {"id": 16218988, "url": "https://gitlab-01.aws-qa-gitguardian.com/martin-faucheux/repo-a",
+        "last_seen_at": "2026-02-19T14:36:24Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-dfd48fc3/ns-b41c2aee/commit/7a6a765a03f640cf002e7d23040dad8a17fe4255#710a727ecafa5cfe744810c543a838230918ff04_0_4",
+        "source": {"id": 16218988, "url": "https://host-a31e7ce0.example.com/ns-dfd48fc3/ns-b41c2aee",
         "type": "gl_project", "display_name": "Martin Faucheux / Repo A", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":
@@ -234,21 +235,22 @@ interactions:
         "gitlab_enterprise_token", "github_access_token", "aws_iam"]}}]}, "is_global":
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": 581873, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        12, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"id": 16219056, "name": "gim-qa-gitlabSandbox-auto
-        / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
+        "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com", "name":
+        "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 12, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"id": 16219056, "name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
+        "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "critical", "monitoring_status": "active", "deleted_at":
         null}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
         0, "score": 97, "displayed_occurrence": {"id": 242021853, "issue": 26879946,
         "account": 8, "kind": "RLTM", "element": "e2cbc193a76a13b94e135c12a055d2083a233a89",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "user-1ca9c7a6@example.com",
         "value": null, "value_hash": "7AkVngiwT5n4ZZihQovCHs2qrlx0MOfD853AYv4HHS0DiM0Vk9YtctC+FFM1Iw+v",
         "published_at": "2026-02-05T16:48:19Z", "date": "2026-02-05T16:48:19Z", "detected_at":
         "2026-02-05T16:51:53.166126Z", "is_vcs_type": true, "last_detected_at": "2026-02-05T16:48:19Z",
-        "last_seen_at": "2026-02-05T16:48:19Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging/commit/e2cbc193a76a13b94e135c12a055d2083a233a89#2dd906314026edd7e5fa25025afd4353424625a7_0_19",
-        "source": {"id": 16219056, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
+        "last_seen_at": "2026-02-05T16:48:19Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-88035254/ns-2405e744/commit/e2cbc193a76a13b94e135c12a055d2083a233a89#2dd906314026edd7e5fa25025afd4353424625a7_0_19",
+        "source": {"id": 16219056, "url": "https://host-a31e7ce0.example.com/ns-88035254/ns-2405e744",
         "type": "gl_project", "display_name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
         "visibility": "private", "monitored": true, "source_criticality": "critical",
         "deleted_at": null, "default_branch": "main", "monitoring_status": "active"},

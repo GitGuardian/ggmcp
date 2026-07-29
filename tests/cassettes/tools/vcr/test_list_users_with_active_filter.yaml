@@ -21,33 +21,33 @@ interactions:
   response:
     body:
       string: '[{"id": 10, "role": "manager", "access_level": "manager", "email":
-        "bruce-wayne-gg@protonmail.com", "name": "Bruce Wayne", "created_at": "2020-01-15T15:07:36.510559Z",
+        "user-324427de@example.com", "name": "User 2b03ad68", "created_at": "2020-01-15T15:07:36.510559Z",
         "last_login": "2020-09-30T12:21:19.319487Z", "active": true}, {"id": 13, "role":
-        "manager", "access_level": "manager", "email": "aymeric.sicard@gitguardian.com",
-        "name": "Aymeric SICARD", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
+        "manager", "access_level": "manager", "email": "user-71ab73d0@example.com",
+        "name": "User d0d18d7e", "created_at": "2020-01-21T09:35:47.907207Z", "last_login":
         "2026-06-22T14:20:46.680540Z", "active": true}, {"id": 2508, "role": "manager",
-        "access_level": "manager", "email": "guillaume.charpiat@gitguardian.com",
-        "name": "Guillaume CHARPIAT", "created_at": "2020-03-23T17:53:57.158457Z",
-        "last_login": "2026-06-10T11:29:54.420261Z", "active": true}, {"id": 37699,
-        "role": "manager", "access_level": "manager", "email": "alexis.larnaud@gitguardian.com",
-        "name": "Alexis LARNAUD", "created_at": "2020-09-03T11:16:05.980606Z", "last_login":
-        "2026-06-22T09:33:43.124144Z", "active": true}, {"id": 63809, "role": "manager",
-        "access_level": "manager", "email": "orian.roturier@gitguardian.com", "name":
-        "Orian ROTURIER", "created_at": "2020-11-25T14:01:01.749542Z", "last_login":
-        "2025-08-05T08:47:38.723615Z", "active": true}, {"id": 69474, "role": "member",
-        "access_level": "member", "email": "elacaille0@gmail.com", "name": "Eric",
-        "created_at": "2020-12-15T08:53:29.392054Z", "last_login": "2022-03-28T09:34:32.148429Z",
+        "access_level": "manager", "email": "user-d9f863cd@example.com", "name": "User
+        793501dc", "created_at": "2020-03-23T17:53:57.158457Z", "last_login": "2026-06-10T11:29:54.420261Z",
+        "active": true}, {"id": 37699, "role": "manager", "access_level": "manager",
+        "email": "user-d3774a22@example.com", "name": "User 40f52996", "created_at":
+        "2020-09-03T11:16:05.980606Z", "last_login": "2026-06-22T09:33:43.124144Z",
+        "active": true}, {"id": 63809, "role": "manager", "access_level": "manager",
+        "email": "user-0222ba7e@example.com", "name": "User 97a9750c", "created_at":
+        "2020-11-25T14:01:01.749542Z", "last_login": "2025-08-05T08:47:38.723615Z",
+        "active": true}, {"id": 69474, "role": "member", "access_level": "member",
+        "email": "user-5af3cff5@example.com", "name": "User 4cb39c1b", "created_at":
+        "2020-12-15T08:53:29.392054Z", "last_login": "2022-03-28T09:34:32.148429Z",
         "active": true}, {"id": 104544, "role": "manager", "access_level": "manager",
-        "email": "pierre.lalanne@gitguardian.com", "name": "Pierre LALANNE", "created_at":
+        "email": "user-aba104cf@example.com", "name": "User 9a67720c", "created_at":
         "2021-04-07T13:54:43.138909Z", "last_login": "2026-06-22T08:37:50.823418Z",
         "active": true}, {"id": 104916, "role": "manager", "access_level": "manager",
-        "email": "wassim.hana@gitguardian.com", "name": "Wassim HANA", "created_at":
+        "email": "user-f548df99@example.com", "name": "User f4c96fee", "created_at":
         "2021-04-08T14:54:40.049555Z", "last_login": "2026-06-22T07:42:16.988277Z",
         "active": true}, {"id": 113168, "role": "owner", "access_level": "owner",
-        "email": "henri.hubert@gitguardian.com", "name": "Henri HUBERT", "created_at":
+        "email": "user-c010b87e@example.com", "name": "User 00d1c796", "created_at":
         "2021-05-04T08:20:06.714793Z", "last_login": "2026-06-22T16:25:44.928986Z",
         "active": true}, {"id": 136170, "role": "manager", "access_level": "manager",
-        "email": "eric.fourrier@gitguardian.com", "name": "Eric FOURRIER", "created_at":
+        "email": "user-db85bcf2@example.com", "name": "User 795904a4", "created_at":
         "2021-07-13T07:29:59.706367Z", "last_login": "2026-06-23T12:05:26.347426Z",
         "active": true}]'
     headers:

@@ -30,24 +30,24 @@ interactions:
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-03-11T22:41:04.525493Z",
         "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
         "validity": "invalid", "severity": "medium", "assignee_id": null, "assignee_email":
-        "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
-        [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
-        "email": "stanislas.crepin@gitguardian.com", "member_id": null, "answers":
-        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
-        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
-        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
-        given access to any sensitive information or services?", "boolean": true},
-        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
-        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
-        "field_label": "Additional remarks", "text": "Hasn''t been revoked yet because
-        X"}]}], "risk_score": 100, "severity_rule_id": null, "is_vaulted": false,
-        "ignore_reason": null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["REVOCABLE_BY_GG",
-        "PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
-        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
+        "user-74281974@example.com", "share_url": "[REDACTED]", "feedback_list": [{"created_at":
+        "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
+        "email": "user-1a0bc62d@example.com", "member_id": null, "answers": [{"type":
+        "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is this an
+        actual secret?", "boolean": true}, {"type": "boolean", "field_ref": "access_to_sensitive_yes_no",
+        "field_label": "Does this secret give or has given access to any sensitive
+        information or services?", "boolean": true}, {"type": "boolean", "field_ref":
+        "revoked_yes_no", "field_label": "Has this secret been revoked?", "boolean":
+        false}, {"type": "text", "field_ref": "remarks_text", "field_label": "Additional
+        remarks", "text": "Hasn''t been revoked yet because X"}]}], "risk_score":
+        100, "severity_rule_id": null, "is_vaulted": false, "ignore_reason": null,
+        "occurrences": null, "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["REVOCABLE_BY_GG", "PUBLICLY_LEAKED"], "incident_name": "AWS IAM
+        Keys", "public_exposure": {"source_publicly_visible": true, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "destination_tickets": [{"id":
+        "AEF-97", "type": "jira_cloud", "link": "https://tenant-b6250acd.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}]'
     headers:
       CF-RAY:
@@ -121,52 +121,51 @@ interactions:
     uri: https://api.gitguardian.com/v1/incidents/secrets/21460/members
   response:
     body:
-      string: '[{"id": 10, "member_id": 10, "role": "manager", "name": "Bruce Wayne",
-        "email": "bruce-wayne-gg@protonmail.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 13, "member_id": 13, "role": "manager", "name": "Aymeric
-        SICARD", "email": "aymeric.sicard@gitguardian.com", "incident_id": 21460,
-        "incident_permission": "full_access"}, {"id": 2508, "member_id": 2508, "role":
-        "manager", "name": "Guillaume CHARPIAT", "email": "guillaume.charpiat@gitguardian.com",
-        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 37699,
-        "member_id": 37699, "role": "manager", "name": "Alexis LARNAUD", "email":
-        "alexis.larnaud@gitguardian.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 63809, "member_id": 63809, "role": "manager", "name":
-        "Orian ROTURIER", "email": "orian.roturier@gitguardian.com", "incident_id":
-        21460, "incident_permission": "full_access"}, {"id": 69474, "member_id": 69474,
-        "role": "member", "name": "Eric", "email": "elacaille0@gmail.com", "incident_id":
-        21460, "incident_permission": "can_edit"}, {"id": 104544, "member_id": 104544,
-        "role": "manager", "name": "Pierre LALANNE", "email": "pierre.lalanne@gitguardian.com",
+      string: '[{"id": 10, "member_id": 10, "role": "manager", "name": "User 2b03ad68",
+        "email": "user-324427de@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 13, "member_id": 13, "role": "manager", "name": "User
+        d0d18d7e", "email": "user-71ab73d0@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 2508, "member_id": 2508, "role": "manager", "name":
+        "User 793501dc", "email": "user-d9f863cd@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}, {"id": 37699, "member_id": 37699, "role":
+        "manager", "name": "User 40f52996", "email": "user-d3774a22@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 63809,
+        "member_id": 63809, "role": "manager", "name": "User 97a9750c", "email": "user-0222ba7e@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 69474,
+        "member_id": 69474, "role": "member", "name": "User 4cb39c1b", "email": "user-5af3cff5@example.com",
+        "incident_id": 21460, "incident_permission": "can_edit"}, {"id": 104544, "member_id":
+        104544, "role": "manager", "name": "User 9a67720c", "email": "user-aba104cf@example.com",
         "incident_id": 21460, "incident_permission": "full_access"}, {"id": 104916,
-        "member_id": 104916, "role": "manager", "name": "Wassim HANA", "email": "wassim.hana@gitguardian.com",
-        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 113168,
-        "member_id": 113168, "role": "owner", "name": "Henri HUBERT", "email": "henri.hubert@gitguardian.com",
-        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 136170,
-        "member_id": 136170, "role": "manager", "name": "Eric FOURRIER", "email":
-        "eric.fourrier@gitguardian.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 160089, "member_id": 160089, "role": "manager", "name":
-        "Aur\u00e9lien G\u00c2TEAU", "email": "aurelien.gateau@gitguardian.com", "incident_id":
-        21460, "incident_permission": "full_access"}, {"id": 166199, "member_id":
-        166199, "role": "manager", "name": "Stanislas CR\u00c9PIN", "email": "stanislas.crepin@gitguardian.com",
-        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 183177,
-        "member_id": 183177, "role": "manager", "name": "H\u00e9l\u00e8ne HARTMANN",
-        "email": "helene.hartmann@gitguardian.com", "incident_id": 21460, "incident_permission":
-        "full_access"}, {"id": 203333, "member_id": 203333, "role": "member", "name":
-        "qa qa team", "email": "qa-team-testing@gitguardian.com", "incident_id": 21460,
-        "incident_permission": "can_edit"}, {"id": 269050, "member_id": 269050, "role":
-        "manager", "name": "Achille MASCIA", "email": "achille.mascia@gitguardian.com",
+        "member_id": 104916, "role": "manager", "name": "User f4c96fee", "email":
+        "user-f548df99@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 113168, "member_id": 113168, "role": "owner", "name":
+        "User 00d1c796", "email": "user-c010b87e@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}, {"id": 136170, "member_id": 136170,
+        "role": "manager", "name": "User 795904a4", "email": "user-db85bcf2@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 160089,
+        "member_id": 160089, "role": "manager", "name": "User 595a74b4", "email":
+        "user-90859989@example.com", "incident_id": 21460, "incident_permission":
+        "full_access"}, {"id": 166199, "member_id": 166199, "role": "manager", "name":
+        "User fbc68cb1", "email": "user-1a0bc62d@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}, {"id": 183177, "member_id": 183177,
+        "role": "manager", "name": "User 2b6e79bd", "email": "user-ef593bab@example.com",
+        "incident_id": 21460, "incident_permission": "full_access"}, {"id": 203333,
+        "member_id": 203333, "role": "member", "name": "User 5a421fd6", "email": "user-01b8eaba@example.com",
+        "incident_id": 21460, "incident_permission": "can_edit"}, {"id": 269050, "member_id":
+        269050, "role": "manager", "name": "User 4d672909", "email": "user-35a47503@example.com",
         "incident_id": 21460, "incident_permission": "full_access"}, {"id": 270722,
-        "member_id": 270722, "role": "manager", "name": "Cl\u00e9ment TOURRIERE",
-        "email": "clement.tourriere@gitguardian.com", "incident_id": 21460, "incident_permission":
+        "member_id": 270722, "role": "manager", "name": "User 8fe9d75c", "email":
+        "user-4278f7fb@example.com", "incident_id": 21460, "incident_permission":
         "full_access"}, {"id": 296618, "member_id": 296618, "role": "manager", "name":
-        "Samuel GUILLAUME", "email": "samuel.guillaume@gitguardian.com", "incident_id":
-        21460, "incident_permission": "full_access"}, {"id": 297547, "member_id":
-        297547, "role": "manager", "name": "Antoine GAILLARD", "email": "antoine.gaillard@gitguardian.com",
+        "User 96d39e85", "email": "user-d44727e2@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}, {"id": 297547, "member_id": 297547,
+        "role": "manager", "name": "User 20c8435e", "email": "user-d740ff7b@example.com",
         "incident_id": 21460, "incident_permission": "full_access"}, {"id": 302635,
-        "member_id": 302635, "role": "manager", "name": "Laurent TRAMOY", "email":
-        "laurent.tramoy@gitguardian.com", "incident_id": 21460, "incident_permission":
+        "member_id": 302635, "role": "manager", "name": "User ad60d43c", "email":
+        "user-8c839e26@example.com", "incident_id": 21460, "incident_permission":
         "full_access"}, {"id": 309802, "member_id": 309802, "role": "manager", "name":
-        "Pierre DE THOISY", "email": "pierre.dethoisy@gitguardian.com", "incident_id":
-        21460, "incident_permission": "full_access"}]'
+        "User cdfde6f6", "email": "user-6eedc04a@example.com", "incident_id": 21460,
+        "incident_permission": "full_access"}]'
     headers:
       CF-RAY:
       - a103954c1be6d8d2-CDG

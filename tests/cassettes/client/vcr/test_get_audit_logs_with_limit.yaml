@@ -21,27 +21,27 @@ interactions:
   response:
     body:
       string: '[{"id": 23983381, "api_token_id": null, "member_id": 480870, "member_email":
-        "timothe.delion@gitguardian.com", "member_name": "Timoth\u00e9 DELION", "date":
+        "user-8e645c6e@example.com", "member_name": "Timoth\u00e9 DELION", "date":
         "2026-06-23T12:23:58.297394Z", "data": null, "event_name": "custom_remediation_workflow.updated",
         "action_type": "UPDATE", "target_ids": ["6"], "ip_address": "92.128.35.47"},
         {"id": 23983251, "api_token_id": null, "member_id": 480870, "member_email":
-        "timothe.delion@gitguardian.com", "member_name": "Timoth\u00e9 DELION", "date":
+        "user-8e645c6e@example.com", "member_name": "Timoth\u00e9 DELION", "date":
         "2026-06-23T12:20:54.649674Z", "data": {"type": "saml_sso"}, "event_name":
         "user.logged_in", "action_type": "OTHER", "target_ids": ["480218"], "ip_address":
         "92.128.35.47"}, {"id": 23982412, "api_token_id": null, "member_id": 1301278,
-        "member_email": "zach.mccullough@gitguardian.com", "member_name": "Zachary
-        MCCULLOUGH", "date": "2026-06-23T11:59:32.903530Z", "data": {"type": "saml_sso"},
-        "event_name": "user.logged_in", "action_type": "OTHER", "target_ids": ["1299091"],
-        "ip_address": "73.8.249.128"}, {"id": 23982141, "api_token_id": null, "member_id":
-        363444, "member_email": "patrick.flanagan@gitguardian.com", "member_name":
-        "Patrick FLANAGAN", "date": "2026-06-23T11:47:23.624224Z", "data": {"issue_token":
-        73062}, "event_name": "secret_incident.shared_incident_viewed", "action_type":
-        "READ", "target_ids": ["34205503"], "ip_address": "185.175.151.131"}, {"id":
-        23982136, "api_token_id": null, "member_id": 363444, "member_email": "patrick.flanagan@gitguardian.com",
-        "member_name": "Patrick FLANAGAN", "date": "2026-06-23T11:47:02.338330Z",
-        "data": {"issue_id": 34205503, "expire_at": "2026-07-23T11:47:02.322847+00:00"},
-        "event_name": "incident_token.created", "action_type": "CREATE", "target_ids":
-        ["73062"], "ip_address": "185.175.151.131"}]'
+        "member_email": "user-6d755f01@example.com", "member_name": "Zachary MCCULLOUGH",
+        "date": "2026-06-23T11:59:32.903530Z", "data": {"type": "saml_sso"}, "event_name":
+        "user.logged_in", "action_type": "OTHER", "target_ids": ["1299091"], "ip_address":
+        "73.8.249.128"}, {"id": 23982141, "api_token_id": null, "member_id": 363444,
+        "member_email": "user-1aafc941@example.com", "member_name": "Patrick FLANAGAN",
+        "date": "2026-06-23T11:47:23.624224Z", "data": {"issue_token": 73062}, "event_name":
+        "secret_incident.shared_incident_viewed", "action_type": "READ", "target_ids":
+        ["34205503"], "ip_address": "185.175.151.131"}, {"id": 23982136, "api_token_id":
+        null, "member_id": 363444, "member_email": "user-1aafc941@example.com", "member_name":
+        "Patrick FLANAGAN", "date": "2026-06-23T11:47:02.338330Z", "data": {"issue_id":
+        34205503, "expire_at": "2026-07-23T11:47:02.322847+00:00"}, "event_name":
+        "incident_token.created", "action_type": "CREATE", "target_ids": ["73062"],
+        "ip_address": "185.175.151.131"}]'
     headers:
       CF-RAY:
       - a10394cd4c7ea8bd-CDG

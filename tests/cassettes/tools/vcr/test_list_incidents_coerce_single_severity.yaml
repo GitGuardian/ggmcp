@@ -40,21 +40,21 @@ interactions:
         "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
         520858}}, "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com",
+        "name": "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"id": 16218896, "name": "qa / test-nriv", "type": "gl_project", "path":
         "qa1/test-nriv", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 64, "displayed_occurrence": {"id":
         268288466, "issue": 32985083, "account": 8, "kind": "RLTM", "element": "9181621d49e910c3d2393f2373e52c04b26c7adb",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "user-1ca9c7a6@example.com",
         "value": null, "value_hash": "y0o7bgCt8InKo3/G0QE6WaG+gU32WlUdYH0N4oUFXredK2KoKwrhfI+hoCMCs6v6",
         "published_at": "2026-05-19T09:33:23Z", "date": "2026-05-19T09:33:23Z", "detected_at":
         "2026-05-19T09:36:53.339083Z", "is_vcs_type": true, "last_detected_at": "2026-05-19T09:33:23Z",
-        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
-        "source": {"id": 16218896, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
+        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
+        "source": {"id": 16218896, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d",
         "type": "gl_project", "display_name": "qa / test-nriv", "visibility": "internal",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 162813398,
@@ -85,21 +85,21 @@ interactions:
         "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
         "arg2": {"value": "package_registry"}}, "is_global": true, "scope": "private",
         "author": null}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gg-tools@gitguardian.com",
-        "name": "gim-dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-7ec2e474@example.com",
+        "name": "User e307c118"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"id": 27907812, "name": "gim-dev/ra24091", "type": "ghe_repository", "path":
         "gim-dev/ra24091", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 86, "displayed_occurrence": {"id":
         271124127, "issue": 33596487, "account": 8, "kind": "HIST", "element": "726d6e14f4865b2ae7fa5d03972347e479880620",
-        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "gg-tools@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "user-7ec2e474@example.com",
         "value": null, "value_hash": "bopfgjC9/ZqBM1Kl5mY7IsWivqih2CFAsisDVRqeRik1/8IJmhFA3PTcIootBtrN",
         "published_at": "2026-04-23T07:03:59Z", "date": "2026-04-23T07:03:59Z", "detected_at":
         "2026-06-03T06:07:39.990226Z", "is_vcs_type": true, "last_detected_at": "2026-04-23T07:03:59Z",
-        "last_seen_at": "2026-04-23T07:03:59Z", "data": {}, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091/commit/726d6e14f4865b2ae7fa5d03972347e479880620#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R4",
-        "source": {"id": 27907812, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091",
+        "last_seen_at": "2026-04-23T07:03:59Z", "data": {}, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10/commit/726d6e14f4865b2ae7fa5d03972347e479880620#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R4",
+        "source": {"id": 27907812, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10",
         "type": "ghe_repository", "display_name": "gim-dev/ra24091", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":
@@ -130,21 +130,21 @@ interactions:
         "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
         "arg2": {"value": "package_registry"}}, "is_global": true, "scope": "private",
         "author": null}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gg-tools@gitguardian.com",
-        "name": "gim-dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-7ec2e474@example.com",
+        "name": "User e307c118"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"id": 27907812, "name": "gim-dev/ra24091", "type": "ghe_repository", "path":
         "gim-dev/ra24091", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 86, "displayed_occurrence": {"id":
         271124128, "issue": 33596488, "account": 8, "kind": "HIST", "element": "aa11f9f443e865a8ec50290ee90fe169c21aef9b",
-        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "gg-tools@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "user-7ec2e474@example.com",
         "value": null, "value_hash": "dukMeDq1taBlF0eO3eWtf2S+5XlcRbPvGW2jrR30ibxFu9h2SqU+DWCwq6Cxp/hP",
         "published_at": "2026-04-23T07:01:34Z", "date": "2026-04-23T07:01:34Z", "detected_at":
         "2026-06-03T06:07:39.990226Z", "is_vcs_type": true, "last_detected_at": "2026-04-23T07:01:34Z",
-        "last_seen_at": "2026-04-23T07:01:34Z", "data": {}, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091/commit/aa11f9f443e865a8ec50290ee90fe169c21aef9b#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R3",
-        "source": {"id": 27907812, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091",
+        "last_seen_at": "2026-04-23T07:01:34Z", "data": {}, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10/commit/aa11f9f443e865a8ec50290ee90fe169c21aef9b#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R3",
+        "source": {"id": 27907812, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10",
         "type": "ghe_repository", "display_name": "gim-dev/ra24091", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":
@@ -175,21 +175,21 @@ interactions:
         "arg1": {"path": "issue.secret.detector.metadata.category", "default": null},
         "arg2": {"value": "package_registry"}}, "is_global": true, "scope": "private",
         "author": null}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gg-tools@gitguardian.com",
-        "name": "gim-dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-7ec2e474@example.com",
+        "name": "User e307c118"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 27907812, "name": "gim-dev/ra24091", "type": "ghe_repository", "path":
         "gim-dev/ra24091", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 86, "displayed_occurrence": {"id":
         271124122, "issue": 33596489, "account": 8, "kind": "HIST", "element": "aa11f9f443e865a8ec50290ee90fe169c21aef9b",
-        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "gg-tools@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "gim-dev", "author_info": "user-7ec2e474@example.com",
         "value": null, "value_hash": "72AJ4l7ikuNODzwNuaxjTIxDURGLw+/dPaAUz7IaWGID7D5e7+TNTxbhgBuHYpK2",
         "published_at": "2026-04-23T07:01:34Z", "date": "2026-04-23T07:01:34Z", "detected_at":
         "2026-06-03T06:07:39.990226Z", "is_vcs_type": true, "last_detected_at": "2026-04-23T07:01:34Z",
-        "last_seen_at": "2026-04-23T07:01:34Z", "data": {}, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091/commit/aa11f9f443e865a8ec50290ee90fe169c21aef9b#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R4",
-        "source": {"id": 27907812, "url": "https://ghe-01.aws-qa-gitguardian.com/gim-dev/ra24091",
+        "last_seen_at": "2026-04-23T07:01:34Z", "data": {}, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10/commit/aa11f9f443e865a8ec50290ee90fe169c21aef9b#diff-a8f520d6712a82ea3d0013a99d2a9dd590c10c78a334a1933e7a553458799877R4",
+        "source": {"id": 27907812, "url": "https://host-8c9d8db9.example.com/ns-e307c118/ns-00303b10",
         "type": "ghe_repository", "display_name": "gim-dev/ra24091", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":
@@ -223,22 +223,21 @@ interactions:
         "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
         "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
         null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "alina.tuholukova@gitguardian.com", "name": "Alina
-        Tuholukova"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
-        0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
-        [{"id": 24066096, "name": "group3 / Guillaume testing", "type": "gl_project",
-        "path": "group2/guillaume-testing", "source_criticality": "unknown", "monitoring_status":
-        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 55, "displayed_occurrence":
-        {"id": 261408101, "issue": 30544091, "account": 8, "kind": "RLTM", "element":
-        "5e35304d12f5207f72dc3da8e7033494e3d49a90", "element_type": "GIT_COMMIT",
-        "author_name": "Alina Tuholukova", "author_info": "alina.tuholukova@gitguardian.com",
-        "value": null, "value_hash": "dmdGBLQCcXWDEKckkQGMvXTikhk7Qkpaml86yoY9X4Xmx+Oc7u2brhHr47K73UWF",
+        100, "authors": [{"info": "user-1ee838f7@example.com", "name": "User 68b10723"}],
+        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
+        null, "locations_count": 1, "sources": [{"id": 24066096, "name": "group3 /
+        Guillaume testing", "type": "gl_project", "path": "group2/guillaume-testing",
+        "source_criticality": "unknown", "monitoring_status": "active", "deleted_at":
+        null}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
+        0, "score": 55, "displayed_occurrence": {"id": 261408101, "issue": 30544091,
+        "account": 8, "kind": "RLTM", "element": "5e35304d12f5207f72dc3da8e7033494e3d49a90",
+        "element_type": "GIT_COMMIT", "author_name": "Alina Tuholukova", "author_info":
+        "user-1ee838f7@example.com", "value": null, "value_hash": "dmdGBLQCcXWDEKckkQGMvXTikhk7Qkpaml86yoY9X4Xmx+Oc7u2brhHr47K73UWF",
         "published_at": "2026-04-21T13:50:33Z", "date": "2026-04-21T13:50:33Z", "detected_at":
         "2026-04-21T13:51:50.123829Z", "is_vcs_type": true, "last_detected_at": "2026-04-21T13:50:33Z",
-        "last_seen_at": "2026-04-21T13:50:33Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/group2/guillaume-testing/commit/5e35304d12f5207f72dc3da8e7033494e3d49a90#1a1b9769344cb239f2e540e1e6ee1efa2d3034ea_0_8",
-        "source": {"id": 24066096, "url": "https://gitlab-01.aws-qa-gitguardian.com/group2/guillaume-testing",
+        "last_seen_at": "2026-04-21T13:50:33Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-8c87b477/ns-711f682e/commit/5e35304d12f5207f72dc3da8e7033494e3d49a90#1a1b9769344cb239f2e540e1e6ee1efa2d3034ea_0_8",
+        "source": {"id": 24066096, "url": "https://host-a31e7ce0.example.com/ns-8c87b477/ns-711f682e",
         "type": "gl_project", "display_name": "group3 / Guillaume testing", "visibility":
         "private", "monitored": true, "source_criticality": "unknown", "deleted_at":
         null, "default_branch": "main", "monitoring_status": "active"}, "regression":

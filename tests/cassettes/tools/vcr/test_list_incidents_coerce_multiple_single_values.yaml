@@ -40,21 +40,21 @@ interactions:
         "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
         520858}}, "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com",
+        "name": "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"id": 16218896, "name": "qa / test-nriv", "type": "gl_project", "path":
         "qa1/test-nriv", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 64, "displayed_occurrence": {"id":
         268288466, "issue": 32985083, "account": 8, "kind": "RLTM", "element": "9181621d49e910c3d2393f2373e52c04b26c7adb",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "user-1ca9c7a6@example.com",
         "value": null, "value_hash": "y0o7bgCt8InKo3/G0QE6WaG+gU32WlUdYH0N4oUFXredK2KoKwrhfI+hoCMCs6v6",
         "published_at": "2026-05-19T09:33:23Z", "date": "2026-05-19T09:33:23Z", "detected_at":
         "2026-05-19T09:36:53.339083Z", "is_vcs_type": true, "last_detected_at": "2026-05-19T09:33:23Z",
-        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
-        "source": {"id": 16218896, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
+        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
+        "source": {"id": 16218896, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d",
         "type": "gl_project", "display_name": "qa / test-nriv", "visibility": "internal",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 162813398,
@@ -92,21 +92,22 @@ interactions:
         "gitlab_enterprise_token", "github_access_token", "aws_iam"]}}]}, "is_global":
         true, "scope": "any", "author": null}}, "declarative_secret_status": null,
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com", "name": "dev"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
-        1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 0, "sources": [{"id": 16219056, "name": "gim-qa-gitlabSandbox-auto
-        / gim-qa-gitlabSandbox-staging", "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
+        "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com", "name":
+        "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
+        [{"id": 16219056, "name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
+        "type": "gl_project", "path": "gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
         "source_criticality": "critical", "monitoring_status": "active", "deleted_at":
         null}], "custom_tags": [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count":
         1, "score": 97, "displayed_occurrence": {"id": 226113779, "issue": 22515404,
         "account": 8, "kind": "RLTM", "element": "95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "user-1ca9c7a6@example.com",
         "value": null, "value_hash": "yEDhOhQ6p7D5/7TcJR5YtztO3INO1WgqiWd2qPiA0XRele/bong1Td3XczdQcVM3",
         "published_at": "2025-11-17T17:16:25Z", "date": "2025-11-17T17:16:25Z", "detected_at":
         "2025-11-17T17:18:16.645938Z", "is_vcs_type": true, "last_detected_at": "2025-11-17T17:16:25Z",
-        "last_seen_at": "2025-11-17T17:16:25Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging/commit/95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9#34c8dc1a12161a07003ebd2c3145185257f0cd94_0_3",
-        "source": {"id": 16219056, "url": "https://gitlab-01.aws-qa-gitguardian.com/gim-qa-gitlabsandbox-auto/gim-qa-gitlabsandbox-staging",
+        "last_seen_at": "2025-11-17T17:16:25Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-88035254/ns-2405e744/commit/95c8ae28ae02f1182bfa5ae2f6cabb69fab3ece9#34c8dc1a12161a07003ebd2c3145185257f0cd94_0_3",
+        "source": {"id": 16219056, "url": "https://host-a31e7ce0.example.com/ns-88035254/ns-2405e744",
         "type": "gl_project", "display_name": "gim-qa-gitlabSandbox-auto / gim-qa-gitlabSandbox-staging",
         "visibility": "private", "monitored": true, "source_criticality": "critical",
         "deleted_at": null, "default_branch": "main", "monitoring_status": "active"},
@@ -142,8 +143,8 @@ interactions:
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
         520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 3, "occurrences_presence_deleted_count":
+        "User d156fffd"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 3, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 22879703, "name": "GitHub Gist Public Testing", "type": "custom_source",
         "path": "GitHub Gist Public Testing", "source_criticality": "unknown", "monitoring_status":
@@ -191,8 +192,8 @@ interactions:
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
         520858}}, "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "GitGuardian Sandbox [internal]"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
+        "User d156fffd"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 22879703, "name": "GitHub Gist Public Testing", "type": "custom_source",
         "path": "GitHub Gist Public Testing", "source_criticality": "unknown", "monitoring_status":
@@ -240,8 +241,8 @@ interactions:
         "default": null}, "arg2": {"value": "invalid"}}}]}, "is_global": false, "scope":
         "private", "author": 520858}}, "declarative_secret_status": null, "assignee":
         null, "last_presence_check_at": null, "secret": "[REDACTED]", "severity":
-        100, "authors": [{"info": "", "name": "GitGuardian Sandbox [internal]"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        100, "authors": [{"info": "", "name": "User d156fffd"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         1, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
         null, "locations_count": 0, "sources": [{"id": 22879703, "name": "GitHub Gist
         Public Testing", "type": "custom_source", "path": "GitHub Gist Public Testing",

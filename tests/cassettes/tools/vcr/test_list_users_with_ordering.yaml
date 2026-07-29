@@ -21,31 +21,31 @@ interactions:
   response:
     body:
       string: '[{"id": 1831560, "role": "member", "access_level": "member", "email":
-        "chris.heine@gitguardian.com", "name": "Chris HEINE", "created_at": "2026-06-22T09:31:09.529363Z",
+        "user-6cf4a340@example.com", "name": "User 075b2f33", "created_at": "2026-06-22T09:31:09.529363Z",
         "last_login": null, "active": true}, {"id": 1827687, "role": "member", "access_level":
-        "member", "email": "badr.bennasri@gitguardian.com", "name": "Badr BENNASRI",
-        "created_at": "2026-06-16T12:40:54.847312Z", "last_login": null, "active":
-        true}, {"id": 1827686, "role": "member", "access_level": "member", "email":
-        "kevin.duchier-ext@gitguardian.com", "name": "Kevin DUCHIER", "created_at":
-        "2026-06-16T12:40:53.811676Z", "last_login": null, "active": true}, {"id":
-        1826598, "role": "member", "access_level": "member", "email": "matthew.perry@gitguardian.com",
-        "name": "Matthew PERRY", "created_at": "2026-06-15T09:40:43.609269Z", "last_login":
-        null, "active": true}, {"id": 1823951, "role": "member", "access_level": "member",
-        "email": "colin.evans@gitguardian.com", "name": "Colin EVANS", "created_at":
-        "2026-06-11T19:46:03.577270Z", "last_login": null, "active": true}, {"id":
-        1821084, "role": "member", "access_level": "member", "email": "elias.zegouagh-new@gitguardian.com",
-        "name": "Elias ZEGOUAGH", "created_at": "2026-06-08T19:05:42.720751Z", "last_login":
-        null, "active": true}, {"id": 1815173, "role": "member", "access_level": "member",
-        "email": "zoraver.singh@gitguardian.com", "name": "Zoraver SINGH", "created_at":
-        "2026-06-03T15:36:30.208960Z", "last_login": null, "active": true}, {"id":
-        1810671, "role": "member", "access_level": "member", "email": "melanie.almeida-ext@gitguardian.com",
-        "name": "M\u00e9lanie ALMEIDA", "created_at": "2026-05-29T07:55:45.623834Z",
-        "last_login": null, "active": true}, {"id": 1810140, "role": "member", "access_level":
-        "member", "email": "lia.vector@gitguardian.com", "name": "Lia VECTOR", "created_at":
-        "2026-05-28T15:45:53.126488Z", "last_login": null, "active": true}, {"id":
-        1809695, "role": "member", "access_level": "member", "email": "patrycja.kucharska@gitguardian.com",
-        "name": "Patrycja KUCHARSKA", "created_at": "2026-05-28T07:06:18.936256Z",
-        "last_login": "2026-06-16T14:08:45.946144Z", "active": true}]'
+        "member", "email": "user-b9296f05@example.com", "name": "User dd80f6e6", "created_at":
+        "2026-06-16T12:40:54.847312Z", "last_login": null, "active": true}, {"id":
+        1827686, "role": "member", "access_level": "member", "email": "user-871fac1d@example.com",
+        "name": "User 7fb663b6", "created_at": "2026-06-16T12:40:53.811676Z", "last_login":
+        null, "active": true}, {"id": 1826598, "role": "member", "access_level": "member",
+        "email": "user-277e5301@example.com", "name": "User 8141b801", "created_at":
+        "2026-06-15T09:40:43.609269Z", "last_login": null, "active": true}, {"id":
+        1823951, "role": "member", "access_level": "member", "email": "user-a034d179@example.com",
+        "name": "User aaa0231d", "created_at": "2026-06-11T19:46:03.577270Z", "last_login":
+        null, "active": true}, {"id": 1821084, "role": "member", "access_level": "member",
+        "email": "user-07e415c4@example.com", "name": "User ae846c26", "created_at":
+        "2026-06-08T19:05:42.720751Z", "last_login": null, "active": true}, {"id":
+        1815173, "role": "member", "access_level": "member", "email": "user-145072dc@example.com",
+        "name": "User 4539c90b", "created_at": "2026-06-03T15:36:30.208960Z", "last_login":
+        null, "active": true}, {"id": 1810671, "role": "member", "access_level": "member",
+        "email": "user-33c25618@example.com", "name": "User 60ec4330", "created_at":
+        "2026-05-29T07:55:45.623834Z", "last_login": null, "active": true}, {"id":
+        1810140, "role": "member", "access_level": "member", "email": "user-9b584182@example.com",
+        "name": "User 68ee8fcc", "created_at": "2026-05-28T15:45:53.126488Z", "last_login":
+        null, "active": true}, {"id": 1809695, "role": "member", "access_level": "member",
+        "email": "user-38354293@example.com", "name": "User 6eabded6", "created_at":
+        "2026-05-28T07:06:18.936256Z", "last_login": "2026-06-16T14:08:45.946144Z",
+        "active": true}]'
     headers:
       CF-RAY:
       - a10398ce4b4ed785-CDG
