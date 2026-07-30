@@ -50,7 +50,7 @@ class ListUsersResult(BaseModel):
     )
 
 
-async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersResult:
+async def list_users(params: ListUsersParams | None = None) -> ListUsersResult:
     """
     List members/users in the GitGuardian workspace.
 
@@ -69,6 +69,9 @@ async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersRe
     Raises:
         ToolError: If the listing operation fails
     """
+    if params is None:
+        params = ListUsersParams()
+
     client = await get_client()
     logger.debug("Listing workspace members")
 

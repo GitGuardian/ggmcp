@@ -46,7 +46,7 @@ class ListDetectorsResult(BaseModel):
     )
 
 
-async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) -> ListDetectorsResult:
+async def list_detectors(params: ListDetectorsParams | None = None) -> ListDetectorsResult:
     """
     List secret detectors from the GitGuardian detection engine.
 
@@ -65,6 +65,9 @@ async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) ->
     Raises:
         ToolError: If the listing operation fails
     """
+    if params is None:
+        params = ListDetectorsParams()
+
     client = await get_client()
     logger.debug("Listing secret detectors")
 

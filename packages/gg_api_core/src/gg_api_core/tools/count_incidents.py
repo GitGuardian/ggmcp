@@ -367,7 +367,7 @@ def _build_filter_info(params: CountIncidentsParams) -> dict[str, Any]:
 
 
 async def count_incidents(
-    params: CountIncidentsParams = CountIncidentsParams(),
+    params: CountIncidentsParams | None = None,
 ) -> CountIncidentsResult | CountIncidentsError:
     """
     Count secret incidents matching the given filters.
@@ -389,6 +389,9 @@ async def count_incidents(
 
         CountIncidentsError: Pydantic model with error message if the operation fails
     """
+    if params is None:
+        params = CountIncidentsParams()
+
     client = await get_client()
 
     try:

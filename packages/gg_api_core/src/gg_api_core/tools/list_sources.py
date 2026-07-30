@@ -119,7 +119,7 @@ class ListSourcesResult(BaseModel):
     )
 
 
-async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListSourcesResult:
+async def list_sources(params: ListSourcesParams | None = None) -> ListSourcesResult:
     """
     List sources known by GitGuardian.
 
@@ -138,6 +138,9 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
     Raises:
         ToolError: If the listing operation fails
     """
+    if params is None:
+        params = ListSourcesParams()
+
     client = await get_client()
     logger.debug("Listing sources")
 

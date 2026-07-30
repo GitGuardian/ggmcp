@@ -54,7 +54,7 @@ class ListHoneytokensResult(BaseModel):
     )
 
 
-async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams()) -> ListHoneytokensResult:
+async def list_honeytokens(params: ListHoneytokensParams | None = None) -> ListHoneytokensResult:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
@@ -72,6 +72,9 @@ async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams
     Raises:
         ToolError: If the listing operation fails
     """
+    if params is None:
+        params = ListHoneytokensParams()
+
     client = await get_client()
     logger.debug("Listing honeytokens with filters")
 

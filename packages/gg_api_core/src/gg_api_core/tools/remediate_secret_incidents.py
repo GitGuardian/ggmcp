@@ -92,7 +92,7 @@ class RemediateSecretIncidentsError(BaseModel):
 
 
 async def remediate_secret_incidents(
-    params: RemediateSecretIncidentsParams = RemediateSecretIncidentsParams(),
+    params: RemediateSecretIncidentsParams | None = None,
 ) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
     """
     Find and remediate secret incidents in the current repository.
@@ -105,6 +105,9 @@ async def remediate_secret_incidents(
     Returns:
         RemediateSecretIncidentsResult or RemediateSecretIncidentsError
     """
+    if params is None:
+        params = RemediateSecretIncidentsParams()
+
     logger.debug(f"Using remediate_secret_incidents for source_id: {params.source_id}")
 
     try:

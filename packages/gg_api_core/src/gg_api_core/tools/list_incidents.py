@@ -479,7 +479,7 @@ class ListIncidentsError(BaseModel):
 
 
 async def list_incidents(
-    params: ListIncidentsParams = ListIncidentsParams(),
+    params: ListIncidentsParams | None = None,
 ) -> ListIncidentsResult | ListIncidentsError:
     """
     List secret incidents with enhanced filtering using the MCP-optimized endpoint.
@@ -508,6 +508,9 @@ async def list_incidents(
 
         ListIncidentsError: Pydantic model with error message if the operation fails
     """
+    if params is None:
+        params = ListIncidentsParams()
+
     client = await get_client()
 
     try:

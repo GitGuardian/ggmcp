@@ -182,7 +182,7 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 
 
 async def list_repo_occurrences(
-    params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
+    params: ListRepoOccurrencesParams | None = None,
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
@@ -220,6 +220,9 @@ async def list_repo_occurrences(
 
         ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
+    if params is None:
+        params = ListRepoOccurrencesParams()
+
     client = await get_client()
     logger.debug(f"Listing occurrences with source_id={params.source_id}")
 

@@ -269,7 +269,7 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
 
 
 async def list_public_incidents(
-    params: ListPublicIncidentsParams = ListPublicIncidentsParams(),
+    params: ListPublicIncidentsParams | None = None,
 ) -> ListPublicIncidentsResult | ListPublicIncidentsError:
     """List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
 
@@ -286,6 +286,9 @@ async def list_public_incidents(
         ListPublicIncidentsResult with the public incidents page, or
         ListPublicIncidentsError on failure.
     """
+    if params is None:
+        params = ListPublicIncidentsParams()
+
     client = await get_client()
 
     try:
