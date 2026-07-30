@@ -6,7 +6,7 @@ GitGuardian API side.
 """
 
 import json
-from typing import Any
+from typing import Any, cast
 
 import httpx
 import respx
@@ -45,6 +45,54 @@ EXPECTED_SCOPES = [
     "secrets:read",
 ]
 
+EXPECTED_FULL_TOOL_CATALOG = {
+    "assign_incident",
+    "assign_public_incident",
+    "count_incidents",
+    "create_code_fix_request",
+    "find_current_source_id",
+    "generate_honeytoken",
+    "get_authenticated_user_info",
+    "get_current_token_info",
+    "get_incident",
+    "get_member",
+    "get_public_incident",
+    "get_remediation_workflow",
+    "list_detectors",
+    "list_honeytokens",
+    "list_incident_activity_logs",
+    "list_incident_comments",
+    "list_incident_members",
+    "list_incident_teams",
+    "list_incidents",
+    "list_public_incident_activity_logs",
+    "list_public_incident_comments",
+    "list_public_incidents",
+    "list_public_occurrences",
+    "list_repo_occurrences",
+    "list_sources",
+    "list_users",
+    "manage_incident_comment",
+    "manage_private_incident",
+    "manage_public_incident_comment",
+    "read_custom_tags",
+    "remediate_secret_incidents",
+    "revoke_current_token",
+    "revoke_secret",
+    "scan_secrets",
+    "update_incident_severity",
+    "update_or_create_incident_custom_tags",
+    "update_public_incident_status",
+    "write_custom_tags",
+}
+
+EXPECTED_SCAN_ONLY_TOOL_CATALOG = {
+    "get_authenticated_user_info",
+    "list_detectors",
+    "revoke_current_token",
+    "scan_secrets",
+}
+
 
 def mcp_headers(token: str = TEST_PAT) -> dict[str, str]:
     """Headers sent by an MCP client authenticated with ``token``."""
@@ -73,7 +121,7 @@ async def rpc(
     method: str,
     params: dict[str, Any] | None = None,
     request_id: int | str = 1,
-    **kwargs,
+    **kwargs: Any,
 ) -> httpx.Response:
     """POST a raw JSON-RPC 2.0 request to the /mcp endpoint."""
     headers = kwargs.pop("headers", mcp_headers())
@@ -90,14 +138,16 @@ def rpc_result(response: httpx.Response, expected_id: int | str = 1) -> dict[str
     assert body.get("jsonrpc") == "2.0"
     assert body.get("id") == expected_id
     assert "error" not in body, body
-    return body["result"]
+    result = body["result"]
+    assert isinstance(result, dict), body
+    return cast(dict[str, Any], result)
 
 
 async def call_tool(
     client: httpx.AsyncClient,
     name: str,
     arguments: dict[str, Any] | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> dict[str, Any]:
     """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult)."""
     request_id = kwargs.pop("request_id", 1)
@@ -148,7 +198,9 @@ def unwrap_result(result: dict[str, Any]) -> Any:
 def tool_error_text(result: dict[str, Any]) -> str:
     """Extract the error message from a failed CallToolResult."""
     assert result.get("isError") is True, result
-    return result["content"][0]["text"]
+    text = result["content"][0]["text"]
+    assert isinstance(text, str), result
+    return text
 
 
 def sent_body(route: respx.Route) -> Any:
@@ -169,7 +221,7 @@ def assert_authenticated_request(route: respx.Route, token: str = TEST_PAT) -> N
     assert request.headers["X-Privacy-Mode"] == "true"
 
 
-async def list_tool_names(client: httpx.AsyncClient, **kwargs) -> set[str]:
+async def list_tool_names(client: httpx.AsyncClient, **kwargs: Any) -> set[str]:
     """Call tools/list and return the visible tool names."""
     request_id = kwargs.pop("request_id", 1)
     result = rpc_result(
