@@ -53,6 +53,12 @@ jobs:
 
   build-and-push-docker:
     name: Build and Push Docker Image
+    # Chained with needs: rather than an `on: push: tags` trigger. GitHub
+    # suppresses workflow triggers for pushes made with the default
+    # GITHUB_TOKEN (to prevent recursive workflow runs), and tag-version pushes
+    # the vX.Y.Z tag with that token, so a separate tag-triggered workflow
+    # would silently never run. Building in the same run as the tag creation
+    # sidesteps that, with no PAT or GitHub App token to manage.
     needs: [ tag-version ]
     # Release tags publish release images; branches publish namespaced test images.
     # Every main push refreshes `main` and `main-<sha>-<seq>`.
