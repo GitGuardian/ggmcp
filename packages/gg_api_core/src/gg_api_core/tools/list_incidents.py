@@ -479,7 +479,7 @@ class ListIncidentsError(BaseModel):
 
 
 async def list_incidents(
-    params: ListIncidentsParams,
+    params: ListIncidentsParams = ListIncidentsParams(),
 ) -> ListIncidentsResult | ListIncidentsError:
     """
     List secret incidents with enhanced filtering using the MCP-optimized endpoint.

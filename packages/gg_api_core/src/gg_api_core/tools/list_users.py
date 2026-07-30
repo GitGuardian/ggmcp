@@ -50,7 +50,7 @@ class ListUsersResult(BaseModel):
     )
 
 
-async def list_users(params: ListUsersParams) -> ListUsersResult:
+async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersResult:
     """
     List members/users in the GitGuardian workspace.
 

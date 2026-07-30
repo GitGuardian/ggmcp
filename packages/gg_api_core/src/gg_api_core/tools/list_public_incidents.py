@@ -269,7 +269,7 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
 
 
 async def list_public_incidents(
-    params: ListPublicIncidentsParams,
+    params: ListPublicIncidentsParams = ListPublicIncidentsParams(),
 ) -> ListPublicIncidentsResult | ListPublicIncidentsError:
     """List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
 
