@@ -310,6 +310,22 @@ class TestListRepoOccurrences:
         assert result.applied_filters is not None
         assert result.applied_filters.get("mine") is True
 
+    @pytest.mark.asyncio
+    async def test_unknown_validity_is_passed_through_unchanged(self, mock_gitguardian_client):
+        """
+        GIVEN: validity=['unknown'] (the canonical value)
+        WHEN: Listing occurrences
+        THEN: 'unknown' reaches /occurrences/secrets unchanged (it is the endpoint's own
+              spelling, unlike /incidents-for-mcp which needs 'not_checked')
+        """
+        mock_response = {"data": [], "cursor": None, "has_more": False}
+        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+
+        await list_repo_occurrences(ListRepoOccurrencesParams(validity=["unknown"]))
+
+        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
+        assert call_kwargs["validity"] == ["unknown"]
+
 
 class TestListRepoOccurrencesFilters:
     """Tests for ListRepoOccurrencesFilters validation."""

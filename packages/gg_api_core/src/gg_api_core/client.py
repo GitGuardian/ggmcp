@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from enum import Enum
 from importlib.metadata import PackageNotFoundError, version
-from typing import Any, Dict, Optional, TypedDict, cast
+from typing import Any, Dict, Literal, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
@@ -61,19 +61,27 @@ class IncidentStatus(str, Enum):
 
 
 class IncidentValidity(str, Enum):
-    """Enum for incident validity values.
-
-    Note: Different API endpoints accept different validity values:
-    - /incidents-for-mcp: accepts NOT_CHECKED but not UNKNOWN
-    - /occurrences/secrets: accepts UNKNOWN but not NOT_CHECKED
-    """
+    """Enum for incident validity values, using the public API vocabulary."""
 
     VALID = "valid"
     INVALID = "invalid"
     FAILED_TO_CHECK = "failed_to_check"
     NO_CHECKER = "no_checker"
-    NOT_CHECKED = "not_checked"  # Valid for /incidents-for-mcp
-    UNKNOWN = "unknown"  # Valid for /occurrences/secrets
+    UNKNOWN = "unknown"
+
+
+# The single validity vocabulary the tools expose, spelled as the public API does.
+IncidentValidityFilter = Literal["valid", "invalid", "failed_to_check", "no_checker", "unknown"]
+
+# /incidents-for-mcp spells UNKNOWN "not_checked" and rejects "unknown" with a 400,
+# so canonical values are translated before they reach that endpoint.
+_MCP_VALIDITY_DIALECT = {IncidentValidity.UNKNOWN.value: "not_checked"}
+
+
+def _to_mcp_validity(validity: str | list[str]) -> list[str]:
+    """Translate canonical validity values into the /incidents-for-mcp dialect."""
+    values = validity if isinstance(validity, list) else [validity]
+    return [_MCP_VALIDITY_DIALECT.get(value, value) for value in values]
 
 
 class TagNames(str, Enum):
@@ -1755,7 +1763,7 @@ class GitGuardianClient:
         ordering: str | None = None,
         get_all: bool = False,
         severity: list[IncidentSeverity] | None = None,
-        validity: list[IncidentValidity] | None = None,
+        validity: Sequence[IncidentValidity | str] | None = None,
         status: list[IncidentStatus] | None = None,
         with_sources: bool | None = None,
         member_assignee_id: int | None = None,
@@ -2473,7 +2481,7 @@ class GitGuardianClient:
             severity: Filter by severity level(s) - uses numeric values (10=critical, 20=high, etc.)
             score__ge: Filter incidents with score >= this value (0-100)
             score__le: Filter incidents with score <= this value (0-100)
-            validity: Filter by validity status
+            validity: Filter by validity status, using the canonical values (see IncidentValidityFilter)
             detector_group_name: Filter by detector group name(s)
             detector_type: Filter by detector type/nature
             detector_category: Filter by detector category
@@ -2544,7 +2552,7 @@ class GitGuardianClient:
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(validity)
+            params["validity__in"] = format_param(_to_mcp_validity(validity))
 
         # Secret type filters
         if detector_group_name:
@@ -2742,7 +2750,7 @@ class GitGuardianClient:
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(validity)
+            params["validity__in"] = format_param(_to_mcp_validity(validity))
         if detector_group_name:
             params["detector_group_name__in"] = format_param(detector_group_name)
         if detector_type:

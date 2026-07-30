@@ -7,7 +7,7 @@ from gg_api_core.client import (
     DEFAULT_PAGINATION_MAX_BYTES,
     IncidentSeverity,
     IncidentStatus,
-    IncidentValidity,
+    IncidentValidityFilter,
     TagNames,
 )
 from gg_api_core.utils import get_client
@@ -32,12 +32,12 @@ DEFAULT_STATUSES = [
     IncidentStatus.ASSIGNED,
     IncidentStatus.RESOLVED,
 ]  # We exclude "IGNORED" ones
-DEFAULT_VALIDITIES = [
-    IncidentValidity.VALID,
-    IncidentValidity.FAILED_TO_CHECK,
-    IncidentValidity.NO_CHECKER,
-    IncidentValidity.UNKNOWN,
-]  # We exclude "INVALID" ones. Note: /occurrences/secrets uses "unknown" not "not_checked"
+DEFAULT_VALIDITIES: list[IncidentValidityFilter] = [
+    "valid",
+    "failed_to_check",
+    "no_checker",
+    "unknown",
+]  # We exclude "INVALID" ones
 
 
 class ListRepoOccurrencesFilters(BaseModel):
@@ -64,9 +64,9 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=DEFAULT_SEVERITIES,
         description="Filter by severity (list of severity names)",
     )
-    validity: list[IncidentValidity] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity (list of validity names)",
+        description="Filter by validity. Values: valid, invalid, failed_to_check, no_checker, unknown",
     )
     mine: bool = Field(
         default=False,

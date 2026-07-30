@@ -3,12 +3,14 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
+from gg_api_core.client import IncidentValidityFilter
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
     DEFAULT_VALIDITIES,
     SEVERITY_NAME_TO_VALUE,
+    SeverityFilter,
 )
 from gg_api_core.utils import get_client
 
@@ -42,7 +44,7 @@ class CountIncidentsParams(BaseModel):
     )
 
     # Severity, score, and validity filters
-    severity: list[str | int] | None = Field(
+    severity: list[SeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
     )
@@ -58,9 +60,9 @@ class CountIncidentsParams(BaseModel):
         ge=0,
         le=100,
     )
-    validity: list[str] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
+        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
     )
 
     # Secret type filters
@@ -100,7 +102,7 @@ class CountIncidentsParams(BaseModel):
     )
     source_type: list[str] | None = Field(
         default=None,
-        description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')",
+        description="Filter by source type, using the internal source type names (e.g., 'gh_repository', 'gl_project', 'bb_repository'). Public API aliases such as 'github' or 'gitlab' are rejected by this endpoint.",
     )
     source_criticality: list[str] | None = Field(
         default=None,
@@ -414,18 +416,10 @@ async def count_incidents(
         if params.status:
             api_params["status"] = params.status
         if params.severity:
-            severity_values: list[int | str] = []
-            for sev in params.severity:
-                if isinstance(sev, int):
-                    severity_values.append(sev)
-                elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-                    severity_values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-                else:
-                    try:
-                        severity_values.append(int(str(sev)))
-                    except ValueError:
-                        severity_values.append(str(sev))
-            api_params["severity"] = severity_values
+            # Severity names are validated by the schema, so the lookup always resolves
+            api_params["severity"] = [
+                SEVERITY_NAME_TO_VALUE[sev] if isinstance(sev, str) else sev for sev in params.severity
+            ]
         if params.score_min is not None:
             api_params["score__ge"] = params.score_min
         if params.score_max is not None:

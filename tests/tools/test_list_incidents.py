@@ -5,6 +5,7 @@ Tests for the list_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
@@ -14,6 +15,7 @@ from gg_api_core.tools.list_incidents import (
     SeverityValues,
     list_incidents,
 )
+from pydantic import ValidationError
 
 
 class TestListIncidentsParamsDefaults:
@@ -53,9 +55,7 @@ class TestListIncidentsParamsDefaults:
         """
         GIVEN: No validity filter is specified
         WHEN: Creating ListIncidentsParams
-        THEN: Default validity excludes 'invalid'
-
-        Note: /incidents-for-mcp endpoint uses 'not_checked' not 'unknown'
+        THEN: Default validity excludes 'invalid' and uses the canonical vocabulary
         """
         params = ListIncidentsParams()
 
@@ -63,7 +63,7 @@ class TestListIncidentsParamsDefaults:
         assert "valid" in params.validity
         assert "failed_to_check" in params.validity
         assert "no_checker" in params.validity
-        assert "not_checked" in params.validity
+        assert "unknown" in params.validity
         assert "invalid" not in params.validity
 
     def test_default_exclude_tags_filters_noise(self):
@@ -418,6 +418,111 @@ class TestListIncidentsParamsCoercion:
         assert params.presence == ["present"]
         assert params.source_type == ["github"]
         assert params.source_criticality == ["high"]
+
+
+class TestListIncidentsValidityTranslation:
+    """Tests that canonical validity values are translated for /incidents-for-mcp.
+
+    The endpoint rejects the canonical 'unknown' with a 400 and expects 'not_checked'.
+    """
+
+    @staticmethod
+    def _client_with_mocked_transport() -> GitGuardianClient:
+        client = GitGuardianClient(personal_access_token="test_token")
+        client._request_get = AsyncMock(return_value={"results": [], "next": None, "previous": None})
+        return client
+
+    @pytest.mark.asyncio
+    async def test_unknown_is_sent_as_not_checked(self):
+        """
+        GIVEN: validity=['unknown'] (the canonical value)
+        WHEN: listing incidents
+        THEN: the endpoint receives 'not_checked', never the 400-bound 'unknown'
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams(validity=["unknown"]))
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "not_checked"
+
+    @pytest.mark.asyncio
+    async def test_default_validities_are_translated(self):
+        """
+        GIVEN: No explicit validity filter (DEFAULT_VALIDITIES includes 'unknown')
+        WHEN: listing incidents
+        THEN: the defaults go through the same translation
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams())
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "valid,failed_to_check,no_checker,not_checked"
+
+    @pytest.mark.asyncio
+    async def test_other_validities_are_untouched(self):
+        """
+        GIVEN: validity values that both dialects spell the same way
+        WHEN: listing incidents
+        THEN: they are forwarded unchanged
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams(validity=["valid", "invalid"]))
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "valid,invalid"
+
+
+class TestListIncidentsSeverityMapping:
+    """Tests that severity names are mapped to the numeric values the endpoint uses."""
+
+    @pytest.mark.asyncio
+    async def test_severity_names_are_mapped_to_numbers(self):
+        """
+        GIVEN: severity=['critical', 'unknown']
+        WHEN: listing incidents
+        THEN: the client receives the numeric equivalents
+        """
+        mock_client = AsyncMock()
+        mock_client.list_incidents_for_mcp.return_value = {"results": [], "next": None, "previous": None}
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+            await list_incidents(ListIncidentsParams(severity=["critical", "unknown"]))
+
+        call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
+        assert call_kwargs["severity"] == [SeverityValues.CRITICAL, SeverityValues.UNKNOWN]
+
+    @pytest.mark.asyncio
+    async def test_numeric_severity_still_works(self):
+        """
+        GIVEN: severity=[10] (the raw numeric value existing callers send)
+        WHEN: listing incidents
+        THEN: it is forwarded unchanged
+        """
+        mock_client = AsyncMock()
+        mock_client.list_incidents_for_mcp.return_value = {"results": [], "next": None, "previous": None}
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+            await list_incidents(ListIncidentsParams(severity=[10]))
+
+        call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
+        assert call_kwargs["severity"] == [10]
+
+    def test_unknown_severity_name_is_rejected(self):
+        """
+        GIVEN: A severity name outside the vocabulary
+        WHEN: Building the params
+        THEN: Validation fails instead of forwarding the value to the API
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            ListIncidentsParams(severity=["catastrophic"])
+
+        assert "critical" in str(exc_info.value)
 
 
 class TestListIncidentsMine:
