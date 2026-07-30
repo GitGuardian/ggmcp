@@ -289,13 +289,12 @@ secrets before allowing commits and pushes.
 
 ## Releasing
 
-This project uses semantic versioning. To release, bump `[project] version`
-in `pyproject.toml` (and update `CHANGELOG.md`) in your PR. When it merges to
-`main`, the `tag-version` job in `.github/workflows/release.yml` tags
-`vX.Y.Z` and publishes the Docker image (`X.Y.Z`, `X.Y`, `latest`, plus `main`
-and `main-<sha>-<seq>`). Merges that don't change the version refresh only
-`main` and `main-<sha>-<seq>`.
-See `PUBLISHING.md` for manual fallbacks.
+Releases are automated with release-please and driven by conventional
+commits. Never bump versions by hand: release-please maintains a rolling
+`chore(main): release X.Y.Z` PR, and merging that PR tags `vX.Y.Z` and
+publishes the Docker image (`X.Y.Z`, `X.Y`, `latest`). Ordinary merges only
+refresh the `main` and `main-<sha>-<seq>` image tags. See `PUBLISHING.md`
+for details and the manual escape hatch.
 
 ## Python 3.13 Features
 

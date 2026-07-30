@@ -27,6 +27,14 @@ jobs:
         with:
           enable-cache: true
 
+      # Guards PRs that change dependencies without relocking. Also detects, but
+      # cannot prevent, a missed uv.lock bump from the extra-file in
+      # release-please-config.json: that updater fails open if its jsonpath stops
+      # matching, and CI does not run on the release PR, so a stale lock surfaces
+      # here on the merge commit. Recovery is a follow-up `uv lock` commit.
+      - name: Verify lockfile is current
+        run: uv lock --check
+
       - name: Install dependencies
         run: uv sync --frozen --all-groups
 

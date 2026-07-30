@@ -5,16 +5,18 @@ description: How releases and Docker image tags work for ghcr.io/gitguardian/mcp
 
 # Releases and Docker image tags
 
-Releases are **version-driven, not commit-message-driven**: a release happens
-when a merge to `main` changes `[project] version` in `pyproject.toml`
-(`X.Y.Z` semver enforced). The `tag-version` job in
-`.github/workflows/release.yml` then creates the `vX.Y.Z` git tag, and the
-same workflow run builds the image and creates the GitHub release. CI never
-pushes commits to `main`.
+Releases are **release-please-driven**: a `release-please` job in
+`.github/workflows/release.yml` maintains a rolling `chore(main): release
+X.Y.Z` PR from conventional commits (version bumps in `pyproject.toml`,
+`server.json`, and `uv.lock`, plus `CHANGELOG.md` — config in
+`release-please-config.json` / `.release-please-manifest.json`). **Merging
+that PR is the release**: the job creates the `vX.Y.Z` tag and a draft GitHub
+release, builds and signs the image, then publishes the release only after the
+image succeeds. CI never pushes commits to `main` outside the release PR.
 
 ## Tag matrix and semantics
 
-`PUBLISHING.md` ("Docker Image Tag Matrix") is canonical for what each event
+`PUBLISHING.md` ("Docker image tag matrix") is canonical for what each event
 pushes, what each tag means, and the tag format contract that fixes the shape of
 `main-<sha>-<seq>`. Read it before changing how any tag is built. Short answer to
 "which tag do I deploy": `X.Y.Z` for prod, `main-<sha>-<seq>` for envs tracking
@@ -22,12 +24,19 @@ tip-of-main, never `main` or `latest`.
 
 ## Gotchas
 
-- To release: bump the version (and `CHANGELOG.md`) in the PR — `cz bump
-  --files-only` does both without committing or tagging. Merging triggers
-  everything.
+- To release: merge the open release-please PR. Never run `cz bump` or edit
+  version numbers by hand — only release-please writes versions
+  (`.release-please-manifest.json` + git tags are canonical).
 - Tags created in CI with `GITHUB_TOKEN` do not trigger workflows: the Docker
-  build must stay in the same workflow run as `tag-version` (a `needs:`
-  dependency), never behind an `on: push: tags` trigger.
-- The `create-github-release` job must stay gated on a release tag existing:
-  no-bump main pushes still build the `main` images and would otherwise try to
-  create a release with an empty tag name.
+  build must stay in the same workflow run as the `release-please` job (a
+  `needs:` dependency), never behind an `on: push: tags` trigger.
+- CI checks do not run on the release PR itself (it's created with
+  `GITHUB_TOKEN`) — its diff is only version/changelog files.
+- release-please creates normal releases as drafts; the
+  `create-github-release` job publishes them only after the image succeeds. It
+  also creates releases for human-pushed escape-hatch tags. It must stay gated
+  on a release tag existing: no-release main pushes still build the `main`
+  images and would otherwise try to publish with an empty tag name.
+- Never tag images with versions that outrank semver releases (e.g. a
+  CalVer-looking `2026.6.0`): downstream semver tracking would consider every
+  real `0.x.y` release "older" and stop proposing updates.

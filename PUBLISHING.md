@@ -1,66 +1,73 @@
 # Publishing Guide
 
-This document explains how to publish `ggmcp` to PyPI and the MCP Registry using GitHub Actions.
+How `ggmcp` is versioned and released. Everything runs through
+`.github/workflows/release.yml`; releases are automated with
+[release-please](https://github.com/googleapis/release-please).
 
-## Overview
+## How a release works
 
-Publishing is automated via GitHub Actions and triggered by creating a version tag. The workflow:
+Releases are driven by [Conventional Commits](https://www.conventionalcommits.org/)
+(enforced by the commitizen pre-commit hook):
 
-1. **Builds** the Python package
-2. **Publishes to PyPI** using trusted publishing (no tokens needed!)
-3. **Registers with MCP Registry** so users can discover the server
-4. **Creates a GitHub Release** with release notes
+1. Merge PRs to `main` as usual. Every merge refreshes the rolling `main`
+   Docker image.
+2. release-please maintains a single open PR — `chore(main): release X.Y.Z` —
+   that accumulates the version bump and changelog for everything merged
+   since the last release. `feat:` commits bump minor, `fix:` bumps patch,
+   `feat!:`/`BREAKING CHANGE:` bumps minor while we are pre-1.0
+   (`bump-minor-pre-major`).
+3. **Merging the release PR is the release.** The same workflow run then:
+   - creates the `vX.Y.Z` git tag and a draft GitHub release (notes from the
+     changelog),
+   - builds, pushes, and cosign-signs the Docker image tagged `X.Y.Z`,
+     `X.Y`, `latest`, and `main`,
+   - publishes the GitHub release only after the image build succeeds.
 
-## One-Time Setup
+Merge the release PR whenever you decide to ship — releases are batched, not
+per-merge. Until then it just sits there, updating itself.
 
-### 1. Configure PyPI Trusted Publishing
+### Single source of truth for the version
 
-PyPI trusted publishing allows GitHub Actions to publish without API tokens.
+Only release-please writes version numbers. The canonical state is
+`.release-please-manifest.json` plus the git tags; the release PR propagates
+it to:
 
-1. **Go to PyPI**:
-   - Visit https://pypi.org/manage/account/publishing/
-   - Or create the project first at https://pypi.org/manage/projects/
+- `pyproject.toml` (`[project] version`) — what the code reads at runtime via
+  `importlib.metadata`
+- `src/ggmcp/__init__.py` (updated by the Python release strategy)
+- `server.json` (`$.version` and `$.packages[0].version`, via `extra-files`
+  in `release-please-config.json`)
+- `uv.lock` (the root `ggmcp` package entry, via `extra-files`)
+- `CHANGELOG.md`
 
-2. **Add Publisher**:
-   - Project name: `ggmcp`
-   - Owner: `GitGuardian`
-   - Repository: `ggmcp`
-   - Workflow name: `publish.yml`
-   - Environment name: `pypi`
+Never edit a version number by hand and never run `cz bump` — that desyncs
+the manifest and corrupts the next release PR.
 
-3. **Click "Add"**
+### Notes on the release PR
 
-That's it! No tokens to manage.
+- The release PR is created with `GITHUB_TOKEN`, so CI checks do **not** run
+  on it (a GitHub limitation). Its diff is only version/changelog files.
+- If a release PR looks wrong: to force a specific version, merge an empty
+  commit with a `Release-As: X.Y.Z` footer
+  (`git commit --allow-empty -m "chore: release" -m "Release-As: 0.8.0"`);
+  otherwise close the PR and let the next push to `main` recreate it.
+- If the image build fails after the tag is created, rerun that release's workflow
+  run: it resolves the tag from the release commit and retries the image build
+  before publishing the draft. Only the newest release can be rebuilt this way.
+  Rerunning an older one warns, skips the build, and leaves the run green, so check
+  for a `::warning::` annotation before assuming a rerun shipped anything.
 
-### 2. Create PyPI Environment (Optional but Recommended)
-
-For extra protection, create a deployment environment:
-
-1. Go to: https://github.com/GitGuardian/ggmcp/settings/environments
-2. Click "New environment"
-3. Name it: `pypi`
-4. Add protection rules:
-   - ✅ Required reviewers (optional)
-   - ✅ Wait timer (optional)
-5. Save
-
-### 3. Verify GitHub Permissions
-
-The workflow needs these permissions (already configured in the workflow):
-- `id-token: write` - For PyPI trusted publishing
-- `contents: write` - For creating GitHub releases
-
-## Docker Image Tag Matrix
+## Docker image tag matrix
 
 What `release.yml` pushes to `ghcr.io/gitguardian/mcp-server`, per event:
 
 | Event | Image tags pushed | Git tag / GitHub release |
 |---|---|---|
-| Merge to `main` **with** `pyproject.toml` version bump | `X.Y.Z`, `X.Y`, `latest`, `main`, `main-<sha>-<seq>` | `vX.Y.Z` + release |
-| Merge to `main` **without** version bump | `main`, `main-<sha>-<seq>` | — |
-| `workflow_dispatch` from `main` | as the two merge rows above (it re-runs the version check) | as above |
+| Merge the release-please PR | `X.Y.Z`, `X.Y`, `latest`, `main`, `main-<sha>-<seq>` | `vX.Y.Z` + release |
+| Any other merge to `main` | `main`, `main-<sha>-<seq>` | — |
+| `workflow_dispatch` from `main` | `main`, `main-<sha>-<seq>` (also refreshes the release PR) | — |
 | `workflow_dispatch` from a non-main branch | `branch-<branch>`, `branch-<branch>-<sha>` | — |
-| Human-pushed `v*.*.*` git tag | `X.Y.Z`, `X.Y`, `latest` | release |
+| Human-pushed `v*.*.*` git tag (escape hatch) | `X.Y.Z`, `X.Y`, `latest` | release |
 
 The nightly rebuild republishes the release tags.
 
@@ -83,188 +90,47 @@ Downstream deployment automation tracks `main-<sha>-<seq>` tags with
 `^main-[0-9a-f]{8}-(?<patch>\d+)$` and deploys the highest `<seq>`. The tag
 shape is a contract: changing how it is built silently breaks that tracking.
 
-## Publishing a New Version
+Never tag images with versions that outrank semver releases (e.g. a
+CalVer-looking `2026.6.0`): downstream semver tracking would consider every
+real `0.x.y` release "older" and stop proposing updates.
 
-### Method 1: Bump the version in pyproject.toml (Default)
+## Escape hatch: manual release
 
-A release is triggered by changing `[project] version` in `pyproject.toml`
-and merging to `main`. The `tag-version` job in `release.yml` then:
-
-- reads the version from `pyproject.toml` and checks it is `X.Y.Z` semver
-- if the tag `vX.Y.Z` does not exist yet, creates and pushes it
-- the same workflow run builds and pushes the Docker image tagged
-  `X.Y.Z`, `X.Y`, `latest`, `main` and `main-<sha>-<seq>`, and creates the
-  GitHub release
-- merges that don't touch the version only refresh `main` and
-  `main-<sha>-<seq>` (never `latest`, no git tag, no release)
-
-So: bump the version (and ideally `CHANGELOG.md`) in your PR — you can use
-`cz bump --files-only` to do both — merge, and watch the Release workflow.
-
-### Method 2: Using commitizen manually
+If release-please is broken and you must ship now:
 
 ```bash
-# Bump version and create tag
-cz bump
-
-# Push with tags
-git push --follow-tags
+# On main, with pyproject.toml/server.json versions already correct:
+git tag v0.7.1
+git push origin v0.7.1
 ```
 
-This will:
-- Update version in `pyproject.toml`
-- Update `CHANGELOG.md`
-- Create a git tag (`v0.5.1`, etc.)
-- Trigger the publish workflow
+The tag push triggers `release.yml` directly: image build + signing +
+GitHub release. It does not move the rolling `main` image tag. Afterwards,
+update `.release-please-manifest.json` to the version you shipped so
+release-please stays in sync.
 
-### Method 3: Manual Tag
+Tag pushes bypass the newest-release guard, so only ever push a tag newer
+than the current release. Pushing or rerunning an older one repoints the
+mutable `latest` / `X.Y` image tags and the "latest release" marker at that
+old version.
 
-```bash
-# Update version in pyproject.toml manually
-# Then create and push tag
-git tag v0.5.1
-git push origin v0.5.1
-```
+## Test images from a branch
 
-### Method 4: Manual Workflow Trigger
+Go to the [Release workflow](https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml),
+click "Run workflow", and pick a non-main branch: it builds and pushes an
+image tagged `branch-<branch>` and `branch-<branch>-<short-sha>` (no semver
+tags, no `latest`, no git tag, no release).
 
-For testing or special cases:
+## PyPI and MCP Registry
 
-1. Go to: https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml
-2. Click "Run workflow" and pick a ref:
-   - **a branch other than `main`**: builds and pushes a test image tagged
-     `branch-<branch>` and `branch-<branch>-<short-sha>` (no semver tags,
-     no `latest`, no git tag, no GitHub release)
-   - **`main`**: re-runs the release check (tags and publishes only if the
-     `pyproject.toml` version has no `vX.Y.Z` tag yet)
-
-## What Happens During Publishing
-
-### Step 1: Build Package (≈1 min)
-```
-✓ Checkout code
-✓ Set up Python 3.13
-✓ Install uv
-✓ Build package with uv build
-  → Creates dist/gg_mcp-0.5.0.tar.gz
-  → Creates dist/gg_mcp-0.5.0-py3-none-any.whl
-```
-
-### Step 2: Publish to PyPI (≈30 sec)
-```
-✓ Authenticate via OIDC (no token needed!)
-✓ Upload package to PyPI
-  → Available at https://pypi.org/project/ggmcp/
-✓ Users can install: uvx ggmcp
-```
-
-### Step 3: Register with MCP Registry (≈30 sec)
-```
-✓ Validate server.json
-✓ Install mcp-publisher CLI
-✓ Authenticate with GitHub
-✓ Publish to registry
-  → Registered in modelcontextprotocol/registry
-✓ Discoverable in MCP clients
-```
-
-### Step 4: Create GitHub Release (≈10 sec)
-```
-✓ Create release with tag
-✓ Generate release notes from commits
-✓ Mark as latest release
-  → Visible at https://github.com/GitGuardian/ggmcp/releases
-```
+Not published there today: the `publish-to-pypi` and `publish-to-mcp-registry`
+jobs in `release.yml` are disabled (`if: false`). Enabling them needs
+[trusted publishing](https://pypi.org/manage/account/publishing/) configured for
+this repo first. `server.json` (MCP registry metadata) is version-synced by
+release-please regardless.
 
 ## Monitoring
 
-### View Workflow Runs
-https://github.com/GitGuardian/ggmcp/actions/workflows/publish.yml
-
-### Check PyPI Package
-https://pypi.org/project/ggmcp/
-
-### Check MCP Registry
-https://github.com/modelcontextprotocol/registry
-
-### Check GitHub Releases
-https://github.com/GitGuardian/ggmcp/releases
-
-## Troubleshooting
-
-### PyPI Publication Fails
-
-**Error: "Invalid or non-existent authentication information"**
-- Check PyPI trusted publishing configuration
-- Verify owner is `GitGuardian`, repository is `ggmcp`
-- Ensure workflow name is `publish.yml`
-- Ensure environment name is `pypi`
-
-**Error: "File already exists"**
-- Version already published to PyPI
-- Bump version in `pyproject.toml`
-- Create new tag
-
-### MCP Registry Publication Fails
-
-**Error: "Unauthorized"**
-- Check GitHub token permissions
-- Verify repository has access to modelcontextprotocol org
-- Try manual authentication first
-
-**Error: "Package not found on PyPI"**
-- Ensure PyPI publication succeeded first
-- Wait a few minutes for PyPI to propagate
-- Verify package name matches in `server.json`
-
-### Workflow Doesn't Trigger
-
-**Tag pushed but workflow not running**
-- Ensure tag matches pattern `v*` (e.g., `v0.5.0`)
-- Check `.github/workflows/publish.yml` exists in main branch
-- Verify GitHub Actions are enabled for the repository
-
-## Version Numbering
-
-We follow [Semantic Versioning](https://semver.org/):
-
-- **MAJOR** (v1.0.0): Breaking changes
-- **MINOR** (v0.5.0): New features, backward compatible
-- **PATCH** (v0.5.1): Bug fixes, backward compatible
-
-Tags must start with `v`: `v0.5.0`, `v1.0.0`, etc.
-
-## Manual Publishing (Not Recommended)
-
-If you need to publish manually (e.g., for testing):
-
-### PyPI
-```bash
-# Install dependencies
-uv add --dev twine
-
-# Build and publish
-uv build
-uv run twine upload dist/*
-```
-
-### MCP Registry
-```bash
-# Authenticate
-mcp-publisher login github
-
-# Publish
-mcp-publisher publish
-```
-
-## Security Notes
-
-1. **No API tokens in repository**: We use OIDC trusted publishing
-2. **Environment protection**: Add reviewers in GitHub settings for extra safety
-3. **Read-only by default**: Workflow has minimal permissions, escalates only when needed
-4. **Audit trail**: All publications visible in GitHub Actions logs
-
-## Support
-
-Issues with publishing? Open an issue:
-https://github.com/GitGuardian/ggmcp/issues
+- Workflow runs: https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml
+- Releases: https://github.com/GitGuardian/ggmcp/releases
+- Images: https://github.com/GitGuardian/ggmcp/pkgs/container/mcp-server

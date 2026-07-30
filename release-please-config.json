@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "python",
+  "group-pull-request-title-pattern": "chore${scope}: release ${version}",
+  "packages": {
+    ".": {
+      "package-name": "ggmcp",
+      "include-component-in-tag": false,
+      "bump-minor-pre-major": true,
+      "draft": true,
+      "force-tag-creation": true,
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "server.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "server.json",
+          "jsonpath": "$.packages[0].version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value == 'ggmcp')].version"
+        }
+      ]
+    }
+  }
+}
