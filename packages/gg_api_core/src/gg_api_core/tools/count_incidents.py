@@ -367,7 +367,7 @@ def _build_filter_info(params: CountIncidentsParams) -> dict[str, Any]:
 
 
 async def count_incidents(
-    params: CountIncidentsParams,
+    params: CountIncidentsParams = CountIncidentsParams(),
 ) -> CountIncidentsResult | CountIncidentsError:
     """
     Count secret incidents matching the given filters.

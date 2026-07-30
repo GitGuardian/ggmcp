@@ -182,7 +182,7 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 
 
 async def list_repo_occurrences(
-    params: ListRepoOccurrencesParams,
+    params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.

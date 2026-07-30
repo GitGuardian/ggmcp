@@ -92,7 +92,7 @@ class RemediateSecretIncidentsError(BaseModel):
 
 
 async def remediate_secret_incidents(
-    params: RemediateSecretIncidentsParams,
+    params: RemediateSecretIncidentsParams = RemediateSecretIncidentsParams(),
 ) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
     """
     Find and remediate secret incidents in the current repository.

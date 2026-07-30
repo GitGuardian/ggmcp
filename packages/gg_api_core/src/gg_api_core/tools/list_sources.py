@@ -119,7 +119,7 @@ class ListSourcesResult(BaseModel):
     )
 
 
-async def list_sources(params: ListSourcesParams) -> ListSourcesResult:
+async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListSourcesResult:
     """
     List sources known by GitGuardian.
 

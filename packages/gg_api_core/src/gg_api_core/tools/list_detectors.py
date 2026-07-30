@@ -46,7 +46,7 @@ class ListDetectorsResult(BaseModel):
     )
 
 
-async def list_detectors(params: ListDetectorsParams) -> ListDetectorsResult:
+async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) -> ListDetectorsResult:
     """
     List secret detectors from the GitGuardian detection engine.
 

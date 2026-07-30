@@ -54,7 +54,7 @@ class ListHoneytokensResult(BaseModel):
     )
 
 
-async def list_honeytokens(params: ListHoneytokensParams) -> ListHoneytokensResult:
+async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams()) -> ListHoneytokensResult:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
