@@ -7,8 +7,10 @@ GitGuardian API).
 """
 
 import asyncio
+from http import HTTPStatus
 
 import httpx
+import pytest
 
 from tests.e2e.harness import (
     EXPECTED_SCOPES,
@@ -153,14 +155,7 @@ class TestScopeBasedToolVisibility:
 
         names = await list_tool_names(mcp_client)
 
-        assert "scan_secrets" in names
-        assert "list_detectors" in names
-        # get_authenticated_user_info has no required_scopes, so it always shows
-        assert "get_authenticated_user_info" in names
-        assert "list_incidents" not in names
-        assert "manage_private_incident" not in names
-        assert "list_sources" not in names
-        assert "get_current_token_info" not in names
+        assert names == EXPECTED_SCAN_ONLY_TOOL_CATALOG
 
     async def test_incidents_read_token_gets_read_but_not_write_tools(self, mcp_client, mock_token_scopes):
         """
@@ -376,25 +371,25 @@ class TestAuthenticatedUserInfo:
 
 
 class TestExpiredTokenOnToolsList:
-    async def test_rejected_token_on_scope_fetch_surfaces_as_json_rpc_error(self, mcp_client, gg_api):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: scope-fetch failures do not reach the downstream reauthentication middleware",
+    )
+    async def test_rejected_token_on_scope_fetch_triggers_reauthentication(self, mcp_client, gg_api):
         """
         GIVEN a token the GitGuardian API rejects with 401
         WHEN tools/list triggers the scope fetch
-        THEN the request fails as a JSON-RPC error mentioning the downstream 401
+        THEN the response asks the MCP client to authenticate again
         """
-        gg_api.get("/api_tokens/self").respond(401, json={"detail": "Invalid API key."})
+        gg_api.get("/api_tokens/self").respond(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            json={"detail": "Invalid API key."},
+        )
 
         response = await rpc(mcp_client, "tools/list")
 
-        # TODO(SI-3891): the scope-filtering middleware raises outside the
-        # DownstreamUnauthorized middleware, so the response stays HTTP 200 and
-        # carries no WWW-Authenticate header; spec-abiding clients will not
-        # re-run the OAuth flow on an expired token discovered here.
-        assert response.status_code == 200
-        assert "www-authenticate" not in response.headers
-        body = response.json()
-        assert "error" in body
-        assert "401" in body["error"]["message"]
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "www-authenticate" in response.headers
 
 
 async def test_health_endpoint_requires_no_auth(mcp_client, gg_api):

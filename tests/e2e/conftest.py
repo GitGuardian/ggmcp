@@ -6,8 +6,9 @@ StreamableHTTP transport in stateless JSON mode) and drives it with raw
 JSON-RPC 2.0 requests over an in-process httpx client.
 
 Only the outbound GitGuardian API is faked, with respx (which patches httpx's
-real AsyncHTTPTransport but not the ASGITransport used to reach the app). So
-each test exercises the full production path:
+real AsyncHTTPTransport but not the ASGITransport used to reach the app).
+pytest-socket blocks any other real network access. So each test exercises the
+full production path:
 
     JSON-RPC over HTTP -> auth middleware -> FastMCP -> scope filtering
     -> tool -> GitGuardianClient -> (respx-mocked) GitGuardian API
@@ -25,6 +26,11 @@ import respx
 from gg_mcp_server.server import build_http_app, build_server
 
 from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, token_info
+
+
+@pytest.fixture(autouse=True)
+def block_real_network(socket_disabled) -> None:
+    """Prevent the remote e2e suite from opening real network sockets."""
 
 
 @pytest.fixture

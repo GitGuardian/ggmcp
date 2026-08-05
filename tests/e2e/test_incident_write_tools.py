@@ -14,18 +14,30 @@ class TestManagePrivateIncident:
     @pytest.mark.parametrize(
         ("arguments", "expected_path", "expected_body"),
         [
-            (
+            pytest.param(
                 {"incident_id": 42, "action": "resolve", "secret_revoked": True},
                 "/incidents/secrets/42/resolve",
                 {"secret_revoked": True},
+                id="resolve-sends-secret-revoked",
             ),
-            (
+            pytest.param(
                 {"incident_id": 42, "action": "ignore", "ignore_reason": "low_risk"},
                 "/incidents/secrets/42/ignore",
                 {"ignore_reason": "low_risk"},
+                id="ignore-sends-ignore-reason",
             ),
-            ({"incident_id": 42, "action": "reopen"}, "/incidents/secrets/42/reopen", None),
-            ({"incident_id": 42, "action": "unassign"}, "/incidents/secrets/42/unassign", None),
+            pytest.param(
+                {"incident_id": 42, "action": "reopen"},
+                "/incidents/secrets/42/reopen",
+                None,
+                id="reopen-sends-no-body",
+            ),
+            pytest.param(
+                {"incident_id": 42, "action": "unassign"},
+                "/incidents/secrets/42/unassign",
+                None,
+                id="unassign-sends-no-body",
+            ),
         ],
     )
     async def test_each_action_hits_its_endpoint_with_the_exact_body(

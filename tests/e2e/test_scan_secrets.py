@@ -4,6 +4,8 @@ Pins the /multiscan wire contract (documents pass through verbatim, results
 come back untouched) and the input-validation and crash behavior around it.
 """
 
+import pytest
+
 from tests.e2e.harness import assert_authenticated_request, call_tool, sent_body, tool_error_text, tool_output
 
 SCAN_RESULT = {
@@ -41,23 +43,24 @@ class TestScanSecrets:
         assert sent_body(route) == documents
         assert tool_output(result) == {"scan_results": [SCAN_RESULT, {"policy_break_count": 0}]}
 
-    async def test_document_without_filename_crashes_before_reaching_the_api(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: request logging crashes when a scan document has no filename",
+    )
+    async def test_document_without_filename_is_scanned(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a document dict carrying only the document key
         WHEN scan_secrets is called
-        THEN the call fails with the request-logging crash and no API call is made
+        THEN the document is sent to the API and its result is returned
         """
         route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT])
+        documents = [{"document": "x = 1\n"}]
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": [{"document": "x = 1\n"}]}})
+        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
 
-        # TODO(SI-3891): known crash, the client's request-body debug logging
-        # does dict(list) on the multiscan payload; single-key documents blow
-        # up before the HTTP request is even sent (Sentry R1).
-        assert "dictionary update sequence" in tool_error_text(result)
-        assert not route.called
+        assert route.called
+        assert sent_body(route) == documents
+        assert tool_output(result) == {"scan_results": [SCAN_RESULT]}
 
     async def test_empty_document_list_is_rejected_without_an_api_call(self, mcp_client, gg_api, mock_token_scopes):
         """

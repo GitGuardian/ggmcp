@@ -2,7 +2,10 @@
 find_current_source_id, remediate_secret_incidents.
 """
 
+from http import HTTPStatus
+
 import httpx
+import pytest
 
 from tests.e2e.harness import (
     TEST_MEMBER_ID,
@@ -10,6 +13,7 @@ from tests.e2e.harness import (
     call_tool,
     sent_params,
     token_info,
+    tool_error_text,
     tool_output,
     unwrap_result,
 )
@@ -46,18 +50,20 @@ class TestListSources:
 
 
 class TestReadCustomTags:
-    async def test_list_tags_returns_the_first_page_verbatim(self, mcp_client, gg_api, mock_token_scopes):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: read_custom_tags requires tag_id even when listing tags",
+    )
+    async def test_list_tags_does_not_require_a_tag_id(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN existing custom tags
-        WHEN read_custom_tags is called with action=list_tags
+        WHEN read_custom_tags is called with action=list_tags and no tag ID
         THEN /custom_tags is queried and the payload is returned untouched
         """
         tags = [{"id": "1", "key": "team", "value": "payments"}]
         route = gg_api.get("/custom_tags").respond(200, json=tags)
 
-        # TODO(SI-3891): tag_id is required by the schema even for list_tags,
-        # where it is ignored.
-        result = await call_tool(mcp_client, "read_custom_tags", {"params": {"action": "list_tags", "tag_id": 0}})
+        result = await call_tool(mcp_client, "read_custom_tags", {"params": {"action": "list_tags"}})
 
         assert route.called
         assert sent_params(route) == {}
@@ -115,21 +121,24 @@ class TestFindCurrentSourceId:
         assert output["source_id"] == 55
         assert output["repository_name"] == "ggmcp"
 
-    async def test_api_failure_is_reported_as_repository_not_found(self, mcp_client, gg_api, mock_token_scopes):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: source lookup swallows API failures and reports the repository as missing",
+    )
+    async def test_api_failure_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the sources endpoint rejecting the token with 403
         WHEN find_current_source_id is called
-        THEN the tool reports the repository as not found
+        THEN the API failure surfaces as a tool error
         """
-        gg_api.get("/sources").respond(403, json={"detail": "Forbidden"})
+        gg_api.get("/sources").respond(
+            status_code=HTTPStatus.FORBIDDEN,
+            json={"detail": "Forbidden"},
+        )
 
         result = await call_tool(mcp_client, "find_current_source_id", {"remote_url": "git@github.com:acme/app.git"})
 
-        # TODO(SI-3891): fail-open; get_source_by_name swallows every exception
-        # and returns None, so an auth failure is indistinguishable from a
-        # repository that is not connected.
-        output = unwrap_result(result)
-        assert output["error"] == "Repository 'app' not found in GitGuardian"
+        assert str(HTTPStatus.FORBIDDEN.value) in tool_error_text(result)
 
 
 class TestRemediateSecretIncidents:
@@ -176,13 +185,17 @@ class TestRemediateSecretIncidents:
         assert [occ["id"] for occ in occurrences] == [1]
         assert output["occurrences_count"] == 1
 
-    async def test_mine_fails_open_when_the_member_lookup_breaks(
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: remediation silently returns every incident when the mine filter fails",
+    )
+    async def test_mine_fails_closed_when_the_member_lookup_breaks(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay
     ):
         """
         GIVEN the token-info endpoint failing during the mine filter
         WHEN remediate_secret_incidents is called with mine=True
-        THEN every occurrence is returned as if mine had not been requested
+        THEN the API failure surfaces instead of returning everyone's incidents
         """
         gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
         # First call: the per-request scope fetch (must succeed for the tool to
@@ -193,8 +206,4 @@ class TestRemediateSecretIncidents:
 
         result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55, "mine": True}})
 
-        # TODO(SI-3891): filter_mine fails open; the caller asked for their own
-        # incidents but silently receives everyone's.
-        output = unwrap_result(result)
-        occurrences = output["sub_tools_results"]["list_repo_occurrences"]["occurrences"]
-        assert [occ["id"] for occ in occurrences] == [1, 2]
+        assert "500" in tool_error_text(result)

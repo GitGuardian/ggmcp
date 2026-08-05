@@ -55,9 +55,6 @@ def mcp_headers(token: str = TEST_PAT) -> dict[str, str]:
     }
 
 
-MCP_HEADERS = mcp_headers()
-
-
 def token_info(scopes: list[str] | None = None, member_id: int | None = TEST_MEMBER_ID) -> dict[str, Any]:
     """Payload of GET /v1/api_tokens/self for a token with the given scopes."""
     return {
@@ -79,7 +76,7 @@ async def rpc(
     **kwargs,
 ) -> httpx.Response:
     """POST a raw JSON-RPC 2.0 request to the /mcp endpoint."""
-    headers = kwargs.pop("headers", MCP_HEADERS)
+    headers = kwargs.pop("headers", mcp_headers())
     payload: dict[str, Any] = {"jsonrpc": "2.0", "id": request_id, "method": method}
     if params is not None:
         payload["params"] = params

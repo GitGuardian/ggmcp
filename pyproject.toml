@@ -54,6 +54,8 @@ dev = [
     "pyyaml~=6.0",
     "pyrefly>=1.1.1",
     "respx~=0.22",
+    "pytest-socket~=0.7",
+    "pytest-voluptuous~=1.2",
 ]
 
 [project.scripts]
@@ -113,6 +115,8 @@ line-ending = "auto"
 docstring-code-format = true
 
 [tool.pytest.ini_options]
+# asyncio uses a local socketpair; TCP and UDP remain blocked by the e2e fixture.
+addopts = ["--allow-unix-socket"]
 asyncio_mode = "auto"
 python_files = ["test_*.py"]
 python_classes = ["Test*"]

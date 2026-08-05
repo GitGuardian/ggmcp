@@ -8,8 +8,10 @@ functional core that drifts either side fails here.
 """
 
 import json
+from http import HTTPStatus
 
 import httpx
+import pytest
 
 from tests.e2e.harness import (
     TEST_MEMBER_ID,
@@ -113,6 +115,24 @@ class TestListIncidents:
         assert member.called
         assert sent_params(incidents)["assignee_member_id"] == str(TEST_MEMBER_ID)
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: mine=True is not rejected clearly for service tokens",
+    )
+    async def test_service_token_without_member_id_rejects_mine_filter(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a service token without a member ID
+        WHEN list_incidents is called with mine=True
+        THEN the tool fails clearly without querying unfiltered incidents
+        """
+        gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
+        incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": []})
+
+        result = await call_tool(mcp_client, "list_incidents", {"params": {"mine": True}})
+
+        assert "mine" in tool_error_text(result).lower()
+        assert not incidents.called
+
     async def test_mine_conflicting_with_assignee_id_short_circuits(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN mine=True together with a different explicit assignee_id
@@ -128,7 +148,9 @@ class TestListIncidents:
         assert output["error"].startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
         assert not incidents.called
 
-    async def test_get_all_accumulates_pages_until_the_api_is_exhausted(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_get_all_accumulates_page_number_pagination_until_exhausted(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
         """
         GIVEN two pages of incidents
         WHEN list_incidents is called with get_all=True
@@ -149,24 +171,24 @@ class TestListIncidents:
         assert [i["id"] for i in output["incidents"]] == [1, 2]
         assert output["has_more"] is False
 
-    async def test_api_rejection_is_returned_as_an_error_payload_not_a_protocol_error(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: list_incidents swallows downstream authorization failures into its result payload",
+    )
+    async def test_api_rejection_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the API rejecting the token with 401
         WHEN list_incidents is called
-        THEN the tool reports a successful MCP result carrying an error message
+        THEN the call fails with a tool error naming the status
         """
-        gg_api.get("/incidents-for-mcp").respond(401, json={"detail": "Invalid API key."})
+        gg_api.get("/incidents-for-mcp").respond(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            json={"detail": "Invalid API key."},
+        )
 
         result = await call_tool(mcp_client, "list_incidents", {"params": {}})
 
-        # TODO(SI-3891): fail-soft behavior; the downstream 401 is swallowed
-        # into the payload instead of triggering the MCP re-auth path.
-        assert result.get("isError") is not True
-        output = unwrap_result(result)
-        assert output["error"].startswith("Failed to list incidents:")
-        assert "401" in output["error"]
+        assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
 
 
 class TestCountIncidents:
@@ -255,11 +277,15 @@ class TestGetIncident:
         WHEN get_incident is called
         THEN the call fails with a tool error naming the status
         """
-        gg_api.get("/incidents/secrets/404404").respond(404, json={"detail": "Not found."})
+        incident_id = 987654
+        gg_api.get(f"/incidents/secrets/{incident_id}").respond(
+            status_code=HTTPStatus.NOT_FOUND,
+            json={"detail": "Not found."},
+        )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 404404}})
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": incident_id}})
 
-        assert "404" in tool_error_text(result)
+        assert str(HTTPStatus.NOT_FOUND.value) in tool_error_text(result)
 
 
 class TestListRepoOccurrences:
@@ -307,19 +333,20 @@ class TestListRepoOccurrences:
 
         assert sent_params(route)["member_assignee_id"] == str(TEST_MEMBER_ID)
 
-    async def test_service_token_without_member_id_silently_drops_the_mine_filter(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: mine=True silently drops the assignee filter for service tokens",
+    )
+    async def test_service_token_without_member_id_rejects_mine_filter(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a service-account token whose member_id is null
         WHEN list_repo_occurrences is called with mine=True
-        THEN the occurrences query is sent unfiltered
+        THEN the tool fails clearly without querying unfiltered occurrences
         """
         gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
-        route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
+        occurrences = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
-        await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
+        result = await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
 
-        # TODO(SI-3891): fail-open; mine=True returns everyone's occurrences
-        # for tokens without a member (tracked as GH #154 behavior family).
-        assert "member_assignee_id" not in sent_params(route)
+        assert "mine" in tool_error_text(result).lower()
+        assert not occurrences.called

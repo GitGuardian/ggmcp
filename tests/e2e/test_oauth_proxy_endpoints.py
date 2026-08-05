@@ -7,6 +7,8 @@ exchange transformation regress, every remote user loses access.
 
 from urllib.parse import parse_qs, urlparse
 
+from pytest_voluptuous import S, Unordered
+
 from tests.e2e.harness import EXPECTED_SCOPES, MCP_BASE_URL, sent_body
 
 
@@ -21,16 +23,19 @@ class TestDiscoveryMetadata:
 
         assert response.status_code == 200
         metadata = response.json()
-        assert metadata["issuer"] == MCP_BASE_URL
-        assert metadata["authorization_endpoint"] == f"{MCP_BASE_URL}/authorize"
-        assert metadata["token_endpoint"] == f"{MCP_BASE_URL}/token"
-        assert metadata["registration_endpoint"] == f"{MCP_BASE_URL}/register"
-        assert metadata["code_challenge_methods_supported"] == ["S256"]
-        assert metadata["response_types_supported"] == ["code"]
-        assert metadata["grant_types_supported"] == ["authorization_code"]
-        assert metadata["token_endpoint_auth_methods_supported"] == ["none", "client_secret_post"]
-        assert len(metadata["scopes_supported"]) == len(set(metadata["scopes_supported"]))
-        assert set(metadata["scopes_supported"]) == set(EXPECTED_SCOPES)
+        assert metadata >= S(
+            {
+                "issuer": MCP_BASE_URL,
+                "authorization_endpoint": f"{MCP_BASE_URL}/authorize",
+                "token_endpoint": f"{MCP_BASE_URL}/token",
+                "registration_endpoint": f"{MCP_BASE_URL}/register",
+                "code_challenge_methods_supported": ["S256"],
+                "response_types_supported": ["code"],
+                "grant_types_supported": ["authorization_code"],
+                "token_endpoint_auth_methods_supported": ["none", "client_secret_post"],
+                "scopes_supported": Unordered(EXPECTED_SCOPES),
+            }
+        )
 
     async def test_protected_resource_metadata_advertises_this_authorization_server(self, mcp_client):
         """
@@ -42,11 +47,14 @@ class TestDiscoveryMetadata:
 
         assert response.status_code == 200
         metadata = response.json()
-        assert metadata["resource"] == f"{MCP_BASE_URL}/mcp"
-        assert metadata["authorization_servers"] == [MCP_BASE_URL]
-        assert metadata["bearer_methods_supported"] == ["header"]
-        assert len(metadata["scopes_supported"]) == len(set(metadata["scopes_supported"]))
-        assert set(metadata["scopes_supported"]) == set(EXPECTED_SCOPES)
+        assert metadata >= S(
+            {
+                "resource": f"{MCP_BASE_URL}/mcp",
+                "authorization_servers": [MCP_BASE_URL],
+                "bearer_methods_supported": ["header"],
+                "scopes_supported": Unordered(EXPECTED_SCOPES),
+            }
+        )
 
 
 class TestAuthorizeRedirect:

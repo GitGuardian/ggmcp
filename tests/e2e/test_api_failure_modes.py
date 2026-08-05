@@ -2,7 +2,10 @@
 500 retries, network failures, and the downstream-401 re-auth bridge.
 """
 
+from http import HTTPStatus
+
 import httpx
+import pytest
 
 from tests.e2e.harness import call_tool, rpc, tool_error_text, tool_output
 
@@ -70,16 +73,22 @@ class TestNetworkFailures:
 
 
 class TestDownstreamUnauthorizedBridge:
-    async def test_a_downstream_401_during_a_tool_call_does_not_reach_the_reauth_bridge(
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: FastMCP wraps downstream authorization failures before the reauthentication middleware",
+    )
+    async def test_a_downstream_401_during_a_tool_call_triggers_reauthentication(
         self, mcp_client, gg_api, mock_token_scopes
     ):
         """
         GIVEN a token the API rejects with 401 during a scan
         WHEN scan_secrets is called
-        THEN the response stays HTTP 200 with a tool error naming the 401,
-             and carries no re-auth metadata
+        THEN the response asks the MCP client to authenticate again
         """
-        gg_api.post("/multiscan").respond(401, json={"detail": "Invalid API key."})
+        gg_api.post("/multiscan").respond(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            json={"detail": "Invalid API key."},
+        )
 
         response = await rpc(
             mcp_client,
@@ -90,12 +99,5 @@ class TestDownstreamUnauthorizedBridge:
             },
         )
 
-        # TODO(SI-3891): the re-auth bridge is dead code on this path. FastMCP
-        # v3 wraps the tool's DownstreamUnauthorizedError in a ToolError before
-        # DownstreamUnauthorizedMiddleware can catch it, so the response is
-        # never rewritten to HTTP 401 and clients cannot re-run the OAuth flow.
-        assert response.status_code == 200
-        assert "www-authenticate" not in response.headers
-        result = response.json()["result"]
-        assert result["isError"] is True
-        assert "401" in result["content"][0]["text"]
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "www-authenticate" in response.headers
