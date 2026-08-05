@@ -23,11 +23,11 @@ interactions:
       string: '[{"id": 3632, "member": null, "api_token_id": null, "created_at": "2025-01-07T18:59:16.484428Z",
         "updated_at": null, "content": {"type": "action", "content_key": "TRIGGER",
         "data": {"triggered_at": "2023-03-03T15:22:18+00:00"}}, "incident_id": 3759},
-        {"id": 5132786, "member": {"id": 480870, "name": "Timoth\u00e9 DELION", "email":
-        "timothe.delion@gitguardian.com", "access_level": "manager"}, "api_token_id":
-        "d0ca9877-641f-4c37-8857-c08e0ae148c4", "created_at": "2026-06-23T14:12:49.055117Z",
-        "updated_at": "2026-06-23T14:12:49.360819Z", "content": {"type": "note", "comment":
-        "Actor confirmed rotation"}, "incident_id": 3759}]'
+        {"id": 5132786, "member": {"id": 480870, "name": "User bb2e577e", "email":
+        "user-8e645c6e@example.com", "access_level": "manager"}, "api_token_id": "d0ca9877-641f-4c37-8857-c08e0ae148c4",
+        "created_at": "2026-06-23T14:12:49.055117Z", "updated_at": "2026-06-23T14:12:49.360819Z",
+        "content": {"type": "note", "comment": "Actor confirmed rotation"}, "incident_id":
+        3759}]'
     headers:
       CF-RAY:
       - a113f7bf6987ee96-CDG

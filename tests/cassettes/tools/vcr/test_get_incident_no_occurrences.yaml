@@ -30,24 +30,24 @@ interactions:
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": "2026-03-11T22:41:04.525493Z",
         "resolver_id": 492181, "resolver_api_token_id": null, "secret_revoked": true,
         "validity": "invalid", "severity": "medium", "assignee_id": null, "assignee_email":
-        "vincent.boyer@gitguardian.com", "share_url": "[REDACTED]", "feedback_list":
-        [{"created_at": "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
-        "email": "stanislas.crepin@gitguardian.com", "member_id": null, "answers":
-        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
-        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
-        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
-        given access to any sensitive information or services?", "boolean": true},
-        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
-        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
-        "field_label": "Additional remarks", "text": "Hasn''t been revoked yet because
-        X"}]}], "risk_score": 100, "severity_rule_id": null, "is_vaulted": false,
-        "ignore_reason": null, "occurrences": [], "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21460", "tags": ["REVOCABLE_BY_GG",
-        "PUBLICLY_LEAKED"], "incident_name": "AWS IAM Keys", "public_exposure": {"source_publicly_visible":
-        true, "public_incident_linked": false, "leaked_outside_perimeter": false},
-        "destination_tickets": [{"id": "AEF-97", "type": "jira_cloud", "link": "https://yanne-gg-integration.atlassian.net/browse/AEF-97"}],
+        "user-74281974@example.com", "share_url": "[REDACTED]", "feedback_list": [{"created_at":
+        "2022-07-20T13:22:52.756189Z", "updated_at": "2022-07-20T13:22:52.756207Z",
+        "email": "user-1a0bc62d@example.com", "member_id": null, "answers": [{"type":
+        "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is this an
+        actual secret?", "boolean": true}, {"type": "boolean", "field_ref": "access_to_sensitive_yes_no",
+        "field_label": "Does this secret give or has given access to any sensitive
+        information or services?", "boolean": true}, {"type": "boolean", "field_ref":
+        "revoked_yes_no", "field_label": "Has this secret been revoked?", "boolean":
+        false}, {"type": "text", "field_ref": "remarks_text", "field_label": "Additional
+        remarks", "text": "Hasn''t been revoked yet because X"}]}], "risk_score":
+        100, "severity_rule_id": null, "is_vaulted": false, "ignore_reason": null,
+        "occurrences": [], "secret_presence": {"files_requiring_code_fix": 0, "files_pending_merge":
+        0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs":
+        0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21460",
+        "tags": ["REVOCABLE_BY_GG", "PUBLICLY_LEAKED"], "incident_name": "AWS IAM
+        Keys", "public_exposure": {"source_publicly_visible": true, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "destination_tickets": [{"id":
+        "AEF-97", "type": "jira_cloud", "link": "https://tenant-b6250acd.atlassian.net/browse/AEF-97"}],
         "custom_tags": []}'
     headers:
       CF-RAY:

@@ -34,15 +34,15 @@ interactions:
         "Microsoft Azure Storage Connection String", "severity_rule_config": null,
         "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "Kashyapa P.A. Jayasekera"}], "user_permission": 7, "is_publicly_shared":
-        true, "feedbacks_count": 0, "occurrences_presence_seen_count": 16, "occurrences_presence_deleted_count":
+        "User 801c5600"}], "user_permission": 7, "is_publicly_shared": true, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 16, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 16,
-        "sources": [{"id": 28462334, "name": "GGFRLTA127 \u2014 kashyapap.jayasekera",
-        "type": "endpoints", "path": "GGFRLTA127 \u2014 kashyapap.jayasekera", "source_criticality":
-        "unknown", "monitoring_status": "active", "deleted_at": null}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 97, "displayed_occurrence": {"id": 274792885, "issue": 34205503,
-        "account": 8, "kind": "RLTM", "element": "/Users/kashyapap.jayasekera/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.159-dedup/secrets.jsonl.169",
+        "sources": [{"id": 28462334, "name": "endpoint-86a2394f", "type": "endpoints",
+        "path": "endpoint-86a2394f", "source_criticality": "unknown", "monitoring_status":
+        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
+        {"id": 274792885, "issue": 34205503, "account": 8, "kind": "RLTM", "element":
+        "/Users/user-eb6cfa60/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.159-dedup/secrets.jsonl.169",
         "element_type": "ENDPOINT_FILE", "author_name": "Kashyapa P.A. Jayasekera",
         "author_info": "", "value": null, "value_hash": "1TXwqQngy2cxRxis2dLzOshet5LX0P4n6uJ9tbzrAYI/0Tf5WGr+ma7NdWCAggYy",
         "published_at": "2026-06-23T11:13:31.325324Z", "date": "2026-06-23T11:13:31.325324Z",
@@ -50,38 +50,37 @@ interactions:
         "2026-06-23T11:13:31.325324Z", "last_seen_at": "2026-06-23T11:13:31.325324Z",
         "data": {"line": 2, "matched_lines": []}, "url": "", "source": {"id": 28462334,
         "url": "/workspace/8/endpoints/users/217", "type": "endpoints", "display_name":
-        "GGFRLTA127 \u2014 kashyapap.jayasekera", "visibility": "private", "monitored":
-        true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        null, "monitoring_status": "active"}, "regression": false, "content": 168376390,
-        "secrets_engine_version": "2.165.0", "matches": [], "most_sensitive_match_name":
-        null, "insights": [], "filepath": null, "filename": null, "presence": "visible",
-        "last_presence_seen_at": "2026-06-23T11:13:31.325324Z", "last_presence_check_at":
-        "2026-06-23T11:13:31.325324Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        null, "change_type": null, "full_tags": []}, "has_dropped_occurrences": false,
-        "tags": [], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 16}, {"id":
-        34181686, "account": 8, "criterion": "microsoft_azure_storage_connection_string",
-        "date": "2026-06-22T11:25:45.739149Z", "last_trigger_published_at": "2026-06-22T11:25:45.739149Z",
-        "last_triggered_at": "2026-06-22T11:25:45.762592Z", "last_trigger_detected_at":
-        "2026-06-22T11:25:45.762592Z", "hash": "gVrL/pjjFLo7sSikPS1pWtPJbr+oWSSVz8IB6+2ViJDSJKiK25LITKmJimoqGr3z",
+        "endpoint-86a2394f", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":
+        "active"}, "regression": false, "content": 168376390, "secrets_engine_version":
+        "2.165.0", "matches": [], "most_sensitive_match_name": null, "insights": [],
+        "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-06-23T11:13:31.325324Z", "last_presence_check_at": "2026-06-23T11:13:31.325324Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 16}, {"id": 34181686, "account": 8, "criterion":
+        "microsoft_azure_storage_connection_string", "date": "2026-06-22T11:25:45.739149Z",
+        "last_trigger_published_at": "2026-06-22T11:25:45.739149Z", "last_triggered_at":
+        "2026-06-22T11:25:45.762592Z", "last_trigger_detected_at": "2026-06-22T11:25:45.762592Z",
+        "hash": "gVrL/pjjFLo7sSikPS1pWtPJbr+oWSSVz8IB6+2ViJDSJKiK25LITKmJimoqGr3z",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
         "resolved": true, "resolved_at": "2026-06-22T11:26:52.971214Z", "resolver":
         1751937, "regression": false, "manual_severity_setter": null, "ignorer_display_name":
-        "none", "ignorer_type": "none", "resolver_display_name": "candidate.playground+eu@gitguardian.com",
+        "none", "ignorer_type": "none", "resolver_display_name": "user-1ffcf115@example.com",
         "resolver_type": "user", "manual_severity_setter_display_name": "none", "manual_severity_setter_type":
         "none", "status": "RESOLVED", "issue_name": "Microsoft Azure Storage Connection
         String", "severity_rule_config": null, "declarative_secret_status": "revoked",
         "assignee": null, "last_presence_check_at": null, "secret": "[REDACTED]",
-        "severity": 100, "authors": [{"info": "", "name": "Kashyapa P.A. Jayasekera"}],
-        "user_permission": 7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
+        "severity": 100, "authors": [{"info": "", "name": "User 801c5600"}], "user_permission":
+        7, "is_publicly_shared": false, "feedbacks_count": 0, "occurrences_presence_seen_count":
         6, "occurrences_presence_deleted_count": 0, "occurrences_presence_should_be_checked":
-        null, "locations_count": 6, "sources": [{"id": 28462334, "name": "GGFRLTA127
-        \u2014 kashyapap.jayasekera", "type": "endpoints", "path": "GGFRLTA127 \u2014
-        kashyapap.jayasekera", "source_criticality": "unknown", "monitoring_status":
-        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
-        "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
+        null, "locations_count": 6, "sources": [{"id": 28462334, "name": "endpoint-86a2394f",
+        "type": "endpoints", "path": "endpoint-86a2394f", "source_criticality": "unknown",
+        "monitoring_status": "active", "deleted_at": null}], "custom_tags": [], "vault_metadata":
+        null, "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
         {"id": 274639444, "issue": 34181686, "account": 8, "kind": "RLTM", "element":
-        "/Users/kashyapap.jayasekera/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.159-bm/secrets/secrets.jsonl.5",
+        "/Users/user-eb6cfa60/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.159-bm/secrets/secrets.jsonl.5",
         "element_type": "ENDPOINT_FILE", "author_name": "Kashyapa P.A. Jayasekera",
         "author_info": "", "value": null, "value_hash": "AAr6ayAj6Hs2pOICdVUlEyuXlsQ78K3HFGOJgWA/yAiQrRuQH9Kv1GxUH36IT99d",
         "published_at": "2026-06-22T11:25:45.739149Z", "date": "2026-06-22T11:25:45.739149Z",
@@ -89,20 +88,20 @@ interactions:
         "2026-06-22T11:25:45.739149Z", "last_seen_at": "2026-06-22T11:25:45.739149Z",
         "data": {"line": 20, "matched_lines": []}, "url": "", "source": {"id": 28462334,
         "url": "/workspace/8/endpoints/users/217", "type": "endpoints", "display_name":
-        "GGFRLTA127 \u2014 kashyapap.jayasekera", "visibility": "private", "monitored":
-        true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        null, "monitoring_status": "active"}, "regression": false, "content": 168376390,
-        "secrets_engine_version": "2.165.0", "matches": [], "most_sensitive_match_name":
-        null, "insights": [], "filepath": null, "filename": null, "presence": "visible",
-        "last_presence_seen_at": "2026-06-22T11:25:45.739149Z", "last_presence_check_at":
-        "2026-06-22T11:25:45.739149Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        null, "change_type": null, "full_tags": []}, "has_dropped_occurrences": false,
-        "tags": [], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 6}, {"id":
-        34038186, "account": 8, "criterion": "microsoft_azure_storage_connection_string",
-        "date": "2026-06-16T18:55:43.166667Z", "last_trigger_published_at": "2026-06-16T18:55:43.166667Z",
-        "last_triggered_at": "2026-06-16T18:55:43.185061Z", "last_trigger_detected_at":
-        "2026-06-16T18:55:43.185061Z", "hash": "JFTpQX+4P/dEcXJJ2iw+u54JYDsJnqLtrdws1wjFQ8t9LtHh25LITKmJimoqGr3z",
+        "endpoint-86a2394f", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":
+        "active"}, "regression": false, "content": 168376390, "secrets_engine_version":
+        "2.165.0", "matches": [], "most_sensitive_match_name": null, "insights": [],
+        "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-06-22T11:25:45.739149Z", "last_presence_check_at": "2026-06-22T11:25:45.739149Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 6}, {"id": 34038186, "account": 8, "criterion":
+        "microsoft_azure_storage_connection_string", "date": "2026-06-16T18:55:43.166667Z",
+        "last_trigger_published_at": "2026-06-16T18:55:43.166667Z", "last_triggered_at":
+        "2026-06-16T18:55:43.185061Z", "last_trigger_detected_at": "2026-06-16T18:55:43.185061Z",
+        "hash": "JFTpQX+4P/dEcXJJ2iw+u54JYDsJnqLtrdws1wjFQ8t9LtHh25LITKmJimoqGr3z",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
         "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
@@ -111,15 +110,15 @@ interactions:
         "Microsoft Azure Storage Connection String", "severity_rule_config": null,
         "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "", "name":
-        "Kashyapa P.A. Jayasekera"}], "user_permission": 7, "is_publicly_shared":
-        false, "feedbacks_count": 0, "occurrences_presence_seen_count": 16, "occurrences_presence_deleted_count":
+        "User 801c5600"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
+        0, "occurrences_presence_seen_count": 16, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 16,
-        "sources": [{"id": 28462334, "name": "GGFRLTA127 \u2014 kashyapap.jayasekera",
-        "type": "endpoints", "path": "GGFRLTA127 \u2014 kashyapap.jayasekera", "source_criticality":
-        "unknown", "monitoring_status": "active", "deleted_at": null}], "custom_tags":
-        [], "vault_metadata": null, "is_vaulted": false, "similar_issue_count": 0,
-        "score": 97, "displayed_occurrence": {"id": 273386288, "issue": 34038186,
-        "account": 8, "kind": "RLTM", "element": "/Users/kashyapap.jayasekera/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.158/secrets/secrets.jsonl.54",
+        "sources": [{"id": 28462334, "name": "endpoint-86a2394f", "type": "endpoints",
+        "path": "endpoint-86a2394f", "source_criticality": "unknown", "monitoring_status":
+        "active", "deleted_at": null}], "custom_tags": [], "vault_metadata": null,
+        "is_vaulted": false, "similar_issue_count": 0, "score": 97, "displayed_occurrence":
+        {"id": 273386288, "issue": 34038186, "account": 8, "kind": "RLTM", "element":
+        "/Users/user-eb6cfa60/leak-digger/leakdigger/scripts/secrets2db/benchmark-investigation/2.158/secrets/secrets.jsonl.54",
         "element_type": "ENDPOINT_FILE", "author_name": "Kashyapa P.A. Jayasekera",
         "author_info": "", "value": null, "value_hash": "/a+pc4LjKNLVtU/mRpEwYgEVVkXAgC4N/eP1ViVyLummI09iOJjROwJtISDlDj7d",
         "published_at": "2026-06-16T18:55:43.166667Z", "date": "2026-06-16T18:55:43.166667Z",
@@ -127,20 +126,19 @@ interactions:
         "2026-06-16T18:55:43.166667Z", "last_seen_at": "2026-06-16T18:55:43.166667Z",
         "data": {"line": 5, "matched_lines": []}, "url": "", "source": {"id": 28462334,
         "url": "/workspace/8/endpoints/users/217", "type": "endpoints", "display_name":
-        "GGFRLTA127 \u2014 kashyapap.jayasekera", "visibility": "private", "monitored":
-        true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
-        null, "monitoring_status": "active"}, "regression": false, "content": 168376390,
-        "secrets_engine_version": "2.165.0", "matches": [], "most_sensitive_match_name":
-        null, "insights": [], "filepath": null, "filename": null, "presence": "visible",
-        "last_presence_seen_at": "2026-06-16T18:55:43.166667Z", "last_presence_check_at":
-        "2026-06-16T18:55:43.166667Z", "first_presence_deleted_at": null, "seen_in_default_branch":
-        null, "change_type": null, "full_tags": []}, "has_dropped_occurrences": false,
-        "tags": [], "public_exposure": {"source_publicly_visible": false, "public_incident_linked":
-        false, "leaked_outside_perimeter": false}, "occurrences_count": 16}, {"id":
-        32985083, "account": 8, "criterion": "Google API Key", "date": "2026-05-19T09:33:23Z",
-        "last_trigger_published_at": "2026-05-19T09:33:23Z", "last_triggered_at":
-        "2026-05-19T09:36:55.570755Z", "last_trigger_detected_at": "2026-05-19T09:36:55.570755Z",
-        "hash": "pHE0O7zGgt2lhT0TLQzB2cwgMuZgrhqH4vSIGV5fw5ao1EL3iwQ5Z8PP16EaJtIX",
+        "endpoint-86a2394f", "visibility": "private", "monitored": true, "source_criticality":
+        "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":
+        "active"}, "regression": false, "content": 168376390, "secrets_engine_version":
+        "2.165.0", "matches": [], "most_sensitive_match_name": null, "insights": [],
+        "filepath": null, "filename": null, "presence": "visible", "last_presence_seen_at":
+        "2026-06-16T18:55:43.166667Z", "last_presence_check_at": "2026-06-16T18:55:43.166667Z",
+        "first_presence_deleted_at": null, "seen_in_default_branch": null, "change_type":
+        null, "full_tags": []}, "has_dropped_occurrences": false, "tags": [], "public_exposure":
+        {"source_publicly_visible": false, "public_incident_linked": false, "leaked_outside_perimeter":
+        false}, "occurrences_count": 16}, {"id": 32985083, "account": 8, "criterion":
+        "Google API Key", "date": "2026-05-19T09:33:23Z", "last_trigger_published_at":
+        "2026-05-19T09:33:23Z", "last_triggered_at": "2026-05-19T09:36:55.570755Z",
+        "last_trigger_detected_at": "2026-05-19T09:36:55.570755Z", "hash": "pHE0O7zGgt2lhT0TLQzB2cwgMuZgrhqH4vSIGV5fw5ao1EL3iwQ5Z8PP16EaJtIX",
         "ignored": false, "ignored_at": null, "ignore_reason": null, "ignorer": null,
         "resolved": false, "resolved_at": null, "resolver": null, "regression": false,
         "manual_severity_setter": null, "ignorer_display_name": "none", "ignorer_type":
@@ -156,21 +154,21 @@ interactions:
         "EQ", "arg1": {"path": "issue.secret.validity_status", "default": null}, "arg2":
         {"value": "invalid"}}}]}, "is_global": false, "scope": "private", "author":
         520858}}, "declarative_secret_status": "active", "assignee": null, "last_presence_check_at":
-        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "gim+dev@gitguardian.com",
-        "name": "dev"}], "user_permission": 7, "is_publicly_shared": false, "feedbacks_count":
-        0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
+        null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "user-1ca9c7a6@example.com",
+        "name": "User ef260e9a"}], "user_permission": 7, "is_publicly_shared": false,
+        "feedbacks_count": 0, "occurrences_presence_seen_count": 2, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 1, "sources":
         [{"id": 16218896, "name": "qa / test-nriv", "type": "gl_project", "path":
         "qa1/test-nriv", "source_criticality": "unknown", "monitoring_status": "active",
         "deleted_at": null}], "custom_tags": [], "vault_metadata": null, "is_vaulted":
         false, "similar_issue_count": 0, "score": 64, "displayed_occurrence": {"id":
         268288466, "issue": 32985083, "account": 8, "kind": "RLTM", "element": "9181621d49e910c3d2393f2373e52c04b26c7adb",
-        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "gim+dev@gitguardian.com",
+        "element_type": "GIT_COMMIT", "author_name": "dev", "author_info": "user-1ca9c7a6@example.com",
         "value": null, "value_hash": "y0o7bgCt8InKo3/G0QE6WaG+gU32WlUdYH0N4oUFXredK2KoKwrhfI+hoCMCs6v6",
         "published_at": "2026-05-19T09:33:23Z", "date": "2026-05-19T09:33:23Z", "detected_at":
         "2026-05-19T09:36:53.339083Z", "is_vcs_type": true, "last_detected_at": "2026-05-19T09:33:23Z",
-        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
-        "source": {"id": 16218896, "url": "https://gitlab-01.aws-qa-gitguardian.com/qa1/test-nriv",
+        "last_seen_at": "2026-05-19T09:33:23Z", "data": {}, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d/commit/9181621d49e910c3d2393f2373e52c04b26c7adb#a290632bbcae192e53c54337b3238d835c97e8a9_5_4",
+        "source": {"id": 16218896, "url": "https://host-a31e7ce0.example.com/ns-e5a6b85b/ns-9acfb06d",
         "type": "gl_project", "display_name": "qa / test-nriv", "visibility": "internal",
         "monitored": true, "source_criticality": "unknown", "deleted_at": null, "default_branch":
         "main", "monitoring_status": "active"}, "regression": false, "content": 162813398,
@@ -202,7 +200,7 @@ interactions:
         {"value": "valid"}}, "is_global": true, "scope": "private", "author": null}},
         "declarative_secret_status": null, "assignee": null, "last_presence_check_at":
         null, "secret": "[REDACTED]", "severity": 100, "authors": [{"info": "<unknown>",
-        "name": "Guy Le Gardien"}], "user_permission": 7, "is_publicly_shared": false,
+        "name": "User f043662d"}], "user_permission": 7, "is_publicly_shared": false,
         "feedbacks_count": 0, "occurrences_presence_seen_count": 1, "occurrences_presence_deleted_count":
         0, "occurrences_presence_should_be_checked": null, "locations_count": 0, "sources":
         [{"id": 26936741, "name": "gitguardian-team-vxrpkdpl / Philippe Gablain",
@@ -216,8 +214,8 @@ interactions:
         "published_at": "2026-05-18T16:46:02.652000Z", "date": "2026-05-18T16:46:02.652000Z",
         "detected_at": "2026-05-18T21:53:58.368709Z", "is_vcs_type": false, "last_detected_at":
         "2026-05-18T16:46:02.652000Z", "last_seen_at": "2026-05-18T16:46:02.652000Z",
-        "data": {}, "url": "https://gitguardian-team-vxrpkdpl.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5/pages/14057485/test+gg+token",
-        "source": {"id": 26936741, "url": "https://gitguardian-team-vxrpkdpl.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5",
+        "data": {}, "url": "https://tenant-187af6b6.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5/pages/14057485/test+gg+token",
+        "source": {"id": 26936741, "url": "https://tenant-187af6b6.atlassian.net/wiki/spaces/~62a76a05979e6e00690427b5",
         "type": "confluence_cloud_space", "display_name": "gitguardian-team-vxrpkdpl
         / Philippe Gablain", "visibility": "private", "monitored": true, "source_criticality":
         "unknown", "deleted_at": null, "default_branch": null, "monitoring_status":

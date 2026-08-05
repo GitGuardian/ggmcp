@@ -105,23 +105,23 @@ interactions:
         false, "validity": "failed_to_check", "severity": "critical", "assignee_id":
         null, "assignee_email": null, "share_url": "[REDACTED]", "feedback_list":
         [{"created_at": "2024-10-27T19:07:31.647677Z", "updated_at": "2024-10-27T19:07:31.647687Z",
-        "email": "candidate.playground+1@gitguardian.com", "member_id": 582569, "answers":
-        [{"type": "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is
-        this an actual secret?", "boolean": true}, {"type": "boolean", "field_ref":
-        "access_to_sensitive_yes_no", "field_label": "Does this secret give or has
-        given access to any sensitive information or services?", "boolean": true},
-        {"type": "boolean", "field_ref": "revoked_yes_no", "field_label": "Has this
-        secret been revoked?", "boolean": false}, {"type": "text", "field_ref": "remarks_text",
-        "field_label": "Additional remarks", "text": "Please take a look at this."}]}],
-        "risk_score": 57, "severity_rule_id": 11883, "is_vaulted": false, "ignore_reason":
-        null, "occurrences": null, "secret_presence": {"files_requiring_code_fix":
-        0, "files_pending_merge": 0, "files_fixed": 0, "outside_vcs": 0, "removed_outside_vcs":
-        0, "in_vcs": 0, "removed_in_vcs": 2}, "regression": false, "gitguardian_url":
-        "https://dashboard.gitguardian.com/workspace/8/incidents/21488", "tags": ["PUBLICLY_LEAKED",
-        "FROM_HISTORICAL_SCAN"], "incident_name": "OpenSSH Private Key", "public_exposure":
-        {"source_publicly_visible": true, "public_incident_linked": false, "leaked_outside_perimeter":
-        false}, "destination_tickets": [{"id": "KAN-17", "type": "jira_cloud", "link":
-        "https://vboy.atlassian.net/browse/KAN-17"}], "custom_tags": []}]'
+        "email": "user-b5140a83@example.com", "member_id": 582569, "answers": [{"type":
+        "boolean", "field_ref": "actual_secret_yes_no", "field_label": "Is this an
+        actual secret?", "boolean": true}, {"type": "boolean", "field_ref": "access_to_sensitive_yes_no",
+        "field_label": "Does this secret give or has given access to any sensitive
+        information or services?", "boolean": true}, {"type": "boolean", "field_ref":
+        "revoked_yes_no", "field_label": "Has this secret been revoked?", "boolean":
+        false}, {"type": "text", "field_ref": "remarks_text", "field_label": "Additional
+        remarks", "text": "Please take a look at this."}]}], "risk_score": 57, "severity_rule_id":
+        11883, "is_vaulted": false, "ignore_reason": null, "occurrences": null, "secret_presence":
+        {"files_requiring_code_fix": 0, "files_pending_merge": 0, "files_fixed": 0,
+        "outside_vcs": 0, "removed_outside_vcs": 0, "in_vcs": 0, "removed_in_vcs":
+        2}, "regression": false, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/incidents/21488",
+        "tags": ["PUBLICLY_LEAKED", "FROM_HISTORICAL_SCAN"], "incident_name": "OpenSSH
+        Private Key", "public_exposure": {"source_publicly_visible": true, "public_incident_linked":
+        false, "leaked_outside_perimeter": false}, "destination_tickets": [{"id":
+        "KAN-17", "type": "jira_cloud", "link": "https://tenant-57893d51.atlassian.net/browse/KAN-17"}],
+        "custom_tags": []}]'
     headers:
       CF-RAY:
       - a10395291e7ecc0a-CDG

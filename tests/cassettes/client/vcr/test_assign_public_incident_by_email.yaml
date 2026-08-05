@@ -177,9 +177,8 @@ interactions:
   response:
     body:
       string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
-        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 DELION", "created_at":
-        "2023-06-26T12:41:18.599497Z", "last_login": "2026-06-23T12:20:54.639679Z",
-        "active": true}'
+        "user-8e645c6e@example.com", "name": "User bb2e577e", "created_at": "2023-06-26T12:41:18.599497Z",
+        "last_login": "2026-06-23T12:20:54.639679Z", "active": true}'
     headers:
       CF-RAY:
       - a103a186781d2a4f-CDG
@@ -315,7 +314,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"email": "timothe.delion@gitguardian.com"}'
+    body: '{"email": "user-8e645c6e@example.com"}'
     headers:
       Accept:
       - '*/*'
@@ -347,7 +346,7 @@ interactions:
         null, "ignorer_id": null, "ignorer_api_token_id": null, "resolved_at": null,
         "resolver_id": null, "resolver_api_token_id": null, "secret_revoked": false,
         "validity": "failed_to_check", "severity": "unknown", "assignee_id": 480870,
-        "assignee_email": "timothe.delion@gitguardian.com", "share_url": "[REDACTED]",
+        "assignee_email": "user-8e645c6e@example.com", "share_url": "[REDACTED]",
         "feedback_list": [], "risk_score": 44, "severity_rule_id": null, "is_vaulted":
         false, "declarative_secret_status": "active", "resolve_reason": null, "ignore_reason":
         null, "gitguardian_url": "https://dashboard.gitguardian.com/workspace/8/public-incidents/5",

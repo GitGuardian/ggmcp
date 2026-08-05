@@ -25,11 +25,11 @@ interactions:
         "presence": "removed", "matches": [{"name": "apikey", "indice_start": 295,
         "indice_end": 335, "pre_line_start": null, "pre_line_end": null, "post_line_start":
         14, "post_line_end": 14}], "tags": ["FROM_HISTORICAL_SCAN"], "sha": "2c9877a3019d6c2e261054f8e2fe6c11032ed880",
-        "url": "https://github.com/pypi-data/pypi-code-2/commit/2c9877a3019d6c2e261054f8e2fe6c11032ed880#diff-63ebc151c08e8db0fd7e76e4d9329829c970d3ce7d3cc38b81ba0ab27107a282R14",
-        "source": {"id": 455, "type": "github", "name": "pypi-data/pypi-code-2", "url":
-        "https://github.com/pypi-data/pypi-code-2"}, "actor": {"id": 11, "type": "github_user",
-        "name": "orf", "email": "tom@tomforb.es", "url": "https://github.com/orf"},
-        "attachment_reasons": ["by_dev_from_perimeter"]}]'
+        "url": "https://github.com/ns-0a01c59e/pypi-code-2/commit/2c9877a3019d6c2e261054f8e2fe6c11032ed880#diff-63ebc151c08e8db0fd7e76e4d9329829c970d3ce7d3cc38b81ba0ab27107a282R14",
+        "source": {"id": 455, "type": "github", "name": "ns-0a01c59e/pypi-code-2",
+        "url": "https://github.com/ns-0a01c59e/pypi-code-2"}, "actor": {"id": 11,
+        "type": "github_user", "name": "User 234e2507", "email": "user-b8dfd76c@example.com",
+        "url": "https://github.com/ns-234e2507"}, "attachment_reasons": ["by_dev_from_perimeter"]}]'
     headers:
       CF-RAY:
       - a1039683083eb6b4-CDG

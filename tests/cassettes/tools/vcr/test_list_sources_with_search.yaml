@@ -20,7 +20,7 @@ interactions:
     uri: https://api.gitguardian.com/v1/sources?search=test&per_page=10
   response:
     body:
-      string: '[{"id": 12263, "type": "github", "full_name": "my-testing-org/christian_dior",
+      string: '[{"id": 12263, "type": "github", "full_name": "ns-242f04fd/christian_dior",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
         0, "last_scan": {"date": "2020-09-24T09:06:39.211442Z", "status": "finished",
@@ -30,9 +30,9 @@ interactions:
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/christian_dior",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-eb7dee60",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12264,
-        "type": "github", "full_name": "my-testing-org/armani_code", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/armani_code", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 1, "last_scan":
         {"date": "2020-06-04T09:06:33.833273Z", "status": "finished", "failing_reason":
@@ -42,9 +42,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 1}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/armani_code",
+        "info": 0, "unknown": 1}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-12b26c3e",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12265,
-        "type": "github", "full_name": "my-testing-org/louis_vuitton", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/louis_vuitton", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-09-24T09:06:32.770273Z", "status": "finished", "failing_reason":
@@ -54,9 +54,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/louis_vuitton",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-f6c46dcc",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12266,
-        "type": "github", "full_name": "my-testing-org/lagarfeld", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/lagarfeld", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-09-24T09:06:33.598712Z", "status": "finished", "failing_reason":
@@ -66,9 +66,9 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/lagarfeld",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-f7e0173c",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 12267,
-        "type": "github", "full_name": "my-testing-org/saint_laurent", "health": "safe",
+        "type": "github", "full_name": "ns-242f04fd/saint_laurent", "health": "safe",
         "source_criticality": "unknown", "default_branch": null, "default_branch_head":
         null, "open_incidents_count": 0, "closed_incidents_count": 0, "last_scan":
         {"date": "2020-10-09T12:55:14.542227Z", "status": "canceled", "failing_reason":
@@ -78,57 +78,57 @@ interactions:
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
         "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
         0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0, "low": 0,
-        "info": 0, "unknown": 0}}}, "url": "https://ghe.dev.gitguardian.com/my-testing-org/saint_laurent",
+        "info": 0, "unknown": 0}}}, "url": "https://host-3c66a8bc.example.com/ns-242f04fd/ns-29961463",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 3342391,
-        "type": "github", "full_name": "github-app-test-eugene/test", "health": "unknown",
-        "source_criticality": "unknown", "default_branch": "master", "default_branch_head":
-        "739d8fc531ae1130672b694ef20d445be095266c", "open_incidents_count": 0, "closed_incidents_count":
-        6, "last_scan": null, "monitored": false, "monitoring_status": "deleted_on_remote",
-        "visibility": "public", "external_id": "157555465", "secret_incidents_breakdown":
-        {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
-        0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
-        {"total": 6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/github-app-test-eugene/test",
+        "type": "github", "full_name": "ns-e587ab62/test", "health": "unknown", "source_criticality":
+        "unknown", "default_branch": "master", "default_branch_head": "739d8fc531ae1130672b694ef20d445be095266c",
+        "open_incidents_count": 0, "closed_incidents_count": 6, "last_scan": null,
+        "monitored": false, "monitoring_status": "deleted_on_remote", "visibility":
+        "public", "external_id": "157555465", "secret_incidents_breakdown": {"open_secret_incidents":
+        {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
+        "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents": {"total":
+        6, "severity_breakdown": {"critical": 0, "high": 6, "medium": 0, "low": 0,
+        "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-e587ab62/test",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 3342392,
-        "type": "github", "full_name": "github-app-test-eugene/test_preprod", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "type": "github", "full_name": "ns-e587ab62/test_preprod", "health": "unknown",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
         "59ad17cf384bb8abdb3fd21bdc557382b8f85fbf", "open_incidents_count": 0, "closed_incidents_count":
         4, "last_scan": null, "monitored": false, "monitoring_status": "deleted_on_remote",
         "visibility": "private", "external_id": "327924619", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 4, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 4}}}, "url": "https://github.com/github-app-test-eugene/test_preprod",
+        "low": 0, "info": 0, "unknown": 4}}}, "url": "https://github.com/ns-e587ab62/test_preprod",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 6088722,
-        "type": "github", "full_name": "github-app-test-eugene/test_local_1", "health":
-        "at_risk", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "type": "github", "full_name": "ns-e587ab62/test_local_1", "health": "at_risk",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
         "529672f724fe0cb58ec7db5753f1ba8c26e62b1f", "open_incidents_count": 13, "closed_incidents_count":
         8, "last_scan": null, "monitored": false, "monitoring_status": "deleted_on_remote",
         "visibility": "private", "external_id": "515202288", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 13, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 13}}, "closed_secret_incidents":
         {"total": 8, "severity_breakdown": {"critical": 0, "high": 4, "medium": 0,
-        "low": 0, "info": 0, "unknown": 4}}}, "url": "https://github.com/github-app-test-eugene/test_local_1",
+        "low": 0, "info": 0, "unknown": 4}}}, "url": "https://github.com/ns-e587ab62/test_local_1",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 6088740,
-        "type": "github", "full_name": "github-app-test-eugene/test_local_2", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "type": "github", "full_name": "ns-e587ab62/test_local_2", "health": "unknown",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
         "5f014343520d1baefd1dc34a9fca19ae210b052a", "open_incidents_count": 0, "closed_incidents_count":
         0, "last_scan": null, "monitored": false, "monitoring_status": "deleted_on_remote",
         "visibility": "private", "external_id": "515203110", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 0, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/github-app-test-eugene/test_local_2",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-e587ab62/test_local_2",
         "provider_metadata": {"archived": false}, "deleted": false}, {"id": 6088766,
-        "type": "github", "full_name": "github-app-test-eugene/test_local_3", "health":
-        "unknown", "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
+        "type": "github", "full_name": "ns-e587ab62/test_local_3", "health": "unknown",
+        "source_criticality": "unknown", "default_branch": "main", "default_branch_head":
         "587f67ce9635b955452eb56a69ddae46e8bcbae6", "open_incidents_count": 0, "closed_incidents_count":
         1, "last_scan": null, "monitored": false, "monitoring_status": "deleted_on_remote",
         "visibility": "private", "external_id": "515204240", "secret_incidents_breakdown":
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 1, "severity_breakdown": {"critical": 0, "high": 0, "medium": 0,
-        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://github.com/github-app-test-eugene/test_local_3",
+        "low": 0, "info": 0, "unknown": 1}}}, "url": "https://github.com/ns-e587ab62/test_local_3",
         "provider_metadata": {"archived": false}, "deleted": false}]'
     headers:
       CF-RAY:

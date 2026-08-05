@@ -99,9 +99,8 @@ interactions:
   response:
     body:
       string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
-        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 DELION", "created_at":
-        "2023-06-26T12:41:18.599497Z", "last_login": "2026-06-23T12:20:54.639679Z",
-        "active": true}'
+        "user-8e645c6e@example.com", "name": "User bb2e577e", "created_at": "2023-06-26T12:41:18.599497Z",
+        "last_login": "2026-06-23T12:20:54.639679Z", "active": true}'
     headers:
       CF-RAY:
       - a1039608bfbd11f4-CDG
@@ -175,10 +174,10 @@ interactions:
         3, "pre_line_end": 3, "post_line_start": null, "post_line_end": null}, {"name":
         "client_secret", "indice_start": 85, "indice_end": 125, "pre_line_start":
         4, "pre_line_end": 4, "post_line_start": null, "post_line_end": null}], "tags":
-        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion",
-        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        ["PUBLICLY_EXPOSED", "PUBLIC"], "url": "https://github.com/ns-80126292/public-app-gg-bis-2020-10/commit/4c2166bbf37e361fe9a818bffb63c3a43f89a1cb#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "4c2166bbf37e361fe9a818bffb63c3a43f89a1cb", "change_type": "deletion", "source":
+        {"id": 12349, "type": "github", "full_name": "ns-80126292/public-app-gg-bis-2020-10",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
         11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
@@ -188,7 +187,7 @@ interactions:
         {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
         4, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 11, "severity_breakdown": {"critical": 0, "high": 9, "medium": 2,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/public-app-gg-bis-2020-10",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78198,
         "incident_id": 21460, "date": "2020-10-29T13:19:59.005564Z", "filepath": "app.py",
         "kind": "realtime", "presence": "removed", "matches": [{"name": "client_id",
@@ -196,10 +195,10 @@ interactions:
         null, "post_line_start": 3, "post_line_end": 3}, {"name": "client_secret",
         "indice_start": 128, "indice_end": 168, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 4, "post_line_end": 4}], "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition",
-        "source": {"id": 12349, "type": "github", "full_name": "wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "PUBLIC"], "url": "https://github.com/ns-80126292/public-app-gg-bis-2020-10/commit/998deb2c88b0be31f72d117ac1238114334445e8#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R4",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "998deb2c88b0be31f72d117ac1238114334445e8", "change_type": "addition", "source":
+        {"id": 12349, "type": "github", "full_name": "ns-80126292/public-app-gg-bis-2020-10",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 4, "closed_incidents_count":
         11, "last_scan": {"date": "2020-12-10T10:45:12.795972Z", "status": "finished",
@@ -209,16 +208,16 @@ interactions:
         {"open_secret_incidents": {"total": 4, "severity_breakdown": {"critical":
         4, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 11, "severity_breakdown": {"critical": 0, "high": 9, "medium": 2,
-        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/public-app-gg-bis-2020-10",
+        "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/public-app-gg-bis-2020-10",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78199,
         "incident_id": 21461, "date": "2020-10-29T10:19:39.723768Z", "filepath": "app.py",
         "kind": "realtime", "presence": "removed", "matches": [{"name": "apikey",
         "indice_start": 48, "indice_end": 726, "pre_line_start": 3, "pre_line_end":
         14, "post_line_start": null, "post_line_end": null}], "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/333db3e12b3f863ebb02cac6f232fc44e4f46533#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "333db3e12b3f863ebb02cac6f232fc44e4f46533", "change_type": "deletion",
-        "source": {"id": 12320, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-09",
+        "PUBLIC"], "url": "https://github.com/ns-80126292/private-gg-bis-2020-09/commit/333db3e12b3f863ebb02cac6f232fc44e4f46533#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "333db3e12b3f863ebb02cac6f232fc44e4f46533", "change_type": "deletion", "source":
+        {"id": 12320, "type": "github", "full_name": "ns-80126292/private-gg-bis-2020-09",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
         13, "last_scan": {"date": "2020-12-10T10:45:12.775987Z", "status": "finished",
@@ -228,16 +227,16 @@ interactions:
         {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
         2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09",
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/private-gg-bis-2020-09",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78200,
         "incident_id": 21461, "date": "2020-10-29T09:19:54.249454Z", "filepath": "app.py",
         "kind": "realtime", "presence": "removed", "matches": [{"name": "apikey",
         "indice_start": 91, "indice_end": 769, "pre_line_start": null, "pre_line_end":
         null, "post_line_start": 3, "post_line_end": 14}], "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "76dd4f31a31c78a151723031bfebff4d076751b2", "change_type": "addition",
-        "source": {"id": 12320, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-bis-2020-09",
+        "PUBLIC"], "url": "https://github.com/ns-80126292/private-gg-bis-2020-09/commit/76dd4f31a31c78a151723031bfebff4d076751b2#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R3",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "76dd4f31a31c78a151723031bfebff4d076751b2", "change_type": "addition", "source":
+        {"id": 12320, "type": "github", "full_name": "ns-80126292/private-gg-bis-2020-09",
         "health": "at_risk", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 2, "closed_incidents_count":
         13, "last_scan": {"date": "2020-12-10T10:45:12.775987Z", "status": "finished",
@@ -247,7 +246,7 @@ interactions:
         {"open_secret_incidents": {"total": 2, "severity_breakdown": {"critical":
         2, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 13, "severity_breakdown": {"critical": 1, "high": 12, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-bis-2020-09",
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/private-gg-bis-2020-09",
         "provider_metadata": {"archived": false}, "deleted": false}}, {"id": 78201,
         "incident_id": 21462, "date": "2020-10-29T08:19:34.987039Z", "filepath": "app.py",
         "kind": "realtime", "presence": "removed", "matches": [{"name": "client_id",
@@ -255,10 +254,10 @@ interactions:
         3, "post_line_start": null, "post_line_end": null}, {"name": "client_secret",
         "indice_start": 150, "indice_end": 169, "pre_line_start": 4, "pre_line_end":
         4, "post_line_start": null, "post_line_end": null}], "tags": ["PUBLICLY_EXPOSED",
-        "PUBLIC"], "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-08/commit/970509ea87f9913d362d727ac4d178ac4332719a#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
-        "author_info": "lucius-fox-gg@protonmail.com", "author_name": "Lucius Fox",
-        "sha": "970509ea87f9913d362d727ac4d178ac4332719a", "change_type": "deletion",
-        "source": {"id": 12297, "type": "github", "full_name": "wayne-enterprises-gg/private-gg-2020-08",
+        "PUBLIC"], "url": "https://github.com/ns-80126292/private-gg-2020-08/commit/970509ea87f9913d362d727ac4d178ac4332719a#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959L4",
+        "author_info": "user-4176d3f1@example.com", "author_name": "Lucius Fox", "sha":
+        "970509ea87f9913d362d727ac4d178ac4332719a", "change_type": "deletion", "source":
+        {"id": 12297, "type": "github", "full_name": "ns-80126292/private-gg-2020-08",
         "health": "safe", "source_criticality": "unknown", "default_branch": null,
         "default_branch_head": null, "open_incidents_count": 0, "closed_incidents_count":
         11, "last_scan": {"date": "2020-09-24T09:06:39.261262Z", "status": "finished",
@@ -268,7 +267,7 @@ interactions:
         {"open_secret_incidents": {"total": 0, "severity_breakdown": {"critical":
         0, "high": 0, "medium": 0, "low": 0, "info": 0, "unknown": 0}}, "closed_secret_incidents":
         {"total": 11, "severity_breakdown": {"critical": 0, "high": 11, "medium":
-        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/wayne-enterprises-gg/private-gg-2020-08",
+        0, "low": 0, "info": 0, "unknown": 0}}}, "url": "https://github.com/ns-80126292/private-gg-2020-08",
         "provider_metadata": {"archived": false}, "deleted": false}}]'
     headers:
       CF-RAY:

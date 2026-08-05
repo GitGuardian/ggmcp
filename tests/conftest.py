@@ -1,10 +1,11 @@
+import hashlib
 import json
 import logging
 import os
 import re
 from os.path import dirname, join, realpath
 from unittest.mock import AsyncMock, MagicMock, patch
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import pytest
 import vcr
@@ -47,6 +48,127 @@ ALLOWED_HEADERS = {
 # Placeholder for redacted values
 REDACTED = "[REDACTED]"
 
+# GitGuardian product hostnames that may stay in cassettes as-is. Any other
+# hostname that references the recording workspace's perimeter is anonymized.
+PUBLIC_HOSTNAMES = {
+    "gitguardian.com",
+    "api.gitguardian.com",
+    "dashboard.gitguardian.com",
+    "docs.gitguardian.com",
+    "hook.gitguardian.com",
+    "www.gitguardian.com",
+}
+
+_EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
+_HOSTNAME_RE = re.compile(r"\b[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+\b")
+# Tenant-scoped SaaS hosts: the tenant name identifies the recording workspace.
+_SAAS_TENANT_SUFFIXES = (".atlassian.net", ".jfrog.io", ".sharepoint.com")
+
+
+def _hash8(value: str) -> str:
+    """Stable 8-char token so the same input maps to the same fake everywhere."""
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()[:8]
+
+
+def _anonymize_email(match: re.Match) -> str:
+    email = match.group(0)
+    local, _, domain = email.partition("@")
+    # Keep already-fake addresses and ssh-style remotes (git@github.com).
+    if domain.lower().endswith("example.com") or local.lower() == "git":
+        return email
+    return f"user-{_hash8(email.lower())}@example.com"
+
+
+def _anonymize_hostname(match: re.Match) -> str:
+    host = match.group(0)
+    lowered = host.lower()
+    if lowered in PUBLIC_HOSTNAMES:
+        return host
+    for suffix in _SAAS_TENANT_SUFFIXES:
+        if lowered.endswith(suffix):
+            tenant = lowered[: -len(suffix)]
+            if _ANON_TENANT_RE.fullmatch(tenant):
+                return host
+            return f"tenant-{_hash8(lowered)}{suffix}"
+    if "gitguardian" in lowered or lowered.endswith(".ovh"):
+        return f"host-{_hash8(lowered)}.example.com"
+    return host
+
+
+# Every rule below must be idempotent: VCR runs before_record_request on
+# outgoing requests at replay time too, so a value already anonymized in a
+# cassette must survive a second pass unchanged or it stops matching.
+_ANON_SEGMENT_RE = re.compile(r"ns-[0-9a-f]{8}")
+_ANON_USER_RE = re.compile(r"user-[0-9a-f]{8}")
+_ANON_TENANT_RE = re.compile(r"tenant-[0-9a-f]{8}")
+
+
+def _anon_segment(segment: str) -> str:
+    return segment if _ANON_SEGMENT_RE.fullmatch(segment) else f"ns-{_hash8(segment)}"
+
+
+def _anon_user(name: str) -> str:
+    return name if _ANON_USER_RE.fullmatch(name) else f"user-{_hash8(name)}"
+
+
+_ANON_PERSON_RE = re.compile(r"User [0-9a-f]{8}")
+_ANON_ENDPOINT_RE = re.compile(r"endpoint-[0-9a-f]{8}")
+
+
+def _anon_person(name: str) -> str:
+    return name if _ANON_PERSON_RE.fullmatch(name) else f"User {_hash8(name)}"
+
+
+def _anon_endpoint(name: str) -> str:
+    return name if _ANON_ENDPOINT_RE.fullmatch(name) else f"endpoint-{_hash8(name)}"
+
+
+def _anonymize_namespace(value: str, keep_repo: bool) -> str:
+    """Anonymize a namespaced repository name. Public GitHub repo names keep
+    their repo segment (it is public data and search fixtures rely on it);
+    other SCM projects are fully anonymized."""
+    segments = [s.strip() for s in value.split("/")]
+    if keep_repo and len(segments) > 1:
+        return "/".join([_anon_segment(segments[0]), *segments[1:]])
+    return "/".join(_anon_segment(s) for s in segments)
+
+
+# github.com URL owners are user handles; keep the public GitGuardian org.
+_GITHUB_OWNER_RE = re.compile(r"(github\.com/)(?!GitGuardian/)([A-Za-z0-9_.-]+)(?=[/\"?#])")
+# Home directories in occurrence file paths are named after their user.
+_HOMEDIR_RE = re.compile(r"/(Users|home)/([A-Za-z0-9._%+-]+)")
+# The leading path segments on an anonymized host are a user/group namespace
+# and a project name.
+_ANON_HOST_NAMESPACE_RE = re.compile(r"(host-[0-9a-f]{8}\.example\.com)/([A-Za-z0-9._%+-]+)(/[A-Za-z0-9._%+-]+)?")
+# Sources are re-fetched by searching for names taken from earlier responses,
+# so search parameters must be anonymized the same way as the names they match.
+_SEARCH_PARAM_RE = re.compile(r"([?&]search=)([^&#]+)")
+
+
+def _anonymize_text(text: str) -> str:
+    """Anonymize emails, non-public hostnames, and user paths in a serialized body."""
+    text = _EMAIL_RE.sub(_anonymize_email, text)
+    text = _HOSTNAME_RE.sub(_anonymize_hostname, text)
+    text = _GITHUB_OWNER_RE.sub(lambda m: m.group(1) + _anon_segment(m.group(2)), text)
+    text = _HOMEDIR_RE.sub(lambda m: f"/{m.group(1)}/{_anon_user(m.group(2))}", text)
+    return _ANON_HOST_NAMESPACE_RE.sub(
+        lambda m: f"{m.group(1)}/{_anon_segment(m.group(2))}"
+        + (f"/{_anon_segment(m.group(3)[1:])}" if m.group(3) else ""),
+        text,
+    )
+
+
+def _anonymize_uri(uri: str) -> str:
+    """Anonymize a request URI: body-level rules plus search query values."""
+
+    def _sub(match: re.Match) -> str:
+        value = unquote(match.group(2))
+        if "/" not in value:
+            return match.group(0)
+        return match.group(1) + quote(_anonymize_namespace(value, keep_repo=True), safe="")
+
+    return _SEARCH_PARAM_RE.sub(_sub, _anonymize_text(uri))
+
 
 def _redact_sensitive_fields(obj):
     """
@@ -54,7 +176,32 @@ def _redact_sensitive_fields(obj):
     """
     if isinstance(obj, dict):
         redacted = {}
+        # Person names: members/assignees carry an email sibling, commit
+        # authors carry an info sibling. Emails themselves are anonymized by
+        # _anonymize_text; names need this structural pass.
+        person_key = "email" if "email" in obj else "info" if "info" in obj else None
+        # Endpoint-type sources are named after the machine they run on.
+        is_endpoint_source = obj.get("type") == "endpoints"
+        # Repository sources are namespaced under a user or org handle.
+        source_type = obj.get("type")
+        is_repo_source = isinstance(source_type, str) and source_type.startswith(
+            ("gh_", "github", "gitlab", "bitbucket", "azure")
+        )
         for key, value in obj.items():
+            if key == "name" and person_key and isinstance(value, str) and value:
+                redacted[key] = _anon_person(value)
+                continue
+            if key in ("name", "path", "display_name") and is_endpoint_source and isinstance(value, str):
+                redacted[key] = _anon_endpoint(value)
+                continue
+            if (
+                key in ("name", "path", "full_name", "display_name")
+                and is_repo_source
+                and isinstance(value, str)
+                and value
+            ):
+                redacted[key] = _anonymize_namespace(value, keep_repo=source_type.startswith(("gh_", "github")))
+                continue
             # Redact known sensitive field names
             if key in (
                 "secret_key",
@@ -146,6 +293,14 @@ def _filter_request_headers_and_store(request):
     for name in list(request.headers):
         if name.lower() not in ALLOWED_HEADERS:
             request.headers.pop(name)
+
+    request.uri = _anonymize_uri(request.uri)
+    if request.body:
+        body = request.body
+        if isinstance(body, bytes):
+            request.body = _anonymize_text(body.decode("utf-8", errors="replace")).encode("utf-8")
+        elif isinstance(body, str):
+            request.body = _anonymize_text(body)
     return request
 
 
@@ -173,7 +328,7 @@ def _before_record_response(response):
 
         data = json.loads(body_str)
         redacted_data = _redact_sensitive_fields(data)
-        redacted_body = json.dumps(redacted_data)
+        redacted_body = _anonymize_text(json.dumps(redacted_data))
 
         response["body"]["string"] = redacted_body.encode("utf-8")
     except (json.JSONDecodeError, UnicodeDecodeError):

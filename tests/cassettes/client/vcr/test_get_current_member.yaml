@@ -99,9 +99,8 @@ interactions:
   response:
     body:
       string: '{"id": 480870, "role": "manager", "access_level": "manager", "email":
-        "timothe.delion@gitguardian.com", "name": "Timoth\u00e9 DELION", "created_at":
-        "2023-06-26T12:41:18.599497Z", "last_login": "2026-06-23T12:20:54.639679Z",
-        "active": true}'
+        "user-8e645c6e@example.com", "name": "User bb2e577e", "created_at": "2023-06-26T12:41:18.599497Z",
+        "last_login": "2026-06-23T12:20:54.639679Z", "active": true}'
     headers:
       CF-RAY:
       - a10397396d8f00c8-CDG
