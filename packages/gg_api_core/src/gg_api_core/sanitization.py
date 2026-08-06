@@ -31,6 +31,10 @@ NON_SENSITIVE_NAME_ALLOWLIST: Final = frozenset(
         "secrets_count",
         "token_id",
         "token_name",
+        # Describes a token rather than carrying one: "personal_access_token"
+        # or "service_account", and a digest of the scope set.
+        "token_type",
+        "token_scopes_hash",
         "match_count",
         "document_count",
         "documents_count",
