@@ -6,7 +6,7 @@ GitGuardian API side.
 """
 
 import json
-from typing import Any, cast
+from typing import Any
 
 import httpx
 import respx
@@ -121,7 +121,7 @@ async def rpc(
     method: str,
     params: dict[str, Any] | None = None,
     request_id: int | str = 1,
-    **kwargs: Any,
+    **kwargs,
 ) -> httpx.Response:
     """POST a raw JSON-RPC 2.0 request to the /mcp endpoint."""
     headers = kwargs.pop("headers", mcp_headers())
@@ -138,16 +138,14 @@ def rpc_result(response: httpx.Response, expected_id: int | str = 1) -> dict[str
     assert body.get("jsonrpc") == "2.0"
     assert body.get("id") == expected_id
     assert "error" not in body, body
-    result = body["result"]
-    assert isinstance(result, dict), body
-    return cast(dict[str, Any], result)
+    return body["result"]
 
 
 async def call_tool(
     client: httpx.AsyncClient,
     name: str,
     arguments: dict[str, Any] | None = None,
-    **kwargs: Any,
+    **kwargs,
 ) -> dict[str, Any]:
     """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult)."""
     request_id = kwargs.pop("request_id", 1)
@@ -198,9 +196,7 @@ def unwrap_result(result: dict[str, Any]) -> Any:
 def tool_error_text(result: dict[str, Any]) -> str:
     """Extract the error message from a failed CallToolResult."""
     assert result.get("isError") is True, result
-    text = result["content"][0]["text"]
-    assert isinstance(text, str), result
-    return text
+    return result["content"][0]["text"]
 
 
 def sent_body(route: respx.Route) -> Any:
@@ -221,7 +217,7 @@ def assert_authenticated_request(route: respx.Route, token: str = TEST_PAT) -> N
     assert request.headers["X-Privacy-Mode"] == "true"
 
 
-async def list_tool_names(client: httpx.AsyncClient, **kwargs: Any) -> set[str]:
+async def list_tool_names(client: httpx.AsyncClient, **kwargs) -> set[str]:
     """Call tools/list and return the visible tool names."""
     request_id = kwargs.pop("request_id", 1)
     result = rpc_result(

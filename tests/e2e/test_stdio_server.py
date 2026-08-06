@@ -14,7 +14,9 @@ from typing import Any, Iterator
 import httpx
 import pytest
 from fastmcp import Client
-from gg_mcp_server.server import build_server  # type: ignore[import-untyped]
+from gg_api_core import client as client_module
+from gg_api_core import oauth, utils
+from gg_mcp_server.server import build_server
 from mcp.types import TextContent
 
 from tests.e2e.harness import (
@@ -38,8 +40,6 @@ def stdio_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     honor XDG_CONFIG_HOME. A 401 self-healing test must never touch the
     developer's real token file.
     """
-    from gg_api_core import oauth  # type: ignore[import-untyped]
-
     storage_class = oauth.FileTokenStorage
     token_file = tmp_path / "tokens" / "mcp_oauth_tokens.json"
 
@@ -51,22 +51,17 @@ def stdio_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("MULTI_TENANCY_ENABLED", raising=False)
     monkeypatch.delenv("MCP_OAUTH_PROXY_ENABLED", raising=False)
     monkeypatch.delenv("GITGUARDIAN_API_URL", raising=False)
-    monkeypatch.delenv("GITGUARDIAN_SCOPES", raising=False)
-    monkeypatch.delenv("GITGUARDIAN_REQUESTED_SCOPES", raising=False)
     monkeypatch.setenv("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
     monkeypatch.setenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN", STDIO_PAT)
     monkeypatch.setenv("ENABLE_LOCAL_OAUTH", "false")
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
 
 
 @pytest.fixture(autouse=True)
 def reset_client_singleton() -> Iterator[None]:
     """Single-tenant mode caches one client per process; isolate each test."""
-    import gg_api_core.utils  # type: ignore[import-untyped]
-
-    gg_api_core.utils._client_singleton = None
+    utils._client_singleton = None
     yield
-    gg_api_core.utils._client_singleton = None
+    utils._client_singleton = None
 
 
 class TestPatEnvAuthentication:
@@ -85,9 +80,6 @@ class TestPatEnvAuthentication:
         THEN the env PAT wins and reaches every API request with a User-Agent
              marking the stdio transport
         """
-        from gg_api_core import client as client_module
-        from gg_api_core import oauth
-
         oauth.FileTokenStorage().save_token(
             "https://dashboard.gitguardian.com",
             {"access_token": "decoy-stored-token"},
@@ -123,7 +115,6 @@ class TestPatEnvAuthentication:
         THEN the server runs in LOCAL_OAUTH_FLOW mode but the client picks the
              env token, so no interactive flow is ever needed
         """
-        from gg_api_core import client as client_module
 
         async def unexpected_oauth_flow(*_args: Any, **_kwargs: Any) -> None:
             raise AssertionError("interactive OAuth must not start while an env PAT exists")
@@ -173,9 +164,6 @@ class TestPatEnvAuthentication:
         WHEN a local OAuth-mode stdio session starts
         THEN it reuses the stored token without opening an interactive flow
         """
-        from gg_api_core import client as client_module
-        from gg_api_core import oauth
-
         stored_pat = "stdio-stored-oauth-pat"
         monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
         monkeypatch.delenv("ENABLE_LOCAL_OAUTH")
@@ -407,3 +395,40 @@ class TestLocalGitIntrospection:
         output = result.structured_content["result"]
         assert output["source_id"] == 99
         assert output["repository_name"] == "widget-factory"
+
+    async def test_find_current_source_id_reports_when_no_source_matches(
+        self,
+        stdio_env: None,
+        gg_api: Any,
+        mock_token_scopes: Any,
+        tmp_path: Path,
+    ) -> None:
+        """
+        GIVEN a local git repository that has no matching GitGuardian source
+        WHEN find_current_source_id searches for its origin repository name
+        THEN it returns a useful not-found error rather than a source id
+        """
+        repo = tmp_path / "unmonitored-repository"
+        repo.mkdir()
+        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
+        subprocess.run(
+            ["git", "remote", "add", "origin", "git@github.com:acme/unmonitored-repository.git"],
+            cwd=repo,
+            check=True,
+            timeout=5,
+        )
+        route = gg_api.get("/sources").respond(200, json=[])
+
+        async with Client(build_server()) as client:
+            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
+
+        assert route.call_count == 1
+        assert dict(route.calls.last.request.url.params) == {
+            "search": "unmonitored-repository",
+            "per_page": "50",
+        }
+        assert result.structured_content is not None
+        output = result.structured_content["result"]
+        assert output["repository_name"] == "unmonitored-repository"
+        assert output["error"] == "Repository 'unmonitored-repository' not found in GitGuardian"
+        assert "source_id" not in output
