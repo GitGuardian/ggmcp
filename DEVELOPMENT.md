@@ -174,6 +174,75 @@ runs a localhost callback on a port in 29170-29998, storing the PAT under
 stdio deployments should use a PAT. The code path will be removed in a
 future release.
 
+## Logging
+
+Structured logging goes to stderr via structlog. `LOG_LEVEL` sets the level and
+`LOG_FORMAT` picks `json` or `console` (unset auto-detects: console on a TTY).
+`gg_api_core/logging_config.py` owns the processor chain.
+
+### Fields on every line
+
+Bound once per MCP message by `RequestLoggingContextMiddleware`, so they ride on
+every line emitted while handling it, including free-text lines from libraries.
+
+| Field | Meaning |
+| --- | --- |
+| `gg_service`, `gg_version` | Which service and which release produced the line |
+| `request_id` | Inbound `X-Request-ID`, or one generated per message |
+| `mcp_session_id` | FastMCP's session id. Groups a conversation **only if** the client sends a stable `Mcp-Session-Id`; under `stateless_http=True` it is otherwise per-request |
+| `user_agent` | The only client hint present on every request |
+| `authentication_mode` | How the request authenticates: OAuth proxy, authorization header, environment PAT, or local OAuth |
+| `account_id`, `workspace_id`, `member_id` | Which customer and which user. `account_id` aliases the GitGuardian API's `workspace_id` for cross-service observability |
+| `token_id`, `token_type`, `token_scopes_hash` | Which credential, and a digest of its scope set. Never the token itself |
+| `gg_host` | Separates SaaS from self-hosted; the same workspace id can exist on both |
+
+### Events
+
+| Event | When | Notable fields |
+| --- | --- | --- |
+| `tool_call` / `tool_call_failed` | Per tool invocation | `tool`, `arguments`, `elapsed_ms`, `result_bytes`, `result_items`, `truncated`, `downstream_calls`, `downstream_ms`, `downstream_retries`, `downstream_wait_ms`, and on failure `error_class`, `upstream_status`, `gg_error_code`, `fault` |
+| `mcp_request` / `mcp_request_failed` | Per protocol message except `tools/call` | `mcp_method`, `status`, `elapsed_ms` |
+| `mcp_initialize` | Handshake | `client_name`, `client_version`, `protocol_version` |
+| `list_tools` | Scope filtering | `tools_exposed`, `tools_hidden`, `hidden_tools` |
+| `api_request` | Per outbound GitGuardian API call | `method`, `path` (templated), `status`, `duration_ms`, `gg_request_id` |
+| `pagination_complete` | End of a paginated fetch | `items`, `response_bytes`, `truncated`, `pages` |
+| `oauth_step` | Each step of the OAuth proxy funnel | `oauth_step`, `outcome`, `status` |
+
+`fault` grades who has to act: `client` for bad input or a missing permission,
+`server` for anything worth paging about. Filter on it before reading a failure
+list. 408 and 429 count as server fault.
+
+`downstream_ms` includes retry backoff, so `elapsed_ms - downstream_ms` is time
+that was genuinely ours. `downstream_wait_ms` breaks out the backoff portion.
+Counters and `truncated` are emitted even at zero and false, so a rate has a
+denominator.
+
+`gg_error_code` carries only machine-readable `code`/`error` values, never
+DRF's `detail` prose, which on scan endpoints can echo the submitted payload.
+
+`ping` is answered by the low-level MCP SDK before FastMCP dispatches, so no
+middleware hook sees it and it produces no event.
+
+### Redaction
+
+`gg_api_core/sanitization.py` scrubs by field name and by value. When adding a
+field whose name contains a token like `token` or `content` but which carries no
+secret, add it to `NON_SENSITIVE_NAME_ALLOWLIST`, otherwise it renders as
+`[REDACTED]`.
+
+Sentry's `MCPIntegration` is the sole capture owner for tool exceptions.
+`LoggingIntegration` records INFO-and-higher lines as breadcrumbs but has event
+capture disabled, so client, tool, FastMCP, and middleware error logs cannot
+create duplicate issues.
+
+Sentry payloads are scrubbed at the SDK boundary. `before_breadcrumb` applies
+field-name redaction inside logging `data` and value redaction to the complete
+breadcrumb. `before_send` value-scrubs the finished event, including exception
+values and request data added by Sentry itself. Name-based redaction is not
+applied to the whole event because Sentry schema keys such as `filename` and
+`module` would destroy the stack trace. `include_local_variables=False` keeps
+frame locals out of the payload entirely.
+
 ## Optional Dependencies
 
 The project supports optional dependencies (extras) for additional features:
@@ -206,11 +275,11 @@ uvx --from git+https://github.com/GitGuardian/ggmcp.git@main gg-mcp-server
 
 ### Current Optional Dependencies
 
-- **sentry**: Adds Sentry SDK for error tracking and performance monitoring
+- **sentry**: Adds the Sentry SDK for error tracking
   - Core package: `gg-api-core[sentry]`
   - Available in: `gg-mcp-server[sentry]`
   - Implementation: `gg_api_core/src/gg_api_core/sentry_integration.py`
-  - Used for: Production error monitoring and alerting
+  - Used for: MCP exception capture, sanitized breadcrumbs, monitoring, and alerting
 
 ## Testing
 
