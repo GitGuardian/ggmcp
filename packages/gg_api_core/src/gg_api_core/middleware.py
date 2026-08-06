@@ -95,7 +95,7 @@ class RequestLoggingContextMiddleware(Middleware):
                 extra={
                     "mcp_method": method,
                     "status": "error",
-                    "elapsed_ms": round((time.perf_counter() - start) * 1000),
+                    "duration_ms": round((time.perf_counter() - start) * 1000),
                     **classify_failure(exc),
                 },
             )
@@ -106,7 +106,7 @@ class RequestLoggingContextMiddleware(Middleware):
             extra={
                 "mcp_method": method,
                 "status": "ok",
-                "elapsed_ms": round((time.perf_counter() - start) * 1000),
+                "duration_ms": round((time.perf_counter() - start) * 1000),
             },
         )
         return result
@@ -249,7 +249,7 @@ class ToolCallLoggingMiddleware(Middleware):
                         "tool": tool,
                         "arguments": arguments,
                         "status": "error",
-                        "elapsed_ms": round((time.perf_counter() - start) * 1000),
+                        "duration_ms": round((time.perf_counter() - start) * 1000),
                         **classify_failure(exc),
                         **downstream.as_log_fields(),
                     },
@@ -262,7 +262,7 @@ class ToolCallLoggingMiddleware(Middleware):
                     "tool": tool,
                     "arguments": arguments,
                     "status": "ok",
-                    "elapsed_ms": round((time.perf_counter() - start) * 1000),
+                    "duration_ms": round((time.perf_counter() - start) * 1000),
                     **_result_shape(result),
                     **downstream.as_log_fields(),
                 },

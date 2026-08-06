@@ -200,8 +200,8 @@ every line emitted while handling it, including free-text lines from libraries.
 
 | Event | When | Notable fields |
 | --- | --- | --- |
-| `tool_call` / `tool_call_failed` | Per tool invocation | `tool`, `arguments`, `elapsed_ms`, `result_bytes`, `result_items`, `truncated`, `downstream_calls`, `downstream_ms`, `downstream_retries`, `downstream_wait_ms`, and on failure `error_class`, `upstream_status`, `gg_error_code`, `fault` |
-| `mcp_request` / `mcp_request_failed` | Per protocol message except `tools/call` | `mcp_method`, `status`, `elapsed_ms` |
+| `tool_call` / `tool_call_failed` | Per tool invocation | `tool`, `arguments`, `duration_ms`, `result_bytes`, `result_items`, `truncated`, `downstream_calls`, `downstream_ms`, `downstream_retries`, `downstream_wait_ms`, and on failure `error_class`, `upstream_status`, `gg_error_code`, `fault` |
+| `mcp_request` / `mcp_request_failed` | Per protocol message except `tools/call` | `mcp_method`, `status`, `duration_ms` |
 | `mcp_initialize` | Handshake | `client_name`, `client_version`, `protocol_version` |
 | `list_tools` | Scope filtering | `tools_exposed`, `tools_hidden`, `hidden_tools` |
 | `api_request` | Per outbound GitGuardian API call | `method`, `path` (templated), `status`, `duration_ms`, `gg_request_id` |
@@ -212,7 +212,7 @@ every line emitted while handling it, including free-text lines from libraries.
 `server` for anything worth paging about. Filter on it before reading a failure
 list. 408 and 429 count as server fault.
 
-`downstream_ms` includes retry backoff, so `elapsed_ms - downstream_ms` is time
+`downstream_ms` includes retry backoff, so `duration_ms - downstream_ms` is time
 that was genuinely ours. `downstream_wait_ms` breaks out the backoff portion.
 Counters and `truncated` are emitted even at zero and false, so a rate has a
 denominator.

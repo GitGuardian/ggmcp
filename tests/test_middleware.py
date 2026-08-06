@@ -81,7 +81,7 @@ class TestToolCallLoggingMiddleware:
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.tool == "get_incident"
         assert rec.status == "ok"
-        assert isinstance(rec.elapsed_ms, int)
+        assert isinstance(rec.duration_ms, int)
 
     async def test_logs_and_reraises_on_failure(self, caplog):
         """
