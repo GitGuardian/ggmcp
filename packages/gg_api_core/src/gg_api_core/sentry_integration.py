@@ -12,12 +12,47 @@ Environment Variables:
     SENTRY_PROFILES_SAMPLE_RATE: Sampling rate for profiling (0.0 to 1.0)
 """
 
-import logging
-from typing import Any
+from __future__ import annotations
 
+import logging
+from typing import TYPE_CHECKING, Any
+
+from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value
 from .settings import SentrySettings
 
+if TYPE_CHECKING:
+    from sentry_sdk.types import Event, Hint
+
 logger = logging.getLogger(__name__)
+
+
+_MAX_SCRUB_DEPTH = 12
+
+
+def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
+    """Value-scrub strings recursively at the Sentry SDK boundary."""
+    if depth >= _MAX_SCRUB_DEPTH:
+        return SENSITIVE_DATA_PLACEHOLDER
+    if isinstance(value, str):
+        return scrub_by_value(value)
+    if isinstance(value, dict):
+        return {key: _scrub_sentry_payload(item, depth + 1) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_scrub_sentry_payload(item, depth + 1) for item in value)
+    return value
+
+
+def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
+    """Scrub breadcrumb values and sensitive logging ``data`` fields."""
+    data = breadcrumb.get("data")
+    if isinstance(data, dict):
+        breadcrumb["data"] = {str(key): scrub_by_name(str(key), value) for key, value in data.items()}
+    return _scrub_sentry_payload(breadcrumb)
+
+
+def _scrub_sentry_event(event: Event, hint: Hint) -> Event:
+    """Scrub an event before sending it to Sentry."""
+    return _scrub_sentry_payload(event)
 
 
 def init_sentry() -> bool:
@@ -56,11 +91,8 @@ def init_sentry() -> bool:
     traces_sample_rate = sentry_settings.traces_sample_rate
     profiles_sample_rate = sentry_settings.profiles_sample_rate
 
-    # Configure logging integration
-    logging_integration = LoggingIntegration(
-        level=logging.INFO,  # Capture info and above as breadcrumbs
-        event_level=logging.ERROR,  # Send errors as events
-    )
+    # Logs provide breadcrumbs only. MCPIntegration owns tool-failure events.
+    logging_integration = LoggingIntegration(level=logging.INFO, event_level=None)
 
     try:
         sentry_sdk.init(
@@ -70,6 +102,9 @@ def init_sentry() -> bool:
             traces_sample_rate=traces_sample_rate,
             profiles_sample_rate=profiles_sample_rate,
             integrations=[logging_integration],
+            include_local_variables=False,
+            before_send=_scrub_sentry_event,
+            before_breadcrumb=_scrub_breadcrumb,
             # Automatically capture unhandled exceptions
             send_default_pii=False,  # Don't send personally identifiable information by default
         )

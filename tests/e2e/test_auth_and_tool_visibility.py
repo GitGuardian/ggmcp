@@ -152,7 +152,9 @@ class TestScopeBasedToolVisibility:
         assert first_full_catalog == EXPECTED_FULL_TOOL_CATALOG
         assert scan_catalog == EXPECTED_SCAN_ONLY_TOOL_CATALOG
         assert second_full_catalog == EXPECTED_FULL_TOOL_CATALOG
-        assert token_route.call_count == 3
+        # Each tools/list resolves scopes. Logging enrichment also resolves caller
+        # identity once per distinct token, then serves repeat calls from its cache.
+        assert token_route.call_count == 5
 
     async def test_concurrent_requests_keep_tenant_context_isolated(self, mcp_client, gg_api):
         """
