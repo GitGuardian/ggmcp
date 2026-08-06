@@ -36,6 +36,14 @@ logger = logging.getLogger(__name__)
 _downstream_unauthorized: ContextVar[bool] = ContextVar("downstream_unauthorized", default=False)
 
 
+def _log_oauth_step(step: str, *, outcome: str, status: int | None = None, **fields: Any) -> None:
+    """Emit one structured ``oauth_step`` event."""
+    logger.info(
+        "oauth_step",
+        extra={"oauth_step": step, "outcome": outcome, "status": status, **fields},
+    )
+
+
 def mark_downstream_unauthorized() -> None:
     """Signal that the downstream GG API rejected the current request as unauthorized.
 
@@ -45,6 +53,7 @@ def mark_downstream_unauthorized() -> None:
     FastMCP would otherwise serialize, letting the MCP client re-run the
     OAuth flow.
     """
+    _log_oauth_step("downstream_unauthorized", outcome="reauth_required", status=401)
     _downstream_unauthorized.set(True)
 
 
@@ -338,6 +347,12 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
                 headers={"Content-Type": "application/json"},
             )
 
+        _log_oauth_step(
+            "register",
+            outcome="ok" if response.status_code < 400 else "error",
+            status=response.status_code,
+            user_agent=request.headers.get("user-agent"),
+        )
         return JSONResponse(
             response.json(),
             status_code=response.status_code,
@@ -362,6 +377,14 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
 
         separator = "&" if "?" in self.gg_authorize_url else "?"
         url = f"{self.gg_authorize_url}{separator}{urlencode(params)}"
+        _log_oauth_step(
+            "authorize",
+            outcome="redirected",
+            status=302,
+            oauth_client_id=params.get("client_id"),
+            pkce=params.get("code_challenge_method"),
+            user_agent=request.headers.get("user-agent"),
+        )
         return RedirectResponse(url=url, status_code=302)
 
     async def _handle_token(self, request: Request) -> JSONResponse:
@@ -404,7 +427,17 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
 
+        grant_type = form_data.get("grant_type")
+        oauth_client_id = form_data.get("client_id")
+
         if response.status_code != 200:
+            _log_oauth_step(
+                "token",
+                outcome="error",
+                status=response.status_code,
+                grant_type=grant_type,
+                oauth_client_id=oauth_client_id,
+            )
             return JSONResponse(
                 response.json()
                 if response.headers.get("content-type", "").startswith("application/json")
@@ -417,11 +450,25 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         # Transform GG's non-standard response to OAuth standard
         access_token = token_data.get("access_token") or token_data.get("key")
         if not access_token:
+            _log_oauth_step(
+                "token",
+                outcome="missing_access_token",
+                status=500,
+                grant_type=grant_type,
+                oauth_client_id=oauth_client_id,
+            )
             return JSONResponse(
                 {"error": "server_error", "error_description": "No access token in upstream response"},
                 status_code=500,
             )
 
+        _log_oauth_step(
+            "token",
+            outcome="ok",
+            status=200,
+            grant_type=grant_type,
+            oauth_client_id=oauth_client_id,
+        )
         return JSONResponse(
             {
                 "access_token": access_token,
