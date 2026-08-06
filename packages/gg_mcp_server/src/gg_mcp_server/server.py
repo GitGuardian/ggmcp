@@ -7,6 +7,7 @@ current token cannot satisfy are filtered out at list-tools time.
 import logging
 from functools import cache
 
+from fastmcp.server.http import create_streamable_http_app
 from gg_api_core.logging_config import configure_logging_from_settings
 from gg_api_core.mcp_server import (
     AbstractGitGuardianFastMCP,
@@ -15,11 +16,44 @@ from gg_api_core.mcp_server import (
 )
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
+from starlette.applications import Starlette
 
 from gg_mcp_server.add_health_check import add_health_check
 from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
 
 logger = logging.getLogger(__name__)
+
+
+def build_server() -> AbstractGitGuardianFastMCP:
+    """Compose the GitGuardian MCP server: auth mode, tools, health check.
+
+    Pure composition, no process-level side effects (Sentry, logging), so
+    tests can build fresh instances of the exact production server.
+    """
+    mcp = get_mcp_server(
+        "GitGuardian",
+        instructions=GITGUARDIAN_INSTRUCTIONS,
+    )
+    register_tools(mcp)
+    register_common_tools(mcp)
+    add_health_check(mcp)
+    return mcp
+
+
+def build_http_app(mcp: AbstractGitGuardianFastMCP) -> Starlette:
+    """Wrap the server in its production StreamableHTTP ASGI app.
+
+    json_response=True and stateless_http=True allow horizontal scaling
+    without sticky sessions since no session state is maintained between
+    requests.
+    """
+    return create_streamable_http_app(
+        server=mcp,
+        streamable_http_path="/mcp",
+        auth=mcp.auth,
+        json_response=True,
+        stateless_http=True,
+    )
 
 
 @cache
@@ -34,13 +68,7 @@ def get_server() -> AbstractGitGuardianFastMCP:
     """
     init_sentry()
     configure_logging_from_settings(get_settings())
-    mcp = get_mcp_server(
-        "GitGuardian",
-        instructions=GITGUARDIAN_INSTRUCTIONS,
-    )
-    register_tools(mcp)
-    register_common_tools(mcp)
-    add_health_check(mcp)
+    mcp = build_server()
     logger.info("GitGuardian MCP server instance created and configured")
     return mcp
 
