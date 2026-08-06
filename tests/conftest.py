@@ -8,7 +8,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import pytest
+import structlog
 import vcr
+
+DEMOTABLE_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
 
 # Configure logging for VCR debugging
 vcr_logger = logging.getLogger("vcr.debug")
@@ -597,3 +600,21 @@ def setup_test_env():
     # Restore original environment
     os.environ.clear()
     os.environ.update(original_env)
+
+
+@pytest.fixture(autouse=True)
+def restore_logging_configuration():
+    """Restore global logging state after each test."""
+    root = logging.getLogger()
+    saved_structlog_config = structlog.get_config()
+    saved_handlers = list(root.handlers)
+    saved_root_level = root.level
+    saved_levels = {name: logging.getLogger(name).level for name in DEMOTABLE_LOGGERS}
+
+    yield
+
+    structlog.configure(**saved_structlog_config)
+    root.handlers = saved_handlers
+    root.setLevel(saved_root_level)
+    for name, level in saved_levels.items():
+        logging.getLogger(name).setLevel(level)
