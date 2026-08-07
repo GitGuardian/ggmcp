@@ -4,6 +4,7 @@ import logging
 import pytest
 import structlog
 from gg_api_core.logging_config import configure_logging
+from gg_api_core.version import APP_VERSION
 
 
 def _reconfigure_json():
@@ -44,6 +45,7 @@ class TestConfigureLogging:
         assert payload["account_id"] == 475789
         assert payload["gg_service"] == "gg-mcp-server"
         assert payload["level"] == "info"
+        assert payload["gg_version"] == (APP_VERSION or "unknown")
 
     def test_structlog_kwargs_are_sanitized(self, capsys):
         _reconfigure_json()

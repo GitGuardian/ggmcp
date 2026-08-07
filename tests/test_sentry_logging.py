@@ -135,11 +135,11 @@ class TestSentryCaptureOwnership:
         assert "raw scan payload" not in rendered
         assert "scan_secrets" in rendered
 
-    async def test_mcp_integration_is_the_only_tool_failure_owner(self, sentry_events):
+    async def test_mcp_integration_is_the_only_tool_failure_owner(self, sentry_events, monkeypatch):
         """
         GIVEN a real MCP tool that raises an exception
         WHEN it is called through the middleware stack
-        THEN MCPIntegration produces exactly one Sentry event
+        THEN MCPIntegration produces one event correlated with its tool log
         """
         mcp = get_mcp_server("Sentry ownership test")
         mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
@@ -149,6 +149,7 @@ class TestSentryCaptureOwnership:
         async def failing_tool():
             raise RuntimeError("tool exploded")
 
+        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "req-sentry"})
         configure_logging(log_level="DEBUG", log_format="json")
         async with Client(mcp) as client:
             with pytest.raises(ToolError):
@@ -158,6 +159,8 @@ class TestSentryCaptureOwnership:
         event = sentry_events[0]
         exception_types = [value["type"] for value in event["exception"]["values"]]
         assert exception_types == ["RuntimeError", "ToolError"]
+
+        assert event["tags"]["request_id"] == "req-sentry"
 
     def test_rendered_traceback_remains_scrubbed(self, sentry_events, capsys):
         """

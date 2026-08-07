@@ -8,6 +8,7 @@ import structlog
 from structlog.types import EventDict, Processor, WrappedLogger
 
 from gg_api_core.sanitization import scrub_by_name, scrub_by_value
+from gg_api_core.version import APP_VERSION
 
 if TYPE_CHECKING:
     from gg_api_core.settings import Settings
@@ -72,8 +73,9 @@ def _add_exception_cls(logger: WrappedLogger, method_name: str, event_dict: Even
 def configure_logging(
     *, log_level: str = "INFO", log_format: str | None = None, service: str = "gg-mcp-server"
 ) -> None:
-    def _add_service(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+    def _add_gg_fields(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
         event_dict["gg_service"] = service
+        event_dict["gg_version"] = APP_VERSION or "unknown"
         return event_dict
 
     shared: list[Processor] = [
@@ -82,7 +84,7 @@ def configure_logging(
         structlog.stdlib.add_logger_name,
         structlog.stdlib.ExtraAdder(),
         structlog.processors.TimeStamper(fmt="iso"),
-        _add_service,
+        _add_gg_fields,
         structlog.processors.StackInfoRenderer(),
         _add_exception_cls,
         _scrub_sensitive_keys,

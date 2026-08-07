@@ -22,6 +22,7 @@ from gg_api_core.log_context import (
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
+from gg_api_core.sentry_integration import set_sentry_request_id
 from gg_api_core.settings import get_settings
 from gg_api_core.urls import derive_public_api_url
 
@@ -63,10 +64,12 @@ class RequestLoggingContextMiddleware(Middleware):
 
     @override
     async def on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any:
+        request_id = _resolve_request_id()
         bindings: dict[str, Any] = {
             "authentication_mode": self._mcp_server.authentication_mode.value,
-            "request_id": _resolve_request_id(),
+            "request_id": request_id,
         }
+        set_sentry_request_id(request_id)
 
         session_id = _resolve_session_id(context)
         if session_id:

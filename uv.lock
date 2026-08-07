@@ -541,7 +541,7 @@ requires-dist = [
     { name = "pydantic", specifier = "~=2.12" },
     { name = "pydantic-settings", specifier = "~=2.9" },
     { name = "python-dotenv", specifier = "~=1.1" },
-    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.43" },
+    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.45" },
     { name = "structlog", specifier = "~=26.1" },
 ]
 provides-extras = ["sentry"]
@@ -589,6 +589,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "gg-api-core", extra = ["sentry"] },
     { name = "pyrefly" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -612,6 +613,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "gg-api-core", extras = ["sentry"], editable = "packages/gg_api_core" },
     { name = "pyrefly", specifier = ">=1.1.1" },
     { name = "pytest", specifier = "~=8.4" },
     { name = "pytest-asyncio", specifier = "~=1.2" },

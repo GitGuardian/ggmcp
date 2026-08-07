@@ -6,7 +6,6 @@ import time
 from collections.abc import Awaitable, Sequence
 from datetime import datetime
 from enum import Enum
-from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
@@ -15,6 +14,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
 from gg_api_core.settings import get_settings
+from gg_api_core.version import APP_VERSION
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -96,10 +96,7 @@ async def _track_api_request(
     return response
 
 
-try:
-    DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
-except PackageNotFoundError:
-    DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
+DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else "GitGuardian-MCP-Server"
 
 
 def _to_date_only(value: str) -> str:

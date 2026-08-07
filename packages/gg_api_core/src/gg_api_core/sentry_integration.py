@@ -17,6 +17,13 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.logging import LoggingIntegration
+except ImportError:
+    sentry_sdk = None
+    LoggingIntegration = None
+
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value
 from .settings import SentrySettings
 
@@ -27,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 _MAX_SCRUB_DEPTH = 12
+_REQUEST_ID_FIELD = "request_id"
 
 
 def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
@@ -50,28 +58,30 @@ def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
     return _scrub_sentry_payload(breadcrumb)
 
 
-def _scrub_sentry_event(event: Event, hint: Hint) -> Event:
-    """Scrub an event before sending it to Sentry."""
-    return _scrub_sentry_payload(event)
+def _request_id_from_trace(event: Event) -> str | None:
+    contexts = event.get("contexts")
+    if not isinstance(contexts, dict):
+        return None
+    trace = contexts.get("trace")
+    if not isinstance(trace, dict):
+        return None
+    data = trace.get("data")
+    if not isinstance(data, dict):
+        return None
+    request_id = data.get(_REQUEST_ID_FIELD)
+    return request_id if isinstance(request_id, str) else None
+
+
+def _prepare_sentry_event(event: Event, hint: Hint) -> Event:
+    event = _scrub_sentry_payload(event)
+    request_id = _request_id_from_trace(event)
+    if request_id:
+        event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
+    return event
 
 
 def init_sentry() -> bool:
-    """
-    Initialize Sentry SDK if configured via environment variables.
-
-    This function attempts to import and configure Sentry SDK only if
-    SENTRY_DSN is provided. It gracefully handles missing sentry-sdk
-    installation and logs appropriate messages.
-
-    Returns:
-        bool: True if Sentry was successfully initialized, False otherwise
-
-    Example:
-        >>> import os
-        >>> os.environ["SENTRY_DSN"] = "https://..."
-        >>> init_sentry()
-        True
-    """
+    """Initialize Sentry when configured and available."""
     sentry_settings = SentrySettings()
     dsn = sentry_settings.dsn
 
@@ -79,10 +89,7 @@ def init_sentry() -> bool:
         logger.debug("SENTRY_DSN not configured, skipping Sentry initialization")
         return False
 
-    try:
-        import sentry_sdk
-        from sentry_sdk.integrations.logging import LoggingIntegration
-    except ImportError:
+    if sentry_sdk is None or LoggingIntegration is None:
         logger.warning("Sentry SDK not installed")
         return False
 
@@ -103,7 +110,7 @@ def init_sentry() -> bool:
             profiles_sample_rate=profiles_sample_rate,
             integrations=[logging_integration],
             include_local_variables=False,
-            before_send=_scrub_sentry_event,
+            before_send=_prepare_sentry_event,
             before_breadcrumb=_scrub_breadcrumb,
             # Automatically capture unhandled exceptions
             send_default_pii=False,  # Don't send personally identifiable information by default
@@ -120,6 +127,18 @@ def init_sentry() -> bool:
         return False
 
 
+def set_sentry_request_id(request_id: str) -> None:
+    """Preserve a request ID on the active Sentry span."""
+    if sentry_sdk is None:
+        return
+    try:
+        span = sentry_sdk.get_current_span()
+        if span is not None:
+            span.set_data(_REQUEST_ID_FIELD, request_id)
+    except Exception as exc:
+        logger.debug("Failed to preserve request ID for Sentry: %s", exc)
+
+
 def set_sentry_context(key: str, value: Any) -> None:
     """
     Set additional context for Sentry error reporting.
@@ -134,15 +153,12 @@ def set_sentry_context(key: str, value: Any) -> None:
     Example:
         >>> set_sentry_context("workspace", {"id": "123", "name": "acme"})
     """
+    if sentry_sdk is None:
+        return
     try:
-        import sentry_sdk
-
         sentry_sdk.set_context(key, value)
-    except ImportError:
-        # Sentry not installed, silently skip
-        pass
-    except Exception as e:
-        logger.debug(f"Failed to set Sentry context: {str(e)}")
+    except Exception as exc:
+        logger.debug("Failed to set Sentry context: %s", exc)
 
 
 def set_sentry_user(user_info: dict[str, Any]) -> None:
@@ -158,15 +174,12 @@ def set_sentry_user(user_info: dict[str, Any]) -> None:
     Example:
         >>> set_sentry_user({"id": "123", "email": "user@example.com"})
     """
+    if sentry_sdk is None:
+        return
     try:
-        import sentry_sdk
-
         sentry_sdk.set_user(user_info)
-    except ImportError:
-        # Sentry not installed, silently skip
-        pass
-    except Exception as e:
-        logger.debug(f"Failed to set Sentry user: {str(e)}")
+    except Exception as exc:
+        logger.debug("Failed to set Sentry user: %s", exc)
 
 
 def capture_exception(exception: Exception, **kwargs: Any) -> None:
@@ -186,12 +199,9 @@ def capture_exception(exception: Exception, **kwargs: Any) -> None:
         ...     capture_exception(e, extra={"operation": "risky_operation"})
         ...     handle_error(e)
     """
+    if sentry_sdk is None:
+        return
     try:
-        import sentry_sdk
-
         sentry_sdk.capture_exception(exception, **kwargs)
-    except ImportError:
-        # Sentry not installed, silently skip
-        pass
-    except Exception as e:
-        logger.debug(f"Failed to capture exception in Sentry: {str(e)}")
+    except Exception as exc:
+        logger.debug("Failed to capture exception in Sentry: %s", exc)
