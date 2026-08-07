@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 _MAX_SCRUB_DEPTH = 12
+_REQUEST_ID_FIELD = "request_id"
 
 
 def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
@@ -57,9 +58,26 @@ def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
     return _scrub_sentry_payload(breadcrumb)
 
 
-def _scrub_sentry_event(event: Event, hint: Hint) -> Event:
-    """Scrub an event before sending it to Sentry."""
-    return _scrub_sentry_payload(event)
+def _request_id_from_trace(event: Event) -> str | None:
+    contexts = event.get("contexts")
+    if not isinstance(contexts, dict):
+        return None
+    trace = contexts.get("trace")
+    if not isinstance(trace, dict):
+        return None
+    data = trace.get("data")
+    if not isinstance(data, dict):
+        return None
+    request_id = data.get(_REQUEST_ID_FIELD)
+    return request_id if isinstance(request_id, str) else None
+
+
+def _prepare_sentry_event(event: Event, hint: Hint) -> Event:
+    event = _scrub_sentry_payload(event)
+    request_id = _request_id_from_trace(event)
+    if request_id:
+        event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
+    return event
 
 
 def init_sentry() -> bool:
@@ -92,7 +110,7 @@ def init_sentry() -> bool:
             profiles_sample_rate=profiles_sample_rate,
             integrations=[logging_integration],
             include_local_variables=False,
-            before_send=_scrub_sentry_event,
+            before_send=_prepare_sentry_event,
             before_breadcrumb=_scrub_breadcrumb,
             # Automatically capture unhandled exceptions
             send_default_pii=False,  # Don't send personally identifiable information by default
@@ -107,6 +125,18 @@ def init_sentry() -> bool:
     except Exception as e:
         logger.exception(f"Failed to initialize Sentry: {str(e)}")
         return False
+
+
+def set_sentry_request_id(request_id: str) -> None:
+    """Preserve a request ID on the active Sentry span."""
+    if sentry_sdk is None:
+        return
+    try:
+        span = sentry_sdk.get_current_span()
+        if span is not None:
+            span.set_data(_REQUEST_ID_FIELD, request_id)
+    except Exception as exc:
+        logger.debug("Failed to preserve request ID for Sentry: %s", exc)
 
 
 def set_sentry_context(key: str, value: Any) -> None:
