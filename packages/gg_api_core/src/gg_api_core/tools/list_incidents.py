@@ -1,10 +1,10 @@
 import json
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES, IncidentValidityFilter
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -36,6 +36,10 @@ SEVERITY_NAME_TO_VALUE = {
     "unknown": SeverityValues.UNKNOWN,
 }
 
+# Severity names, or the numeric values the endpoint itself uses (accepted for callers
+# that already send them).
+SeverityFilter = Literal["critical", "high", "medium", "low", "info", "unknown"] | int
+
 
 # Default filters to reduce noise - exclude test files, false positives, and low-priority incidents
 DEFAULT_EXCLUDED_TAGS = [
@@ -45,7 +49,7 @@ DEFAULT_EXCLUDED_TAGS = [
     "CHECK_RUN_SKIP_LOW_RISK",
     "CHECK_RUN_SKIP_TEST_CRED",
 ]
-DEFAULT_SEVERITIES: list[str | int] = [
+DEFAULT_SEVERITIES: list[SeverityFilter] = [
     SeverityValues.CRITICAL,
     SeverityValues.HIGH,
     SeverityValues.MEDIUM,
@@ -56,11 +60,11 @@ DEFAULT_STATUSES = [
     IncidentStatus.ASSIGNED,
     IncidentStatus.RESOLVED,
 ]  # Exclude IGNORED
-DEFAULT_VALIDITIES = [
+DEFAULT_VALIDITIES: list[IncidentValidityFilter] = [
     "valid",
     "failed_to_check",
     "no_checker",
-    "not_checked",
+    "unknown",
 ]  # Exclude INVALID
 
 
@@ -231,7 +235,7 @@ class ListIncidentsParams(BaseModel):
     )
 
     # Severity, score, and validity filters
-    severity: list[str | int] | None = Field(
+    severity: list[SeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
     )
@@ -247,9 +251,9 @@ class ListIncidentsParams(BaseModel):
         ge=0,
         le=100,
     )
-    validity: list[str] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
+        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
     )
 
     # Secret type filters
@@ -289,7 +293,7 @@ class ListIncidentsParams(BaseModel):
     )
     source_type: list[str] | None = Field(
         default=None,
-        description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')",
+        description="Filter by source type, using the internal source type names (e.g., 'gh_repository', 'gl_project', 'bb_repository'). Public API aliases such as 'github' or 'gitlab' are rejected by this endpoint.",
     )
     source_criticality: list[str] | None = Field(
         default=None,
@@ -536,20 +540,10 @@ async def list_incidents(
         if params.status:
             api_params["status"] = params.status
         if params.severity:
-            # Convert severity names to numeric values if needed
-            severity_values: list[int | str] = []
-            for sev in params.severity:
-                if isinstance(sev, int):
-                    severity_values.append(sev)
-                elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-                    severity_values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-                else:
-                    # Try to parse as int, or pass through as-is
-                    try:
-                        severity_values.append(int(str(sev)))
-                    except ValueError:
-                        severity_values.append(str(sev))
-            api_params["severity"] = severity_values
+            # Severity names are validated by the schema, so the lookup always resolves
+            api_params["severity"] = [
+                SEVERITY_NAME_TO_VALUE[sev] if isinstance(sev, str) else sev for sev in params.severity
+            ]
         if params.score_min is not None:
             api_params["score__ge"] = params.score_min
         if params.score_max is not None:
