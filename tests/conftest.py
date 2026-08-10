@@ -10,8 +10,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 import pytest
 import structlog
 import vcr
-
-DEMOTABLE_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
+from gg_api_core.logging_config import _DEMOTED_LOGGERS
 
 # Configure logging for VCR debugging
 vcr_logger = logging.getLogger("vcr.debug")
@@ -609,7 +608,7 @@ def restore_logging_configuration():
     saved_structlog_config = structlog.get_config()
     saved_handlers = list(root.handlers)
     saved_root_level = root.level
-    saved_levels = {name: logging.getLogger(name).level for name in DEMOTABLE_LOGGERS}
+    saved_levels = {name: logging.getLogger(name).level for name in _DEMOTED_LOGGERS}
 
     yield
 
