@@ -123,7 +123,8 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
 
     api_requests = _FakeGitGuardianApi.requests
     assert [request["path"] for request in api_requests] == [
-        f"{API_PREFIX}/api_tokens/self",
+        f"{API_PREFIX}/api_tokens/self",  # startup scope discovery
+        f"{API_PREFIX}/api_tokens/self",  # caller identity for log enrichment
         f"{API_PREFIX}/incidents/secrets/77",
     ]
     assert {request["authorization"] for request in api_requests} == {f"Token {STDIO_PAT}"}

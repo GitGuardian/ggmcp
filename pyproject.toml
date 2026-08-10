@@ -56,6 +56,7 @@ dev = [
     "respx~=0.22",
     "pytest-socket~=0.7",
     "pytest-voluptuous~=1.2",
+    "gg-api-core[sentry]",
 ]
 
 [project.scripts]

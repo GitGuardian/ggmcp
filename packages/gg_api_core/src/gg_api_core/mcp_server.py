@@ -14,8 +14,10 @@ from typing_extensions import override
 
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
+from gg_api_core.log_context import clear_caller_identity_cache
 from gg_api_core.middleware import (
     DownstreamUnauthorizedMiddleware,
+    RequestLoggingContextMiddleware,
     ScopeFilteringMiddleware,
     ToolCallLoggingMiddleware,
 )
@@ -122,6 +124,8 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         # Map each tool to its required scopes (instance attribute)
         self._tool_scopes: dict[str, set[str]] = {}
 
+        # Bind request context before downstream middleware emits logs.
+        self.add_middleware(RequestLoggingContextMiddleware(self))
         self.add_middleware(ScopeFilteringMiddleware(self))
         self.add_middleware(DownstreamUnauthorizedMiddleware())
         self.add_middleware(ToolCallLoggingMiddleware())
@@ -150,9 +154,15 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         try:
             logger.debug("Revoking current API token")
             # Call the DELETE /api_tokens/self endpoint
+            token = self.get_personal_access_token()
             client = await self.get_client()
             result = await client.revoke_current_token()
             logger.debug("API token revoked")
+            # The revoked token's workspace/member ids are no longer worth
+            # stamping onto log lines, and the entry would otherwise survive for
+            # the rest of its TTL. Only this token's entry: the server is
+            # multi-tenant, and other callers' credentials are still valid.
+            clear_caller_identity_cache(token)
             return result
         except Exception as e:
             logger.exception(f"Error revoking current API token: {str(e)}")

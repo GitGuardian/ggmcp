@@ -8,6 +8,7 @@ import structlog
 from structlog.types import EventDict, Processor, WrappedLogger
 
 from gg_api_core.sanitization import scrub_by_name, scrub_by_value
+from gg_api_core.version import APP_VERSION
 
 if TYPE_CHECKING:
     from gg_api_core.settings import Settings
@@ -30,6 +31,10 @@ _RESERVED_KEYS = frozenset(
 )
 
 
+# Their per-request INFO lines are replaced by structured events.
+_DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
+
+
 def _scrub_sensitive_keys(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
     for key in list(event_dict.keys()):
         if key not in _RESERVED_KEYS:
@@ -40,6 +45,14 @@ def _scrub_sensitive_keys(logger: WrappedLogger, method_name: str, event_dict: E
 def _scrub_reserved_values(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
     for key in list(event_dict.keys()):
         if key in _RESERVED_KEYS:
+            event_dict[key] = scrub_by_value(event_dict[key])
+    return event_dict
+
+
+def _scrub_rendered_exception(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+    """Scrub rendered traceback text."""
+    for key in ("exception", "stack"):
+        if key in event_dict:
             event_dict[key] = scrub_by_value(event_dict[key])
     return event_dict
 
@@ -60,8 +73,9 @@ def _add_exception_cls(logger: WrappedLogger, method_name: str, event_dict: Even
 def configure_logging(
     *, log_level: str = "INFO", log_format: str | None = None, service: str = "gg-mcp-server"
 ) -> None:
-    def _add_service(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+    def _add_gg_fields(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
         event_dict["gg_service"] = service
+        event_dict["gg_version"] = APP_VERSION or "unknown"
         return event_dict
 
     shared: list[Processor] = [
@@ -70,12 +84,13 @@ def configure_logging(
         structlog.stdlib.add_logger_name,
         structlog.stdlib.ExtraAdder(),
         structlog.processors.TimeStamper(fmt="iso"),
-        _add_service,
+        _add_gg_fields,
         structlog.processors.StackInfoRenderer(),
         _add_exception_cls,
-        structlog.processors.format_exc_info,
         _scrub_sensitive_keys,
         _scrub_reserved_values,
+        structlog.processors.format_exc_info,
+        _scrub_rendered_exception,
     ]
 
     structlog.configure(
@@ -99,7 +114,13 @@ def configure_logging(
     root = logging.getLogger()
     root.handlers = [h for h in root.handlers if h.name != "ggmcp-log"]
     root.addHandler(handler)
-    root.setLevel(logging.getLevelNamesMapping().get(log_level.upper(), logging.INFO))
+    root_level = logging.getLevelNamesMapping().get(log_level.upper(), logging.INFO)
+    root.setLevel(root_level)
+
+    # Preserve raw third-party request logs only when DEBUG is requested.
+    demoted_level = logging.NOTSET if root_level <= logging.DEBUG else logging.WARNING
+    for name in _DEMOTED_LOGGERS:
+        logging.getLogger(name).setLevel(demoted_level)
 
 
 def configure_logging_from_settings(settings: Settings) -> None:

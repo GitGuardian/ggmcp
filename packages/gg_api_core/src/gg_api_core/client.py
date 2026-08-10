@@ -2,26 +2,101 @@ import asyncio
 import json
 import logging
 import re
-from collections.abc import Sequence
+import time
+from collections.abc import Awaitable, Sequence
 from datetime import datetime
 from enum import Enum
-from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
 
 import httpx
 from pydantic import TypeAdapter, ValidationError
 
+from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
 from gg_api_core.settings import get_settings
+from gg_api_core.version import APP_VERSION
 
 # Setup logger
 logger = logging.getLogger(__name__)
 
 
-try:
-    DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{version('ggmcp')}"
-except PackageNotFoundError:
-    DEFAULT_USER_AGENT = "GitGuardian-MCP-Server"
+_UUID_SEGMENT_RE = re.compile(r"^[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$")
+
+_GG_REQUEST_ID_HEADERS = ("x-request-id", "x-gitguardian-request-id", "request-id")
+
+
+def _path_template(endpoint: str) -> str:
+    """Drop query strings and collapse ID path segments."""
+    path = endpoint.split("?", 1)[0].split("#", 1)[0]
+    segments = [
+        "{id}" if segment.isdigit() or _UUID_SEGMENT_RE.match(segment) else segment for segment in path.split("/")
+    ]
+    return "/".join(segments)
+
+
+def _log_api_request(
+    method: str,
+    endpoint: str,
+    *,
+    status: int | None,
+    duration_ms: float,
+    response: httpx.Response | None = None,
+    retried: bool = False,
+    error_class: str | None = None,
+) -> None:
+    """Log and account for one API request."""
+    fields: dict[str, Any] = {
+        "method": method.upper(),
+        "path": _path_template(endpoint),
+        "status": status,
+        "duration_ms": round(duration_ms),
+    }
+    if response is not None:
+        for header in _GG_REQUEST_ID_HEADERS:
+            if value := response.headers.get(header):
+                fields["gg_request_id"] = value
+                break
+    if error_class:
+        fields["error_class"] = error_class
+
+    logger.info("api_request", extra=fields)
+    record_downstream_call(duration_ms=duration_ms, status=status, retried=retried)
+
+
+async def _track_api_request(
+    method: str,
+    endpoint: str,
+    request: Awaitable[httpx.Response],
+    *,
+    retried: bool = False,
+) -> httpx.Response:
+    """Execute and record one downstream API attempt."""
+    request_started = time.perf_counter()
+    try:
+        response = await request
+    except Exception as exc:
+        _log_api_request(
+            method,
+            endpoint,
+            status=None,
+            duration_ms=(time.perf_counter() - request_started) * 1000,
+            retried=retried,
+            error_class=type(exc).__name__,
+        )
+        raise
+
+    _log_api_request(
+        method,
+        endpoint,
+        status=response.status_code,
+        duration_ms=(time.perf_counter() - request_started) * 1000,
+        response=response,
+        retried=retried,
+    )
+    return response
+
+
+DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else "GitGuardian-MCP-Server"
 
 
 def _to_date_only(value: str) -> str:
@@ -476,7 +551,12 @@ class GitGuardianClient:
             try:
                 async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
                     logger.debug(f"Sending {method} request to {url}")
-                    response = await client.request(method, url, headers=headers, **kwargs)
+                    response = await _track_api_request(
+                        method,
+                        endpoint,
+                        client.request(method, url, headers=headers, **kwargs),
+                        retried=retry_count > 0,
+                    )
 
                 # Log detailed response information
                 logger.debug(f"Response status code: {response.status_code}")
@@ -501,6 +581,7 @@ class GitGuardianClient:
                     logger.warning(
                         f"Received 500 error, retrying in {wait_time}s (attempt {retry_count}/{max_retries})"
                     )
+                    record_downstream_wait(duration_ms=wait_time * 1000)
                     await asyncio.sleep(wait_time)
                     continue
 
@@ -723,7 +804,11 @@ class GitGuardianClient:
         headers.update(kwargs.pop("headers", {}))
 
         async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
-            response = await client.get(url, headers=headers, **kwargs)
+            response = await _track_api_request(
+                "GET",
+                endpoint,
+                client.get(url, headers=headers, **kwargs),
+            )
             response.raise_for_status()
 
             data: Any = response.json() if response.content else {}
@@ -845,9 +930,18 @@ class GitGuardianClient:
                 logger.debug("No next cursor found, pagination complete")
                 break
 
+        if truncated:
+            record_truncation()
+
         logger.info(
-            f"Pagination complete for {endpoint}: collected {len(all_items)} items "
-            f"({total_bytes} bytes, capped={truncated})"
+            "pagination_complete",
+            extra={
+                "path": _path_template(endpoint),
+                "items": len(all_items),
+                "response_bytes": total_bytes,
+                "truncated": truncated,
+                "pages": page_count,
+            },
         )
         return {
             "data": all_items,
