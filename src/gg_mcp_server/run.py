@@ -8,7 +8,6 @@ This module provides different ways to run the MCP server:
 import logging
 
 from gg_api_core.settings import get_settings
-
 from gg_mcp_server.server import get_server
 
 logger = logging.getLogger(__name__)
