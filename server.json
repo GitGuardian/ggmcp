@@ -10,7 +10,7 @@
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "ggmcp",
+      "identifier": "gg-mcp-server",
       "version": "0.6.10",
       "runtimeHint": "uvx",
       "transport": {
@@ -18,39 +18,26 @@
       },
       "environmentVariables": [
         {
+          "name": "ENABLE_LOCAL_OAUTH",
+          "description": "Disable the deprecated browser OAuth flow for local stdio mode",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": false,
+          "value": "false"
+        },
+        {
+          "name": "GITGUARDIAN_PERSONAL_ACCESS_TOKEN",
+          "description": "GitGuardian personal access token used by the local server",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "GITGUARDIAN_URL",
           "description": "GitGuardian instance URL (defaults to https://dashboard.gitguardian.com for US SaaS)",
-          "isRequired": false,
           "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_URL"
-        },
-        {
-          "description": "OAuth client ID for custom OAuth applications",
           "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_CLIENT_ID"
-        },
-        {
-          "description": "OAuth scopes to request (auto-detected by default)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_SCOPES"
-        },
-        {
-          "description": "Name for the OAuth token",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_NAME"
-        },
-        {
-          "description": "Token lifetime in days (default: 30)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_LIFETIME"
+          "isSecret": false
         }
       ]
     }

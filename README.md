@@ -162,11 +162,7 @@ locally over stdio with a PAT:
   "mcpServers": {
     "GitGuardian": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ],
+      "args": ["gg-mcp-server@latest"],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
         "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here",
@@ -179,6 +175,9 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+`@latest` checks for a newly published release when the client starts. For a
+reproducible installation, replace `latest` with an exact release number from
+the [`gg-mcp-server` PyPI page](https://pypi.org/project/gg-mcp-server/).
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
