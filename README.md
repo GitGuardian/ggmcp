@@ -1,5 +1,7 @@
 # GitGuardian MCP Server
 
+<!-- mcp-name: io.github.gitguardian/ggmcp -->
+
 Bring GitGuardian's secret detection and incident management into your AI agent.
 Scan code for credentials before they leak, triage existing incidents, generate
 honeytokens, and remediate findings — all from inside your IDE or chat client,
@@ -143,7 +145,7 @@ env vars.
 | **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `ENABLE_LOCAL_OAUTH=false`            | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
 | **Raw bearer** (HTTP)                  | `ENABLE_LOCAL_OAUTH=false` + `MCP_PORT` set                            | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
 | **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
-| **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy `uvx --from …` flow that opens a localhost callback and stores the PAT on disk.                              |
+| **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy local flow that opens a localhost callback and stores the PAT on disk.                                       |
 
 > [!NOTE]
 > Browser-driven OAuth in stdio mode is **deprecated**. New stdio deployments
@@ -162,11 +164,7 @@ locally over stdio with a PAT:
   "mcpServers": {
     "GitGuardian": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ],
+      "args": ["gg-mcp-server@latest"],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
         "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here",
@@ -179,6 +177,9 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+`@latest` checks for a newly published release when the client starts. For a
+reproducible installation, replace `latest` with an exact release number from
+the [`gg-mcp-server` PyPI page](https://pypi.org/project/gg-mcp-server/).
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
