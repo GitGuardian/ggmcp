@@ -1,7 +1,8 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.gitguardian/ggmcp",
-  "description": "GitGuardian MCP server that enables AI agents to scan projects for secrets using GitGuardian's API with 500+ secret detectors, manage security incidents, and create honeytokens",
+  "title": "GitGuardian MCP Server",
+  "description": "Scan for secrets, manage incidents, remediate findings, and create honeytokens with GitGuardian",
   "repository": {
     "url": "https://github.com/GitGuardian/ggmcp",
     "source": "github"
@@ -10,7 +11,7 @@
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "ggmcp",
+      "identifier": "gg-mcp-server",
       "version": "0.6.10",
       "runtimeHint": "uvx",
       "transport": {
@@ -18,39 +19,26 @@
       },
       "environmentVariables": [
         {
-          "description": "GitGuardian instance URL (defaults to https://dashboard.gitguardian.com for US SaaS)",
-          "isRequired": false,
+          "name": "ENABLE_LOCAL_OAUTH",
+          "description": "Disable the deprecated browser OAuth flow for local stdio mode",
           "format": "string",
+          "isRequired": false,
           "isSecret": false,
-          "name": "GITGUARDIAN_URL"
+          "value": "false"
         },
         {
-          "description": "OAuth client ID for custom OAuth applications",
-          "isRequired": false,
+          "name": "GITGUARDIAN_PERSONAL_ACCESS_TOKEN",
+          "description": "GitGuardian personal access token used by the local server",
           "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_CLIENT_ID"
+          "isRequired": true,
+          "isSecret": true
         },
         {
-          "description": "OAuth scopes to request (auto-detected by default)",
-          "isRequired": false,
+          "name": "GITGUARDIAN_URL",
+          "description": "GitGuardian instance URL; defaults to the US SaaS dashboard",
           "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_SCOPES"
-        },
-        {
-          "description": "Name for the OAuth token",
           "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_NAME"
-        },
-        {
-          "description": "Token lifetime in days (default: 30)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_LIFETIME"
+          "isSecret": false
         }
       ]
     }
