@@ -17,15 +17,11 @@ WORKDIR /app
 
 # Copy project files needed for building
 COPY pyproject.toml uv.lock README.md ./
-COPY packages ./packages
 COPY src ./src
 
-# Build wheels for all workspace packages
-# This creates distributable .whl files that can be installed anywhere
-RUN uv build --package gg-api-core --out-dir /dist && \
-    uv build --package gg-mcp-server --out-dir /dist && \
-    uv build --package developer-mcp-server --out-dir /dist && \
-    uv build --package secops-mcp-server --out-dir /dist
+# Build the self-contained server wheel. It bundles the unified server, core
+# implementation, and deprecated console-script compatibility shims.
+RUN uv build --out-dir /dist
 
 # Production stage - Chainguard-based image with shell for build commands
 FROM ghcr.io/gitguardian/wolfi/python:3.13-shell
@@ -42,24 +38,19 @@ WORKDIR /app
 # Copy built wheels from builder stage
 COPY --from=builder /dist/*.whl /tmp/wheels/
 
-# Copy root package files (for entry point installation)
+# Copy project metadata used to export the locked production dependencies.
 COPY pyproject.toml uv.lock README.md ./
-COPY packages ./packages
 COPY src ./src
 
 # `uv pip install <wheel>` ignores uv.lock and re-resolves each wheel's `~=` ranges at build
 # time, so rebuilds drift. Install the locked deps instead, then the wheels with --no-deps.
-# gg-mcp-server[sentry] covers every member's deps plus sentry-sdk for prod monitoring.
-RUN uv export --frozen --no-dev --no-emit-workspace \
-        --package gg-mcp-server --extra sentry \
+# gg-mcp-server[sentry] covers the server dependencies plus sentry-sdk for production monitoring.
+RUN uv export --frozen --no-dev --no-emit-project \
+        --extra sentry \
         --format requirements-txt -o /tmp/requirements.txt && \
     uv pip install --system --require-hashes -r /tmp/requirements.txt && \
     uv pip install --system --no-deps /tmp/wheels/*.whl && \
     rm -rf /tmp/wheels /tmp/requirements.txt
-
-# Install root package to get entry points (http-mcp-server, etc.)
-# This is a metadata-only package that provides entry point scripts
-RUN uv pip install --system --no-deps .
 
 # Ensure app directory is owned by nonroot user
 RUN chown -R nonroot:nonroot /app
