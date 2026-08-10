@@ -13,62 +13,89 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  MCP_PUBLISHER_VERSION: "1.8.1"
+  MCP_PUBLISHER_LINUX_AMD64_SHA256: "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc"
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    name: Release Please
+    name: Release Please and Resolve Context
     # Maintains a rolling "chore(main): release X.Y.Z" PR from conventional commits
     # (version bumps in pyproject.toml + server.json + uv.lock, plus CHANGELOG.md;
     # see release-please-config.json). Merging it creates the vX.Y.Z tag and a draft
-    # release, and outputs the tag for the docker build below; the draft is published
-    # only after that build succeeds. Manual dispatch from main refreshes the PR.
-    if: |
-      github.ref == 'refs/heads/main' &&
-      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    # release. This job also resolves human-pushed escape-hatch tags so every
+    # distribution job consumes one validated release context.
     permissions:
       contents: write # create the release PR branch, the tag, and the release
       issues: write # apply release lifecycle labels (GitHub auto-creates missing ones)
       pull-requests: write # open/update the release PR
     outputs:
-      tag: ${{ steps.release-tag.outputs.tag }}
+      generate-release-notes: ${{ steps.release-tag.outputs.generate-release-notes }}
+      is-release: ${{ steps.release-tag.outputs.is-release }}
       rebuild-blocked: ${{ steps.release-tag.outputs.rebuild-blocked }}
+      tag: ${{ steps.release-tag.outputs.tag }}
 
     steps:
       - name: Run release-please
+        if: |
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: googleapis/release-please-action@v4
 
       - name: Checkout release commit
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # all tags, for the lookups below
+          fetch-depth: 0 # all tags, for release policy checks below
 
-      # The version tag at this commit, empty on ordinary merges. Read from git
-      # rather than the action's outputs so that a rerun finds the tag its first
-      # attempt created (force-tag-creation makes it, since drafts do not).
-      - name: Resolve release tag
+      # Resolve the tag from either entry point. Git lookup makes reruns recover
+      # tags created by a previous release-please attempt, since GITHUB_TOKEN tags
+      # do not trigger a second workflow.
+      - name: Resolve release context
         id: release-tag
         run: |
+          set -euo pipefail
           semver_tags() { git tag --list 'v*.*.*' "$@" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; }
 
-          mapfile -t tags < <(semver_tags --points-at "$GITHUB_SHA")
-          if [ "${#tags[@]}" -gt 1 ]; then
-            echo "::error::Multiple version tags point at $GITHUB_SHA: ${tags[*]}"
+          tag=""
+          generate_release_notes="false"
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF_TYPE" == "tag" ]]; then
+            tag="$GITHUB_REF_NAME"
+            generate_release_notes="true"
+          elif [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            mapfile -t tags < <(semver_tags --points-at "$GITHUB_SHA")
+            if [[ "${#tags[@]}" -gt 1 ]]; then
+              echo "::error::Multiple version tags point at $GITHUB_SHA: ${tags[*]}"
+              exit 1
+            fi
+            tag="${tags[0]:-}"
+          fi
+
+          if [[ -n "$tag" && ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid release tag: $tag"
             exit 1
           fi
-          tag="${tags[0]:-}"
 
-          # Only the newest release may be rebuilt: an older one would steal the
-          # mutable latest/X.Y tags and rewind `main` onto an old commit. Signalled
-          # as an output rather than an exit code, so that a broken release-please
-          # still refreshes `main`. nightly_docker_rebuild.yml's `gh release view`
-          # lookup skips drafts, so it is not usable here.
+          # Every release entry point shares this policy. Rebuilding an older
+          # version would steal mutable latest/X.Y Docker tags.
+          rebuild_blocked="false"
           newest=$(semver_tags | sort -V | tail -1)
-          if [ -n "$tag" ] && [ "$tag" != "$newest" ]; then
+          if [[ -n "$tag" && "$tag" != "$newest" ]]; then
             echo "::warning::Refusing to rebuild $tag: newer release $newest exists"
-            echo "rebuild-blocked=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            rebuild_blocked="true"
           fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          is_release="false"
+          if [[ -n "$tag" ]]; then
+            is_release="true"
+          fi
+
+          {
+            echo "generate-release-notes=$generate_release_notes"
+            echo "is-release=$is_release"
+            echo "rebuild-blocked=$rebuild_blocked"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
 
   build-and-push-docker:
     name: Build and Push Docker Image
@@ -93,29 +120,37 @@ jobs:
     uses: ./.github/workflows/build_docker.yml
     with:
       # Empty outside releases: build_docker.yml then falls back to `main` / branch-<branch>-<sha> tags.
-      ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
-      release-tag: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
+      ref: ${{ needs.release-please.outputs.tag }}
+      release-tag: ${{ needs.release-please.outputs.tag }}
       is-main: ${{ github.ref == 'refs/heads/main' }}
     secrets: inherit
 
   publish-to-pypi:
     runs-on: ubuntu-latest
     name: Publish to PyPI
-    if: false && github.event_name == 'push' && github.ref_type == 'tag'
-    timeout-minutes: 10
+    needs: [ release-please ]
+    # GITHUB_TOKEN-created tags do not trigger a second workflow, so the resolver
+    # also exposes tags created by release-please in this run.
+    if: |
+      always() &&
+      needs.release-please.outputs.rebuild-blocked != 'true' &&
+      needs.release-please.outputs.is-release == 'true'
+    timeout-minutes: 15
     permissions:
-      id-token: write
+      id-token: write # PyPI trusted publishing
       contents: read
     environment:
       name: pypi
-      url: https://test.pypi.org/project/ggmcp/
+      url: https://pypi.org/project/gg-mcp-server/
     concurrency:
-      group: publish-pypi-${{ github.ref_name }}
+      group: publish-pypi-${{ needs.release-please.outputs.tag }}
       cancel-in-progress: false
 
     steps:
-      - name: Checkout code
+      - name: Checkout release tag
         uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.tag }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -127,111 +162,143 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Build package
+      - name: Verify release versions
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag }}
         run: |
-          echo "Building ggmcp package..."
-          uv build
-          echo "Build artifacts:"
-          ls -lh dist/
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          package_version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          registry_version=$(jq -r '.version' server.json)
+          registry_package_version=$(jq -r '.packages[0].version' server.json)
+          test "$package_version" = "$version"
+          test "$registry_version" = "$version"
+          test "$registry_package_version" = "$version"
+
+      - name: Build and smoke-test distribution
+        run: make test-distribution
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
           print-hash: true
+          skip-existing: true
 
       - name: Create summary
         run: |
-          echo "## ✅ PyPI Publication Successful" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Package published to: https://test.pypi.org/project/ggmcp/" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Install with:" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "pip install --index-url https://test.pypi.org/simple/ ggmcp" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## ✅ PyPI Publication Successful"
+            echo ""
+            echo "Package: https://pypi.org/project/gg-mcp-server/"
+            echo ""
+            echo "Run with \`uvx gg-mcp-server@latest\`."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   publish-to-mcp-registry:
     runs-on: ubuntu-latest
     name: Publish to MCP Registry
-    needs: [ publish-to-pypi ]
-    if: |
-      false &&
-      always() &&
-      github.event_name == 'push' &&
-      github.ref_type == 'tag' &&
-      (needs.publish-to-pypi.result == 'success' || needs.publish-to-pypi.result == 'skipped')
-    timeout-minutes: 10
+    needs: [ release-please, publish-to-pypi ]
+    if: always() && needs.publish-to-pypi.result == 'success'
+    timeout-minutes: 15
     permissions:
+      id-token: write # MCP Registry GitHub OIDC authentication
       contents: read
 
     steps:
-      - name: Checkout code
+      - name: Checkout release tag
         uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.tag }}
 
-      - name: Verify server.json
+      - name: Wait for package availability on PyPI
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag }}
         run: |
-          echo "Validating server.json..."
-          if [ ! -f "server.json" ]; then
-            echo "❌ Error: server.json not found"
-            exit 1
-          fi
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error \
+              "https://pypi.org/pypi/gg-mcp-server/$version/json" > /dev/null; then
+              exit 0
+            fi
+            echo "Waiting for gg-mcp-server $version to become available on PyPI ($attempt/12)"
+            sleep 10
+          done
+          echo "gg-mcp-server $version was not available on PyPI after two minutes" >&2
+          exit 1
 
-          if ! python3 -m json.tool server.json > /dev/null; then
-            echo "❌ Error: server.json is not valid JSON"
-            exit 1
-          fi
+      - name: Validate server.json
+        run: |
+          python3 -m json.tool server.json > /dev/null
+          test "$(jq -r '.packages[0].identifier' server.json)" = "gg-mcp-server"
+          grep -F '<!-- mcp-name: io.github.gitguardian/ggmcp -->' README.md
 
-          echo "✅ server.json is valid"
+      - name: Check for an existing registry version
+        id: registry-version
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          registry_url="https://registry.modelcontextprotocol.io/v0/servers/io.github.gitguardian%2Fggmcp/versions/$version"
+          status=$(curl --path-as-is --silent --show-error --output /dev/null --write-out '%{http_code}' "$registry_url")
+
+          case "$status" in
+            200)
+              echo "Version $version is already in the MCP Registry; skipping the immutable publish"
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unexpected MCP Registry response for $version: HTTP $status" >&2
+              exit 1
+              ;;
+          esac
 
       - name: Install mcp-publisher
+        if: steps.registry-version.outputs.exists != 'true'
         run: |
-          echo "Installing mcp-publisher..."
-          PUBLISHER_VERSION=$(curl -sL https://api.github.com/repos/modelcontextprotocol/mcp-publisher/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-
-          if [ -z "$PUBLISHER_VERSION" ] || [ "$PUBLISHER_VERSION" = "null" ]; then
-            echo "❌ Error: Failed to fetch latest mcp-publisher version"
-            exit 1
-          fi
-
-          DOWNLOAD_URL="https://github.com/modelcontextprotocol/mcp-publisher/releases/download/v${PUBLISHER_VERSION}/mcp-publisher-linux-amd64"
-          if ! wget -q "$DOWNLOAD_URL" -O mcp-publisher; then
-            echo "❌ Error: Failed to download mcp-publisher"
-            exit 1
-          fi
-
-          chmod +x mcp-publisher
+          set -euo pipefail
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          curl --fail --location --silent --show-error \
+            "https://github.com/modelcontextprotocol/registry/releases/download/v${MCP_PUBLISHER_VERSION}/${archive}" \
+            --output "$archive"
+          echo "${MCP_PUBLISHER_LINUX_AMD64_SHA256}  ${archive}" | sha256sum --check --strict
+          tar xzf "$archive" mcp-publisher
           ./mcp-publisher --version
-          echo "✅ Successfully installed mcp-publisher v${PUBLISHER_VERSION}"
+
+      - name: Authenticate to MCP Registry
+        if: steps.registry-version.outputs.exists != 'true'
+        run: ./mcp-publisher login github-oidc
 
       - name: Publish to MCP Registry
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Publishing to MCP Registry..."
-          ./mcp-publisher publish --non-interactive
-          echo "✅ Successfully published to MCP Registry"
+        if: steps.registry-version.outputs.exists != 'true'
+        run: ./mcp-publisher publish
 
       - name: Create summary
         run: |
-          echo "## ✅ MCP Registry Publication Successful" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Server registered in: https://github.com/modelcontextprotocol/registry" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## ✅ MCP Registry Publication Successful"
+            echo ""
+            echo "Server: io.github.gitguardian/ggmcp"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   create-github-release:
     runs-on: ubuntu-latest
     name: Publish GitHub Release
-    needs: [ release-please, build-and-push-docker ]
-    # Publish release-please's draft only once the image exists. On the escape-hatch
-    # path, create the release for the human-pushed tag after the same build.
+    needs: [ release-please, build-and-push-docker, publish-to-pypi, publish-to-mcp-registry ]
+    # Publish release-please's draft only once every distribution channel is
+    # available. On the escape-hatch path, create the release for the
+    # human-pushed tag after the same checks.
     if: |
       always() &&
-      (
-        (github.event_name == 'push' && github.ref_type == 'tag') ||
-        needs.release-please.outputs.tag != ''
-      ) &&
-      needs.build-and-push-docker.result == 'success'
+      needs.release-please.outputs.is-release == 'true' &&
+      needs.build-and-push-docker.result == 'success' &&
+      needs.publish-to-pypi.result == 'success' &&
+      needs.publish-to-mcp-registry.result == 'success'
     permissions:
       contents: write
 
@@ -240,9 +307,9 @@ jobs:
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
+          tag_name: ${{ needs.release-please.outputs.tag }}
           draft: false
           # Keep release-please's changelog notes; generate them only for the
           # manual tag escape hatch.
-          generate_release_notes: ${{ github.ref_type == 'tag' }}
+          generate_release_notes: ${{ needs.release-please.outputs.generate-release-notes }}
           make_latest: true
