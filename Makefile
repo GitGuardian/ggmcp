@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: test test-vcr test-unit test-with-env test-vcr-with-env update-cassettes lint format typecheck
+.PHONY: test test-distribution test-vcr test-unit test-with-env test-vcr-with-env update-cassettes lint format typecheck
 
 # =============================================================================
 # CI commands (no .env sourcing)
@@ -16,6 +16,10 @@ test-vcr:
 # Run unit tests (tests NOT marked with @pytest.mark.vcr_test)
 test-unit:
 	ENABLE_LOCAL_OAUTH=false uv run pytest -m "not vcr_test"
+
+# Build the public artifacts, install the wheel in isolation, and initialize MCP.
+test-distribution:
+	./scripts/test_distribution.sh
 
 # =============================================================================
 # Local dev commands (sources .env for API key)
