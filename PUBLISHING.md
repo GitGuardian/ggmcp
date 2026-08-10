@@ -21,7 +21,10 @@ Releases are driven by [Conventional Commits](https://www.conventionalcommits.or
      changelog),
    - builds, pushes, and cosign-signs the Docker image tagged `X.Y.Z`,
      `X.Y`, `latest`, and `main`,
-   - publishes the GitHub release only after the image build succeeds.
+   - builds and smoke-tests the self-contained `gg-mcp-server` distribution,
+   - publishes the wheel and source distribution to PyPI using trusted publishing,
+   - publishes matching metadata to the MCP Registry,
+   - publishes the GitHub release only after every distribution succeeds.
 
 Merge the release PR whenever you decide to ship — releases are batched, not
 per-merge. Until then it just sits there, updating itself.
@@ -32,12 +35,11 @@ Only release-please writes version numbers. The canonical state is
 `.release-please-manifest.json` plus the git tags; the release PR propagates
 it to:
 
-- `pyproject.toml` (`[project] version`) — what the code reads at runtime via
-  `importlib.metadata`
-- `src/ggmcp/__init__.py` (updated by the Python release strategy)
+- `pyproject.toml` (`[project] version`) — the canonical `gg-mcp-server`
+  distribution version read at runtime via `importlib.metadata`
 - `server.json` (`$.version` and `$.packages[0].version`, via `extra-files`
   in `release-please-config.json`)
-- `uv.lock` (the root `ggmcp` package entry, via `extra-files`)
+- `uv.lock` (the root `gg-mcp-server` package entry, via `extra-files`)
 - `CHANGELOG.md`
 
 Never edit a version number by hand and never run `cz bump` — that desyncs
@@ -123,11 +125,24 @@ tags, no `latest`, no git tag, no release).
 
 ## PyPI and MCP Registry
 
-Not published there today: the `publish-to-pypi` and `publish-to-mcp-registry`
-jobs in `release.yml` are disabled (`if: false`). Enabling them needs
-[trusted publishing](https://pypi.org/manage/account/publishing/) configured for
-this repo first. `server.json` (MCP registry metadata) is version-synced by
-release-please regardless.
+Release tags publish `gg-mcp-server` to production PyPI before registering the
+same version in the MCP Registry. The PyPI job uses OIDC trusted publishing;
+the registry job uses GitHub OIDC and therefore needs no long-lived token.
+
+Before the first release, configure a
+[PyPI trusted publisher](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
+with these values:
+
+- PyPI project: `gg-mcp-server`
+- Repository owner: `GitGuardian`
+- Repository: `ggmcp`
+- Workflow: `release.yml`
+- GitHub environment: `pypi`
+
+The release job installs the built wheel in a clean environment and completes
+an MCP stdio handshake before publishing. PyPI files are immutable; a broken
+release must be yanked and replaced by a newer version, never rebuilt under the
+same version.
 
 ## Monitoring
 
