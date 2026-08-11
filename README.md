@@ -175,9 +175,9 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
-`@latest` checks for a newly published release when the client starts. For a
-reproducible installation, replace `latest` with an exact release number from
-the [`gg-mcp-server` PyPI page](https://pypi.org/project/gg-mcp-server/).
+`@latest` checks for a newly published release when the client starts, so
+clients always pick up the current [`gg-mcp-server`
+release](https://pypi.org/project/gg-mcp-server/).
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
