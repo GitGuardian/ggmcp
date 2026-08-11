@@ -162,5 +162,12 @@ name = "cz_conventional_commits"
 [tool.pyrefly]
 preset = "strict"
 python-version = "3.11"
-project-includes = ["src/**"]
+# The four published packages. src/config holds the gunicorn logger class the
+# container loads by path, which ships in no artifact and stays untyped.
+project-includes = [
+    "src/developer_mcp_server/**",
+    "src/gg_api_core/**",
+    "src/gg_mcp_server/**",
+    "src/secops_mcp_server/**",
+]
 ignore-missing-imports = ["*"]
