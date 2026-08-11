@@ -42,7 +42,11 @@ dependencies = [
     "pydantic~=2.12",
     "pydantic-settings~=2.9",
     "python-dotenv~=1.1",
+    # Imported directly by the ASGI apps, the OAuth proxy and the middleware, so
+    # declared here rather than relied on transitively through mcp/fastmcp.
+    "starlette~=1.3",
     "structlog~=26.1",
+    "typing-extensions~=4.15",
     "uvicorn~=0.34",
 ]
 

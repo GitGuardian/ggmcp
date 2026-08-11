@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
+
 from gg_mcp_server import server
 
 
@@ -84,6 +85,7 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
     from unittest.mock import MagicMock, patch
 
     import httpx
+
     from gg_api_core.tools.generate_honey_token import GenerateHoneytokenParams, generate_honeytoken
 
     detail = "Another active honeytoken already exists with this name"

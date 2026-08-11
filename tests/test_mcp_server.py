@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from gg_api_core.mcp_server import get_mcp_server
 
 
@@ -209,6 +210,7 @@ class TestGitGuardianFastMCP:
     def test_get_personal_access_token_raises_without_scope_token(self, mock_get_access_token):
         """get_personal_access_token() raises ValidationError when no AccessToken is in the request scope."""
         from fastmcp.exceptions import ValidationError
+
         from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
 
         mock_get_access_token.return_value = None
