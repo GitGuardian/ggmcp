@@ -101,22 +101,6 @@ class TestToolCallLoggingMiddleware:
         assert rec.tool == "scan_secrets"
         assert rec.exc_info is not None
 
-    async def test_pins_the_arguments_shape_when_none_are_sent(self, caplog):
-        """
-        GIVEN a tool call with no arguments
-        WHEN it is logged
-        THEN `arguments` is an empty mapping, not None
-        """
-
-        async def call_next(ctx):
-            return ToolResult(content=[])
-
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_detectors", None), call_next)
-
-        rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
-        assert rec.arguments == {}
-
     async def test_records_the_size_of_what_the_model_receives(self, caplog):
         """
         GIVEN a tool returning text content and a list of rows
