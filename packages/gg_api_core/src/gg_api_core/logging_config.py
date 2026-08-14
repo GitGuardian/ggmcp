@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import structlog
 from structlog.types import EventDict, Processor, WrappedLogger
 
-from gg_api_core.sanitization import scrub_by_name, scrub_by_value
+from gg_api_core.sanitization import scrub_by_value, scrub_mapping
 from gg_api_core.version import APP_VERSION
 
 if TYPE_CHECKING:
@@ -36,9 +36,8 @@ _DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
 
 
 def _scrub_sensitive_keys(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
-    for key in list(event_dict.keys()):
-        if key not in _RESERVED_KEYS:
-            event_dict[key] = scrub_by_name(str(key), event_dict[key])
+    non_reserved = {key: value for key, value in event_dict.items() if key not in _RESERVED_KEYS}
+    event_dict.update(scrub_mapping(non_reserved))
     return event_dict
 
 
