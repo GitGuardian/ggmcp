@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import structlog
 from structlog.types import EventDict, Processor, WrappedLogger
 
-from gg_api_core.sanitization import scrub_by_value, scrub_mapping
+from gg_api_core.sanitization import scrub_by_name, scrub_by_value
 from gg_api_core.version import APP_VERSION
 
 if TYPE_CHECKING:
@@ -35,24 +35,19 @@ _RESERVED_KEYS = frozenset(
 _DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
 
 
-def _scrub_sensitive_keys(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
-    non_reserved = {key: value for key, value in event_dict.items() if key not in _RESERVED_KEYS}
-    event_dict.update(scrub_mapping(non_reserved))
-    return event_dict
+def _scrub_event(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
+    """Scrub every field: reserved keys by value, app keys by name and value.
 
-
-def _scrub_reserved_values(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
-    for key in list(event_dict.keys()):
+    Reserved keys carry structlog plumbing and free-text such as the log
+    message and rendered tracebacks, where a name match would be meaningless;
+    they only get value scrubbing. App-provided keys are redacted when their
+    name is sensitive, and surviving string values are value-scrubbed too.
+    """
+    for key, value in event_dict.items():
         if key in _RESERVED_KEYS:
-            event_dict[key] = scrub_by_value(event_dict[key])
-    return event_dict
-
-
-def _scrub_rendered_exception(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
-    """Scrub rendered traceback text."""
-    for key in ("exception", "stack"):
-        if key in event_dict:
-            event_dict[key] = scrub_by_value(event_dict[key])
+            event_dict[key] = scrub_by_value(value)
+        else:
+            event_dict[key] = scrub_by_name(str(key), value)
     return event_dict
 
 
@@ -86,10 +81,8 @@ def configure_logging(
         _add_gg_fields,
         structlog.processors.StackInfoRenderer(),
         _add_exception_cls,
-        _scrub_sensitive_keys,
-        _scrub_reserved_values,
         structlog.processors.format_exc_info,
-        _scrub_rendered_exception,
+        _scrub_event,
     ]
 
     structlog.configure(
