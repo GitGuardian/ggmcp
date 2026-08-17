@@ -19,8 +19,8 @@ WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
-# Build the self-contained server wheel. It bundles the unified server, core
-# implementation, and deprecated console-script compatibility shims.
+# Build the self-contained server wheel. It bundles the unified server and the
+# core implementation into a single distributable artifact.
 RUN uv build --out-dir /dist
 
 # Production stage - Chainguard-based image with shell for build commands

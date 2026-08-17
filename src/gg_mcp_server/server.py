@@ -71,11 +71,3 @@ def get_server() -> AbstractGitGuardianFastMCP:
     mcp = build_server()
     logger.info("GitGuardian MCP server instance created and configured")
     return mcp
-
-
-def __getattr__(name: str) -> AbstractGitGuardianFastMCP:
-    # Backward compatibility: ``from gg_mcp_server.server import mcp`` still
-    # works, but builds the server lazily on first access (PEP 562).
-    if name == "mcp":
-        return get_server()
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
