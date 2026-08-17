@@ -1,6 +1,10 @@
+from unittest.mock import AsyncMock, patch
+
+import pytest
 from gg_api_core.tools.write_custom_tags import (
     UpdateOrCreateIncidentCustomTagsParams,
     WriteCustomTagsParams,
+    update_or_create_incident_custom_tags,
 )
 
 
@@ -128,3 +132,52 @@ class TestUpdateOrCreateIncidentCustomTagsParams:
         """
         params = UpdateOrCreateIncidentCustomTagsParams(incident_id="123", custom_tags=["env:prod"])
         assert params.incident_id == "123"
+
+
+class TestUpdateOrCreateIncidentCustomTags:
+    """
+    Test update_or_create_incident_custom_tags against a mocked client.
+    """
+
+    @pytest.mark.asyncio
+    async def test_no_precreate_requests_are_issued(self):
+        """
+        GIVEN an incident and a list of tags
+        WHEN updating the incident with those tags
+        THEN no tag pre-create or listing call is issued; the PATCH creates missing tags server-side
+        """
+        mock_client = AsyncMock()
+        mock_client.update_incident.return_value = {"id": 123}
+
+        params = UpdateOrCreateIncidentCustomTagsParams(incident_id=123, custom_tags=["env:prod", "reviewed"])
+        with patch("gg_api_core.tools.write_custom_tags.get_client", return_value=mock_client):
+            result = await update_or_create_incident_custom_tags(params)
+
+        assert result == {"id": 123}
+        mock_client.create_custom_tag.assert_not_awaited()
+        mock_client.list_custom_tags.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_tags_are_parsed_into_update_payload(self):
+        """
+        GIVEN tags in "key:value" and bare "key" formats
+        WHEN updating an incident
+        THEN the PATCH payload carries the parsed pairs, values split on the first colon only
+        """
+        mock_client = AsyncMock()
+        mock_client.update_incident.return_value = {"id": 123}
+
+        params = UpdateOrCreateIncidentCustomTagsParams(
+            incident_id=123, custom_tags=["env:prod", "reviewed", "url:http://example.com"]
+        )
+        with patch("gg_api_core.tools.write_custom_tags.get_client", return_value=mock_client):
+            await update_or_create_incident_custom_tags(params)
+
+        mock_client.update_incident.assert_awaited_once_with(
+            incident_id="123",
+            custom_tags=[
+                {"key": "env", "value": "prod"},
+                {"key": "reviewed", "value": None},
+                {"key": "url", "value": "http://example.com"},
+            ],
+        )
