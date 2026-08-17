@@ -8,15 +8,6 @@ resolution-markers = [
     "python_full_version < '3.14' and sys_platform != 'win32'",
 ]
 
-[manifest]
-members = [
-    "developer-mcp-server",
-    "gg-api-core",
-    "gg-mcp-server",
-    "ggmcp",
-    "secops-mcp-server",
-]
-
 [[package]]
 name = "aiofile"
 version = "3.11.1"
@@ -389,26 +380,6 @@ wheels = [
 ]
 
 [[package]]
-name = "developer-mcp-server"
-version = "0.1.0"
-source = { editable = "packages/developer_mcp_server" }
-dependencies = [
-    { name = "gg-mcp-server" },
-]
-
-[package.optional-dependencies]
-sentry = [
-    { name = "gg-mcp-server", extra = ["sentry"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "gg-mcp-server", editable = "packages/gg_mcp_server" },
-    { name = "gg-mcp-server", extras = ["sentry"], marker = "extra == 'sentry'", editable = "packages/gg_mcp_server" },
-]
-provides-extras = ["sentry"]
-
-[[package]]
 name = "dnspython"
 version = "2.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -515,17 +486,22 @@ server = [
 ]
 
 [[package]]
-name = "gg-api-core"
-version = "0.1.0"
-source = { editable = "packages/gg_api_core" }
+name = "gg-mcp-server"
+version = "0.6.10"
+source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
+    { name = "gunicorn" },
     { name = "httpx" },
     { name = "jinja2" },
+    { name = "mcp" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
+    { name = "starlette" },
     { name = "structlog" },
+    { name = "typing-extensions" },
+    { name = "uvicorn" },
 ]
 
 [package.optional-dependencies]
@@ -533,63 +509,8 @@ sentry = [
     { name = "sentry-sdk" },
 ]
 
-[package.metadata]
-requires-dist = [
-    { name = "fastmcp", specifier = "~=3.0" },
-    { name = "httpx", specifier = "~=0.28" },
-    { name = "jinja2", specifier = "~=3.1" },
-    { name = "pydantic", specifier = "~=2.12" },
-    { name = "pydantic-settings", specifier = "~=2.9" },
-    { name = "python-dotenv", specifier = "~=1.1" },
-    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.45" },
-    { name = "structlog", specifier = "~=26.1" },
-]
-provides-extras = ["sentry"]
-
-[[package]]
-name = "gg-mcp-server"
-version = "0.1.0"
-source = { editable = "packages/gg_mcp_server" }
-dependencies = [
-    { name = "fastmcp" },
-    { name = "gg-api-core" },
-    { name = "gunicorn" },
-    { name = "httpx" },
-    { name = "pydantic" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-sentry = [
-    { name = "gg-api-core", extra = ["sentry"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastmcp", specifier = "~=3.0" },
-    { name = "gg-api-core", editable = "packages/gg_api_core" },
-    { name = "gg-api-core", extras = ["sentry"], marker = "extra == 'sentry'", editable = "packages/gg_api_core" },
-    { name = "gunicorn", specifier = "~=23.0" },
-    { name = "httpx", specifier = "~=0.28" },
-    { name = "pydantic", specifier = "~=2.12" },
-    { name = "uvicorn", specifier = "~=0.34" },
-]
-provides-extras = ["sentry"]
-
-[[package]]
-name = "ggmcp"
-version = "0.7.0"
-source = { editable = "." }
-dependencies = [
-    { name = "developer-mcp-server" },
-    { name = "gg-mcp-server" },
-    { name = "mcp" },
-    { name = "secops-mcp-server" },
-]
-
 [package.dev-dependencies]
 dev = [
-    { name = "gg-api-core", extra = ["sentry"] },
     { name = "pyrefly" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -606,15 +527,24 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "developer-mcp-server", editable = "packages/developer_mcp_server" },
-    { name = "gg-mcp-server", editable = "packages/gg_mcp_server" },
+    { name = "fastmcp", specifier = "~=3.0" },
+    { name = "gunicorn", specifier = "~=23.0" },
+    { name = "httpx", specifier = "~=0.28" },
+    { name = "jinja2", specifier = "~=3.1" },
     { name = "mcp", specifier = "~=1.24" },
-    { name = "secops-mcp-server", editable = "packages/secops_mcp_server" },
+    { name = "pydantic", specifier = "~=2.12" },
+    { name = "pydantic-settings", specifier = "~=2.9" },
+    { name = "python-dotenv", specifier = "~=1.1" },
+    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.45" },
+    { name = "starlette", specifier = "~=1.3" },
+    { name = "structlog", specifier = "~=26.1" },
+    { name = "typing-extensions", specifier = "~=4.15" },
+    { name = "uvicorn", specifier = "~=0.34" },
 ]
+provides-extras = ["sentry"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "gg-api-core", extras = ["sentry"], editable = "packages/gg_api_core" },
     { name = "pyrefly", specifier = ">=1.1.1" },
     { name = "pytest", specifier = "~=8.4" },
     { name = "pytest-asyncio", specifier = "~=1.2" },
@@ -625,7 +555,7 @@ dev = [
     { name = "pyyaml", specifier = "~=6.0" },
     { name = "respx", specifier = "~=0.22" },
     { name = "ruff", specifier = "~=0.14" },
-    { name = "sentry-sdk", specifier = "~=2.43" },
+    { name = "sentry-sdk", specifier = "~=2.45" },
     { name = "vcrpy", specifier = "~=8.0" },
 ]
 
@@ -1654,26 +1584,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/03/15/51960ae340823c9859fb60c63301d977308735403e2134e17d1d2858c7fb/ruff-0.14.3-py3-none-win_amd64.whl", hash = "sha256:d7b7006ac0756306db212fd37116cce2bd307e1e109375e1c6c106002df0ae5f", size = 13594005, upload-time = "2025-10-31T00:26:22.533Z" },
     { url = "https://files.pythonhosted.org/packages/b7/73/4de6579bac8e979fca0a77e54dec1f1e011a0d268165eb8a9bc0982a6564/ruff-0.14.3-py3-none-win_arm64.whl", hash = "sha256:26eb477ede6d399d898791d01961e16b86f02bc2486d0d1a7a9bb2379d055dc1", size = 12590017, upload-time = "2025-10-31T00:26:24.52Z" },
 ]
-
-[[package]]
-name = "secops-mcp-server"
-version = "0.1.0"
-source = { editable = "packages/secops_mcp_server" }
-dependencies = [
-    { name = "gg-mcp-server" },
-]
-
-[package.optional-dependencies]
-sentry = [
-    { name = "gg-mcp-server", extra = ["sentry"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "gg-mcp-server", editable = "packages/gg_mcp_server" },
-    { name = "gg-mcp-server", extras = ["sentry"], marker = "extra == 'sentry'", editable = "packages/gg_mcp_server" },
-]
-provides-extras = ["sentry"]
 
 [[package]]
 name = "secretstorage"

@@ -4,7 +4,7 @@
   "group-pull-request-title-pattern": "chore${scope}: release ${version}",
   "packages": {
     ".": {
-      "package-name": "ggmcp",
+      "package-name": "gg-mcp-server",
       "include-component-in-tag": false,
       "bump-minor-pre-major": true,
       "draft": true,
@@ -23,7 +23,7 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name.value == 'ggmcp')].version"
+          "jsonpath": "$.package[?(@.name.value == 'gg-mcp-server')].version"
         }
       ]
     }
