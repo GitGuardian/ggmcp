@@ -96,37 +96,3 @@ class TestUnifiedServer:
         assert "list_incidents" in tool_names
         assert "assign_incident" not in tool_names
         assert "create_code_fix_request" not in tool_names
-
-
-class TestDeprecatedShims:
-    def test_developer_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
-        """
-        GIVEN the deprecated developer_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
-        """
-        clean_module_imports("developer_mcp_server")
-        clean_module_imports("gg_mcp_server")
-
-        with pytest.warns(DeprecationWarning):
-            import developer_mcp_server.server as shim
-
-        import gg_mcp_server.server as srv
-
-        assert shim.mcp is srv.mcp
-
-    def test_secops_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
-        """
-        GIVEN the deprecated secops_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
-        """
-        clean_module_imports("secops_mcp_server")
-        clean_module_imports("gg_mcp_server")
-
-        with pytest.warns(DeprecationWarning):
-            import secops_mcp_server.server as shim
-
-        import gg_mcp_server.server as srv
-
-        assert shim.mcp is srv.mcp

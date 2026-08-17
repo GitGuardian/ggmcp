@@ -342,7 +342,7 @@ class _BearerTokenMCP(AbstractGitGuardianFastMCP):
 
 
 class GitGuardianAuthorizationHeaderMCP(_BearerTokenMCP):
-    """GitGuardian MCP server using per-request Authorization header (HTTP/SSE mode)."""
+    """GitGuardian MCP server using per-request Authorization header (HTTP mode)."""
 
     authentication_mode = AuthenticationMode.AUTHORIZATION_HEADER
 
