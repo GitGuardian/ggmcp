@@ -94,3 +94,19 @@ def scrub_by_name(name: str, value: Any) -> Any:
         return value
 
     return value
+
+
+def scrub_mapping(mapping: dict[str, Any]) -> dict[str, Any]:
+    """Return a new mapping with each value redacted under its key name.
+
+    Each key is treated as the sensitivity signal for its value: a value is
+    replaced with the placeholder when its key name matches a sensitive
+    parameter, and nested mapping/list values are scrubbed recursively.
+
+    Args:
+        mapping: The mapping to scrub.
+
+    Returns:
+        A new mapping with sensitive values redacted.
+    """
+    return {key: scrub_by_name(str(key), value) for key, value in mapping.items()}

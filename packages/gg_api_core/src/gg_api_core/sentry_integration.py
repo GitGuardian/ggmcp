@@ -24,7 +24,7 @@ except ImportError:
     sentry_sdk = None
     LoggingIntegration = None
 
-from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value
+from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
 from .settings import SentrySettings
 
 if TYPE_CHECKING:
@@ -32,9 +32,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-
 _MAX_SCRUB_DEPTH = 12
 _REQUEST_ID_FIELD = "request_id"
+_MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
+_SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
 
 
 def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
@@ -58,6 +59,19 @@ def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
     return _scrub_sentry_payload(breadcrumb)
 
 
+def _scrub_free_form_fields(event: Event) -> None:
+    """Redact free-form application data by sensitive key name, in place."""
+    for key in _SENTRY_CUSTOM_DATA_KEYS:
+        if isinstance(mapping := event.get(key), dict):
+            event[key] = scrub_mapping(mapping)
+
+    breadcrumbs = event.get("breadcrumbs")
+    if isinstance(breadcrumbs, dict):
+        for breadcrumb in breadcrumbs.get("values", []):
+            if isinstance(breadcrumb, dict) and isinstance(data := breadcrumb.get("data"), dict):
+                breadcrumb["data"] = scrub_mapping(data)
+
+
 def _request_id_from_trace(event: Event) -> str | None:
     contexts = event.get("contexts")
     if not isinstance(contexts, dict):
@@ -72,11 +86,39 @@ def _request_id_from_trace(event: Event) -> str | None:
     return request_id if isinstance(request_id, str) else None
 
 
-def _prepare_sentry_event(event: Event, hint: Hint) -> Event:
+def _before_send_event(event: Event, hint: Hint) -> Event:
     event = _scrub_sentry_payload(event)
+    _scrub_free_form_fields(event)
     request_id = _request_id_from_trace(event)
     if request_id:
         event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
+    return event
+
+
+def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
+    """Scrub free-form fields and drop MCP tool arguments from spans.
+
+    MCPIntegration writes every MCP tool argument into span data verbatim
+    with no PII gate, and send_default_pii=False does not prevent it. A
+    sampled scan_secrets call ships the scanned document, secrets included,
+    to Sentry the moment the sentry-init ordering fix reaches a release.
+
+    Scrubbing arbitrary document content by regex is unreliable, so scrub by
+    drop: every mcp.request.argument.* key is removed from span data.
+    """
+    event = _scrub_sentry_payload(event)
+    _scrub_free_form_fields(event)
+    spans = event.get("spans")
+    if not isinstance(spans, list):
+        return event
+
+    for span in spans:
+        if not isinstance(span, dict) or not isinstance(data := span.get("data"), dict):
+            continue
+        for key in tuple(data):
+            if str(key).startswith(_MCP_REQUEST_ARGUMENT_PREFIX):
+                del data[key]
+
     return event
 
 
@@ -110,8 +152,9 @@ def init_sentry() -> bool:
             profiles_sample_rate=profiles_sample_rate,
             integrations=[logging_integration],
             include_local_variables=False,
-            before_send=_prepare_sentry_event,
+            before_send=_before_send_event,
             before_breadcrumb=_scrub_breadcrumb,
+            before_send_transaction=_before_send_transaction,
             # Automatically capture unhandled exceptions
             send_default_pii=False,  # Don't send personally identifiable information by default
         )
@@ -178,6 +221,9 @@ def set_sentry_user(user_info: dict[str, Any]) -> None:
         return
     try:
         sentry_sdk.set_user(user_info)
+    except ImportError:
+        # Sentry not installed, silently skip
+        logger.debug("Sentry not installed, skipping set_sentry_user")
     except Exception as exc:
         logger.debug("Failed to set Sentry user: %s", exc)
 
@@ -194,8 +240,6 @@ def capture_exception(exception: Exception, **kwargs: Any) -> None:
 
     Example:
         >>> try:
-        ...     risky_operation()
-        ... except ValueError as e:
         ...     capture_exception(e, extra={"operation": "risky_operation"})
         ...     handle_error(e)
     """

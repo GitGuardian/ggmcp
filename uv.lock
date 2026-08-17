@@ -600,6 +600,7 @@ dev = [
     { name = "pyyaml" },
     { name = "respx" },
     { name = "ruff" },
+    { name = "sentry-sdk" },
     { name = "vcrpy" },
 ]
 
@@ -624,6 +625,7 @@ dev = [
     { name = "pyyaml", specifier = "~=6.0" },
     { name = "respx", specifier = "~=0.22" },
     { name = "ruff", specifier = "~=0.14" },
+    { name = "sentry-sdk", specifier = "~=2.43" },
     { name = "vcrpy", specifier = "~=8.0" },
 ]
 
