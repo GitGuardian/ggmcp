@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 _MAX_SCRUB_DEPTH = 12
 _REQUEST_ID_FIELD = "request_id"
+_MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
 _SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
 
 
@@ -94,6 +95,33 @@ def _before_send_event(event: Event, hint: Hint) -> Event:
     return event
 
 
+def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
+    """Scrub free-form fields and drop MCP tool arguments from spans.
+
+    MCPIntegration writes every MCP tool argument into span data verbatim
+    with no PII gate, and send_default_pii=False does not prevent it. A
+    sampled scan_secrets call ships the scanned document, secrets included,
+    to Sentry the moment the sentry-init ordering fix reaches a release.
+
+    Scrubbing arbitrary document content by regex is unreliable, so scrub by
+    drop: every mcp.request.argument.* key is removed from span data.
+    """
+    event = _scrub_sentry_payload(event)
+    _scrub_free_form_fields(event)
+    spans = event.get("spans")
+    if not isinstance(spans, list):
+        return event
+
+    for span in spans:
+        if not isinstance(span, dict) or not isinstance(data := span.get("data"), dict):
+            continue
+        for key in tuple(data):
+            if str(key).startswith(_MCP_REQUEST_ARGUMENT_PREFIX):
+                del data[key]
+
+    return event
+
+
 def init_sentry() -> bool:
     """Initialize Sentry when configured and available."""
     sentry_settings = SentrySettings()
@@ -126,6 +154,7 @@ def init_sentry() -> bool:
             include_local_variables=False,
             before_send=_before_send_event,
             before_breadcrumb=_scrub_breadcrumb,
+            before_send_transaction=_before_send_transaction,
             # Automatically capture unhandled exceptions
             send_default_pii=False,  # Don't send personally identifiable information by default
         )
