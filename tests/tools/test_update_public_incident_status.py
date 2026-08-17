@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
+
 from gg_api_core.tools.update_public_incident_status import (
     UpdatePublicIncidentStatusParams,
     update_public_incident_status,

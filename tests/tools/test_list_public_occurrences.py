@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+
 from gg_api_core.tools.list_public_occurrences import (
     ListPublicOccurrencesParams,
     list_public_occurrences,

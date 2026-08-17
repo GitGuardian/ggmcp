@@ -5,6 +5,7 @@ Tests for the count_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from gg_api_core.tools.count_incidents import (
     CountIncidentsError,
     CountIncidentsParams,
