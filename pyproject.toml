@@ -156,5 +156,11 @@ name = "cz_conventional_commits"
 [tool.pyrefly]
 preset = "strict"
 python-version = "3.11"
-project-includes = ["src/**"]
+# The published packages. src/config holds the legacy gunicorn logger class the
+# container loads by path, which ships in no artifact and stays untyped, so it is
+# kept out of the type-checked set (see linear ticket SI-4052).
+project-includes = [
+    "src/gg_api_core/**",
+    "src/gg_mcp_server/**",
+]
 ignore-missing-imports = ["*"]
