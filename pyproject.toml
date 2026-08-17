@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ggmcp"
+name = "gg-mcp-server"
 version = "0.6.10"
 description = "MCP server for GitGuardian"
 authors = [
@@ -34,8 +34,25 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "gg-mcp-server",
+    "fastmcp~=3.0",
+    "gunicorn~=23.0",
+    "httpx~=0.28",
+    "jinja2~=3.1",
     "mcp~=1.24", # CVE-2025-66416 / GHSA-9h52-p55h-vw2f: DNS rebinding vulnerability
+    "pydantic~=2.12",
+    "pydantic-settings~=2.9",
+    "python-dotenv~=1.1",
+    # Imported directly by the ASGI apps, the OAuth proxy and the middleware, so
+    # declared here rather than relied on transitively through mcp/fastmcp.
+    "starlette~=1.3",
+    "structlog~=26.1",
+    "typing-extensions~=4.15",
+    "uvicorn~=0.34",
+]
+
+[project.optional-dependencies]
+sentry = [
+    "sentry-sdk~=2.45",
 ]
 
 [project.urls]
@@ -54,18 +71,26 @@ dev = [
     "respx~=0.22",
     "pytest-socket~=0.7",
     "pytest-voluptuous~=1.2",
-    "gg-api-core[sentry]",
+    "sentry-sdk~=2.45",
 ]
 
 [project.scripts]
 gg-mcp-server = "gg_mcp_server.run:run_mcp_server"
 
-[tool.uv.workspace]
-members = ["packages/*"]
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/gg_api_core",
+    "src/gg_mcp_server",
+]
 
-[tool.uv.sources]
-"gg-api-core" = { workspace = true }
-"gg-mcp-server" = { workspace = true }
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src/gg_api_core",
+    "/src/gg_mcp_server",
+    "/LICENSE",
+    "/README.md",
+    "/pyproject.toml",
+]
 
 [tool.ruff]
 line-length = 120
@@ -131,8 +156,5 @@ name = "cz_conventional_commits"
 [tool.pyrefly]
 preset = "strict"
 python-version = "3.11"
-project-includes = ["packages/**"]
-# uv installs the workspace packages as editable installs, so pyrefly's
-# heuristics would treat packages/*/src as site-packages and skip them.
-disable-project-excludes-heuristics = true
+project-includes = ["src/**"]
 ignore-missing-imports = ["*"]
