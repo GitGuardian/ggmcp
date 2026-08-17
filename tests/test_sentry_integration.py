@@ -7,6 +7,8 @@ from pathlib import Path
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
 
+from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
+
 PROBE_PATH = Path(__file__).parent / "helpers" / "sentry_mcp_transaction_probe.py"
 
 
@@ -108,8 +110,8 @@ def test_real_sentry_transaction_drops_mcp_tool_arguments(tmp_path):
     assert completed.returncode == 0, completed.stderr
     transaction = json.loads(transaction_path.read_text())
     serialized_transaction = json.dumps(transaction)
-    assert "AKIAIOSFODNN7EXAMPLE" not in serialized_transaction
-    assert "unrecognized-secret-format" not in serialized_transaction
+    # The exact raw document the probe sends must not survive to the envelope.
+    assert RAW_DOCUMENT not in serialized_transaction
 
     mcp_spans = [span for span in transaction["spans"] if span["op"] == "mcp.server"]
     assert [span["data"]["mcp.tool.name"] for span in mcp_spans] == ["scan_secrets"]
