@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
+
 from gg_api_core.tools.get_public_incident import GetPublicIncidentParams, get_public_incident
 
 

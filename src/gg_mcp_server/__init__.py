@@ -1,0 +1,2 @@
+"""GitGuardian MCP server (unified)."""
+
