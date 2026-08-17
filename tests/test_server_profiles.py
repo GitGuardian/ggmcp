@@ -37,16 +37,18 @@ class TestUnifiedServer:
     def test_server_imports_successfully(self, mock_gitguardian_modules, mock_env_no_http):
         """
         GIVEN the unified gg_mcp_server package
-        WHEN its server module is imported
-        THEN an AbstractGitGuardianFastMCP instance is exposed as ``mcp``
+        WHEN its server is built
+        THEN it exposes a configured AbstractGitGuardianFastMCP instance
         """
         clean_module_imports("gg_mcp_server")
 
-        import gg_mcp_server.server as srv
         from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
+        from gg_mcp_server.server import build_server
 
-        assert isinstance(srv.mcp, AbstractGitGuardianFastMCP)
-        assert srv.mcp.name == "GitGuardian"
+        server = build_server()
+
+        assert isinstance(server, AbstractGitGuardianFastMCP)
+        assert server.name == "GitGuardian"
 
     @pytest.mark.asyncio
     async def test_secops_specific_tools_are_registered(self, mock_gitguardian_modules, mock_env_no_http):
@@ -57,10 +59,11 @@ class TestUnifiedServer:
         """
         clean_module_imports("gg_mcp_server")
 
-        import gg_mcp_server.server as srv
+        from gg_mcp_server.server import build_server
 
-        srv.mcp._fetch_token_scopes_from_api = AsyncMock()
-        srv.mcp._token_scopes = {
+        server = build_server()
+        server._fetch_token_scopes_from_api = AsyncMock()
+        server._token_scopes = {
             "scan",
             "incidents:read",
             "incidents:write",
@@ -69,7 +72,7 @@ class TestUnifiedServer:
             "honeytokens:write",
         }
 
-        tools = await srv.mcp.list_tools()
+        tools = await server.list_tools()
         tool_names = {tool.name for tool in tools}
 
         assert "list_incidents" in tool_names
@@ -85,12 +88,13 @@ class TestUnifiedServer:
         """
         clean_module_imports("gg_mcp_server")
 
-        import gg_mcp_server.server as srv
+        from gg_mcp_server.server import build_server
 
-        srv.mcp._fetch_token_scopes_from_api = AsyncMock()
-        srv.mcp._token_scopes = {"scan", "incidents:read", "sources:read"}
+        server = build_server()
+        server._fetch_token_scopes_from_api = AsyncMock()
+        server._token_scopes = {"scan", "incidents:read", "sources:read"}
 
-        tools = await srv.mcp.list_tools()
+        tools = await server.list_tools()
         tool_names = {tool.name for tool in tools}
 
         assert "list_incidents" in tool_names
