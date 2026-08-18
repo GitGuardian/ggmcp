@@ -24,23 +24,23 @@ _client_singleton: GitGuardianClient | None = None
 async def get_client(personal_access_token: str | None = None, user_agent: str | None = None) -> GitGuardianClient:
     """Get GitGuardian client for the current context.
 
-    **Single-tenant is the DEFAULT** (local stdio usage).
-    Multi-tenant requires explicit opt-in via MULTI_TENANCY_ENABLED=true.
+    Tenancy is derived from the resolved authentication mode
+    (:attr:`Settings.auth_mode`): HTTP modes (``oauth-proxy``, ``header``) are
+    multi-tenant, stdio modes (``env-pat``, ``local-oauth``) are single-tenant.
 
     Authentication modes (in order of precedence):
 
     1. **Explicit PAT provided** → Use it directly, no caching
        - For programmatic usage where caller manages the token
 
-    2. **Multi-tenant mode** (MULTI_TENANCY_ENABLED=true) → Per-request from headers
-       - Requires MCP_PORT to be set
+    2. **Multi-tenant mode** (HTTP) → Per-request from headers
        - Token MUST come from Authorization header
        - No caching (new client per request)
 
-    3. **Single-tenant mode** (DEFAULT) → Singleton pattern, token sources:
+    3. **Single-tenant mode** (stdio) → Singleton pattern, token sources:
        a. GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
        b. Stored OAuth token from previous authentication flow
-       c. ENABLE_LOCAL_OAUTH=true → trigger interactive OAuth flow
+       c. local-oauth mode → trigger interactive OAuth flow
        - Same identity for entire server lifetime
 
     Args:
@@ -53,7 +53,7 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         GitGuardianClient: Client instance configured with appropriate authentication
 
     Raises:
-        ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
+        ValidationError: In multi-tenant mode, if the Authorization header is missing
         RuntimeError: In single-tenant mode, if no token source is available
     """
     # Build the User-Agent for outgoing API calls if not explicitly provided
@@ -65,19 +65,14 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         logger.debug("Creating client with explicitly provided token")
         return GitGuardianClient(personal_access_token=personal_access_token, user_agent=user_agent)
 
-    # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
+    # 2. Multi-tenant mode (HTTP): no caching, no automatic refresh
     settings = get_settings()
     if settings.is_multi_tenant:
-        if not settings.mcp_port:
-            raise ValidationError(
-                "MULTI_TENANCY_ENABLED=true requires MCP_PORT to be set. "
-                "Multi-tenant mode only works with HTTP transport."
-            )
         logger.debug("Multi-tenant mode: extracting token from request headers")
         token = _get_token_from_request_headers()
         return GitGuardianClient(personal_access_token=token, user_agent=user_agent)
 
-    # 3. Single-tenant mode (DEFAULT) - use singleton pattern to cache the PAT
+    # 3. Single-tenant mode (stdio) - use singleton pattern to cache the PAT
     global _client_singleton
     if _client_singleton is not None:
         return _client_singleton
@@ -120,7 +115,7 @@ def _build_user_agent() -> str:
         - stdio:  ``GitGuardian-MCP-Server/0.5.0 (transport=stdio)``
         - hosted: ``GitGuardian-MCP-Server/0.5.0 (transport=http; client=Claude-Code/1.2)``
     """
-    transport = "http" if get_settings().mcp_port else "stdio"
+    transport = get_settings().auth_mode.transport
     parts = [f"transport={transport}"]
     caller = _get_caller_user_agent()
     if caller:

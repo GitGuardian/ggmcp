@@ -444,7 +444,7 @@ class TestFindCurrentSourceId:
     @pytest.mark.asyncio
     async def test_find_current_source_id_http_transport_returns_suggestion(self, mock_gitguardian_client):
         """
-        GIVEN: The server runs over HTTP transport (mcp_port set) and no remote_url is provided
+        GIVEN: The server runs over HTTP transport (HTTP auth mode) and no remote_url is provided
         WHEN: Finding the source_id
         THEN: A suggestion is returned asking the agent to run git locally, without touching subprocess
         """
@@ -452,7 +452,7 @@ class TestFindCurrentSourceId:
             patch("gg_api_core.tools.find_current_source_id.get_settings") as mock_settings,
             patch("subprocess.run") as mock_run,
         ):
-            mock_settings.return_value = MagicMock(mcp_port="8000")
+            mock_settings.return_value = MagicMock(auth_mode=MagicMock(transport="http"))
 
             result = await find_current_source_id()
 

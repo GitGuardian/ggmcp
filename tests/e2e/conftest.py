@@ -36,15 +36,13 @@ def block_real_network(socket_disabled) -> None:
 @pytest.fixture
 def remote_env(monkeypatch):
     """Environment of the hosted multi-tenant deployment (OAuth proxy mode)."""
-    monkeypatch.setenv("MULTI_TENANCY_ENABLED", "true")
-    # The presence of MCP_PORT marks the server as HTTP-transport: it gates
-    # multi-tenant token extraction and the hosted-server behavior of tools
-    # like find_current_source_id.
+    # The auth mode is the single source of truth: oauth-proxy implies HTTP
+    # transport and multi-tenancy, which gates token extraction and the
+    # hosted-server behavior of tools like find_current_source_id.
+    monkeypatch.setenv("MCP_AUTH_MODE", "oauth-proxy")
     monkeypatch.setenv("MCP_PORT", "8000")
-    monkeypatch.setenv("MCP_OAUTH_PROXY_ENABLED", "true")
     monkeypatch.setenv("MCP_BASE_URL", MCP_BASE_URL)
     monkeypatch.setenv("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
-    monkeypatch.setenv("ENABLE_LOCAL_OAUTH", "false")
     monkeypatch.delenv("GITGUARDIAN_API_URL", raising=False)
     monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN", raising=False)
     monkeypatch.delenv("GITGUARDIAN_API_KEY", raising=False)
