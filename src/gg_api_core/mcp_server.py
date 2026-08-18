@@ -25,7 +25,7 @@ from gg_api_core.oauth_proxy_auth import (
     PassThroughTokenVerifier,
     create_oauth_proxy,
 )
-from gg_api_core.settings import get_settings
+from gg_api_core.settings import AuthMode, get_settings
 from gg_api_core.utils import get_client
 
 # Configure logger
@@ -361,12 +361,12 @@ def get_mcp_server(*args: Any, **kwargs: Any) -> AbstractGitGuardianFastMCP:
     kwargs.setdefault("icons", get_gitguardian_icons())
 
     settings = get_settings()
+    settings.validate_auth_mode()
+    mode = settings.auth_mode
 
-    if settings.is_oauth_proxy_enabled:
-        logger.info(
-            "Starting GitGuardian MCP server in %s mode",
-            GitGuardianOAuthProxyMCP.authentication_mode.value,
-        )
+    _log_startup(settings, mode)
+
+    if mode is AuthMode.OAUTH_PROXY:
         oauth_proxy = create_oauth_proxy(
             base_url=settings.mcp_base_url,
             gg_url=settings.gitguardian_url,
@@ -375,22 +375,31 @@ def get_mcp_server(*args: Any, **kwargs: Any) -> AbstractGitGuardianFastMCP:
         )
         return GitGuardianOAuthProxyMCP(*args, auth=oauth_proxy, **kwargs)
 
-    if settings.is_oauth_enabled:
-        logger.info(
-            "Starting GitGuardian MCP server in %s mode",
-            GitGuardianLocalOAuthMCP.authentication_mode.value,
-        )
+    if mode is AuthMode.LOCAL_OAUTH:
         return GitGuardianLocalOAuthMCP(*args, **kwargs)
 
-    if personal_access_token := settings.gitguardian_personal_access_token:
-        logger.info(
-            "Starting GitGuardian MCP server in %s mode",
-            GitGuardianPATEnvMCP.authentication_mode.value,
+    if mode is AuthMode.ENV_PAT:
+        return GitGuardianPATEnvMCP(
+            *args,
+            personal_access_token=settings.gitguardian_personal_access_token,
+            **kwargs,
         )
-        return GitGuardianPATEnvMCP(*args, personal_access_token=personal_access_token, **kwargs)
 
-    logger.info(
-        "Starting GitGuardian MCP server in %s mode",
-        GitGuardianAuthorizationHeaderMCP.authentication_mode.value,
-    )
     return GitGuardianAuthorizationHeaderMCP(*args, auth=PassThroughTokenVerifier(), **kwargs)
+
+
+def _log_startup(settings: Any, mode: AuthMode) -> None:
+    """Log the resolved mode, GG URL host, and tenancy as the first startup line.
+
+    A misconfiguration must be visible in the first second of any support
+    ticket, so this line is emitted before the server is constructed.
+    """
+    from urllib.parse import urlparse
+
+    host = urlparse(settings.gitguardian_url).netloc or settings.gitguardian_url
+    logger.info(
+        "Resolved auth mode=%s, gg_url_host=%s, tenancy=%s",
+        mode.value,
+        host,
+        "multi-tenant" if mode.is_multi_tenant else "single-tenant",
+    )

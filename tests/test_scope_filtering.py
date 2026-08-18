@@ -12,7 +12,7 @@ async def test_tools_filtered_by_scopes():
     """Test that tools are filtered based on user's available scopes."""
 
     # Test in OAuth mode (uses cached scopes)
-    with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+    with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
         # Create MCP instance
         mcp = get_mcp_server("Test Server")
 
@@ -70,7 +70,7 @@ async def test_tools_filtered_by_scopes():
 async def test_direct_call_tools_filtered_by_scopes():
     """Test that tools registered via direct call (mcp.tool(fn, ...)) are filtered by scopes."""
 
-    with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+    with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
         mcp = get_mcp_server("Test Direct Call")
         mcp._token_scopes = {"scan"}
 
@@ -100,7 +100,7 @@ async def test_direct_call_tools_filtered_by_scopes():
 async def test_direct_call_tools_with_custom_name_filtered_by_scopes():
     """Test that direct-call tools with explicit name= are filtered correctly."""
 
-    with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+    with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
         mcp = get_mcp_server("Test Custom Name")
         mcp._token_scopes = {"incidents:read"}
 
@@ -124,7 +124,7 @@ async def test_direct_call_tools_with_custom_name_filtered_by_scopes():
 async def test_scope_filtering_with_partially_satisfied_multiple_scopes():
     """Test that a tool requiring multiple scopes is hidden when only some are available."""
 
-    with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+    with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
         mcp = get_mcp_server("Test Partial Scopes")
         mcp._token_scopes = {"incidents:read"}
 

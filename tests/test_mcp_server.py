@@ -54,7 +54,7 @@ class TestGitGuardianFastMCP:
 
         # Use a SaaS URL instead of test/localhost URL
         with patch.dict(
-            os.environ, {"ENABLE_LOCAL_OAUTH": "true", "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"}
+            os.environ, {"MCP_AUTH_MODE": "local-oauth", "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"}
         ):
             mcp = get_mcp_server("TestMCP")
 
@@ -76,7 +76,7 @@ class TestGitGuardianFastMCP:
         from gg_api_core.mcp_server import CachedTokenInfoMixin, GitGuardianLocalOAuthMCP
 
         # Create OAuth MCP instance
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
             mcp = GitGuardianLocalOAuthMCP("test_server_lifespan")
 
             # Verify it has the CachedTokenInfoMixin
@@ -103,7 +103,7 @@ class TestGitGuardianFastMCP:
         from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
 
         # Create MCP server using AuthorizationHeader mode (non-caching)
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "false"}):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header"}):
             mcp = GitGuardianAuthorizationHeaderMCP("test_server")
 
             # Verify it doesn't have the CachedTokenInfoMixin methods
@@ -135,7 +135,7 @@ class TestGitGuardianFastMCP:
         from unittest.mock import patch
 
         # Test in OAuth mode (cached scopes)
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
             # Set token scopes to include all required scopes
             self.mcp._token_scopes = {"scan", "incidents:read", "honeytokens:read"}
 
@@ -167,7 +167,7 @@ class TestGitGuardianFastMCP:
         from gg_api_core.mcp_server import GitGuardianLocalOAuthMCP
 
         # Test in OAuth mode (cached scopes) - create a new instance
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}):
             mcp = GitGuardianLocalOAuthMCP("test_server_scopes")
 
             # Set token scopes to include only some required scopes

@@ -13,7 +13,7 @@ import httpx
 from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
-from gg_api_core.settings import get_settings
+from gg_api_core.settings import AuthMode, get_settings
 from gg_api_core.version import APP_VERSION
 
 # Setup logger
@@ -291,7 +291,7 @@ async def acquire_single_tenant_token(
     Token sources (in order of precedence):
     1. GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var
     2. Stored OAuth token from previous authentication flow
-    3. Interactive OAuth flow (if ENABLE_LOCAL_OAUTH=true)
+    3. Interactive OAuth flow (in local-oauth mode)
 
     Args:
         dashboard_url: Optional dashboard URL. If not provided, derived from env.
@@ -318,8 +318,8 @@ async def acquire_single_tenant_token(
         logger.info("Using stored OAuth token from previous authentication")
         return stored_token
 
-    # 3. Trigger OAuth flow if enabled
-    if get_settings().is_oauth_enabled:
+    # 3. Trigger OAuth flow in local-oauth mode
+    if get_settings().auth_mode is AuthMode.LOCAL_OAUTH:
         logger.info("No stored token, triggering OAuth flow")
         return await _run_oauth_flow(dashboard_url, public_api_url)
 
@@ -327,8 +327,8 @@ async def acquire_single_tenant_token(
     raise RuntimeError(
         "No API token available. Options: "
         "(1) Set GITGUARDIAN_PERSONAL_ACCESS_TOKEN env var, "
-        "(2) Set ENABLE_LOCAL_OAUTH=true to trigger interactive OAuth flow, "
-        "(3) For HTTP deployments, set MULTI_TENANCY_ENABLED=true and MCP_PORT."
+        "(2) Set MCP_AUTH_MODE=local-oauth to trigger interactive OAuth flow, "
+        "(3) For HTTP deployments, set MCP_AUTH_MODE=oauth-proxy or MCP_AUTH_MODE=header."
     )
 
 
