@@ -164,7 +164,7 @@ stdio flow rather than the PAT mode shown below:
   "mcpServers": {
     "GitGuardian": {
       "command": "uvx",
-      "args": ["gg-mcp-server@latest"],
+      "args": ["ggmcp@latest"],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
         "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here",
@@ -179,7 +179,7 @@ Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
 `@latest` checks for a newly published release when the client starts. For a
 reproducible installation, replace `latest` with an exact release number from
-the [`gg-mcp-server` PyPI page](https://pypi.org/project/gg-mcp-server/).
+the [`ggmcp` PyPI page](https://pypi.org/project/ggmcp/).
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
@@ -240,7 +240,7 @@ your domain.
 
 The deprecated `developer-mcp-server` and `secops-mcp-server` console scripts
 have been removed. Update your MCP client configuration to invoke
-`gg-mcp-server` directly.
+`ggmcp` directly.
 
 ## Want more?
 

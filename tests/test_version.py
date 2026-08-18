@@ -9,7 +9,7 @@ class TestResolveAppVersion:
 
     def test_returns_the_umbrella_distribution_version(self, monkeypatch):
         """
-        GIVEN the gg-mcp-server distribution metadata is installed
+        GIVEN the ggmcp distribution metadata is installed
         WHEN the application version is resolved
         THEN its release number is returned
         """
@@ -17,7 +17,7 @@ class TestResolveAppVersion:
         monkeypatch.setattr("gg_api_core.version.package_version", package_version)
 
         assert resolve_app_version() == "1.2.3"
-        package_version.assert_called_once_with("gg-mcp-server")
+        package_version.assert_called_once_with("ggmcp")
 
     def test_returns_none_when_distribution_metadata_is_unavailable(self, monkeypatch):
         """

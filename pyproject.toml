@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "gg-mcp-server"
-version = "0.6.10"
+name = "ggmcp"
+version = "0.7.0"
 description = "MCP server for GitGuardian"
 authors = [
     { name = "GitGuardian", email = "support@gitguardian.com" },
@@ -75,7 +75,7 @@ dev = [
 ]
 
 [project.scripts]
-gg-mcp-server = "gg_mcp_server.run:run_mcp_server"
+ggmcp = "gg_mcp_server.run:run_mcp_server"
 
 [tool.hatch.build.targets.wheel]
 packages = [

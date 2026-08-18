@@ -23,4 +23,4 @@ uv pip install --python "$smoke_root/venv/bin/python" "${wheels[0]}"
 cd "$smoke_root"
 "$smoke_root/venv/bin/python" \
     "$repo_root/scripts/smoke_test_wheel.py" \
-    "$smoke_root/venv/bin/gg-mcp-server"
+    "$smoke_root/venv/bin/ggmcp"

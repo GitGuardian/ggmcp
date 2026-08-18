@@ -159,7 +159,7 @@ chart's gunicorn target.
 ### PAT environment variable (any transport)
 
 ```bash
-GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> gg-mcp-server
+GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> ggmcp
 ```
 
 The server uses the PAT for every GitGuardian API call. Useful for CI,
@@ -265,20 +265,20 @@ uv add --optional sentry sentry-sdk
 Run the project with its optional dependencies while developing:
 
 ```bash
-uv run --extra sentry gg-mcp-server
+uv run --extra sentry ggmcp
 ```
 
 To exercise the published package instead, use its PyPI distribution:
 
 ```bash
-uvx --from 'gg-mcp-server[sentry]@latest' gg-mcp-server
+uvx --from 'ggmcp[sentry]@latest' ggmcp
 ```
 
 ### Current Optional Dependencies
 
 - **sentry**: Adds the Sentry SDK for error tracking
 
-  - Available in: `gg-mcp-server[sentry]`
+  - Available in: `ggmcp[sentry]`
   - Implementation: `src/gg_api_core/sentry_integration.py`
   - Used for: MCP exception capture, sanitized breadcrumbs, monitoring, and alerting
 
