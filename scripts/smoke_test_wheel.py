@@ -1,4 +1,4 @@
-"""Smoke-test an installed ``gg-mcp-server`` console script over MCP stdio."""
+"""Smoke-test an installed ``ggmcp`` console script over MCP stdio."""
 
 import argparse
 import asyncio
@@ -28,7 +28,7 @@ async def smoke_test_server(command: Path) -> None:
 def main() -> None:
     """Parse the installed executable path and run the smoke test."""
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", type=Path, help="Path to the installed gg-mcp-server executable")
+    parser.add_argument("command", type=Path, help="Path to the installed ggmcp executable")
     arguments = parser.parse_args()
 
     asyncio.run(smoke_test_server(arguments.command))

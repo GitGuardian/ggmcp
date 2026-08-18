@@ -152,7 +152,7 @@ jobs:
       contents: read
     environment:
       name: pypi
-      url: https://pypi.org/project/gg-mcp-server/
+      url: https://pypi.org/project/ggmcp/
     concurrency:
       group: publish-pypi-${{ needs.release-please.outputs.tag }}
       cancel-in-progress: false
@@ -201,9 +201,9 @@ jobs:
           {
             echo "## ✅ PyPI Publication Successful"
             echo ""
-            echo "Package: https://pypi.org/project/gg-mcp-server/"
+            echo "Package: https://pypi.org/project/ggmcp/"
             echo ""
-            echo "Run with \`uvx gg-mcp-server@latest\`."
+            echo "Run with \`uvx ggmcp@latest\`."
           } >> "$GITHUB_STEP_SUMMARY"
 
   publish-to-mcp-registry:
@@ -233,19 +233,19 @@ jobs:
           version="${RELEASE_TAG#v}"
           for attempt in {1..12}; do
             if curl --fail --silent --show-error \
-              "https://pypi.org/pypi/gg-mcp-server/$version/json" > /dev/null; then
+              "https://pypi.org/pypi/ggmcp/$version/json" > /dev/null; then
               exit 0
             fi
-            echo "Waiting for gg-mcp-server $version to become available on PyPI ($attempt/12)"
+            echo "Waiting for ggmcp $version to become available on PyPI ($attempt/12)"
             sleep 10
           done
-          echo "gg-mcp-server $version was not available on PyPI after two minutes" >&2
+          echo "ggmcp $version was not available on PyPI after two minutes" >&2
           exit 1
 
       - name: Validate server.json
         run: |
           python3 -m json.tool server.json > /dev/null
-          test "$(jq -r '.packages[0].identifier' server.json)" = "gg-mcp-server"
+          test "$(jq -r '.packages[0].identifier' server.json)" = "ggmcp"
           grep -F '<!-- mcp-name: io.github.gitguardian/ggmcp -->' README.md
 
       - name: Check for an existing registry version
