@@ -127,7 +127,7 @@ async def find_current_source_id(
             repository_name = parsed_url.split("/")[-1] if parsed_url else None
             detection_method = "provided remote URL"
             logger.debug(f"Using provided remote URL: {remote_url}, parsed repository name: {repository_name}")
-        elif get_settings().mcp_port:
+        elif get_settings().auth_mode.transport == "http":
             # Hosted (HTTP) transport: no access to the user's filesystem or git binary.
             # Ask the agent to resolve the remote URL locally and call again.
             logger.info("No remote_url provided on HTTP transport; returning suggestion to run git locally")

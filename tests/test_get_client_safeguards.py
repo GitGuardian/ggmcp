@@ -50,29 +50,33 @@ class TestIsMultiTenant:
 
     def test_returns_true_when_enabled(self):
         """
-        GIVEN MULTI_TENANCY_ENABLED=true
+        GIVEN MCP_AUTH_MODE=header
         WHEN get_settings().is_multi_tenant is read
         THEN it returns True
         """
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header"}, clear=True):
             assert get_settings().is_multi_tenant is True
 
     def test_returns_false_when_disabled(self):
         """
-        GIVEN MULTI_TENANCY_ENABLED=false
+        GIVEN MCP_AUTH_MODE=env-pat (single-tenant)
         WHEN get_settings().is_multi_tenant is read
         THEN it returns False
         """
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "false"}, clear=True):
+        with patch.dict(
+            os.environ,
+            {"MCP_AUTH_MODE": "env-pat", "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "x"},
+            clear=True,
+        ):
             assert get_settings().is_multi_tenant is False
 
     def test_case_insensitive(self):
         """
-        GIVEN MULTI_TENANCY_ENABLED=TRUE (uppercase)
+        GIVEN MCP_AUTH_MODE=HEADER (uppercase)
         WHEN get_settings().is_multi_tenant is read
         THEN it returns True
         """
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "TRUE"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "HEADER"}, clear=True):
             assert get_settings().is_multi_tenant is True
 
 
@@ -109,7 +113,7 @@ class TestGetClientExplicitPAT:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             result = await get_client(personal_access_token="explicit-token")
 
         # MCP_PORT is set, so the transport marker is http (no caller header here)
@@ -121,26 +125,13 @@ class TestGetClientExplicitPAT:
 
 
 class TestGetClientMultiTenantMode:
-    """Tests for get_client() in multi-tenant mode (explicit opt-in)."""
-
-    async def test_multi_tenant_requires_mcp_port(self):
-        """
-        GIVEN MULTI_TENANCY_ENABLED=true but MCP_PORT is not set
-        WHEN get_client is called
-        THEN it raises ValidationError
-        """
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true"}, clear=True):
-            with pytest.raises(ValidationError) as exc_info:
-                await get_client()
-
-        assert "MCP_PORT" in str(exc_info.value)
-        assert "MULTI_TENANCY_ENABLED" in str(exc_info.value)
+    """Tests for get_client() in multi-tenant mode (HTTP auth modes)."""
 
     @patch("gg_api_core.utils.get_http_headers")
     @patch("gg_api_core.utils.GitGuardianClient")
     async def test_multi_tenant_extracts_token_from_headers(self, mock_client_class, mock_get_headers):
         """
-        GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
+        GIVEN MCP_AUTH_MODE=header and MCP_PORT is set
         AND Authorization header is present
         WHEN get_client is called
         THEN it extracts token and user-agent from headers and creates new client
@@ -149,7 +140,7 @@ class TestGetClientMultiTenantMode:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             result = await get_client()
 
         # No user-agent header on the request, so only the transport marker is added
@@ -163,7 +154,7 @@ class TestGetClientMultiTenantMode:
     @patch("gg_api_core.utils.GitGuardianClient")
     async def test_multi_tenant_forwards_caller_user_agent(self, mock_client_class, mock_get_headers):
         """
-        GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
+        GIVEN MCP_AUTH_MODE=header and MCP_PORT is set
         AND request has both Authorization and User-Agent headers
         WHEN get_client is called
         THEN the caller's User-Agent is preserved as client=... in the UA string
@@ -175,7 +166,7 @@ class TestGetClientMultiTenantMode:
         mock_client = MagicMock()
         mock_client_class.return_value = mock_client
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             result = await get_client()
 
         mock_client_class.assert_called_once_with(
@@ -204,7 +195,7 @@ class TestGetClientMultiTenantMode:
         mock_client2 = MagicMock()
         mock_client_class.side_effect = [mock_client1, mock_client2]
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             result1 = await get_client()
             result2 = await get_client()
 
@@ -222,7 +213,7 @@ class TestGetClientMultiTenantMode:
         """
         mock_get_headers.return_value = {"content-type": "application/json"}
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             with pytest.raises(ValidationError) as exc_info:
                 await get_client()
 
@@ -310,7 +301,7 @@ class TestGetClientSingleTenantMode:
     @patch("gg_api_core.utils.GitGuardianClient")
     async def test_single_tenant_triggers_oauth_when_enabled(self, mock_client_class, mock_get_stored, mock_oauth):
         """
-        GIVEN no env PAT, no stored token, but ENABLE_LOCAL_OAUTH=true
+        GIVEN no env PAT, no stored token, but MCP_AUTH_MODE=local-oauth
         WHEN get_client is called
         THEN it triggers the OAuth flow and enables token refresh
         """
@@ -325,7 +316,7 @@ class TestGetClientSingleTenantMode:
 
         gg_api_core.utils._client_singleton = None
 
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "local-oauth"}, clear=True):
             result = await get_client()
 
         mock_oauth.assert_called_once()
@@ -338,7 +329,7 @@ class TestGetClientSingleTenantMode:
     @patch("gg_api_core.client._get_stored_oauth_token")
     async def test_single_tenant_raises_when_no_token_source(self, mock_get_stored):
         """
-        GIVEN no env PAT, no stored token, and OAuth disabled
+        GIVEN env-pat mode but no PAT and no stored token
         WHEN get_client is called
         THEN it raises RuntimeError with helpful message
         """
@@ -349,13 +340,13 @@ class TestGetClientSingleTenantMode:
 
         gg_api_core.utils._client_singleton = None
 
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "false"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "env-pat"}, clear=True):
             with pytest.raises(RuntimeError) as exc_info:
                 await get_client()
 
         assert "No API token available" in str(exc_info.value)
         assert "GITGUARDIAN_PERSONAL_ACCESS_TOKEN" in str(exc_info.value)
-        assert "ENABLE_LOCAL_OAUTH" in str(exc_info.value)
+        assert "MCP_AUTH_MODE" in str(exc_info.value)
 
 
 class TestAccountIsolation:
@@ -377,7 +368,7 @@ class TestAccountIsolation:
         mock_get_headers.return_value = {"authorization": "Bearer token"}
         mock_client_class.return_value = MagicMock()
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             await get_client()
             await get_client()
             await get_client()
@@ -457,7 +448,7 @@ class TestCallerUserAgentExtraction:
         }
         mock_client_class.return_value = MagicMock()
 
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
+        with patch.dict(os.environ, {"MCP_AUTH_MODE": "header", "MCP_PORT": "8080"}, clear=True):
             await get_client()
 
         mock_client_class.assert_called_once_with(

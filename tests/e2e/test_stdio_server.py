@@ -50,10 +50,11 @@ def stdio_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("MCP_PORT", raising=False)
     monkeypatch.delenv("MULTI_TENANCY_ENABLED", raising=False)
     monkeypatch.delenv("MCP_OAUTH_PROXY_ENABLED", raising=False)
+    monkeypatch.delenv("ENABLE_LOCAL_OAUTH", raising=False)
     monkeypatch.delenv("GITGUARDIAN_API_URL", raising=False)
     monkeypatch.setenv("GITGUARDIAN_URL", "https://dashboard.gitguardian.com")
     monkeypatch.setenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN", STDIO_PAT)
-    monkeypatch.setenv("ENABLE_LOCAL_OAUTH", "false")
+    monkeypatch.setenv("MCP_AUTH_MODE", "env-pat")
 
 
 @pytest.fixture(autouse=True)
@@ -102,7 +103,7 @@ class TestPatEnvAuthentication:
         assert_authenticated_request(route, STDIO_PAT)
         assert "(transport=stdio)" in route.calls.last.request.headers["User-Agent"]
 
-    async def test_default_oauth_mode_still_uses_the_env_token_without_a_browser_flow(
+    async def test_pat_alone_selects_env_pat_mode_without_a_browser_flow(
         self,
         stdio_env: None,
         monkeypatch: pytest.MonkeyPatch,
@@ -110,21 +111,21 @@ class TestPatEnvAuthentication:
         mock_token_scopes: Any,
     ) -> None:
         """
-        GIVEN the default local setup (ENABLE_LOCAL_OAUTH unset) with a PAT env var
+        GIVEN a PAT env var with no MCP_AUTH_MODE and no ENABLE_LOCAL_OAUTH
         WHEN a tool is called
-        THEN the server runs in LOCAL_OAUTH_FLOW mode but the client picks the
-             env token, so no interactive flow is ever needed
+        THEN the server runs in PERSONAL_ACCESS_TOKEN_ENV_VAR mode (the old
+             ladder surprise where a PAT alone did not select PAT mode is gone)
         """
 
         async def unexpected_oauth_flow(*_args: Any, **_kwargs: Any) -> None:
             raise AssertionError("interactive OAuth must not start while an env PAT exists")
 
-        monkeypatch.delenv("ENABLE_LOCAL_OAUTH")
+        monkeypatch.delenv("MCP_AUTH_MODE")
         monkeypatch.setattr(client_module, "_run_oauth_flow", unexpected_oauth_flow)
         route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
         server = build_server()
-        assert server.authentication_mode.value == "LOCAL_OAUTH_FLOW"
+        assert server.authentication_mode.value == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
         async with Client(server) as client:
             result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
 
@@ -166,7 +167,7 @@ class TestPatEnvAuthentication:
         """
         stored_pat = "stdio-stored-oauth-pat"
         monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
-        monkeypatch.delenv("ENABLE_LOCAL_OAUTH")
+        monkeypatch.delenv("MCP_AUTH_MODE")
         oauth.FileTokenStorage().save_token(
             "https://dashboard.gitguardian.com",
             {"access_token": stored_pat},

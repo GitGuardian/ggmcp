@@ -51,10 +51,11 @@ def run_http_with_uvicorn():
 def run_mcp_server():
     """Run the MCP server with transport auto-detection.
 
-    If MCP_PORT is set, uses StreamableHTTP transport.
-    Otherwise, uses stdio transport (default).
+    The transport is derived from the resolved authentication mode: HTTP modes
+    (oauth-proxy / header) use StreamableHTTP, stdio modes (env-pat /
+    local-oauth) use stdio.
     """
-    if get_settings().mcp_port:
+    if get_settings().auth_mode.transport == "http":
         run_http_with_uvicorn()
     else:
         run_stdio()

@@ -12,7 +12,7 @@ import pytest
 @pytest.fixture
 def mock_env_no_http():
     """Mock env vars to keep imports in stdio/cached-scope mode."""
-    with patch.dict("os.environ", {"MCP_PORT": "", "ENABLE_LOCAL_OAUTH": "true"}, clear=False):
+    with patch.dict("os.environ", {"MCP_AUTH_MODE": "local-oauth"}, clear=False):
         yield
 
 
