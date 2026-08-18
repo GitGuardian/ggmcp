@@ -2,6 +2,7 @@ import subprocess
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from gg_api_core.tools.find_current_source_id import (
     FindCurrentSourceIdError,
     FindCurrentSourceIdSuggestion,

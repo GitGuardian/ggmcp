@@ -8,6 +8,7 @@ and cover every filter parameter exposed by ListPublicIncidentsParams.
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity
 from gg_api_core.tools.list_public_incidents import (
     ListPublicIncidentsParams,

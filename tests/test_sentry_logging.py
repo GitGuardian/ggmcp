@@ -9,10 +9,11 @@ import sentry_sdk
 import structlog
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
+from sentry_sdk.transport import Transport
+
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.sentry_integration import _MAX_SCRUB_DEPTH, _scrub_sentry_payload, init_sentry
-from sentry_sdk.transport import Transport
 
 
 class _CollectingTransport(Transport):

@@ -6,6 +6,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
+from pydantic import ValidationError
+
 from gg_api_core.tools.incident_notes import (
     ListCommentsResult,
     ListIncidentCommentsParams,
@@ -15,7 +17,6 @@ from gg_api_core.tools.incident_notes import (
     manage_incident_comment,
     manage_public_incident_comment,
 )
-from pydantic import ValidationError
 
 
 def _note_payload(note_id: int = 42, incident_id: int = 123, comment: str = "Looks like a test credential") -> dict:

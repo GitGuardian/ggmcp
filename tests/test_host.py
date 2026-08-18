@@ -4,6 +4,7 @@ import os
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.host import SAAS_HOSTNAMES, _is_saas_hostname, is_self_hosted_instance
 from gg_api_core.urls import derive_public_api_url
 

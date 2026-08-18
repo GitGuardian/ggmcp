@@ -11,6 +11,7 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.tools.count_incidents import (
     CountIncidentsParams,
     CountIncidentsResult,

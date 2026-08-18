@@ -53,7 +53,6 @@ jobs:
           ref: ${{ inputs.ref }}
           fetch-depth: 0 # Required by git rev-list --count below
 
-      # PUBLISHING.md defines the tag format contract.
       - name: Stamp the unique per-commit main tag
         id: stamp
         run: |
@@ -65,7 +64,7 @@ jobs:
           seq=$(git rev-list --count HEAD)
           tag="main-${sha:0:8}-${seq}"
           if [[ ! $tag =~ ^main-[0-9a-f]{8}-[0-9]+$ ]]; then
-            echo "::error::tag '$tag' breaks the tag format contract in PUBLISHING.md"
+            echo "::error::tag '$tag' breaks the tag format contract"
             exit 1
           fi
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"

@@ -64,9 +64,7 @@ def _add_exception_cls(logger: WrappedLogger, method_name: str, event_dict: Even
     return event_dict
 
 
-def configure_logging(
-    *, log_level: str = "INFO", log_format: str | None = None, service: str = "gg-mcp-server"
-) -> None:
+def configure_logging(*, log_level: str = "INFO", log_format: str | None = None, service: str = "ggmcp") -> None:
     def _add_gg_fields(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
         event_dict["gg_service"] = service
         event_dict["gg_version"] = APP_VERSION or "unknown"

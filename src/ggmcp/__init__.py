@@ -1,3 +1,3 @@
-"""GitGuardian MCP Server - Root package providing entry points."""
+"""GitGuardian MCP server (unified)."""
 
 __version__ = "0.7.0"
