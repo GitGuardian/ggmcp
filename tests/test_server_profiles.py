@@ -1,6 +1,6 @@
 """Test that the unified server module imports and registers tools correctly.
 
-Replaces the old per-profile tests now that there's a single gg_mcp_server.
+Replaces the old per-profile tests now that there's a single ggmcp.
 """
 
 import sys
@@ -36,14 +36,14 @@ def clean_module_imports(module_name: str):
 class TestUnifiedServer:
     def test_server_imports_successfully(self, mock_gitguardian_modules, mock_env_no_http):
         """
-        GIVEN the unified gg_mcp_server package
+        GIVEN the unified ggmcp package
         WHEN its server is built
         THEN it exposes a configured AbstractGitGuardianFastMCP instance
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp")
 
         from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
-        from gg_mcp_server.server import build_server
+        from ggmcp.server import build_server
 
         server = build_server()
 
@@ -57,9 +57,9 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN both developer-flavour and secops-flavour tools are present
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp")
 
-        from gg_mcp_server.server import build_server
+        from ggmcp.server import build_server
 
         server = build_server()
         server._fetch_token_scopes_from_api = AsyncMock()
@@ -86,9 +86,9 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN write tools are filtered out and read tools remain
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp")
 
-        from gg_mcp_server.server import build_server
+        from ggmcp.server import build_server
 
         server = build_server()
         server._fetch_token_scopes_from_api = AsyncMock()
