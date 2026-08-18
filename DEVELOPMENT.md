@@ -363,8 +363,7 @@ Releases are automated with release-please and driven by conventional
 commits. Never bump versions by hand: release-please maintains a rolling
 `chore(main): release X.Y.Z` PR, and merging that PR tags `vX.Y.Z` and
 publishes the Docker image (`X.Y.Z`, `X.Y`, `latest`). Ordinary merges only
-refresh the `main` and `main-<sha>-<seq>` image tags. See `PUBLISHING.md`
-for details and the manual escape hatch.
+refresh the `main` and `main-<sha>-<seq>` image tags.
 
 ## Python 3.13 Features
 

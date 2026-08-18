@@ -1,1 +1,0 @@
-Rules for Claude are in @AGENTS.md
