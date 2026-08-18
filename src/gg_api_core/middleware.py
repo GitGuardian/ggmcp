@@ -239,7 +239,6 @@ class ToolCallLoggingMiddleware(Middleware):
         call_next: CallNext[mt.CallToolRequestParams, ToolResult],
     ) -> ToolResult:
         tool = context.message.name
-        arguments = context.message.arguments or {}
 
         start = time.perf_counter()
         with track_downstream_calls() as downstream:
@@ -250,7 +249,6 @@ class ToolCallLoggingMiddleware(Middleware):
                     "tool_call_failed",
                     extra={
                         "tool": tool,
-                        "arguments": arguments,
                         "status": "error",
                         "duration_ms": round((time.perf_counter() - start) * 1000),
                         **classify_failure(exc),
@@ -263,7 +261,6 @@ class ToolCallLoggingMiddleware(Middleware):
                 "tool_call",
                 extra={
                     "tool": tool,
-                    "arguments": arguments,
                     "status": "ok",
                     "duration_ms": round((time.perf_counter() - start) * 1000),
                     **_result_shape(result),
