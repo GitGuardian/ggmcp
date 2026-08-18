@@ -75,18 +75,18 @@ dev = [
 ]
 
 [project.scripts]
-ggmcp = "gg_mcp_server.run:run_mcp_server"
+ggmcp = "ggmcp.run:run_mcp_server"
 
 [tool.hatch.build.targets.wheel]
 packages = [
     "src/gg_api_core",
-    "src/gg_mcp_server",
+    "src/ggmcp",
 ]
 
 [tool.hatch.build.targets.sdist]
 include = [
     "/src/gg_api_core",
-    "/src/gg_mcp_server",
+    "/src/ggmcp",
     "/LICENSE",
     "/README.md",
     "/pyproject.toml",
@@ -161,6 +161,6 @@ python-version = "3.11"
 # kept out of the type-checked set (see linear ticket SI-4052).
 project-includes = [
     "src/gg_api_core/**",
-    "src/gg_mcp_server/**",
+    "src/ggmcp/**",
 ]
 ignore-missing-imports = ["*"]

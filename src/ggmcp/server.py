@@ -18,8 +18,8 @@ from gg_api_core.mcp_server import (
 )
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
-from gg_mcp_server.add_health_check import add_health_check
-from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
+from ggmcp.add_health_check import add_health_check
+from ggmcp.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
 
 logger = logging.getLogger(__name__)
 

@@ -104,7 +104,7 @@ async def main():
 
 
 async def init_server():
-    from gg_mcp_server.server import build_server
+    from ggmcp.server import build_server
 
     mcp = build_server()
     print(await mcp.call_tool("list_users", {"params": {}}))

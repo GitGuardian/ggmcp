@@ -9,7 +9,7 @@ For local development, use the run_http_with_uvicorn() function instead.
 
 import logging
 
-from gg_mcp_server.server import build_http_app, get_server
+from ggmcp.server import build_http_app, get_server
 
 logger = logging.getLogger(__name__)
 

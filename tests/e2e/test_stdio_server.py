@@ -18,7 +18,7 @@ from mcp.types import TextContent
 
 from gg_api_core import client as client_module
 from gg_api_core import oauth, utils
-from gg_mcp_server.server import build_server
+from ggmcp.server import build_server
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,
