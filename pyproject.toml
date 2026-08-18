@@ -156,9 +156,8 @@ name = "cz_conventional_commits"
 [tool.pyrefly]
 preset = "strict"
 python-version = "3.11"
-# The published packages. src/config holds the legacy gunicorn logger class the
-# container loads by path, which ships in no artifact and stays untyped, so it is
-# kept out of the type-checked set (see linear ticket SI-4052).
+# The published packages. Only these two packages ship in the wheel and are
+# type-checked (see linear ticket SI-4052).
 project-includes = [
     "src/gg_api_core/**",
     "src/ggmcp/**",
