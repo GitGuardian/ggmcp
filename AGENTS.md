@@ -16,6 +16,10 @@
     - Works well with `uv` for fast, reliable package management
     - Properly specify dependencies with version constraints
     - Use `uv sync` to install dependencies
+    - **Use `make sync` instead of a bare `uv sync`** in this repo: it unsets the
+      index-registry environment variables exported by the host shell so
+      dependency resolution always uses the public PyPI index rather than the
+      private registry those variables point at.
 
 2. **Example pyproject.toml**
    ```toml
