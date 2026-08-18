@@ -8,6 +8,6 @@ os.environ["MCP_PORT"] = os.environ.get("MCP_PORT", "8088")
 os.environ["MCP_HOST"] = os.environ.get("MCP_HOST", "127.0.0.1")
 
 if __name__ == "__main__":
-    from gg_mcp_server.run import run_mcp_server
+    from ggmcp.run import run_mcp_server
 
     run_mcp_server()

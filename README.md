@@ -155,18 +155,16 @@ env vars.
 ## Local stdio mode (PAT-only)
 
 For CI/CD, airgapped environments, or older MCP clients, run the server
-locally over stdio with a PAT:
+locally over stdio with a PAT. You must explicitly set `ENABLE_LOCAL_OAUTH`
+to `false`; without it the server defaults to the (deprecated) browser-OAuth
+stdio flow rather than the PAT mode shown below:
 
 ```json
 {
   "mcpServers": {
     "GitGuardian": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
-      ],
+      "args": ["ggmcp@latest"],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
         "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "your_pat_here",
@@ -179,6 +177,9 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+`@latest` checks for a newly published release when the client starts. For a
+reproducible installation, replace `latest` with an exact release number from
+the [`ggmcp` PyPI page](https://pypi.org/project/ggmcp/).
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
@@ -204,7 +205,7 @@ docker run -p 8000:8000 \
   -e ENABLE_LOCAL_OAUTH=false \
   ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
-           -b 0.0.0.0:8000 gg_mcp_server.http_app:app
+           -b 0.0.0.0:8000 ggmcp.http_app:app
 ```
 
 `IS_ON_PREM=true` tells the server it talks to a self-hosted GIM instance
@@ -237,10 +238,9 @@ your domain.
 
 ## Migration notes
 
-The `developer-mcp-server` and `secops-mcp-server` console scripts are
-deprecated and re-export the unified `gg-mcp-server`. Update your MCP client
-configuration to invoke `gg-mcp-server` directly; both old scripts will be
-removed in a future release.
+The deprecated `developer-mcp-server` and `secops-mcp-server` console scripts
+have been removed. Update your MCP client configuration to invoke
+`ggmcp` directly.
 
 ## Want more?
 

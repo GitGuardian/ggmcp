@@ -8,6 +8,8 @@ import logging
 from functools import cache
 
 from fastmcp.server.http import create_streamable_http_app
+from starlette.applications import Starlette
+
 from gg_api_core.logging_config import configure_logging_from_settings
 from gg_api_core.mcp_server import (
     AbstractGitGuardianFastMCP,
@@ -16,10 +18,8 @@ from gg_api_core.mcp_server import (
 )
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
-from starlette.applications import Starlette
-
-from gg_mcp_server.add_health_check import add_health_check
-from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
+from ggmcp.add_health_check import add_health_check
+from ggmcp.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +71,3 @@ def get_server() -> AbstractGitGuardianFastMCP:
     mcp = build_server()
     logger.info("GitGuardian MCP server instance created and configured")
     return mcp
-
-
-def __getattr__(name: str) -> AbstractGitGuardianFastMCP:
-    # Backward compatibility: ``from gg_mcp_server.server import mcp`` still
-    # works, but builds the server lazily on first access (PEP 562).
-    if name == "mcp":
-        return get_server()
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

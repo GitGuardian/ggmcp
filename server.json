@@ -18,39 +18,26 @@
       },
       "environmentVariables": [
         {
+          "name": "ENABLE_LOCAL_OAUTH",
+          "description": "Deprecated browser-OAuth stdio flow, on by default. Set false and provide GITGUARDIAN_PERSONAL_ACCESS_TOKEN to run in the supported local PAT mode",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": false,
+          "value": "true"
+        },
+        {
+          "name": "GITGUARDIAN_PERSONAL_ACCESS_TOKEN",
+          "description": "GitGuardian personal access token for the local PAT mode (used when ENABLE_LOCAL_OAUTH=false)",
+          "format": "string",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "GITGUARDIAN_URL",
           "description": "GitGuardian instance URL (defaults to https://dashboard.gitguardian.com for US SaaS)",
-          "isRequired": false,
           "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_URL"
-        },
-        {
-          "description": "OAuth client ID for custom OAuth applications",
           "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_CLIENT_ID"
-        },
-        {
-          "description": "OAuth scopes to request (auto-detected by default)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_SCOPES"
-        },
-        {
-          "description": "Name for the OAuth token",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_NAME"
-        },
-        {
-          "description": "Token lifetime in days (default: 30)",
-          "isRequired": false,
-          "format": "string",
-          "isSecret": false,
-          "name": "GITGUARDIAN_TOKEN_LIFETIME"
+          "isSecret": false
         }
       ]
     }

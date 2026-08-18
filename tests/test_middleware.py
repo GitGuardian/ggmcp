@@ -9,11 +9,12 @@ import pytest
 import structlog
 from fastmcp import Client
 from fastmcp.tools import ToolResult
+from mcp.types import TextContent
+
 from gg_api_core.log_context import clear_caller_identity_cache, record_downstream_call, record_truncation
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
-from mcp.types import TextContent
 
 TOKEN_INFO = {
     "id": "tok-uuid",
