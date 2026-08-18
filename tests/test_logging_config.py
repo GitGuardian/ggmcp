@@ -44,7 +44,7 @@ class TestConfigureLogging:
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert payload["event"] == "event msg"
         assert payload["account_id"] == 475789
-        assert payload["gg_service"] == "gg-mcp-server"
+        assert payload["gg_service"] == "ggmcp"
         assert payload["level"] == "info"
         assert payload["gg_version"] == (APP_VERSION or "unknown")
 

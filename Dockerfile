@@ -44,7 +44,7 @@ COPY src ./src
 
 # `uv pip install <wheel>` ignores uv.lock and re-resolves each wheel's `~=` ranges at build
 # time, so rebuilds drift. Install the locked deps instead, then the wheels with --no-deps.
-# gg-mcp-server[sentry] covers the server dependencies plus sentry-sdk for production monitoring.
+# ggmcp[sentry] covers the server dependencies plus sentry-sdk for production monitoring.
 RUN uv export --frozen --no-dev --no-emit-project \
         --extra sentry \
         --format requirements-txt -o /tmp/requirements.txt && \

@@ -165,7 +165,7 @@ locally over stdio with a PAT:
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
+        "ggmcp"
       ],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
@@ -179,6 +179,7 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
@@ -239,7 +240,7 @@ your domain.
 
 The deprecated `developer-mcp-server` and `secops-mcp-server` console scripts
 have been removed. Update your MCP client configuration to invoke
-`gg-mcp-server` directly.
+`ggmcp` directly.
 
 ## Want more?
 
