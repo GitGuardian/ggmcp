@@ -158,16 +158,19 @@ class TestFindCurrentSourceId:
     @pytest.mark.asyncio
     async def test_find_current_source_id_client_error(self, mock_gitguardian_client):
         """
-        GIVEN the GitGuardian client raises an exception
+        GIVEN the GitGuardian client raises an exception (e.g. API failure)
         WHEN attempting to find the source_id
-        THEN an error is returned
+        THEN an error is returned and the failure is not misreported as "not found"
         """
         mock_gitguardian_client.get_source_by_name = AsyncMock(side_effect=Exception("API error"))
 
         result = await find_current_source_id(remote_url="https://github.com/GitGuardian/test.git")
 
-        assert hasattr(result, "error")
+        assert isinstance(result, FindCurrentSourceIdError)
         assert "Failed to find source_id" in result.error
+        # The failure must surface as an API/transport error, not as the misleading
+        # "repository not found" that a swallowed client error used to produce.
+        assert "not found in GitGuardian" not in result.error
 
     @pytest.mark.asyncio
     async def test_find_current_source_id_without_remote_url_returns_suggestion(self, mock_gitguardian_client):
