@@ -10,7 +10,8 @@ from unittest.mock import patch
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.get_public_incident import (
+
+from ggmcp.tools.get_public_incident import (
     GetPublicIncidentParams,
     GetPublicIncidentResult,
     get_public_incident,
@@ -31,7 +32,7 @@ class TestGetPublicIncidentVCR:
         """
         with use_cassette("test_get_public_incident_basic"):
             with patch(
-                "gg_api_core.tools.get_public_incident.get_client",
+                "ggmcp.tools.get_public_incident.get_client",
                 return_value=real_client,
             ):
                 page = await real_client.list_public_incidents(per_page=1)
@@ -57,7 +58,7 @@ class TestGetPublicIncidentVCR:
         """
         with use_cassette("test_get_public_incident_unknown_id"):
             with patch(
-                "gg_api_core.tools.get_public_incident.get_client",
+                "ggmcp.tools.get_public_incident.get_client",
                 return_value=real_client,
             ):
                 with pytest.raises(ToolError):

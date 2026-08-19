@@ -1,4 +1,4 @@
-from gg_api_core.tools.write_custom_tags import (
+from ggmcp.tools.write_custom_tags import (
     UpdateOrCreateIncidentCustomTagsParams,
     WriteCustomTagsParams,
 )

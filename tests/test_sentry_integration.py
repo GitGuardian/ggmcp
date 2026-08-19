@@ -4,9 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
-from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
-
+from ggmcp.api.sanitization import SENSITIVE_DATA_PLACEHOLDER
+from ggmcp.logging.sentry_integration import _before_send_event, _before_send_transaction
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
 
 PROBE_PATH = Path(__file__).parent / "helpers" / "sentry_mcp_transaction_probe.py"
@@ -61,7 +60,7 @@ def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
                     "stacktrace": {
                         "frames": [
                             {
-                                "filename": "packages/gg_api_core/src/gg_api_core/client.py",
+                                "filename": "packages/ggmcp/src/ggmcp/client.py",
                                 "function": "_request",
                             }
                         ]
@@ -79,7 +78,7 @@ def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
     assert outgoing_event["breadcrumbs"]["values"][0]["data"]["password"] == SENSITIVE_DATA_PLACEHOLDER
     assert outgoing_event["breadcrumbs"]["values"][0]["data"]["endpoint"] == "/v1/scan"
     frame = outgoing_event["exception"]["values"][0]["stacktrace"]["frames"][0]
-    assert frame["filename"] == "packages/gg_api_core/src/gg_api_core/client.py"
+    assert frame["filename"] == "packages/ggmcp/src/ggmcp/client.py"
     assert frame["function"] == "_request"
 
 

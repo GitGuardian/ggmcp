@@ -8,8 +8,9 @@ and cover every filter parameter exposed by ListPublicIncidentsParams.
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity
-from gg_api_core.tools.list_public_incidents import (
+
+from ggmcp.api.client import IncidentSeverity, IncidentStatus, IncidentValidity
+from ggmcp.tools.list_public_incidents import (
     ListPublicIncidentsParams,
     ListPublicIncidentsResult,
     list_public_incidents,
@@ -29,7 +30,7 @@ class TestListPublicIncidentsVCR:
         """
         with use_cassette("test_list_public_incidents_basic"):
             with patch(
-                "gg_api_core.tools.list_public_incidents.get_client",
+                "ggmcp.tools.list_public_incidents.get_client",
                 return_value=real_client,
             ):
                 # The default tool applies status/severity/validity noise-reduction filters;
@@ -75,7 +76,7 @@ class TestListPublicIncidentsVCR:
         ]
         with use_cassette("test_list_public_incidents_with_multi_value_enum_filters"):
             with patch(
-                "gg_api_core.tools.list_public_incidents.get_client",
+                "ggmcp.tools.list_public_incidents.get_client",
                 return_value=real_client,
             ):
                 params = ListPublicIncidentsParams(
@@ -112,7 +113,7 @@ class TestListPublicIncidentsVCR:
         """
         with use_cassette("test_list_public_incidents_with_date_and_risk_score_bounds"):
             with patch(
-                "gg_api_core.tools.list_public_incidents.get_client",
+                "ggmcp.tools.list_public_incidents.get_client",
                 return_value=real_client,
             ):
                 params = ListPublicIncidentsParams(

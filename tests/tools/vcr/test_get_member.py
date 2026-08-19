@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.get_member import (
+
+from ggmcp.tools.get_member import (
     GetMemberParams,
     GetMemberResult,
     get_member,
@@ -35,7 +36,7 @@ class TestGetMemberVCR:
         """
         with use_cassette("test_get_member_basic"):
             with patch(
-                "gg_api_core.tools.get_member.get_client",
+                "ggmcp.tools.get_member.get_client",
                 return_value=real_client,
             ):
                 params = GetMemberParams(
@@ -66,7 +67,7 @@ class TestGetMemberVCR:
         """
         with use_cassette("test_get_member_has_timestamps"):
             with patch(
-                "gg_api_core.tools.get_member.get_client",
+                "ggmcp.tools.get_member.get_client",
                 return_value=real_client,
             ):
                 params = GetMemberParams(
@@ -91,7 +92,7 @@ class TestGetMemberVCR:
         """
         with use_cassette("test_get_member_verifies_id"):
             with patch(
-                "gg_api_core.tools.get_member.get_client",
+                "ggmcp.tools.get_member.get_client",
                 return_value=real_client,
             ):
                 params = GetMemberParams(

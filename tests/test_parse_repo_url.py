@@ -1,7 +1,8 @@
 """Tests for parse_repo_url function - Git URL parsing for multiple hosting platforms"""
 
 import pytest
-from gg_api_core.utils import parse_repo_url
+
+from ggmcp.utils import parse_repo_url
 
 
 class TestParseRepoUrl:

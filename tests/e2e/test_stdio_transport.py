@@ -83,7 +83,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
     tmp_path: Path,
 ) -> None:
     """
-    GIVEN the installed gg-mcp-server entrypoint, an environment PAT, and a
+    GIVEN the installed ggmcp entrypoint, an environment PAT, and a
           local fake GitGuardian API
     WHEN a real MCP client calls get_incident over stdio
     THEN the incident is returned, every upstream request carries the expected
@@ -104,7 +104,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
         "PATH": os.defpath,
         "XDG_CONFIG_HOME": str(tmp_path / "xdg"),
     }
-    entrypoint = Path(sys.executable).with_name("gg-mcp-server")
+    entrypoint = Path(sys.executable).with_name("ggmcp")
     transport = StdioTransport(
         command=str(entrypoint),
         args=[],

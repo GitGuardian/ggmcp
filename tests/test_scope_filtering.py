@@ -4,7 +4,8 @@ import os
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.mcp_server import get_mcp_server
+
+from ggmcp.transport.mcp_server import get_mcp_server
 
 
 @pytest.mark.asyncio
@@ -83,7 +84,7 @@ async def test_direct_call_tools_filtered_by_scopes():
         async def no_scope_fn():
             return "no scope"
 
-        # Register tools via direct call (the pattern used in secops_mcp_server)
+        # Register tools via direct call (the pattern used in the unified server)
         mcp.tool(allowed_fn, description="Allowed tool", required_scopes=["scan"])
         mcp.tool(denied_fn, description="Denied tool", required_scopes=["incidents:write"])
         mcp.tool(no_scope_fn, description="No scope tool")

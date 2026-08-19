@@ -8,7 +8,8 @@ without requiring a live API connection.
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.list_repo_occurrences import (
+
+from ggmcp.tools.list_repo_occurrences import (
     ListRepoOccurrencesParams,
     ListRepoOccurrencesResult,
     list_repo_occurrences,
@@ -34,7 +35,7 @@ class TestListRepoOccurrencesVCR:
         with use_cassette("test_list_repo_occurrences_with_mine_true"):
             # Patch get_client to return the real_client for VCR recording/playback
             with patch(
-                "gg_api_core.tools.list_repo_occurrences.get_client",
+                "ggmcp.tools.list_repo_occurrences.get_client",
                 return_value=real_client,
             ):
                 # Create params with mine=True - this exercises the model_validator

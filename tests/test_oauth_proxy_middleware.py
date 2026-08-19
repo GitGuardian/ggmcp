@@ -3,7 +3,8 @@
 import json
 
 import pytest
-from gg_api_core.oauth_proxy_auth import (
+
+from ggmcp.auth.oauth_proxy_auth import (
     AdvertiseAuthorizationServerMetadataMiddleware,
     TranslateDownstreamUnauthorizedMiddleware,
     create_oauth_proxy,

@@ -2,7 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_mcp_server import server
+
+from ggmcp.transport import server
 
 
 @pytest.mark.skip(reason="generate_honeytoken is disabled (TODO: APPAI-28)")
@@ -84,7 +85,8 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
     from unittest.mock import MagicMock, patch
 
     import httpx
-    from gg_api_core.tools.generate_honey_token import GenerateHoneytokenParams, generate_honeytoken
+
+    from ggmcp.tools.generate_honey_token import GenerateHoneytokenParams, generate_honeytoken
 
     detail = "Another active honeytoken already exists with this name"
     mock_response = MagicMock()
@@ -95,8 +97,8 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
     mock_client = AsyncMock()
     mock_client.create_honeytoken = AsyncMock(side_effect=error)
 
-    with patch("gg_api_core.tools.generate_honey_token.get_client", AsyncMock(return_value=mock_client)):
-        with caplog.at_level(logging.WARNING, logger="gg_api_core.tools.generate_honey_token"):
+    with patch("ggmcp.tools.generate_honey_token.get_client", AsyncMock(return_value=mock_client)):
+        with caplog.at_level(logging.WARNING, logger="ggmcp.tools.generate_honey_token"):
             with pytest.raises(ToolError) as excinfo:
                 # new_token=True skips the reuse lookup and goes straight to creation.
                 await generate_honeytoken(GenerateHoneytokenParams(name="dup", new_token=True))

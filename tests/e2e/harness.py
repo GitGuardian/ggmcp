@@ -22,7 +22,7 @@ TEST_PAT = "e2e-test-pat"
 
 TEST_MEMBER_ID = 4242
 
-# Keep this test oracle independent from ``gg_api_core.scopes.ALL_SCOPES``:
+# Keep this test oracle independent from ``ggmcp.api.scopes.ALL_SCOPES``:
 # an accidental production-scope removal must fail the remote contract tests.
 EXPECTED_SCOPES = [
     "scan",

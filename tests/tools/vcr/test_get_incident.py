@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.get_incident import (
+
+from ggmcp.tools.get_incident import (
     GetIncidentParams,
     GetIncidentResult,
     get_incident,
@@ -36,7 +37,7 @@ class TestGetIncidentVCR:
         """
         with use_cassette("test_get_incident_basic"):
             with patch(
-                "gg_api_core.tools.get_incident.get_client",
+                "ggmcp.tools.get_incident.get_client",
                 return_value=real_client,
             ):
                 params = GetIncidentParams(
@@ -64,7 +65,7 @@ class TestGetIncidentVCR:
         """
         with use_cassette("test_get_incident_with_occurrences"):
             with patch(
-                "gg_api_core.tools.get_incident.get_client",
+                "ggmcp.tools.get_incident.get_client",
                 return_value=real_client,
             ):
                 params = GetIncidentParams(
@@ -90,7 +91,7 @@ class TestGetIncidentVCR:
         """
         with use_cassette("test_get_incident_no_occurrences"):
             with patch(
-                "gg_api_core.tools.get_incident.get_client",
+                "ggmcp.tools.get_incident.get_client",
                 return_value=real_client,
             ):
                 params = GetIncidentParams(
@@ -117,7 +118,7 @@ class TestGetIncidentVCR:
         """
         with use_cassette("test_get_incident_has_detector_info"):
             with patch(
-                "gg_api_core.tools.get_incident.get_client",
+                "ggmcp.tools.get_incident.get_client",
                 return_value=real_client,
             ):
                 params = GetIncidentParams(

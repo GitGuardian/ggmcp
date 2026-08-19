@@ -18,8 +18,9 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx
 import pytest
-from gg_api_core import oauth
 from typing_extensions import override
+
+from ggmcp.auth import oauth
 
 TEST_TOKEN = "oauth-browser-test-token"
 # Token exchange response, as documented at

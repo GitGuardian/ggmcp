@@ -1,7 +1,7 @@
 """Fixtures for the remote MCP e2e suite (pure helpers live in harness.py).
 
 Builds the production ASGI app with the same ``build_server`` and
-``build_http_app`` used by ``gg_mcp_server.http_app`` (OAuth-proxy auth,
+``build_http_app`` used by ``ggmcp.transport.http_app`` (OAuth-proxy auth,
 StreamableHTTP transport in stateless JSON mode) and drives it with raw
 JSON-RPC 2.0 requests over an in-process httpx client.
 
@@ -23,8 +23,8 @@ from contextlib import asynccontextmanager
 import httpx
 import pytest
 import respx
-from gg_mcp_server.server import build_http_app, build_server
 
+from ggmcp.transport.server import build_http_app, build_server
 from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, token_info
 
 

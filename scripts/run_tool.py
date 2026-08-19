@@ -1,30 +1,17 @@
-from gg_api_core.tools.assign_incident import assign_incident, AssignIncidentParams
-from gg_api_core.tools.find_current_source_id import find_current_source_id
-from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
-from gg_api_core.tools.list_incidents import ListIncidentsParams, list_incidents
-from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListRepoOccurrencesParams
 import asyncio
 
-from gg_api_core.tools.list_users import list_users, ListUsersParams
-from gg_api_core.tools.remediate_secret_incidents import RemediateSecretIncidentsParams, remediate_secret_incidents, \
-    ListRepoOccurrencesParamsForRemediate
-from gg_api_core.tools.revoke_secret import revoke_secret, RevokeSecretParams
-from gg_api_core.tools.scan_secret import scan_secrets, ScanSecretsParams
-
-
-async def run_fetch_repo_occurrences():
-    result = await list_repo_occurrences(
-        ListRepoOccurrencesParams(source_id="9036019", get_all=False, status=None,
-                                  severity=["critical", "high", "medium", "low", "info", "unknown"])
-    )
-    print(result)
-
-
-async def run_remediate_secret_incidents():
-    result = await remediate_secret_incidents(
-        RemediateSecretIncidentsParams(source_id="9036019")
-    )
-    print(result)
+from ggmcp.tools.find_current_source_id import find_current_source_id
+from ggmcp.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
+from ggmcp.tools.list_incidents import ListIncidentsParams, list_incidents
+from ggmcp.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
+from ggmcp.tools.list_users import ListUsersParams, list_users
+from ggmcp.tools.remediate_secret_incidents import (
+    ListRepoOccurrencesParamsForRemediate,
+    RemediateSecretIncidentsParams,
+    remediate_secret_incidents,
+)
+from ggmcp.tools.revoke_secret import RevokeSecretParams, revoke_secret
+from ggmcp.tools.scan_secret import ScanSecretsParams, scan_secrets
 
 
 async def run_find_current_source_id():
@@ -36,21 +23,37 @@ async def main():
     print(await run_find_current_source_id())
 
     # Remediate
-    print(await remediate_secret_incidents(
-        RemediateSecretIncidentsParams(
-            list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(source_id="9036019")))
-          )
+    print(
+        await remediate_secret_incidents(
+            RemediateSecretIncidentsParams(
+                list_repo_occurrences_params=ListRepoOccurrencesParamsForRemediate(source_id="9036019")
+            )
+        )
+    )
 
     # Occurrences
-    print(await list_repo_occurrences(
-        ListRepoOccurrencesParams(source_id="9036019", get_all=False, status=None,
-                                  severity=["critical", "high", "medium", "low", "info", "unknown"], tags=["TEST_FILE"])
-    ))
+    print(
+        await list_repo_occurrences(
+            ListRepoOccurrencesParams(
+                source_id="9036019",
+                get_all=False,
+                status=None,
+                severity=["critical", "high", "medium", "low", "info", "unknown"],
+                tags=["TEST_FILE"],
+            )
+        )
+    )
 
     # Incidents
-    print(await list_incidents(
-        ListIncidentsParams(source_ids=[9036019],
-                                severity=["critical", "high", "medium", "low", "info", "unknown"], tags=["TEST_FILE"])))
+    print(
+        await list_incidents(
+            ListIncidentsParams(
+                source_ids=[9036019],
+                severity=["critical", "high", "medium", "low", "info", "unknown"],
+                tags=["TEST_FILE"],
+            )
+        )
+    )
 
     print(await list_incidents(ListIncidentsParams(source_ids=[9036019])))
 
@@ -58,8 +61,15 @@ async def main():
     print(await list_honeytokens(ListHoneytokensParams()))
 
     # Scan
-    print(await scan_secrets(
-        ScanSecretsParams(documents=[{'document': 'file content', 'filename': 'optional_filename.txt'}, ])))
+    print(
+        await scan_secrets(
+            ScanSecretsParams(
+                documents=[
+                    {"document": "file content", "filename": "optional_filename.txt"},
+                ]
+            )
+        )
+    )
 
     # List users
     print(await list_users(ListUsersParams(search="Pierre")))
@@ -76,14 +86,5 @@ async def main():
     # print(await assign_incident(AssignIncidentParams(incident_id="67890", mine=True)))
 
 
-async def main():
-    print(await list_incidents(params=ListIncidentsParams()))
-
-async def init_server():
-    from gg_mcp_server.server import mcp
-    print(await mcp.call_tool("list_users", {"params": {}}))
-
-
 if __name__ == "__main__":
     asyncio.run(main())
-    # asyncio.run(init_secops_server())

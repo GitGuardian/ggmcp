@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.list_sources import (
+
+from ggmcp.tools.list_sources import (
     ListSourcesParams,
     ListSourcesResult,
     list_sources,
@@ -32,7 +33,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_basic"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -62,7 +63,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_search"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -87,7 +88,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_type_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -115,7 +116,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_health_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -143,7 +144,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_visibility_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -171,7 +172,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_source_criticality_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -199,7 +200,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_ordering"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -224,7 +225,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_per_page"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -249,7 +250,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_pagination"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 # First request to get a cursor
@@ -276,7 +277,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_get_all"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -303,7 +304,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_team_id_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(
@@ -329,7 +330,7 @@ class TestListSourcesVCR:
         """
         with use_cassette("test_list_sources_with_monitored_filter"):
             with patch(
-                "gg_api_core.tools.list_sources.get_client",
+                "ggmcp.tools.list_sources.get_client",
                 return_value=real_client,
             ):
                 params = ListSourcesParams(

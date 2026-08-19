@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.read_custom_tags import (
+
+from ggmcp.tools.read_custom_tags import (
     ReadCustomTagsParams,
     read_custom_tags,
 )
@@ -38,7 +39,7 @@ class TestReadCustomTagsVCR:
         """
         with use_cassette("test_list_custom_tags"):
             with patch(
-                "gg_api_core.tools.read_custom_tags.get_client",
+                "ggmcp.tools.read_custom_tags.get_client",
                 return_value=real_client,
             ):
                 params = ReadCustomTagsParams(
@@ -73,7 +74,7 @@ class TestReadCustomTagsVCR:
 
         with use_cassette("test_get_custom_tag"):
             with patch(
-                "gg_api_core.tools.read_custom_tags.get_client",
+                "ggmcp.tools.read_custom_tags.get_client",
                 return_value=real_client,
             ):
                 params = ReadCustomTagsParams(
@@ -107,7 +108,7 @@ class TestReadCustomTagsVCR:
 
         with use_cassette("test_get_custom_tag"):
             with patch(
-                "gg_api_core.tools.read_custom_tags.get_client",
+                "ggmcp.tools.read_custom_tags.get_client",
                 return_value=real_client,
             ):
                 params = ReadCustomTagsParams(

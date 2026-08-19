@@ -165,7 +165,7 @@ locally over stdio with a PAT:
       "args": [
         "--from",
         "git+https://github.com/GitGuardian/ggmcp.git",
-        "gg-mcp-server"
+        "ggmcp"
       ],
       "env": {
         "ENABLE_LOCAL_OAUTH": "false",
@@ -179,6 +179,7 @@ locally over stdio with a PAT:
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
 Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
 to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
@@ -204,7 +205,7 @@ docker run -p 8000:8000 \
   -e ENABLE_LOCAL_OAUTH=false \
   ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
-           -b 0.0.0.0:8000 gg_mcp_server.http_app:app
+           -b 0.0.0.0:8000 ggmcp.transport.http_app:app
 ```
 
 `IS_ON_PREM=true` tells the server it talks to a self-hosted GIM instance
@@ -237,10 +238,9 @@ your domain.
 
 ## Migration notes
 
-The `developer-mcp-server` and `secops-mcp-server` console scripts are
-deprecated and re-export the unified `gg-mcp-server`. Update your MCP client
-configuration to invoke `gg-mcp-server` directly; both old scripts will be
-removed in a future release.
+The deprecated `developer-mcp-server` and `secops-mcp-server` console scripts
+have been removed. Update your MCP client configuration to invoke
+`ggmcp` directly.
 
 ## Want more?
 

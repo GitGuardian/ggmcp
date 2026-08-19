@@ -1,6 +1,6 @@
 """Test that the unified server module imports and registers tools correctly.
 
-Replaces the old per-profile tests now that there's a single gg_mcp_server.
+Replaces the old per-profile tests now that there's a single ggmcp.
 """
 
 import sys
@@ -19,7 +19,7 @@ def mock_env_no_http():
 @pytest.fixture
 def mock_gitguardian_modules():
     """Mock the GitGuardian client to avoid actual API calls during import."""
-    with patch("gg_api_core.utils.get_client") as mock_get_client:
+    with patch("ggmcp.utils.get_client") as mock_get_client:
         mock_client = MagicMock()
         mock_client.get_current_token_info = AsyncMock(return_value={"scopes": ["scan"]})
         mock_get_client.return_value = mock_client
@@ -36,17 +36,19 @@ def clean_module_imports(module_name: str):
 class TestUnifiedServer:
     def test_server_imports_successfully(self, mock_gitguardian_modules, mock_env_no_http):
         """
-        GIVEN the unified gg_mcp_server package
-        WHEN its server module is imported
-        THEN an AbstractGitGuardianFastMCP instance is exposed as ``mcp``
+        GIVEN the unified ggmcp package
+        WHEN its server is built
+        THEN it exposes a configured AbstractGitGuardianFastMCP instance
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp.transport")
 
-        import gg_mcp_server.server as srv
-        from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
+        from ggmcp.transport.mcp_server import AbstractGitGuardianFastMCP
+        from ggmcp.transport.server import build_server
 
-        assert isinstance(srv.mcp, AbstractGitGuardianFastMCP)
-        assert srv.mcp.name == "GitGuardian"
+        server = build_server()
+
+        assert isinstance(server, AbstractGitGuardianFastMCP)
+        assert server.name == "GitGuardian"
 
     @pytest.mark.asyncio
     async def test_secops_specific_tools_are_registered(self, mock_gitguardian_modules, mock_env_no_http):
@@ -55,12 +57,13 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN both developer-flavour and secops-flavour tools are present
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp.transport")
 
-        import gg_mcp_server.server as srv
+        from ggmcp.transport.server import build_server
 
-        srv.mcp._fetch_token_scopes_from_api = AsyncMock()
-        srv.mcp._token_scopes = {
+        server = build_server()
+        server._fetch_token_scopes_from_api = AsyncMock()
+        server._token_scopes = {
             "scan",
             "incidents:read",
             "incidents:write",
@@ -69,7 +72,7 @@ class TestUnifiedServer:
             "honeytokens:write",
         }
 
-        tools = await srv.mcp.list_tools()
+        tools = await server.list_tools()
         tool_names = {tool.name for tool in tools}
 
         assert "list_incidents" in tool_names
@@ -83,50 +86,17 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN write tools are filtered out and read tools remain
         """
-        clean_module_imports("gg_mcp_server")
+        clean_module_imports("ggmcp.transport")
 
-        import gg_mcp_server.server as srv
+        from ggmcp.transport.server import build_server
 
-        srv.mcp._fetch_token_scopes_from_api = AsyncMock()
-        srv.mcp._token_scopes = {"scan", "incidents:read", "sources:read"}
+        server = build_server()
+        server._fetch_token_scopes_from_api = AsyncMock()
+        server._token_scopes = {"scan", "incidents:read", "sources:read"}
 
-        tools = await srv.mcp.list_tools()
+        tools = await server.list_tools()
         tool_names = {tool.name for tool in tools}
 
         assert "list_incidents" in tool_names
         assert "assign_incident" not in tool_names
         assert "create_code_fix_request" not in tool_names
-
-
-class TestDeprecatedShims:
-    def test_developer_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
-        """
-        GIVEN the deprecated developer_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
-        """
-        clean_module_imports("developer_mcp_server")
-        clean_module_imports("gg_mcp_server")
-
-        with pytest.warns(DeprecationWarning):
-            import developer_mcp_server.server as shim
-
-        import gg_mcp_server.server as srv
-
-        assert shim.mcp is srv.mcp
-
-    def test_secops_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
-        """
-        GIVEN the deprecated secops_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
-        """
-        clean_module_imports("secops_mcp_server")
-        clean_module_imports("gg_mcp_server")
-
-        with pytest.warns(DeprecationWarning):
-            import secops_mcp_server.server as shim
-
-        import gg_mcp_server.server as srv
-
-        assert shim.mcp is srv.mcp

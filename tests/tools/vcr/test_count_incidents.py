@@ -11,12 +11,13 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.count_incidents import (
+
+from ggmcp.tools.count_incidents import (
     CountIncidentsParams,
     CountIncidentsResult,
     count_incidents,
 )
-from gg_api_core.tools.list_incidents import SeverityValues
+from ggmcp.tools.list_incidents import SeverityValues
 
 
 class TestCountIncidentsVCR:
@@ -32,7 +33,7 @@ class TestCountIncidentsVCR:
         """
         with use_cassette("test_count_incidents_basic"):
             with patch(
-                "gg_api_core.tools.count_incidents.get_client",
+                "ggmcp.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
                 params = CountIncidentsParams()
@@ -52,7 +53,7 @@ class TestCountIncidentsVCR:
         """
         with use_cassette("test_count_incidents_with_status_filter"):
             with patch(
-                "gg_api_core.tools.count_incidents.get_client",
+                "ggmcp.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(status=["TRIGGERED"])
@@ -73,7 +74,7 @@ class TestCountIncidentsVCR:
         """
         with use_cassette("test_count_incidents_with_severity_filter"):
             with patch(
-                "gg_api_core.tools.count_incidents.get_client",
+                "ggmcp.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(severity=[SeverityValues.CRITICAL])
@@ -93,7 +94,7 @@ class TestCountIncidentsVCR:
         """
         with use_cassette("test_count_incidents_with_combined_filters"):
             with patch(
-                "gg_api_core.tools.count_incidents.get_client",
+                "ggmcp.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(
@@ -120,7 +121,7 @@ class TestCountIncidentsVCR:
         """
         with use_cassette("test_count_incidents_coerce_single_values"):
             with patch(
-                "gg_api_core.tools.count_incidents.get_client",
+                "ggmcp.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(

@@ -2,7 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.get_member import GetMemberParams, get_member
+
+from ggmcp.tools.get_member import GetMemberParams, get_member
 
 
 class TestGetMember:

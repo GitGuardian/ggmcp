@@ -3,7 +3,7 @@
 import os
 from unittest.mock import patch
 
-from gg_api_core.settings import get_settings
+from ggmcp.config.settings import get_settings
 
 
 class TestIsOAuthEnabled:

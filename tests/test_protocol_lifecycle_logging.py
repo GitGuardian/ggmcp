@@ -4,8 +4,8 @@ import logging
 
 import pytest
 from fastmcp import Client, FastMCP
-from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 
+from ggmcp.transport.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 from tests.test_middleware import FakeServer
 
 
@@ -52,7 +52,7 @@ class TestProtocolLifecycleEvents:
         WHEN the session runs
         THEN each method produces an mcp_request line
         """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             async with Client(server) as client:
                 await client.list_tools()
                 await client.list_resources()
@@ -70,7 +70,7 @@ class TestProtocolLifecycleEvents:
         WHEN the ping is answered
         THEN no mcp_request line is emitted
         """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             async with Client(server) as client:
                 caplog.clear()
                 await client.ping()
@@ -83,7 +83,7 @@ class TestProtocolLifecycleEvents:
         WHEN it is handled
         THEN no mcp_request line is emitted for it
         """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             async with Client(server) as client:
                 await client.call_tool("visible_tool", {})
 
@@ -96,7 +96,7 @@ class TestProtocolLifecycleEvents:
         WHEN the handshake completes
         THEN mcp_initialize names the client and the protocol revision
         """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             async with Client(server):
                 pass
 
@@ -124,7 +124,7 @@ class TestListToolsCounts:
         async def needs_incidents() -> str:
             return "ok"
 
-        with caplog.at_level(logging.DEBUG, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.DEBUG, logger="ggmcp.transport.middleware"):
             async with Client(mcp) as client:
                 tools = await client.list_tools()
 
@@ -148,7 +148,7 @@ class TestListToolsCounts:
         async def needs_incidents() -> str:
             return "ok"
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             async with Client(mcp) as client:
                 await client.list_tools()
 

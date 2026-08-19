@@ -1,8 +1,9 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity
-from gg_api_core.tools.list_public_incidents import (
+
+from ggmcp.api.client import IncidentSeverity, IncidentStatus, IncidentValidity
+from ggmcp.tools.list_public_incidents import (
     ListPublicIncidentsParams,
     list_public_incidents,
 )

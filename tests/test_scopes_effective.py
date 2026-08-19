@@ -11,9 +11,9 @@ current value.
 import os
 from unittest.mock import patch
 
-from gg_api_core import scopes as scopes_module
-from gg_api_core.scopes import ALL_SCOPES
-from gg_api_core.settings import get_settings
+from ggmcp.api import scopes as scopes_module
+from ggmcp.api.scopes import ALL_SCOPES
+from ggmcp.config.settings import get_settings
 
 
 class TestEffectiveScopesSaaS:

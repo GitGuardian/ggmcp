@@ -1,8 +1,9 @@
 """Grading of tool failures into queryable fields."""
 
 import httpx
-from gg_api_core.client import DownstreamUnauthorizedError
-from gg_api_core.log_context import classify_failure
+
+from ggmcp.api.client import DownstreamUnauthorizedError
+from ggmcp.logging.log_context import classify_failure
 
 
 def _status_error(status: int, body: dict | str | None = None) -> httpx.HTTPStatusError:
@@ -78,7 +79,7 @@ class TestClassifyFailure:
 
         assert failure["upstream_status"] == 401
         assert failure["fault"] == "client"
-        assert failure["error_class"] == "gg_api_core.client.DownstreamUnauthorizedError"
+        assert failure["error_class"] == "ggmcp.api.client.DownstreamUnauthorizedError"
 
     def test_surfaces_the_gitguardian_error_code(self):
         """

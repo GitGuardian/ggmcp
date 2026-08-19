@@ -1,5 +1,6 @@
 import pytest
-from gg_api_core.sanitization import (
+
+from ggmcp.api.sanitization import (
     SENSITIVE_DATA_PLACEHOLDER,
     scrub_by_name,
     scrub_by_value,

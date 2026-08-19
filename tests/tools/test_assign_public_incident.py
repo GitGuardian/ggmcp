@@ -5,12 +5,13 @@ Tests for the assign_public_incident tool.
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.assign_public_incident import (
+from pydantic import ValidationError
+
+from ggmcp.tools.assign_public_incident import (
     AssignPublicIncidentParams,
     AssignPublicIncidentResult,
     assign_public_incident,
 )
-from pydantic import ValidationError
 
 
 def _full_public_incident_payload(incident_id: int = 3759, assignee_id: int = 309) -> dict:

@@ -1,8 +1,9 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
 from pydantic import ValidationError
+
+from ggmcp.tools.scan_secret import ScanSecretsParams, scan_secrets
 
 
 class TestScanSecrets:

@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.list_users import (
+
+from ggmcp.tools.list_users import (
     ListUsersParams,
     ListUsersResult,
     list_users,
@@ -38,7 +39,7 @@ class TestListUsersVCR:
         """
         with use_cassette("test_list_members"):
             with patch(
-                "gg_api_core.tools.list_users.get_client",
+                "ggmcp.tools.list_users.get_client",
                 return_value=real_client,
             ):
                 # Match the cassette's query params: per_page=5
@@ -76,7 +77,7 @@ class TestListUsersVCR:
         """
         with use_cassette("test_list_users_with_search"):
             with patch(
-                "gg_api_core.tools.list_users.get_client",
+                "ggmcp.tools.list_users.get_client",
                 return_value=real_client,
             ):
                 params = ListUsersParams(
@@ -103,7 +104,7 @@ class TestListUsersVCR:
         """
         with use_cassette("test_list_users_with_access_level"):
             with patch(
-                "gg_api_core.tools.list_users.get_client",
+                "ggmcp.tools.list_users.get_client",
                 return_value=real_client,
             ):
                 params = ListUsersParams(
@@ -133,7 +134,7 @@ class TestListUsersVCR:
         """
         with use_cassette("test_list_users_with_ordering"):
             with patch(
-                "gg_api_core.tools.list_users.get_client",
+                "ggmcp.tools.list_users.get_client",
                 return_value=real_client,
             ):
                 params = ListUsersParams(
@@ -160,7 +161,7 @@ class TestListUsersVCR:
         """
         with use_cassette("test_list_users_with_active_filter"):
             with patch(
-                "gg_api_core.tools.list_users.get_client",
+                "ggmcp.tools.list_users.get_client",
                 return_value=real_client,
             ):
                 params = ListUsersParams(

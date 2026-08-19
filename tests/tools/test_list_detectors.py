@@ -2,7 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_detectors import ListDetectorsParams, list_detectors
+
+from ggmcp.tools.list_detectors import ListDetectorsParams, list_detectors
 
 
 class TestListDetectors:

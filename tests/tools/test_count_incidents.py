@@ -5,13 +5,14 @@ Tests for the count_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from gg_api_core.tools.count_incidents import (
+
+from ggmcp.tools.count_incidents import (
     CountIncidentsError,
     CountIncidentsParams,
     CountIncidentsResult,
     count_incidents,
 )
-from gg_api_core.tools.list_incidents import (
+from ggmcp.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
@@ -92,7 +93,7 @@ class TestCountIncidentsTool:
         mock_client = AsyncMock()
         mock_client.count_incidents_for_mcp.return_value = {"count": 42}
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(CountIncidentsParams())
 
         assert isinstance(result, CountIncidentsResult)
@@ -103,7 +104,7 @@ class TestCountIncidentsTool:
         mock_client = AsyncMock()
         mock_client.count_incidents_for_mcp.return_value = {"count": 0}
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(CountIncidentsParams())
 
         assert isinstance(result, CountIncidentsResult)
@@ -120,7 +121,7 @@ class TestCountIncidentsTool:
             detector_group_name=["AWS Keys"],
         )
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(params)
 
         assert isinstance(result, CountIncidentsResult)
@@ -142,7 +143,7 @@ class TestCountIncidentsTool:
 
         params = CountIncidentsParams(mine=True)
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(params)
 
         assert isinstance(result, CountIncidentsResult)
@@ -157,7 +158,7 @@ class TestCountIncidentsTool:
 
         params = CountIncidentsParams(mine=True, assignee_id=50)
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(params)
 
         assert isinstance(result, CountIncidentsError)
@@ -168,7 +169,7 @@ class TestCountIncidentsTool:
         mock_client = AsyncMock()
         mock_client.count_incidents_for_mcp.side_effect = Exception("API error")
 
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.count_incidents.get_client", return_value=mock_client):
             result = await count_incidents(CountIncidentsParams())
 
         assert isinstance(result, CountIncidentsError)

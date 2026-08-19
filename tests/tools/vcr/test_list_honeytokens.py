@@ -12,7 +12,8 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.tools.list_honeytokens import (
+
+from ggmcp.tools.list_honeytokens import (
     ListHoneytokensParams,
     ListHoneytokensResult,
     list_honeytokens,
@@ -35,7 +36,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_basic"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
@@ -63,7 +64,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_with_status_filter"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
@@ -94,7 +95,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_with_search"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
@@ -123,7 +124,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_with_ordering"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
@@ -152,7 +153,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_show_token"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
@@ -182,7 +183,7 @@ class TestListHoneytokensVCR:
         """
         with use_cassette("test_list_honeytokens_get_all"):
             with patch(
-                "gg_api_core.tools.list_honeytokens.get_client",
+                "ggmcp.tools.list_honeytokens.get_client",
                 return_value=real_client,
             ):
                 params = ListHoneytokensParams(
