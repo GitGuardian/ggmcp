@@ -8,7 +8,7 @@ This module provides different ways to run the MCP server:
 import logging
 
 from ggmcp.config.settings import get_settings
-from ggmcp.transport.server import get_server
+from ggmcp.transport.server import build_http_app, get_server
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def run_http_with_uvicorn():
 
     logger.info(f"Starting GitGuardian MCP server on {mcp_host}:{mcp_port}")
     uvicorn.run(
-        mcp.http_app(path="/mcp", json_response=True, stateless_http=True),
+        build_http_app(mcp),
         host=mcp_host,
         port=mcp_port,
         log_config=None,

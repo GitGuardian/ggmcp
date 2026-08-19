@@ -14,23 +14,6 @@ from ggmcp.tools.revoke_secret import RevokeSecretParams, revoke_secret
 from ggmcp.tools.scan_secret import ScanSecretsParams, scan_secrets
 
 
-async def run_fetch_repo_occurrences():
-    result = await list_repo_occurrences(
-        ListRepoOccurrencesParams(
-            source_id="9036019",
-            get_all=False,
-            status=None,
-            severity=["critical", "high", "medium", "low", "info", "unknown"],
-        )
-    )
-    print(result)
-
-
-async def run_remediate_secret_incidents():
-    result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="9036019"))
-    print(result)
-
-
 async def run_find_current_source_id():
     result = await find_current_source_id()
     print(result)
@@ -101,13 +84,6 @@ async def main():
     # print(await assign_incident(AssignIncidentParams(incident_id="67890", email="user@example.com")))
     # Or assign to current user:
     # print(await assign_incident(AssignIncidentParams(incident_id="67890", mine=True)))
-
-
-async def init_server():
-    from ggmcp.transport.server import build_server
-
-    mcp = build_server()
-    print(await mcp.call_tool("list_users", {"params": {}}))
 
 
 if __name__ == "__main__":
