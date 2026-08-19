@@ -104,7 +104,7 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
     logger.debug(f"Updating custom tags for incident {params.incident_id}")
 
     try:
-        # Parse custom tags and ensure they exist
+        # Parse custom tags into the format expected by update_incident
         parsed_tags = []
         for tag in params.custom_tags:
             if ":" in tag:
@@ -114,19 +114,10 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
                 # Tag is just a key with no value
                 key = tag
                 value = None
-
-            # Create the tag if it doesn't exist
-            try:
-                await client.create_custom_tag(key, value)
-                logger.debug(f"Created custom tag: {key}={value}")
-            except Exception as e:
-                # Tag might already exist, which is fine
-                logger.debug(f"Tag {key}={value} may already exist: {str(e)}")
-
-            # Add to parsed tags list in the format expected by update_incident
             parsed_tags.append({"key": key, "value": value})
 
-        # Update the incident with the custom tags
+        # The incident PATCH endpoint creates any missing tags itself, so no
+        # pre-create call is needed here.
         result = await client.update_incident(
             incident_id=str(params.incident_id),
             custom_tags=parsed_tags,
