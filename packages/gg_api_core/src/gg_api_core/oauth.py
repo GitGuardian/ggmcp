@@ -54,6 +54,12 @@ CALLBACK_PORT_RANGE = (29170, 29998)
 # Default token expiry in days (if not specified in token info)
 DEFAULT_TOKEN_EXPIRY_DAYS = 30
 
+# Network timeout (seconds) for the token exchange and token-info calls.
+# The project's API client uses a 20s timeout (DEFAULT_HTTP_TIMEOUT in client.py);
+# without an explicit value here httpx silently falls back to its 5s default, which
+# can reject slow-but-valid token endpoints and self-hosted API instances.
+OAUTH_HTTP_TIMEOUT = 20
+
 # Global counter for OAuth client instances (debugging)
 _oauth_client_counter = 0
 
@@ -702,7 +708,7 @@ class GitGuardianOAuthClient:
                 "User-Agent": f"GitGuardian-MCP-Server/{self.token_name}",  # Include in user agent
             }
 
-            async with httpx.AsyncClient(follow_redirects=True) as client:
+            async with httpx.AsyncClient(follow_redirects=True, timeout=OAUTH_HTTP_TIMEOUT) as client:
                 response = await client.post(token_url, data=token_params, headers=headers)
 
                 if response.status_code == 200:
@@ -775,7 +781,7 @@ class GitGuardianOAuthClient:
         try:
             import httpx  # Import here to avoid circular imports
 
-            async with httpx.AsyncClient(follow_redirects=True) as client:
+            async with httpx.AsyncClient(follow_redirects=True, timeout=OAUTH_HTTP_TIMEOUT) as client:
                 # Use the correct API endpoint with the full path
                 response = await client.get(
                     f"{self.api_url}/api_tokens/self",
