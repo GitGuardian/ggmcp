@@ -11,9 +11,9 @@ from fastmcp import Client
 from fastmcp.exceptions import ToolError
 from sentry_sdk.transport import Transport
 
-from gg_api_core.logging_config import configure_logging
-from gg_api_core.mcp_server import get_mcp_server
-from gg_api_core.sentry_integration import _MAX_SCRUB_DEPTH, _scrub_sentry_payload, init_sentry
+from ggmcp.logging.logging_config import configure_logging
+from ggmcp.logging.sentry_integration import _MAX_SCRUB_DEPTH, _scrub_sentry_payload, init_sentry
+from ggmcp.transport.mcp_server import get_mcp_server
 
 
 class _CollectingTransport(Transport):
@@ -150,7 +150,7 @@ class TestSentryCaptureOwnership:
         async def failing_tool():
             raise RuntimeError("tool exploded")
 
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "req-sentry"})
+        monkeypatch.setattr("ggmcp.transport.middleware.get_http_headers", lambda: {"x-request-id": "req-sentry"})
         configure_logging(log_level="DEBUG", log_format="json")
         async with Client(mcp) as client:
             with pytest.raises(ToolError):

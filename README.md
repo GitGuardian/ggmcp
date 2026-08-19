@@ -205,7 +205,7 @@ docker run -p 8000:8000 \
   -e ENABLE_LOCAL_OAUTH=false \
   ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
-           -b 0.0.0.0:8000 ggmcp.http_app:app
+           -b 0.0.0.0:8000 ggmcp.transport.http_app:app
 ```
 
 `IS_ON_PREM=true` tells the server it talks to a self-hosted GIM instance

@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastmcp.exceptions import ValidationError
 
-from gg_api_core.client import GitGuardianClient
-from gg_api_core.settings import get_settings
-from gg_api_core.utils import _get_caller_user_agent, get_client
+from ggmcp.api.client import GitGuardianClient
+from ggmcp.config.settings import get_settings
+from ggmcp.utils import _get_caller_user_agent, get_client
 
 # Prefix every outgoing User-Agent carries, regardless of transport.
 UA_PREFIX = GitGuardianClient.DEFAULT_USER_AGENT
@@ -79,7 +79,7 @@ class TestIsMultiTenant:
 class TestGetClientExplicitPAT:
     """Tests for get_client() when PAT is explicitly provided."""
 
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_explicit_pat_creates_new_client(self, mock_client_class):
         """
         GIVEN a PAT is explicitly provided
@@ -99,7 +99,7 @@ class TestGetClientExplicitPAT:
         assert "transport=" in call_kwargs["user_agent"]
         assert result == mock_client
 
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_explicit_pat_ignores_multi_tenant_mode(self, mock_client_class):
         """
         GIVEN a PAT is explicitly provided AND multi-tenant mode is enabled
@@ -136,8 +136,8 @@ class TestGetClientMultiTenantMode:
         assert "MCP_PORT" in str(exc_info.value)
         assert "MULTI_TENANCY_ENABLED" in str(exc_info.value)
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_multi_tenant_extracts_token_from_headers(self, mock_client_class, mock_get_headers):
         """
         GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
@@ -159,8 +159,8 @@ class TestGetClientMultiTenantMode:
         )
         assert result == mock_client
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_multi_tenant_forwards_caller_user_agent(self, mock_client_class, mock_get_headers):
         """
         GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
@@ -184,8 +184,8 @@ class TestGetClientMultiTenantMode:
         )
         assert result == mock_client
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_multi_tenant_creates_new_client_per_request(self, mock_client_class, mock_get_headers):
         """
         GIVEN multi-tenant mode is enabled
@@ -212,7 +212,7 @@ class TestGetClientMultiTenantMode:
         assert result1 == mock_client1
         assert result2 == mock_client2
 
-    @patch("gg_api_core.utils.get_http_headers")
+    @patch("ggmcp.utils.get_http_headers")
     async def test_multi_tenant_raises_on_missing_auth_header(self, mock_get_headers):
         """
         GIVEN multi-tenant mode is enabled
@@ -232,7 +232,7 @@ class TestGetClientMultiTenantMode:
 class TestGetClientSingleTenantMode:
     """Tests for get_client() in single-tenant mode (the default)."""
 
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_single_tenant_uses_env_pat(self, mock_client_class):
         """
         GIVEN GITGUARDIAN_PERSONAL_ACCESS_TOKEN is set
@@ -243,9 +243,9 @@ class TestGetClientSingleTenantMode:
         mock_client_class.return_value = mock_client
 
         # Reset singleton
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         with patch.dict(os.environ, {"GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "env-token"}, clear=True):
             result = await get_client()
@@ -256,7 +256,7 @@ class TestGetClientSingleTenantMode:
         assert call_kwargs["allow_token_refresh"] is True  # Token refresh enabled for single-tenant
         assert result == mock_client
 
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_single_tenant_uses_singleton(self, mock_client_class):
         """
         GIVEN single-tenant mode (default)
@@ -267,9 +267,9 @@ class TestGetClientSingleTenantMode:
         mock_client_class.return_value = mock_client
 
         # Reset singleton
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         with patch.dict(os.environ, {"GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "env-token"}, clear=True):
             result1 = await get_client()
@@ -279,8 +279,8 @@ class TestGetClientSingleTenantMode:
         mock_client_class.assert_called_once()
         assert result1 == result2
 
-    @patch("gg_api_core.client._get_stored_oauth_token")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.api.client._get_stored_oauth_token")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_single_tenant_uses_stored_oauth_token(self, mock_client_class, mock_get_stored):
         """
         GIVEN no env PAT but stored OAuth token exists
@@ -292,9 +292,9 @@ class TestGetClientSingleTenantMode:
         mock_client_class.return_value = mock_client
 
         # Reset singleton
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         with patch.dict(os.environ, {}, clear=True):
             result = await get_client()
@@ -305,9 +305,9 @@ class TestGetClientSingleTenantMode:
         assert call_kwargs["allow_token_refresh"] is True  # Token refresh enabled for single-tenant
         assert result == mock_client
 
-    @patch("gg_api_core.client._run_oauth_flow", new_callable=AsyncMock)
-    @patch("gg_api_core.client._get_stored_oauth_token")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.api.client._run_oauth_flow", new_callable=AsyncMock)
+    @patch("ggmcp.api.client._get_stored_oauth_token")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_single_tenant_triggers_oauth_when_enabled(self, mock_client_class, mock_get_stored, mock_oauth):
         """
         GIVEN no env PAT, no stored token, but ENABLE_LOCAL_OAUTH=true
@@ -321,9 +321,9 @@ class TestGetClientSingleTenantMode:
         mock_client_class.return_value = mock_client
 
         # Reset singleton
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}, clear=True):
             result = await get_client()
@@ -335,7 +335,7 @@ class TestGetClientSingleTenantMode:
         assert call_kwargs["allow_token_refresh"] is True  # Token refresh enabled for single-tenant
         assert result == mock_client
 
-    @patch("gg_api_core.client._get_stored_oauth_token")
+    @patch("ggmcp.api.client._get_stored_oauth_token")
     async def test_single_tenant_raises_when_no_token_source(self, mock_get_stored):
         """
         GIVEN no env PAT, no stored token, and OAuth disabled
@@ -345,9 +345,9 @@ class TestGetClientSingleTenantMode:
         mock_get_stored.return_value = None
 
         # Reset singleton
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "false"}, clear=True):
             with pytest.raises(RuntimeError) as exc_info:
@@ -361,8 +361,8 @@ class TestGetClientSingleTenantMode:
 class TestAccountIsolation:
     """Tests specifically verifying account isolation guarantees."""
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_multi_tenant_never_uses_singleton(self, mock_client_class, mock_get_headers):
         """
         GIVEN multi-tenant mode is enabled
@@ -370,9 +370,9 @@ class TestAccountIsolation:
         THEN it NEVER uses the singleton (account isolation)
         """
         # Reset singleton to ensure clean state
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
         mock_get_headers.return_value = {"authorization": "Bearer token"}
         mock_client_class.return_value = MagicMock()
@@ -385,13 +385,13 @@ class TestAccountIsolation:
         # Should create a new client for each call
         assert mock_client_class.call_count == 3
         # Singleton should remain None
-        assert gg_api_core.utils._client_singleton is None
+        assert ggmcp.utils._client_singleton is None
 
 
 class TestCallerUserAgentExtraction:
     """Tests for _get_caller_user_agent() and automatic user-agent forwarding."""
 
-    @patch("gg_api_core.utils.get_http_headers")
+    @patch("ggmcp.utils.get_http_headers")
     def test_extracts_user_agent_from_headers(self, mock_get_headers):
         """
         GIVEN an HTTP request with a User-Agent header
@@ -404,7 +404,7 @@ class TestCallerUserAgentExtraction:
 
         assert result == "GitGuardian-In-App-Agent"
 
-    @patch("gg_api_core.utils.get_http_headers")
+    @patch("ggmcp.utils.get_http_headers")
     def test_returns_none_when_no_user_agent(self, mock_get_headers):
         """
         GIVEN an HTTP request without a User-Agent header
@@ -417,7 +417,7 @@ class TestCallerUserAgentExtraction:
 
         assert result is None
 
-    @patch("gg_api_core.utils.get_http_headers")
+    @patch("ggmcp.utils.get_http_headers")
     def test_returns_none_when_no_http_context(self, mock_get_headers):
         """
         GIVEN no active HTTP request (e.g. stdio transport)
@@ -430,7 +430,7 @@ class TestCallerUserAgentExtraction:
 
         assert result is None
 
-    @patch("gg_api_core.utils.get_http_headers")
+    @patch("ggmcp.utils.get_http_headers")
     def test_returns_none_on_exception(self, mock_get_headers):
         """
         GIVEN get_http_headers raises an exception
@@ -443,8 +443,8 @@ class TestCallerUserAgentExtraction:
 
         assert result is None
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_get_client_auto_extracts_user_agent(self, mock_client_class, mock_get_headers):
         """
         GIVEN an HTTP request with User-Agent header
@@ -465,8 +465,8 @@ class TestCallerUserAgentExtraction:
             user_agent=f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)",
         )
 
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
+    @patch("ggmcp.utils.get_http_headers")
+    @patch("ggmcp.utils.GitGuardianClient")
     async def test_explicit_user_agent_takes_precedence(self, mock_client_class, mock_get_headers):
         """
         GIVEN an HTTP request with User-Agent header

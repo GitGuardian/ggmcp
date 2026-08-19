@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ggmcp import server
+from ggmcp.transport import server
 
 
 def test_get_server_initializes_observability_before_building_and_caches(monkeypatch):

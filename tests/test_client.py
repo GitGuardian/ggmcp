@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
-from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
+from ggmcp.api.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
 
 
 @pytest.fixture
@@ -128,7 +128,7 @@ class TestGitGuardianClient:
     @pytest.mark.asyncio
     async def test_request_401_raises_downstream_unauthorized(self, client, mock_httpx_client):
         """Downstream 401 should surface as DownstreamUnauthorizedError so middleware can rewrite to HTTP 401."""
-        from gg_api_core.client import DownstreamUnauthorizedError
+        from ggmcp.api.client import DownstreamUnauthorizedError
 
         mock_request = MagicMock()
         mock_response = MagicMock()
@@ -157,7 +157,7 @@ class TestGitGuardianClient:
         logged at ERROR level, otherwise they surface as Sentry noise (GIM-MCP-SERVER-3)."""
         import logging
 
-        from gg_api_core.client import DownstreamUnauthorizedError
+        from ggmcp.api.client import DownstreamUnauthorizedError
 
         mock_request = MagicMock()
         mock_response = MagicMock()
@@ -176,7 +176,7 @@ class TestGitGuardianClient:
         # 401 is translated to DownstreamUnauthorizedError; 403 re-raises the original.
         expected_exc = DownstreamUnauthorizedError if status_code == 401 else httpx.HTTPStatusError
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+            with caplog.at_level(logging.WARNING, logger="ggmcp.api.client"):
                 with pytest.raises(expected_exc):
                     await client._request_get("/test")
 
@@ -208,7 +208,7 @@ class TestGitGuardianClient:
 
         async_client_instance = self._mock_400(mock_httpx_client)
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+            with caplog.at_level(logging.WARNING, logger="ggmcp.api.client"):
                 with pytest.raises(httpx.HTTPStatusError):
                     await client._request("GET", "/test")
 
@@ -222,7 +222,7 @@ class TestGitGuardianClient:
 
         async_client_instance = self._mock_400(mock_httpx_client)
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+            with caplog.at_level(logging.WARNING, logger="ggmcp.api.client"):
                 with pytest.raises(httpx.HTTPStatusError):
                     await client._request("POST", "/test", expected_client_errors=[400])
 

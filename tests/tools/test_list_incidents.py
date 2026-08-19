@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from gg_api_core.tools.list_incidents import (
+from ggmcp.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
@@ -438,7 +438,7 @@ class TestListIncidentsMine:
 
         params = ListIncidentsParams(mine=True)
 
-        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.list_incidents.get_client", return_value=mock_client):
             await list_incidents(params)
 
         call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
@@ -456,7 +456,7 @@ class TestListIncidentsMine:
 
         params = ListIncidentsParams(mine=True, assignee_id=50)
 
-        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+        with patch("ggmcp.tools.list_incidents.get_client", return_value=mock_client):
             result = await list_incidents(params)
 
         assert hasattr(result, "error")

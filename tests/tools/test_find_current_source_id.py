@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from gg_api_core.tools.find_current_source_id import (
+from ggmcp.tools.find_current_source_id import (
     FindCurrentSourceIdError,
     FindCurrentSourceIdSuggestion,
     find_current_source_id,
@@ -449,7 +449,7 @@ class TestFindCurrentSourceId:
         THEN: A suggestion is returned asking the agent to run git locally, without touching subprocess
         """
         with (
-            patch("gg_api_core.tools.find_current_source_id.get_settings") as mock_settings,
+            patch("ggmcp.tools.find_current_source_id.get_settings") as mock_settings,
             patch("subprocess.run") as mock_run,
         ):
             mock_settings.return_value = MagicMock(mcp_port="8000")

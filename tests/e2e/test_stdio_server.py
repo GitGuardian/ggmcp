@@ -16,9 +16,10 @@ import pytest
 from fastmcp import Client
 from mcp.types import TextContent
 
-from gg_api_core import client as client_module
-from gg_api_core import oauth, utils
-from ggmcp.server import build_server
+from ggmcp import utils
+from ggmcp.api import client as client_module
+from ggmcp.auth import oauth
+from ggmcp.transport.server import build_server
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,

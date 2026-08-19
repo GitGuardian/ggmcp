@@ -6,9 +6,9 @@ import httpx
 import pytest
 from starlette.requests import Request
 
-from gg_api_core.oauth_proxy_auth import create_oauth_proxy, mark_downstream_unauthorized
+from ggmcp.auth.oauth_proxy_auth import create_oauth_proxy, mark_downstream_unauthorized
 
-LOGGER = "gg_api_core.oauth_proxy_auth"
+LOGGER = "ggmcp.auth.oauth_proxy_auth"
 
 
 def _request(method="POST", body=b"", query="", headers=None):

@@ -1,17 +1,17 @@
 import asyncio
 
-from gg_api_core.tools.find_current_source_id import find_current_source_id
-from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
-from gg_api_core.tools.list_incidents import ListIncidentsParams, list_incidents
-from gg_api_core.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
-from gg_api_core.tools.list_users import ListUsersParams, list_users
-from gg_api_core.tools.remediate_secret_incidents import (
+from ggmcp.tools.find_current_source_id import find_current_source_id
+from ggmcp.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
+from ggmcp.tools.list_incidents import ListIncidentsParams, list_incidents
+from ggmcp.tools.list_repo_occurrences import ListRepoOccurrencesParams, list_repo_occurrences
+from ggmcp.tools.list_users import ListUsersParams, list_users
+from ggmcp.tools.remediate_secret_incidents import (
     ListRepoOccurrencesParamsForRemediate,
     RemediateSecretIncidentsParams,
     remediate_secret_incidents,
 )
-from gg_api_core.tools.revoke_secret import RevokeSecretParams, revoke_secret
-from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
+from ggmcp.tools.revoke_secret import RevokeSecretParams, revoke_secret
+from ggmcp.tools.scan_secret import ScanSecretsParams, scan_secrets
 
 
 async def run_fetch_repo_occurrences():
@@ -104,7 +104,7 @@ async def main():
 
 
 async def init_server():
-    from ggmcp.server import build_server
+    from ggmcp.transport.server import build_server
 
     mcp = build_server()
     print(await mcp.call_tool("list_users", {"params": {}}))

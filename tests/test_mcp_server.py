@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from gg_api_core.mcp_server import get_mcp_server
+from ggmcp.transport.mcp_server import get_mcp_server
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ class TestGitGuardianFastMCP:
         import os
         from unittest.mock import patch
 
-        from gg_api_core.mcp_server import CachedTokenInfoMixin, GitGuardianLocalOAuthMCP
+        from ggmcp.transport.mcp_server import CachedTokenInfoMixin, GitGuardianLocalOAuthMCP
 
         # Create OAuth MCP instance
         with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
@@ -100,7 +100,7 @@ class TestGitGuardianFastMCP:
         import os
         from unittest.mock import patch
 
-        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+        from ggmcp.transport.mcp_server import GitGuardianAuthorizationHeaderMCP
 
         # Create MCP server using AuthorizationHeader mode (non-caching)
         with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "false"}):
@@ -110,7 +110,7 @@ class TestGitGuardianFastMCP:
             assert not hasattr(mcp, "_create_token_scope_lifespan")
 
             # Verify it's not an instance of CachedTokenInfoMixin
-            from gg_api_core.mcp_server import CachedTokenInfoMixin
+            from ggmcp.transport.mcp_server import CachedTokenInfoMixin
 
             assert not isinstance(mcp, CachedTokenInfoMixin)
 
@@ -164,7 +164,7 @@ class TestGitGuardianFastMCP:
         import os
         from unittest.mock import patch
 
-        from gg_api_core.mcp_server import GitGuardianLocalOAuthMCP
+        from ggmcp.transport.mcp_server import GitGuardianLocalOAuthMCP
 
         # Test in OAuth mode (cached scopes) - create a new instance
         with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
@@ -194,10 +194,10 @@ class TestGitGuardianFastMCP:
             # The teams:write tool should be excluded since the required scope is missing
             assert "tool_with_teams_write" not in tool_names
 
-    @patch("gg_api_core.mcp_server.get_access_token")
+    @patch("ggmcp.transport.mcp_server.get_access_token")
     def test_get_personal_access_token_returns_scope_token(self, mock_get_access_token):
         """get_personal_access_token() returns the bearer token installed in the request scope."""
-        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+        from ggmcp.transport.mcp_server import GitGuardianAuthorizationHeaderMCP
 
         access_token = SimpleNamespace(token="test-pat-token-123")
         mock_get_access_token.return_value = access_token
@@ -206,12 +206,12 @@ class TestGitGuardianFastMCP:
 
         assert mcp.get_personal_access_token() == "test-pat-token-123"
 
-    @patch("gg_api_core.mcp_server.get_access_token")
+    @patch("ggmcp.transport.mcp_server.get_access_token")
     def test_get_personal_access_token_raises_without_scope_token(self, mock_get_access_token):
         """get_personal_access_token() raises ValidationError when no AccessToken is in the request scope."""
         from fastmcp.exceptions import ValidationError
 
-        from gg_api_core.mcp_server import GitGuardianAuthorizationHeaderMCP
+        from ggmcp.transport.mcp_server import GitGuardianAuthorizationHeaderMCP
 
         mock_get_access_token.return_value = None
 

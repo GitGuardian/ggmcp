@@ -2,7 +2,7 @@
 
 import pytest
 
-from gg_api_core.utils import parse_repo_url
+from ggmcp.utils import parse_repo_url
 
 
 class TestParseRepoUrl:

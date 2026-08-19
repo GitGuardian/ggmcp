@@ -11,10 +11,10 @@ from fastmcp import Client
 from fastmcp.tools import ToolResult
 from mcp.types import TextContent
 
-from gg_api_core.log_context import clear_caller_identity_cache, record_downstream_call, record_truncation
-from gg_api_core.logging_config import configure_logging
-from gg_api_core.mcp_server import get_mcp_server
-from gg_api_core.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
+from ggmcp.logging.log_context import clear_caller_identity_cache, record_downstream_call, record_truncation
+from ggmcp.logging.logging_config import configure_logging
+from ggmcp.transport.mcp_server import get_mcp_server
+from ggmcp.transport.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
 
 TOKEN_INFO = {
     "id": "tok-uuid",
@@ -73,7 +73,7 @@ class TestToolCallLoggingMiddleware:
         async def call_next(ctx):
             return "result"
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             result = await ToolCallLoggingMiddleware().on_call_tool(
                 _ctx("get_incident", {"incident_id": "123"}), call_next
             )
@@ -94,7 +94,7 @@ class TestToolCallLoggingMiddleware:
         async def call_next(ctx):
             raise ValueError("boom")
 
-        with caplog.at_level(logging.ERROR, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.ERROR, logger="ggmcp.transport.middleware"):
             with pytest.raises(ValueError, match="boom"):
                 await ToolCallLoggingMiddleware().on_call_tool(_ctx("scan_secrets"), call_next)
 
@@ -115,7 +115,7 @@ class TestToolCallLoggingMiddleware:
                 structured_content={"data": [1, 2, 3]},
             )
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
@@ -135,7 +135,7 @@ class TestToolCallLoggingMiddleware:
             record_downstream_call(duration_ms=12.0, status=200)
             return ToolResult(content=[])
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             await ToolCallLoggingMiddleware().on_call_tool(_ctx("get_incident"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
@@ -154,7 +154,7 @@ class TestToolCallLoggingMiddleware:
             record_truncation()
             return ToolResult(content=[])
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
@@ -172,7 +172,7 @@ class TestToolCallLoggingMiddleware:
         async def call_next(ctx):
             raise httpx.HTTPStatusError("bad request", request=request, response=response)
 
-        with caplog.at_level(logging.ERROR, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.ERROR, logger="ggmcp.transport.middleware"):
             with pytest.raises(httpx.HTTPStatusError):
                 await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
 
@@ -197,7 +197,7 @@ class TestToolCallLoggingMiddleware:
             return ToolResult(content=[])
 
         middleware = ToolCallLoggingMiddleware()
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             await middleware.on_call_tool(_ctx("get_incident"), call_next_with_downstream)
             await middleware.on_call_tool(_ctx("list_detectors"), call_next_without)
 
@@ -237,7 +237,7 @@ class TestRequestLoggingContextMiddleware:
             seen.update(structlog.contextvars.get_contextvars())
             return "ok"
 
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "trace-123"})
+        monkeypatch.setattr("ggmcp.transport.middleware.get_http_headers", lambda: {"x-request-id": "trace-123"})
         await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
 
         assert seen["request_id"] == "trace-123"
@@ -255,7 +255,7 @@ class TestRequestLoggingContextMiddleware:
             seen.update(structlog.contextvars.get_contextvars())
             return "ok"
 
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": inbound})
+        monkeypatch.setattr("ggmcp.transport.middleware.get_http_headers", lambda: {"x-request-id": inbound})
         await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
 
         assert seen["request_id"] != inbound
@@ -273,7 +273,7 @@ class TestRequestLoggingContextMiddleware:
             seen.update(structlog.contextvars.get_contextvars())
             return "ok"
 
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"user-agent": "cursor/1.4.0"})
+        monkeypatch.setattr("ggmcp.transport.middleware.get_http_headers", lambda: {"user-agent": "cursor/1.4.0"})
         await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(session_id="sess-1"), call_next)
 
         assert seen["authentication_mode"] == "TEST"
@@ -295,7 +295,7 @@ class TestRequestLoggingContextMiddleware:
         async def call_next(ctx):
             return "ok"
 
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"user-agent": "cursor/1.4.0"})
+        monkeypatch.setattr("ggmcp.transport.middleware.get_http_headers", lambda: {"user-agent": "cursor/1.4.0"})
         await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(session_id="sess-1"), call_next)
 
         assert structlog.contextvars.get_contextvars() == {}
@@ -351,7 +351,7 @@ class TestRequestLoggingContextMiddleware:
         async def call_next(ctx):
             return None
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.transport.middleware"):
             await RequestLoggingContextMiddleware(FakeServer()).on_initialize(
                 _message_ctx(message=SimpleNamespace(params=params)), call_next
             )

@@ -11,7 +11,7 @@ import pytest
 import structlog
 import vcr
 
-from gg_api_core.logging_config import _DEMOTED_LOGGERS
+from ggmcp.logging.logging_config import _DEMOTED_LOGGERS
 
 # Configure logging for VCR debugging
 vcr_logger = logging.getLogger("vcr.debug")
@@ -435,7 +435,7 @@ def real_client():
                 result = await real_client.list_incidents()
                 assert result is not None
     """
-    from gg_api_core.client import GitGuardianClient
+    from ggmcp.api.client import GitGuardianClient
 
     # Use real key if available, otherwise use dummy key for cassette replay
     # VCR will intercept requests and replay from cassettes, so the key doesn't matter
@@ -513,39 +513,39 @@ def mock_gitguardian_client(request):
     mock_client.list_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.get_current_member = AsyncMock(return_value={"email": "test@example.com"})
 
-    # List of all modules that import get_client directly with "from gg_api_core.utils import get_client"
+    # List of all modules that import get_client directly with "from ggmcp.utils import get_client"
     # We must patch where it's USED, not where it's DEFINED
     modules_using_get_client = [
-        "gg_api_core.utils",
-        "gg_api_core.mcp_server",
-        "gg_api_core.tools.scan_secret",
-        "gg_api_core.tools.list_incidents",
-        "gg_api_core.tools.list_honeytokens",
-        "gg_api_core.tools.generate_honey_token",
-        "gg_api_core.tools.find_current_source_id",
-        "gg_api_core.tools.create_code_fix_request",
-        "gg_api_core.tools.assign_incident",
-        "gg_api_core.tools.assign_public_incident",
-        "gg_api_core.tools.activity_logs",
-        "gg_api_core.tools.incident_notes",
-        "gg_api_core.tools.manage_incident",
-        "gg_api_core.tools.update_public_incident_status",
-        "gg_api_core.tools.list_public_incidents",
-        "gg_api_core.tools.list_public_occurrences",
-        "gg_api_core.tools.list_repo_occurrences",
-        "gg_api_core.tools.write_custom_tags",
-        "gg_api_core.tools.revoke_secret",
-        "gg_api_core.tools.remediate_secret_incidents",
-        "gg_api_core.tools.read_custom_tags",
-        "gg_api_core.tools.list_users",
-        "gg_api_core.tools.list_incident_members",
-        "gg_api_core.tools.list_incident_teams",
-        "gg_api_core.tools.list_detectors",
-        "gg_api_core.tools.list_sources",
-        "gg_api_core.tools.get_incident",
-        "gg_api_core.tools.get_public_incident",
-        "gg_api_core.tools.get_member",
-        "gg_api_core.tools.count_incidents",
+        "ggmcp.utils",
+        "ggmcp.transport.mcp_server",
+        "ggmcp.tools.scan_secret",
+        "ggmcp.tools.list_incidents",
+        "ggmcp.tools.list_honeytokens",
+        "ggmcp.tools.generate_honey_token",
+        "ggmcp.tools.find_current_source_id",
+        "ggmcp.tools.create_code_fix_request",
+        "ggmcp.tools.assign_incident",
+        "ggmcp.tools.assign_public_incident",
+        "ggmcp.tools.activity_logs",
+        "ggmcp.tools.incident_notes",
+        "ggmcp.tools.manage_incident",
+        "ggmcp.tools.update_public_incident_status",
+        "ggmcp.tools.list_public_incidents",
+        "ggmcp.tools.list_public_occurrences",
+        "ggmcp.tools.list_repo_occurrences",
+        "ggmcp.tools.write_custom_tags",
+        "ggmcp.tools.revoke_secret",
+        "ggmcp.tools.remediate_secret_incidents",
+        "ggmcp.tools.read_custom_tags",
+        "ggmcp.tools.list_users",
+        "ggmcp.tools.list_incident_members",
+        "ggmcp.tools.list_incident_teams",
+        "ggmcp.tools.list_detectors",
+        "ggmcp.tools.list_sources",
+        "ggmcp.tools.get_incident",
+        "ggmcp.tools.get_public_incident",
+        "ggmcp.tools.get_member",
+        "ggmcp.tools.count_incidents",
     ]
 
     with ExitStack() as stack:
@@ -554,18 +554,18 @@ def mock_gitguardian_client(request):
             stack.enter_context(patch(f"{module}.get_client", return_value=mock_client))
 
         # Also patch GitGuardianClient constructor to prevent any direct instantiation
-        stack.enter_context(patch("gg_api_core.utils.GitGuardianClient", return_value=mock_client))
+        stack.enter_context(patch("ggmcp.utils.GitGuardianClient", return_value=mock_client))
 
         # Note: find_current_source_id is no longer called by list_incidents
         # (repository_name param was removed), so no patching needed here
 
         # Reset the singleton to None before each test to ensure clean state
-        import gg_api_core.utils
+        import ggmcp.utils
 
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
         yield mock_client
         # Clean up singleton after test
-        gg_api_core.utils._client_singleton = None
+        ggmcp.utils._client_singleton = None
 
 
 @pytest.fixture()

@@ -4,7 +4,8 @@ import os
 from unittest.mock import patch
 
 import pytest
-from gg_api_core.mcp_server import get_mcp_server
+
+from ggmcp.transport.mcp_server import get_mcp_server
 
 
 @pytest.mark.asyncio

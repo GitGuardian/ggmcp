@@ -27,11 +27,11 @@ from pathlib import Path
 
 # Add the package to the Python path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "packages" / "gg_api_core" / "src"))
+sys.path.insert(0, str(project_root / "packages" / "ggmcp" / "src"))
 
-from gg_api_core.oauth import GitGuardianOAuthClient
-from gg_api_core.scopes import ALL_SCOPES
-from gg_api_core.settings import get_settings
+from ggmcp.api.scopes import ALL_SCOPES
+from ggmcp.auth.oauth import GitGuardianOAuthClient
+from ggmcp.config.settings import get_settings
 
 os.environ["GITGUARDIAN_SCOPES"] = ",".join(ALL_SCOPES)
 
@@ -150,14 +150,14 @@ async def run_oauth_flow():
             token_lifetime = 30
 
     # Display configuration
-    print(f"\nConfiguration:")
+    print("\nConfiguration:")
     print(f"  API URL:          {api_url}")
     print(f"  Dashboard URL:    {dashboard_url}")
     print(f"  Token Name:       {token_name}")
     print(f"  Scopes:           {', '.join(scopes)}")
 
     if token_lifetime == -1:
-        print(f"  Token Lifetime:   Never expires")
+        print("  Token Lifetime:   Never expires")
     else:
         print(f"  Token Lifetime:   {token_lifetime} days")
 
@@ -178,7 +178,7 @@ async def run_oauth_flow():
         # Check if we already have a valid token
         if oauth_client.access_token:
             print("\n Found existing valid token!")
-            print(f"  Token will be reused without re-authentication")
+            print("  Token will be reused without re-authentication")
         else:
             print("\nNo valid token found. Starting OAuth authentication...")
             print("A browser window will open for you to authenticate.")
@@ -194,7 +194,7 @@ async def run_oauth_flow():
         token_info = oauth_client.get_token_info()
 
         if token_info:
-            print(f"\nToken Information:")
+            print("\nToken Information:")
             print(f"  Token ID:         {token_info.id}")
             print(f"  Token Name:       {token_info.name}")
             print(f"  Workspace ID:     {token_info.workspace_id}")
@@ -205,7 +205,7 @@ async def run_oauth_flow():
             if token_info.expire_at:
                 print(f"  Expires:          {token_info.expire_at}")
             else:
-                print(f"  Expires:          Never")
+                print("  Expires:          Never")
 
             print(f"  Scopes:           {', '.join(token_info.scopes)}")
             print(f"\n  Access Token:     {access_token[:20]}...{access_token[-10:]}")
@@ -214,7 +214,7 @@ async def run_oauth_flow():
             print("\n  Note: Could not retrieve detailed token information")
 
         # Show where token is stored
-        from gg_api_core.oauth import FileTokenStorage
+        from ggmcp.auth.oauth import FileTokenStorage
         storage = FileTokenStorage()
         print(f"\nToken stored at:    {storage.token_file}")
 
@@ -230,7 +230,7 @@ async def run_oauth_flow():
 
     except Exception as e:
         logger.exception("OAuth flow failed")
-        print(f"\n\nL OAuth Flow Failed!")
+        print("\n\nL OAuth Flow Failed!")
         print(f"Error: {str(e)}")
         print("\nPlease check:")
         print("  1. Your GITGUARDIAN_URL is correct")

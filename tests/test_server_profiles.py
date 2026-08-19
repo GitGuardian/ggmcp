@@ -19,7 +19,7 @@ def mock_env_no_http():
 @pytest.fixture
 def mock_gitguardian_modules():
     """Mock the GitGuardian client to avoid actual API calls during import."""
-    with patch("gg_api_core.utils.get_client") as mock_get_client:
+    with patch("ggmcp.utils.get_client") as mock_get_client:
         mock_client = MagicMock()
         mock_client.get_current_token_info = AsyncMock(return_value={"scopes": ["scan"]})
         mock_get_client.return_value = mock_client
@@ -40,10 +40,10 @@ class TestUnifiedServer:
         WHEN its server is built
         THEN it exposes a configured AbstractGitGuardianFastMCP instance
         """
-        clean_module_imports("ggmcp")
+        clean_module_imports("ggmcp.transport")
 
-        from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
-        from ggmcp.server import build_server
+        from ggmcp.transport.mcp_server import AbstractGitGuardianFastMCP
+        from ggmcp.transport.server import build_server
 
         server = build_server()
 
@@ -57,9 +57,9 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN both developer-flavour and secops-flavour tools are present
         """
-        clean_module_imports("ggmcp")
+        clean_module_imports("ggmcp.transport")
 
-        from ggmcp.server import build_server
+        from ggmcp.transport.server import build_server
 
         server = build_server()
         server._fetch_token_scopes_from_api = AsyncMock()
@@ -86,9 +86,9 @@ class TestUnifiedServer:
         WHEN the unified server lists tools
         THEN write tools are filtered out and read tools remain
         """
-        clean_module_imports("ggmcp")
+        clean_module_imports("ggmcp.transport")
 
-        from ggmcp.server import build_server
+        from ggmcp.transport.server import build_server
 
         server = build_server()
         server._fetch_token_scopes_from_api = AsyncMock()

@@ -8,7 +8,7 @@ import pytest
 from fastmcp.exceptions import ToolError
 from pydantic import ValidationError
 
-from gg_api_core.tools.incident_notes import (
+from ggmcp.tools.incident_notes import (
     ListCommentsResult,
     ListIncidentCommentsParams,
     ManageIncidentCommentParams,

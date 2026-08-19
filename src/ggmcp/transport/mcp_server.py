@@ -1,0 +1,396 @@
+"""Simplified GitGuardian MCP Server with scope-based tool filtering."""
+
+import logging
+from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+from enum import Enum
+from typing import Any
+
+from fastmcp import FastMCP
+from fastmcp.exceptions import ValidationError
+from fastmcp.server.dependencies import get_access_token
+from typing_extensions import override
+
+from ggmcp.api.client import GitGuardianClient
+from ggmcp.auth.oauth_proxy_auth import (
+    PassThroughTokenVerifier,
+    create_oauth_proxy,
+)
+from ggmcp.config.settings import get_settings
+from ggmcp.icons import get_gitguardian_icons
+from ggmcp.logging.log_context import clear_caller_identity_cache
+from ggmcp.transport.middleware import (
+    DownstreamUnauthorizedMiddleware,
+    RequestLoggingContextMiddleware,
+    ScopeFilteringMiddleware,
+    ToolCallLoggingMiddleware,
+)
+from ggmcp.utils import get_client
+
+# Configure logger
+logger = logging.getLogger(__name__)
+
+
+class AuthenticationMode(Enum):
+    """Available authentication modes for the MCP server."""
+
+    # Trigger a local OAuth flow to obtain a Personal Access Token
+    LOCAL_OAUTH_FLOW = "LOCAL_OAUTH_FLOW"
+    # Read Access Token from environment variable
+    PERSONAL_ACCESS_TOKEN_ENV_VAR = "PERSONAL_ACCESS_TOKEN_ENV_VAR"
+    # Use per-request Authorization header
+    AUTHORIZATION_HEADER = "AUTHORIZATION_HEADER"
+    # Use FastMCP OAuthProxy : declares the MCP server as a Protected Resource (RFC 9728)
+    # whose Authorization Server is api.gitguardian.com
+    OAUTH_PROXY = "OAUTH_PROXY"
+
+
+class CachedTokenInfoMixin:
+    """Mixin for MCP servers that are mono-tenant (only one authenticated identity from startup to close of the server)
+
+    Note: This mixin expects to be used with AbstractGitGuardianFastMCP which provides
+    _fetch_token_scopes_from_api() and _fetch_token_info_from_api() methods.
+    """
+
+    _token_scopes: set[str] = set()
+    _token_info: dict[str, Any] | None = None
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Add a custom lifespan contextmanager that fetches and cache token scopes and infos
+        original_lifespan = kwargs.get("lifespan")
+        kwargs["lifespan"] = self._create_token_scope_lifespan(original_lifespan)
+        # Call parent __init__ in the MRO chain
+        super().__init__(*args, **kwargs)
+
+    def clear_cache(self) -> None:
+        """Clear cached token information and scopes."""
+        self._token_scopes = set()
+        self._token_info = None
+
+    def _create_token_scope_lifespan(self, original_lifespan: Any = None) -> Any:
+        """Create a lifespan context manager that fetches token scopes."""
+
+        @asynccontextmanager
+        async def token_scope_lifespan(fastmcp: FastMCP) -> AsyncIterator[dict[str, Any]]:
+            """Lifespan context manager that fetches token scopes on startup."""
+            context_result: dict[str, Any] = {}
+
+            # Call the original lifespan if provided
+            if original_lifespan:
+                logger.debug("Calling original lifespan")
+                async with original_lifespan(fastmcp) as original_context:
+                    context_result = original_context
+
+            # Cache scopes at startup (single token throughout lifespan)
+            try:
+                self._token_scopes = await self._fetch_token_scopes_from_api()  # type: ignore[attr-defined]
+                logger.debug(f"Retrieved token scopes: {self._token_scopes}")
+            except Exception as e:
+                logger.warning(f"Failed to fetch token scopes during startup: {str(e)}")
+                logger.warning("Some tools may not be available if scope detection fails")
+                # Continue with startup even if scope fetching fails
+
+            # Yield the context (from original lifespan if provided)
+            yield context_result
+
+        return token_scope_lifespan
+
+    async def get_token_info(self) -> dict[str, Any]:
+        """Return the token info dictionary."""
+        if self._token_info is not None:
+            return self._token_info
+
+        self._token_info = await self._fetch_token_info_from_api()  # type: ignore[attr-defined]
+        return self._token_info
+
+
+class AbstractGitGuardianFastMCP(FastMCP, ABC):
+    """Abstract base class for GitGuardian MCP servers with scope-based tool filtering.
+
+    This class contains the core functionality shared by all authentication modes.
+    Subclasses implement authentication-specific behavior.
+    """
+
+    authentication_mode: AuthenticationMode
+
+    def __init__(self, *args: Any, default_scopes: list[str] | None = None, **kwargs: Any) -> None:
+        """
+        Initialize the GitGuardian MCP server.
+        """
+        # Initialize the parent class FIRST (required for FastMCP attributes)
+        super().__init__(*args, **kwargs)
+
+        # Map each tool to its required scopes (instance attribute)
+        self._tool_scopes: dict[str, set[str]] = {}
+
+        # Bind request context before downstream middleware emits logs.
+        self.add_middleware(RequestLoggingContextMiddleware(self))
+        self.add_middleware(ScopeFilteringMiddleware(self))
+        self.add_middleware(DownstreamUnauthorizedMiddleware())
+        self.add_middleware(ToolCallLoggingMiddleware())
+
+    def clear_cache(self) -> None:
+        """Clear cached data. Override in subclasses that cache."""
+        pass
+
+    @abstractmethod
+    def get_personal_access_token(self) -> str | None:
+        """Get the personal access token for the current request"""
+        pass
+
+    @abstractmethod
+    async def get_token_info(self) -> dict[str, Any]:
+        """Return the token info dictionary."""
+        pass
+
+    async def get_client(self) -> GitGuardianClient:
+        return await get_client(
+            personal_access_token=self.get_personal_access_token(),
+        )
+
+    async def revoke_current_token(self) -> dict[str, Any]:
+        """Revoke the current API token via GitGuardian API."""
+        try:
+            logger.debug("Revoking current API token")
+            # Call the DELETE /api_tokens/self endpoint
+            token = self.get_personal_access_token()
+            client = await self.get_client()
+            result = await client.revoke_current_token()
+            logger.debug("API token revoked")
+            # The revoked token's workspace/member ids are no longer worth
+            # stamping onto log lines, and the entry would otherwise survive for
+            # the rest of its TTL. Only this token's entry: the server is
+            # multi-tenant, and other callers' credentials are still valid.
+            clear_caller_identity_cache(token)
+            return result
+        except Exception as e:
+            logger.exception(f"Error revoking current API token: {str(e)}")
+            raise
+
+    @override
+    def tool(self, *args: Any, required_scopes: list[str] | None = None, **kwargs: Any) -> Any:
+        """
+        Extended tool decorator that tracks required scopes.
+
+        Usage:
+            @mcp.tool(required_scopes=["scan"])
+            def my_tool():
+                pass
+
+            # Or with function passed directly
+            mcp.tool(my_func, required_scopes=["scan"])
+        """
+        # In FastMCP v3, @mcp.tool() returns the original function, not a Tool object.
+        # Derive the tool name from the explicit kwarg or from the function itself.
+
+        if args and callable(args[0]):
+            # Direct call: mcp.tool(fn, required_scopes=...)
+            fn = args[0]
+            name: str = kwargs.get("name") or fn.__name__
+            result = super().tool(*args, **kwargs)
+            if required_scopes:
+                self._tool_scopes[name] = set(required_scopes)
+            return result
+        else:
+            # Decorator usage: @mcp.tool(required_scopes=...)
+            parent_decorator = super().tool(*args, **kwargs)
+
+            def wrapper(fn: Any) -> Any:
+                name: str = kwargs.get("name") or fn.__name__
+                result = parent_decorator(fn)
+                if required_scopes:
+                    self._tool_scopes[name] = set(required_scopes)
+                return result
+
+            return wrapper
+
+    async def _fetch_token_scopes_from_api(self, client: GitGuardianClient | None = None) -> set[str]:
+        """Fetch token scopes from the GitGuardian API.
+
+        Args:
+            client: Optional GitGuardianClient to use. If None, uses self.client.
+                    In HTTP mode, a per-request client should be passed.
+
+        Returns:
+            set: The fetched scopes, or empty set on error
+        """
+        client_to_use = await self.get_client()
+
+        # Fetch the complete token info
+        logger.debug("Attempting to fetch token scopes from GitGuardian API")
+        token_info = await client_to_use.get_current_token_info()
+
+        # Extract scopes
+        scopes = token_info.get("scopes", [])
+        logger.debug(f"Retrieved token scopes: {scopes}")
+
+        return set(scopes)
+
+    async def _fetch_token_info_from_api(self) -> dict[str, Any]:
+        client = await self.get_client()
+        return await client.get_current_token_info()
+
+    async def get_scopes(self) -> set[str]:
+        cached_scopes: set[str] | None = getattr(self, "_token_scopes", None)
+        if cached_scopes:
+            logger.debug("reading from cached scopes")
+            return cached_scopes
+
+        scopes = await self._fetch_token_scopes_from_api()
+        logger.debug(f"scopes: {scopes}")
+        return scopes
+
+
+# Common MCP tools for user information and token management
+def register_common_tools(mcp_instance: AbstractGitGuardianFastMCP):
+    """Register common MCP tools for user information and token management."""
+
+    logger.debug("Registering common MCP tools...")
+
+    @mcp_instance.tool(
+        name="get_authenticated_user_info",
+        description="Get comprehensive information about the authenticated user and current API token including scopes and authentication method",
+    )
+    async def get_authenticated_user_info() -> dict[str, Any]:
+        """Get information about the authenticated user and current API token."""
+        logger.debug("Getting authenticated user information")
+
+        token_info = await mcp_instance.get_token_info()
+        scopes = await mcp_instance.get_scopes()
+        return {
+            "token_info": token_info,
+            "authentication_mode": mcp_instance.authentication_mode.value,
+            "available_scopes": list(scopes),
+        }
+
+    @mcp_instance.tool(
+        name="revoke_current_token",
+        description="Revoke the current API token and clean up stored credentials",
+    )
+    async def revoke_current_token() -> dict[str, Any]:
+        """Revoke the current API token and clean up stored credentials."""
+        logger.debug("Starting token revocation process")
+
+        try:
+            await mcp_instance.revoke_current_token()
+            logger.debug("Token revoked via API")
+
+            # Clear cached data
+            mcp_instance.clear_cache()
+
+            return {
+                "success": True,
+                "message": "Token revoked and credentials cleaned up",
+                "authentication_method": mcp_instance.authentication_mode.value,
+            }
+
+        except Exception as e:
+            logger.exception(f"Error during token revocation: {str(e)}")
+            return {"success": False, "error": f"Failed to revoke token: {str(e)}"}
+
+    logger.debug("Registered common MCP tools")
+
+
+# Concrete implementations for different authentication modes
+
+
+class GitGuardianLocalOAuthMCP(CachedTokenInfoMixin, AbstractGitGuardianFastMCP):
+    """GitGuardian MCP server using local OAuth flow (stdio mode)."""
+
+    authentication_mode = AuthenticationMode.LOCAL_OAUTH_FLOW
+
+    @override
+    def get_personal_access_token(self) -> str | None:
+        # It will be actually provided within the client by the OAuth flow, or from the filesystem storage
+        return None
+
+
+class GitGuardianPATEnvMCP(CachedTokenInfoMixin, AbstractGitGuardianFastMCP):
+    """GitGuardian MCP server using Personal Access Token from environment variable."""
+
+    authentication_mode = AuthenticationMode.PERSONAL_ACCESS_TOKEN_ENV_VAR
+
+    def __init__(self, *args: Any, personal_access_token: str, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.personal_access_token = personal_access_token
+
+    @override
+    def get_personal_access_token(self) -> str:
+        return self.personal_access_token
+
+
+class _BearerTokenMCP(AbstractGitGuardianFastMCP):
+    """Base for modes where the bearer token is installed in the request scope.
+
+    Requires an ``auth=`` provider that populates an ``AccessToken`` on the
+    request — :class:`PassThroughTokenVerifier` for raw header mode, or
+    :class:`GitGuardianOAuthThinProxy` for OAuth proxy mode. Both classes
+    below differ only in :attr:`authentication_mode`.
+    """
+
+    @override
+    def get_personal_access_token(self) -> str:
+        access_token = get_access_token()
+        if not access_token:
+            raise ValidationError("No access token available - bearer authentication required")
+        return access_token.token
+
+    @override
+    async def get_token_info(self) -> dict[str, Any]:
+        return await self._fetch_token_info_from_api()
+
+
+class GitGuardianAuthorizationHeaderMCP(_BearerTokenMCP):
+    """GitGuardian MCP server using per-request Authorization header (HTTP mode)."""
+
+    authentication_mode = AuthenticationMode.AUTHORIZATION_HEADER
+
+
+class GitGuardianOAuthProxyMCP(_BearerTokenMCP):
+    """GitGuardian MCP server with thin OAuth proxy to the GG dashboard.
+
+    Same-origin OAuth endpoints proxy auth requests to the GG dashboard.
+    The MCP client gets the real GG PAT directly as Bearer token.
+    """
+
+    authentication_mode = AuthenticationMode.OAUTH_PROXY
+
+
+def get_mcp_server(*args: Any, **kwargs: Any) -> AbstractGitGuardianFastMCP:
+    kwargs.setdefault("icons", get_gitguardian_icons())
+
+    settings = get_settings()
+
+    if settings.is_oauth_proxy_enabled:
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianOAuthProxyMCP.authentication_mode.value,
+        )
+        oauth_proxy = create_oauth_proxy(
+            base_url=settings.mcp_base_url,
+            gg_url=settings.gitguardian_url,
+            gg_api_url=settings.gitguardian_api_url,
+            advertised_scopes=settings.effective_scopes,
+        )
+        return GitGuardianOAuthProxyMCP(*args, auth=oauth_proxy, **kwargs)
+
+    if settings.is_oauth_enabled:
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianLocalOAuthMCP.authentication_mode.value,
+        )
+        return GitGuardianLocalOAuthMCP(*args, **kwargs)
+
+    if personal_access_token := settings.gitguardian_personal_access_token:
+        logger.info(
+            "Starting GitGuardian MCP server in %s mode",
+            GitGuardianPATEnvMCP.authentication_mode.value,
+        )
+        return GitGuardianPATEnvMCP(*args, personal_access_token=personal_access_token, **kwargs)
+
+    logger.info(
+        "Starting GitGuardian MCP server in %s mode",
+        GitGuardianAuthorizationHeaderMCP.authentication_mode.value,
+    )
+    return GitGuardianAuthorizationHeaderMCP(*args, auth=PassThroughTokenVerifier(), **kwargs)

@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.get_remediation_workflow import (
+from ggmcp.tools.get_remediation_workflow import (
     GetRemediationWorkflowResult,
     get_remediation_workflow,
 )
@@ -32,7 +32,7 @@ class TestGetRemediationWorkflowVCR:
         """
         with use_cassette("test_get_remediation_workflow_custom"):
             with patch(
-                "gg_api_core.tools.get_remediation_workflow.get_client",
+                "ggmcp.tools.get_remediation_workflow.get_client",
                 return_value=real_client,
             ):
                 result = await get_remediation_workflow()

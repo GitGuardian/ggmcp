@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.list_incidents import (
+from ggmcp.tools.list_incidents import (
     ListIncidentsParams,
     ListIncidentsResult,
     SeverityValues,
@@ -43,7 +43,7 @@ class TestListIncidentsCoercionVCR:
         """
         with use_cassette("test_list_incidents_coerce_single_status"):
             with patch(
-                "gg_api_core.tools.list_incidents.get_client",
+                "ggmcp.tools.list_incidents.get_client",
                 return_value=real_client,
             ):
                 # Single string value, not a list - this is how LLMs often call tools
@@ -76,7 +76,7 @@ class TestListIncidentsCoercionVCR:
         """
         with use_cassette("test_list_incidents_coerce_single_severity"):
             with patch(
-                "gg_api_core.tools.list_incidents.get_client",
+                "ggmcp.tools.list_incidents.get_client",
                 return_value=real_client,
             ):
                 # Single int value for severity
@@ -105,7 +105,7 @@ class TestListIncidentsCoercionVCR:
         """
         with use_cassette("test_list_incidents_coerce_single_validity"):
             with patch(
-                "gg_api_core.tools.list_incidents.get_client",
+                "ggmcp.tools.list_incidents.get_client",
                 return_value=real_client,
             ):
                 # Single string value for validity - tests coercion AND uses valid API value
@@ -136,7 +136,7 @@ class TestListIncidentsCoercionVCR:
         """
         with use_cassette("test_list_incidents_coerce_multiple_single_values"):
             with patch(
-                "gg_api_core.tools.list_incidents.get_client",
+                "ggmcp.tools.list_incidents.get_client",
                 return_value=real_client,
             ):
                 # Multiple single values that would typically be passed by an LLM

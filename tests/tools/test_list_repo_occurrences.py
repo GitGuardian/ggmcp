@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import ValidationError
 
-from gg_api_core.tools.list_repo_occurrences import (
+from ggmcp.tools.list_repo_occurrences import (
     ListRepoOccurrencesFilters,
     ListRepoOccurrencesParams,
     list_repo_occurrences,

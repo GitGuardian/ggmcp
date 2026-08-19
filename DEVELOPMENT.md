@@ -178,7 +178,7 @@ future release.
 
 Structured logging goes to stderr via structlog. `LOG_LEVEL` sets the level and
 `LOG_FORMAT` picks `json` or `console` (unset auto-detects: console on a TTY).
-`gg_api_core/logging_config.py` owns the processor chain.
+`ggmcp/logging/logging_config.py` owns the processor chain.
 
 ### Fields on every line
 
@@ -225,7 +225,7 @@ middleware hook sees it and it produces no event.
 
 ### Redaction
 
-`gg_api_core/sanitization.py` scrubs by field name and by value. When adding a
+`ggmcp/api/sanitization.py` scrubs by field name and by value. When adding a
 field whose name contains a token like `token` or `content` but which carries no
 secret, add it to `NON_SENSITIVE_NAME_ALLOWLIST`, otherwise it renders as
 `[REDACTED]`.
@@ -279,7 +279,7 @@ uvx --from 'ggmcp[sentry]@latest' ggmcp
 - **sentry**: Adds the Sentry SDK for error tracking
 
   - Available in: `ggmcp[sentry]`
-  - Implementation: `src/gg_api_core/sentry_integration.py`
+  - Implementation: `src/ggmcp/logging/sentry_integration.py`
   - Used for: MCP exception capture, sanitized breadcrumbs, monitoring, and alerting
 
 ## Testing

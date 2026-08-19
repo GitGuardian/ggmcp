@@ -75,17 +75,15 @@ dev = [
 ]
 
 [project.scripts]
-ggmcp = "ggmcp.run:run_mcp_server"
+ggmcp = "ggmcp.transport.run:run_mcp_server"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "src/gg_api_core",
     "src/ggmcp",
 ]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "/src/gg_api_core",
     "/src/ggmcp",
     "/LICENSE",
     "/README.md",
@@ -156,10 +154,9 @@ name = "cz_conventional_commits"
 [tool.pyrefly]
 preset = "strict"
 python-version = "3.11"
-# The published packages. Only these two packages ship in the wheel and are
+# The published package. Only this single package ships in the wheel and is
 # type-checked (see linear ticket SI-4052).
 project-includes = [
-    "src/gg_api_core/**",
     "src/ggmcp/**",
 ]
 ignore-missing-imports = ["*"]

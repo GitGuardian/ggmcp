@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastmcp.exceptions import ToolError
 
-from gg_api_core.tools.manage_incident import (
+from ggmcp.tools.manage_incident import (
     ManageIncidentParams,
     manage_private_incident,
 )

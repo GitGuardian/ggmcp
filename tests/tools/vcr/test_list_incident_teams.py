@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.list_incident_teams import (
+from ggmcp.tools.list_incident_teams import (
     ListIncidentTeamsParams,
     ListIncidentTeamsResult,
     list_incident_teams,
@@ -40,7 +40,7 @@ class TestListIncidentTeamsVCR:
         """
         with use_cassette("test_list_incident_teams_basic"):
             with patch(
-                "gg_api_core.tools.list_incident_teams.get_client",
+                "ggmcp.tools.list_incident_teams.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentTeamsParams(
@@ -74,7 +74,7 @@ class TestListIncidentTeamsVCR:
         """
         with use_cassette("test_list_incident_teams_with_search"):
             with patch(
-                "gg_api_core.tools.list_incident_teams.get_client",
+                "ggmcp.tools.list_incident_teams.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentTeamsParams(
@@ -101,7 +101,7 @@ class TestListIncidentTeamsVCR:
         """
         with use_cassette("test_list_incident_teams_with_direct_access"):
             with patch(
-                "gg_api_core.tools.list_incident_teams.get_client",
+                "ggmcp.tools.list_incident_teams.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentTeamsParams(

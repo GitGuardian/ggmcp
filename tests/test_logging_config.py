@@ -4,8 +4,8 @@ import logging
 import pytest
 import structlog
 
-from gg_api_core.logging_config import configure_logging
-from gg_api_core.version import APP_VERSION
+from ggmcp.logging.logging_config import configure_logging
+from ggmcp.version import APP_VERSION
 
 
 def _reconfigure_json():

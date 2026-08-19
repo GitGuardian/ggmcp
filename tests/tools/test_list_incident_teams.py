@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from gg_api_core.tools.list_incident_teams import (
+from ggmcp.tools.list_incident_teams import (
     ListIncidentTeamsParams,
     ListIncidentTeamsResult,
     list_incident_teams,
@@ -37,7 +37,7 @@ class TestListIncidentTeams:
         }
 
         with patch(
-            "gg_api_core.tools.list_incident_teams.get_client",
+            "ggmcp.tools.list_incident_teams.get_client",
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42)
@@ -70,7 +70,7 @@ class TestListIncidentTeams:
         }
 
         with patch(
-            "gg_api_core.tools.list_incident_teams.get_client",
+            "ggmcp.tools.list_incident_teams.get_client",
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(
@@ -109,7 +109,7 @@ class TestListIncidentTeams:
         }
 
         with patch(
-            "gg_api_core.tools.list_incident_teams.get_client",
+            "ggmcp.tools.list_incident_teams.get_client",
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(
@@ -136,7 +136,7 @@ class TestListIncidentTeams:
         }
 
         with patch(
-            "gg_api_core.tools.list_incident_teams.get_client",
+            "ggmcp.tools.list_incident_teams.get_client",
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42, get_all=True)
@@ -164,7 +164,7 @@ class TestListIncidentTeams:
         }
 
         with patch(
-            "gg_api_core.tools.list_incident_teams.get_client",
+            "ggmcp.tools.list_incident_teams.get_client",
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42, direct_access=False)

@@ -2,11 +2,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from gg_api_core.tools.list_repo_occurrences import (
+from ggmcp.tools.list_repo_occurrences import (
     ListRepoOccurrencesError,
     ListRepoOccurrencesResult,
 )
-from gg_api_core.tools.remediate_secret_incidents import (
+from ggmcp.tools.remediate_secret_incidents import (
     ListRepoOccurrencesParamsForRemediate,
     RemediateSecretIncidentsParams,
     RemediateSecretIncidentsResult,
@@ -94,7 +94,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
@@ -129,7 +129,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
@@ -154,7 +154,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
@@ -203,7 +203,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with mine=False
@@ -255,7 +255,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with git_commands=False
@@ -311,7 +311,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with create_env_example=False
@@ -386,7 +386,7 @@ class TestRemediateSecretIncidents:
 
         # Patch list_repo_occurrences
         with patch(
-            "gg_api_core.tools.remediate_secret_incidents.list_repo_occurrences",
+            "ggmcp.tools.remediate_secret_incidents.list_repo_occurrences",
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function

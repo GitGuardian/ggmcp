@@ -6,9 +6,9 @@ import logging
 import httpx
 import pytest
 
-from gg_api_core.client import GitGuardianClient, _path_template
-from gg_api_core.log_context import track_downstream_calls
-from gg_api_core.logging_config import configure_logging
+from ggmcp.api.client import GitGuardianClient, _path_template
+from ggmcp.logging.log_context import track_downstream_calls
+from ggmcp.logging.logging_config import configure_logging
 
 
 def _responding_with(handler):
@@ -69,7 +69,7 @@ class TestApiRequestEvent:
 
         monkeypatch.setattr(httpx.AsyncClient, "request", _responding_with(handler))
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.client"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.api.client"):
             await client._request_get("/incidents/secrets/12345")
 
         rec = next(r for r in caplog.records if r.getMessage() == "api_request")
@@ -94,7 +94,7 @@ class TestApiRequestEvent:
 
         monkeypatch.setattr(httpx.AsyncClient, "get", get)
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.client"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.api.client"):
             await client._request_list("/incidents/secrets")
 
         rec = next(r for r in caplog.records if r.getMessage() == "api_request")
@@ -134,7 +134,7 @@ class TestApiRequestEvent:
 
         monkeypatch.setattr(httpx.AsyncClient, "request", failing_request)
 
-        with caplog.at_level(logging.INFO, logger="gg_api_core.client"):
+        with caplog.at_level(logging.INFO, logger="ggmcp.api.client"):
             with pytest.raises(httpx.ConnectTimeout):
                 await client._request_get("/incidents/secrets")
 

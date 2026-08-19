@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import ValidationError
 
-from gg_api_core.tools.assign_public_incident import (
+from ggmcp.tools.assign_public_incident import (
     AssignPublicIncidentParams,
     AssignPublicIncidentResult,
     assign_public_incident,

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.list_public_occurrences import (
+from ggmcp.tools.list_public_occurrences import (
     ListPublicOccurrencesParams,
     ListPublicOccurrencesResult,
     list_public_occurrences,
@@ -29,7 +29,7 @@ class TestListPublicOccurrencesVCR:
         """
         with use_cassette("test_list_public_occurrences_basic"):
             with patch(
-                "gg_api_core.tools.list_public_occurrences.get_client",
+                "ggmcp.tools.list_public_occurrences.get_client",
                 return_value=real_client,
             ):
                 incidents = await real_client.list_public_incidents(per_page=1)
@@ -56,7 +56,7 @@ class TestListPublicOccurrencesVCR:
         """
         with use_cassette("test_list_public_occurrences_with_multi_value_filters"):
             with patch(
-                "gg_api_core.tools.list_public_occurrences.get_client",
+                "ggmcp.tools.list_public_occurrences.get_client",
                 return_value=real_client,
             ):
                 incidents = await real_client.list_public_incidents(per_page=1)
@@ -97,7 +97,7 @@ class TestListPublicOccurrencesVCR:
         """
         with use_cassette("test_list_public_occurrences_with_date_range"):
             with patch(
-                "gg_api_core.tools.list_public_occurrences.get_client",
+                "ggmcp.tools.list_public_occurrences.get_client",
                 return_value=real_client,
             ):
                 incidents = await real_client.list_public_incidents(per_page=1)

@@ -1,7 +1,7 @@
 from importlib.metadata import PackageNotFoundError
 from unittest.mock import Mock
 
-from gg_api_core.version import resolve_app_version
+from ggmcp.version import resolve_app_version
 
 
 class TestResolveAppVersion:
@@ -14,7 +14,7 @@ class TestResolveAppVersion:
         THEN its release number is returned
         """
         package_version = Mock(return_value="1.2.3")
-        monkeypatch.setattr("gg_api_core.version.package_version", package_version)
+        monkeypatch.setattr("ggmcp.version.package_version", package_version)
 
         assert resolve_app_version() == "1.2.3"
         package_version.assert_called_once_with("ggmcp")
@@ -29,6 +29,6 @@ class TestResolveAppVersion:
         def missing_distribution(distribution: str) -> str:
             raise PackageNotFoundError(distribution)
 
-        monkeypatch.setattr("gg_api_core.version.package_version", missing_distribution)
+        monkeypatch.setattr("ggmcp.version.package_version", missing_distribution)
 
         assert resolve_app_version() is None

@@ -1,0 +1,130 @@
+import logging
+from typing import Any, Literal
+
+from fastmcp.exceptions import ToolError
+from pydantic import BaseModel, Field
+
+from ggmcp.utils import get_client
+
+logger = logging.getLogger(__name__)
+
+
+class ManageIncidentParams(BaseModel):
+    """Parameters for managing an incident."""
+
+    incident_id: str | int = Field(description="ID of the secret incident to manage")
+    action: Literal["unassign", "resolve", "ignore", "reopen"] = Field(
+        description="Action to perform on the incident: 'unassign' removes any assigned member, 'resolve' marks the incident as resolved, 'ignore' marks as ignored (use with ignore_reason), 'reopen' reopens a resolved or ignored incident"
+    )
+    ignore_reason: Literal["test_credential", "false_positive", "low_risk", "invalid"] | None = Field(
+        default=None,
+        description="Reason for ignoring the incident. Required when action is 'ignore'. Must be explicitly provided by the user. Options: 'test_credential' (secret is for testing), 'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), 'invalid' (secret is invalid/inactive)",
+    )
+    secret_revoked: bool | None = Field(
+        default=None,
+        description="Whether the secret has been revoked/rotated. Required when action is 'resolve'. Must be explicitly provided by the user.",
+    )
+
+
+async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any]:
+    """
+    Perform lifecycle management actions on a secret incident.
+
+    This tool allows you to change the state of a secret incident through various actions:
+    - 'unassign': Remove the assigned member from an incident (useful when reassigning or leaving unassigned)
+    - 'resolve': Mark an incident as resolved (typically after the secret has been rotated/revoked)
+    - 'ignore': Mark an incident as ignored with a reason (test_credential, false_positive, low_risk, or invalid)
+    - 'reopen': Reopen a previously resolved or ignored incident
+
+    Note: To assign an incident to a member, use the dedicated 'assign_incident' tool instead.
+
+    Args:
+        params: ManageIncidentParams containing:
+            - incident_id: The ID of the incident to manage
+            - action: The lifecycle action to perform (unassign, resolve, ignore, or reopen)
+            - ignore_reason: Required when action is 'ignore'. One of: test_credential, false_positive, low_risk, invalid
+            - secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
+
+    Returns:
+        Dictionary containing the updated incident data from the API
+
+    Raises:
+        ToolError: If the action fails or if an invalid action is provided
+    """
+    client = await get_client()
+    logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")
+
+    try:
+        # Route the action to the appropriate client method
+        if params.action == "unassign":
+            result = await client.unassign_incident(incident_id=str(params.incident_id))
+
+        elif params.action == "resolve":
+            if params.secret_revoked is None:
+                raise ToolError(
+                    "The 'secret_revoked' parameter is required when resolving an incident. "
+                    "Please ask the user: Was the secret revoked/rotated? "
+                    "Set secret_revoked=true if the secret was revoked, or secret_revoked=false if not."
+                )
+            result = await client.resolve_incident(
+                incident_id=str(params.incident_id),
+                secret_revoked=params.secret_revoked,
+            )
+
+        elif params.action == "ignore":
+            if params.ignore_reason is None:
+                raise ToolError(
+                    "The 'ignore_reason' parameter is required when ignoring an incident. "
+                    "Please ask the user why this incident should be ignored. "
+                    "Valid reasons: 'test_credential' (secret is for testing), "
+                    "'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), "
+                    "'invalid' (secret is invalid/inactive)."
+                )
+            result = await client.ignore_incident(
+                incident_id=str(params.incident_id), ignore_reason=params.ignore_reason
+            )
+
+        elif params.action == "reopen":
+            result = await client.reopen_incident(incident_id=str(params.incident_id))
+
+        else:
+            raise ToolError(f"Unknown action: {params.action}")
+
+        logger.debug(f"Successfully managed incident {params.incident_id} with action: {params.action}")
+        return result
+    except ToolError:
+        raise
+    except Exception as e:
+        logger.exception(f"Error managing incident: {str(e)}")
+        raise ToolError(f"Error: {str(e)}")
+
+
+class UpdateIncidentSeverityParams(BaseModel):
+    """Parameters for updating incident severity."""
+
+    incident_id: str | int = Field(description="ID of the secret incident")
+    severity: Literal["critical", "high", "medium", "low", "info", "unknown"] = Field(
+        description="New severity for the incident"
+    )
+
+
+async def update_incident_severity(params: UpdateIncidentSeverityParams) -> dict[str, Any]:
+    """
+    Set the severity of a secret incident.
+
+    Args:
+        params: UpdateIncidentSeverityParams model containing the severity update configuration
+
+    Returns:
+        Updated incident data
+    """
+    client = await get_client()
+    logger.debug(f"Updating incident {params.incident_id} severity to {params.severity}")
+
+    try:
+        result = await client.update_incident(incident_id=str(params.incident_id), severity=params.severity)
+        logger.debug(f"Updated incident {params.incident_id} severity to {params.severity}")
+        return result
+    except Exception as e:
+        logger.exception(f"Error updating incident severity: {str(e)}")
+        raise ToolError(f"Error: {str(e)}")

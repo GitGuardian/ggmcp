@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.list_incident_members import (
+from ggmcp.tools.list_incident_members import (
     ListIncidentMembersParams,
     ListIncidentMembersResult,
     list_incident_members,
@@ -40,7 +40,7 @@ class TestListIncidentMembersVCR:
         """
         with use_cassette("test_list_incident_members_basic"):
             with patch(
-                "gg_api_core.tools.list_incident_members.get_client",
+                "ggmcp.tools.list_incident_members.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentMembersParams(
@@ -75,7 +75,7 @@ class TestListIncidentMembersVCR:
         """
         with use_cassette("test_list_incident_members_with_search"):
             with patch(
-                "gg_api_core.tools.list_incident_members.get_client",
+                "ggmcp.tools.list_incident_members.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentMembersParams(
@@ -102,7 +102,7 @@ class TestListIncidentMembersVCR:
         """
         with use_cassette("test_list_incident_members_with_access_level"):
             with patch(
-                "gg_api_core.tools.list_incident_members.get_client",
+                "ggmcp.tools.list_incident_members.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentMembersParams(
@@ -132,7 +132,7 @@ class TestListIncidentMembersVCR:
         """
         with use_cassette("test_list_incident_members_with_ordering"):
             with patch(
-                "gg_api_core.tools.list_incident_members.get_client",
+                "ggmcp.tools.list_incident_members.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentMembersParams(
@@ -159,7 +159,7 @@ class TestListIncidentMembersVCR:
         """
         with use_cassette("test_list_incident_members_with_direct_access"):
             with patch(
-                "gg_api_core.tools.list_incident_members.get_client",
+                "ggmcp.tools.list_incident_members.get_client",
                 return_value=real_client,
             ):
                 params = ListIncidentMembersParams(

@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.tools.list_detectors import (
+from ggmcp.tools.list_detectors import (
     ListDetectorsParams,
     ListDetectorsResult,
     list_detectors,
@@ -33,7 +33,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_basic"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 params = ListDetectorsParams(
@@ -63,7 +63,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_with_search"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 params = ListDetectorsParams(
@@ -88,7 +88,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_with_type_filter"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 params = ListDetectorsParams(
@@ -116,7 +116,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_with_per_page"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 params = ListDetectorsParams(
@@ -141,7 +141,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_pagination"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 # First request to get a cursor
@@ -168,7 +168,7 @@ class TestListDetectorsVCR:
         """
         with use_cassette("test_list_detectors_get_all"):
             with patch(
-                "gg_api_core.tools.list_detectors.get_client",
+                "ggmcp.tools.list_detectors.get_client",
                 return_value=real_client,
             ):
                 params = ListDetectorsParams(
