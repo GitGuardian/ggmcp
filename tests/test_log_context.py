@@ -2,6 +2,7 @@
 
 import time
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 from gg_api_core.log_context import (
@@ -11,11 +12,12 @@ from gg_api_core.log_context import (
     _identity_cache,
     _identity_cache_key,
     clear_caller_identity_cache,
+    current_client_identity,
     current_tool_name,
     derive_caller_identity,
-    derive_client_identity,
     resolve_caller_identity,
     scopes_fingerprint,
+    set_client_identity,
     track_current_tool,
 )
 
@@ -95,30 +97,58 @@ class TestDeriveCallerIdentity:
         assert identity == {"account_id": 8, "workspace_id": 8}
 
 
-class TestDeriveClientIdentity:
-    def test_maps_client_info_and_protocol_version(self):
-        """
-        GIVEN an initialize payload's clientInfo and protocol version
-        WHEN client identity is derived
-        THEN name, version and protocol revision are returned
-        """
-        from types import SimpleNamespace
+class TestCurrentClientIdentity:
+    """The identity is captured once at initialize, then read from the session."""
 
-        identity = derive_client_identity(SimpleNamespace(name="cursor", version="1.4.0"), "2025-06-18")
-
-        assert identity == {
-            "client_name": "cursor",
-            "client_version": "1.4.0",
-            "protocol_version": "2025-06-18",
-        }
-
-    def test_tolerates_a_missing_client_info(self):
+    @patch("gg_api_core.log_context.get_context")
+    def test_returns_the_identity_stored_at_initialize(self, mock_get_context):
         """
-        GIVEN an initialize payload with no clientInfo
-        WHEN client identity is derived
-        THEN an empty mapping is returned
+        GIVEN an identity stored on the session during initialize
+        WHEN current_client_identity is read
+        THEN the stored identity comes back without re-deriving
         """
-        assert derive_client_identity(None) == {}
+        session = SimpleNamespace()
+        identity = ClientIdentity(name="cursor", version="1.4.2", protocol_version="2025-06-18")
+        set_client_identity(identity, session)
+        mock_get_context.return_value = SimpleNamespace(session=session)
+
+        assert current_client_identity() == identity
+
+    @patch("gg_api_core.log_context.get_context")
+    def test_none_before_initialize(self, mock_get_context):
+        """
+        GIVEN no active MCP session (e.g. before initialization)
+        WHEN current_client_identity is read
+        THEN it returns None
+        """
+        mock_get_context.side_effect = RuntimeError("No active context found.")
+
+        assert current_client_identity() is None
+
+    @patch("gg_api_core.log_context.get_context")
+    def test_none_when_session_carries_no_stored_identity(self, mock_get_context):
+        """
+        GIVEN a session that has not been through our initialize hook
+        WHEN current_client_identity is read
+        THEN it returns None
+        """
+        mock_get_context.return_value = SimpleNamespace(session=SimpleNamespace())
+
+        assert current_client_identity() is None
+
+    @patch("gg_api_core.log_context.get_context")
+    def test_clears_when_stored_none(self, mock_get_context):
+        """
+        GIVEN a session whose stored identity is cleared to None
+        WHEN current_client_identity is read
+        THEN it returns None
+        """
+        session = SimpleNamespace()
+        set_client_identity(ClientIdentity(name="cursor"), session)
+        set_client_identity(None, session)
+        mock_get_context.return_value = SimpleNamespace(session=session)
+
+        assert current_client_identity() is None
 
 
 class TestResolveCallerIdentity:

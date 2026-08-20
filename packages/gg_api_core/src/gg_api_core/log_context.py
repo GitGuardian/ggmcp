@@ -26,12 +26,12 @@ __all__ = [
     "current_downstream_stats",
     "current_tool_name",
     "derive_caller_identity",
-    "derive_client_identity",
     "record_downstream_call",
     "record_downstream_wait",
     "record_truncation",
     "resolve_caller_identity",
     "scopes_fingerprint",
+    "set_client_identity",
     "track_current_tool",
     "track_downstream_calls",
 ]
@@ -343,22 +343,33 @@ class ClientIdentity:
         return {key: value for key, value in fields.items() if value}
 
 
-def derive_client_identity(client_info: Any, protocol_version: Any = None) -> dict[str, Any]:
-    """Map optional MCP initialization metadata to log fields."""
-    return ClientIdentity.from_params(client_info, protocol_version).log_fields()
+# Where the identity negotiated at initialize is kept. It lives on the
+# session (which exists for the whole connection) because the tool call that
+# needs it runs long after the initialize message's context is gone.
+_CLIENT_IDENTITY_ATTR = "_gg_client_identity"
+
+
+def set_client_identity(identity: ClientIdentity | None, session: Any) -> None:
+    """Persist the negotiated client identity on the connection's session.
+
+    Called once, when the initialize handshake is processed, so downstream
+    reads never re-parse the handshake params. The session is a mutable fastmcp
+    object that already carries ad-hoc attributes (e.g. a state prefix), so
+    this fits the existing pattern.
+    """
+    setattr(session, _CLIENT_IDENTITY_ATTR, identity)
 
 
 def current_client_identity() -> ClientIdentity | None:
-    """Identity of the session in flight, or None outside an MCP request.
+    """The identity negotiated for this connection, or None outside an MCP request.
 
-    Read from the session rather than a contextvar: the handshake happens in an
-    earlier message, whose context is long gone by the time a tool runs, while
-    the session object lives for the whole connection.
+    Reads the identity stored by :func:`set_client_identity` rather than
+    re-deriving it from the handshake, so the per-request read is a single
+    attribute access. None when no session is active (e.g. before
+    initialization); ``get_context`` raises in that case.
     """
     try:
-        params = get_context().session.client_params
-    except Exception:
+        session = get_context().session
+    except RuntimeError:
         return None
-    if params is None:
-        return None
-    return ClientIdentity.from_params(params.clientInfo, params.protocolVersion)
+    return getattr(session, _CLIENT_IDENTITY_ATTR, None)

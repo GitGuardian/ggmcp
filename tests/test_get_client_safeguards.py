@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastmcp.exceptions import ValidationError
 from gg_api_core.client import GitGuardianClient
+from gg_api_core.log_context import ClientIdentity
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import _build_user_agent, _get_caller_user_agent, get_client
 
@@ -472,10 +473,16 @@ class TestCallerUserAgentExtraction:
 
 
 def _mock_mcp_context(client_name=None, client_version=None, protocol_version=None):
-    """A FastMCP context whose session negotiated the given handshake values."""
+    """A FastMCP context whose session has stored the given handshake identity."""
+    return SimpleNamespace(session=_mock_session(client_name, client_version, protocol_version))
+
+
+def _mock_session(client_name=None, client_version=None, protocol_version=None):
+    """A session that has gone through initialize: identity already derived and stored."""
     info = SimpleNamespace(name=client_name, version=client_version) if client_name else None
     params = SimpleNamespace(clientInfo=info, protocolVersion=protocol_version)
-    return SimpleNamespace(session=SimpleNamespace(client_params=params))
+    identity = ClientIdentity.from_params(params.clientInfo, params.protocolVersion)
+    return SimpleNamespace(_gg_client_identity=identity)
 
 
 class TestMcpHandshakeUserAgent:

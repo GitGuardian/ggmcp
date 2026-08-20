@@ -28,9 +28,9 @@ def _ctx(name, arguments=None):
     return SimpleNamespace(message=SimpleNamespace(name=name, arguments=arguments))
 
 
-def _message_ctx(message=None, session_id=None, method="tools/list"):
+def _message_ctx(message=None, session_id=None, method="tools/list", session=None):
     """A middleware context shaped like the fields the middleware reads."""
-    fastmcp_context = SimpleNamespace(session_id=session_id) if session_id else None
+    fastmcp_context = SimpleNamespace(session_id=session_id, session=session) if (session_id or session) else None
     return SimpleNamespace(message=message, fastmcp_context=fastmcp_context, method=method)
 
 
@@ -346,19 +346,26 @@ class TestRequestLoggingContextMiddleware:
             clientInfo=SimpleNamespace(name="claude-ai", version="0.1.0"),
             protocolVersion="2025-06-18",
         )
+        session = SimpleNamespace()
 
         async def call_next(ctx):
             return None
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
             await RequestLoggingContextMiddleware(FakeServer()).on_initialize(
-                _message_ctx(message=SimpleNamespace(params=params)), call_next
+                _message_ctx(message=SimpleNamespace(params=params), session=session), call_next
             )
 
         rec = next(r for r in caplog.records if r.getMessage() == "mcp_initialize")
         assert rec.client_name == "claude-ai"
         assert rec.client_version == "0.1.0"
         assert rec.protocol_version == "2025-06-18"
+        # The negotiated identity is kept on the session so downstream API calls
+        # read it without re-deriving the handshake.
+        stored = session._gg_client_identity
+        assert stored.name == "claude-ai"
+        assert stored.version == "0.1.0"
+        assert stored.protocol_version == "2025-06-18"
 
     async def test_every_middleware_log_carries_request_identity_through_the_real_stack(self, capsys):
         """

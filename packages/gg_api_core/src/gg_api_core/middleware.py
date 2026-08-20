@@ -16,9 +16,10 @@ from typing_extensions import override
 
 from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.log_context import (
+    ClientIdentity,
     classify_failure,
-    derive_client_identity,
     resolve_caller_identity,
+    set_client_identity,
     track_current_tool,
     track_downstream_calls,
 )
@@ -140,12 +141,17 @@ class RequestLoggingContextMiddleware(Middleware):
     ) -> mt.InitializeResult | None:
         """Record client and protocol metadata from initialization."""
         params = getattr(context.message, "params", context.message)
-        client_identity = derive_client_identity(
+        identity = ClientIdentity.from_params(
             getattr(params, "clientInfo", None),
             getattr(params, "protocolVersion", None),
         )
-        with structlog.contextvars.bound_contextvars(**client_identity):
-            logger.info("mcp_initialize", extra=client_identity)
+        # Keep the identity for the connection so downstream API calls don't
+        # re-derive it from the handshake on every request.
+        if context.fastmcp_context is not None:
+            set_client_identity(identity, context.fastmcp_context.session)
+        log_fields = identity.log_fields()
+        with structlog.contextvars.bound_contextvars(**log_fields):
+            logger.info("mcp_initialize", extra=log_fields)
             return await call_next(context)
 
 
