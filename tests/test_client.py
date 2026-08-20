@@ -350,6 +350,60 @@ class TestGitGuardianClient:
             assert result["cursor"] is None  # Last page
             assert result["has_more"] is False
 
+    @pytest.mark.asyncio
+    async def test_update_incident_patches_custom_tags_and_severity(self, client):
+        """
+        GIVEN an incident, severity, and a non-empty custom_tags list
+        WHEN calling update_incident
+        THEN a single PATCH carries both fields
+        """
+        client._request_patch = AsyncMock(return_value={"id": 123})
+
+        result = await client.update_incident(
+            incident_id="123",
+            severity="high",
+            custom_tags=[{"key": "env", "value": "prod"}],
+        )
+
+        assert result == {"id": 123}
+        client._request_patch.assert_awaited_once_with(
+            "/incidents/secrets/123",
+            json={"severity": "high", "custom_tags": [{"key": "env", "value": "prod"}]},
+        )
+
+    @pytest.mark.asyncio
+    async def test_update_incident_none_custom_tags_omits_field(self, client):
+        """
+        GIVEN only a severity
+        WHEN calling update_incident with custom_tags left None
+        THEN the payload carries severity and no custom_tags key
+        """
+        client._request_patch = AsyncMock(return_value={"id": 123})
+
+        await client.update_incident(incident_id="123", severity="high")
+
+        client._request_patch.assert_awaited_once_with(
+            "/incidents/secrets/123",
+            json={"severity": "high"},
+        )
+
+    @pytest.mark.asyncio
+    async def test_update_incident_empty_custom_tags_clears_all_tags(self, client):
+        """
+        GIVEN custom_tags passed as an explicit empty list
+        WHEN calling update_incident
+        THEN the PATCH carries custom_tags=[] (the API interprets this as
+             "set to match nothing", i.e. clear all tags)
+        """
+        client._request_patch = AsyncMock(return_value={"id": 123})
+
+        await client.update_incident(incident_id="123", custom_tags=[])
+
+        client._request_patch.assert_awaited_once_with(
+            "/incidents/secrets/123",
+            json={"custom_tags": []},
+        )
+
 
 class TestGitGuardianClientURLs:
     """Tests for GitGuardianClient URL computation."""

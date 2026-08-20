@@ -44,15 +44,13 @@ from gg_api_core.tools.manage_incident import (
     manage_private_incident,
     update_incident_severity,
 )
+from gg_api_core.tools.manage_incident_custom_tags import manage_incident_custom_tags
 from gg_api_core.tools.read_custom_tags import read_custom_tags
 from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
 from gg_api_core.tools.update_public_incident_status import update_public_incident_status
-from gg_api_core.tools.write_custom_tags import (
-    update_or_create_incident_custom_tags,
-    write_custom_tags,
-)
+from gg_api_core.tools.write_custom_tags import write_custom_tags
 
 GITGUARDIAN_INSTRUCTIONS = """
 # GitGuardian MCP Tools
@@ -75,7 +73,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   `remediate_secret_incidents`, `list_sources`, `find_current_source_id`, `list_incident_comments`,
   `list_incident_activity_logs`.
   Write tools: `manage_private_incident`, `update_incident_severity`, `assign_incident`,
-  `update_or_create_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
+  `manage_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`,
@@ -332,8 +330,9 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
             raise ToolError(f"Error: {str(e)}")
 
     mcp.tool(
-        update_or_create_incident_custom_tags,
-        description="(Internal sources only) Update or create custom tags for an internal secret incident. "
+        manage_incident_custom_tags,
+        description="(Internal sources only) Manage custom tags on a secret incident: add (merge, "
+        "preserving existing), remove (unlink the listed tags), or set (replace the whole set). "
         "Does not work on public-monitoring incident IDs.",
         required_scopes=["incidents:write", "custom_tags:write"],
     )

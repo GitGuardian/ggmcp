@@ -1215,7 +1215,9 @@ class GitGuardianClient:
         payload: dict[str, Any] = {}
         if severity:
             payload["severity"] = severity
-        if custom_tags:
+        # None leaves tags untouched; an empty list explicitly clears all tags (the
+        # API treats `custom_tags is not None` as "set to match this list").
+        if custom_tags is not None:
             payload["custom_tags"] = custom_tags
 
         if not payload:
