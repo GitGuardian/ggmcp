@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -50,7 +50,43 @@ class ListUsersResult(BaseModel):
     )
 
 
-async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersResult:
+async def list_users(
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching next page of results")] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    role: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Filter members based on their role (owner, manager, member, restricted). Deprecated - use access_level instead",
+        ),
+    ] = None,
+    access_level: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Filter members based on their access level (owner, manager, member, restricted)",
+        ),
+    ] = None,
+    active: Annotated[bool | None, Field(default=None, description="Filter members based on their active status")] = None,
+    search: Annotated[str | None, Field(default=None, description="Search members based on their name or email")] = None,
+    ordering: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Sort results by field (created_at, -created_at, last_login, -last_login). Use '-' prefix for descending order",
+        ),
+    ] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListUsersResult:
     """
     List members/users in the GitGuardian workspace.
 
@@ -58,7 +94,14 @@ async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersRe
     access level, active status, creation date, and last login.
 
     Args:
-        params: ListUsersParams model containing all filtering and pagination options
+        cursor: Pagination cursor for fetching next page of results
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        role: Optional role filter (deprecated, use access_level)
+        access_level: Optional access level filter
+        active: Optional active status filter
+        search: Optional search term
+        ordering: Optional sort field
+        get_all: If True, fetch all pages
 
     Returns:
         ListUsersResult: Pydantic model containing:
@@ -69,6 +112,16 @@ async def list_users(params: ListUsersParams = ListUsersParams()) -> ListUsersRe
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListUsersParams(
+        cursor=cursor,
+        per_page=per_page,
+        role=role,
+        access_level=access_level,
+        active=active,
+        search=search,
+        ordering=ordering,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug("Listing workspace members")
 

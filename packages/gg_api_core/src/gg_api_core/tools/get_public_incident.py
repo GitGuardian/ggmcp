@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -21,7 +21,9 @@ class GetPublicIncidentResult(BaseModel):
     incident: dict[str, Any] = Field(description="Detailed public incident data")
 
 
-async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncidentResult:
+async def get_public_incident(
+    incident_id: Annotated[int, Field(description="The id of the public secret incident to retrieve")],
+) -> GetPublicIncidentResult:
     """Retrieve a single public secret incident detected by GitGuardian Public Monitoring.
 
     Public incidents live on public sources (public GitHub repos/gists, Docker Hub, etc.) and
@@ -32,7 +34,7 @@ async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncid
     Wraps GET /v1/public-incidents/secrets/{incident_id}.
 
     Args:
-        params: GetPublicIncidentParams model containing the incident_id.
+        incident_id: The id of the public secret incident to retrieve.
 
     Returns:
         GetPublicIncidentResult: Pydantic model containing:
@@ -42,6 +44,7 @@ async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncid
     Raises:
         ToolError: If the retrieval operation fails (e.g. unknown id, API error).
     """
+    params = GetPublicIncidentParams(incident_id=incident_id)
     client = await get_client()
     logger.debug(f"Retrieving public incident {params.incident_id}")
 

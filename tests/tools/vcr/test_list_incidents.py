@@ -54,7 +54,7 @@ class TestListIncidentsCoercionVCR:
                 # Verify coercion happened
                 assert params.status == ["TRIGGERED"]
 
-                result = await list_incidents(params)
+                result = await list_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentsResult)
@@ -86,7 +86,7 @@ class TestListIncidentsCoercionVCR:
                 # Verify coercion happened
                 assert params.severity == ["critical"]
 
-                result = await list_incidents(params)
+                result = await list_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentsResult)
@@ -115,7 +115,7 @@ class TestListIncidentsCoercionVCR:
                 # Verify coercion happened
                 assert params.validity == ["valid"]
 
-                result = await list_incidents(params)
+                result = await list_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentsResult)
@@ -153,7 +153,7 @@ class TestListIncidentsCoercionVCR:
                 assert params.validity == ["valid"]
                 assert params.exclude_tags == ["TEST_FILE"]
 
-                result = await list_incidents(params)
+                result = await list_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentsResult)

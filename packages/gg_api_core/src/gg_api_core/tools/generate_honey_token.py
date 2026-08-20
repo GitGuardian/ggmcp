@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
 from fastmcp.exceptions import ToolError
@@ -60,7 +60,28 @@ class GenerateHoneytokenResult(BaseModel):
     injection_recommendations: dict[str, Any] | None = Field(default=None, description="Injection recommendations")
 
 
-async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoneytokenResult:
+async def generate_honeytoken(
+    name: Annotated[
+        str,
+        Field(
+            description="Name for the honeytoken. Must be UNIQUE among the workspace's active honeytokens — "
+            "reusing the name of an existing active token is rejected by the API. Pick a specific, descriptive "
+            "name (e.g. 'aws-prod-db-decoy-2026-07'), not a generic one."
+        ),
+    ],
+    description: Annotated[
+        str, Field(default="", description="Description of what the honeytoken is used for")
+    ] = "",
+    new_token: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If False (default), reuse your most recent active honeytoken instead of generating a new one; "
+            "the name is only used when no reusable token exists and one must be created. "
+            "If True, always create a new honeytoken — this fails if the name is already taken, so pass a fresh unique name.",
+        ),
+    ] = False,
+) -> GenerateHoneytokenResult:
     """
     Generate an AWS GitGuardian honeytoken and get injection recommendations.
 
@@ -68,7 +89,9 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     instead of generating a new one. If no existing token is found, a new one will be created.
 
     Args:
-        params: GenerateHoneytokenParams model containing honeytoken configuration
+        name: Name for the honeytoken (must be unique among active tokens)
+        description: Description of what the honeytoken is used for
+        new_token: If False (default), reuse most recent active honeytoken; if True, always create a new one
 
     Returns:
         GenerateHoneytokenResult: Pydantic model containing:
@@ -84,6 +107,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     Raises:
         ToolError: If the honeytoken generation or retrieval fails
     """
+    params = GenerateHoneytokenParams(name=name, description=description, new_token=new_token)
     client = await get_client()
     logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")
 

@@ -1,5 +1,5 @@
 import logging
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -18,7 +18,17 @@ class ReadCustomTagsParams(BaseModel):
     tag_id: str | int = Field(description="The ID of the custom tag to retrieve. Required when action is 'get_tag'.")
 
 
-async def read_custom_tags(params: ReadCustomTagsParams):
+async def read_custom_tags(
+    action: Annotated[
+        Literal["list_tags", "get_tag"],
+        Field(
+            description="Choose 'list_tags' to retrieve all custom tags, or 'get_tag' to retrieve a specific tag by ID. Required."
+        ),
+    ],
+    tag_id: Annotated[
+        str | int, Field(description="The ID of the custom tag to retrieve. Required when action is 'get_tag'.")
+    ],
+):
     """
     Read custom tags from the GitGuardian dashboard.
 
@@ -26,13 +36,13 @@ async def read_custom_tags(params: ReadCustomTagsParams):
     Use action='get_tag' with a tag_id to retrieve a specific tag.
 
     Args:
-        params: ReadCustomTagsParams model containing custom tags query configuration
-            action: The action to perform ('list_tags' or 'get_tag'). Defaults to 'list_tags'
-            tag_id: The ID of a specific tag to retrieve (required when action='get_tag')
+        action: The action to perform ('list_tags' or 'get_tag')
+        tag_id: The ID of a specific tag to retrieve (required when action='get_tag')
 
     Returns:
         Custom tag data based on the action performed
     """
+    params = ReadCustomTagsParams(action=action, tag_id=tag_id)
     try:
         client = await get_client()
 

@@ -37,7 +37,7 @@ class TestListPublicOccurrencesVCR:
                 incident_id = incidents["data"][0]["id"]
 
                 params = ListPublicOccurrencesParams(incident_id=incident_id, per_page=5)
-                result = await list_public_occurrences(params)
+                result = await list_public_occurrences(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListPublicOccurrencesResult)
@@ -72,7 +72,7 @@ class TestListPublicOccurrencesVCR:
                     validity="valid,invalid,failed_to_check,no_checker,unknown",
                     ordering="-date",
                 )
-                result = await list_public_occurrences(params)
+                result = await list_public_occurrences(**params.model_dump())
 
                 assert isinstance(result, ListPublicOccurrencesResult)
                 assert result.occurrences_count > 0, "expected non-empty result with permissive filters"
@@ -109,7 +109,7 @@ class TestListPublicOccurrencesVCR:
                     per_page=10,
                     date_after="2020-01-01T00:00:00Z",
                 )
-                result = await list_public_occurrences(params)
+                result = await list_public_occurrences(**params.model_dump())
 
                 assert isinstance(result, ListPublicOccurrencesResult)
                 assert result.occurrences_count > 0

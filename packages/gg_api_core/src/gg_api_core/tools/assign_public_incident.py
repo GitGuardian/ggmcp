@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
@@ -54,7 +54,37 @@ class AssignPublicIncidentResult(BaseModel):
     incident: dict[str, Any] | None = Field(default=None, description="Full updated public incident payload")
 
 
-async def assign_public_incident(params: AssignPublicIncidentParams) -> AssignPublicIncidentResult:
+async def assign_public_incident(
+    incident_id: Annotated[int, Field(description="ID of the public secret incident to assign")],
+    assignee_member_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="ID of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = None,
+    email: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Email address of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = None,
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, assign the incident to the current user (will fetch current user's ID automatically). One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = False,
+    send_email: Annotated[
+        bool | None,
+        Field(
+            default=None,
+            description="If False, skip notifying the assignee. Defaults to the API default (True) when omitted.",
+        ),
+    ] = None,
+) -> AssignPublicIncidentResult:
     """
     Assign a public secret incident to a specific member or to the current user.
 
@@ -73,12 +103,11 @@ async def assign_public_incident(params: AssignPublicIncidentParams) -> AssignPu
     Wraps POST /v1/public-incidents/secrets/{incident_id}/assign.
 
     Args:
-        params: AssignPublicIncidentParams model containing:
-            - incident_id: ID of the public incident to assign
-            - assignee_member_id: Optional ID of the member to assign to
-            - email: Optional email address of the member to assign to
-            - mine: If True, assigns to current user
-            - send_email: If False, skip notifying the assignee
+        incident_id: ID of the public incident to assign
+        assignee_member_id: Optional ID of the member to assign to
+        email: Optional email address of the member to assign to
+        mine: If True, assigns to current user
+        send_email: If False, skip notifying the assignee
 
     Returns:
         AssignPublicIncidentResult: Pydantic model containing:
@@ -91,6 +120,13 @@ async def assign_public_incident(params: AssignPublicIncidentParams) -> AssignPu
         ToolError: If the assignment operation fails
         ValueError: If validation fails (none or multiple assignee options provided)
     """
+    params = AssignPublicIncidentParams(
+        incident_id=incident_id,
+        assignee_member_id=assignee_member_id,
+        email=email,
+        mine=mine,
+        send_email=send_email,
+    )
     client = await get_client()
 
     assignee_id: int | None = None

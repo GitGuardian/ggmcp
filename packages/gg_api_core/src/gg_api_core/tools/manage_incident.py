@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -26,7 +26,29 @@ class ManageIncidentParams(BaseModel):
     )
 
 
-async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any]:
+async def manage_private_incident(
+    incident_id: Annotated[str | int, Field(description="ID of the secret incident to manage")],
+    action: Annotated[
+        Literal["unassign", "resolve", "ignore", "reopen"],
+        Field(
+            description="Action to perform on the incident: 'unassign' removes any assigned member, 'resolve' marks the incident as resolved, 'ignore' marks as ignored (use with ignore_reason), 'reopen' reopens a resolved or ignored incident"
+        ),
+    ],
+    ignore_reason: Annotated[
+        Literal["test_credential", "false_positive", "low_risk", "invalid"] | None,
+        Field(
+            default=None,
+            description="Reason for ignoring the incident. Required when action is 'ignore'. Must be explicitly provided by the user. Options: 'test_credential' (secret is for testing), 'false_positive' (not a real secret), 'low_risk' (secret poses minimal risk), 'invalid' (secret is invalid/inactive)",
+        ),
+    ] = None,
+    secret_revoked: Annotated[
+        bool | None,
+        Field(
+            default=None,
+            description="Whether the secret has been revoked/rotated. Required when action is 'resolve'. Must be explicitly provided by the user.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
     """
     Perform lifecycle management actions on a secret incident.
 
@@ -39,11 +61,10 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
     Note: To assign an incident to a member, use the dedicated 'assign_incident' tool instead.
 
     Args:
-        params: ManageIncidentParams containing:
-            - incident_id: The ID of the incident to manage
-            - action: The lifecycle action to perform (unassign, resolve, ignore, or reopen)
-            - ignore_reason: Required when action is 'ignore'. One of: test_credential, false_positive, low_risk, invalid
-            - secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
+        incident_id: The ID of the incident to manage
+        action: The lifecycle action to perform (unassign, resolve, ignore, or reopen)
+        ignore_reason: Required when action is 'ignore'. One of: test_credential, false_positive, low_risk, invalid
+        secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
 
     Returns:
         Dictionary containing the updated incident data from the API
@@ -51,6 +72,12 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
     Raises:
         ToolError: If the action fails or if an invalid action is provided
     """
+    params = ManageIncidentParams(
+        incident_id=incident_id,
+        action=action,
+        ignore_reason=ignore_reason,
+        secret_revoked=secret_revoked,
+    )
     client = await get_client()
     logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")
 
@@ -108,16 +135,24 @@ class UpdateIncidentSeverityParams(BaseModel):
     )
 
 
-async def update_incident_severity(params: UpdateIncidentSeverityParams) -> dict[str, Any]:
+async def update_incident_severity(
+    incident_id: Annotated[str | int, Field(description="ID of the secret incident")],
+    severity: Annotated[
+        Literal["critical", "high", "medium", "low", "info", "unknown"],
+        Field(description="New severity for the incident"),
+    ],
+) -> dict[str, Any]:
     """
     Set the severity of a secret incident.
 
     Args:
-        params: UpdateIncidentSeverityParams model containing the severity update configuration
+        incident_id: ID of the secret incident
+        severity: New severity for the incident (critical, high, medium, low, info, unknown)
 
     Returns:
         Updated incident data
     """
+    params = UpdateIncidentSeverityParams(incident_id=incident_id, severity=severity)
     client = await get_client()
     logger.debug(f"Updating incident {params.incident_id} severity to {params.severity}")
 

@@ -47,7 +47,7 @@ class TestListIncidentTeamsVCR:
                     per_page=5,
                 )
 
-                result = await list_incident_teams(params)
+                result = await list_incident_teams(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentTeamsResult)
@@ -82,7 +82,7 @@ class TestListIncidentTeamsVCR:
                     per_page=10,
                 )
 
-                result = await list_incident_teams(params)
+                result = await list_incident_teams(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentTeamsResult)
@@ -109,7 +109,7 @@ class TestListIncidentTeamsVCR:
                     per_page=10,
                 )
 
-                result = await list_incident_teams(params)
+                result = await list_incident_teams(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListIncidentTeamsResult)

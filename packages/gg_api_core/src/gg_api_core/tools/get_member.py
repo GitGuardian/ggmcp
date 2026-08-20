@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -21,7 +21,9 @@ class GetMemberResult(BaseModel):
     member: dict[str, Any] = Field(description="Member information")
 
 
-async def get_member(params: GetMemberParams) -> GetMemberResult:
+async def get_member(
+    member_id: Annotated[int, Field(description="The ID of the member to retrieve")],
+) -> GetMemberResult:
     """
     Retrieve a specific member by their ID.
 
@@ -36,8 +38,7 @@ async def get_member(params: GetMemberParams) -> GetMemberResult:
     - last_login: When the member last logged in
 
     Args:
-        params: GetMemberParams model containing:
-            - member_id: The ID of the member to retrieve
+        member_id: The ID of the member to retrieve
 
     Returns:
         GetMemberResult: Pydantic model containing:
@@ -46,6 +47,7 @@ async def get_member(params: GetMemberParams) -> GetMemberResult:
     Raises:
         ToolError: If the retrieval operation fails
     """
+    params = GetMemberParams(member_id=member_id)
     client = await get_client()
     logger.debug(f"Retrieving member {params.member_id}")
 

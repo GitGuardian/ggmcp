@@ -43,7 +43,7 @@ class TestGetIncidentVCR:
                     incident_id=self.TEST_INCIDENT_ID,
                 )
 
-                result = await get_incident(params)
+                result = await get_incident(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, GetIncidentResult)
@@ -72,7 +72,7 @@ class TestGetIncidentVCR:
                     with_occurrences=5,
                 )
 
-                result = await get_incident(params)
+                result = await get_incident(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, GetIncidentResult)
@@ -98,7 +98,7 @@ class TestGetIncidentVCR:
                     with_occurrences=0,
                 )
 
-                result = await get_incident(params)
+                result = await get_incident(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, GetIncidentResult)
@@ -124,7 +124,7 @@ class TestGetIncidentVCR:
                     incident_id=self.TEST_INCIDENT_ID,
                 )
 
-                result = await get_incident(params)
+                result = await get_incident(**params.model_dump())
 
                 assert result is not None
                 assert result.incident is not None

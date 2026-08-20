@@ -40,7 +40,7 @@ class TestListDetectorsVCR:
                     get_all=False,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)
@@ -71,7 +71,7 @@ class TestListDetectorsVCR:
                     get_all=False,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)
@@ -96,7 +96,7 @@ class TestListDetectorsVCR:
                     get_all=False,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)
@@ -123,7 +123,7 @@ class TestListDetectorsVCR:
                     get_all=False,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)
@@ -149,7 +149,7 @@ class TestListDetectorsVCR:
                     get_all=False,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)
@@ -175,7 +175,7 @@ class TestListDetectorsVCR:
                     get_all=True,
                 )
 
-                result = await list_detectors(params)
+                result = await list_detectors(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListDetectorsResult)

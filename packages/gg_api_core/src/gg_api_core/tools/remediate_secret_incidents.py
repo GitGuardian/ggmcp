@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from jinja2 import Template
 from pydantic import BaseModel, Field, model_validator
@@ -92,7 +92,49 @@ class RemediateSecretIncidentsError(BaseModel):
 
 
 async def remediate_secret_incidents(
-    params: RemediateSecretIncidentsParams = RemediateSecretIncidentsParams(),
+    source_id: Annotated[
+        str | int | None,
+        Field(
+            default=None,
+            description="The source ID of the repository. Pass the current repository source ID if not provided.",
+        ),
+    ] = None,
+    get_all: Annotated[
+        bool,
+        Field(default=True, description="Whether to get all occurrences or just the first page"),
+    ] = True,
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, fetch only incidents assigned to the current user. Set to False to get all incidents.",
+        ),
+    ] = False,
+    git_commands: Annotated[
+        bool,
+        Field(default=True, description="Whether to include git commands to fix incidents in git history"),
+    ] = True,
+    create_env_example: Annotated[
+        bool,
+        Field(
+            default=True,
+            description="Whether to suggest creating a .env.example file with placeholders for detected secrets",
+        ),
+    ] = True,
+    add_to_env: Annotated[
+        bool,
+        Field(default=True, description="Whether to suggest adding secrets to .env file"),
+    ] = True,
+    list_repo_occurrences_params: Annotated[
+        ListRepoOccurrencesParamsForRemediate | None,
+        Field(
+            default=None,
+            description=(
+                "Parameters for listing repository occurrences. If omitted, defaults to the current "
+                "repository's source_id with DEFAULT_BRANCH tag filtering."
+            ),
+        ),
+    ] = None,
 ) -> RemediateSecretIncidentsResult | RemediateSecretIncidentsError:
     """
     Find and remediate secret incidents in the current repository.
@@ -100,11 +142,26 @@ async def remediate_secret_incidents(
     This tool uses the occurrences API to find secrets and provides simple remediation suggestions.
 
     Args:
-        params: RemediateSecretIncidentsParams model containing remediation configuration
+        source_id: The source ID of the repository
+        get_all: Whether to get all occurrences or just the first page
+        mine: If True, fetch only incidents assigned to the current user
+        git_commands: Whether to include git commands to fix incidents in git history
+        create_env_example: Whether to suggest creating a .env.example file
+        add_to_env: Whether to suggest adding secrets to .env file
+        list_repo_occurrences_params: Parameters for listing repository occurrences (optional)
 
     Returns:
         RemediateSecretIncidentsResult or RemediateSecretIncidentsError
     """
+    params = RemediateSecretIncidentsParams(
+        source_id=source_id,
+        get_all=get_all,
+        mine=mine,
+        git_commands=git_commands,
+        create_env_example=create_env_example,
+        add_to_env=add_to_env,
+        list_repo_occurrences_params=list_repo_occurrences_params,
+    )
     logger.debug(f"Using remediate_secret_incidents for source_id: {params.source_id}")
 
     try:
@@ -119,7 +176,7 @@ async def remediate_secret_incidents(
             }
         )
 
-        occurrences_result = await list_repo_occurrences(occurrences_params)
+        occurrences_result = await list_repo_occurrences(**occurrences_params.model_dump())
         if isinstance(occurrences_result, ListRepoOccurrencesError):
             return RemediateSecretIncidentsError(
                 error=occurrences_result.error,

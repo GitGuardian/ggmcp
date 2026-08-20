@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -266,23 +266,79 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
 
 
 async def list_public_incidents(
-    params: ListPublicIncidentsParams = ListPublicIncidentsParams(),
+    per_page: Annotated[int, Field(default=20, ge=1, le=100, description='Number of results per page (default: 20, max: 100)')] = 20,
+    cursor: Annotated[str | None, Field(default=None, description='Pagination cursor for fetching the next page of results')] = None,
+    get_all: Annotated[bool, Field(default=False, description="If True, fetch all pages (capped at ~20.0KB; check 'has_more' and use cursor to continue)")] = False,
+    date_before: Annotated[str | None, Field(default=None, description='Entries found before this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)')] = None,
+    date_after: Annotated[str | None, Field(default=None, description='Entries found after this date (ISO datetime)')] = None,
+    triggered_at_before: Annotated[str | None, Field(default=None, description='Incidents triggered before this date (ISO datetime)')] = None,
+    triggered_at_after: Annotated[str | None, Field(default=None, description='Incidents triggered after this date (ISO datetime)')] = None,
+    assignee_email: Annotated[str | None, Field(default=None, description='Filter by assignee email')] = None,
+    assignee_id: Annotated[int | None, Field(default=None, description='Filter by assignee user id')] = None,
+    status: Annotated[list[IncidentStatus] | IncidentStatus | None, Field(default=['TRIGGERED', 'ASSIGNED', 'RESOLVED'], description='Filter by incident status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Accepts a single value or a list. Default excludes IGNORED.')] = ['TRIGGERED', 'ASSIGNED', 'RESOLVED'],
+    severity: Annotated[list[IncidentSeverity] | IncidentSeverity | None, Field(default=['critical', 'high', 'medium', 'unknown'], description='Filter by severity. Values: critical, high, medium, low, info, unknown. Accepts a single value or a list. Default excludes LOW and INFO.')] = ['critical', 'high', 'medium', 'unknown'],
+    validity: Annotated[list[IncidentValidity] | IncidentValidity | None, Field(default=['valid', 'failed_to_check', 'no_checker', 'unknown'], description='Filter by validity. Values: valid, invalid, failed_to_check, no_checker, unknown. Accepts a single value or a list. Default excludes INVALID.')] = ['valid', 'failed_to_check', 'no_checker', 'unknown'],
+    tags: Annotated[str | None, Field(default=None, description="Filter by tags. Comma-separated list of tag names (e.g. 'FROM_HISTORICAL_SCAN,INTERNALLY_LEAKED'). Use 'NONE' to filter incidents with no tags.")] = None,
+    custom_tags: Annotated[str | None, Field(default=None, description='Comma-separated list of custom tag UUIDs to filter by')] = None,
+    custom_tag_key: Annotated[str | None, Field(default=None, description='Filter incidents that have a custom tag with this key')] = None,
+    custom_tag_value: Annotated[str | None, Field(default=None, description='Filter incidents that have a custom tag with this value')] = None,
+    ordering: Annotated[str | None, Field(default='-date', description="Sort field with optional '-' prefix for descending. Options: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at, risk_score, -risk_score")] = '-date',
+    detector_group_name: Annotated[str | None, Field(default=None, description="Filter by detector group name (e.g. 'slackbot_token')")] = None,
+    ignorer_id: Annotated[int | None, Field(default=None, description='Filter incidents ignored by this user id')] = None,
+    ignorer_api_token_id: Annotated[str | None, Field(default=None, description='Filter incidents ignored by this API token id')] = None,
+    resolver_id: Annotated[int | None, Field(default=None, description='Filter incidents resolved by this user id')] = None,
+    resolver_api_token_id: Annotated[str | None, Field(default=None, description='Filter incidents resolved by this API token id')] = None,
+    feedback: Annotated[bool | None, Field(default=None, description='Filter to incidents with (True) or without (False) feedback')] = None,
+    declarative_secret_status: Annotated[str | None, Field(default=None, description='Filter by declarative secret status (revoked, active, test_credential, false_positive, low_risk)')] = None,
+    risk_score_min: Annotated[int | None, Field(default=None, ge=0, le=100, description='Filter incidents with risk score >= this value (0-100)')] = None,
+    risk_score_max: Annotated[int | None, Field(default=None, ge=0, le=100, description='Filter incidents with risk score <= this value (0-100)')] = None,
 ) -> ListPublicIncidentsResult | ListPublicIncidentsError:
-    """List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
-
-    Public incidents differ from internal incidents: they correspond to secrets leaked outside the
-    organization perimeter and surfaced via GitGuardian Public Monitoring (Explore). Use this tool
-    instead of `list_incidents` when investigating leaks on public sources.
-
-    Wraps GET /v1/public-incidents/secrets and uses cursor-based pagination.
-
-    Args:
-        params: ListPublicIncidentsParams model containing all filtering options.
-
-    Returns:
-        ListPublicIncidentsResult with the public incidents page, or
-        ListPublicIncidentsError on failure.
     """
+    List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
+
+        Public incidents differ from internal incidents: they correspond to secrets leaked outside the
+        organization perimeter and surfaced via GitGuardian Public Monitoring (Explore). Use this tool
+        instead of `list_incidents` when investigating leaks on public sources.
+
+        Wraps GET /v1/public-incidents/secrets and uses cursor-based pagination.
+
+        Args:
+            params: ListPublicIncidentsParams model containing all filtering options.
+
+        Returns:
+            ListPublicIncidentsResult with the public incidents page, or
+            ListPublicIncidentsError on failure.
+
+    """
+    params = ListPublicIncidentsParams(
+        per_page=per_page,
+        cursor=cursor,
+        get_all=get_all,
+        date_before=date_before,
+        date_after=date_after,
+        triggered_at_before=triggered_at_before,
+        triggered_at_after=triggered_at_after,
+        assignee_email=assignee_email,
+        assignee_id=assignee_id,
+        status=status,
+        severity=severity,
+        validity=validity,
+        tags=tags,
+        custom_tags=custom_tags,
+        custom_tag_key=custom_tag_key,
+        custom_tag_value=custom_tag_value,
+        ordering=ordering,
+        detector_group_name=detector_group_name,
+        ignorer_id=ignorer_id,
+        ignorer_api_token_id=ignorer_api_token_id,
+        resolver_id=resolver_id,
+        resolver_api_token_id=resolver_api_token_id,
+        feedback=feedback,
+        declarative_secret_status=declarative_secret_status,
+        risk_score_min=risk_score_min,
+        risk_score_max=risk_score_max,
+    )
+
     client = await get_client()
 
     try:

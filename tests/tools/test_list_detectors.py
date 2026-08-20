@@ -37,7 +37,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams())
+        result = await list_detectors()
 
         mock_gitguardian_client.list_detectors.assert_called_once()
         assert len(result.detectors) == 2
@@ -65,7 +65,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams())
+        result = await list_detectors()
 
         assert len(result.detectors) == 1
         assert result.next_cursor == "next_page_cursor"
@@ -92,7 +92,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams(search="github"))
+        result = await list_detectors(search="github")
 
         call_kwargs = mock_gitguardian_client.list_detectors.call_args.kwargs
         assert call_kwargs["search"] == "github"
@@ -119,7 +119,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams(type="generic"))
+        result = await list_detectors(type="generic")
 
         call_kwargs = mock_gitguardian_client.list_detectors.call_args.kwargs
         assert call_kwargs["type"] == "generic"
@@ -144,7 +144,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams(get_all=True))
+        result = await list_detectors(get_all=True)
 
         call_kwargs = mock_gitguardian_client.list_detectors.call_args.kwargs
         assert call_kwargs["get_all"] is True
@@ -160,7 +160,7 @@ class TestListDetectors:
         mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams(search="nonexistent"))
+        result = await list_detectors(search="nonexistent")
 
         assert len(result.detectors) == 0
         assert result.next_cursor is None
@@ -177,7 +177,7 @@ class TestListDetectors:
         mock_gitguardian_client.list_detectors = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await list_detectors(ListDetectorsParams())
+            await list_detectors()
 
         assert error_message in str(excinfo.value)
 
@@ -195,7 +195,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        await list_detectors(ListDetectorsParams(per_page=50))
+        await list_detectors(per_page=50)
 
         call_kwargs = mock_gitguardian_client.list_detectors.call_args.kwargs
         assert call_kwargs["per_page"] == 50
@@ -214,7 +214,7 @@ class TestListDetectors:
         }
         mock_gitguardian_client.list_detectors = AsyncMock(return_value=mock_response)
 
-        result = await list_detectors(ListDetectorsParams(cursor="second_page_cursor"))
+        result = await list_detectors(cursor="second_page_cursor")
 
         call_kwargs = mock_gitguardian_client.list_detectors.call_args.kwargs
         assert call_kwargs["cursor"] == "second_page_cursor"

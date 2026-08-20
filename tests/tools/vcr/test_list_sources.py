@@ -40,7 +40,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -71,7 +71,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -96,7 +96,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -124,7 +124,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -152,7 +152,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -180,7 +180,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -208,7 +208,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -232,7 +232,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -258,7 +258,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -284,7 +284,7 @@ class TestListSourcesVCR:
                     get_all=True,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -312,7 +312,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)
@@ -338,7 +338,7 @@ class TestListSourcesVCR:
                     get_all=False,
                 )
 
-                result = await list_sources(params)
+                result = await list_sources(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListSourcesResult)

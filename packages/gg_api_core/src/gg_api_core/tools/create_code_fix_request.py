@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -33,7 +34,15 @@ class CreateCodeFixRequestResult(BaseModel):
     success: bool = Field(default=True, description="Whether the request was successful")
 
 
-async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateCodeFixRequestResult:
+async def create_code_fix_request(
+    locations: Annotated[
+        list[LocationToFix],
+        Field(
+            min_length=1,
+            description="List of issues with their location IDs to fix. Each item must include an issue_id and a list of location_ids.",
+        ),
+    ],
+) -> CreateCodeFixRequestResult:
     """
     Create code fix requests for multiple secret incidents with their locations.
 
@@ -44,8 +53,8 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
     The system will group locations by source repository and create one pull request per source.
 
     Args:
-        params: CreateCodeFixRequestParams model containing:
-            - locations: List of issues with their location IDs to fix
+        locations: List of issues with their location IDs to fix. Each item has an issue_id
+            and a list of location_ids.
 
     Returns:
         CreateCodeFixRequestResult: Pydantic model containing:
@@ -63,21 +72,18 @@ async def create_code_fix_request(params: CreateCodeFixRequestParams) -> CreateC
     Examples:
         Single issue with multiple locations:
         ```python
-        params = CreateCodeFixRequestParams(
-            locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
-        )
+        locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
         ```
 
         Multiple issues from different sources:
         ```python
-        params = CreateCodeFixRequestParams(
-            locations=[
-                LocationToFix(issue_id=12345, location_ids=[67890]),
-                LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
-            ]
-        )
+        locations=[
+            LocationToFix(issue_id=12345, location_ids=[67890]),
+            LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
+        ]
         ```
     """
+    params = CreateCodeFixRequestParams(locations=locations)
     client = await get_client()
 
     # Convert Pydantic models to dict format expected by API

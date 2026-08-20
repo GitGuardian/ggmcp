@@ -24,9 +24,7 @@ class TestCreateCodeFixRequest:
         mock_gitguardian_client.create_code_fix_request = AsyncMock(return_value=mock_response)
 
         # Call the function with single issue
-        result = await create_code_fix_request(
-            CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])])
-        )
+        result = await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])])
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.create_code_fix_request.assert_called_once_with(
@@ -55,13 +53,11 @@ class TestCreateCodeFixRequest:
 
         # Call the function with multiple issues
         result = await create_code_fix_request(
-            CreateCodeFixRequestParams(
                 locations=[
                     LocationToFix(issue_id=12345, location_ids=[67890]),
                     LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
                 ]
             )
-        )
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.create_code_fix_request.assert_called_once_with(
@@ -89,9 +85,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message
         assert "not enabled" in str(excinfo.value)
@@ -110,9 +104,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message
         assert "Too many locations" in str(excinfo.value)
@@ -131,9 +123,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message
         assert "No valid locations" in str(excinfo.value)
@@ -152,9 +142,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message
         assert "already have open pull requests" in str(excinfo.value)
@@ -173,9 +161,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message mentions permissions
         assert "permission" in str(excinfo.value).lower()
@@ -194,9 +180,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message mentions API key
         assert "API key" in str(excinfo.value) or "404" in str(excinfo.value)
@@ -214,9 +198,7 @@ class TestCreateCodeFixRequest:
 
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
-            await create_code_fix_request(
-                CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-            )
+            await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify error message contains the original error
         assert error_message in str(excinfo.value)
@@ -255,9 +237,7 @@ class TestCreateCodeFixRequest:
         mock_gitguardian_client.create_code_fix_request = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await create_code_fix_request(
-            CreateCodeFixRequestParams(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
-        )
+        result = await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890])])
 
         # Verify response has default message
         assert result.success is True
@@ -278,7 +258,7 @@ class TestCreateCodeFixRequest:
         locations = [LocationToFix(issue_id=100 + i, location_ids=[1000 + i, 2000 + i, 3000 + i]) for i in range(5)]
 
         # Call the function
-        result = await create_code_fix_request(CreateCodeFixRequestParams(locations=locations))
+        result = await create_code_fix_request(locations=locations)
 
         # Verify client was called
         assert mock_gitguardian_client.create_code_fix_request.called

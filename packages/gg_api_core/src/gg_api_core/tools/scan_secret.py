@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -31,7 +31,21 @@ class ScanSecretsResult(BaseModel):
     scan_results: list[dict[str, Any]] = Field(default_factory=list, description="Scan results for each document")
 
 
-async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
+async def scan_secrets(
+    documents: Annotated[
+        list[dict[str, str]],
+        Field(
+            description="""
+            List of documents to scan, each with 'document' and optional 'filename'.
+            Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
+            IMPORTANT:
+            - document is the content of the file, not the filename, is a string and is mandatory.
+            - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
+            - Do not send documents that are in the .gitignore file.
+            """
+        ),
+    ],
+) -> ScanSecretsResult:
     """
     Scan multiple content items for secrets and policy breaks.
 
@@ -44,7 +58,7 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
     - The 'document' field is the file content (string), not the filename
 
     Args:
-        params: ScanSecretsParams model containing documents to scan
+        documents: List of documents to scan
 
     Returns:
         ScanSecretsResult: Pydantic model containing:
@@ -57,6 +71,7 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
     Raises:
         Exception: If the scan operation fails or documents are invalid
     """
+    params = ScanSecretsParams(documents=documents)
     try:
         client = await get_client()
 

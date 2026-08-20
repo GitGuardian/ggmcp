@@ -21,7 +21,7 @@ class TestListPublicOccurrences:
             return_value={"data": [{"id": 12345, "incident_id": 3759}], "cursor": None, "has_more": False}
         )
 
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=3759))
+        result = await list_public_occurrences(incident_id=3759)
 
         mock_gitguardian_client.list_public_occurrences.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
@@ -58,7 +58,7 @@ class TestListPublicOccurrences:
             ordering="-id",
             per_page=100,
         )
-        result = await list_public_occurrences(params)
+        result = await list_public_occurrences(**params.model_dump())
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["incident_id"] == 42
@@ -121,7 +121,7 @@ class TestListPublicOccurrences:
             return_value={"data": [{"id": 1}], "cursor": "next_cursor", "has_more": True}
         )
 
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1, cursor="prev_cursor"))
+        result = await list_public_occurrences(incident_id=1, cursor="prev_cursor")
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["cursor"] == "prev_cursor"
@@ -143,7 +143,7 @@ class TestListPublicOccurrences:
             }
         )
 
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1, get_all=True))
+        result = await list_public_occurrences(incident_id=1, get_all=True)
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["get_all"] is True
@@ -158,7 +158,7 @@ class TestListPublicOccurrences:
         """
         mock_gitguardian_client.list_public_occurrences = AsyncMock(side_effect=Exception("Boom"))
 
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1))
+        result = await list_public_occurrences(incident_id=1)
 
         assert hasattr(result, "error")
         assert "Failed to list public occurrences" in result.error

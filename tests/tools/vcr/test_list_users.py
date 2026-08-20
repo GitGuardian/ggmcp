@@ -47,7 +47,7 @@ class TestListUsersVCR:
                     get_all=False,
                 )
 
-                result = await list_users(params)
+                result = await list_users(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListUsersResult)
@@ -85,7 +85,7 @@ class TestListUsersVCR:
                     get_all=False,
                 )
 
-                result = await list_users(params)
+                result = await list_users(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListUsersResult)
@@ -112,7 +112,7 @@ class TestListUsersVCR:
                     get_all=False,
                 )
 
-                result = await list_users(params)
+                result = await list_users(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListUsersResult)
@@ -142,7 +142,7 @@ class TestListUsersVCR:
                     get_all=False,
                 )
 
-                result = await list_users(params)
+                result = await list_users(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListUsersResult)
@@ -169,7 +169,7 @@ class TestListUsersVCR:
                     get_all=False,
                 )
 
-                result = await list_users(params)
+                result = await list_users(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListUsersResult)

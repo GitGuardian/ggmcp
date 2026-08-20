@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -94,7 +94,82 @@ class ListSourcesResult(BaseModel):
     )
 
 
-async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListSourcesResult:
+async def list_sources(
+    search: Annotated[str | None, Field(default=None, description="Search string to filter sources by name")] = None,
+    last_scan_status: Annotated[
+        Literal["pending", "running", "canceled", "failed", "too_large", "timeout", "pending_timeout", "finished"]
+        | None,
+        Field(
+            default=None,
+            description="Filter sources based on the status of their latest historical scan",
+        ),
+    ] = None,
+    health: Annotated[
+        Literal["safe", "unknown", "at_risk"] | None,
+        Field(default=None, description="Filter sources based on their health status"),
+    ] = None,
+    type: Annotated[
+        Literal[
+            "bitbucket",
+            "bitbucket_cloud",
+            "github",
+            "gitlab",
+            "azure_devops",
+            "slack",
+            "jira_cloud",
+            "confluence_cloud",
+            "microsoft_teams",
+            "confluence_data_center",
+            "jira_data_center",
+            "aws_ecr",
+            "azure_cr",
+            "google_artifact",
+            "jfrog_artifact",
+            "docker_hub",
+            "servicenow",
+            "sharepoint_online",
+            "sharepoint_online_drive",
+            "sharepoint_online_pages",
+            "microsoft_onedrive",
+            "custom_source",
+        ]
+        | None,
+        Field(default=None, description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')"),
+    ] = None,
+    ordering: Annotated[
+        Literal["last_scan_date", "-last_scan_date"] | None,
+        Field(default=None, description="Sort by last scan date. Prefix with '-' for descending order."),
+    ] = None,
+    visibility: Annotated[
+        Literal["public", "private", "internal"] | None,
+        Field(default=None, description="Filter by visibility status"),
+    ] = None,
+    external_id: Annotated[str | None, Field(default=None, description="Filter by specific external id")] = None,
+    source_criticality: Annotated[
+        Literal["critical", "high", "medium", "low", "unknown"] | None,
+        Field(default=None, description="Filter by source criticality level"),
+    ] = None,
+    monitored: Annotated[bool | None, Field(default=None, description="Filter by monitored status (true/false)")] = None,
+    team_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Filter sources by team id. Only sources belonging to the given team's perimeter are returned.",
+        ),
+    ] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor from a previous response")] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListSourcesResult:
     """
     List sources known by GitGuardian.
 
@@ -102,7 +177,19 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
     GitGuardian is monitoring for secrets.
 
     Args:
-        params: ListSourcesParams model containing all filtering options
+        search: Search string to filter sources by name
+        last_scan_status: Filter by latest historical scan status
+        health: Filter by health status
+        type: Filter by source type
+        ordering: Sort by last scan date
+        visibility: Filter by visibility status
+        external_id: Filter by external id
+        source_criticality: Filter by source criticality level
+        monitored: Filter by monitored status
+        team_id: Filter sources by team id
+        per_page: Number of results per page (default: 20)
+        cursor: Pagination cursor
+        get_all: If True, fetch all pages
 
     Returns:
         ListSourcesResult: Pydantic model containing:
@@ -113,6 +200,21 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListSourcesParams(
+        search=search,
+        last_scan_status=last_scan_status,
+        health=health,
+        type=type,
+        ordering=ordering,
+        visibility=visibility,
+        external_id=external_id,
+        source_criticality=source_criticality,
+        monitored=monitored,
+        team_id=team_id,
+        per_page=per_page,
+        cursor=cursor,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug("Listing sources")
 

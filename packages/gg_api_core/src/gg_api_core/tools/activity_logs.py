@@ -15,7 +15,7 @@ elsewhere (e.g. ``assign_incident`` vs ``assign_public_incident``).
 """
 
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -80,7 +80,32 @@ def _build_list_result(result: ListResponse) -> ListActivityLogsResult:
     )
 
 
-async def list_incident_activity_logs(params: ListActivityLogsParams) -> ListActivityLogsResult:
+async def list_incident_activity_logs(
+    incident_id: Annotated[int, Field(description="ID of the secret incident whose activity log to list")],
+    content_key: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Filter to a single system-action type (e.g. 'TRIGGER', 'RESOLVE', 'ASSIGN', 'SET_SEVERITY'). Omit to return notes and every action type.",
+        ),
+    ] = None,
+    member_id: Annotated[
+        int | None,
+        Field(default=None, description="Filter to entries authored by a specific member (by member ID)"),
+    ] = None,
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListActivityLogsResult:
     """
     List the full activity log of an internal secret incident.
 
@@ -91,7 +116,12 @@ async def list_incident_activity_logs(params: ListActivityLogsParams) -> ListAct
     use `list_public_incident_activity_logs` instead.
 
     Args:
-        params: ListActivityLogsParams with the incident ID, optional filters and pagination options
+        incident_id: ID of the secret incident whose activity log to list
+        content_key: Filter to a single system-action type
+        member_id: Filter to entries authored by a specific member
+        cursor: Pagination cursor
+        per_page: Number of results per page (default: 20)
+        get_all: If True, fetch all pages
 
     Returns:
         ListActivityLogsResult with the entries, total_count, next_cursor, and has_more
@@ -99,6 +129,14 @@ async def list_incident_activity_logs(params: ListActivityLogsParams) -> ListAct
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListActivityLogsParams(
+        incident_id=incident_id,
+        content_key=content_key,
+        member_id=member_id,
+        cursor=cursor,
+        per_page=per_page,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing activity logs for incident {params.incident_id}")
 
@@ -114,7 +152,32 @@ async def list_incident_activity_logs(params: ListActivityLogsParams) -> ListAct
         raise ToolError(f"Error: {str(e)}")
 
 
-async def list_public_incident_activity_logs(params: ListActivityLogsParams) -> ListActivityLogsResult:
+async def list_public_incident_activity_logs(
+    incident_id: Annotated[int, Field(description="ID of the public secret incident whose activity log to list")],
+    content_key: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Filter to a single system-action type (e.g. 'TRIGGER', 'RESOLVE', 'ASSIGN', 'SET_SEVERITY'). Omit to return notes and every action type.",
+        ),
+    ] = None,
+    member_id: Annotated[
+        int | None,
+        Field(default=None, description="Filter to entries authored by a specific member (by member ID)"),
+    ] = None,
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListActivityLogsResult:
     """
     List the full activity log of a public secret incident.
 
@@ -126,7 +189,12 @@ async def list_public_incident_activity_logs(params: ListActivityLogsParams) -> 
     NOT interchangeable with internal incident IDs.
 
     Args:
-        params: ListActivityLogsParams with the public incident ID, optional filters and pagination options
+        incident_id: ID of the public secret incident whose activity log to list
+        content_key: Filter to a single system-action type
+        member_id: Filter to entries authored by a specific member
+        cursor: Pagination cursor
+        per_page: Number of results per page (default: 20)
+        get_all: If True, fetch all pages
 
     Returns:
         ListActivityLogsResult with the entries, total_count, next_cursor, and has_more
@@ -134,6 +202,14 @@ async def list_public_incident_activity_logs(params: ListActivityLogsParams) -> 
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListActivityLogsParams(
+        incident_id=incident_id,
+        content_key=content_key,
+        member_id=member_id,
+        cursor=cursor,
+        per_page=per_page,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing activity logs for public incident {params.incident_id}")
 

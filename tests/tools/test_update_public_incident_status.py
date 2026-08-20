@@ -99,7 +99,7 @@ class TestUpdatePublicIncidentStatusResolve:
         THEN: A ToolError is raised asking for the reason
         """
         with pytest.raises(ToolError) as exc_info:
-            await update_public_incident_status(UpdatePublicIncidentStatusParams(incident_id=123, action="resolve"))
+            await update_public_incident_status(incident_id=123, action="resolve")
 
         error_message = str(exc_info.value)
         assert "resolve_reason" in error_message
@@ -118,9 +118,7 @@ class TestUpdatePublicIncidentStatusResolve:
             return_value=_full_public_incident_payload(incident_id=123, status="RESOLVED")
         )
 
-        result = await update_public_incident_status(
-            UpdatePublicIncidentStatusParams(incident_id=123, action="resolve", resolve_reason=reason)
-        )
+        result = await update_public_incident_status(incident_id=123, action="resolve", resolve_reason=reason)
 
         mock_gitguardian_client.resolve_public_incident.assert_called_once_with(
             incident_id=123,
@@ -140,7 +138,7 @@ class TestUpdatePublicIncidentStatusIgnore:
         THEN: A ToolError is raised asking for the reason
         """
         with pytest.raises(ToolError) as exc_info:
-            await update_public_incident_status(UpdatePublicIncidentStatusParams(incident_id=123, action="ignore"))
+            await update_public_incident_status(incident_id=123, action="ignore")
 
         error_message = str(exc_info.value)
         assert "ignore_reason" in error_message
@@ -169,9 +167,7 @@ class TestUpdatePublicIncidentStatusIgnore:
             return_value=_full_public_incident_payload(incident_id=123, status="IGNORED")
         )
 
-        result = await update_public_incident_status(
-            UpdatePublicIncidentStatusParams(incident_id=123, action="ignore", ignore_reason=reason)
-        )
+        result = await update_public_incident_status(incident_id=123, action="ignore", ignore_reason=reason)
 
         mock_gitguardian_client.ignore_public_incident.assert_called_once_with(
             incident_id=123,
@@ -194,7 +190,7 @@ class TestUpdatePublicIncidentStatusReopen:
             return_value=_full_public_incident_payload(incident_id=123, status="TRIGGERED")
         )
 
-        result = await update_public_incident_status(UpdatePublicIncidentStatusParams(incident_id=123, action="reopen"))
+        result = await update_public_incident_status(incident_id=123, action="reopen")
 
         mock_gitguardian_client.reopen_public_incident.assert_called_once_with(incident_id=123)
         assert result["status"] == "TRIGGERED"
@@ -215,9 +211,7 @@ class TestUpdatePublicIncidentStatusErrors:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await update_public_incident_status(
-                UpdatePublicIncidentStatusParams(incident_id=999, action="resolve", resolve_reason="revoked")
-            )
+            await update_public_incident_status(incident_id=999, action="resolve", resolve_reason="revoked")
 
         assert "API error: Public incident not found" in str(exc_info.value)
 
@@ -233,9 +227,7 @@ class TestUpdatePublicIncidentStatusErrors:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await update_public_incident_status(
-                UpdatePublicIncidentStatusParams(incident_id=123, action="ignore", ignore_reason="low_risk")
-            )
+            await update_public_incident_status(incident_id=123, action="ignore", ignore_reason="low_risk")
 
         assert "Cannot ignore public incident in current state" in str(exc_info.value)
 
@@ -251,6 +243,6 @@ class TestUpdatePublicIncidentStatusErrors:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await update_public_incident_status(UpdatePublicIncidentStatusParams(incident_id=999, action="reopen"))
+            await update_public_incident_status(incident_id=999, action="reopen")
 
         assert "API error: Public incident not found" in str(exc_info.value)

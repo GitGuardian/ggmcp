@@ -131,7 +131,7 @@ class TestAssignPublicIncident:
             return_value=_full_public_incident_payload(incident_id=3759, assignee_id=456)
         )
 
-        result = await assign_public_incident(AssignPublicIncidentParams(incident_id=3759, assignee_member_id=456))
+        result = await assign_public_incident(incident_id=3759, assignee_member_id=456)
 
         mock_gitguardian_client.assign_public_incident.assert_called_once_with(
             incident_id=3759,
@@ -159,7 +159,7 @@ class TestAssignPublicIncident:
             return_value=_full_public_incident_payload(incident_id=3759, assignee_id=789)
         )
 
-        result = await assign_public_incident(AssignPublicIncidentParams(incident_id=3759, email="user@example.com"))
+        result = await assign_public_incident(incident_id=3759, email="user@example.com")
 
         mock_gitguardian_client.assign_public_incident.assert_called_once_with(
             incident_id=3759,
@@ -186,7 +186,7 @@ class TestAssignPublicIncident:
             return_value=_full_public_incident_payload(incident_id=3759, assignee_id=480870)
         )
 
-        result = await assign_public_incident(AssignPublicIncidentParams(incident_id=3759, mine=True))
+        result = await assign_public_incident(incident_id=3759, mine=True)
 
         mock_gitguardian_client.get_current_token_info.assert_called_once()
         mock_gitguardian_client.assign_public_incident.assert_called_once_with(
@@ -211,7 +211,7 @@ class TestAssignPublicIncident:
             return_value=_full_public_incident_payload(incident_id=42, assignee_id=480870)
         )
 
-        await assign_public_incident(AssignPublicIncidentParams(incident_id=42, mine=True, send_email=False))
+        await assign_public_incident(incident_id=42, mine=True, send_email=False)
 
         mock_gitguardian_client.assign_public_incident.assert_called_once_with(
             incident_id=42,
@@ -234,7 +234,7 @@ class TestAssignPublicIncident:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await assign_public_incident(AssignPublicIncidentParams(incident_id=999, assignee_member_id=456))
+            await assign_public_incident(incident_id=999, assignee_member_id=456)
 
         assert "API error: Public incident not found" in str(exc_info.value)
 
@@ -252,6 +252,6 @@ class TestAssignPublicIncident:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await assign_public_incident(AssignPublicIncidentParams(incident_id=123, mine=True))
+            await assign_public_incident(incident_id=123, mine=True)
 
         assert "Could not determine current user ID from token info" in str(exc_info.value)

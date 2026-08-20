@@ -94,7 +94,7 @@ class TestCountIncidentsTool:
         mock_client.count_incidents_for_mcp.return_value = {"count": 42}
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(CountIncidentsParams())
+            result = await count_incidents()
 
         assert isinstance(result, CountIncidentsResult)
         assert result.count == 42
@@ -105,7 +105,7 @@ class TestCountIncidentsTool:
         mock_client.count_incidents_for_mcp.return_value = {"count": 0}
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(CountIncidentsParams())
+            result = await count_incidents()
 
         assert isinstance(result, CountIncidentsResult)
         assert result.count == 0
@@ -122,7 +122,7 @@ class TestCountIncidentsTool:
         )
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(params)
+            result = await count_incidents(**params.model_dump())
 
         assert isinstance(result, CountIncidentsResult)
         assert result.count == 5
@@ -144,7 +144,7 @@ class TestCountIncidentsTool:
         params = CountIncidentsParams(mine=True)
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(params)
+            result = await count_incidents(**params.model_dump())
 
         assert isinstance(result, CountIncidentsResult)
         assert result.count == 3
@@ -159,7 +159,7 @@ class TestCountIncidentsTool:
         params = CountIncidentsParams(mine=True, assignee_id=50)
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(params)
+            result = await count_incidents(**params.model_dump())
 
         assert isinstance(result, CountIncidentsError)
         assert "Conflict" in result.error
@@ -215,7 +215,7 @@ class TestCountIncidentsTool:
         mock_client.count_incidents_for_mcp.side_effect = Exception("API error")
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(CountIncidentsParams())
+            result = await count_incidents()
 
         assert isinstance(result, CountIncidentsError)
         assert "API error" in result.error

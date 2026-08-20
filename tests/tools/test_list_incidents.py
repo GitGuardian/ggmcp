@@ -538,7 +538,7 @@ class TestListIncidentsMine:
         params = ListIncidentsParams(mine=True)
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
-            await list_incidents(params)
+            await list_incidents(**params.model_dump())
 
         call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
         assert call_kwargs["assignee_id"] == 938094
@@ -556,7 +556,7 @@ class TestListIncidentsMine:
         params = ListIncidentsParams(mine=True, assignee_id=50)
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
-            result = await list_incidents(params)
+            result = await list_incidents(**params.model_dump())
 
         assert hasattr(result, "error")
         mock_client.list_incidents_for_mcp.assert_not_called()

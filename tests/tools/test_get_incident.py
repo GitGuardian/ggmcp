@@ -38,7 +38,7 @@ class TestGetIncident:
         }
         mock_gitguardian_client.get_incident = AsyncMock(return_value=mock_response)
 
-        result = await get_incident(GetIncidentParams(incident_id=3759))
+        result = await get_incident(incident_id=3759)
 
         mock_gitguardian_client.get_incident.assert_called_once_with(
             incident_id=3759,
@@ -64,7 +64,7 @@ class TestGetIncident:
         }
         mock_gitguardian_client.get_incident = AsyncMock(return_value=mock_response)
 
-        await get_incident(GetIncidentParams(incident_id=1234, with_occurrences=50))
+        await get_incident(incident_id=1234, with_occurrences=50)
 
         call_kwargs = mock_gitguardian_client.get_incident.call_args.kwargs
         assert call_kwargs["incident_id"] == 1234
@@ -84,7 +84,7 @@ class TestGetIncident:
         }
         mock_gitguardian_client.get_incident = AsyncMock(return_value=mock_response)
 
-        await get_incident(GetIncidentParams(incident_id=5678, with_occurrences=0))
+        await get_incident(incident_id=5678, with_occurrences=0)
 
         call_kwargs = mock_gitguardian_client.get_incident.call_args.kwargs
         assert call_kwargs["with_occurrences"] == 0
@@ -103,7 +103,7 @@ class TestGetIncident:
         }
         mock_gitguardian_client.get_incident = AsyncMock(return_value=mock_response)
 
-        result = await get_incident(GetIncidentParams(incident_id=9999, with_occurrences=100))
+        result = await get_incident(incident_id=9999, with_occurrences=100)
 
         call_kwargs = mock_gitguardian_client.get_incident.call_args.kwargs
         assert call_kwargs["with_occurrences"] == 100
@@ -162,7 +162,7 @@ class TestGetIncident:
         }
         mock_gitguardian_client.get_incident = AsyncMock(return_value=mock_response)
 
-        result = await get_incident(GetIncidentParams(incident_id=3759))
+        result = await get_incident(incident_id=3759)
 
         assert result.incident["id"] == 3759
         assert result.incident["detector"]["name"] == "slack_bot_token"
@@ -183,7 +183,7 @@ class TestGetIncident:
         mock_gitguardian_client.get_incident = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_incident(GetIncidentParams(incident_id=99999))
+            await get_incident(incident_id=99999)
 
         assert error_message in str(excinfo.value)
 
@@ -198,7 +198,7 @@ class TestGetIncident:
         mock_gitguardian_client.get_incident = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_incident(GetIncidentParams(incident_id=1234))
+            await get_incident(incident_id=1234)
 
         assert error_message in str(excinfo.value)
 

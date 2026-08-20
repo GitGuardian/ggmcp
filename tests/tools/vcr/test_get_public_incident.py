@@ -39,7 +39,7 @@ class TestGetPublicIncidentVCR:
                     pytest.skip("No public incidents available on the recording workspace")
                 incident_id = page["data"][0]["id"]
 
-                result = await get_public_incident(GetPublicIncidentParams(incident_id=incident_id))
+                result = await get_public_incident(incident_id=incident_id)
 
                 assert isinstance(result, GetPublicIncidentResult)
                 assert result.incident["id"] == incident_id
@@ -61,4 +61,4 @@ class TestGetPublicIncidentVCR:
                 return_value=real_client,
             ):
                 with pytest.raises(ToolError):
-                    await get_public_incident(GetPublicIncidentParams(incident_id=999999999))
+                    await get_public_incident(incident_id=999999999)

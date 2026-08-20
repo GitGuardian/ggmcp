@@ -34,7 +34,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
+        result = await list_repo_occurrences(source_id="source_123")
 
         # Verify client was called with source_id and with_sources=False
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -64,7 +64,6 @@ class TestListRepoOccurrences:
 
         # Call the function with filters
         await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id="source_123",
                 from_date="2023-01-01",
                 to_date="2023-12-31",
@@ -75,7 +74,6 @@ class TestListRepoOccurrences:
                 cursor=None,
                 get_all=False,
             )
-        )
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -108,11 +106,9 @@ class TestListRepoOccurrences:
 
         # Call the function with get_all=True
         result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id="source_123",
                 get_all=True,
             )
-        )
 
         # Verify response
         assert result.occurrences_count == 2
@@ -135,10 +131,8 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id=None,
             )
-        )
 
         # Verify client was called without source filters
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -160,7 +154,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception(error_message))
 
         # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
+        result = await list_repo_occurrences(source_id="source_123")
 
         # Verify error response
         assert hasattr(result, "error")
@@ -183,11 +177,9 @@ class TestListRepoOccurrences:
 
         # Call the function with cursor
         result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id="source_123",
                 cursor="cursor_abc",
             )
-        )
 
         # Verify client was called with cursor
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -215,7 +207,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
+        result = await list_repo_occurrences(source_id="source_123")
 
         # Verify response
         assert result.occurrences_count == 0
@@ -234,7 +226,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception("Unexpected response format"))
 
         # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
+        result = await list_repo_occurrences(source_id="source_123")
 
         # Verify error response is returned
         assert hasattr(result, "error")
@@ -256,11 +248,9 @@ class TestListRepoOccurrences:
 
         # Call the function with member_assignee_id
         result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id="source_123",
                 member_assignee_id=12345,
             )
-        )
 
         # Verify client was called with member_assignee_id
         mock_gitguardian_client.list_occurrences.assert_called_once()
@@ -292,11 +282,9 @@ class TestListRepoOccurrences:
 
         # Call the function with mine=True
         result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
                 source_id="source_123",
                 mine=True,
             )
-        )
 
         # Verify get_current_token_info was called (not get_current_member)
         mock_gitguardian_client.get_current_token_info.assert_called_once()

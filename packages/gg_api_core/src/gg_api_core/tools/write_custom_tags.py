@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -25,7 +25,28 @@ class WriteCustomTagsParams(BaseModel):
     )
 
 
-async def write_custom_tags(params: WriteCustomTagsParams):
+async def write_custom_tags(
+    action: Annotated[
+        Literal["create_tag", "delete_tag"],
+        Field(
+            description="Choose 'create_tag' to create a new custom tag, or 'delete_tag' to delete an existing tag by ID. For delete_tag, you must first call read_custom_tags to get the tag ID. Required."
+        ),
+    ],
+    tag: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description='Tag to create in "key" or "key:value" format. Required when action is "create_tag".',
+        ),
+    ] = None,
+    tag_id: Annotated[
+        str | int | None,
+        Field(
+            default=None,
+            description="The ID of the custom tag to delete. Required when action is 'delete_tag'. Use read_custom_tags to list available tags and get their IDs.",
+        ),
+    ] = None,
+):
     """
     Create or delete custom tags in the GitGuardian dashboard.
 
@@ -38,14 +59,14 @@ async def write_custom_tags(params: WriteCustomTagsParams):
     2. Then call this function with action="delete_tag" and the specific tag_id
 
     Args:
-        params: WriteCustomTagsParams model containing custom tags write configuration
-            action: The action to perform ('create_tag' or 'delete_tag'). Required.
-            tag: Tag to create in "key" or "key:value" format (required for create_tag)
-            tag_id: ID of the tag to delete (required for delete_tag, obtain from read_custom_tags)
+        action: The action to perform ('create_tag' or 'delete_tag'). Required.
+        tag: Tag to create in "key" or "key:value" format (required for create_tag)
+        tag_id: ID of the tag to delete (required for delete_tag, obtain from read_custom_tags)
 
     Returns:
         Result based on the action performed
     """
+    params = WriteCustomTagsParams(action=action, tag=tag, tag_id=tag_id)
     try:
         client = await get_client()
 
@@ -86,7 +107,13 @@ class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
     )
 
 
-async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCustomTagsParams) -> dict[str, Any]:
+async def update_or_create_incident_custom_tags(
+    incident_id: Annotated[str | int, Field(description="ID of the secret incident")],
+    custom_tags: Annotated[
+        list[str],
+        Field(description='List of custom tags to apply to the incident. Format: "key" or "key:value"'),
+    ],
+) -> dict[str, Any]:
     """
     Update a secret incident with custom tags, creating tags if they don't exist.
 
@@ -95,11 +122,13 @@ async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCu
     - "key:value" (creates a label with a value)
 
     Args:
-        params: UpdateOrCreateIncidentCustomTagsParams model containing custom tags configuration
+        incident_id: ID of the secret incident
+        custom_tags: List of custom tags to apply, in "key" or "key:value" format
 
     Returns:
         Updated incident data
     """
+    params = UpdateOrCreateIncidentCustomTagsParams(incident_id=incident_id, custom_tags=custom_tags)
     client = await get_client()
     logger.debug(f"Updating custom tags for incident {params.incident_id}")
 

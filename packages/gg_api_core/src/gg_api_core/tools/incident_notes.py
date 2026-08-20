@@ -82,7 +82,21 @@ def _build_list_result(result: ListResponse) -> ListCommentsResult:
     )
 
 
-async def list_incident_comments(params: ListIncidentCommentsParams) -> ListCommentsResult:
+async def list_incident_comments(
+    incident_id: Annotated[int, Field(description="ID of the secret incident whose comments to list")],
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListCommentsResult:
     """
     List the comments (notes) left on an internal secret incident.
 
@@ -91,7 +105,10 @@ async def list_incident_comments(params: ListIncidentCommentsParams) -> ListComm
     For Public Monitoring incidents use `list_public_incident_comments` instead.
 
     Args:
-        params: ListIncidentCommentsParams with the incident ID and pagination options
+        incident_id: ID of the secret incident whose comments to list
+        cursor: Pagination cursor
+        per_page: Number of results per page (default: 20)
+        get_all: If True, fetch all pages
 
     Returns:
         ListCommentsResult with the comments, total_count, next_cursor, and has_more
@@ -99,6 +116,12 @@ async def list_incident_comments(params: ListIncidentCommentsParams) -> ListComm
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListIncidentCommentsParams(
+        incident_id=incident_id,
+        cursor=cursor,
+        per_page=per_page,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing comments for incident {params.incident_id}")
 
@@ -118,7 +141,28 @@ async def list_incident_comments(params: ListIncidentCommentsParams) -> ListComm
         raise ToolError(f"Error: {str(e)}")
 
 
-async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[str, Any]:
+async def manage_incident_comment(
+    incident_id: Annotated[int, Field(description="ID of the secret incident to comment on")],
+    action: Annotated[
+        Literal["add", "edit"],
+        Field(
+            description="Action to perform: 'add' creates a new comment, 'edit' replaces the body of an existing comment (requires comment_id)"
+        ),
+    ],
+    comment: Annotated[
+        CommentStr,
+        Field(
+            description="Body of the comment (1-10000 characters). For 'add' this is the new comment; for 'edit' this is the replacement text."
+        ),
+    ],
+    comment_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="ID of the comment to edit. Required when action is 'edit'. Use the listing tool to find it.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
     """
     Add a new comment to an internal secret incident, or edit an existing one.
 
@@ -130,8 +174,10 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
     note ids are not interchangeable between the two perimeters.
 
     Args:
-        params: ManageIncidentCommentParams with the incident ID, action, comment
-            body, and comment_id (for edits)
+        incident_id: ID of the secret incident to comment on
+        action: Whether to add or edit a comment
+        comment: Body of the comment (1-10000 characters)
+        comment_id: ID of the comment to edit (required when action is 'edit')
 
     Returns:
         Dictionary containing the created or updated comment data from the API
@@ -139,6 +185,12 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
     Raises:
         ToolError: If the operation fails
     """
+    params = ManageIncidentCommentParams(
+        incident_id=incident_id,
+        action=action,
+        comment=comment,
+        comment_id=comment_id,
+    )
     client = await get_client()
     logger.debug(f"Managing comment on incident {params.incident_id} with action: {params.action}")
 
@@ -158,7 +210,21 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
         raise ToolError(f"Error: {str(e)}")
 
 
-async def list_public_incident_comments(params: ListIncidentCommentsParams) -> ListCommentsResult:
+async def list_public_incident_comments(
+    incident_id: Annotated[int, Field(description="ID of the public secret incident whose comments to list")],
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListCommentsResult:
     """
     List the comments (notes) left on a public secret incident.
 
@@ -169,7 +235,10 @@ async def list_public_incident_comments(params: ListIncidentCommentsParams) -> L
     `list_incident_comments` instead.
 
     Args:
-        params: ListIncidentCommentsParams with the public incident ID and pagination options
+        incident_id: ID of the public secret incident whose comments to list
+        cursor: Pagination cursor
+        per_page: Number of results per page (default: 20)
+        get_all: If True, fetch all pages
 
     Returns:
         ListCommentsResult with the comments, total_count, next_cursor, and has_more
@@ -177,6 +246,12 @@ async def list_public_incident_comments(params: ListIncidentCommentsParams) -> L
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListIncidentCommentsParams(
+        incident_id=incident_id,
+        cursor=cursor,
+        per_page=per_page,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing comments for public incident {params.incident_id}")
 
@@ -196,7 +271,28 @@ async def list_public_incident_comments(params: ListIncidentCommentsParams) -> L
         raise ToolError(f"Error: {str(e)}")
 
 
-async def manage_public_incident_comment(params: ManageIncidentCommentParams) -> dict[str, Any]:
+async def manage_public_incident_comment(
+    incident_id: Annotated[int, Field(description="ID of the public secret incident to comment on")],
+    action: Annotated[
+        Literal["add", "edit"],
+        Field(
+            description="Action to perform: 'add' creates a new comment, 'edit' replaces the body of an existing comment (requires comment_id)"
+        ),
+    ],
+    comment: Annotated[
+        CommentStr,
+        Field(
+            description="Body of the comment (1-10000 characters). For 'add' this is the new comment; for 'edit' this is the replacement text."
+        ),
+    ],
+    comment_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="ID of the comment to edit. Required when action is 'edit'. Use the listing tool to find it.",
+        ),
+    ] = None,
+) -> dict[str, Any]:
     """
     Add a new comment to a public secret incident, or edit an existing one.
 
@@ -210,8 +306,10 @@ async def manage_public_incident_comment(params: ManageIncidentCommentParams) ->
     For internal incidents use `manage_incident_comment` instead.
 
     Args:
-        params: ManageIncidentCommentParams with the public incident ID, action,
-            comment body, and comment_id (for edits)
+        incident_id: ID of the public secret incident to comment on
+        action: Whether to add or edit a comment
+        comment: Body of the comment (1-10000 characters)
+        comment_id: ID of the comment to edit (required when action is 'edit')
 
     Returns:
         Dictionary containing the created or updated comment data from the API
@@ -219,6 +317,12 @@ async def manage_public_incident_comment(params: ManageIncidentCommentParams) ->
     Raises:
         ToolError: If the operation fails
     """
+    params = ManageIncidentCommentParams(
+        incident_id=incident_id,
+        action=action,
+        comment=comment,
+        comment_id=comment_id,
+    )
     client = await get_client()
     logger.debug(f"Managing comment on public incident {params.incident_id} with action: {params.action}")
 

@@ -35,7 +35,7 @@ class TestCountIncidentsVCR:
                 return_value=real_client,
             ):
                 params = CountIncidentsParams()
-                result = await count_incidents(params)
+                result = await count_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, CountIncidentsResult)
@@ -55,7 +55,7 @@ class TestCountIncidentsVCR:
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(status=["TRIGGERED"])
-                result = await count_incidents(params)
+                result = await count_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, CountIncidentsResult)
@@ -76,7 +76,7 @@ class TestCountIncidentsVCR:
                 return_value=real_client,
             ):
                 params = CountIncidentsParams(severity=["critical"])
-                result = await count_incidents(params)
+                result = await count_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, CountIncidentsResult)
@@ -101,7 +101,7 @@ class TestCountIncidentsVCR:
                     validity=["valid"],
                     exclude_tags=[],
                 )
-                result = await count_incidents(params)
+                result = await count_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, CountIncidentsResult)
@@ -133,7 +133,7 @@ class TestCountIncidentsVCR:
                 assert params.severity == ["critical"]
                 assert params.validity == ["valid"]
 
-                result = await count_incidents(params)
+                result = await count_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, CountIncidentsResult)

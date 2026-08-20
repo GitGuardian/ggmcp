@@ -37,7 +37,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams())
+        result = await list_sources()
 
         mock_gitguardian_client.list_sources.assert_called_once()
         assert len(result.sources) == 2
@@ -64,7 +64,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams())
+        result = await list_sources()
 
         assert len(result.sources) == 1
         assert result.next_cursor == "next_page_cursor"
@@ -90,7 +90,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(search="myrepo"))
+        result = await list_sources(search="myrepo")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["search"] == "myrepo"
@@ -117,7 +117,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(type="gitlab"))
+        result = await list_sources(type="gitlab")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["type"] == "gitlab"
@@ -144,7 +144,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(health="at_risk"))
+        result = await list_sources(health="at_risk")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["health"] == "at_risk"
@@ -171,7 +171,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(visibility="public"))
+        result = await list_sources(visibility="public")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["visibility"] == "public"
@@ -198,7 +198,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(last_scan_status="finished"))
+        result = await list_sources(last_scan_status="finished")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["last_scan_status"] == "finished"
@@ -224,7 +224,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(source_criticality="critical"))
+        result = await list_sources(source_criticality="critical")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["source_criticality"] == "critical"
@@ -250,7 +250,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(monitored=True))
+        result = await list_sources(monitored=True)
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["monitored"] is True
@@ -275,7 +275,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(team_id=42))
+        result = await list_sources(team_id=42)
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["team_id"] == 42
@@ -298,7 +298,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        await list_sources(ListSourcesParams(ordering="-last_scan_date"))
+        await list_sources(ordering="-last_scan_date")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["ordering"] == "-last_scan_date"
@@ -321,7 +321,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(get_all=True))
+        result = await list_sources(get_all=True)
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["get_all"] is True
@@ -337,7 +337,7 @@ class TestListSources:
         mock_response = {"data": [], "cursor": None, "has_more": False}
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(search="nonexistent"))
+        result = await list_sources(search="nonexistent")
 
         assert len(result.sources) == 0
         assert result.next_cursor is None
@@ -354,7 +354,7 @@ class TestListSources:
         mock_gitguardian_client.list_sources = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await list_sources(ListSourcesParams())
+            await list_sources()
 
         assert error_message in str(excinfo.value)
 
@@ -372,7 +372,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        await list_sources(ListSourcesParams(per_page=50))
+        await list_sources(per_page=50)
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["per_page"] == 50
@@ -391,7 +391,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(cursor="second_page_cursor"))
+        result = await list_sources(cursor="second_page_cursor")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["cursor"] == "second_page_cursor"
@@ -417,7 +417,7 @@ class TestListSources:
         }
         mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
 
-        result = await list_sources(ListSourcesParams(external_id="12345"))
+        result = await list_sources(external_id="12345")
 
         call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
         assert call_kwargs["external_id"] == "12345"

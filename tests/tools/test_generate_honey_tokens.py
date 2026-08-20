@@ -99,7 +99,7 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
         with caplog.at_level(logging.WARNING, logger="gg_api_core.tools.generate_honey_token"):
             with pytest.raises(ToolError) as excinfo:
                 # new_token=True skips the reuse lookup and goes straight to creation.
-                await generate_honeytoken(GenerateHoneytokenParams(name="dup", new_token=True))
+                await generate_honeytoken(name="dup", new_token=True)
 
     assert detail in str(excinfo.value)
     errors = [r for r in caplog.records if r.levelno >= logging.ERROR]

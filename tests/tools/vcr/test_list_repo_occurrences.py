@@ -50,7 +50,7 @@ class TestListRepoOccurrencesVCR:
                 assert params.mine is True
 
                 # Call the tool
-                result = await list_repo_occurrences(params)
+                result = await list_repo_occurrences(**params.model_dump())
 
                 # Verify the result
                 assert result is not None
