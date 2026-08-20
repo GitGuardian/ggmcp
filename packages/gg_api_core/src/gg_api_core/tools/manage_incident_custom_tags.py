@@ -51,29 +51,6 @@ def _resolve_tags(
 
 
 async def manage_incident_custom_tags(params: IncidentCustomTagsParams) -> dict[str, Any]:
-    """
-    Manage custom tags on a secret incident, creating tag definitions if needed.
-
-    The PATCH endpoint applies set semantics (it replaces the incident's full tag
-    set), so the current tags are read first and folded into the final set
-    according to the action:
-    - "add": existing tags preserved, requested tags merged in (union)
-    - "remove": requested tags unlinked, the rest kept
-    - "set": the whole set replaced by the requested tags
-
-    The read-then-write is not atomic: no atomic per-tag endpoint exists, so a
-    concurrent change between the read and the PATCH can be lost for any action.
-
-    Custom tags can be in two formats:
-    - "key" (creates a label without a value)
-    - "key:value" (creates a label with a value)
-
-    Args:
-        params: IncidentCustomTagsParams model containing the operation and tags
-
-    Returns:
-        Updated incident data
-    """
     client = await get_client()
     logger.debug(f"Managing custom tags for incident {params.incident_id}: {params.action}")
 
