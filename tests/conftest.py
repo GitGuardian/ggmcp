@@ -609,6 +609,10 @@ def restore_logging_configuration():
     saved_handlers = list(root.handlers)
     saved_root_level = root.level
     saved_levels = {name: logging.getLogger(name).level for name in _DEMOTED_LOGGERS}
+    # configure_logging raises this logger to ERROR to suppress fastmcp's raw-argument
+    # WARNING lines; restore it so tests that don't run configure_logging keep the default.
+    fastmcp_server_logger = logging.getLogger("fastmcp.server.server")
+    saved_fastmcp_level = fastmcp_server_logger.level
 
     yield
 
@@ -617,3 +621,4 @@ def restore_logging_configuration():
     root.setLevel(saved_root_level)
     for name, level in saved_levels.items():
         logging.getLogger(name).setLevel(level)
+    fastmcp_server_logger.setLevel(saved_fastmcp_level)

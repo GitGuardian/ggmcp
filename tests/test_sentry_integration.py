@@ -6,6 +6,8 @@ from pathlib import Path
 
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
+from gg_api_core.tools.scan_secret import ScanSecretsParams
+from pydantic import ValidationError
 
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
 
@@ -36,6 +38,21 @@ class TestPrepareSentryEvent:
         THEN no request ID tag is added
         """
         assert _before_send_event({}, {}) == {}
+
+
+def test_tool_params_hide_input_in_errors_on_shared_base():
+    """
+    GIVEN a tool parameter model built on the shared ToolParamsBase
+    WHEN it fails pydantic validation
+    THEN the error message carries no input_value payload
+    """
+    assert ScanSecretsParams.model_config.get("hide_input_in_errors") is True
+    try:
+        ScanSecretsParams(documents="not-a-list")  # type: ignore[call-arg]
+    except ValidationError as exc:
+        assert "input_value=" not in str(exc)
+        return
+    raise AssertionError("expected a validation error")
 
 
 def test_error_event_scrubs_custom_data_without_damaging_stacktrace():

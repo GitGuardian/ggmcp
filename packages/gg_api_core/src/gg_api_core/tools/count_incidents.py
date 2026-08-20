@@ -10,12 +10,13 @@ from gg_api_core.tools.list_incidents import (
     DEFAULT_VALIDITIES,
     SEVERITY_NAME_TO_VALUE,
 )
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class CountIncidentsParams(BaseModel):
+class CountIncidentsParams(ToolParamsBase):
     """Parameters for counting incidents using the MCP-optimized count endpoint.
 
     Accepts the same filters as list_incidents but returns only a count.

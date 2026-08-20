@@ -2,14 +2,15 @@ import logging
 from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class ManageIncidentParams(BaseModel):
+class ManageIncidentParams(ToolParamsBase):
     """Parameters for managing an incident."""
 
     incident_id: str | int = Field(description="ID of the secret incident to manage")
@@ -99,7 +100,7 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
         raise ToolError(f"Error: {str(e)}")
 
 
-class UpdateIncidentSeverityParams(BaseModel):
+class UpdateIncidentSeverityParams(ToolParamsBase):
     """Parameters for updating incident severity."""
 
     incident_id: str | int = Field(description="ID of the secret incident")

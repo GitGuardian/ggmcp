@@ -10,6 +10,7 @@ from gg_api_core.client import (
     IncidentValidity,
     TagNames,
 )
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -82,7 +83,7 @@ class ListRepoOccurrencesFilters(BaseModel):
         return self
 
 
-class ListRepoOccurrencesBaseParams(BaseModel):
+class ListRepoOccurrencesBaseParams(ToolParamsBase):
     """Parameters for listing repository occurrences."""
 
     source_id: str | int | None = Field(

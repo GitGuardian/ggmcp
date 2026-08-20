@@ -67,6 +67,12 @@ def _add_exception_cls(logger: WrappedLogger, method_name: str, event_dict: Even
 def configure_logging(
     *, log_level: str = "INFO", log_format: str | None = None, service: str = "gg-mcp-server"
 ) -> None:
+    # Log hardening: raise fastmcp's server logger to ERROR so its ``Invalid arguments for
+    # tool`` WARNING lines — which embed the raw submitted arguments via pydantic's ``input``
+    # field (see fastmcp server.py ``call_tool``, e.g. scan documents and file paths) — never
+    # reach the log. Real unexpected tool errors are logged by fastmcp at ERROR and kept.
+    logging.getLogger("fastmcp.server.server").setLevel(logging.ERROR)
+
     def _add_gg_fields(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
         event_dict["gg_service"] = service
         event_dict["gg_version"] = APP_VERSION or "unknown"

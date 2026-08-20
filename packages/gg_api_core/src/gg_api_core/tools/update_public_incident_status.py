@@ -2,8 +2,9 @@ import logging
 from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ PublicIgnoreReason = Literal[
 ]
 
 
-class UpdatePublicIncidentStatusParams(BaseModel):
+class UpdatePublicIncidentStatusParams(ToolParamsBase):
     """Parameters for updating a public secret incident status."""
 
     incident_id: int = Field(description="ID of the public secret incident to update")

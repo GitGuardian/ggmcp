@@ -6,6 +6,7 @@ from jinja2 import Template
 from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import TagNames
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 from .list_repo_occurrences import (
@@ -28,7 +29,7 @@ class ListRepoOccurrencesParamsForRemediate(ListRepoOccurrencesParams):
     )
 
 
-class RemediateSecretIncidentsParams(BaseModel):
+class RemediateSecretIncidentsParams(ToolParamsBase):
     """Parameters for remediating secret incidents."""
 
     source_id: str | int | None = Field(

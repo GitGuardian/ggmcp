@@ -2,14 +2,15 @@ import logging
 from typing import Literal
 
 from fastmcp.exceptions import ToolError
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class ReadCustomTagsParams(BaseModel):
+class ReadCustomTagsParams(ToolParamsBase):
     """Parameters for reading custom tags."""
 
     action: Literal["list_tags", "get_tag"] = Field(

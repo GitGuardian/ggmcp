@@ -4,12 +4,13 @@ from typing import Any
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class GetIncidentParams(BaseModel):
+class GetIncidentParams(ToolParamsBase):
     """Parameters for retrieving a specific incident."""
 
     incident_id: int = Field(description="The ID of the incident to retrieve")
