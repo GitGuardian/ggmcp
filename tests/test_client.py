@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
+from gg_api_core.log_context import track_current_tool
 
 
 @pytest.fixture
@@ -781,7 +782,7 @@ class TestIncidentsForMCPAssigneeFilter:
 
 
 class TestOutgoingRequestHeaders:
-    """Headers identifying the MCP client on outgoing API calls."""
+    """Headers identifying the MCP client and tool on outgoing API calls."""
 
     def _patched_http(self, mock_response, mock_httpx_client):
         mock_response.raise_for_status = MagicMock()
@@ -789,6 +790,50 @@ class TestOutgoingRequestHeaders:
         async_client_instance.__aenter__.return_value = mock_httpx_client
         mock_httpx_client.request = AsyncMock(return_value=mock_response)
         return patch("httpx.AsyncClient", return_value=async_client_instance)
+
+    @pytest.mark.asyncio
+    async def test_tool_header_sent_during_tracked_tool_call(self, client, mock_response, mock_httpx_client):
+        """
+        GIVEN an API request made while a tool call is tracked
+        WHEN the request is sent
+        THEN it carries X-GG-MCP-Tool with the tool name
+        """
+        with self._patched_http(mock_response, mock_httpx_client):
+            with track_current_tool("list_incidents"):
+                await client._request_get("/test")
+
+        headers = mock_httpx_client.request.call_args.kwargs["headers"]
+        assert headers["X-GG-MCP-Tool"] == "list_incidents"
+
+    @pytest.mark.asyncio
+    async def test_tool_header_absent_outside_tool_call(self, client, mock_response, mock_httpx_client):
+        """
+        GIVEN an API request made outside any tracked tool call
+        WHEN the request is sent
+        THEN it carries no X-GG-MCP-Tool header
+        """
+        with self._patched_http(mock_response, mock_httpx_client):
+            await client._request_get("/test")
+
+        headers = mock_httpx_client.request.call_args.kwargs["headers"]
+        assert "X-GG-MCP-Tool" not in headers
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("tool_name", ["bad name", "tool\r\nX-Injected: 1", "a" * 65, "tool;drop"])
+    async def test_tool_header_dropped_for_unregisterable_names(
+        self, client, mock_response, mock_httpx_client, tool_name
+    ):
+        """
+        GIVEN a tool name that no registered tool could have, from the client's tools/call
+        WHEN an API request is made during that call
+        THEN the name is left out of the headers rather than shaping them
+        """
+        with self._patched_http(mock_response, mock_httpx_client):
+            with track_current_tool(tool_name):
+                await client._request_get("/test")
+
+        headers = mock_httpx_client.request.call_args.kwargs["headers"]
+        assert "X-GG-MCP-Tool" not in headers
 
     @pytest.mark.asyncio
     async def test_callable_user_agent_evaluated_per_request(self, mock_response, mock_httpx_client):

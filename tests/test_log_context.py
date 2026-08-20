@@ -11,10 +11,12 @@ from gg_api_core.log_context import (
     _identity_cache,
     _identity_cache_key,
     clear_caller_identity_cache,
+    current_tool_name,
     derive_caller_identity,
     derive_client_identity,
     resolve_caller_identity,
     scopes_fingerprint,
+    track_current_tool,
 )
 
 # Shape of a real GET /api_tokens/self response, trimmed to the fields we read.
@@ -348,3 +350,57 @@ class TestClientIdentity:
 
         assert identity.label == f"{fields['client_name']}/{fields['client_version']}"
         assert fields["protocol_version"] == identity.protocol_version
+
+
+class TestCurrentTool:
+    def test_no_tool_outside_tracking(self):
+        """
+        GIVEN no tool call is being tracked
+        WHEN current_tool_name is read
+        THEN it returns None
+        """
+        assert current_tool_name() is None
+
+    def test_tool_name_visible_inside_tracking(self):
+        """
+        GIVEN a tracked tool call
+        WHEN current_tool_name is read inside the block
+        THEN it returns the tool name, and None again after the block
+        """
+        with track_current_tool("list_incidents"):
+            assert current_tool_name() == "list_incidents"
+        assert current_tool_name() is None
+
+    def test_tracking_restores_previous_tool_on_exit(self):
+        """
+        GIVEN nested tracked tool calls
+        WHEN the inner block exits
+        THEN the outer tool name is restored
+        """
+        with track_current_tool("outer_tool"):
+            with track_current_tool("inner_tool"):
+                assert current_tool_name() == "inner_tool"
+            assert current_tool_name() == "outer_tool"
+
+    @pytest.mark.parametrize(
+        "tool_name",
+        ["bad name", "tool\r\nX-Injected: 1", "a" * 65, "tool;drop", "", "aç"],
+        ids=["space", "crlf", "too-long", "semicolon", "empty", "non-ascii"],
+    )
+    def test_a_name_no_registered_tool_could_have_is_not_exposed(self, tool_name):
+        """
+        GIVEN a tools/call naming something no registered tool could be called
+        WHEN that call is tracked
+        THEN the name is not exposed, so no reader can put it on the wire
+        """
+        with track_current_tool(tool_name):
+            assert current_tool_name() is None
+
+    def test_a_registered_style_name_is_exposed(self):
+        """
+        GIVEN a plain identifier, the shape every registered tool has
+        WHEN that call is tracked
+        THEN the name is exposed to downstream readers
+        """
+        with track_current_tool("update_or_create_incident_custom_tags"):
+            assert current_tool_name() == "update_or_create_incident_custom_tags"

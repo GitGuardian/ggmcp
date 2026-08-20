@@ -13,6 +13,7 @@ import httpx
 from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.log_context import (
+    current_tool_name,
     record_downstream_call,
     record_downstream_wait,
     record_truncation,
@@ -379,12 +380,19 @@ class GitGuardianClient:
 
     def _base_headers(self) -> dict[str, str]:
         """Headers sent on every API request, before per-call overrides."""
-        return {
+        headers = {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
             "User-Agent": self._user_agent(),
             "X-Privacy-Mode": "true",
         }
+        # Exposed so API-side analytics can attribute each endpoint call to the
+        # MCP tool that made it. Validated where it enters the process, so
+        # whatever is set here is already header-safe.
+        tool_name = current_tool_name()
+        if tool_name:
+            headers["X-GG-MCP-Tool"] = tool_name
+        return headers
 
     def _init_urls(self, gitguardian_url: str | None = None):
         from .urls import derive_public_api_url

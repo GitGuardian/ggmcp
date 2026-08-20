@@ -19,6 +19,7 @@ from gg_api_core.log_context import (
     classify_failure,
     derive_client_identity,
     resolve_caller_identity,
+    track_current_tool,
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
@@ -241,7 +242,7 @@ class ToolCallLoggingMiddleware(Middleware):
         tool = context.message.name
 
         start = time.perf_counter()
-        with track_downstream_calls() as downstream:
+        with track_current_tool(tool), track_downstream_calls() as downstream:
             try:
                 result = await call_next(context)
             except Exception as exc:
