@@ -1,11 +1,13 @@
 """Derivation and caching of the identity fields bound to every log line."""
 
 import time
+from types import SimpleNamespace
 
 import pytest
 from gg_api_core.log_context import (
     _IDENTITY_CACHE_MAX_ENTRIES,
     _IDENTITY_TTL_SECONDS,
+    ClientIdentity,
     _identity_cache,
     _identity_cache_key,
     clear_caller_identity_cache,
@@ -289,3 +291,60 @@ class TestClearCallerIdentityCache:
         await resolve_caller_identity(fetcher("b"), token="tok-b")
 
         assert calls == {"a": 2, "b": 1}
+
+
+class TestClientIdentity:
+    def test_label_pairs_name_and_version(self):
+        """
+        GIVEN a handshake reporting both a name and a version
+        WHEN the identity is labelled
+        THEN the label is name/version
+        """
+        assert ClientIdentity(name="claude-code", version="2.0.14").label == "claude-code/2.0.14"
+
+    def test_label_is_the_bare_name_without_a_version(self):
+        """
+        GIVEN a handshake reporting a name but no version
+        WHEN the identity is labelled
+        THEN the label is the name alone
+        """
+        assert ClientIdentity(name="claude-code").label == "claude-code"
+
+    def test_label_is_none_without_a_name(self):
+        """
+        GIVEN a handshake that reported no client name
+        WHEN the identity is labelled
+        THEN there is no label to put in a User-Agent
+        """
+        assert ClientIdentity(protocol_version="2025-06-18").label is None
+
+    def test_log_fields_omit_what_was_not_reported(self):
+        """
+        GIVEN an identity with only some fields present
+        WHEN it is rendered for logs
+        THEN absent fields are left out rather than logged as None
+        """
+        assert ClientIdentity(name="cursor").log_fields() == {"client_name": "cursor"}
+
+    def test_from_params_tolerates_missing_client_info(self):
+        """
+        GIVEN initialize params without clientInfo
+        WHEN identity is derived
+        THEN the protocol version is still captured
+        """
+        identity = ClientIdentity.from_params(None, "2025-06-18")
+
+        assert identity.label is None
+        assert identity.protocol_version == "2025-06-18"
+
+    def test_the_user_agent_label_and_log_fields_agree(self):
+        """
+        GIVEN one handshake
+        WHEN it is rendered for a User-Agent and for logs
+        THEN both describe the same client, from the same definition
+        """
+        identity = ClientIdentity.from_params(SimpleNamespace(name="cursor", version="1.4.2"), "2025-06-18")
+        fields = identity.log_fields()
+
+        assert identity.label == f"{fields['client_name']}/{fields['client_version']}"
+        assert fields["protocol_version"] == identity.protocol_version

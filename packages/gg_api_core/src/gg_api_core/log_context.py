@@ -14,11 +14,14 @@ from typing import Any
 from urllib.parse import urlparse
 
 import httpx
+from fastmcp.server.dependencies import get_context
 
 __all__ = [
+    "ClientIdentity",
     "DownstreamStats",
     "classify_failure",
     "clear_caller_identity_cache",
+    "current_client_identity",
     "current_downstream_stats",
     "derive_caller_identity",
     "derive_client_identity",
@@ -270,17 +273,62 @@ def classify_failure(exc: BaseException) -> dict[str, Any]:
     return failure
 
 
+@dataclass(frozen=True)
+class ClientIdentity:
+    """Who is calling us, from the MCP initialize handshake.
+
+    One definition shared by the two consumers that need it: log fields, and
+    the ``client=``/``mcp=`` User-Agent fields on outgoing API calls. The
+    handshake is the only client hint that exists on every transport, so this
+    is what identifies a local stdio install.
+    """
+
+    name: str | None = None
+    version: str | None = None
+    protocol_version: str | None = None
+
+    @classmethod
+    def from_params(cls, client_info: Any, protocol_version: Any = None) -> ClientIdentity:
+        """Read identity off initialize params, tolerating partial ones."""
+        return cls(
+            name=getattr(client_info, "name", None) or None,
+            version=getattr(client_info, "version", None) or None,
+            protocol_version=str(protocol_version) if protocol_version else None,
+        )
+
+    @property
+    def label(self) -> str | None:
+        """``<name>/<version>``, or the bare name when no version was sent."""
+        if not self.name:
+            return None
+        return f"{self.name}/{self.version}" if self.version else self.name
+
+    def log_fields(self) -> dict[str, Any]:
+        """The subset present, under the field names logs use."""
+        fields = {
+            "client_name": self.name,
+            "client_version": self.version,
+            "protocol_version": self.protocol_version,
+        }
+        return {key: value for key, value in fields.items() if value}
+
+
 def derive_client_identity(client_info: Any, protocol_version: Any = None) -> dict[str, Any]:
     """Map optional MCP initialization metadata to log fields."""
-    identity: dict[str, Any] = {}
+    return ClientIdentity.from_params(client_info, protocol_version).log_fields()
 
-    name = getattr(client_info, "name", None)
-    if name:
-        identity["client_name"] = name
-    version = getattr(client_info, "version", None)
-    if version:
-        identity["client_version"] = version
-    if protocol_version:
-        identity["protocol_version"] = str(protocol_version)
 
-    return identity
+def current_client_identity() -> ClientIdentity | None:
+    """Identity of the session in flight, or None outside an MCP request.
+
+    Read from the session rather than a contextvar: the handshake happens in an
+    earlier message, whose context is long gone by the time a tool runs, while
+    the session object lives for the whole connection.
+    """
+    try:
+        params = get_context().session.client_params
+    except Exception:
+        return None
+    if params is None:
+        return None
+    return ClientIdentity.from_params(params.clientInfo, params.protocolVersion)
