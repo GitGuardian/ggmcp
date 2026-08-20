@@ -202,7 +202,7 @@ class TestListPublicOccurrences:
         with use_cassette("test_list_public_occurrences_with_severity"):
             result = await real_client.list_public_occurrences(
                 incident_id=_INCIDENT_ID,
-                severity="critical,high",
+                severity=["critical", "high"],
                 per_page=5,
             )
 
@@ -220,7 +220,7 @@ class TestListPublicOccurrences:
         with use_cassette("test_list_public_occurrences_with_status"):
             result = await real_client.list_public_occurrences(
                 incident_id=_INCIDENT_ID,
-                status="TRIGGERED,ASSIGNED",
+                status=["TRIGGERED", "ASSIGNED"],
                 per_page=5,
             )
 
@@ -238,7 +238,7 @@ class TestListPublicOccurrences:
         with use_cassette("test_list_public_occurrences_with_validity"):
             result = await real_client.list_public_occurrences(
                 incident_id=_INCIDENT_ID,
-                validity="valid,invalid,no_checker",
+                validity=["valid", "invalid", "no_checker"],
                 per_page=5,
             )
 

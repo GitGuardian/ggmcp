@@ -271,12 +271,11 @@ class TestListIncidentsForMcp:
         Test listing incidents filtered by severity using MCP endpoint.
 
         GIVEN a valid GitGuardian API key
-        WHEN we request incidents with severity 10 (critical) or 20 (high)
+        WHEN we request incidents with critical or high severity
         THEN we should receive incidents (filter applied)
         """
         with use_cassette("test_list_incidents_for_mcp_with_severity_filter"):
-            # Severity uses numeric values: critical=10, high=20, medium=30, low=40
-            result = await real_client.list_incidents_for_mcp(severity=[10, 20], page_size=5)
+            result = await real_client.list_incidents_for_mcp(severity=["critical", "high"], page_size=5)
 
             assert result is not None
             assert "results" in result
@@ -403,7 +402,7 @@ class TestListIncidentsForMcp:
         with use_cassette("test_list_incidents_for_mcp_combined_filters"):
             result = await real_client.list_incidents_for_mcp(
                 status=["TRIGGERED", "ASSIGNED"],  # Both active statuses
-                severity=[10, 20],  # critical and high
+                severity=["critical", "high"],
                 ordering="-date",
                 page_size=5,
             )
@@ -562,10 +561,10 @@ class TestListIncidentsForMcp:
         WHEN we request incidents with specific validity status
         THEN we should receive incidents (filter applied)
 
-        Valid values: valid, invalid, failed_to_check, no_checker, not_checked
+        Canonical values: valid, invalid, failed_to_check, no_checker, unknown
         """
         with use_cassette("test_list_incidents_for_mcp_with_validity"):
-            result = await real_client.list_incidents_for_mcp(validity=["valid", "not_checked"], page_size=5)
+            result = await real_client.list_incidents_for_mcp(validity=["valid", "unknown"], page_size=5)
 
             assert result is not None
             assert "results" in result

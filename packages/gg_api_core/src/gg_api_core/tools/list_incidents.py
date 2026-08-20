@@ -5,36 +5,16 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentSourceTypeFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
+)
+from gg_api_core.incident_filter_adapters import IncidentIntegrationFilter
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
-
-
-class IncidentStatus:
-    TRIGGERED = "TRIGGERED"  # Unassigned active incidents
-    ASSIGNED = "ASSIGNED"  # Assigned active incidents
-    RESOLVED = "RESOLVED"
-    IGNORED = "IGNORED"
-
-
-# Severity numeric values (IntegerChoices in Django)
-class SeverityValues:
-    CRITICAL = 10
-    HIGH = 20
-    MEDIUM = 30
-    LOW = 40
-    INFO = 50
-    UNKNOWN = 100
-
-
-SEVERITY_NAME_TO_VALUE = {
-    "critical": SeverityValues.CRITICAL,
-    "high": SeverityValues.HIGH,
-    "medium": SeverityValues.MEDIUM,
-    "low": SeverityValues.LOW,
-    "info": SeverityValues.INFO,
-    "unknown": SeverityValues.UNKNOWN,
-}
 
 
 # Default filters to reduce noise - exclude test files, false positives, and low-priority incidents
@@ -45,22 +25,22 @@ DEFAULT_EXCLUDED_TAGS = [
     "CHECK_RUN_SKIP_LOW_RISK",
     "CHECK_RUN_SKIP_TEST_CRED",
 ]
-DEFAULT_SEVERITIES: list[str | int] = [
-    SeverityValues.CRITICAL,
-    SeverityValues.HIGH,
-    SeverityValues.MEDIUM,
-    SeverityValues.UNKNOWN,
-]  # Exclude LOW and INFO
-DEFAULT_STATUSES = [
-    IncidentStatus.TRIGGERED,
-    IncidentStatus.ASSIGNED,
-    IncidentStatus.RESOLVED,
+DEFAULT_SEVERITIES: list[IncidentSeverityFilter] = [
+    "critical",
+    "high",
+    "medium",
+    "unknown",
+]  # Exclude low and info
+DEFAULT_STATUSES: list[IncidentStatusFilter] = [
+    "TRIGGERED",
+    "ASSIGNED",
+    "RESOLVED",
 ]  # Exclude IGNORED
-DEFAULT_VALIDITIES = [
+DEFAULT_VALIDITIES: list[IncidentValidityFilter] = [
     "valid",
     "failed_to_check",
     "no_checker",
-    "not_checked",
+    "unknown",
 ]  # Exclude INVALID
 
 
@@ -217,9 +197,9 @@ class ListIncidentsParams(BaseModel):
     )
 
     # Status and assignment filters
-    status: list[str] | None = Field(
+    status: list[IncidentStatusFilter] | None = Field(
         default=DEFAULT_STATUSES,
-        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED. Note that OPENED is not a valid status but means 'TRIGGERED OR ASSIGNED'.",
+        description="Filter by status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Default excludes IGNORED.",
     )
     mine: bool = Field(
         default=False,
@@ -231,7 +211,7 @@ class ListIncidentsParams(BaseModel):
     )
 
     # Severity, score, and validity filters
-    severity: list[str | int] | None = Field(
+    severity: list[IncidentSeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
     )
@@ -247,9 +227,9 @@ class ListIncidentsParams(BaseModel):
         ge=0,
         le=100,
     )
-    validity: list[str] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
+        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
     )
 
     # Secret type filters
@@ -287,9 +267,9 @@ class ListIncidentsParams(BaseModel):
         default=None,
         description="Filter by source ID(s). Can be obtained using list_source or find_current_source_id tools.",
     )
-    source_type: list[str] | None = Field(
+    source_type: list[IncidentSourceTypeFilter] | None = Field(
         default=None,
-        description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')",
+        description="Filter by public API source type (for example: github, gitlab, bitbucket, azure_devops).",
     )
     source_criticality: list[str] | None = Field(
         default=None,
@@ -327,9 +307,9 @@ class ListIncidentsParams(BaseModel):
     )
 
     # Integration filters
-    integration: list[str] | None = Field(
+    integration: list[IncidentIntegrationFilter] | None = Field(
         default=None,
-        description="Filter by integration type (e.g., 'github', 'gitlab', 'slack')",
+        description="Filter by audited integration name. Values: github, github_enterprise_server, gitlab",
     )
     issue_tracker: list[str] | None = Field(
         default=None,
@@ -489,8 +469,7 @@ async def list_incidents(
 
     Features:
     - Page-based pagination
-    - Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Note that OPENED is not a valid status but means
-     'TRIGGERED OR ASSIGNED'
+    - Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED
     - Rich filtering options for detector types, secret categories, and public exposure
     - Returns detailed incident data including custom tags, vault metadata, and similar issue counts
 
@@ -536,20 +515,7 @@ async def list_incidents(
         if params.status:
             api_params["status"] = params.status
         if params.severity:
-            # Convert severity names to numeric values if needed
-            severity_values: list[int | str] = []
-            for sev in params.severity:
-                if isinstance(sev, int):
-                    severity_values.append(sev)
-                elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-                    severity_values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-                else:
-                    # Try to parse as int, or pass through as-is
-                    try:
-                        severity_values.append(int(str(sev)))
-                    except ValueError:
-                        severity_values.append(str(sev))
-            api_params["severity"] = severity_values
+            api_params["severity"] = params.severity
         if params.score_min is not None:
             api_params["score__ge"] = params.score_min
         if params.score_max is not None:

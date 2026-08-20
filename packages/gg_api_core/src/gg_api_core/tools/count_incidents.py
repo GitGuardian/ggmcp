@@ -3,12 +3,18 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentSourceTypeFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
+)
+from gg_api_core.incident_filter_adapters import IncidentIntegrationFilter
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
     DEFAULT_VALIDITIES,
-    SEVERITY_NAME_TO_VALUE,
 )
 from gg_api_core.utils import get_client
 
@@ -28,7 +34,7 @@ class CountIncidentsParams(BaseModel):
     )
 
     # Status and assignment filters
-    status: list[str] | None = Field(
+    status: list[IncidentStatusFilter] | None = Field(
         default=DEFAULT_STATUSES,
         description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED.",
     )
@@ -42,7 +48,7 @@ class CountIncidentsParams(BaseModel):
     )
 
     # Severity, score, and validity filters
-    severity: list[str | int] | None = Field(
+    severity: list[IncidentSeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
     )
@@ -58,9 +64,9 @@ class CountIncidentsParams(BaseModel):
         ge=0,
         le=100,
     )
-    validity: list[str] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
+        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
     )
 
     # Secret type filters
@@ -98,9 +104,9 @@ class CountIncidentsParams(BaseModel):
         default=None,
         description="Filter by source ID(s). Can be obtained using list_source or find_current_source_id tools.",
     )
-    source_type: list[str] | None = Field(
+    source_type: list[IncidentSourceTypeFilter] | None = Field(
         default=None,
-        description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')",
+        description="Filter by public API source type (for example: github, gitlab, bitbucket, azure_devops).",
     )
     source_criticality: list[str] | None = Field(
         default=None,
@@ -138,9 +144,9 @@ class CountIncidentsParams(BaseModel):
     )
 
     # Integration filters
-    integration: list[str] | None = Field(
+    integration: list[IncidentIntegrationFilter] | None = Field(
         default=None,
-        description="Filter by integration type (e.g., 'github', 'gitlab', 'slack')",
+        description="Filter by audited integration name. Values: github, github_enterprise_server, gitlab",
     )
     issue_tracker: list[str] | None = Field(
         default=None,
@@ -414,18 +420,7 @@ async def count_incidents(
         if params.status:
             api_params["status"] = params.status
         if params.severity:
-            severity_values: list[int | str] = []
-            for sev in params.severity:
-                if isinstance(sev, int):
-                    severity_values.append(sev)
-                elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-                    severity_values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-                else:
-                    try:
-                        severity_values.append(int(str(sev)))
-                    except ValueError:
-                        severity_values.append(str(sev))
-            api_params["severity"] = severity_values
+            api_params["severity"] = params.severity
         if params.score_min is not None:
             api_params["score__ge"] = params.score_min
         if params.score_max is not None:
