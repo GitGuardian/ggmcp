@@ -37,12 +37,6 @@ def _resolve_tags(
     current: list[tuple[str, str | None]],
     requested: list[tuple[str, str | None]],
 ) -> list[tuple[str, str | None]]:
-    """Fold requested tags into the current incident set according to the action.
-
-    add     -> the union of current and requested, order-preserving, deduplicated
-    remove  -> current minus requested
-    set     -> just requested, deduplicated
-    """
     if action == "add":
         return list(dict.fromkeys([*current, *requested]))
     if action == "remove":
