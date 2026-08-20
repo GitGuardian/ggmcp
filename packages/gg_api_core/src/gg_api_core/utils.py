@@ -1,11 +1,13 @@
 import logging
 import re
+from collections.abc import Callable
 from urllib.parse import urljoin as urllib_urljoin
 
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 
 from .client import DEFAULT_USER_AGENT, GitGuardianClient, acquire_single_tenant_token
+from .log_context import current_client_identity
 from .settings import get_settings
 
 # Setup logger
@@ -45,9 +47,12 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     Args:
         personal_access_token: Optional PAT for explicit authentication.
-        user_agent: Optional User-Agent string. If not provided, one is built
-            via :func:`_build_user_agent` (server identity + transport marker,
-            plus the caller's User-Agent when the request came over HTTP).
+        user_agent: Optional explicit User-Agent. If not provided, one is built
+            per request via :func:`_build_user_agent` (server identity +
+            transport marker, plus the client's identity from the MCP handshake
+            or HTTP headers). The client evaluates it per request so a
+            long-lived singleton reflects the session's handshake, not
+            whichever call created it first.
 
     Returns:
         GitGuardianClient: Client instance configured with appropriate authentication
@@ -56,14 +61,20 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
         RuntimeError: In single-tenant mode, if no token source is available
     """
-    # Build the User-Agent for outgoing API calls if not explicitly provided
-    if user_agent is None:
-        user_agent = _build_user_agent()
+    # The User-Agent is always a callable evaluated per request: the long-lived
+    # single-tenant singleton would otherwise freeze whatever handshake was known
+    # when the first call created it. An explicit override is wrapped into a
+    # constant callable; otherwise the live handshake-derived builder is used.
+    # All three modes below are therefore uniform: they pass the same source.
+    ua_source: Callable[[], str] = (lambda: user_agent) if user_agent else _build_user_agent
 
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
         logger.debug("Creating client with explicitly provided token")
-        return GitGuardianClient(personal_access_token=personal_access_token, user_agent=user_agent)
+        return GitGuardianClient(
+            personal_access_token=personal_access_token,
+            user_agent=ua_source,
+        )
 
     # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
     settings = get_settings()
@@ -75,7 +86,7 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
             )
         logger.debug("Multi-tenant mode: extracting token from request headers")
         token = _get_token_from_request_headers()
-        return GitGuardianClient(personal_access_token=token, user_agent=user_agent)
+        return GitGuardianClient(personal_access_token=token, user_agent=ua_source)
 
     # 3. Single-tenant mode (DEFAULT) - use singleton pattern to cache the PAT
     global _client_singleton
@@ -84,26 +95,35 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     # Acquire token for single-tenant mode
     token = await acquire_single_tenant_token()
-    # Enable token refresh for self-healing on 401 errors
+    # Enable token refresh for self-healing on 401 errors.
     _client_singleton = GitGuardianClient(
         personal_access_token=token,
         allow_token_refresh=True,
-        user_agent=user_agent,
+        user_agent=ua_source,
     )
     return _client_singleton
 
 
 def _get_caller_user_agent() -> str | None:
-    """Try to extract User-Agent from the incoming MCP request headers.
+    """The caller's own User-Agent, for callers that reached us over HTTP.
 
-    Returns None if not available (e.g. stdio transport).
+    ``get_http_headers`` returns an empty mapping outside an HTTP request
+    rather than raising, so stdio simply yields None.
     """
-    try:
-        headers = get_http_headers(include={"user-agent"})
-        return headers.get("user-agent") if headers else None
-    except Exception:
-        logger.exception("Error when trying to extract User-Agent from headers")
-        return None
+    return get_http_headers(include={"user-agent"}).get("user-agent")
+
+
+# Comment fields are client-controlled text: keep printable ASCII, drop the
+# characters that delimit User-Agent comments or a field inside one (so a
+# client cannot forge its own `key=value` pair), and bound the length.
+_UA_FIELD_DISALLOWED = re.compile(r"[^\x20-\x7e]|[();=,]")
+_UA_FIELD_MAX_LENGTH = 64
+
+
+def _sanitize_ua_field(value: str) -> str | None:
+    """Make a client-controlled string safe to embed in a User-Agent comment."""
+    cleaned = _UA_FIELD_DISALLOWED.sub("", value).strip()
+    return cleaned[:_UA_FIELD_MAX_LENGTH] or None
 
 
 def _build_user_agent() -> str:
@@ -111,20 +131,28 @@ def _build_user_agent() -> str:
 
     The string always starts with ``GitGuardian-MCP-Server/<version>`` so that
     monitoring filtering on that substring keeps matching every MCP request,
-    regardless of transport. A ``transport=stdio|http`` marker is appended to
-    tell legacy local (stdio) clients apart from the hosted HTTP server, and
-    when the request arrives over HTTP the calling client's own User-Agent is
-    preserved as ``client=...`` for per-client analytics.
+    regardless of transport. A ``transport=stdio|http`` marker tells local
+    (stdio) installs apart from the hosted HTTP server. The calling client is
+    identified as ``client=<name>/<version>`` from the MCP handshake's
+    ``clientInfo`` (available on every transport), falling back to the raw
+    HTTP User-Agent for callers that reached us over HTTP. The negotiated MCP
+    protocol revision is appended as ``mcp=...`` to track spec adoption.
 
     Examples:
-        - stdio:  ``GitGuardian-MCP-Server/0.5.0 (transport=stdio)``
-        - hosted: ``GitGuardian-MCP-Server/0.5.0 (transport=http; client=Claude-Code/1.2)``
+        - stdio:  ``GitGuardian-MCP-Server/0.7.0 (transport=stdio; client=claude-code/2.0.14; mcp=2025-06-18)``
+        - hosted: ``GitGuardian-MCP-Server/0.7.0 (transport=http; client=cursor/1.4.2; mcp=2025-06-18)``
     """
     transport = "http" if get_settings().mcp_port else "stdio"
     parts = [f"transport={transport}"]
-    caller = _get_caller_user_agent()
-    if caller:
-        parts.append(f"client={caller}")
+
+    identity = current_client_identity()
+    client = (identity.label if identity else None) or _get_caller_user_agent()
+    protocol = identity.protocol_version if identity else None
+    if client and (sanitized_client := _sanitize_ua_field(client)):
+        parts.append(f"client={sanitized_client}")
+    if protocol and (sanitized_protocol := _sanitize_ua_field(protocol)):
+        parts.append(f"mcp={sanitized_protocol}")
+
     return f"{DEFAULT_USER_AGENT} ({'; '.join(parts)})"
 
 

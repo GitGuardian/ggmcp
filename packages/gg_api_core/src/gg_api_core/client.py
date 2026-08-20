@@ -3,7 +3,7 @@ import json
 import logging
 import re
 import time
-from collections.abc import Awaitable, Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional, TypedDict, cast
@@ -12,7 +12,11 @@ from urllib.parse import quote_plus, unquote, urlparse
 import httpx
 from pydantic import TypeAdapter, ValidationError
 
-from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
+from gg_api_core.log_context import (
+    record_downstream_call,
+    record_downstream_wait,
+    record_truncation,
+)
 from gg_api_core.settings import get_settings
 from gg_api_core.version import APP_VERSION
 
@@ -347,7 +351,7 @@ class GitGuardianClient:
         gitguardian_url: str | None = None,
         personal_access_token: str | None = None,
         allow_token_refresh: bool = False,
-        user_agent: str | None = None,
+        user_agent: Callable[[], str] | None = None,
     ):
         """Initialize the GitGuardian client.
 
@@ -360,15 +364,17 @@ class GitGuardianClient:
             allow_token_refresh: If True, the client can attempt to refresh the
                 token when a 401 error occurs (via env var or OAuth flow).
                 This enables self-healing when tokens expire or become invalid.
-            user_agent: Custom User-Agent string to identify the MCP client.
-                Defaults to DEFAULT_USER_AGENT if not provided.
+            user_agent: Zero-argument callable returning the User-Agent used to
+                identify the MCP client. Evaluated on every request so a
+                long-lived client reflects per-request context.
+                Defaults to a callable returning DEFAULT_USER_AGENT.
         """
         logger.debug("Initializing GitGuardian client")
 
         self._init_urls(gitguardian_url)
         self._oauth_token = personal_access_token
         self._allow_token_refresh = allow_token_refresh
-        self._user_agent = user_agent or self.DEFAULT_USER_AGENT
+        self._user_agent = user_agent or (lambda: self.DEFAULT_USER_AGENT)
         self._token_info: Any | None = None
 
     def _base_headers(self) -> dict[str, str]:
@@ -376,7 +382,7 @@ class GitGuardianClient:
         return {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
+            "User-Agent": self._user_agent(),
             "X-Privacy-Mode": "true",
         }
 

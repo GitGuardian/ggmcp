@@ -778,3 +778,42 @@ class TestIncidentsForMCPAssigneeFilter:
         params = client._request_get.call_args.kwargs["params"]
         assert params["date__ge"] == "2026-07-01"
         assert params["date__le"] == "2026-08-01"
+
+
+class TestOutgoingRequestHeaders:
+    """Headers identifying the MCP client on outgoing API calls."""
+
+    def _patched_http(self, mock_response, mock_httpx_client):
+        mock_response.raise_for_status = MagicMock()
+        async_client_instance = AsyncMock()
+        async_client_instance.__aenter__.return_value = mock_httpx_client
+        mock_httpx_client.request = AsyncMock(return_value=mock_response)
+        return patch("httpx.AsyncClient", return_value=async_client_instance)
+
+    @pytest.mark.asyncio
+    async def test_callable_user_agent_evaluated_per_request(self, mock_response, mock_httpx_client):
+        """
+        GIVEN a client constructed with a callable user_agent
+        WHEN two requests are sent
+        THEN each request evaluates the callable, so the header can differ
+        """
+        values = iter(["UA-first", "UA-second"])
+        client = GitGuardianClient(gitguardian_url="https://custom.api.url", user_agent=lambda: next(values))
+        client._oauth_token = "test_oauth_token"
+
+        with self._patched_http(mock_response, mock_httpx_client):
+            await client._request_get("/test")
+            first = mock_httpx_client.request.call_args.kwargs["headers"]["User-Agent"]
+            await client._request_get("/test")
+            second = mock_httpx_client.request.call_args.kwargs["headers"]["User-Agent"]
+
+        assert (first, second) == ("UA-first", "UA-second")
+
+    def test_default_user_agent_callable(self):
+        """
+        GIVEN a client constructed without a user_agent
+        WHEN the user agent is read
+        THEN it resolves to DEFAULT_USER_AGENT
+        """
+        client = GitGuardianClient(gitguardian_url="https://custom.api.url")
+        assert client._user_agent() == GitGuardianClient.DEFAULT_USER_AGENT
