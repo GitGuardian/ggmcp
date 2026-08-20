@@ -205,6 +205,34 @@ class TestManageIncidentCustomTags:
 
         assert sent_body(patch_route) == {"custom_tags": [{"key": "team", "value": "red"}]}
 
+    async def test_removing_all_tags_clears_the_set(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident carrying tags and a remove of every one of them
+        WHEN manage_incident_custom_tags is called
+        THEN the PATCH carries custom_tags=[] so the API clears the whole set
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={"id": 42, "custom_tags": [{"key": "env", "value": "prod"}]},
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {
+                "params": {
+                    "incident_id": 42,
+                    "action": "remove",
+                    "custom_tags": ["env:prod"],
+                }
+            },
+        )
+
+        assert sent_body(patch_route) == {"custom_tags": []}
+
     async def test_set_replaces_the_whole_set(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN an incident carrying existing tags

@@ -388,19 +388,21 @@ class TestGitGuardianClient:
         )
 
     @pytest.mark.asyncio
-    async def test_update_incident_rejects_explicit_empty_custom_tags(self, client):
+    async def test_update_incident_empty_custom_tags_clears_all_tags(self, client):
         """
         GIVEN custom_tags passed as an explicit empty list
         WHEN calling update_incident
-        THEN a ValueError is raised and no PATCH is issued (the endpoint drops
-             an empty list, so it cannot express "clear all")
+        THEN the PATCH carries custom_tags=[] (the API interprets this as
+             "set to match nothing", i.e. clear all tags)
         """
         client._request_patch = AsyncMock(return_value={"id": 123})
 
-        with pytest.raises(ValueError, match="cannot be an empty list"):
-            await client.update_incident(incident_id="123", custom_tags=[])
+        await client.update_incident(incident_id="123", custom_tags=[])
 
-        client._request_patch.assert_not_awaited()
+        client._request_patch.assert_awaited_once_with(
+            "/incidents/secrets/123",
+            json={"custom_tags": []},
+        )
 
 
 class TestGitGuardianClientURLs:

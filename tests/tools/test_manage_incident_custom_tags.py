@@ -242,24 +242,16 @@ class TestManageIncidentCustomTags:
         )
 
     @pytest.mark.asyncio
-    async def test_empty_final_set_surfaces_client_rejection(self):
+    async def test_empty_final_set_clears_all_tags(self):
         """
-        GIVEN an operation whose computed final set is empty (e.g. set with no tags)
+        GIVEN an operation whose computed final set is empty (e.g. remove of every tag)
         WHEN managing an incident's tags
-        THEN the client's empty-tags rejection is surfaced as a ToolError and no PATCH payload is sent
+        THEN the handler PATCHes custom_tags=[] so the API clears all tags
         """
         mock_client = self._client([{"id": "t1", "key": "env", "value": "prod"}])
-        # The real client.update_incident rejects an explicit empty list, because
-        # the PATCH endpoint drops it. Simulate that rejection at the boundary.
-        mock_client.update_incident.side_effect = ValueError(
-            "custom_tags cannot be an empty list"
-        )
 
-        params = IncidentCustomTagsParams(incident_id=123, action="set", custom_tags=[])
-        with (
-            patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client),
-            pytest.raises(ToolError, match="custom_tags cannot be an empty list"),
-        ):
+        params = IncidentCustomTagsParams(incident_id=123, action="remove", custom_tags=["env:prod"])
+        with patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client):
             await manage_incident_custom_tags(params)
 
         mock_client.get_incident.assert_awaited_once()

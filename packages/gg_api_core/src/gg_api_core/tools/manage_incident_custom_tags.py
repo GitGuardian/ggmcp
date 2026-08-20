@@ -56,8 +56,8 @@ async def manage_incident_custom_tags(params: IncidentCustomTagsParams) -> dict[
 
         final = _resolve_tags(params.action, current, requested)
 
-        # An empty final set raises in client.update_incident (the PATCH endpoint
-        # cannot express an empty tag set), surfacing as a clear ToolError.
+        # An empty final set clears all tags: the API treats `custom_tags` as
+        # "set to match this list", so [] unlinks every tag on the incident.
         result = await client.update_incident(
             incident_id=str(params.incident_id),
             custom_tags=[{"key": key, "value": value} for key, value in final],
