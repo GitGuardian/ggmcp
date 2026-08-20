@@ -371,6 +371,15 @@ class GitGuardianClient:
         self._user_agent = user_agent or self.DEFAULT_USER_AGENT
         self._token_info: Any | None = None
 
+    def _base_headers(self) -> dict[str, str]:
+        """Headers sent on every API request, before per-call overrides."""
+        return {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self._user_agent,
+            "X-Privacy-Mode": "true",
+        }
+
     def _init_urls(self, gitguardian_url: str | None = None):
         from .urls import derive_public_api_url
 
@@ -529,12 +538,7 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers()
         logger.debug("Using token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
@@ -795,12 +799,7 @@ class GitGuardianClient:
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making list request to {url}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers()
         headers.update(kwargs.pop("headers", {}))
 
         async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
