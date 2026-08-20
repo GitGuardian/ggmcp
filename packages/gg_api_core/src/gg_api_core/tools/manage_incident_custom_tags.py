@@ -85,16 +85,8 @@ async def manage_incident_custom_tags(params: IncidentCustomTagsParams) -> dict[
 
         final = _resolve_tags(params.action, current, requested)
 
-        # update_incident drops an empty custom_tags payload, so an empty final set
-        # cannot be represented as an explicit "clear all". Surface that clearly
-        # instead of inheriting a misleading "severity or custom_tags" error.
-        if not final:
-            raise ToolError(
-                "The requested operation would leave the incident with no custom tags, "
-                "which the PATCH endpoint cannot express (it drops an empty tag set). "
-                "Provide at least one tag in custom_tags."
-            )
-
+        # An empty final set raises in client.update_incident (the PATCH endpoint
+        # cannot express an empty tag set), surfacing as a clear ToolError.
         result = await client.update_incident(
             incident_id=str(params.incident_id),
             custom_tags=[{"key": key, "value": value} for key, value in final],

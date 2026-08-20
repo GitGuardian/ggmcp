@@ -125,6 +125,19 @@ class TestResolveTags:
         current = [("team", "red")]
         assert _resolve_tags("remove", current, [("env", "prod")]) == [("team", "red")]
 
+    def test_remove_matches_full_key_value_pair_not_bare_key(self):
+        """
+        GIVEN a current tag stored with a value
+        WHEN removing it by bare key with no value
+        THEN it does not match (dedup is on the full (key, value) pair); the tag
+             is kept, so a bare-key remove is a silent no-op
+        """
+        current = [("env", "prod")]
+        # request by bare key (value None) vs stored env:prod -> no match
+        assert _resolve_tags("remove", current, [("env", None)]) == [("env", "prod")]
+        # matching by the exact key:value pair does remove it
+        assert _resolve_tags("remove", current, [("env", "prod")]) == []
+
     def test_set_replaces_the_whole_set(self):
         """
         GIVEN current and requested tag sets
@@ -293,23 +306,31 @@ class TestManageIncidentCustomTags:
         )
 
     @pytest.mark.asyncio
-    async def test_empty_final_set_raises_instead_of_clearing(self):
+    async def test_empty_final_set_surfaces_client_rejection(self):
         """
         GIVEN an operation whose computed final set is empty (e.g. set with no tags)
         WHEN managing an incident's tags
-        THEN a clear ToolError is raised and no PATCH is issued (the API cannot express an empty set)
+        THEN the client's empty-tags rejection is surfaced as a ToolError and no PATCH payload is sent
         """
         mock_client = self._client([{"id": "t1", "key": "env", "value": "prod"}])
+        # The real client.update_incident rejects an explicit empty list, because
+        # the PATCH endpoint drops it. Simulate that rejection at the boundary.
+        mock_client.update_incident.side_effect = ValueError(
+            "custom_tags cannot be an empty list"
+        )
 
         params = IncidentCustomTagsParams(incident_id=123, action="set", custom_tags=[])
         with (
             patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client),
-            pytest.raises(ToolError, match="no custom tags"),
+            pytest.raises(ToolError, match="custom_tags cannot be an empty list"),
         ):
             await manage_incident_custom_tags(params)
 
         mock_client.get_incident.assert_awaited_once()
-        mock_client.update_incident.assert_not_awaited()
+        mock_client.update_incident.assert_awaited_once_with(
+            incident_id="123",
+            custom_tags=[],
+        )
 
     @pytest.mark.asyncio
     async def test_no_precreate_requests_are_issued(self):

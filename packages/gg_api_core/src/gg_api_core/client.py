@@ -1212,6 +1212,17 @@ class GitGuardianClient:
         """
         logger.info(f"Updating incident {incident_id} with severity={severity}, custom_tags={custom_tags}")
 
+        # An explicitly provided empty tag set cannot be expressed by the PATCH
+        # endpoint (it silently drops an empty list, so it would be a no-op rather
+        # than a "clear all"). Reject it up front instead of silently sending an
+        # empty update. `None` still means "don't touch tags".
+        if custom_tags == []:
+            raise ValueError(
+                "custom_tags cannot be an empty list: the PATCH endpoint cannot "
+                "express an empty tag set (it drops it). Pass None to leave tags "
+                "unchanged, or provide at least one tag."
+            )
+
         payload: dict[str, Any] = {}
         if severity:
             payload["severity"] = severity
