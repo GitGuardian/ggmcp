@@ -9,6 +9,7 @@ from gg_api_core.generated_filter_vocabulary import (
     IncidentStatusFilter,
     IncidentValidityFilter,
 )
+from gg_api_core.incident_filters import coerce_to_list
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -77,13 +78,7 @@ class ListRepoOccurrencesFilters(BaseModel):
     @classmethod
     def coerce_to_list(cls, value: Any) -> list[Any] | None:
         """Accept a single value, a list, or a comma-separated string, and normalize to a list."""
-        if value is None:
-            return None
-        if isinstance(value, list):
-            return value
-        if isinstance(value, str) and "," in value:
-            return [item.strip() for item in value.split(",") if item.strip()]
-        return [value]
+        return coerce_to_list(value)
 
     @model_validator(mode="after")
     def validate_exactly_one_assignee_option(self):

@@ -430,3 +430,28 @@ class TestListRepoOccurrencesFilters:
         assert params.mine is False
         assert params.member_assignee_id is None
         assert params.per_page == 50
+
+
+class TestRepoOccurrencesCoercion:
+    """Parametrized coercion tests for the repo occurrences status/severity/validity filters."""
+
+    @pytest.mark.parametrize(
+        ("field", "raw", "expected"),
+        [
+            ("severity", "critical", ["critical"]),
+            ("severity", "critical, high", ["critical", "high"]),
+            ("severity", ["critical", "unknown"], ["critical", "unknown"]),
+            ("status", "TRIGGERED", ["TRIGGERED"]),
+            ("status", "TRIGGERED,ASSIGNED", ["TRIGGERED", "ASSIGNED"]),
+            ("validity", "valid,unknown", ["valid", "unknown"]),
+            ("validity", "valid", ["valid"]),
+        ],
+    )
+    def test_coerce_filter_value(self, field, raw, expected):
+        """
+        GIVEN a single value, a CSV string, or a list for an enum filter
+        WHEN building ListRepoOccurrencesFilters
+        THEN the value is normalized to a canonical list
+        """
+        filters = ListRepoOccurrencesFilters(member_assignee_id=12345, **{field: raw})
+        assert getattr(filters, field) == expected

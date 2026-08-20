@@ -9,6 +9,7 @@ from gg_api_core.generated_filter_vocabulary import (
     IncidentStatusFilter,
     IncidentValidityFilter,
 )
+from gg_api_core.incident_filters import coerce_to_list
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -196,11 +197,7 @@ class ListPublicIncidentsParams(BaseModel):
     @field_validator("status", "severity", "validity", mode="before")
     @classmethod
     def coerce_to_list(cls, v: Any) -> list[Any] | None:
-        if v is None:
-            return None
-        if isinstance(v, list):
-            return v
-        return [v]
+        return coerce_to_list(v)
 
 
 class ListPublicIncidentsResult(BaseModel):
@@ -234,11 +231,11 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     if params.assignee_id is not None:
         filters["assignee_id"] = params.assignee_id
     if params.status:
-        filters["status"] = [s.value if hasattr(s, "value") else s for s in params.status]
+        filters["status"] = params.status
     if params.severity:
-        filters["severity"] = [s.value if hasattr(s, "value") else s for s in params.severity]
+        filters["severity"] = params.severity
     if params.validity:
-        filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
+        filters["validity"] = params.validity
     if params.tags:
         filters["tags"] = params.tags
     if params.custom_tags:

@@ -1,14 +1,7 @@
 """Translate canonical public incident filters to endpoint-specific wire values."""
 
 from collections.abc import Mapping, Sequence
-from typing import Literal, TypeAlias, TypeVar
-
-from gg_api_core.generated_filter_vocabulary import (
-    IncidentSeverityFilter,
-    IncidentSourceTypeFilter,
-    IncidentStatusFilter,
-    IncidentValidityFilter,
-)
+from typing import Any, Literal, TypeAlias
 
 IncidentIntegrationFilter: TypeAlias = Literal[
     "github",
@@ -16,12 +9,16 @@ IncidentIntegrationFilter: TypeAlias = Literal[
     "gitlab",
 ]
 
-MCP_INTEGRATION_VALUES: dict[IncidentIntegrationFilter, str] = {
+
+# Canonical -> wire value for the private /incidents-for-mcp endpoint. Kept
+# explicit as a plain dict (string key, str/int value) because this endpoint is
+# not part of the public OpenAPI specification that generates the vocabulary.
+MCP_INTEGRATION_VALUES: dict[str, str] = {
     "github": "gh",
     "github_enterprise_server": "ghe",
     "gitlab": "gl",
 }
-MCP_SEVERITY_VALUES: dict[IncidentSeverityFilter, int] = {
+MCP_SEVERITY_VALUES: dict[str, int] = {
     "critical": 10,
     "high": 20,
     "medium": 30,
@@ -29,7 +26,7 @@ MCP_SEVERITY_VALUES: dict[IncidentSeverityFilter, int] = {
     "info": 50,
     "unknown": 100,
 }
-MCP_SOURCE_TYPE_VALUES: dict[IncidentSourceTypeFilter, str] = {
+MCP_SOURCE_TYPE_VALUES: dict[str, str] = {
     "bitbucket": "bb_repository",
     "bitbucket_cloud": "bb_cloud_repository",
     "github": "gh_repository",
@@ -53,13 +50,13 @@ MCP_SOURCE_TYPE_VALUES: dict[IncidentSourceTypeFilter, str] = {
     "microsoft_onedrive": "microsoft_onedrive",
     "custom_source": "custom_source",
 }
-MCP_STATUS_VALUES: dict[IncidentStatusFilter, str] = {
+MCP_STATUS_VALUES: dict[str, str] = {
     "IGNORED": "IGNORED",
     "TRIGGERED": "TRIGGERED",
     "ASSIGNED": "ASSIGNED",
     "RESOLVED": "RESOLVED",
 }
-MCP_VALIDITY_VALUES: dict[IncidentValidityFilter, str] = {
+MCP_VALIDITY_VALUES: dict[str, str] = {
     "valid": "valid",
     "invalid": "invalid",
     "failed_to_check": "failed_to_check",
@@ -67,49 +64,29 @@ MCP_VALIDITY_VALUES: dict[IncidentValidityFilter, str] = {
     "unknown": "not_checked",
 }
 
-_CanonicalValue = TypeVar("_CanonicalValue", bound=str)
-_WireValue = TypeVar("_WireValue", str, int)
+# Field name -> canonical-to-wire mapping, so a single dispatcher serves them all.
+_MAPPINGS: dict[str, Mapping[str, Any]] = {
+    "integration": MCP_INTEGRATION_VALUES,
+    "severity": MCP_SEVERITY_VALUES,
+    "source_type": MCP_SOURCE_TYPE_VALUES,
+    "status": MCP_STATUS_VALUES,
+    "validity": MCP_VALIDITY_VALUES,
+}
 
 
-def _translate(
-    field: str,
-    value: str | Sequence[str],
-    mapping: Mapping[_CanonicalValue, _WireValue],
-) -> list[_WireValue]:
-    """Translate one or more canonical values and report the field's allowed values."""
+def to_mcp(field: str, value: str | Sequence[str]) -> list[Any]:
+    """Translate one or more canonical values for ``field`` to /incidents-for-mcp wire values.
+
+    Raises :class:`ValueError` naming the field's allowed canonical values when an
+    unsupported value is passed, so callers reject bad agent input before a request.
+    """
+    mapping = _MAPPINGS[field]
     values = [value] if isinstance(value, str) else value
-    translated: list[_WireValue] = []
+    translated: list[Any] = []
     for candidate in values:
         try:
-            translated.append(mapping[candidate])  # type: ignore[index]
+            translated.append(mapping[candidate])
         except KeyError:
             allowed = ", ".join(mapping)
             raise ValueError(f"Invalid {field} value {candidate!r}. Allowed values: {allowed}") from None
     return translated
-
-
-def to_mcp_integration(
-    value: IncidentIntegrationFilter | Sequence[IncidentIntegrationFilter],
-) -> list[str]:
-    """Translate canonical integration names to /incidents-for-mcp codes."""
-    return _translate("integration", value, MCP_INTEGRATION_VALUES)
-
-
-def to_mcp_severity(value: IncidentSeverityFilter | Sequence[IncidentSeverityFilter]) -> list[int]:
-    """Translate public severity names to /incidents-for-mcp numeric values."""
-    return _translate("severity", value, MCP_SEVERITY_VALUES)
-
-
-def to_mcp_source_type(value: IncidentSourceTypeFilter | Sequence[IncidentSourceTypeFilter]) -> list[str]:
-    """Translate public source types to /incidents-for-mcp model names."""
-    return _translate("source_type", value, MCP_SOURCE_TYPE_VALUES)
-
-
-def to_mcp_status(value: IncidentStatusFilter | Sequence[IncidentStatusFilter]) -> list[str]:
-    """Validate statuses before sending them to /incidents-for-mcp."""
-    return _translate("status", value, MCP_STATUS_VALUES)
-
-
-def to_mcp_validity(value: IncidentValidityFilter | Sequence[IncidentValidityFilter]) -> list[str]:
-    """Translate public validity names to /incidents-for-mcp spellings."""
-    return _translate("validity", value, MCP_VALIDITY_VALUES)

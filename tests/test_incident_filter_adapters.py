@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from gg_api_core import incident_filter_adapters
 from gg_api_core.client import GitGuardianClient
 
 
@@ -38,6 +39,54 @@ async def test_mcp_endpoints_translate_the_same_canonical_filters(method_name, e
     assert query["validity__in"] == "valid,not_checked"
     assert query["source_type__in"] == "gh_repository,gl_project"
     assert query["integration__in"] == "gh,ghe,gl"
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "expected"),
+    [
+        ("status", ["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"], ["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"]),
+        ("status", "TRIGGERED", ["TRIGGERED"]),
+        ("severity", ["critical", "high", "medium", "low", "info", "unknown"], [10, 20, 30, 40, 50, 100]),
+        ("severity", ["unknown", "low"], [100, 40]),
+        ("validity", ["valid", "unknown"], ["valid", "not_checked"]),
+        ("validity", "invalid", ["invalid"]),
+        ("source_type", ["github", "gitlab", "azure_devops"], ["gh_repository", "gl_project", "ado_repository"]),
+        ("source_type", "bitbucket", ["bb_repository"]),
+        ("integration", ["github", "github_enterprise_server", "gitlab"], ["gh", "ghe", "gl"]),
+        ("source_type", "custom_source", ["custom_source"]),
+    ],
+)
+def test_to_mcp_translates_canonical_values_to_wire(field, value, expected):
+    """
+    GIVEN canonical filter values for a field (already normalized to a list or a single value)
+    WHEN translating them for /incidents-for-mcp
+    THEN the exact private wire values are produced
+    """
+    assert incident_filter_adapters.to_mcp(field, value) == expected
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "allowed"),
+    [
+        ("status", "OPENED", "TRIGGERED"),
+        ("severity", "10", "critical"),
+        ("validity", "not_checked", "valid"),
+        ("source_type", "unknown", "github"),
+        ("integration", "ghe", "github"),
+        ("status", ["TRIGGERED", "OPENED"], "TRIGGERED"),
+    ],
+)
+def test_to_mcp_rejects_unsupported_values_with_allowed_list(field, value, allowed):
+    """
+    GIVEN an unsupported value for a translated field
+    WHEN translating it
+    THEN ValueError raises naming the field and an allowed value
+    """
+    with pytest.raises(ValueError) as exc_info:
+        incident_filter_adapters.to_mcp(field, value)
+    message = str(exc_info.value)
+    assert f"Invalid {field} value" in message
+    assert allowed in message
 
 
 @pytest.mark.asyncio

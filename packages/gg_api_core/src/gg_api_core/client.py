@@ -21,14 +21,7 @@ from gg_api_core.generated_filter_vocabulary import (
     IncidentValidity,
     IncidentValidityFilter,
 )
-from gg_api_core.incident_filter_adapters import (
-    IncidentIntegrationFilter,
-    to_mcp_integration,
-    to_mcp_severity,
-    to_mcp_source_type,
-    to_mcp_status,
-    to_mcp_validity,
-)
+from gg_api_core.incident_filter_adapters import IncidentIntegrationFilter, to_mcp
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
 from gg_api_core.settings import get_settings
 from gg_api_core.version import APP_VERSION
@@ -2605,7 +2598,7 @@ class GitGuardianClient:
         if search:
             params["search"] = search
         if status:
-            params["status__in"] = format_param(to_mcp_status(status))
+            params["status__in"] = format_param(to_mcp("status", status))
         if assignee_id is not None:
             # assignee_id is a *member* id (the public-API identity). The MCP
             # incidents endpoint resolves it to the underlying user id via the
@@ -2613,13 +2606,13 @@ class GitGuardianClient:
             # would expect a user id and silently match nothing.
             params["assignee_member_id"] = format_param(assignee_id)
         if severity:
-            params["severity__in"] = format_param(to_mcp_severity(severity))
+            params["severity__in"] = format_param(to_mcp("severity", severity))
         if score__ge is not None:
             params["score__ge"] = score__ge
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(to_mcp_validity(validity))
+            params["validity__in"] = format_param(to_mcp("validity", validity))
 
         # Secret type filters
         if detector_group_name:
@@ -2641,7 +2634,7 @@ class GitGuardianClient:
         if source:
             params["source__in"] = format_param(source)
         if source_type:
-            params["source_type__in"] = format_param(to_mcp_source_type(source_type))
+            params["source_type__in"] = format_param(to_mcp("source_type", source_type))
         if source_criticality:
             params["source_criticality__in"] = format_param(source_criticality)
 
@@ -2663,7 +2656,7 @@ class GitGuardianClient:
 
         # Integration filters
         if integration:
-            params["integration__in"] = format_param(to_mcp_integration(integration))
+            params["integration__in"] = format_param(to_mcp("integration", integration))
         if issue_tracker:
             params["issue_tracker__in"] = format_param(issue_tracker)
 
@@ -2803,7 +2796,7 @@ class GitGuardianClient:
         if search:
             params["search"] = search
         if status:
-            params["status__in"] = format_param(to_mcp_status(status))
+            params["status__in"] = format_param(to_mcp("status", status))
         if assignee_id is not None:
             # assignee_id is a *member* id (the public-API identity). The MCP
             # incidents endpoint resolves it to the underlying user id via the
@@ -2811,13 +2804,13 @@ class GitGuardianClient:
             # would expect a user id and silently match nothing.
             params["assignee_member_id"] = format_param(assignee_id)
         if severity:
-            params["severity__in"] = format_param(to_mcp_severity(severity))
+            params["severity__in"] = format_param(to_mcp("severity", severity))
         if score__ge is not None:
             params["score__ge"] = score__ge
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(to_mcp_validity(validity))
+            params["validity__in"] = format_param(to_mcp("validity", validity))
         if detector_group_name:
             params["detector_group_name__in"] = format_param(detector_group_name)
         if detector_type:
@@ -2835,7 +2828,7 @@ class GitGuardianClient:
         if source:
             params["source__in"] = format_param(source)
         if source_type:
-            params["source_type__in"] = format_param(to_mcp_source_type(source_type))
+            params["source_type__in"] = format_param(to_mcp("source_type", source_type))
         if source_criticality:
             params["source_criticality__in"] = format_param(source_criticality)
         if occurrence_count:
@@ -2849,7 +2842,7 @@ class GitGuardianClient:
         if public_exposure:
             params["public_exposure__in"] = format_param(public_exposure)
         if integration:
-            params["integration__in"] = format_param(to_mcp_integration(integration))
+            params["integration__in"] = format_param(to_mcp("integration", integration))
         if issue_tracker:
             params["issue_tracker__in"] = format_param(issue_tracker)
         if has_related_issues is not None:
