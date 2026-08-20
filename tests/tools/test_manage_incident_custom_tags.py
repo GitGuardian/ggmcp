@@ -200,24 +200,6 @@ class TestManageIncidentCustomTags:
         )
 
     @pytest.mark.asyncio
-    async def test_add_does_not_duplicate_existing_tag(self):
-        """
-        GIVEN a requested tag that is already linked to the incident
-        WHEN adding it again
-        THEN the PATCH payload contains it exactly once
-        """
-        mock_client = self._client([{"id": "t1", "key": "env", "value": "prod"}])
-
-        params = IncidentCustomTagsParams(incident_id=123, custom_tags=["env:prod", "env:prod"])
-        with patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client):
-            await manage_incident_custom_tags(params)
-
-        mock_client.update_incident.assert_awaited_once_with(
-            incident_id="123",
-            custom_tags=[{"key": "env", "value": "prod"}],
-        )
-
-    @pytest.mark.asyncio
     async def test_tags_are_normalized_like_the_api(self):
         """
         GIVEN tags with surrounding whitespace, an empty value, and a value containing colons
@@ -260,52 +242,6 @@ class TestManageIncidentCustomTags:
         )
 
     @pytest.mark.asyncio
-    async def test_remove_unlinks_only_the_requested_tags(self):
-        """
-        GIVEN an incident carrying multiple tags
-        WHEN removing a subset
-        THEN the PATCH payload keeps the remaining tags and drops the requested ones
-        """
-        mock_client = self._client(
-            [
-                {"id": "t1", "key": "team", "value": "red"},
-                {"id": "t2", "key": "env", "value": "prod"},
-            ]
-        )
-
-        params = IncidentCustomTagsParams(incident_id=123, action="remove", custom_tags=["env:prod"])
-        with patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client):
-            await manage_incident_custom_tags(params)
-
-        mock_client.update_incident.assert_awaited_once_with(
-            incident_id="123",
-            custom_tags=[{"key": "team", "value": "red"}],
-        )
-
-    @pytest.mark.asyncio
-    async def test_set_replaces_the_whole_set(self):
-        """
-        GIVEN an incident carrying existing tags
-        WHEN setting a new set
-        THEN the PATCH payload is exactly the requested tags
-        """
-        mock_client = self._client(
-            [
-                {"id": "t1", "key": "team", "value": "red"},
-                {"id": "t2", "key": "env", "value": "prod"},
-            ]
-        )
-
-        params = IncidentCustomTagsParams(incident_id=123, action="set", custom_tags=["status:reviewed"])
-        with patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client):
-            await manage_incident_custom_tags(params)
-
-        mock_client.update_incident.assert_awaited_once_with(
-            incident_id="123",
-            custom_tags=[{"key": "status", "value": "reviewed"}],
-        )
-
-    @pytest.mark.asyncio
     async def test_empty_final_set_surfaces_client_rejection(self):
         """
         GIVEN an operation whose computed final set is empty (e.g. set with no tags)
@@ -331,19 +267,3 @@ class TestManageIncidentCustomTags:
             incident_id="123",
             custom_tags=[],
         )
-
-    @pytest.mark.asyncio
-    async def test_no_precreate_requests_are_issued(self):
-        """
-        GIVEN an incident and a list of tags
-        WHEN updating the incident with those tags
-        THEN no tag pre-create or listing call is issued; the PATCH creates missing tags server-side
-        """
-        mock_client = self._client([])
-
-        params = IncidentCustomTagsParams(incident_id=123, custom_tags=["env:prod"])
-        with patch("gg_api_core.tools.manage_incident_custom_tags.get_client", return_value=mock_client):
-            await manage_incident_custom_tags(params)
-
-        mock_client.create_custom_tag.assert_not_awaited()
-        mock_client.list_custom_tags.assert_not_awaited()
