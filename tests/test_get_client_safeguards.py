@@ -7,9 +7,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastmcp.exceptions import ValidationError
 from gg_api_core.client import GitGuardianClient
-from gg_api_core.log_context import ClientIdentity
+from gg_api_core.client_identity import ClientIdentity, set_client_identity
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import _build_user_agent, _get_caller_user_agent, get_client
+from mcp.server.session import ServerSession
 
 # Prefix every outgoing User-Agent carries, regardless of transport.
 UA_PREFIX = GitGuardianClient.DEFAULT_USER_AGENT
@@ -477,18 +478,27 @@ def _mock_mcp_context(client_name=None, client_version=None, protocol_version=No
     return SimpleNamespace(session=_mock_session(client_name, client_version, protocol_version))
 
 
+class _FakeSession(ServerSession):
+    """Weakref-able stand-in for a ServerSession (SimpleNamespace is not weakref-able)."""
+
+    def __init__(self):
+        pass
+
+
 def _mock_session(client_name=None, client_version=None, protocol_version=None):
     """A session that has gone through initialize: identity already derived and stored."""
     info = SimpleNamespace(name=client_name, version=client_version) if client_name else None
     params = SimpleNamespace(clientInfo=info, protocolVersion=protocol_version)
     identity = ClientIdentity.from_params(params.clientInfo, params.protocolVersion)
-    return SimpleNamespace(_gg_client_identity=identity)
+    session = _FakeSession()
+    set_client_identity(identity, session)
+    return session
 
 
 class TestMcpHandshakeUserAgent:
     """Tests for the client= and mcp= User-Agent fields built from the MCP handshake."""
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_stdio_includes_client_and_protocol_from_handshake(self, mock_get_context):
         """
         GIVEN a stdio session whose initialize handshake carried clientInfo and protocolVersion
@@ -502,7 +512,7 @@ class TestMcpHandshakeUserAgent:
 
         assert ua == f"{UA_PREFIX} (transport=stdio; client=claude-code/2.0.14; mcp=2025-06-18)"
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_client_name_without_version(self, mock_get_context):
         """
         GIVEN a handshake with a client name but no version
@@ -518,7 +528,7 @@ class TestMcpHandshakeUserAgent:
         assert "mcp=" not in ua
 
     @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_handshake_identity_preferred_over_http_user_agent(self, mock_get_context, mock_get_headers):
         """
         GIVEN both a handshake clientInfo and an HTTP User-Agent header
@@ -535,7 +545,7 @@ class TestMcpHandshakeUserAgent:
         assert "SomeBrowser" not in ua
 
     @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_falls_back_to_http_user_agent_without_handshake(self, mock_get_context, mock_get_headers):
         """
         GIVEN no usable handshake data (e.g. before initialization)
@@ -550,7 +560,7 @@ class TestMcpHandshakeUserAgent:
 
         assert ua == f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)"
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_client_controlled_values_are_sanitized(self, mock_get_context):
         """
         GIVEN handshake values containing comment delimiters, control chars, and non-ASCII
@@ -567,7 +577,7 @@ class TestMcpHandshakeUserAgent:
         assert "\x07" not in ua
         assert "é" not in ua
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_client_cannot_forge_a_field_inside_the_comment(self, mock_get_context):
         """
         GIVEN a handshake client name shaped like an extra UA field
@@ -583,7 +593,7 @@ class TestMcpHandshakeUserAgent:
         assert "mcp=2025-06-18" in ua
         assert "2099" in ua.split("client=")[1].split(";")[0]
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     def test_client_field_length_is_capped(self, mock_get_context):
         """
         GIVEN a handshake client name far longer than the field cap
@@ -618,7 +628,7 @@ class TestMcpHandshakeUserAgent:
 
         assert mock_client_class.call_args.kwargs["user_agent"] is _build_user_agent
 
-    @patch("gg_api_core.log_context.get_context")
+    @patch("gg_api_core.client_identity.get_context")
     @patch("gg_api_core.utils.acquire_single_tenant_token", new_callable=AsyncMock)
     async def test_singleton_user_agent_reflects_the_live_handshake(self, mock_acquire, mock_get_context):
         """

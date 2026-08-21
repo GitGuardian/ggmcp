@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import re
 import time
 from collections import OrderedDict
 from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -15,24 +14,18 @@ from typing import Any
 from urllib.parse import urlparse
 
 import httpx
-from fastmcp.server.dependencies import get_context
 
 __all__ = [
-    "ClientIdentity",
     "DownstreamStats",
     "classify_failure",
     "clear_caller_identity_cache",
-    "current_client_identity",
     "current_downstream_stats",
-    "current_tool_name",
     "derive_caller_identity",
     "record_downstream_call",
     "record_downstream_wait",
     "record_truncation",
     "resolve_caller_identity",
     "scopes_fingerprint",
-    "set_client_identity",
-    "track_current_tool",
     "track_downstream_calls",
 ]
 
@@ -174,33 +167,6 @@ def current_downstream_stats() -> DownstreamStats | None:
     return _downstream_stats.get()
 
 
-_current_tool: ContextVar[str | None] = ContextVar("gg_current_tool", default=None)
-
-# The name arrives from the client's tools/call message, so it is untrusted
-# text until it has resolved to a registered tool. Registered names are plain
-# identifiers, so anything else is dropped here, at the point the value enters
-# the process, rather than at each place that later reads it.
-_TOOL_NAME = re.compile(r"[A-Za-z0-9_.-]{1,64}")
-
-
-@contextmanager
-def track_current_tool(tool_name: str) -> Iterator[None]:
-    """Expose the executing tool's name to downstream API calls."""
-    token = _current_tool.set(tool_name if _TOOL_NAME.fullmatch(tool_name) else None)
-    try:
-        yield
-    finally:
-        _current_tool.reset(token)
-
-
-def current_tool_name() -> str | None:
-    """The MCP tool the in-flight request is executing, if any.
-
-    Safe to put in an outgoing header: validated by :func:`track_current_tool`.
-    """
-    return _current_tool.get()
-
-
 def record_downstream_call(*, duration_ms: float, status: int | None = None, retried: bool = False) -> None:
     """Add an API call to the active accumulator, if any."""
     stats = _downstream_stats.get()
@@ -301,75 +267,3 @@ def classify_failure(exc: BaseException) -> dict[str, Any]:
         failure["gg_error_code"] = code
 
     return failure
-
-
-@dataclass(frozen=True)
-class ClientIdentity:
-    """Who is calling us, from the MCP initialize handshake.
-
-    One definition shared by the two consumers that need it: log fields, and
-    the ``client=``/``mcp=`` User-Agent fields on outgoing API calls. The
-    handshake is the only client hint that exists on every transport, so this
-    is what identifies a local stdio install.
-    """
-
-    name: str | None = None
-    version: str | None = None
-    protocol_version: str | None = None
-
-    @classmethod
-    def from_params(cls, client_info: Any, protocol_version: Any = None) -> ClientIdentity:
-        """Read identity off initialize params, tolerating partial ones."""
-        return cls(
-            name=getattr(client_info, "name", None) or None,
-            version=getattr(client_info, "version", None) or None,
-            protocol_version=str(protocol_version) if protocol_version else None,
-        )
-
-    @property
-    def label(self) -> str | None:
-        """``<name>/<version>``, or the bare name when no version was sent."""
-        if not self.name:
-            return None
-        return f"{self.name}/{self.version}" if self.version else self.name
-
-    def log_fields(self) -> dict[str, Any]:
-        """The subset present, under the field names logs use."""
-        fields = {
-            "client_name": self.name,
-            "client_version": self.version,
-            "protocol_version": self.protocol_version,
-        }
-        return {key: value for key, value in fields.items() if value}
-
-
-# Where the identity negotiated at initialize is kept. It lives on the
-# session (which exists for the whole connection) because the tool call that
-# needs it runs long after the initialize message's context is gone.
-_CLIENT_IDENTITY_ATTR = "_gg_client_identity"
-
-
-def set_client_identity(identity: ClientIdentity | None, session: Any) -> None:
-    """Persist the negotiated client identity on the connection's session.
-
-    Called once, when the initialize handshake is processed, so downstream
-    reads never re-parse the handshake params. The session is a mutable fastmcp
-    object that already carries ad-hoc attributes (e.g. a state prefix), so
-    this fits the existing pattern.
-    """
-    setattr(session, _CLIENT_IDENTITY_ATTR, identity)
-
-
-def current_client_identity() -> ClientIdentity | None:
-    """The identity negotiated for this connection, or None outside an MCP request.
-
-    Reads the identity stored by :func:`set_client_identity` rather than
-    re-deriving it from the handshake, so the per-request read is a single
-    attribute access. None when no session is active (e.g. before
-    initialization); ``get_context`` raises in that case.
-    """
-    try:
-        session = get_context().session
-    except RuntimeError:
-        return None
-    return getattr(session, _CLIENT_IDENTITY_ATTR, None)

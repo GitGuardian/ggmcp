@@ -15,17 +15,16 @@ from fastmcp.tools import Tool, ToolResult
 from typing_extensions import override
 
 from gg_api_core.client import DownstreamUnauthorizedError
+from gg_api_core.client_identity import ClientIdentity, set_client_identity
 from gg_api_core.log_context import (
-    ClientIdentity,
     classify_failure,
     resolve_caller_identity,
-    set_client_identity,
-    track_current_tool,
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
 from gg_api_core.sentry_integration import set_sentry_request_id
 from gg_api_core.settings import get_settings
+from gg_api_core.tool_context import track_current_tool
 from gg_api_core.urls import derive_public_api_url
 
 if TYPE_CHECKING:
@@ -139,14 +138,9 @@ class RequestLoggingContextMiddleware(Middleware):
         context: MiddlewareContext[mt.InitializeRequest],
         call_next: CallNext[mt.InitializeRequest, mt.InitializeResult | None],
     ) -> mt.InitializeResult | None:
-        """Record client and protocol metadata from initialization."""
-        params = getattr(context.message, "params", context.message)
-        identity = ClientIdentity.from_params(
-            getattr(params, "clientInfo", None),
-            getattr(params, "protocolVersion", None),
-        )
-        # Keep the identity for the connection so downstream API calls don't
-        # re-derive it from the handshake on every request.
+
+        identity = ClientIdentity.from_params(context.message.params.clientInfo, context.message.params.protocolVersion)
+
         if context.fastmcp_context is not None:
             set_client_identity(identity, context.fastmcp_context.session)
         log_fields = identity.log_fields()

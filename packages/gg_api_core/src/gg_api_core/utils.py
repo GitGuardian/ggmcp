@@ -7,7 +7,7 @@ from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_http_headers
 
 from .client import DEFAULT_USER_AGENT, GitGuardianClient, acquire_single_tenant_token
-from .log_context import current_client_identity
+from .client_identity import current_client_identity
 from .settings import get_settings
 
 # Setup logger
@@ -61,11 +61,7 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
         ValidationError: In multi-tenant mode, if MCP_PORT not set or Authorization header missing
         RuntimeError: In single-tenant mode, if no token source is available
     """
-    # The User-Agent is always a callable evaluated per request: the long-lived
-    # single-tenant singleton would otherwise freeze whatever handshake was known
-    # when the first call created it. An explicit override is wrapped into a
-    # constant callable; otherwise the live handshake-derived builder is used.
-    # All three modes below are therefore uniform: they pass the same source.
+
     ua_source: Callable[[], str] = (lambda: user_agent) if user_agent else _build_user_agent
 
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
@@ -95,7 +91,7 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     # Acquire token for single-tenant mode
     token = await acquire_single_tenant_token()
-    # Enable token refresh for self-healing on 401 errors.
+    # Enable token refresh for self-healing on 401 errors
     _client_singleton = GitGuardianClient(
         personal_access_token=token,
         allow_token_refresh=True,
@@ -105,11 +101,6 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
 
 def _get_caller_user_agent() -> str | None:
-    """The caller's own User-Agent, for callers that reached us over HTTP.
-
-    ``get_http_headers`` returns an empty mapping outside an HTTP request
-    rather than raising, so stdio simply yields None.
-    """
     return get_http_headers(include={"user-agent"}).get("user-agent")
 
 

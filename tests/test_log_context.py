@@ -1,24 +1,17 @@
 """Derivation and caching of the identity fields bound to every log line."""
 
 import time
-from types import SimpleNamespace
-from unittest.mock import patch
 
 import pytest
 from gg_api_core.log_context import (
     _IDENTITY_CACHE_MAX_ENTRIES,
     _IDENTITY_TTL_SECONDS,
-    ClientIdentity,
     _identity_cache,
     _identity_cache_key,
     clear_caller_identity_cache,
-    current_client_identity,
-    current_tool_name,
     derive_caller_identity,
     resolve_caller_identity,
     scopes_fingerprint,
-    set_client_identity,
-    track_current_tool,
 )
 
 # Shape of a real GET /api_tokens/self response, trimmed to the fields we read.
@@ -95,60 +88,6 @@ class TestDeriveCallerIdentity:
         identity = derive_caller_identity({"workspace_id": 8})
 
         assert identity == {"account_id": 8, "workspace_id": 8}
-
-
-class TestCurrentClientIdentity:
-    """The identity is captured once at initialize, then read from the session."""
-
-    @patch("gg_api_core.log_context.get_context")
-    def test_returns_the_identity_stored_at_initialize(self, mock_get_context):
-        """
-        GIVEN an identity stored on the session during initialize
-        WHEN current_client_identity is read
-        THEN the stored identity comes back without re-deriving
-        """
-        session = SimpleNamespace()
-        identity = ClientIdentity(name="cursor", version="1.4.2", protocol_version="2025-06-18")
-        set_client_identity(identity, session)
-        mock_get_context.return_value = SimpleNamespace(session=session)
-
-        assert current_client_identity() == identity
-
-    @patch("gg_api_core.log_context.get_context")
-    def test_none_before_initialize(self, mock_get_context):
-        """
-        GIVEN no active MCP session (e.g. before initialization)
-        WHEN current_client_identity is read
-        THEN it returns None
-        """
-        mock_get_context.side_effect = RuntimeError("No active context found.")
-
-        assert current_client_identity() is None
-
-    @patch("gg_api_core.log_context.get_context")
-    def test_none_when_session_carries_no_stored_identity(self, mock_get_context):
-        """
-        GIVEN a session that has not been through our initialize hook
-        WHEN current_client_identity is read
-        THEN it returns None
-        """
-        mock_get_context.return_value = SimpleNamespace(session=SimpleNamespace())
-
-        assert current_client_identity() is None
-
-    @patch("gg_api_core.log_context.get_context")
-    def test_clears_when_stored_none(self, mock_get_context):
-        """
-        GIVEN a session whose stored identity is cleared to None
-        WHEN current_client_identity is read
-        THEN it returns None
-        """
-        session = SimpleNamespace()
-        set_client_identity(ClientIdentity(name="cursor"), session)
-        set_client_identity(None, session)
-        mock_get_context.return_value = SimpleNamespace(session=session)
-
-        assert current_client_identity() is None
 
 
 class TestResolveCallerIdentity:
@@ -323,114 +262,3 @@ class TestClearCallerIdentityCache:
         await resolve_caller_identity(fetcher("b"), token="tok-b")
 
         assert calls == {"a": 2, "b": 1}
-
-
-class TestClientIdentity:
-    def test_label_pairs_name_and_version(self):
-        """
-        GIVEN a handshake reporting both a name and a version
-        WHEN the identity is labelled
-        THEN the label is name/version
-        """
-        assert ClientIdentity(name="claude-code", version="2.0.14").label == "claude-code/2.0.14"
-
-    def test_label_is_the_bare_name_without_a_version(self):
-        """
-        GIVEN a handshake reporting a name but no version
-        WHEN the identity is labelled
-        THEN the label is the name alone
-        """
-        assert ClientIdentity(name="claude-code").label == "claude-code"
-
-    def test_label_is_none_without_a_name(self):
-        """
-        GIVEN a handshake that reported no client name
-        WHEN the identity is labelled
-        THEN there is no label to put in a User-Agent
-        """
-        assert ClientIdentity(protocol_version="2025-06-18").label is None
-
-    def test_log_fields_omit_what_was_not_reported(self):
-        """
-        GIVEN an identity with only some fields present
-        WHEN it is rendered for logs
-        THEN absent fields are left out rather than logged as None
-        """
-        assert ClientIdentity(name="cursor").log_fields() == {"client_name": "cursor"}
-
-    def test_from_params_tolerates_missing_client_info(self):
-        """
-        GIVEN initialize params without clientInfo
-        WHEN identity is derived
-        THEN the protocol version is still captured
-        """
-        identity = ClientIdentity.from_params(None, "2025-06-18")
-
-        assert identity.label is None
-        assert identity.protocol_version == "2025-06-18"
-
-    def test_the_user_agent_label_and_log_fields_agree(self):
-        """
-        GIVEN one handshake
-        WHEN it is rendered for a User-Agent and for logs
-        THEN both describe the same client, from the same definition
-        """
-        identity = ClientIdentity.from_params(SimpleNamespace(name="cursor", version="1.4.2"), "2025-06-18")
-        fields = identity.log_fields()
-
-        assert identity.label == f"{fields['client_name']}/{fields['client_version']}"
-        assert fields["protocol_version"] == identity.protocol_version
-
-
-class TestCurrentTool:
-    def test_no_tool_outside_tracking(self):
-        """
-        GIVEN no tool call is being tracked
-        WHEN current_tool_name is read
-        THEN it returns None
-        """
-        assert current_tool_name() is None
-
-    def test_tool_name_visible_inside_tracking(self):
-        """
-        GIVEN a tracked tool call
-        WHEN current_tool_name is read inside the block
-        THEN it returns the tool name, and None again after the block
-        """
-        with track_current_tool("list_incidents"):
-            assert current_tool_name() == "list_incidents"
-        assert current_tool_name() is None
-
-    def test_tracking_restores_previous_tool_on_exit(self):
-        """
-        GIVEN nested tracked tool calls
-        WHEN the inner block exits
-        THEN the outer tool name is restored
-        """
-        with track_current_tool("outer_tool"):
-            with track_current_tool("inner_tool"):
-                assert current_tool_name() == "inner_tool"
-            assert current_tool_name() == "outer_tool"
-
-    @pytest.mark.parametrize(
-        "tool_name",
-        ["bad name", "tool\r\nX-Injected: 1", "a" * 65, "tool;drop", "", "aç"],
-        ids=["space", "crlf", "too-long", "semicolon", "empty", "non-ascii"],
-    )
-    def test_a_name_no_registered_tool_could_have_is_not_exposed(self, tool_name):
-        """
-        GIVEN a tools/call naming something no registered tool could be called
-        WHEN that call is tracked
-        THEN the name is not exposed, so no reader can put it on the wire
-        """
-        with track_current_tool(tool_name):
-            assert current_tool_name() is None
-
-    def test_a_registered_style_name_is_exposed(self):
-        """
-        GIVEN a plain identifier, the shape every registered tool has
-        WHEN that call is tracked
-        THEN the name is exposed to downstream readers
-        """
-        with track_current_tool("update_or_create_incident_custom_tags"):
-            assert current_tool_name() == "update_or_create_incident_custom_tags"

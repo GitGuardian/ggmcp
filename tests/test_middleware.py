@@ -13,6 +13,7 @@ from gg_api_core.log_context import clear_caller_identity_cache, record_downstre
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
+from mcp.server.session import ServerSession
 from mcp.types import TextContent
 
 TOKEN_INFO = {
@@ -32,6 +33,13 @@ def _message_ctx(message=None, session_id=None, method="tools/list", session=Non
     """A middleware context shaped like the fields the middleware reads."""
     fastmcp_context = SimpleNamespace(session_id=session_id, session=session) if (session_id or session) else None
     return SimpleNamespace(message=message, fastmcp_context=fastmcp_context, method=method)
+
+
+class _FakeSession(ServerSession):
+    """Weakref-able stand-in for a ServerSession (SimpleNamespace is not weakref-able)."""
+
+    def __init__(self):
+        pass
 
 
 class FakeServer:
@@ -346,7 +354,7 @@ class TestRequestLoggingContextMiddleware:
             clientInfo=SimpleNamespace(name="claude-ai", version="0.1.0"),
             protocolVersion="2025-06-18",
         )
-        session = SimpleNamespace()
+        session = _FakeSession()
 
         async def call_next(ctx):
             return None
@@ -362,7 +370,9 @@ class TestRequestLoggingContextMiddleware:
         assert rec.protocol_version == "2025-06-18"
         # The negotiated identity is kept on the session so downstream API calls
         # read it without re-deriving the handshake.
-        stored = session._gg_client_identity
+        from gg_api_core import client_identity as ci
+        stored = ci._identity_by_session.get(session)
+        assert stored is not None
         assert stored.name == "claude-ai"
         assert stored.version == "0.1.0"
         assert stored.protocol_version == "2025-06-18"

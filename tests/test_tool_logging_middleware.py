@@ -2,7 +2,7 @@ import logging
 from types import SimpleNamespace
 
 import pytest
-from gg_api_core.log_context import current_tool_name
+from gg_api_core.tool_context import current_tool_name
 from gg_api_core.middleware import ToolCallLoggingMiddleware
 
 
