@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import json
 import os
@@ -6,9 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from fastmcp.tools import Tool
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
-from gg_api_core.tools.scan_secret import ScanSecretsParams
+from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
 from pydantic import BaseModel, ValidationError
 
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
@@ -87,6 +89,48 @@ def test_every_tool_params_model_hides_input_in_errors():
     assert models, "no *Params models discovered"
     unprotected = [model.__qualname__ for model in models if model.model_config.get("hide_input_in_errors") is not True]
     assert not unprotected, f"tool params models missing hide_input_in_errors: {unprotected}"
+
+
+def test_validation_error_reaching_sentry_carries_no_tool_arguments():
+    """
+    GIVEN a tool call rejected by FastMCP's argument validation
+    WHEN the resulting exception is prepared for Sentry
+    THEN the submitted document is gone and the diagnostic fields remain
+
+    FastMCP validates against a TypeAdapter built from the tool signature, not
+    against ScanSecretsParams, so `hide_input_in_errors` on the model does not
+    apply to this message. This covers the path it cannot reach.
+    """
+    canary = "AKIA-CANARY-DOCUMENT-BODY"
+    try:
+        asyncio.run(Tool.from_function(scan_secrets).run({"params": {"documents": canary}}))
+    except Exception as exc:  # noqa: BLE001 - the ValidationError is the fixture
+        raised = exc
+    else:
+        raise AssertionError("expected a validation error")
+
+    event = _before_send_event(
+        {
+            "exception": {
+                "values": [
+                    {
+                        "type": type(raised).__name__,
+                        "value": str(raised),
+                        "stacktrace": {"frames": [{"filename": "fastmcp/tools/function_tool.py"}]},
+                    }
+                ]
+            }
+        },
+        {},
+    )
+
+    shipped = event["exception"]["values"][0]["value"]
+    assert canary not in shipped
+    assert f"input_value={SENSITIVE_DATA_PLACEHOLDER}" in shipped
+    # The parts that make the event debuggable survive.
+    assert "documents" in shipped
+    assert "input_type=str" in shipped
+    assert event["exception"]["values"][0]["stacktrace"]["frames"][0]["filename"] == ("fastmcp/tools/function_tool.py")
 
 
 def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
