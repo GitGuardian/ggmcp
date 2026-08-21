@@ -155,3 +155,73 @@ def test_build_filter_info_reflects_applied_filters(field, raw, expected):
     params = IncidentFilterParams(**{field: raw})
     info = build_filter_info(params)
     assert info[field] == expected
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "wire_key", "wire_value"),
+    [
+        ("score_min", 0, "score__ge", 0),
+        ("score_max", 0, "score__le", 0),
+        ("assignee_id", 0, "assignee_id", 0),
+        ("similar_to", 0, "similar_to", 0),
+        ("location", False, "location", False),
+        ("feedback", False, "feedback", False),
+        ("has_related_issues", False, "has_related_issues", False),
+        ("publicly_shared", False, "publicly_shared", False),
+    ],
+)
+def test_falsy_scalar_filters_are_still_sent(field, value, wire_key, wire_value):
+    """
+    GIVEN a scalar filter set to a falsy but meaningful value
+    WHEN the query parameters are built
+    THEN the filter is sent rather than treated as unset
+
+    `assignee_id=0` selects unassigned incidents and `location=False` selects
+    incidents without location, so these cannot be dropped as empty.
+    """
+    api_params = build_api_params(IncidentFilterParams(**{field: value}))
+
+    assert api_params[wire_key] == wire_value
+
+
+@pytest.mark.parametrize("field", ["severity", "status", "validity", "tags", "detector_type"])
+def test_empty_collection_filters_are_omitted(field):
+    """
+    GIVEN a list filter explicitly set to an empty list
+    WHEN the query parameters are built
+    THEN the filter is omitted instead of sent as an empty value
+    """
+    assert field not in build_api_params(IncidentFilterParams(**{field: []}))
+
+
+@pytest.mark.parametrize("field", ["occurrence_count_min", "opened_for_days"])
+def test_zero_range_filters_are_reported_as_applied(field):
+    """
+    GIVEN a range filter set to zero
+    WHEN the query parameters and the applied-filter report are built
+    THEN both agree that the filter was applied
+
+    The API call sends `>=0` for these, so the report has to name them. It
+    previously omitted zero while still sending it.
+    """
+    params = IncidentFilterParams(**{field: 0})
+
+    assert build_filter_info(params)[field] == 0
+    assert ">=0" in str(build_api_params(params).values())
+
+
+def test_pagination_fields_never_reach_the_query_builders():
+    """
+    GIVEN a subclass that adds pagination on top of the shared filters
+    WHEN the builders run
+    THEN only the shared filter fields are considered
+
+    The builders read field names off IncidentFilterParams rather than dumping
+    the instance, which is what keeps page/page_size out of the query.
+    """
+    params = ListIncidentsParams(page=3, page_size=50, severity=["critical"])
+
+    for built in (build_api_params(params), build_filter_info(params)):
+        assert "page" not in built
+        assert "page_size" not in built
+    assert build_api_params(params)["severity"] == ["critical"]

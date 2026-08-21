@@ -309,6 +309,48 @@ class IncidentFilterParams(BaseModel):
         return coerce_to_list(value)
 
 
+# Filters whose ``/incidents-for-mcp`` parameter name differs from the field name.
+_API_WIRE_NAMES = {"score_min": "score__ge", "score_max": "score__le", "source_ids": "source"}
+
+# Filters build_api_params does not forward verbatim: ``mine`` is resolved to an
+# assignee_id by the calling tool, and the rest need a value transform below.
+_API_HANDLED_SEPARATELY = frozenset({"mine", "exclude_tags", "occurrence_count_min", "opened_for_days"})
+
+# ``mine`` describes how assignee_id was chosen, so it is not itself a filter.
+_INFO_EXCLUDED = frozenset({"mine"})
+
+
+def _is_applied(value: Any) -> bool:
+    """Whether a filter field carries a value worth sending.
+
+    Strings and collections are absent when empty. Scalars keep their falsy
+    values, because ``score_min=0`` and ``location=False`` are real filters
+    while ``severity=[]`` and ``search=""`` are simply unset.
+    """
+    if value is None:
+        return False
+    if isinstance(value, (str, bytes, list, tuple, set, dict)):
+        return bool(value)
+    return True
+
+
+def _applied_fields(params: IncidentFilterParams, exclude: frozenset[str]) -> dict[str, Any]:
+    """The shared filter fields that carry a value, in declaration order.
+
+    Iterating the base model's fields keeps subclass pagination and ordering
+    fields out, which is why this takes the field names from
+    ``IncidentFilterParams`` rather than dumping the instance.
+    """
+    applied: dict[str, Any] = {}
+    for name in IncidentFilterParams.model_fields:
+        if name in exclude:
+            continue
+        value = getattr(params, name)
+        if _is_applied(value):
+            applied[name] = value
+    return applied
+
+
 def build_api_params(params: IncidentFilterParams) -> dict[str, Any]:
     """Build the ``/incidents-for-mcp`` query parameters from the shared filters.
 
@@ -316,212 +358,24 @@ def build_api_params(params: IncidentFilterParams) -> dict[str, Any]:
     calling tool, which resolves it to an ``assignee_id`` before this builder
     runs.
     """
-    api_params: dict[str, Any] = {}
+    api_params: dict[str, Any] = {
+        _API_WIRE_NAMES.get(name, name): value
+        for name, value in _applied_fields(params, _API_HANDLED_SEPARATELY).items()
+    }
 
-    if params.assignee_id is not None:
-        api_params["assignee_id"] = params.assignee_id
-
-    if params.search:
-        api_params["search"] = params.search
-
-    # Basic filters
-    if params.status:
-        api_params["status"] = params.status
-    if params.severity:
-        api_params["severity"] = params.severity
-    if params.score_min is not None:
-        api_params["score__ge"] = params.score_min
-    if params.score_max is not None:
-        api_params["score__le"] = params.score_max
-    if params.validity:
-        api_params["validity"] = params.validity
-
-    # Secret type filters
-    if params.detector_group_name:
-        api_params["detector_group_name"] = params.detector_group_name
-    if params.detector_type:
-        api_params["detector_type"] = params.detector_type
-    if params.detector_category:
-        api_params["detector_category"] = params.detector_category
-    if params.issue_name:
-        api_params["issue_name"] = params.issue_name
-    if params.secret_category:
-        api_params["secret_category"] = params.secret_category
-    if params.secret_family:
-        api_params["secret_family"] = params.secret_family
-    if params.secret_provider:
-        api_params["secret_provider"] = params.secret_provider
-
-    # Source filters
-    if params.source_ids:
-        api_params["source"] = params.source_ids
-    if params.source_type:
-        api_params["source_type"] = params.source_type
-    if params.source_criticality:
-        api_params["source_criticality"] = params.source_criticality
-
-    # Occurrence and presence filters
+    # Range filters the API expects as a comparison string.
     if params.occurrence_count_min is not None:
         api_params["occurrence_count"] = f">={params.occurrence_count_min}"
-    if params.presence:
-        api_params["presence"] = params.presence
-
-    # Date filters
     if params.opened_for_days is not None:
         api_params["opened_for"] = f">={params.opened_for_days}"
 
-    # Tags filters
-    if params.tags:
-        api_params["tags"] = params.tags
+    # Tag exclusion goes through the 'nin' operator rather than a plain filter.
     if params.exclude_tags:
-        # Use the 'nin' operator for exclusion
-        api_params["custom_filters"] = api_params.get("custom_filters", {})
-        api_params["custom_filters"]["tags__nin"] = ",".join(params.exclude_tags)
-
-    # Public exposure
-    if params.public_exposure:
-        api_params["public_exposure"] = params.public_exposure
-
-    # Integration filters
-    if params.integration:
-        api_params["integration"] = params.integration
-    if params.issue_tracker:
-        api_params["issue_tracker"] = params.issue_tracker
-
-    # Boolean filters
-    if params.has_related_issues is not None:
-        api_params["has_related_issues"] = params.has_related_issues
-    if params.location is not None:
-        api_params["location"] = params.location
-    if params.feedback is not None:
-        api_params["feedback"] = params.feedback
-    if params.publicly_shared is not None:
-        api_params["publicly_shared"] = params.publicly_shared
-
-    # Vault/Secret Manager filters
-    if params.secret_manager_type:
-        api_params["secret_manager_type"] = params.secret_manager_type
-    if params.secret_manager_instance:
-        api_params["secret_manager_instance"] = params.secret_manager_instance
-
-    # NHI filters
-    if params.nhi_env:
-        api_params["nhi_env"] = params.nhi_env
-    if params.nhi_policy:
-        api_params["nhi_policy"] = params.nhi_policy
-
-    # Team filters
-    if params.teams:
-        api_params["teams"] = params.teams
-
-    # Similar issues filter
-    if params.similar_to is not None:
-        api_params["similar_to"] = params.similar_to
-
-    # Date filters
-    if params.date_before:
-        api_params["date_before"] = params.date_before
-    if params.date_after:
-        api_params["date_after"] = params.date_after
-
-    # Secret scope filter
-    if params.secret_scope:
-        api_params["secret_scope"] = params.secret_scope
-
-    # Analyzer status filter
-    if params.analyzer_status:
-        api_params["analyzer_status"] = params.analyzer_status
-
-    # Custom tags filter
-    if params.custom_tags:
-        api_params["custom_tags"] = params.custom_tags
+        api_params["custom_filters"] = {"tags__nin": ",".join(params.exclude_tags)}
 
     return api_params
 
 
 def build_filter_info(params: IncidentFilterParams) -> dict[str, Any]:
     """Build a dictionary describing the filters applied to the query."""
-    filters: dict[str, Any] = {}
-
-    if params.search:
-        filters["search"] = params.search
-    if params.status:
-        filters["status"] = params.status
-    if params.severity:
-        filters["severity"] = params.severity
-    if params.score_min is not None:
-        filters["score_min"] = params.score_min
-    if params.score_max is not None:
-        filters["score_max"] = params.score_max
-    if params.validity:
-        filters["validity"] = params.validity
-    if params.assignee_id is not None:
-        filters["assignee_id"] = params.assignee_id
-    if params.detector_group_name:
-        filters["detector_group_name"] = params.detector_group_name
-    if params.detector_type:
-        filters["detector_type"] = params.detector_type
-    if params.detector_category:
-        filters["detector_category"] = params.detector_category
-    if params.issue_name:
-        filters["issue_name"] = params.issue_name
-    if params.secret_category:
-        filters["secret_category"] = params.secret_category
-    if params.secret_family:
-        filters["secret_family"] = params.secret_family
-    if params.secret_provider:
-        filters["secret_provider"] = params.secret_provider
-    if params.source_ids:
-        filters["source_ids"] = params.source_ids
-    if params.source_type:
-        filters["source_type"] = params.source_type
-    if params.source_criticality:
-        filters["source_criticality"] = params.source_criticality
-    if params.presence:
-        filters["presence"] = params.presence
-    if params.tags:
-        filters["tags"] = params.tags
-    if params.exclude_tags:
-        filters["exclude_tags"] = params.exclude_tags
-    if params.public_exposure:
-        filters["public_exposure"] = params.public_exposure
-    if params.integration:
-        filters["integration"] = params.integration
-    if params.issue_tracker:
-        filters["issue_tracker"] = params.issue_tracker
-    if params.opened_for_days:
-        filters["opened_for_days"] = params.opened_for_days
-    if params.occurrence_count_min:
-        filters["occurrence_count_min"] = params.occurrence_count_min
-    if params.has_related_issues is not None:
-        filters["has_related_issues"] = params.has_related_issues
-    if params.location is not None:
-        filters["location"] = params.location
-    if params.feedback is not None:
-        filters["feedback"] = params.feedback
-    if params.publicly_shared is not None:
-        filters["publicly_shared"] = params.publicly_shared
-    if params.secret_manager_type:
-        filters["secret_manager_type"] = params.secret_manager_type
-    if params.secret_manager_instance:
-        filters["secret_manager_instance"] = params.secret_manager_instance
-    if params.nhi_env:
-        filters["nhi_env"] = params.nhi_env
-    if params.nhi_policy:
-        filters["nhi_policy"] = params.nhi_policy
-    if params.teams:
-        filters["teams"] = params.teams
-    if params.similar_to is not None:
-        filters["similar_to"] = params.similar_to
-    if params.date_before:
-        filters["date_before"] = params.date_before
-    if params.date_after:
-        filters["date_after"] = params.date_after
-    if params.secret_scope:
-        filters["secret_scope"] = params.secret_scope
-    if params.analyzer_status:
-        filters["analyzer_status"] = params.analyzer_status
-    if params.custom_tags:
-        filters["custom_tags"] = params.custom_tags
-
-    return filters
+    return _applied_fields(params, _INFO_EXCLUDED)
