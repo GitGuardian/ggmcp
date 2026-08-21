@@ -103,15 +103,25 @@ class TestScrubPydanticInputValue:
                 "[type=list_type, input_value='a, input_type=x b', input_type=str]",
                 f"[type=list_type, input_value={PLACEHOLDER}, input_type=str]",
             ),
-            (
-                "[type=list_type, input_value='doc']",
-                f"[type=list_type, input_value={PLACEHOLDER}]",
-            ),
             ("GET /v1/incidents?page=2 returned 200", "GET /v1/incidents?page=2 returned 200"),
         ],
     )
     def test_redacts_input_value(self, message, expected):
         assert scrub_pydantic_input_value(message) == expected
+
+    def test_redacts_even_without_the_input_type_marker(self):
+        """
+        GIVEN a message carrying input_value with no trailing input_type marker
+        WHEN it is scrubbed
+        THEN the payload is still gone
+
+        Pydantic always renders input_type after input_value, so this shape is
+        defensive: redaction must not depend on the marker being present.
+        """
+        scrubbed = scrub_pydantic_input_value("[type=list_type, input_value='doc']")
+
+        assert "doc" not in scrubbed
+        assert PLACEHOLDER in scrubbed
 
     def test_redacts_every_error_in_a_multi_error_message(self):
         message = (

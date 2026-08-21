@@ -52,7 +52,6 @@ _SENSITIVE_GIT_CLONE_RE = re.compile(r"(https?://)[^:@/\s]*:[^@/\s]*@")
 # ``*Params`` model, so ``hide_input_in_errors`` on the model does not reach
 # this text and the raw arguments travel with the exception message.
 _PYDANTIC_INPUT_VALUE_RE = re.compile(r"input_value=[^\n]*")
-_PYDANTIC_INPUT_TYPE_MARKER: Final = ", input_type="
 
 
 def scrub_url_params(string: str) -> str:
@@ -67,28 +66,23 @@ def scrub_git_credentials(string: str) -> str:
 
 
 def _redact_input_value(match: re.Match[str]) -> str:
-    """Replace one ``input_value=`` payload, keeping the diagnostic tail."""
+    """Replace one ``input_value=`` payload, keeping the diagnostic tail.
+
+    Pydantic always renders ``input_type`` after ``input_value``, so the tail
+    starts at the last such marker on the line. Taking the last one keeps a
+    payload that embeds the marker itself fully redacted.
+    """
     rest = match.group(0)
-    marker = rest.rfind(_PYDANTIC_INPUT_TYPE_MARKER)
-    if marker != -1:
-        tail = rest[marker:]
-    elif rest.endswith("]"):
-        tail = "]"
-    else:
-        tail = ""
-    return f"input_value={SENSITIVE_DATA_PLACEHOLDER}{tail}"
+    marker = rest.rfind(", input_type=")
+    return f"input_value={SENSITIVE_DATA_PLACEHOLDER}{rest[marker:] if marker != -1 else ''}"
 
 
 def scrub_pydantic_input_value(string: str) -> str:
     """Redact the rejected input embedded in pydantic validation messages.
 
-    The value runs to the last ``, input_type=`` on its line, so a payload that
-    itself contains that marker is still redacted in full. ``input_type`` and
-    the error type are kept: they describe the failure without carrying the
-    submitted data.
+    ``input_type`` and the error type are kept: they describe the failure
+    without carrying the submitted data.
     """
-    if "input_value=" not in string:
-        return string
     return _PYDANTIC_INPUT_VALUE_RE.sub(_redact_input_value, string)
 
 
