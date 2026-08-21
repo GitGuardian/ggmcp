@@ -11,7 +11,6 @@ from unittest.mock import patch
 import pytest
 from fastmcp.exceptions import ToolError
 from gg_api_core.tools.get_public_incident import (
-    GetPublicIncidentParams,
     GetPublicIncidentResult,
     get_public_incident,
 )

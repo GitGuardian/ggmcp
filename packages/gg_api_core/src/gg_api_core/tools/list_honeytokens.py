@@ -62,8 +62,12 @@ async def list_honeytokens(
             description="If True, fetch honeytokens created by the current user. Set to False to get all honeytokens in the workspace.",
         ),
     ] = False,
-    status: Annotated[str | None, Field(default=None, description="Filter by status (active, triggered, or revoked)")] = None,
-    search: Annotated[str | None, Field(default=None, description="Search string to filter results by name or description")] = None,
+    status: Annotated[
+        str | None, Field(default=None, description="Filter by status (active, triggered, or revoked)")
+    ] = None,
+    search: Annotated[
+        str | None, Field(default=None, description="Search string to filter results by name or description")
+    ] = None,
     ordering: Annotated[
         str | None,
         Field(default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"),

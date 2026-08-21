@@ -109,31 +109,7 @@ async def list_sources(
         Field(default=None, description="Filter sources based on their health status"),
     ] = None,
     type: Annotated[
-        Literal[
-            "bitbucket",
-            "bitbucket_cloud",
-            "github",
-            "gitlab",
-            "azure_devops",
-            "slack",
-            "jira_cloud",
-            "confluence_cloud",
-            "microsoft_teams",
-            "confluence_data_center",
-            "jira_data_center",
-            "aws_ecr",
-            "azure_cr",
-            "google_artifact",
-            "jfrog_artifact",
-            "docker_hub",
-            "servicenow",
-            "sharepoint_online",
-            "sharepoint_online_drive",
-            "sharepoint_online_pages",
-            "microsoft_onedrive",
-            "custom_source",
-        ]
-        | None,
+        IncidentSourceTypeFilter | None,
         Field(default=None, description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')"),
     ] = None,
     ordering: Annotated[
@@ -149,7 +125,9 @@ async def list_sources(
         Literal["critical", "high", "medium", "low", "unknown"] | None,
         Field(default=None, description="Filter by source criticality level"),
     ] = None,
-    monitored: Annotated[bool | None, Field(default=None, description="Filter by monitored status (true/false)")] = None,
+    monitored: Annotated[
+        bool | None, Field(default=None, description="Filter by monitored status (true/false)")
+    ] = None,
     team_id: Annotated[
         int | None,
         Field(

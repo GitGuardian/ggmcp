@@ -37,7 +37,7 @@ class TestScanSecrets:
         ]
         route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT, {"policy_break_count": 0}])
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": documents})
 
         assert_authenticated_request(route)
         assert sent_body(route) == documents
@@ -56,7 +56,7 @@ class TestScanSecrets:
         route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT])
         documents = [{"document": "x = 1\n"}]
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": documents})
 
         assert route.called
         assert sent_body(route) == documents
@@ -70,7 +70,7 @@ class TestScanSecrets:
         """
         route = gg_api.post("/multiscan").respond(200, json=[])
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": []}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": []})
 
         assert "non-empty list" in tool_error_text(result)
         assert not route.called
@@ -86,7 +86,7 @@ class TestScanSecrets:
         result = await call_tool(
             mcp_client,
             "scan_secrets",
-            {"params": {"documents": [{"document": "x", "filename": "x.py"}]}},
+            {"documents": [{"document": "x", "filename": "x.py"}]},
         )
 
         assert "400" in tool_error_text(result)

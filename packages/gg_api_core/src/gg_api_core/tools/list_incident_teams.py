@@ -44,7 +44,9 @@ class ListIncidentTeamsResult(BaseModel):
 
 async def list_incident_teams(
     incident_id: Annotated[int, Field(description="The ID of the secret incident to retrieve teams for")],
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),

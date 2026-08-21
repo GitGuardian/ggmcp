@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
+from gg_api_core.tools.list_honeytokens import list_honeytokens
 
 
 class TestListHoneytokens:
@@ -38,17 +38,17 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.list_honeytokens.assert_called_once()
@@ -81,17 +81,17 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify response includes cursor
         assert len(result.honeytokens) == 1
@@ -121,16 +121,16 @@ class TestListHoneytokens:
 
         # Call the function with filters
         result = await list_honeytokens(
-                status="ACTIVE",
-                search="filtered",
-                ordering="-created_at",
-                show_token=True,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=50,
-                get_all=False,
-                mine=False,
-            )
+            status="ACTIVE",
+            search="filtered",
+            ordering="-created_at",
+            show_token=True,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=50,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify client was called with correct parameters
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -171,16 +171,16 @@ class TestListHoneytokens:
 
         # Call the function with mine=True
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=True,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=True,
+        )
 
         # Verify get_current_token_info was called
         mock_gitguardian_client.get_current_token_info.assert_called_once()
@@ -209,16 +209,16 @@ class TestListHoneytokens:
 
         # Call the function with mine=True
         await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=True,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=True,
+        )
 
         # Verify that creator_id was not set (should be None)
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -245,16 +245,16 @@ class TestListHoneytokens:
 
         # Call the function with get_all=True
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=True,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=True,
+            mine=False,
+        )
 
         # Verify client was called with get_all=True
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -276,17 +276,17 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify response is empty
         assert len(result.honeytokens) == 0
@@ -301,16 +301,16 @@ class TestListHoneytokens:
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
             await list_honeytokens(
-                    status=None,
-                    search=None,
-                    ordering=None,
-                    show_token=False,
-                    creator_id=None,
-                    creator_api_token_id=None,
-                    per_page=20,
-                    get_all=False,
-                    mine=False,
-                )
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                get_all=False,
+                mine=False,
+            )
 
         # Verify error message
         assert error_message in str(excinfo.value)
@@ -328,16 +328,16 @@ class TestListHoneytokens:
 
         # Call the function with explicit creator_id
         await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id="specific_user_123",
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id="specific_user_123",
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify client was called with correct creator_id
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -356,16 +356,16 @@ class TestListHoneytokens:
 
         # Call the function with creator_api_token_id
         await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id="token_123",
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id="token_123",
+            per_page=20,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify client was called with correct creator_api_token_id
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -395,16 +395,16 @@ class TestListHoneytokens:
 
         # Call the function with show_token=True
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=True,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=True,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify client was called with show_token=True
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -430,16 +430,16 @@ class TestListHoneytokens:
         # Call the function with mine=True - should raise the exception
         with pytest.raises(Exception, match="Token info failed"):
             await list_honeytokens(
-                    status=None,
-                    search=None,
-                    ordering=None,
-                    show_token=False,
-                    creator_id=None,
-                    creator_api_token_id=None,
-                    per_page=20,
-                    get_all=False,
-                    mine=True,
-                )
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                get_all=False,
+                mine=True,
+            )
 
     @pytest.mark.asyncio
     async def test_list_honeytokens_cursor_pagination(self, mock_gitguardian_client):
@@ -461,17 +461,17 @@ class TestListHoneytokens:
 
         # Call the function with a cursor from "previous page"
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor="second_page_cursor",  # Cursor from previous request
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor="second_page_cursor",  # Cursor from previous request
+            get_all=False,
+            mine=False,
+        )
 
         # Verify cursor was passed to the client
         call_kwargs = mock_gitguardian_client.list_honeytokens.call_args.kwargs
@@ -500,17 +500,17 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
+        )
 
         # Verify next_cursor is None (last page)
         assert len(result.honeytokens) == 1

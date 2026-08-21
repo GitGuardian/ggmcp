@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_sources import ListSourcesParams, list_sources
+from gg_api_core.tools.list_sources import list_sources
 
 
 class TestListSources:

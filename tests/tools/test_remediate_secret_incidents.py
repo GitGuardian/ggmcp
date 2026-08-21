@@ -257,10 +257,10 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with git_commands=False
             result = await remediate_secret_incidents(
-                    source_id="source_123",
-                    git_commands=False,
-                    mine=False,
-                )
+                source_id="source_123",
+                git_commands=False,
+                mine=False,
+            )
 
             # Verify remediation instructions are present but without git commands
             assert result.remediation_instructions is not None
@@ -311,10 +311,10 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
-                    source_id="source_123",
-                    create_env_example=False,
-                    mine=False,
-                )
+                source_id="source_123",
+                create_env_example=False,
+                mine=False,
+            )
 
             # Verify remediation instructions are present
             assert result.remediation_instructions is not None

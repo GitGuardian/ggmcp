@@ -93,7 +93,9 @@ async def list_incident_activity_logs(
         int | None,
         Field(default=None, description="Filter to entries authored by a specific member (by member ID)"),
     ] = None,
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
@@ -165,7 +167,9 @@ async def list_public_incident_activity_logs(
         int | None,
         Field(default=None, description="Filter to entries authored by a specific member (by member ID)"),
     ] = None,
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),

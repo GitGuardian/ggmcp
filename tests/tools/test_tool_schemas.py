@@ -17,12 +17,11 @@ import importlib
 import inspect
 import pkgutil
 
+import gg_api_core.tools as tools_package
 import pytest
 from fastmcp.server.dependencies import without_injected_parameters
 from fastmcp.tools import Tool
 from fastmcp.utilities.types import get_cached_typeadapter
-
-import gg_api_core.tools as tools_package
 
 
 def _registered_tool_functions():
@@ -103,8 +102,7 @@ def test_required_parameters_are_top_level_properties():
         properties = schema.get("properties", {})
         for required in schema.get("required", []):
             assert required in properties, (
-                f"tool '{name}' marks '{required}' as required but it is not a "
-                "top-level property"
+                f"tool '{name}' marks '{required}' as required but it is not a top-level property"
             )
 
 
@@ -177,10 +175,7 @@ def test_flat_calls_coerce_str_to_int():
                 param
                 for param, prop in properties.items()
                 if prop.get("type") == "integer"
-                or (
-                    isinstance(prop.get("type"), list)
-                    and "integer" in prop.get("type")
-                )
+                or (isinstance(prop.get("type"), list) and "integer" in prop.get("type"))
             ),
             None,
         )
@@ -194,9 +189,7 @@ def test_flat_calls_coerce_str_to_int():
         try:
             _validate_arguments(tool_function, call)
         except Exception as exc:  # pragma: no cover - failure path
-            pytest.fail(
-                f"tool '{name}' rejected flat call '{call}': {exc}"
-            )
+            pytest.fail(f"tool '{name}' rejected flat call '{call}': {exc}")
 
 
 def test_required_params_schema_is_a_flat_object_shape():

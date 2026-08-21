@@ -389,7 +389,7 @@ def use_cassette(request):
         @pytest.mark.asyncio
         async def test_something(real_client, use_cassette):
             with use_cassette("test_something"):
-                result = await some_tool(params)
+                result = await some_tool(**params.model_dump())
     """
     test_file = request.fspath
     cassette_dir = _get_cassette_dir_for_test(str(test_file))

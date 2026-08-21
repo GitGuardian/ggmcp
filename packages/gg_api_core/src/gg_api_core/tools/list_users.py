@@ -51,7 +51,9 @@ class ListUsersResult(BaseModel):
 
 
 async def list_users(
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
@@ -70,8 +72,12 @@ async def list_users(
             description="Filter members based on their access level (owner, manager, member, restricted)",
         ),
     ] = None,
-    active: Annotated[bool | None, Field(default=None, description="Filter members based on their active status")] = None,
-    search: Annotated[str | None, Field(default=None, description="Search members based on their name or email")] = None,
+    active: Annotated[
+        bool | None, Field(default=None, description="Filter members based on their active status")
+    ] = None,
+    search: Annotated[
+        str | None, Field(default=None, description="Search members based on their name or email")
+    ] = None,
     ordering: Annotated[
         str | None,
         Field(

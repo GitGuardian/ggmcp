@@ -8,7 +8,6 @@ import pytest
 from fastmcp.exceptions import ToolError
 from gg_api_core.tools.incident_notes import (
     ListCommentsResult,
-    ListIncidentCommentsParams,
     ManageIncidentCommentParams,
     list_incident_comments,
     list_public_incident_comments,

@@ -32,14 +32,12 @@ async def _call_scan_tool(server: FastMCP) -> None:
         await session.call_tool(
             "scan_secrets",
             {
-                "params": {
-                    "documents": [
-                        {
-                            "document": RAW_DOCUMENT,
-                            "filename": "settings.py",
-                        }
-                    ]
-                }
+                "documents": [
+                    {
+                        "document": RAW_DOCUMENT,
+                        "filename": "settings.py",
+                    }
+                ]
             },
         )
 

@@ -95,7 +95,7 @@ class TestPatEnvAuthentication:
         server = build_server()
         assert server.authentication_mode.value == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
         async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_incident", {"incident_id": 77})
 
         assert result.structured_content == {"incident": INCIDENT}
         assert_authenticated_request(scope_route, STDIO_PAT)
@@ -126,7 +126,7 @@ class TestPatEnvAuthentication:
         server = build_server()
         assert server.authentication_mode.value == "LOCAL_OAUTH_FLOW"
         async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_incident", {"incident_id": 77})
 
         assert result.structured_content == {"incident": INCIDENT}
         assert route.calls.last.request.headers["Authorization"] == f"Token {STDIO_PAT}"
@@ -182,7 +182,7 @@ class TestPatEnvAuthentication:
         server = build_server()
         assert server.authentication_mode.value == "LOCAL_OAUTH_FLOW"
         async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_incident", {"incident_id": 77})
 
         assert result.structured_content == {"incident": INCIDENT}
         assert_authenticated_request(scope_route, stored_pat)
@@ -300,7 +300,7 @@ class TestSingleTenantSelfHealing:
         route = gg_api.get("/incidents/secrets/77").mock(side_effect=invalid_then_success)
 
         async with Client(build_server()) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert seen_authorization == [f"Token {STDIO_PAT}", f"Token {STDIO_PAT}"]
@@ -322,7 +322,7 @@ class TestSingleTenantSelfHealing:
         async with Client(build_server()) as client:
             result = await client.call_tool(
                 "get_incident",
-                {"params": {"incident_id": 77}},
+                {"incident_id": 77},
                 raise_on_error=False,
             )
 
@@ -348,7 +348,7 @@ class TestSingleTenantSelfHealing:
         async with Client(build_server()) as client:
             result = await client.call_tool(
                 "get_incident",
-                {"params": {"incident_id": 77}},
+                {"incident_id": 77},
                 raise_on_error=False,
             )
 

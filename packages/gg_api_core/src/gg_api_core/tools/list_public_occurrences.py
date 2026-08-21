@@ -163,7 +163,9 @@ async def list_public_occurrences(
         int,
         Field(default=20, ge=1, le=100, description="Number of results per page (default: 20, max: 100)"),
     ] = 20,
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
     get_all: Annotated[
         bool,
         Field(
@@ -175,12 +177,21 @@ async def list_public_occurrences(
         ),
     ] = False,
     date_before: Annotated[
-        str | None, Field(default=None, description="Entries found before this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)")
+        str | None,
+        Field(default=None, description="Entries found before this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)"),
     ] = None,
-    date_after: Annotated[str | None, Field(default=None, description="Entries found after this date (ISO datetime)")] = None,
-    source_id: Annotated[int | None, Field(default=None, description="Filter occurrences belonging to this source ID")] = None,
-    presence: Annotated[str | None, Field(default=None, description="Filter by presence status (present, removed)")] = None,
-    sha: Annotated[str | None, Field(default=None, min_length=3, description="Filter by commit sha (>=3 characters)")] = None,
+    date_after: Annotated[
+        str | None, Field(default=None, description="Entries found after this date (ISO datetime)")
+    ] = None,
+    source_id: Annotated[
+        int | None, Field(default=None, description="Filter occurrences belonging to this source ID")
+    ] = None,
+    presence: Annotated[
+        str | None, Field(default=None, description="Filter by presence status (present, removed)")
+    ] = None,
+    sha: Annotated[
+        str | None, Field(default=None, min_length=3, description="Filter by commit sha (>=3 characters)")
+    ] = None,
     filepath: Annotated[
         str | None, Field(default=None, min_length=3, description="Filter by filepath (>=3 characters)")
     ] = None,
@@ -195,37 +206,16 @@ async def list_public_occurrences(
         ),
     ] = None,
     severity: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description=(
-                "Filter occurrences by the severity of their related incident. "
-                "Comma-separated values allowed (e.g. 'critical,high'). "
-                "Options: critical, high, medium, low, info, unknown"
-            ),
-        ),
+        list[IncidentSeverityFilter] | IncidentSeverityFilter | None,
+        Field(default=None, description="Filter occurrences by related incident severity."),
     ] = None,
     status: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description=(
-                "Filter occurrences by the status of their related incident. "
-                "Comma-separated values allowed (e.g. 'TRIGGERED,ASSIGNED'). "
-                "Options: IGNORED, TRIGGERED, ASSIGNED, RESOLVED"
-            ),
-        ),
+        list[IncidentStatusFilter] | IncidentStatusFilter | None,
+        Field(default=None, description="Filter occurrences by related incident status."),
     ] = None,
     validity: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description=(
-                "Filter occurrences by the validity of their related secret. "
-                "Comma-separated values allowed. "
-                "Options: valid, invalid, failed_to_check, no_checker, unknown"
-            ),
-        ),
+        list[IncidentValidityFilter] | IncidentValidityFilter | None,
+        Field(default=None, description="Filter occurrences by related secret validity."),
     ] = None,
     tags: Annotated[
         str | None,

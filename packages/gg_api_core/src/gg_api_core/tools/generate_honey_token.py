@@ -69,9 +69,7 @@ async def generate_honeytoken(
             "name (e.g. 'aws-prod-db-decoy-2026-07'), not a generic one."
         ),
     ],
-    description: Annotated[
-        str, Field(default="", description="Description of what the honeytoken is used for")
-    ] = "",
+    description: Annotated[str, Field(default="", description="Description of what the honeytoken is used for")] = "",
     new_token: Annotated[
         bool,
         Field(

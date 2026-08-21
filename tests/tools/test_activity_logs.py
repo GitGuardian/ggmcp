@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock
 import pytest
 from fastmcp.exceptions import ToolError
 from gg_api_core.tools.activity_logs import (
-    ListActivityLogsParams,
     ListActivityLogsResult,
     list_incident_activity_logs,
     list_public_incident_activity_logs,
@@ -76,8 +75,8 @@ class TestListIncidentActivityLogs:
         )
 
         result = await list_incident_activity_logs(
-                incident_id=21460, content_key="RESOLVE", member_id=480870, cursor="abc", per_page=50
-            )
+            incident_id=21460, content_key="RESOLVE", member_id=480870, cursor="abc", per_page=50
+        )
 
         mock_gitguardian_client.list_incident_activity_logs.assert_called_once_with(
             incident_id=21460,

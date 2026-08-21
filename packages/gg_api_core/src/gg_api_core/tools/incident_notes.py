@@ -84,7 +84,9 @@ def _build_list_result(result: ListResponse) -> ListCommentsResult:
 
 async def list_incident_comments(
     incident_id: Annotated[int, Field(description="ID of the secret incident whose comments to list")],
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
@@ -212,7 +214,9 @@ async def manage_incident_comment(
 
 async def list_public_incident_comments(
     incident_id: Annotated[int, Field(description="ID of the public secret incident whose comments to list")],
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),

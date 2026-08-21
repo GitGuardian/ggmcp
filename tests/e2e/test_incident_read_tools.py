@@ -49,7 +49,7 @@ class TestListIncidents:
             200, json={"results": [INCIDENT], "count": 1, "next": None, "previous": None}
         )
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
+        result = await call_tool(mcp_client, "list_incidents", {})
 
         assert sent_params(route) == DEFAULT_LIST_QUERY
         output = unwrap_result(result)
@@ -73,16 +73,14 @@ class TestListIncidents:
             mcp_client,
             "list_incidents",
             {
-                "params": {
-                    "severity": ["critical", "high"],
-                    "source_ids": [11, 22],
-                    "publicly_shared": True,
-                    "occurrence_count_min": 3,
-                    "date_after": "2026-07-01T15:30:00Z",
-                    "status": None,
-                    "validity": None,
-                    "exclude_tags": None,
-                }
+                "severity": ["critical", "high"],
+                "source_ids": [11, 22],
+                "publicly_shared": True,
+                "occurrence_count_min": 3,
+                "date_after": "2026-07-01T15:30:00Z",
+                "status": None,
+                "validity": None,
+                "exclude_tags": None,
             },
         )
 
@@ -110,7 +108,7 @@ class TestListIncidents:
         )
         incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
 
-        await call_tool(mcp_client, "list_incidents", {"params": {"mine": True}})
+        await call_tool(mcp_client, "list_incidents", {"mine": True})
 
         assert member.called
         assert sent_params(incidents)["assignee_member_id"] == str(TEST_MEMBER_ID)
@@ -128,7 +126,7 @@ class TestListIncidents:
         gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
         incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": []})
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {"mine": True}})
+        result = await call_tool(mcp_client, "list_incidents", {"mine": True})
 
         assert "mine" in tool_error_text(result).lower()
         assert not incidents.called
@@ -142,7 +140,7 @@ class TestListIncidents:
         gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(200, json={"id": TEST_MEMBER_ID})
         incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": []})
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {"mine": True, "assignee_id": 1}})
+        result = await call_tool(mcp_client, "list_incidents", {"mine": True, "assignee_id": 1})
 
         output = unwrap_result(result)
         assert output["error"].startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
@@ -164,7 +162,7 @@ class TestListIncidents:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {"get_all": True}})
+        result = await call_tool(mcp_client, "list_incidents", {"get_all": True})
 
         assert route.call_count == 2
         output = unwrap_result(result)
@@ -186,7 +184,7 @@ class TestListIncidents:
             json={"detail": "Invalid API key."},
         )
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
+        result = await call_tool(mcp_client, "list_incidents", {})
 
         assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
 
@@ -201,7 +199,7 @@ class TestCountIncidents:
         """
         route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 1337})
 
-        result = await call_tool(mcp_client, "count_incidents", {"params": {}})
+        result = await call_tool(mcp_client, "count_incidents", {})
 
         params = sent_params(route)
         assert params == {
@@ -220,7 +218,7 @@ class TestCountIncidents:
         gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(200, json={"id": TEST_MEMBER_ID})
         route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 2})
 
-        result = await call_tool(mcp_client, "count_incidents", {"params": {"mine": True}})
+        result = await call_tool(mcp_client, "count_incidents", {"mine": True})
 
         assert sent_params(route)["assignee_member_id"] == str(TEST_MEMBER_ID)
         assert unwrap_result(result)["count"] == 2
@@ -236,7 +234,7 @@ class TestGetIncident:
         """
         route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert str(route.calls.last.request.url) == "https://api.gitguardian.com/v1/incidents/secrets/77"
         assert tool_output(result) == {"incident": INCIDENT}
@@ -252,7 +250,7 @@ class TestGetIncident:
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert result["isError"] is False
         assert result["structuredContent"] == {"incident": INCIDENT}
@@ -267,7 +265,7 @@ class TestGetIncident:
         """
         route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77, "with_occurrences": 50}})
+        await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_occurrences": 50})
 
         assert sent_params(route)["with_occurrences"] == "50"
 
@@ -283,7 +281,7 @@ class TestGetIncident:
             json={"detail": "Not found."},
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": incident_id}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": incident_id})
 
         assert str(HTTPStatus.NOT_FOUND.value) in tool_error_text(result)
 
@@ -303,7 +301,7 @@ class TestListRepoOccurrences:
             headers={"Link": '<https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD0yMDI2%3D%3D>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_repo_occurrences", {"params": {"source_id": 55}})
+        result = await call_tool(mcp_client, "list_repo_occurrences", {"source_id": 55})
 
         params = sent_params(route)
         assert params["source_id"] == "55"
@@ -329,7 +327,7 @@ class TestListRepoOccurrences:
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
-        await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
+        await call_tool(mcp_client, "list_repo_occurrences", {"mine": True})
 
         assert sent_params(route)["member_assignee_id"] == str(TEST_MEMBER_ID)
 
@@ -346,7 +344,7 @@ class TestListRepoOccurrences:
         gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
         occurrences = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
-        result = await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
+        result = await call_tool(mcp_client, "list_repo_occurrences", {"mine": True})
 
         assert "mine" in tool_error_text(result).lower()
         assert not occurrences.called

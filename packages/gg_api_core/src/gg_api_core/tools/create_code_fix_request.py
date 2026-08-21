@@ -72,12 +72,12 @@ async def create_code_fix_request(
     Examples:
         Single issue with multiple locations:
         ```python
-        locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
+        locations = [LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
         ```
 
         Multiple issues from different sources:
         ```python
-        locations=[
+        locations = [
             LocationToFix(issue_id=12345, location_ids=[67890]),
             LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
         ]

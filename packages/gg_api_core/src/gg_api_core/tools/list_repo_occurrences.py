@@ -206,16 +206,25 @@ async def list_repo_occurrences(
         ),
     ] = DEFAULT_EXCLUDED_TAGS,
     status: Annotated[
-        list[IncidentStatus] | None,
-        Field(default=DEFAULT_STATUSES, description="Filter by status (list of status names)"),
+        list[IncidentStatusFilter] | IncidentStatusFilter | None,
+        Field(
+            default=DEFAULT_STATUSES,
+            description="Filter by status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Default excludes IGNORED.",
+        ),
     ] = DEFAULT_STATUSES,
     severity: Annotated[
-        list[IncidentSeverity] | None,
-        Field(default=DEFAULT_SEVERITIES, description="Filter by severity (list of severity names)"),
+        list[IncidentSeverityFilter] | IncidentSeverityFilter | None,
+        Field(
+            default=DEFAULT_SEVERITIES,
+            description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
+        ),
     ] = DEFAULT_SEVERITIES,
     validity: Annotated[
-        list[IncidentValidity] | None,
-        Field(default=DEFAULT_VALIDITIES, description="Filter by validity (list of validity names)"),
+        list[IncidentValidityFilter] | IncidentValidityFilter | None,
+        Field(
+            default=DEFAULT_VALIDITIES,
+            description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
+        ),
     ] = DEFAULT_VALIDITIES,
     mine: Annotated[
         bool,
@@ -235,12 +244,16 @@ async def list_repo_occurrences(
             description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools.",
         ),
     ] = None,
-    ordering: Annotated[str | None, Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")] = None,
+    ordering: Annotated[
+        str | None, Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    ] = None,
     per_page: Annotated[
         int,
         Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
     ] = 20,
-    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor for fetching next page of results")] = None,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching next page of results")
+    ] = None,
     get_all: Annotated[
         bool,
         Field(

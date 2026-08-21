@@ -24,7 +24,9 @@ class TestCreateCodeFixRequest:
         mock_gitguardian_client.create_code_fix_request = AsyncMock(return_value=mock_response)
 
         # Call the function with single issue
-        result = await create_code_fix_request(locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])])
+        result = await create_code_fix_request(
+            locations=[LocationToFix(issue_id=12345, location_ids=[67890, 67891, 67892])]
+        )
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.create_code_fix_request.assert_called_once_with(
@@ -53,11 +55,11 @@ class TestCreateCodeFixRequest:
 
         # Call the function with multiple issues
         result = await create_code_fix_request(
-                locations=[
-                    LocationToFix(issue_id=12345, location_ids=[67890]),
-                    LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
-                ]
-            )
+            locations=[
+                LocationToFix(issue_id=12345, location_ids=[67890]),
+                LocationToFix(issue_id=12346, location_ids=[67893, 67894]),
+            ]
+        )
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.create_code_fix_request.assert_called_once_with(

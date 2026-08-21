@@ -25,7 +25,7 @@ class TestServerErrorRetries:
             side_effect=[httpx.Response(500, text="boom"), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert tool_output(result) == {"incident": INCIDENT}
@@ -40,7 +40,7 @@ class TestServerErrorRetries:
         """
         route = gg_api.get("/incidents/secrets/77").respond(500, text="boom")
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 4
         assert "500" in tool_error_text(result)
@@ -55,7 +55,7 @@ class TestNetworkFailures:
         """
         gg_api.get("/incidents/secrets/77").mock(side_effect=httpx.ConnectError("connection refused"))
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert "connection refused" in tool_error_text(result)
 
@@ -67,7 +67,7 @@ class TestNetworkFailures:
         """
         gg_api.get("/incidents/secrets/77").mock(side_effect=httpx.ReadTimeout("timed out"))
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert "timed out" in tool_error_text(result)
 
@@ -95,7 +95,7 @@ class TestDownstreamUnauthorizedBridge:
             "tools/call",
             {
                 "name": "scan_secrets",
-                "arguments": {"params": {"documents": [{"document": "x", "filename": "x.py"}]}},
+                "arguments": {"documents": [{"document": "x", "filename": "x.py"}]},
             },
         )
 

@@ -175,7 +175,7 @@ class TestCountIncidentsTool:
         client._request_get = AsyncMock(return_value={"count": 7})
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=client):
-            result = await count_incidents(CountIncidentsParams(validity=["unknown"]))
+            result = await count_incidents(**CountIncidentsParams(validity=["unknown"]).model_dump())
 
         assert isinstance(result, CountIncidentsResult)
         query = client._request_get.call_args.kwargs["params"]
@@ -192,7 +192,7 @@ class TestCountIncidentsTool:
         mock_client.count_incidents_for_mcp.return_value = {"count": 1}
 
         with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            await count_incidents(CountIncidentsParams(severity=["critical", "unknown"]))
+            await count_incidents(**CountIncidentsParams(severity=["critical", "unknown"]).model_dump())
 
         call_kwargs = mock_client.count_incidents_for_mcp.call_args.kwargs
         assert call_kwargs["severity"] == ["critical", "unknown"]
