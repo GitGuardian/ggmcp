@@ -1,5 +1,7 @@
+import importlib
 import json
 import os
+import pkgutil
 import subprocess
 import sys
 from pathlib import Path
@@ -7,7 +9,7 @@ from pathlib import Path
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
 from gg_api_core.tools.scan_secret import ScanSecretsParams
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
 
@@ -53,6 +55,38 @@ def test_tool_params_hide_input_in_errors_on_shared_base():
         assert "input_value=" not in str(exc)
         return
     raise AssertionError("expected a validation error")
+
+
+def _tool_params_models():
+    """Every ``*Params`` model reachable from ``gg_api_core.tools``."""
+    import gg_api_core.tools
+
+    for module_info in pkgutil.iter_modules(gg_api_core.tools.__path__):
+        module = importlib.import_module(f"gg_api_core.tools.{module_info.name}")
+        for attribute in vars(module).values():
+            if (
+                isinstance(attribute, type)
+                and issubclass(attribute, BaseModel)
+                and attribute.__name__.endswith("Params")
+            ):
+                yield attribute
+
+
+def test_every_tool_params_model_hides_input_in_errors():
+    """
+    GIVEN every tool parameter model exposed by gg_api_core.tools
+    WHEN their pydantic configuration is inspected
+    THEN each one hides submitted arguments from validation errors
+
+    Discovery keeps this exhaustive: a new tool, or a refactor that reparents an
+    existing ``*Params`` class onto a base other than ToolParamsBase, fails here
+    instead of silently reopening the argument leak.
+    """
+    models = sorted(set(_tool_params_models()), key=lambda model: model.__qualname__)
+
+    assert models, "no *Params models discovered"
+    unprotected = [model.__qualname__ for model in models if model.model_config.get("hide_input_in_errors") is not True]
+    assert not unprotected, f"tool params models missing hide_input_in_errors: {unprotected}"
 
 
 def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
