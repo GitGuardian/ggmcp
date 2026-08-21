@@ -41,7 +41,7 @@ class TestListIncidentMembers:
             return_value=mock_client,
         ):
             params = ListIncidentMembersParams(incident_id=42)
-            result = await list_incident_members(params)
+            result = await list_incident_members(**params.model_dump())
 
             assert isinstance(result, ListIncidentMembersResult)
             assert result.total_count == 1
@@ -81,7 +81,7 @@ class TestListIncidentMembers:
                 direct_access=True,
                 per_page=50,
             )
-            result = await list_incident_members(params)
+            result = await list_incident_members(**params.model_dump())
 
             assert isinstance(result, ListIncidentMembersResult)
             assert result.total_count == 0
@@ -120,7 +120,7 @@ class TestListIncidentMembers:
                 incident_id=42,
                 cursor="some_cursor",
             )
-            result = await list_incident_members(params)
+            result = await list_incident_members(**params.model_dump())
 
             assert result.has_more is True
             assert result.next_cursor == "next_page_cursor"
@@ -144,7 +144,7 @@ class TestListIncidentMembers:
             return_value=mock_client,
         ):
             params = ListIncidentMembersParams(incident_id=42, get_all=True)
-            result = await list_incident_members(params)
+            result = await list_incident_members(**params.model_dump())
 
             assert result.total_count == 2
             mock_client.list_incident_members.assert_called_once_with(
@@ -172,7 +172,7 @@ class TestListIncidentMembers:
             return_value=mock_client,
         ):
             params = ListIncidentMembersParams(incident_id=42, direct_access=False)
-            result = await list_incident_members(params)
+            result = await list_incident_members(**params.model_dump())
 
             assert isinstance(result, ListIncidentMembersResult)
             mock_client.list_incident_members.assert_called_once_with(

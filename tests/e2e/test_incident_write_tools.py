@@ -51,7 +51,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post(expected_path).respond(200, json={"id": 42, "status": "UPDATED"})
 
-        result = await call_tool(mcp_client, "manage_private_incident", {"params": arguments})
+        result = await call_tool(mcp_client, "manage_private_incident", arguments)
 
         assert route.called
         assert sent_body(route) == expected_body
@@ -67,9 +67,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post("/incidents/secrets/42/resolve").respond(200, json={})
 
-        result = await call_tool(
-            mcp_client, "manage_private_incident", {"params": {"incident_id": 42, "action": "resolve"}}
-        )
+        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "resolve"})
 
         assert "'secret_revoked' parameter is required" in tool_error_text(result)
         assert not route.called
@@ -82,9 +80,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post("/incidents/secrets/42/ignore").respond(200, json={})
 
-        result = await call_tool(
-            mcp_client, "manage_private_incident", {"params": {"incident_id": 42, "action": "ignore"}}
-        )
+        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "ignore"})
 
         assert "'ignore_reason' parameter is required" in tool_error_text(result)
         assert not route.called
@@ -99,9 +95,7 @@ class TestUpdateIncidentSeverity:
         """
         route = gg_api.patch("/incidents/secrets/42").respond(200, json={"id": 42, "severity": "high"})
 
-        result = await call_tool(
-            mcp_client, "update_incident_severity", {"params": {"incident_id": 42, "severity": "high"}}
-        )
+        result = await call_tool(mcp_client, "update_incident_severity", {"incident_id": 42, "severity": "high"})
 
         assert sent_body(route) == {"severity": "high"}
         assert tool_output(result) == {"id": 42, "severity": "high"}
@@ -117,7 +111,7 @@ class TestAssignIncident:
         """
         route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42, "assignee_id": 4242})
 
-        result = await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "mine": True}})
+        result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "mine": True})
 
         assert sent_body(route) == {"member_id": "4242", "email": None}
         output = tool_output(result)
@@ -132,7 +126,7 @@ class TestAssignIncident:
         """
         route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42})
 
-        await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "email": "dev@corp.test"}})
+        await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "email": "dev@corp.test"})
 
         assert sent_body(route) == {"member_id": None, "email": "dev@corp.test"}
 
@@ -151,7 +145,7 @@ class TestUpdatePublicIncidentStatus:
         result = await call_tool(
             mcp_client,
             "update_public_incident_status",
-            {"params": {"incident_id": 7, "action": "resolve", "resolve_reason": "revoked"}},
+            {"incident_id": 7, "action": "resolve", "resolve_reason": "revoked"},
         )
 
         assert sent_body(route) == {"resolve_reason": "revoked"}
@@ -165,9 +159,7 @@ class TestUpdatePublicIncidentStatus:
         """
         route = gg_api.post("/public-incidents/secrets/7/resolve").respond(200, json={})
 
-        result = await call_tool(
-            mcp_client, "update_public_incident_status", {"params": {"incident_id": 7, "action": "resolve"}}
-        )
+        result = await call_tool(mcp_client, "update_public_incident_status", {"incident_id": 7, "action": "resolve"})
 
         assert "'resolve_reason' parameter is required" in tool_error_text(result)
         assert not route.called

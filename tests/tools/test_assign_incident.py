@@ -107,7 +107,7 @@ class TestAssignIncident:
             return_value={"id": 123, "assignee_id": 456, "status": "ASSIGNED"}
         )
 
-        result = await assign_incident(AssignIncidentParams(incident_id=123, assignee_member_id=456))
+        result = await assign_incident(incident_id=123, assignee_member_id=456)
 
         # Verify the client was called with the correct parameters
         mock_gitguardian_client.assign_incident.assert_called_once_with(
@@ -136,7 +136,7 @@ class TestAssignIncident:
             return_value={"id": 123, "assignee_id": 789, "status": "ASSIGNED"}
         )
 
-        result = await assign_incident(AssignIncidentParams(incident_id=123, email="user@example.com"))
+        result = await assign_incident(incident_id=123, email="user@example.com")
 
         # Verify the client was called with email parameter directly
         mock_gitguardian_client.assign_incident.assert_called_once_with(
@@ -169,7 +169,7 @@ class TestAssignIncident:
             return_value={"id": 123, "assignee_id": 480870, "status": "ASSIGNED"}
         )
 
-        result = await assign_incident(AssignIncidentParams(incident_id=123, mine=True))
+        result = await assign_incident(incident_id=123, mine=True)
 
         # Verify get_current_token_info was called (not get_current_member)
         mock_gitguardian_client.get_current_token_info.assert_called_once()
@@ -199,7 +199,7 @@ class TestAssignIncident:
         mock_gitguardian_client.assign_incident = AsyncMock(side_effect=Exception("API error: Incident not found"))
 
         with pytest.raises(ToolError) as exc_info:
-            await assign_incident(AssignIncidentParams(incident_id=999, assignee_member_id=456))
+            await assign_incident(incident_id=999, assignee_member_id=456)
 
         assert "API error: Incident not found" in str(exc_info.value)
 
@@ -218,6 +218,6 @@ class TestAssignIncident:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await assign_incident(AssignIncidentParams(incident_id=123, mine=True))
+            await assign_incident(incident_id=123, mine=True)
 
         assert "Could not determine current user ID from token info" in str(exc_info.value)

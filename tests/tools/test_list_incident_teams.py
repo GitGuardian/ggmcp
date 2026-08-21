@@ -40,7 +40,7 @@ class TestListIncidentTeams:
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42)
-            result = await list_incident_teams(params)
+            result = await list_incident_teams(**params.model_dump())
 
             assert isinstance(result, ListIncidentTeamsResult)
             assert result.total_count == 1
@@ -78,7 +78,7 @@ class TestListIncidentTeams:
                 direct_access=True,
                 per_page=50,
             )
-            result = await list_incident_teams(params)
+            result = await list_incident_teams(**params.model_dump())
 
             assert isinstance(result, ListIncidentTeamsResult)
             assert result.total_count == 0
@@ -115,7 +115,7 @@ class TestListIncidentTeams:
                 incident_id=42,
                 cursor="some_cursor",
             )
-            result = await list_incident_teams(params)
+            result = await list_incident_teams(**params.model_dump())
 
             assert result.has_more is True
             assert result.next_cursor == "next_page_cursor"
@@ -139,7 +139,7 @@ class TestListIncidentTeams:
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42, get_all=True)
-            result = await list_incident_teams(params)
+            result = await list_incident_teams(**params.model_dump())
 
             assert result.total_count == 2
             mock_client.list_incident_teams.assert_called_once_with(
@@ -167,7 +167,7 @@ class TestListIncidentTeams:
             return_value=mock_client,
         ):
             params = ListIncidentTeamsParams(incident_id=42, direct_access=False)
-            result = await list_incident_teams(params)
+            result = await list_incident_teams(**params.model_dump())
 
             assert isinstance(result, ListIncidentTeamsResult)
             mock_client.list_incident_teams.assert_called_once_with(

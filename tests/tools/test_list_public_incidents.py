@@ -25,7 +25,7 @@ class TestListPublicIncidents:
         }
         mock_gitguardian_client.list_public_incidents = AsyncMock(return_value=mock_response)
 
-        result = await list_public_incidents(ListPublicIncidentsParams())
+        result = await list_public_incidents()
 
         mock_gitguardian_client.list_public_incidents.assert_called_once()
         call_kwargs = mock_gitguardian_client.list_public_incidents.call_args.kwargs
@@ -76,7 +76,7 @@ class TestListPublicIncidents:
             ordering="-risk_score",
             per_page=50,
         )
-        result = await list_public_incidents(params)
+        result = await list_public_incidents(**params.model_dump())
 
         call_kwargs = mock_gitguardian_client.list_public_incidents.call_args.kwargs
         assert call_kwargs["status"] == [IncidentStatus.TRIGGERED]
@@ -109,7 +109,7 @@ class TestListPublicIncidents:
         )
 
         params = ListPublicIncidentsParams(status=None, severity=None, validity=None)
-        await list_public_incidents(params)
+        await list_public_incidents(**params.model_dump())
 
         call_kwargs = mock_gitguardian_client.list_public_incidents.call_args.kwargs
         assert call_kwargs["status"] is None
@@ -127,7 +127,7 @@ class TestListPublicIncidents:
             return_value={"data": [{"id": 1}], "cursor": "next_cursor_xyz", "has_more": True}
         )
 
-        result = await list_public_incidents(ListPublicIncidentsParams(cursor="prev_cursor"))
+        result = await list_public_incidents(cursor="prev_cursor")
 
         call_kwargs = mock_gitguardian_client.list_public_incidents.call_args.kwargs
         assert call_kwargs["cursor"] == "prev_cursor"
@@ -145,7 +145,7 @@ class TestListPublicIncidents:
             return_value={"data": [{"id": 1}, {"id": 2}], "cursor": None, "has_more": False}
         )
 
-        result = await list_public_incidents(ListPublicIncidentsParams(get_all=True))
+        result = await list_public_incidents(get_all=True)
 
         call_kwargs = mock_gitguardian_client.list_public_incidents.call_args.kwargs
         assert call_kwargs["get_all"] is True
@@ -160,7 +160,7 @@ class TestListPublicIncidents:
         """
         mock_gitguardian_client.list_public_incidents = AsyncMock(side_effect=Exception("Boom"))
 
-        result = await list_public_incidents(ListPublicIncidentsParams())
+        result = await list_public_incidents()
 
         assert hasattr(result, "error")
         assert "Failed to list public incidents" in result.error

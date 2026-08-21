@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -24,7 +25,9 @@ class RevokeSecretResult(BaseModel):
     is_async: bool | None = Field(default=None, description="Whether the revocation is being processed asynchronously")
 
 
-async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
+async def revoke_secret(
+    secret_id: Annotated[str | int, Field(description="ID of the secret to revoke")],
+) -> RevokeSecretResult:
     """
     Revoke a secret by its ID.
 
@@ -33,7 +36,7 @@ async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
     the secret type and provider.
 
     Args:
-        params: RevokeSecretParams model containing the secret ID to revoke
+        secret_id: The ID of the secret to revoke
 
     Returns:
         RevokeSecretResult: Pydantic model containing:
@@ -44,6 +47,7 @@ async def revoke_secret(params: RevokeSecretParams) -> RevokeSecretResult:
     Raises:
         ToolError: If the revocation operation fails
     """
+    params = RevokeSecretParams(secret_id=secret_id)
     client = await get_client()
     logger.debug(f"Revoking secret with ID: {params.secret_id}")
 

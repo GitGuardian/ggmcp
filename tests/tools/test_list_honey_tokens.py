@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
-from gg_api_core.tools.list_honeytokens import ListHoneytokensParams, list_honeytokens
+from gg_api_core.tools.list_honeytokens import list_honeytokens
 
 
 class TestListHoneytokens:
@@ -38,18 +38,16 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
         )
 
         # Verify client was called with correct parameters
@@ -83,18 +81,16 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
         )
 
         # Verify response includes cursor
@@ -125,17 +121,15 @@ class TestListHoneytokens:
 
         # Call the function with filters
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status="ACTIVE",
-                search="filtered",
-                ordering="-created_at",
-                show_token=True,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=50,
-                get_all=False,
-                mine=False,
-            )
+            status="ACTIVE",
+            search="filtered",
+            ordering="-created_at",
+            show_token=True,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=50,
+            get_all=False,
+            mine=False,
         )
 
         # Verify client was called with correct parameters
@@ -177,17 +171,15 @@ class TestListHoneytokens:
 
         # Call the function with mine=True
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=True,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=True,
         )
 
         # Verify get_current_token_info was called
@@ -217,17 +209,15 @@ class TestListHoneytokens:
 
         # Call the function with mine=True
         await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=True,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=True,
         )
 
         # Verify that creator_id was not set (should be None)
@@ -255,17 +245,15 @@ class TestListHoneytokens:
 
         # Call the function with get_all=True
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=True,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=True,
+            mine=False,
         )
 
         # Verify client was called with get_all=True
@@ -288,18 +276,16 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
         )
 
         # Verify response is empty
@@ -315,17 +301,15 @@ class TestListHoneytokens:
         # Call the function and expect a ToolError
         with pytest.raises(ToolError) as excinfo:
             await list_honeytokens(
-                ListHoneytokensParams(
-                    status=None,
-                    search=None,
-                    ordering=None,
-                    show_token=False,
-                    creator_id=None,
-                    creator_api_token_id=None,
-                    per_page=20,
-                    get_all=False,
-                    mine=False,
-                )
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                get_all=False,
+                mine=False,
             )
 
         # Verify error message
@@ -344,17 +328,15 @@ class TestListHoneytokens:
 
         # Call the function with explicit creator_id
         await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id="specific_user_123",
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id="specific_user_123",
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=False,
         )
 
         # Verify client was called with correct creator_id
@@ -374,17 +356,15 @@ class TestListHoneytokens:
 
         # Call the function with creator_api_token_id
         await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id="token_123",
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id="token_123",
+            per_page=20,
+            get_all=False,
+            mine=False,
         )
 
         # Verify client was called with correct creator_api_token_id
@@ -415,17 +395,15 @@ class TestListHoneytokens:
 
         # Call the function with show_token=True
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=True,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=True,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            get_all=False,
+            mine=False,
         )
 
         # Verify client was called with show_token=True
@@ -452,17 +430,15 @@ class TestListHoneytokens:
         # Call the function with mine=True - should raise the exception
         with pytest.raises(Exception, match="Token info failed"):
             await list_honeytokens(
-                ListHoneytokensParams(
-                    status=None,
-                    search=None,
-                    ordering=None,
-                    show_token=False,
-                    creator_id=None,
-                    creator_api_token_id=None,
-                    per_page=20,
-                    get_all=False,
-                    mine=True,
-                )
+                status=None,
+                search=None,
+                ordering=None,
+                show_token=False,
+                creator_id=None,
+                creator_api_token_id=None,
+                per_page=20,
+                get_all=False,
+                mine=True,
             )
 
     @pytest.mark.asyncio
@@ -485,18 +461,16 @@ class TestListHoneytokens:
 
         # Call the function with a cursor from "previous page"
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor="second_page_cursor",  # Cursor from previous request
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor="second_page_cursor",  # Cursor from previous request
+            get_all=False,
+            mine=False,
         )
 
         # Verify cursor was passed to the client
@@ -526,18 +500,16 @@ class TestListHoneytokens:
 
         # Call the function
         result = await list_honeytokens(
-            ListHoneytokensParams(
-                status=None,
-                search=None,
-                ordering=None,
-                show_token=False,
-                creator_id=None,
-                creator_api_token_id=None,
-                per_page=20,
-                cursor=None,
-                get_all=False,
-                mine=False,
-            )
+            status=None,
+            search=None,
+            ordering=None,
+            show_token=False,
+            creator_id=None,
+            creator_api_token_id=None,
+            per_page=20,
+            cursor=None,
+            get_all=False,
+            mine=False,
         )
 
         # Verify next_cursor is None (last page)

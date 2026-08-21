@@ -40,7 +40,7 @@ class TestScanSecrets:
 
         # Call the function
         documents = [{"document": "API_KEY=AKIAIOSFODNN7EXAMPLE", "filename": "test.env"}]
-        result = await scan_secrets(ScanSecretsParams(documents=documents))
+        result = await scan_secrets(documents=documents)
 
         # Verify client was called with correct parameters
         mock_gitguardian_client.multiple_scan.assert_called_once_with(documents)
@@ -68,7 +68,7 @@ class TestScanSecrets:
 
         # Call the function
         documents = [{"document": "print('Hello, World!')", "filename": "test.py"}]
-        result = await scan_secrets(ScanSecretsParams(documents=documents))
+        result = await scan_secrets(documents=documents)
 
         # Verify response
         assert result.scan_results[0]["policy_break_count"] == 0
@@ -93,7 +93,7 @@ class TestScanSecrets:
             {"document": "secret_key = 'abc123'", "filename": "config1.py"},
             {"document": "print('test')", "filename": "test.py"},
         ]
-        result = await scan_secrets(ScanSecretsParams(documents=documents))
+        result = await scan_secrets(documents=documents)
 
         # Verify response
         assert len(result.scan_results) == 2
@@ -111,7 +111,7 @@ class TestScanSecrets:
 
         # Call the function without filename
         documents = [{"document": "print('test')"}]
-        await scan_secrets(ScanSecretsParams(documents=documents))
+        await scan_secrets(documents=documents)
 
         # Verify client was called
         mock_gitguardian_client.multiple_scan.assert_called_once()
@@ -125,7 +125,7 @@ class TestScanSecrets:
         """
         # Call the function with empty list and expect an error
         with pytest.raises(ValueError) as excinfo:
-            await scan_secrets(ScanSecretsParams(documents=[]))
+            await scan_secrets(documents=[])
 
         # Verify error message
         assert "must be a non-empty list" in str(excinfo.value)
@@ -139,7 +139,7 @@ class TestScanSecrets:
         """
         # Call the function with invalid document format
         with pytest.raises(ValueError) as excinfo:
-            await scan_secrets(ScanSecretsParams(documents=[{"invalid_key": "value"}]))
+            await scan_secrets(documents=[{"invalid_key": "value"}])
 
         # Verify error message
         assert "must be a dictionary with a 'document' field" in str(excinfo.value)
@@ -171,7 +171,7 @@ class TestScanSecrets:
 
         # Call the function and expect an error
         with pytest.raises(Exception) as excinfo:
-            await scan_secrets(ScanSecretsParams(documents=[{"document": "test", "filename": "test.txt"}]))
+            await scan_secrets(documents=[{"document": "test", "filename": "test.txt"}])
 
         # Verify error message
         assert error_message in str(excinfo.value)

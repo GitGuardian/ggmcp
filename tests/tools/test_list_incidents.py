@@ -441,7 +441,7 @@ class TestListIncidentsValidityTranslation:
         client = self._client_with_mocked_transport()
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
-            await list_incidents(ListIncidentsParams(validity=["unknown"]))
+            await list_incidents(**ListIncidentsParams(validity=["unknown"]).model_dump())
 
         query = client._request_get.call_args.kwargs["params"]
         assert query["validity__in"] == "not_checked"
@@ -456,7 +456,7 @@ class TestListIncidentsValidityTranslation:
         client = self._client_with_mocked_transport()
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
-            await list_incidents(ListIncidentsParams())
+            await list_incidents(**ListIncidentsParams().model_dump())
 
         query = client._request_get.call_args.kwargs["params"]
         assert query["validity__in"] == "valid,failed_to_check,no_checker,not_checked"
@@ -471,7 +471,7 @@ class TestListIncidentsValidityTranslation:
         client = self._client_with_mocked_transport()
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
-            await list_incidents(ListIncidentsParams(validity=["valid", "invalid"]))
+            await list_incidents(**ListIncidentsParams(validity=["valid", "invalid"]).model_dump())
 
         query = client._request_get.call_args.kwargs["params"]
         assert query["validity__in"] == "valid,invalid"
@@ -491,7 +491,7 @@ class TestListIncidentsSeverityMapping:
         mock_client.list_incidents_for_mcp.return_value = {"results": [], "next": None, "previous": None}
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
-            await list_incidents(ListIncidentsParams(severity=["critical", "unknown"]))
+            await list_incidents(**ListIncidentsParams(severity=["critical", "unknown"]).model_dump())
 
         call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
         assert call_kwargs["severity"] == ["critical", "unknown"]
@@ -538,7 +538,7 @@ class TestListIncidentsMine:
         params = ListIncidentsParams(mine=True)
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
-            await list_incidents(params)
+            await list_incidents(**params.model_dump())
 
         call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
         assert call_kwargs["assignee_id"] == 938094
@@ -556,7 +556,7 @@ class TestListIncidentsMine:
         params = ListIncidentsParams(mine=True, assignee_id=50)
 
         with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
-            result = await list_incidents(params)
+            result = await list_incidents(**params.model_dump())
 
         assert hasattr(result, "error")
         mock_client.list_incidents_for_mcp.assert_not_called()

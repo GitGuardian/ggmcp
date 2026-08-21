@@ -112,7 +112,7 @@ from gg_mcp.tools import some_tool
 @pytest.mark.asyncio
 async def test_some_tool(real_client, use_cassette):
     with use_cassette("test_some_tool"):
-        result = await some_tool(params)
+        result = await some_tool(**params.model_dump())
         assert result is not None
 ```
 

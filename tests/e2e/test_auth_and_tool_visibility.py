@@ -236,14 +236,14 @@ class TestScopeBasedToolVisibility:
                 call_tool(
                     mcp_client,
                     "get_incident",
-                    {"params": {"incident_id": 77}},
+                    {"incident_id": 77},
                     headers=mcp_headers("full-scope-token"),
                     request_id=201,
                 ),
                 call_tool(
                     mcp_client,
                     "scan_secrets",
-                    {"params": {"documents": [{"document": "x = 1", "filename": "x.py"}]}},
+                    {"documents": [{"document": "x = 1", "filename": "x.py"}]},
                     headers=mcp_headers("scan-only-token"),
                     request_id=202,
                 ),
@@ -265,7 +265,7 @@ class TestScopeBasedToolVisibility:
         mock_token_scopes(scopes=["scan"])
         route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
+        result = await call_tool(mcp_client, "list_incidents", {})
 
         # Scope filtering only controls visibility; enforcement happens at the
         # GitGuardian API, which rejects tokens lacking the scope.
@@ -285,8 +285,8 @@ class TestPerRequestScopeCost:
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         # Only the dispatch path caches (per server instance, meaning
         # process-wide in production). The scope-filtered tool list cached here

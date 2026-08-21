@@ -1,10 +1,19 @@
 import json
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentSourceTypeFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
+)
+from gg_api_core.incident_filter_adapters import (
+    IncidentIntegrationFilter,
+)
 from gg_api_core.incident_filters import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
@@ -108,7 +117,227 @@ class ListIncidentsError(BaseModel):
 
 
 async def list_incidents(
-    params: ListIncidentsParams = ListIncidentsParams(),
+    page: Annotated[int, Field(default=1, ge=1, description="Page number (1-indexed)")] = 1,
+    page_size: Annotated[
+        int, Field(default=20, ge=1, le=100, description="Number of results per page (default: 20, max: 100)")
+    ] = 20,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, fetch all pages (capped at ~20.0KB; check 'has_more' to see if results were truncated)",
+        ),
+    ] = False,
+    ordering: Annotated[
+        str | None,
+        Field(
+            default="-date",
+            description="Sort field with optional '-' prefix for descending. Options: score, -score, date, -date, severity, -severity, status, -status",
+        ),
+    ] = "-date",
+    search: Annotated[
+        str | None, Field(default=None, description="Search term to filter incidents by name or content")
+    ] = None,
+    status: Annotated[
+        list[IncidentStatusFilter] | IncidentStatusFilter | None,
+        Field(
+            default=DEFAULT_STATUSES,
+            description="Filter by status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Default excludes IGNORED.",
+        ),
+    ] = DEFAULT_STATUSES,
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, fetch only incidents assigned to the current user. Overrides assignee_id.",
+        ),
+    ] = False,
+    assignee_id: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Filter by assignee member ID. Use 0 for unassigned incidents. Cannot be used with 'mine'.",
+        ),
+    ] = None,
+    severity: Annotated[
+        list[IncidentSeverityFilter] | IncidentSeverityFilter | None,
+        Field(
+            default=DEFAULT_SEVERITIES,
+            description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
+        ),
+    ] = DEFAULT_SEVERITIES,
+    score_min: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+            description="Filter incidents with a score greater than or equal to this value (0-100). Higher scores indicate higher priority incidents.",
+        ),
+    ] = None,
+    score_max: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+            description="Filter incidents with a score less than or equal to this value (0-100).",
+        ),
+    ] = None,
+    validity: Annotated[
+        list[IncidentValidityFilter] | IncidentValidityFilter | None,
+        Field(
+            default=DEFAULT_VALIDITIES,
+            description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
+        ),
+    ] = DEFAULT_VALIDITIES,
+    detector_group_name: Annotated[
+        list[str] | str | None,
+        Field(default=None, description="Filter by detector group name (e.g., 'AWS Keys', 'GitHub Tokens')"),
+    ] = None,
+    detector_type: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by detector type/nature")
+    ] = None,
+    detector_category: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by detector category")
+    ] = None,
+    issue_name: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by issue/incident name")
+    ] = None,
+    secret_category: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by secret category")
+    ] = None,
+    secret_family: Annotated[list[str] | str | None, Field(default=None, description="Filter by secret family")] = None,
+    secret_provider: Annotated[
+        list[str] | str | None,
+        Field(default=None, description="Filter by secret provider (e.g., 'aws', 'github', 'google')"),
+    ] = None,
+    source_ids: Annotated[
+        list[int] | int | None,
+        Field(
+            default=None,
+            description="Filter by source ID(s). Can be obtained using list_source or find_current_source_id tools.",
+        ),
+    ] = None,
+    source_type: Annotated[
+        list[IncidentSourceTypeFilter] | IncidentSourceTypeFilter | None,
+        Field(
+            default=None,
+            description="Filter by public API source type (for example: github, gitlab, bitbucket, azure_devops).",
+        ),
+    ] = None,
+    source_criticality: Annotated[
+        list[str] | str | None,
+        Field(default=None, description="Filter by source criticality. Values: critical, high, medium, low, unknown"),
+    ] = None,
+    occurrence_count_min: Annotated[
+        int | None, Field(default=None, description="Filter incidents with at least this many occurrences")
+    ] = None,
+    presence: Annotated[
+        list[str] | str | None,
+        Field(default=None, description="Filter by occurrence presence status. Values: present, removed"),
+    ] = None,
+    opened_for_days: Annotated[
+        int | None, Field(default=None, description="Filter incidents that have been open for at least this many days")
+    ] = None,
+    tags: Annotated[
+        list[str] | str | None,
+        Field(default=None, description="Filter by tag names (e.g., 'REGRESSION', 'PUBLICLY_EXPOSED', 'TEST_FILE')"),
+    ] = None,
+    exclude_tags: Annotated[
+        list[str] | str | None,
+        Field(
+            default=[
+                "TEST_FILE",
+                "FALSE_POSITIVE",
+                "CHECK_RUN_SKIP_FALSE_POSITIVE",
+                "CHECK_RUN_SKIP_LOW_RISK",
+                "CHECK_RUN_SKIP_TEST_CRED",
+            ],
+            description="Exclude incidents with these tag names. Default excludes TEST_FILE, FALSE_POSITIVE, and CHECK_RUN_SKIP_* tags.",
+        ),
+    ] = [
+        "TEST_FILE",
+        "FALSE_POSITIVE",
+        "CHECK_RUN_SKIP_FALSE_POSITIVE",
+        "CHECK_RUN_SKIP_LOW_RISK",
+        "CHECK_RUN_SKIP_TEST_CRED",
+    ],
+    public_exposure: Annotated[
+        list[str] | str | None,
+        Field(
+            default=None,
+            description="Filter by public exposure. Values: source_publicly_visible, public_incident_linked, leaked_outside_perimeter",
+        ),
+    ] = None,
+    integration: Annotated[
+        list[IncidentIntegrationFilter] | IncidentIntegrationFilter | None,
+        Field(
+            default=None,
+            description="Filter by audited integration name. Values: github, github_enterprise_server, gitlab",
+        ),
+    ] = None,
+    issue_tracker: Annotated[
+        list[str] | str | None,
+        Field(
+            default=None,
+            description="Filter by issue tracker type. Values: jira_cloud_notifier, jira_data_center_notifier, servicenow",
+        ),
+    ] = None,
+    has_related_issues: Annotated[
+        bool | None,
+        Field(default=None, description="Filter to incidents with (True) or without (False) related issues"),
+    ] = None,
+    location: Annotated[
+        bool | None,
+        Field(default=None, description="Filter to incidents with (True) or without (False) location information"),
+    ] = None,
+    feedback: Annotated[
+        bool | None, Field(default=None, description="Filter to incidents with (True) or without (False) feedback")
+    ] = None,
+    publicly_shared: Annotated[
+        bool | None,
+        Field(default=None, description="Filter to incidents that are (True) or aren't (False) publicly shared"),
+    ] = None,
+    secret_manager_type: Annotated[
+        list[str] | str | None,
+        Field(
+            default=None,
+            description="Filter by vault type. Values: hashicorpvault, awssecretsmanager, azurekeyvault, gcpsecretmanager, cyberarksaas, cyberarkselfhosted, akeyless, delineasecretserver",
+        ),
+    ] = None,
+    secret_manager_instance: Annotated[
+        list[int] | int | None, Field(default=None, description="Filter by vault instance ID(s)")
+    ] = None,
+    nhi_env: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by NHI environment name(s)")
+    ] = None,
+    nhi_policy: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by NHI policy breach name(s)")
+    ] = None,
+    teams: Annotated[list[int] | int | None, Field(default=None, description="Filter by team ID(s)")] = None,
+    similar_to: Annotated[
+        int | None, Field(default=None, description="Filter incidents similar to the given incident ID")
+    ] = None,
+    date_before: Annotated[
+        str | None, Field(default=None, description="Filter incidents detected before this date (YYYY-MM-DD format)")
+    ] = None,
+    date_after: Annotated[
+        str | None, Field(default=None, description="Filter incidents detected after this date (YYYY-MM-DD format)")
+    ] = None,
+    secret_scope: Annotated[
+        list[str] | str | None, Field(default=None, description="Filter by secret scope name(s)")
+    ] = None,
+    analyzer_status: Annotated[
+        list[str] | str | None,
+        Field(
+            default=None,
+            description="Filter by analyzer status. Values: no_checker, not_checked, checked, invalid, failed_to_check",
+        ),
+    ] = None,
+    custom_tags: Annotated[
+        list[int] | int | None, Field(default=None, description="Filter by custom tag ID(s)")
+    ] = None,
 ) -> ListIncidentsResult | ListIncidentsError:
     """
     List secret incidents with enhanced filtering using the MCP-optimized endpoint.
@@ -132,10 +361,59 @@ async def list_incidents(
             - page_size: Results per page
             - has_next/has_previous: Pagination indicators
             - applied_filters: Dictionary of filters that were applied
-            - suggestion: Suggestions for interpreting or modifying the results
+            - suggestion: Suggestions for interpreting or modifying results
 
         ListIncidentsError: Pydantic model with error message if the operation fails
+
     """
+    params = ListIncidentsParams(
+        page=page,
+        page_size=page_size,
+        get_all=get_all,
+        ordering=ordering,
+        search=search,
+        status=status,
+        mine=mine,
+        assignee_id=assignee_id,
+        severity=severity,
+        score_min=score_min,
+        score_max=score_max,
+        validity=validity,
+        detector_group_name=detector_group_name,
+        detector_type=detector_type,
+        detector_category=detector_category,
+        issue_name=issue_name,
+        secret_category=secret_category,
+        secret_family=secret_family,
+        secret_provider=secret_provider,
+        source_ids=source_ids,
+        source_type=source_type,
+        source_criticality=source_criticality,
+        occurrence_count_min=occurrence_count_min,
+        presence=presence,
+        opened_for_days=opened_for_days,
+        tags=tags,
+        exclude_tags=exclude_tags,
+        public_exposure=public_exposure,
+        integration=integration,
+        issue_tracker=issue_tracker,
+        has_related_issues=has_related_issues,
+        location=location,
+        feedback=feedback,
+        publicly_shared=publicly_shared,
+        secret_manager_type=secret_manager_type,
+        secret_manager_instance=secret_manager_instance,
+        nhi_env=nhi_env,
+        nhi_policy=nhi_policy,
+        teams=teams,
+        similar_to=similar_to,
+        date_before=date_before,
+        date_after=date_after,
+        secret_scope=secret_scope,
+        analyzer_status=analyzer_status,
+        custom_tags=custom_tags,
+    )
+
     client = await get_client()
 
     try:

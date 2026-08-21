@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -27,7 +27,13 @@ class GetIncidentResult(BaseModel):
     incident: dict[str, Any] = Field(description="Detailed incident data including occurrences")
 
 
-async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
+async def get_incident(
+    incident_id: Annotated[int, Field(description="The ID of the incident to retrieve")],
+    with_occurrences: Annotated[
+        int,
+        Field(ge=0, le=100, description="Number of occurrences to retrieve (0-100, default: 20)"),
+    ] = 20,
+) -> GetIncidentResult:
     """
     Retrieve a specific secret incident by its ID.
 
@@ -40,9 +46,8 @@ async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
     - Occurrences (up to the specified limit)
 
     Args:
-        params: GetIncidentParams model containing:
-            - incident_id: The ID of the incident to retrieve
-            - with_occurrences: Number of occurrences to include (0-100)
+        incident_id: The ID of the incident to retrieve
+        with_occurrences: Number of occurrences to include (0-100)
 
     Returns:
         GetIncidentResult: Pydantic model containing:
@@ -51,6 +56,7 @@ async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
     Raises:
         ToolError: If the retrieval operation fails
     """
+    params = GetIncidentParams(incident_id=incident_id, with_occurrences=with_occurrences)
     client = await get_client()
     logger.debug(f"Retrieving incident {params.incident_id}")
 

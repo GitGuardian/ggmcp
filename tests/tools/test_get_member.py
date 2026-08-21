@@ -27,7 +27,7 @@ class TestGetMember:
         }
         mock_gitguardian_client.get_member = AsyncMock(return_value=mock_response)
 
-        result = await get_member(GetMemberParams(member_id=3252))
+        result = await get_member(member_id=3252)
 
         mock_gitguardian_client.get_member.assert_called_once_with(member_id=3252)
         assert result.member is not None
@@ -56,7 +56,7 @@ class TestGetMember:
         }
         mock_gitguardian_client.get_member = AsyncMock(return_value=mock_response)
 
-        result = await get_member(GetMemberParams(member_id=1234))
+        result = await get_member(member_id=1234)
 
         assert result.member["role"] == "manager"
         assert result.member["access_level"] == "manager"
@@ -80,7 +80,7 @@ class TestGetMember:
         }
         mock_gitguardian_client.get_member = AsyncMock(return_value=mock_response)
 
-        result = await get_member(GetMemberParams(member_id=5678))
+        result = await get_member(member_id=5678)
 
         assert result.member["active"] is False
         assert result.member["last_login"] is None
@@ -96,7 +96,7 @@ class TestGetMember:
         mock_gitguardian_client.get_member = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_member(GetMemberParams(member_id=99999))
+            await get_member(member_id=99999)
 
         assert error_message in str(excinfo.value)
 
@@ -111,7 +111,7 @@ class TestGetMember:
         mock_gitguardian_client.get_member = AsyncMock(side_effect=Exception(error_message))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_member(GetMemberParams(member_id=1234))
+            await get_member(member_id=1234)
 
         assert error_message in str(excinfo.value)
 

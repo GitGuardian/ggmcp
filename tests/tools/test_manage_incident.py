@@ -95,7 +95,7 @@ class TestManagePrivateIncidentResolve:
         THEN: A ToolError is raised asking to get the information from the user
         """
         with pytest.raises(ToolError) as exc_info:
-            await manage_private_incident(ManageIncidentParams(incident_id=123, action="resolve"))
+            await manage_private_incident(incident_id=123, action="resolve")
 
         error_message = str(exc_info.value)
         assert "secret_revoked" in error_message
@@ -111,9 +111,7 @@ class TestManagePrivateIncidentResolve:
         """
         mock_gitguardian_client.resolve_incident = AsyncMock(return_value={"id": 123, "status": "RESOLVED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="resolve", secret_revoked=True)
-        )
+        result = await manage_private_incident(incident_id=123, action="resolve", secret_revoked=True)
 
         mock_gitguardian_client.resolve_incident.assert_called_once_with(
             incident_id="123",
@@ -130,9 +128,7 @@ class TestManagePrivateIncidentResolve:
         """
         mock_gitguardian_client.resolve_incident = AsyncMock(return_value={"id": 123, "status": "RESOLVED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="resolve", secret_revoked=False)
-        )
+        result = await manage_private_incident(incident_id=123, action="resolve", secret_revoked=False)
 
         mock_gitguardian_client.resolve_incident.assert_called_once_with(
             incident_id="123",
@@ -152,7 +148,7 @@ class TestManagePrivateIncidentIgnore:
         THEN: A ToolError is raised asking to get the information from the user
         """
         with pytest.raises(ToolError) as exc_info:
-            await manage_private_incident(ManageIncidentParams(incident_id=123, action="ignore"))
+            await manage_private_incident(incident_id=123, action="ignore")
 
         error_message = str(exc_info.value)
         assert "ignore_reason" in error_message
@@ -168,9 +164,7 @@ class TestManagePrivateIncidentIgnore:
         """
         mock_gitguardian_client.ignore_incident = AsyncMock(return_value={"id": 123, "status": "IGNORED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="ignore", ignore_reason="test_credential")
-        )
+        result = await manage_private_incident(incident_id=123, action="ignore", ignore_reason="test_credential")
 
         mock_gitguardian_client.ignore_incident.assert_called_once_with(
             incident_id="123",
@@ -187,9 +181,7 @@ class TestManagePrivateIncidentIgnore:
         """
         mock_gitguardian_client.ignore_incident = AsyncMock(return_value={"id": 123, "status": "IGNORED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="ignore", ignore_reason="false_positive")
-        )
+        result = await manage_private_incident(incident_id=123, action="ignore", ignore_reason="false_positive")
 
         mock_gitguardian_client.ignore_incident.assert_called_once_with(
             incident_id="123",
@@ -206,9 +198,7 @@ class TestManagePrivateIncidentIgnore:
         """
         mock_gitguardian_client.ignore_incident = AsyncMock(return_value={"id": 123, "status": "IGNORED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="ignore", ignore_reason="low_risk")
-        )
+        result = await manage_private_incident(incident_id=123, action="ignore", ignore_reason="low_risk")
 
         mock_gitguardian_client.ignore_incident.assert_called_once_with(
             incident_id="123",
@@ -225,9 +215,7 @@ class TestManagePrivateIncidentIgnore:
         """
         mock_gitguardian_client.ignore_incident = AsyncMock(return_value={"id": 123, "status": "IGNORED"})
 
-        result = await manage_private_incident(
-            ManageIncidentParams(incident_id=123, action="ignore", ignore_reason="invalid")
-        )
+        result = await manage_private_incident(incident_id=123, action="ignore", ignore_reason="invalid")
 
         mock_gitguardian_client.ignore_incident.assert_called_once_with(
             incident_id="123",
@@ -250,7 +238,7 @@ class TestManagePrivateIncidentOtherActions:
             return_value={"id": 123, "status": "TRIGGERED", "assignee_id": None}
         )
 
-        result = await manage_private_incident(ManageIncidentParams(incident_id=123, action="unassign"))
+        result = await manage_private_incident(incident_id=123, action="unassign")
 
         mock_gitguardian_client.unassign_incident.assert_called_once_with(incident_id="123")
         assert result["assignee_id"] is None
@@ -264,7 +252,7 @@ class TestManagePrivateIncidentOtherActions:
         """
         mock_gitguardian_client.reopen_incident = AsyncMock(return_value={"id": 123, "status": "TRIGGERED"})
 
-        result = await manage_private_incident(ManageIncidentParams(incident_id=123, action="reopen"))
+        result = await manage_private_incident(incident_id=123, action="reopen")
 
         mock_gitguardian_client.reopen_incident.assert_called_once_with(incident_id="123")
         assert result["status"] == "TRIGGERED"
@@ -283,7 +271,7 @@ class TestManagePrivateIncidentErrors:
         mock_gitguardian_client.reopen_incident = AsyncMock(side_effect=Exception("API error: Incident not found"))
 
         with pytest.raises(ToolError) as exc_info:
-            await manage_private_incident(ManageIncidentParams(incident_id=999, action="reopen"))
+            await manage_private_incident(incident_id=999, action="reopen")
 
         assert "API error: Incident not found" in str(exc_info.value)
 
@@ -299,7 +287,7 @@ class TestManagePrivateIncidentErrors:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await manage_private_incident(ManageIncidentParams(incident_id=123, action="resolve", secret_revoked=True))
+            await manage_private_incident(incident_id=123, action="resolve", secret_revoked=True)
 
         assert "Cannot resolve incident in current state" in str(exc_info.value)
 
@@ -315,8 +303,6 @@ class TestManagePrivateIncidentErrors:
         )
 
         with pytest.raises(ToolError) as exc_info:
-            await manage_private_incident(
-                ManageIncidentParams(incident_id=123, action="ignore", ignore_reason="low_risk")
-            )
+            await manage_private_incident(incident_id=123, action="ignore", ignore_reason="low_risk")
 
         assert "Cannot ignore incident in current state" in str(exc_info.value)

@@ -8,7 +8,6 @@ import pytest
 from fastmcp.exceptions import ToolError
 from gg_api_core.tools.incident_notes import (
     ListCommentsResult,
-    ListIncidentCommentsParams,
     ManageIncidentCommentParams,
     list_incident_comments,
     list_public_incident_comments,
@@ -116,9 +115,7 @@ class TestManageIncidentComment:
         """
         mock_gitguardian_client.create_incident_note = AsyncMock(return_value=_note_payload())
 
-        result = await manage_incident_comment(
-            ManageIncidentCommentParams(incident_id=123, action="add", comment="Looks like a test credential")
-        )
+        result = await manage_incident_comment(incident_id=123, action="add", comment="Looks like a test credential")
 
         mock_gitguardian_client.create_incident_note.assert_called_once_with(
             incident_id=123, comment="Looks like a test credential"
@@ -135,9 +132,7 @@ class TestManageIncidentComment:
         """
         mock_gitguardian_client.update_incident_note = AsyncMock(return_value=_note_payload(comment="Updated comment"))
 
-        result = await manage_incident_comment(
-            ManageIncidentCommentParams(incident_id=123, action="edit", comment="Updated comment", comment_id=42)
-        )
+        result = await manage_incident_comment(incident_id=123, action="edit", comment="Updated comment", comment_id=42)
 
         mock_gitguardian_client.update_incident_note.assert_called_once_with(
             incident_id=123, note_id=42, comment="Updated comment"
@@ -154,7 +149,7 @@ class TestManageIncidentComment:
         mock_gitguardian_client.create_incident_note = AsyncMock(side_effect=Exception("API error: forbidden"))
 
         with pytest.raises(ToolError) as exc_info:
-            await manage_incident_comment(ManageIncidentCommentParams(incident_id=123, action="add", comment="hi"))
+            await manage_incident_comment(incident_id=123, action="add", comment="hi")
 
         assert "API error: forbidden" in str(exc_info.value)
 
@@ -171,9 +166,7 @@ class TestManagePublicIncidentComment:
         """
         mock_gitguardian_client.create_public_incident_note = AsyncMock(return_value=_note_payload())
 
-        result = await manage_public_incident_comment(
-            ManageIncidentCommentParams(incident_id=3759, action="add", comment="Reported to the actor")
-        )
+        result = await manage_public_incident_comment(incident_id=3759, action="add", comment="Reported to the actor")
 
         mock_gitguardian_client.create_public_incident_note.assert_called_once_with(
             incident_id=3759, comment="Reported to the actor"
@@ -189,9 +182,7 @@ class TestManagePublicIncidentComment:
         """
         mock_gitguardian_client.update_public_incident_note = AsyncMock(return_value=_note_payload())
 
-        await manage_public_incident_comment(
-            ManageIncidentCommentParams(incident_id=3759, action="edit", comment="Edited", comment_id=42)
-        )
+        await manage_public_incident_comment(incident_id=3759, action="edit", comment="Edited", comment_id=42)
 
         mock_gitguardian_client.update_public_incident_note.assert_called_once_with(
             incident_id=3759, note_id=42, comment="Edited"
@@ -212,7 +203,7 @@ class TestListIncidentComments:
             return_value={"data": [_note_payload(), _note_payload(note_id=43)], "cursor": None, "has_more": False}
         )
 
-        result = await list_incident_comments(ListIncidentCommentsParams(incident_id=123))
+        result = await list_incident_comments(incident_id=123)
 
         mock_gitguardian_client.list_incident_notes.assert_called_once_with(
             incident_id=123, params={"per_page": 20}, get_all=False
@@ -232,9 +223,7 @@ class TestListIncidentComments:
             return_value={"data": [_note_payload()], "cursor": "next-cursor", "has_more": True}
         )
 
-        result = await list_public_incident_comments(
-            ListIncidentCommentsParams(incident_id=3759, cursor="abc", per_page=50)
-        )
+        result = await list_public_incident_comments(incident_id=3759, cursor="abc", per_page=50)
 
         mock_gitguardian_client.list_public_incident_notes.assert_called_once_with(
             incident_id=3759, params={"per_page": 50, "cursor": "abc"}, get_all=False
@@ -252,6 +241,6 @@ class TestListIncidentComments:
         mock_gitguardian_client.list_incident_notes = AsyncMock(side_effect=Exception("boom"))
 
         with pytest.raises(ToolError) as exc_info:
-            await list_incident_comments(ListIncidentCommentsParams(incident_id=123))
+            await list_incident_comments(incident_id=123)
 
         assert "boom" in str(exc_info.value)

@@ -153,7 +153,7 @@ class TestUpdateOrCreateIncidentCustomTags:
             incident_id=123, custom_tags=["env:prod", "reviewed", "url:http://example.com"]
         )
         with patch("gg_api_core.tools.write_custom_tags.get_client", return_value=mock_client):
-            await update_or_create_incident_custom_tags(params)
+            await update_or_create_incident_custom_tags(**params.model_dump())
 
         mock_client.update_incident.assert_awaited_once_with(
             incident_id="123",

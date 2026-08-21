@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -46,7 +46,38 @@ class UpdatePublicIncidentStatusParams(BaseModel):
     )
 
 
-async def update_public_incident_status(params: UpdatePublicIncidentStatusParams) -> dict[str, Any]:
+async def update_public_incident_status(
+    incident_id: Annotated[int, Field(description="ID of the public secret incident to update")],
+    action: Annotated[
+        Literal["resolve", "ignore", "reopen"],
+        Field(
+            description="Action to perform on the public incident: 'resolve' marks the incident "
+            "as resolved (use with resolve_reason), 'ignore' marks as ignored (use with "
+            "ignore_reason), 'reopen' reopens a previously resolved or ignored incident"
+        ),
+    ],
+    resolve_reason: Annotated[
+        PublicResolveReason | None,
+        Field(
+            default=None,
+            description="Reason for resolving the public incident. Required when action is "
+            "'resolve'. Must be explicitly provided by the user. Options: 'revoked' (the secret "
+            "has been revoked/rotated), 'dmca_request' (resolved via DMCA takedown), "
+            "'source_deleted' (the public source hosting the secret has been deleted)",
+        ),
+    ] = None,
+    ignore_reason: Annotated[
+        PublicIgnoreReason | None,
+        Field(
+            default=None,
+            description="Reason for ignoring the public incident. Required when action is "
+            "'ignore'. Must be explicitly provided by the user. Options: 'test_credential' "
+            "(secret is for testing), 'false_positive' (not a real secret), 'low_risk' (secret "
+            "poses minimal risk), 'invalid' (secret is invalid/inactive), 'ignore_actor' "
+            "(ignore based on the leaking actor), 'ignore_secret' (ignore this specific secret)",
+        ),
+    ] = None,
+) -> dict[str, Any]:
     """
     Update the status of a public secret incident detected by GitGuardian Public Monitoring.
 
@@ -66,11 +97,10 @@ async def update_public_incident_status(params: UpdatePublicIncidentStatusParams
     Note: To assign a public incident to a member, use `assign_public_incident` instead.
 
     Args:
-        params: UpdatePublicIncidentStatusParams containing:
-            - incident_id: ID of the public incident to update
-            - action: The action to perform (resolve, ignore, or reopen)
-            - resolve_reason: Required when action is 'resolve'
-            - ignore_reason: Required when action is 'ignore'
+        incident_id: ID of the public incident to update
+        action: The action to perform (resolve, ignore, or reopen)
+        resolve_reason: Required when action is 'resolve'
+        ignore_reason: Required when action is 'ignore'
 
     Returns:
         Dictionary containing the updated public incident data from the API
@@ -78,6 +108,12 @@ async def update_public_incident_status(params: UpdatePublicIncidentStatusParams
     Raises:
         ToolError: If the action fails or required parameters are missing
     """
+    params = UpdatePublicIncidentStatusParams(
+        incident_id=incident_id,
+        action=action,
+        resolve_reason=resolve_reason,
+        ignore_reason=ignore_reason,
+    )
     client = await get_client()
     logger.debug(f"Updating public incident {params.incident_id} status with action: {params.action}")
 

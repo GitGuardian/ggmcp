@@ -97,7 +97,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
+            result = await remediate_secret_incidents(source_id="source_123")
 
             # Verify response structure
             assert result.remediation_instructions is not None
@@ -132,7 +132,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
+            result = await remediate_secret_incidents(source_id="source_123")
 
             # Verify response
             assert result.remediation_instructions is not None
@@ -157,7 +157,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(RemediateSecretIncidentsParams(source_id="source_123"))
+            result = await remediate_secret_incidents(source_id="source_123")
 
             # Verify error response
             assert hasattr(result, "error")
@@ -206,9 +206,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function with mine=False
-            result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(source_id="source_123", mine=False)
-            )
+            result = await remediate_secret_incidents(source_id="source_123", mine=False)
 
             # Verify all occurrences are included (not filtered by assignee)
             assert result.occurrences_count == 1
@@ -259,11 +257,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with git_commands=False
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    source_id="source_123",
-                    git_commands=False,
-                    mine=False,
-                )
+                source_id="source_123",
+                git_commands=False,
+                mine=False,
             )
 
             # Verify remediation instructions are present but without git commands
@@ -315,11 +311,9 @@ class TestRemediateSecretIncidents:
         ):
             # Call the function with create_env_example=False
             result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(
-                    source_id="source_123",
-                    create_env_example=False,
-                    mine=False,
-                )
+                source_id="source_123",
+                create_env_example=False,
+                mine=False,
             )
 
             # Verify remediation instructions are present
@@ -389,9 +383,7 @@ class TestRemediateSecretIncidents:
             AsyncMock(return_value=mock_occurrences),
         ):
             # Call the function
-            result = await remediate_secret_incidents(
-                RemediateSecretIncidentsParams(source_id="source_123", mine=False)
-            )
+            result = await remediate_secret_incidents(source_id="source_123", mine=False)
 
             # Verify response
             assert result.occurrences_count == 2

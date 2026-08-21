@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -155,7 +155,84 @@ def _build_filter_info(params: ListPublicOccurrencesParams) -> dict[str, Any]:
 
 
 async def list_public_occurrences(
-    params: ListPublicOccurrencesParams,
+    incident_id: Annotated[
+        int,
+        Field(description="The id of the public secret incident to list occurrences for"),
+    ],
+    per_page: Annotated[
+        int,
+        Field(default=20, ge=1, le=100, description="Number of results per page (default: 20, max: 100)"),
+    ] = 20,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching the next page of results")
+    ] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=(
+                f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; "
+                "check 'has_more' and use cursor to continue)"
+            ),
+        ),
+    ] = False,
+    date_before: Annotated[
+        str | None,
+        Field(default=None, description="Entries found before this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)"),
+    ] = None,
+    date_after: Annotated[
+        str | None, Field(default=None, description="Entries found after this date (ISO datetime)")
+    ] = None,
+    source_id: Annotated[
+        int | None, Field(default=None, description="Filter occurrences belonging to this source ID")
+    ] = None,
+    presence: Annotated[
+        str | None, Field(default=None, description="Filter by presence status (present, removed)")
+    ] = None,
+    sha: Annotated[
+        str | None, Field(default=None, min_length=3, description="Filter by commit sha (>=3 characters)")
+    ] = None,
+    filepath: Annotated[
+        str | None, Field(default=None, min_length=3, description="Filter by filepath (>=3 characters)")
+    ] = None,
+    attachment_reason: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description=(
+                "Filter by attachment reason. Comma-separated values allowed. "
+                "Options: by_dev_from_perimeter, on_github_org_in_perimeter, from_secret_grasper"
+            ),
+        ),
+    ] = None,
+    severity: Annotated[
+        list[IncidentSeverityFilter] | IncidentSeverityFilter | None,
+        Field(default=None, description="Filter occurrences by related incident severity."),
+    ] = None,
+    status: Annotated[
+        list[IncidentStatusFilter] | IncidentStatusFilter | None,
+        Field(default=None, description="Filter occurrences by related incident status."),
+    ] = None,
+    validity: Annotated[
+        list[IncidentValidityFilter] | IncidentValidityFilter | None,
+        Field(default=None, description="Filter occurrences by related secret validity."),
+    ] = None,
+    tags: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description=(
+                "Filter by tags. Comma-separated list of tag names. Use 'NONE' to filter occurrences with no tags."
+            ),
+        ),
+    ] = None,
+    ordering: Annotated[
+        str | None,
+        Field(
+            default="-date",
+            description="Sort field with optional '-' prefix for descending. Options: id, -id, date, -date",
+        ),
+    ] = "-date",
 ) -> ListPublicOccurrencesResult | ListPublicOccurrencesError:
     """List occurrences of a public secret incident detected by GitGuardian Public Monitoring.
 
@@ -166,12 +243,45 @@ async def list_public_occurrences(
     Wraps GET /v1/public-incidents/secrets/{incident_id}/occurrences and uses cursor-based pagination.
 
     Args:
-        params: ListPublicOccurrencesParams model containing the incident_id and all filters.
+        incident_id: The id of the public secret incident to list occurrences for
+        per_page: Number of results per page (default: 20, max: 100)
+        cursor: Pagination cursor
+        get_all: If True, fetch all pages
+        date_before: Entries found before this date
+        date_after: Entries found after this date
+        source_id: Filter occurrences belonging to this source ID
+        presence: Filter by presence status
+        sha: Filter by commit sha (>=3 characters)
+        filepath: Filter by filepath (>=3 characters)
+        attachment_reason: Filter by attachment reason
+        severity: Filter by severity of related incident
+        status: Filter by status of related incident
+        validity: Filter by validity of related secret
+        tags: Filter by tags
+        ordering: Sort field
 
     Returns:
         ListPublicOccurrencesResult with the occurrences page, or
         ListPublicOccurrencesError on failure.
     """
+    params = ListPublicOccurrencesParams(
+        incident_id=incident_id,
+        per_page=per_page,
+        cursor=cursor,
+        get_all=get_all,
+        date_before=date_before,
+        date_after=date_after,
+        source_id=source_id,
+        presence=presence,
+        sha=sha,
+        filepath=filepath,
+        attachment_reason=attachment_reason,
+        severity=severity,
+        status=status,
+        validity=validity,
+        tags=tags,
+        ordering=ordering,
+    )
     client = await get_client()
 
     try:

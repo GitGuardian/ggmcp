@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -46,7 +46,25 @@ class ListDetectorsResult(BaseModel):
     )
 
 
-async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) -> ListDetectorsResult:
+async def list_detectors(
+    search: Annotated[str | None, Field(default=None, description="Search string to filter detectors by name")] = None,
+    type: Annotated[
+        str | None,
+        Field(default=None, description="Filter by detector type: 'specific', 'generic', or 'custom'"),
+    ] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor from a previous response")] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListDetectorsResult:
     """
     List secret detectors from the GitGuardian detection engine.
 
@@ -54,7 +72,11 @@ async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) ->
     identifying secrets in source code and other content.
 
     Args:
-        params: ListDetectorsParams model containing all filtering options
+        search: Search string to filter detectors by name
+        type: Optional detector type filter
+        per_page: Number of results per page (default: 20, min: 1, max: 100)
+        cursor: Pagination cursor from a previous response
+        get_all: If True, fetch all pages
 
     Returns:
         ListDetectorsResult: Pydantic model containing:
@@ -65,6 +87,7 @@ async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) ->
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListDetectorsParams(search=search, type=type, per_page=per_page, cursor=cursor, get_all=get_all)
     client = await get_client()
     logger.debug("Listing secret detectors")
 

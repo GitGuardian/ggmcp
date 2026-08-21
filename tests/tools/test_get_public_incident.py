@@ -40,7 +40,7 @@ class TestGetPublicIncident:
         }
         mock_gitguardian_client.get_public_incident = AsyncMock(return_value=mock_response)
 
-        result = await get_public_incident(GetPublicIncidentParams(incident_id=3759))
+        result = await get_public_incident(incident_id=3759)
 
         mock_gitguardian_client.get_public_incident.assert_called_once_with(incident_id=3759)
         assert result.incident["id"] == 3759
@@ -100,7 +100,7 @@ class TestGetPublicIncident:
         }
         mock_gitguardian_client.get_public_incident = AsyncMock(return_value=mock_response)
 
-        result = await get_public_incident(GetPublicIncidentParams(incident_id=3759))
+        result = await get_public_incident(incident_id=3759)
 
         assert result.incident == mock_response
 
@@ -114,7 +114,7 @@ class TestGetPublicIncident:
         mock_gitguardian_client.get_public_incident = AsyncMock(side_effect=Exception("Public incident not found"))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_public_incident(GetPublicIncidentParams(incident_id=99999))
+            await get_public_incident(incident_id=99999)
 
         assert "Public incident not found" in str(excinfo.value)
 
@@ -128,7 +128,7 @@ class TestGetPublicIncident:
         mock_gitguardian_client.get_public_incident = AsyncMock(side_effect=Exception("API connection failed"))
 
         with pytest.raises(ToolError) as excinfo:
-            await get_public_incident(GetPublicIncidentParams(incident_id=1234))
+            await get_public_incident(incident_id=1234)
 
         assert "API connection failed" in str(excinfo.value)
 

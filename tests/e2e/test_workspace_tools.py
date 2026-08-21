@@ -37,7 +37,7 @@ class TestListSources:
         result = await call_tool(
             mcp_client,
             "list_sources",
-            {"params": {"type": "github", "monitored": True, "search": "gg"}},
+            {"type": "github", "monitored": True, "search": "gg"},
         )
 
         params = sent_params(route)
@@ -63,7 +63,7 @@ class TestReadCustomTags:
         tags = [{"id": "1", "key": "team", "value": "payments"}]
         route = gg_api.get("/custom_tags").respond(200, json=tags)
 
-        result = await call_tool(mcp_client, "read_custom_tags", {"params": {"action": "list_tags"}})
+        result = await call_tool(mcp_client, "read_custom_tags", {"action": "list_tags"})
 
         assert route.called
         assert sent_params(route) == {}
@@ -78,7 +78,7 @@ class TestReadCustomTags:
         tag = {"id": "9", "key": "env", "value": "prod"}
         route = gg_api.get("/custom_tags/9").respond(200, json=tag)
 
-        result = await call_tool(mcp_client, "read_custom_tags", {"params": {"action": "get_tag", "tag_id": 9}})
+        result = await call_tool(mcp_client, "read_custom_tags", {"action": "get_tag", "tag_id": 9})
 
         assert route.called
         assert tool_output(result) == tag
@@ -158,7 +158,7 @@ class TestRemediateSecretIncidents:
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55}})
+        result = await call_tool(mcp_client, "remediate_secret_incidents", {"source_id": 55})
 
         params = sent_params(route)
         assert params["source_id"] == "55"
@@ -178,7 +178,7 @@ class TestRemediateSecretIncidents:
         """
         gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55, "mine": True}})
+        result = await call_tool(mcp_client, "remediate_secret_incidents", {"source_id": 55, "mine": True})
 
         output = unwrap_result(result)
         occurrences = output["sub_tools_results"]["list_repo_occurrences"]["occurrences"]
@@ -204,6 +204,6 @@ class TestRemediateSecretIncidents:
             side_effect=[httpx.Response(200, json=token_info())] + [httpx.Response(500, text="boom")] * 4
         )
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55, "mine": True}})
+        result = await call_tool(mcp_client, "remediate_secret_incidents", {"source_id": 55, "mine": True})
 
         assert "500" in tool_error_text(result)

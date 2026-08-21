@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -188,7 +188,79 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 
 
 async def list_repo_occurrences(
-    params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
+    from_date: Annotated[
+        str | None,
+        Field(default=None, description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)"),
+    ] = None,
+    to_date: Annotated[
+        str | None,
+        Field(default=None, description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)"),
+    ] = None,
+    presence: Annotated[str | None, Field(default=None, description="Filter by presence status")] = None,
+    tags: Annotated[list[str] | None, Field(default=None, description="Filter by tags (list of tag names)")] = None,
+    exclude_tags: Annotated[
+        list[TagNames] | None,
+        Field(
+            default=DEFAULT_EXCLUDED_TAGS,
+            description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
+        ),
+    ] = DEFAULT_EXCLUDED_TAGS,
+    status: Annotated[
+        list[IncidentStatusFilter] | IncidentStatusFilter | None,
+        Field(
+            default=DEFAULT_STATUSES,
+            description="Filter by status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Default excludes IGNORED.",
+        ),
+    ] = DEFAULT_STATUSES,
+    severity: Annotated[
+        list[IncidentSeverityFilter] | IncidentSeverityFilter | None,
+        Field(
+            default=DEFAULT_SEVERITIES,
+            description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
+        ),
+    ] = DEFAULT_SEVERITIES,
+    validity: Annotated[
+        list[IncidentValidityFilter] | IncidentValidityFilter | None,
+        Field(
+            default=DEFAULT_VALIDITIES,
+            description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, unknown. Default excludes INVALID.",
+        ),
+    ] = DEFAULT_VALIDITIES,
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, fetch occurrences related to issues assigned to the current user",
+        ),
+    ] = False,
+    member_assignee_id: Annotated[
+        int | None,
+        Field(default=None, description="Filter by the member the incident is assigned to"),
+    ] = None,
+    source_id: Annotated[
+        str | int | None,
+        Field(
+            default=None,
+            description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools.",
+        ),
+    ] = None,
+    ordering: Annotated[
+        str | None, Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    ] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching next page of results")
+    ] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
     List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
@@ -211,8 +283,21 @@ async def list_repo_occurrences(
     By default, occurrences tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
 
     Args:
-        params: ListRepoOccurrencesParams model containing all filtering options.
-               Optionally filter by source_id.
+        from_date: Filter occurrences created after this date
+        to_date: Filter occurrences created before this date
+        presence: Filter by presence status
+        tags: Filter by tags (list of tag names)
+        exclude_tags: Exclude occurrences with these tag names
+        status: Filter by status (list of status names)
+        severity: Filter by severity (list of severity names)
+        validity: Filter by validity (list of validity names)
+        mine: If True, fetch occurrences related to issues assigned to the current user
+        member_assignee_id: Filter by the member the incident is assigned to
+        source_id: The GitGuardian source ID to filter by
+        ordering: Sort field
+        per_page: Number of results per page (default: 20)
+        cursor: Pagination cursor
+        get_all: If True, fetch all pages
 
     Returns:
         ListRepoOccurrencesResult: Pydantic model containing:
@@ -226,6 +311,23 @@ async def list_repo_occurrences(
 
         ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
+    params = ListRepoOccurrencesParams(
+        from_date=from_date,
+        to_date=to_date,
+        presence=presence,
+        tags=tags,
+        exclude_tags=exclude_tags,
+        status=status,
+        severity=severity,
+        validity=validity,
+        mine=mine,
+        member_assignee_id=member_assignee_id,
+        source_id=source_id,
+        ordering=ordering,
+        per_page=per_page,
+        cursor=cursor,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing occurrences with source_id={params.source_id}")
 

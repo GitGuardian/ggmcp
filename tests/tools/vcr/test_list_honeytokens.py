@@ -44,7 +44,7 @@ class TestListHoneytokensVCR:
                     get_all=False,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)
@@ -72,7 +72,7 @@ class TestListHoneytokensVCR:
                     get_all=False,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)
@@ -104,7 +104,7 @@ class TestListHoneytokensVCR:
                     get_all=False,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)
@@ -133,7 +133,7 @@ class TestListHoneytokensVCR:
                     get_all=False,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)
@@ -161,7 +161,7 @@ class TestListHoneytokensVCR:
                     get_all=False,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)
@@ -191,7 +191,7 @@ class TestListHoneytokensVCR:
                     per_page=5,
                 )
 
-                result = await list_honeytokens(params)
+                result = await list_honeytokens(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListHoneytokensResult)

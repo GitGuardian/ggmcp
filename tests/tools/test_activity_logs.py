@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock
 import pytest
 from fastmcp.exceptions import ToolError
 from gg_api_core.tools.activity_logs import (
-    ListActivityLogsParams,
     ListActivityLogsResult,
     list_incident_activity_logs,
     list_public_incident_activity_logs,
@@ -54,7 +53,7 @@ class TestListIncidentActivityLogs:
             return_value={"data": [_note_entry(), _action_entry()], "cursor": None, "has_more": False}
         )
 
-        result = await list_incident_activity_logs(ListActivityLogsParams(incident_id=21460))
+        result = await list_incident_activity_logs(incident_id=21460)
 
         mock_gitguardian_client.list_incident_activity_logs.assert_called_once_with(
             incident_id=21460, params={"per_page": 20}, get_all=False
@@ -76,9 +75,7 @@ class TestListIncidentActivityLogs:
         )
 
         result = await list_incident_activity_logs(
-            ListActivityLogsParams(
-                incident_id=21460, content_key="RESOLVE", member_id=480870, cursor="abc", per_page=50
-            )
+            incident_id=21460, content_key="RESOLVE", member_id=480870, cursor="abc", per_page=50
         )
 
         mock_gitguardian_client.list_incident_activity_logs.assert_called_once_with(
@@ -99,7 +96,7 @@ class TestListIncidentActivityLogs:
         mock_gitguardian_client.list_incident_activity_logs = AsyncMock(side_effect=Exception("boom"))
 
         with pytest.raises(ToolError) as exc_info:
-            await list_incident_activity_logs(ListActivityLogsParams(incident_id=21460))
+            await list_incident_activity_logs(incident_id=21460)
 
         assert "boom" in str(exc_info.value)
 
@@ -122,7 +119,7 @@ class TestListPublicIncidentActivityLogs:
             }
         )
 
-        result = await list_public_incident_activity_logs(ListActivityLogsParams(incident_id=3759))
+        result = await list_public_incident_activity_logs(incident_id=3759)
 
         mock_gitguardian_client.list_public_incident_activity_logs.assert_called_once_with(
             incident_id=3759, params={"per_page": 20}, get_all=False

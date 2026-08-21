@@ -42,7 +42,7 @@ class TestGetMemberVCR:
                     member_id=self.TEST_MEMBER_ID,
                 )
 
-                result = await get_member(params)
+                result = await get_member(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, GetMemberResult)
@@ -73,7 +73,7 @@ class TestGetMemberVCR:
                     member_id=self.TEST_MEMBER_ID,
                 )
 
-                result = await get_member(params)
+                result = await get_member(**params.model_dump())
 
                 assert result is not None
                 assert result.member is not None
@@ -98,7 +98,7 @@ class TestGetMemberVCR:
                     member_id=self.TEST_MEMBER_ID,
                 )
 
-                result = await get_member(params)
+                result = await get_member(**params.model_dump())
 
                 assert result is not None
                 assert result.member is not None

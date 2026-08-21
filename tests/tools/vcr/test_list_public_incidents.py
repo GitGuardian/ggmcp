@@ -41,7 +41,7 @@ class TestListPublicIncidentsVCR:
                     severity=None,
                     validity=None,
                 )
-                result = await list_public_incidents(params)
+                result = await list_public_incidents(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, ListPublicIncidentsResult)
@@ -84,7 +84,7 @@ class TestListPublicIncidentsVCR:
                     severity=severities,
                     validity=validities,
                 )
-                result = await list_public_incidents(params)
+                result = await list_public_incidents(**params.model_dump())
 
                 assert isinstance(result, ListPublicIncidentsResult)
                 assert result.incidents_count > 0, "expected non-empty result with permissive filters"
@@ -125,7 +125,7 @@ class TestListPublicIncidentsVCR:
                     risk_score_max=100,
                     ordering="-risk_score",
                 )
-                result = await list_public_incidents(params)
+                result = await list_public_incidents(**params.model_dump())
 
                 assert isinstance(result, ListPublicIncidentsResult)
                 assert result.incidents_count > 0

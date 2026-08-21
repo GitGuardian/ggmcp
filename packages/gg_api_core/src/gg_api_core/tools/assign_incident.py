@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
@@ -48,7 +49,30 @@ class AssignIncidentResult(BaseModel):
     success: bool = Field(default=True, description="Whether the assignment was successful")
 
 
-async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
+async def assign_incident(
+    incident_id: Annotated[str | int, Field(description="ID of the secret incident to assign")],
+    assignee_member_id: Annotated[
+        str | int | None,
+        Field(
+            default=None,
+            description="ID of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = None,
+    email: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Email address of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = None,
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, assign the incident to the current user (will fetch current user's ID automatically). One of assignee_member_id, email, or mine must be provided",
+        ),
+    ] = False,
+) -> AssignIncidentResult:
     """
     Assign a secret incident to a specific member or to the current user.
 
@@ -60,11 +84,10 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
     Exactly one of these three options must be provided.
 
     Args:
-        params: AssignIncidentParams model containing:
-            - incident_id: ID of the incident to assign
-            - assignee_member_id: Optional ID of the member to assign to
-            - email: Optional email address of the member to assign to
-            - mine: If True, assigns to current user
+        incident_id: ID of the incident to assign
+        assignee_member_id: Optional ID of the member to assign to
+        email: Optional email address of the member to assign to
+        mine: If True, assigns to current user
 
     Returns:
         AssignIncidentResult: Pydantic model containing:
@@ -77,6 +100,12 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
         ToolError: If the assignment operation fails
         ValueError: If validation fails (none or multiple assignee options provided)
     """
+    params = AssignIncidentParams(
+        incident_id=incident_id,
+        assignee_member_id=assignee_member_id,
+        email=email,
+        mine=mine,
+    )
     client = await get_client()
 
     # Determine the assignee based on the provided option

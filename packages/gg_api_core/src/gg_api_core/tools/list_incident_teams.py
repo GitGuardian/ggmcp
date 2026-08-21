@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -42,7 +42,31 @@ class ListIncidentTeamsResult(BaseModel):
     )
 
 
-async def list_incident_teams(params: ListIncidentTeamsParams) -> ListIncidentTeamsResult:
+async def list_incident_teams(
+    incident_id: Annotated[int, Field(description="The ID of the secret incident to retrieve teams for")],
+    cursor: Annotated[
+        str | None, Field(default=None, description="Pagination cursor for fetching next page of results")
+    ] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    search: Annotated[
+        str | None,
+        Field(default=None, description="Search teams based on their name and/or description"),
+    ] = None,
+    direct_access: Annotated[
+        bool | None,
+        Field(default=None, description="Filter on direct or indirect accesses"),
+    ] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListIncidentTeamsResult:
     """
     List teams with access to a secret incident.
 
@@ -50,7 +74,12 @@ async def list_incident_teams(params: ListIncidentTeamsParams) -> ListIncidentTe
     including their ID, name, description, global status, GitGuardian URL, and external provider ID.
 
     Args:
-        params: ListIncidentTeamsParams model containing incident ID and filtering/pagination options
+        incident_id: The ID of the secret incident to retrieve teams for
+        cursor: Pagination cursor
+        per_page: Number of results per page (default: 20)
+        search: Search teams by name/description
+        direct_access: Filter on direct or indirect accesses
+        get_all: If True, fetch all pages
 
     Returns:
         ListIncidentTeamsResult: Pydantic model containing:
@@ -62,6 +91,14 @@ async def list_incident_teams(params: ListIncidentTeamsParams) -> ListIncidentTe
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListIncidentTeamsParams(
+        incident_id=incident_id,
+        cursor=cursor,
+        per_page=per_page,
+        search=search,
+        direct_access=direct_access,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug(f"Listing teams with access to incident {params.incident_id}")
 

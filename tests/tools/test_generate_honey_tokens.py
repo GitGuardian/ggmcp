@@ -84,7 +84,7 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
     from unittest.mock import MagicMock, patch
 
     import httpx
-    from gg_api_core.tools.generate_honey_token import GenerateHoneytokenParams, generate_honeytoken
+    from gg_api_core.tools.generate_honey_token import generate_honeytoken
 
     detail = "Another active honeytoken already exists with this name"
     mock_response = MagicMock()
@@ -99,7 +99,7 @@ async def test_generate_honeytoken_surfaces_api_detail_on_400(caplog):
         with caplog.at_level(logging.WARNING, logger="gg_api_core.tools.generate_honey_token"):
             with pytest.raises(ToolError) as excinfo:
                 # new_token=True skips the reuse lookup and goes straight to creation.
-                await generate_honeytoken(GenerateHoneytokenParams(name="dup", new_token=True))
+                await generate_honeytoken(name="dup", new_token=True)
 
     assert detail in str(excinfo.value)
     errors = [r for r in caplog.records if r.levelno >= logging.ERROR]

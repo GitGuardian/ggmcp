@@ -46,7 +46,7 @@ class TestReadCustomTagsVCR:
                     tag_id="unused",  # Required by model but ignored for list_tags
                 )
 
-                result = await read_custom_tags(params)
+                result = await read_custom_tags(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, list)
@@ -81,7 +81,7 @@ class TestReadCustomTagsVCR:
                     tag_id=tag_id,
                 )
 
-                result = await read_custom_tags(params)
+                result = await read_custom_tags(**params.model_dump())
 
                 assert result is not None
                 assert isinstance(result, dict)
@@ -115,7 +115,7 @@ class TestReadCustomTagsVCR:
                     tag_id=tag_id,
                 )
 
-                result = await read_custom_tags(params)
+                result = await read_custom_tags(**params.model_dump())
 
                 # Verify full structure
                 assert result is not None

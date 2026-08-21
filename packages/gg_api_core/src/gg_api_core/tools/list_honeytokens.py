@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -54,7 +54,44 @@ class ListHoneytokensResult(BaseModel):
     )
 
 
-async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams()) -> ListHoneytokensResult:
+async def list_honeytokens(
+    mine: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="If True, fetch honeytokens created by the current user. Set to False to get all honeytokens in the workspace.",
+        ),
+    ] = False,
+    status: Annotated[
+        str | None, Field(default=None, description="Filter by status (active, triggered, or revoked)")
+    ] = None,
+    search: Annotated[
+        str | None, Field(default=None, description="Search string to filter results by name or description")
+    ] = None,
+    ordering: Annotated[
+        str | None,
+        Field(default=None, description="Sort field (e.g., 'name', '-name', 'created_at', '-created_at')"),
+    ] = None,
+    show_token: Annotated[
+        bool, Field(default=False, description="Whether to include token details in the response")
+    ] = False,
+    creator_id: Annotated[str | int | None, Field(default=None, description="Filter by creator ID")] = None,
+    creator_api_token_id: Annotated[
+        str | int | None, Field(default=None, description="Filter by creator API token ID")
+    ] = None,
+    per_page: Annotated[
+        int,
+        Field(default=20, description="Number of results per page (default: 20, min: 1, max: 100)"),
+    ] = 20,
+    cursor: Annotated[str | None, Field(default=None, description="Pagination cursor from a previous response")] = None,
+    get_all: Annotated[
+        bool,
+        Field(
+            default=False,
+            description=f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; check 'has_more' and use cursor to continue)",
+        ),
+    ] = False,
+) -> ListHoneytokensResult:
     """
     List honeytokens from the GitGuardian dashboard with filtering options.
 
@@ -63,7 +100,16 @@ async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams
     to filter to only the current user's honeytokens.
 
     Args:
-        params: ListHoneytokensParams model containing all filtering options
+        mine: If True, fetch only the current user's honeytokens
+        status: Optional status filter
+        search: Optional search string
+        ordering: Optional sort field
+        show_token: Whether to include token details
+        creator_id: Optional creator ID filter
+        creator_api_token_id: Optional creator API token ID filter
+        per_page: Number of results per page (default: 20)
+        cursor: Pagination cursor
+        get_all: If True, fetch all pages
 
     Returns:
         ListHoneytokensResult: Pydantic model containing:
@@ -72,6 +118,18 @@ async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams
     Raises:
         ToolError: If the listing operation fails
     """
+    params = ListHoneytokensParams(
+        mine=mine,
+        status=status,
+        search=search,
+        ordering=ordering,
+        show_token=show_token,
+        creator_id=creator_id,
+        creator_api_token_id=creator_api_token_id,
+        per_page=per_page,
+        cursor=cursor,
+        get_all=get_all,
+    )
     client = await get_client()
     logger.debug("Listing honeytokens with filters")
 
