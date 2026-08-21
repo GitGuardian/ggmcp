@@ -4,12 +4,13 @@ from typing import Any
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class AssignPublicIncidentParams(BaseModel):
+class AssignPublicIncidentParams(ToolParamsBase):
     """Parameters for assigning a public secret incident to a member."""
 
     incident_id: int = Field(description="ID of the public secret incident to assign")

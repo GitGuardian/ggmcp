@@ -3,12 +3,13 @@ import logging
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class RevokeSecretParams(BaseModel):
+class RevokeSecretParams(ToolParamsBase):
     """Parameters for revoking a secret."""
 
     secret_id: str | int = Field(description="ID of the secret to revoke")

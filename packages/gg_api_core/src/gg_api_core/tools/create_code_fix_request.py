@@ -3,6 +3,7 @@ import logging
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class LocationToFix(BaseModel):
     location_ids: list[int] = Field(min_length=1, description="List of location IDs to fix for this issue")
 
 
-class CreateCodeFixRequestParams(BaseModel):
+class CreateCodeFixRequestParams(ToolParamsBase):
     """Parameters for creating code fix requests."""
 
     locations: list[LocationToFix] = Field(

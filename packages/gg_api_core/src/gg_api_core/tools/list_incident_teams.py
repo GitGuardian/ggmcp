@@ -5,12 +5,13 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class ListIncidentTeamsParams(BaseModel):
+class ListIncidentTeamsParams(ToolParamsBase):
     """Parameters for listing teams with access to a secret incident."""
 
     incident_id: int = Field(description="The ID of the secret incident to retrieve teams for")

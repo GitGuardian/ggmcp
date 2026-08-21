@@ -21,12 +21,13 @@ from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, ListResponse
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class ListActivityLogsParams(BaseModel):
+class ListActivityLogsParams(ToolParamsBase):
     """Parameters for listing the activity log of a secret incident."""
 
     incident_id: int = Field(description="ID of the secret incident whose activity log to list")

@@ -4,12 +4,13 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
-class ListPublicOccurrencesParams(BaseModel):
+class ListPublicOccurrencesParams(ToolParamsBase):
     """Parameters for listing occurrences of a public secret incident."""
 
     incident_id: int = Field(

@@ -5,6 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -190,7 +191,7 @@ def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> st
     return "\n".join(suggestions) if suggestions else ""
 
 
-class ListIncidentsParams(BaseModel):
+class ListIncidentsParams(ToolParamsBase):
     """Parameters for listing incidents using the MCP-optimized endpoint."""
 
     # Pagination

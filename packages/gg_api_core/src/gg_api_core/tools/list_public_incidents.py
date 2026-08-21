@@ -9,6 +9,7 @@ from gg_api_core.client import (
     IncidentStatus,
     IncidentValidity,
 )
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ DEFAULT_VALIDITIES: list[IncidentValidity] = [
 ]
 
 
-class ListPublicIncidentsParams(BaseModel):
+class ListPublicIncidentsParams(ToolParamsBase):
     """Parameters for listing public secret incidents.
 
     Public incidents are incidents detected by GitGuardian on public sources

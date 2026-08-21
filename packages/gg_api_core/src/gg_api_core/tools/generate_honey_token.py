@@ -5,6 +5,7 @@ import httpx
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.params import ToolParamsBase
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ def _extract_api_detail(response: httpx.Response) -> str:
     return str(body)
 
 
-class GenerateHoneytokenParams(BaseModel):
+class GenerateHoneytokenParams(ToolParamsBase):
     """Parameters for generating a honeytoken."""
 
     name: str = Field(
