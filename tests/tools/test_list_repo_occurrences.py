@@ -310,6 +310,22 @@ class TestListRepoOccurrences:
         assert result.applied_filters is not None
         assert result.applied_filters.get("mine") is True
 
+    @pytest.mark.asyncio
+    async def test_unknown_validity_is_passed_through_unchanged(self, mock_gitguardian_client):
+        """
+        GIVEN: validity=['unknown'] (the canonical value)
+        WHEN: Listing occurrences
+        THEN: 'unknown' reaches /occurrences/secrets unchanged (it is the endpoint's own
+              spelling, unlike /incidents-for-mcp which needs 'not_checked')
+        """
+        mock_response = {"data": [], "cursor": None, "has_more": False}
+        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
+
+        await list_repo_occurrences(ListRepoOccurrencesParams(validity=["unknown"]))
+
+        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
+        assert call_kwargs["validity"] == ["unknown"]
+
 
 class TestListRepoOccurrencesFilters:
     """Tests for ListRepoOccurrencesFilters validation."""
@@ -344,6 +360,32 @@ class TestListRepoOccurrencesFilters:
         filters = ListRepoOccurrencesFilters(member_assignee_id=12345)
         assert filters.member_assignee_id == 12345
         assert filters.mine is False
+
+    def test_comma_separated_filter_strings_are_normalized(self):
+        """
+        GIVEN comma-separated severity/status/validity strings (the legacy single-string form)
+        WHEN creating the filters
+        THEN they are normalized into canonical lists without losing backward compatibility
+        """
+        filters = ListRepoOccurrencesFilters(
+            severity="critical, high, medium, low, info, unknown",
+            status="TRIGGERED,ASSIGNED,RESOLVED,IGNORED",
+            validity="valid,invalid,failed_to_check,no_checker,unknown",
+        )
+        assert filters.severity == ["critical", "high", "medium", "low", "info", "unknown"]
+        assert filters.status == ["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"]
+        assert filters.validity == ["valid", "invalid", "failed_to_check", "no_checker", "unknown"]
+
+    def test_single_filter_value_is_wrapped_in_a_list(self):
+        """
+        GIVEN a single scalar severity/status/validity value
+        WHEN creating the filters
+        THEN it is wrapped into a single-element list
+        """
+        filters = ListRepoOccurrencesFilters(severity="critical", status="TRIGGERED", validity="unknown")
+        assert filters.severity == ["critical"]
+        assert filters.status == ["TRIGGERED"]
+        assert filters.validity == ["unknown"]
 
     def test_model_validator_returns_valid_instance(self):
         """
@@ -388,3 +430,28 @@ class TestListRepoOccurrencesFilters:
         assert params.mine is False
         assert params.member_assignee_id is None
         assert params.per_page == 50
+
+
+class TestRepoOccurrencesCoercion:
+    """Parametrized coercion tests for the repo occurrences status/severity/validity filters."""
+
+    @pytest.mark.parametrize(
+        ("field", "raw", "expected"),
+        [
+            ("severity", "critical", ["critical"]),
+            ("severity", "critical, high", ["critical", "high"]),
+            ("severity", ["critical", "unknown"], ["critical", "unknown"]),
+            ("status", "TRIGGERED", ["TRIGGERED"]),
+            ("status", "TRIGGERED,ASSIGNED", ["TRIGGERED", "ASSIGNED"]),
+            ("validity", "valid,unknown", ["valid", "unknown"]),
+            ("validity", "valid", ["valid"]),
+        ],
+    )
+    def test_coerce_filter_value(self, field, raw, expected):
+        """
+        GIVEN a single value, a CSV string, or a list for an enum filter
+        WHEN building ListRepoOccurrencesFilters
+        THEN the value is normalized to a canonical list
+        """
+        filters = ListRepoOccurrencesFilters(member_assignee_id=12345, **{field: raw})
+        assert getattr(filters, field) == expected

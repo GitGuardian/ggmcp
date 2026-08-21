@@ -5,15 +5,16 @@ Tests for the list_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
     DEFAULT_VALIDITIES,
     ListIncidentsParams,
-    SeverityValues,
     list_incidents,
 )
+from pydantic import ValidationError
 
 
 class TestListIncidentsParamsDefaults:
@@ -37,25 +38,23 @@ class TestListIncidentsParamsDefaults:
         """
         GIVEN: No severity filter is specified
         WHEN: Creating ListIncidentsParams
-        THEN: Default severity excludes LOW (40) and INFO (50)
+        THEN: Default severity excludes low and info
         """
         params = ListIncidentsParams()
 
         assert params.severity == DEFAULT_SEVERITIES
-        assert SeverityValues.CRITICAL in params.severity
-        assert SeverityValues.HIGH in params.severity
-        assert SeverityValues.MEDIUM in params.severity
-        assert SeverityValues.UNKNOWN in params.severity
-        assert SeverityValues.LOW not in params.severity
-        assert SeverityValues.INFO not in params.severity
+        assert "critical" in params.severity
+        assert "high" in params.severity
+        assert "medium" in params.severity
+        assert "unknown" in params.severity
+        assert "low" not in params.severity
+        assert "info" not in params.severity
 
     def test_default_validity_excludes_invalid(self):
         """
         GIVEN: No validity filter is specified
         WHEN: Creating ListIncidentsParams
-        THEN: Default validity excludes 'invalid'
-
-        Note: /incidents-for-mcp endpoint uses 'not_checked' not 'unknown'
+        THEN: Default validity excludes 'invalid' and uses the canonical vocabulary
         """
         params = ListIncidentsParams()
 
@@ -63,7 +62,7 @@ class TestListIncidentsParamsDefaults:
         assert "valid" in params.validity
         assert "failed_to_check" in params.validity
         assert "no_checker" in params.validity
-        assert "not_checked" in params.validity
+        assert "unknown" in params.validity
         assert "invalid" not in params.validity
 
     def test_default_exclude_tags_filters_noise(self):
@@ -97,9 +96,9 @@ class TestListIncidentsParamsDefaults:
         WHEN: Creating ListIncidentsParams
         THEN: The custom severity overrides the default
         """
-        params = ListIncidentsParams(severity=[SeverityValues.LOW, SeverityValues.INFO])
+        params = ListIncidentsParams(severity=["low", "info"])
 
-        assert params.severity == [SeverityValues.LOW, SeverityValues.INFO]
+        assert params.severity == ["low", "info"]
 
     def test_can_override_default_validity(self):
         """
@@ -191,9 +190,9 @@ class TestListIncidentsParamsCoercion:
         WHEN: Creating ListIncidentsParams
         THEN: The severity is coerced to a list
         """
-        params = ListIncidentsParams(severity=SeverityValues.CRITICAL)
+        params = ListIncidentsParams(severity="critical")
 
-        assert params.severity == [SeverityValues.CRITICAL]
+        assert params.severity == ["critical"]
 
     def test_coerce_single_validity_to_list(self):
         """
@@ -405,7 +404,7 @@ class TestListIncidentsParamsCoercion:
         """
         params = ListIncidentsParams(
             status="TRIGGERED",
-            severity=SeverityValues.CRITICAL,
+            severity="critical",
             validity="valid",
             presence="present",
             source_type="github",
@@ -413,11 +412,112 @@ class TestListIncidentsParamsCoercion:
         )
 
         assert params.status == ["TRIGGERED"]
-        assert params.severity == [SeverityValues.CRITICAL]
+        assert params.severity == ["critical"]
         assert params.validity == ["valid"]
         assert params.presence == ["present"]
         assert params.source_type == ["github"]
         assert params.source_criticality == ["high"]
+
+
+class TestListIncidentsValidityTranslation:
+    """Tests that canonical validity values are translated for /incidents-for-mcp.
+
+    The endpoint rejects the canonical 'unknown' with a 400 and expects 'not_checked'.
+    """
+
+    @staticmethod
+    def _client_with_mocked_transport() -> GitGuardianClient:
+        client = GitGuardianClient(personal_access_token="test_token")
+        client._request_get = AsyncMock(return_value={"results": [], "next": None, "previous": None})
+        return client
+
+    @pytest.mark.asyncio
+    async def test_unknown_is_sent_as_not_checked(self):
+        """
+        GIVEN: validity=['unknown'] (the canonical value)
+        WHEN: listing incidents
+        THEN: the endpoint receives 'not_checked', never the 400-bound 'unknown'
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams(validity=["unknown"]))
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "not_checked"
+
+    @pytest.mark.asyncio
+    async def test_default_validities_are_translated(self):
+        """
+        GIVEN: No explicit validity filter (DEFAULT_VALIDITIES includes 'unknown')
+        WHEN: listing incidents
+        THEN: the defaults go through the same translation
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams())
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "valid,failed_to_check,no_checker,not_checked"
+
+    @pytest.mark.asyncio
+    async def test_other_validities_are_untouched(self):
+        """
+        GIVEN: validity values that both dialects spell the same way
+        WHEN: listing incidents
+        THEN: they are forwarded unchanged
+        """
+        client = self._client_with_mocked_transport()
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=client):
+            await list_incidents(ListIncidentsParams(validity=["valid", "invalid"]))
+
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "valid,invalid"
+
+
+class TestListIncidentsSeverityMapping:
+    """Tests that the tool preserves the canonical severity vocabulary."""
+
+    @pytest.mark.asyncio
+    async def test_severity_names_are_mapped_to_numbers(self):
+        """
+        GIVEN: severity=['critical', 'unknown']
+        WHEN: listing incidents
+        THEN: the endpoint adapter receives canonical names to translate
+        """
+        mock_client = AsyncMock()
+        mock_client.list_incidents_for_mcp.return_value = {"results": [], "next": None, "previous": None}
+
+        with patch("gg_api_core.tools.list_incidents.get_client", return_value=mock_client):
+            await list_incidents(ListIncidentsParams(severity=["critical", "unknown"]))
+
+        call_kwargs = mock_client.list_incidents_for_mcp.call_args.kwargs
+        assert call_kwargs["severity"] == ["critical", "unknown"]
+
+    def test_numeric_severity_is_rejected(self):
+        """
+        GIVEN a private endpoint numeric severity
+        WHEN building public tool parameters
+        THEN validation rejects it before an API call can happen
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            ListIncidentsParams(severity=[10])
+
+        assert "severity" in str(exc_info.value)
+        assert "critical" in str(exc_info.value)
+
+    def test_unknown_severity_name_is_rejected(self):
+        """
+        GIVEN: A severity name outside the vocabulary
+        WHEN: Building the params
+        THEN: Validation fails instead of forwarding the value to the API
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            ListIncidentsParams(severity=["catastrophic"])
+
+        assert "critical" in str(exc_info.value)
 
 
 class TestListIncidentsMine:

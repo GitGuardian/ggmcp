@@ -1,15 +1,15 @@
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-from gg_api_core.client import (
-    DEFAULT_PAGINATION_MAX_BYTES,
-    IncidentSeverity,
-    IncidentStatus,
-    IncidentValidity,
-    TagNames,
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, TagNames
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
 )
+from gg_api_core.incident_filters import coerce_to_list
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -21,23 +21,23 @@ DEFAULT_EXCLUDED_TAGS = [
     TagNames.CHECK_RUN_SKIP_LOW_RISK,
     TagNames.CHECK_RUN_SKIP_TEST_CRED,
 ]
-DEFAULT_SEVERITIES = [
-    IncidentSeverity.CRITICAL,
-    IncidentSeverity.HIGH,
-    IncidentSeverity.MEDIUM,
-    IncidentSeverity.UNKNOWN,
+DEFAULT_SEVERITIES: list[IncidentSeverityFilter] = [
+    "critical",
+    "high",
+    "medium",
+    "unknown",
 ]
-DEFAULT_STATUSES = [
-    IncidentStatus.TRIGGERED,
-    IncidentStatus.ASSIGNED,
-    IncidentStatus.RESOLVED,
+DEFAULT_STATUSES: list[IncidentStatusFilter] = [
+    "TRIGGERED",
+    "ASSIGNED",
+    "RESOLVED",
 ]  # We exclude "IGNORED" ones
-DEFAULT_VALIDITIES = [
-    IncidentValidity.VALID,
-    IncidentValidity.FAILED_TO_CHECK,
-    IncidentValidity.NO_CHECKER,
-    IncidentValidity.UNKNOWN,
-]  # We exclude "INVALID" ones. Note: /occurrences/secrets uses "unknown" not "not_checked"
+DEFAULT_VALIDITIES: list[IncidentValidityFilter] = [
+    "valid",
+    "failed_to_check",
+    "no_checker",
+    "unknown",
+]  # We exclude "INVALID" ones
 
 
 class ListRepoOccurrencesFilters(BaseModel):
@@ -57,22 +57,28 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=DEFAULT_EXCLUDED_TAGS,
         description="Exclude occurrences with these tag names. Pass empty list to disable filtering.",
     )
-    status: list[IncidentStatus] | None = Field(
+    status: list[IncidentStatusFilter] | None = Field(
         default=DEFAULT_STATUSES, description="Filter by status (list of status names)"
     )
-    severity: list[IncidentSeverity] | None = Field(
+    severity: list[IncidentSeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description="Filter by severity (list of severity names)",
     )
-    validity: list[IncidentValidity] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity (list of validity names)",
+        description="Filter by validity. Values: valid, invalid, failed_to_check, no_checker, unknown",
     )
     mine: bool = Field(
         default=False,
         description="If True, fetch occurrences related to issues assigned to the current user",
     )
     member_assignee_id: int | None = Field(default=None, description="Filter by the member the incident is assigned to")
+
+    @field_validator("status", "severity", "validity", mode="before")
+    @classmethod
+    def coerce_to_list(cls, value: Any) -> list[Any] | None:
+        """Accept a single value, a list, or a comma-separated string, and normalize to a list."""
+        return coerce_to_list(value)
 
     @model_validator(mode="after")
     def validate_exactly_one_assignee_option(self):

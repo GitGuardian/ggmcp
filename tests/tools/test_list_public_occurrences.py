@@ -51,9 +51,9 @@ class TestListPublicOccurrences:
             sha="fccebf0562",
             filepath="src/config",
             attachment_reason="by_dev_from_perimeter,on_github_org_in_perimeter",
-            severity="critical,high",
-            status="TRIGGERED,ASSIGNED",
-            validity="valid",
+            severity=["critical", "high"],
+            status=["TRIGGERED", "ASSIGNED"],
+            validity=["valid"],
             tags="FROM_HISTORICAL_SCAN",
             ordering="-id",
             per_page=100,
@@ -67,9 +67,9 @@ class TestListPublicOccurrences:
         assert call_kwargs["sha"] == "fccebf0562"
         assert call_kwargs["filepath"] == "src/config"
         assert call_kwargs["attachment_reason"] == "by_dev_from_perimeter,on_github_org_in_perimeter"
-        assert call_kwargs["severity"] == "critical,high"
-        assert call_kwargs["status"] == "TRIGGERED,ASSIGNED"
-        assert call_kwargs["validity"] == "valid"
+        assert call_kwargs["severity"] == ["critical", "high"]
+        assert call_kwargs["status"] == ["TRIGGERED", "ASSIGNED"]
+        assert call_kwargs["validity"] == ["valid"]
         assert call_kwargs["tags"] == "FROM_HISTORICAL_SCAN"
         assert call_kwargs["ordering"] == "-id"
         assert call_kwargs["per_page"] == 100
@@ -77,6 +77,38 @@ class TestListPublicOccurrences:
         assert result.applied_filters["source_id"] == 6531
         assert result.applied_filters["presence"] == "present"
         assert result.applied_filters["filepath"] == "src/config"
+
+    def test_comma_separated_filter_strings_are_normalized(self):
+        """
+        GIVEN comma-separated severity/status/validity strings (the legacy single-string form)
+        WHEN constructing ListPublicOccurrencesParams
+        THEN they are normalized into canonical lists without losing backward compatibility
+        """
+        params = ListPublicOccurrencesParams(
+            incident_id=1,
+            severity="critical, high, medium, low, info, unknown",
+            status="TRIGGERED,ASSIGNED,RESOLVED,IGNORED",
+            validity="valid,invalid,failed_to_check,no_checker,unknown",
+        )
+        assert params.severity == ["critical", "high", "medium", "low", "info", "unknown"]
+        assert params.status == ["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"]
+        assert params.validity == ["valid", "invalid", "failed_to_check", "no_checker", "unknown"]
+
+    def test_single_filter_value_is_wrapped_in_a_list(self):
+        """
+        GIVEN a single scalar severity/status/validity value
+        WHEN constructing ListPublicOccurrencesParams
+        THEN it is wrapped into a single-element list
+        """
+        params = ListPublicOccurrencesParams(
+            incident_id=1,
+            severity="critical",
+            status="TRIGGERED",
+            validity="unknown",
+        )
+        assert params.severity == ["critical"]
+        assert params.status == ["TRIGGERED"]
+        assert params.validity == ["unknown"]
 
     @pytest.mark.asyncio
     async def test_with_cursor_returns_pagination_info(self, mock_gitguardian_client):
@@ -130,3 +162,28 @@ class TestListPublicOccurrences:
 
         assert hasattr(result, "error")
         assert "Failed to list public occurrences" in result.error
+
+
+class TestPublicOccurrencesCoercion:
+    """Parametrized coercion tests for the public occurrences enum filters."""
+
+    @pytest.mark.parametrize(
+        ("field", "raw", "expected"),
+        [
+            ("severity", "critical", ["critical"]),
+            ("severity", "critical, high", ["critical", "high"]),
+            ("severity", ["critical", "unknown"], ["critical", "unknown"]),
+            ("status", "TRIGGERED", ["TRIGGERED"]),
+            ("status", "TRIGGERED,ASSIGNED", ["TRIGGERED", "ASSIGNED"]),
+            ("validity", "valid,unknown", ["valid", "unknown"]),
+            ("validity", "valid", ["valid"]),
+        ],
+    )
+    def test_coerce_filter_value(self, field, raw, expected):
+        """
+        GIVEN a single value, a CSV string, or a list for an enum filter
+        WHEN building ListPublicOccurrencesParams
+        THEN the value is normalized to a canonical list
+        """
+        params = ListPublicOccurrencesParams(incident_id=1, **{field: raw})
+        assert getattr(params, field) == expected
