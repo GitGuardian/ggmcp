@@ -21,7 +21,6 @@ __all__ = [
     "clear_caller_identity_cache",
     "current_downstream_stats",
     "derive_caller_identity",
-    "derive_client_identity",
     "record_downstream_call",
     "record_downstream_wait",
     "record_truncation",
@@ -268,19 +267,3 @@ def classify_failure(exc: BaseException) -> dict[str, Any]:
         failure["gg_error_code"] = code
 
     return failure
-
-
-def derive_client_identity(client_info: Any, protocol_version: Any = None) -> dict[str, Any]:
-    """Map optional MCP initialization metadata to log fields."""
-    identity: dict[str, Any] = {}
-
-    name = getattr(client_info, "name", None)
-    if name:
-        identity["client_name"] = name
-    version = getattr(client_info, "version", None)
-    if version:
-        identity["client_version"] = version
-    if protocol_version:
-        identity["protocol_version"] = str(protocol_version)
-
-    return identity
