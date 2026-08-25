@@ -1,5 +1,5 @@
 """Workspace metadata and remediation tools: list_sources, read_custom_tags,
-find_current_source_id, remediate_secret_incidents.
+find_current_source_id, list_remediation_targets.
 """
 
 from http import HTTPStatus
@@ -141,49 +141,60 @@ class TestFindCurrentSourceId:
         assert str(HTTPStatus.FORBIDDEN.value) in tool_error_text(result)
 
 
-class TestRemediateSecretIncidents:
+class TestListRemediationTargets:
     OCCURRENCES = [
-        {"id": 1, "incident": {"id": 501, "assignee_id": TEST_MEMBER_ID}, "filepath": "a.py"},
-        {"id": 2, "incident": {"id": 502, "assignee_id": 9999}, "filepath": "b.py"},
+        {
+            "id": 1,
+            "incident": {"id": 501, "assignee_id": TEST_MEMBER_ID, "occurrences_count": 1},
+            "filepath": "a.py",
+        },
+        {
+            "id": 2,
+            "incident": {"id": 502, "assignee_id": 9999, "occurrences_count": 1},
+            "filepath": "b.py",
+        },
     ]
 
-    async def test_default_flow_lists_default_branch_occurrences_and_renders_instructions(
+    async def test_default_flow_lists_default_branch_occurrences_grouped_by_incident(
         self, mcp_client, gg_api, mock_token_scopes
     ):
         """
-        GIVEN a source with occurrences
-        WHEN remediate_secret_incidents is called
-        THEN occurrences are fetched restricted to the default branch and the
-             result carries remediation instructions plus the occurrence list
+        GIVEN a source with occurrences spread across two incidents
+        WHEN list_remediation_targets is called
+        THEN occurrences are fetched restricted to the default branch, most recent first,
+             and the result carries one target per incident plus fallback guidance
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55}})
+        result = await call_tool(mcp_client, "list_remediation_targets", {"params": {"source_id": 55}})
 
         params = sent_params(route)
         assert params["source_id"] == "55"
         assert params["tags"] == "DEFAULT_BRANCH"
+        assert params["ordering"] == "-date"
         assert params["with_sources"] == "false"
         output = unwrap_result(result)
-        assert output["occurrences_count"] == 2
-        assert output["suggested_occurrences_for_remediation_count"] == 2
-        assert output["remediation_instructions"]
+        assert output["incident_count"] == 2
+        assert output["total_incident_count"] == 2
+        assert output["truncated"] is False
+        assert output["guidance"]
+        assert [target["incident_id"] for target in output["incidents"]] == [501, 502]
+        assert [occ["id"] for occ in output["incidents"][0]["occurrences"]] == [1]
         assert output["sub_tools_results"]["list_repo_occurrences"]["occurrences"] == self.OCCURRENCES
 
-    async def test_mine_keeps_only_the_callers_occurrences(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_mine_keeps_only_the_callers_incidents(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN occurrences assigned to different members
-        WHEN remediate_secret_incidents is called with mine=True
-        THEN only occurrences whose incident is assigned to the caller remain
+        WHEN list_remediation_targets is called with mine=True
+        THEN only incidents assigned to the caller remain
         """
         gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55, "mine": True}})
+        result = await call_tool(mcp_client, "list_remediation_targets", {"params": {"source_id": 55, "mine": True}})
 
         output = unwrap_result(result)
-        occurrences = output["sub_tools_results"]["list_repo_occurrences"]["occurrences"]
-        assert [occ["id"] for occ in occurrences] == [1]
-        assert output["occurrences_count"] == 1
+        assert [target["incident_id"] for target in output["incidents"]] == [501]
+        assert output["incident_count"] == 1
 
     @pytest.mark.xfail(
         strict=True,
@@ -194,7 +205,7 @@ class TestRemediateSecretIncidents:
     ):
         """
         GIVEN the token-info endpoint failing during the mine filter
-        WHEN remediate_secret_incidents is called with mine=True
+        WHEN list_remediation_targets is called with mine=True
         THEN the API failure surfaces instead of returning everyone's incidents
         """
         gg_api.get("/occurrences/secrets").respond(200, json={"results": self.OCCURRENCES})
@@ -204,6 +215,6 @@ class TestRemediateSecretIncidents:
             side_effect=[httpx.Response(200, json=token_info())] + [httpx.Response(500, text="boom")] * 4
         )
 
-        result = await call_tool(mcp_client, "remediate_secret_incidents", {"params": {"source_id": 55, "mine": True}})
+        result = await call_tool(mcp_client, "list_remediation_targets", {"params": {"source_id": 55, "mine": True}})
 
         assert "500" in tool_error_text(result)

@@ -32,7 +32,7 @@ class ListRepoOccurrencesParamsForTargets(ListRepoOccurrencesParams):
         description="List of tags to filter incidents by. Default to DEFAULT_BRANCH to avoid requiring a git checkout for the fix",
     )
     # Recent-first so that, once grouped, incidents surface by their most recent occurrence
-    ordering: str = Field(
+    ordering: str | None = Field(
         default="-date",
         description="Sort field for the underlying occurrences query. Defaults to '-date' (most recent first).",
     )
