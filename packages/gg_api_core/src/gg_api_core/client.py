@@ -2375,6 +2375,11 @@ class GitGuardianClient:
             - If exact match found: Single source object (dict)
             - If no exact match and return_all_on_no_match=True: List of all matching sources
             - If no exact match and return_all_on_no_match=False: None
+
+        Raises:
+            Exception: If the sources endpoint fails (e.g. auth/permission errors).
+                Errors propagate to the caller instead of being swallowed, so a
+                failed lookup can be told apart from a genuinely missing source.
         """
         logger.info(f"Looking up source ID for repository name: {source_name}")
 
@@ -2408,7 +2413,7 @@ class GitGuardianClient:
 
         except Exception as e:
             logger.exception(f"Error getting source by name: {str(e)}")
-            return None
+            raise
 
     async def create_code_fix_request(self, locations: list[dict[str, Any]]) -> dict[str, Any]:
         """Create code fix requests for multiple secret incidents with their locations.
