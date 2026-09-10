@@ -43,6 +43,13 @@ DEFAULT_VALIDITIES = [
 class ListRepoOccurrencesFilters(BaseModel):
     """Filters for listing repository occurrences."""
 
+    incident_id: int | None = Field(
+        default=None,
+        ge=1,
+        description="Filter occurrences by incident ID. Omit source_id to query across sources. "
+        "Other filters still apply; pass [] for tags, exclude_tags, status, severity, and validity "
+        "to enumerate all known occurrences of that incident.",
+    )
     from_date: str | None = Field(
         default=None,
         description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)",
@@ -127,6 +134,8 @@ def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     filters: dict[str, Any] = {}
 
     # Include all active filters
+    if params.incident_id is not None:
+        filters["incident_id"] = params.incident_id
     if params.from_date:
         filters["from_date"] = params.from_date
     if params.to_date:
@@ -185,7 +194,13 @@ async def list_repo_occurrences(
     params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """
-    List secret occurrences for a specific repository using the GitGuardian v1/occurrences/secrets API.
+    List secret occurrences for a repository or incident using the GitGuardian v1/occurrences/secrets API.
+
+    Pass incident_id to enumerate one incident's occurrences, including beyond the
+    get_incident embedded-occurrence limit. To include all known locations, omit
+    source_id and set tags, exclude_tags, status, severity, and validity to [].
+    Follow cursor with the same filters until has_more is false. occurrences_count
+    is the number returned in this response, not the incident's global total.
 
     This tool returns detailed occurrence data with EXACT match locations, including:
     - File path where the secret was found
@@ -223,16 +238,21 @@ async def list_repo_occurrences(
     client = await get_client()
     logger.debug(f"Listing occurrences with source_id={params.source_id}")
 
-    # Filter by assigned member
     member_assignee_id = params.member_assignee_id
     if params.mine:
-        # Use get_current_token_info() instead of get_current_member() to avoid
-        # requiring members:read scope - the member_id is already in the token info
+        # Token info provides the member ID without requiring members:read.
+        # Fail before querying occurrences if the caller cannot be identified.
         token_info = await client.get_current_token_info()
-        member_assignee_id = token_info["member_id"]
+        member_assignee_id = token_info.get("member_id")
+        if member_assignee_id is None:
+            raise ValueError(
+                "mine=True requires a personal token with a member_id. "
+                "Use member_assignee_id to select an assignee with a service token."
+            )
 
     try:
         result = await client.list_occurrences(
+            incident_id=params.incident_id,
             source_id=str(params.source_id) if params.source_id is not None else None,
             from_date=params.from_date,
             to_date=params.to_date,

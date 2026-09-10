@@ -37,6 +37,7 @@ from gg_api_core.tools.list_incident_teams import list_incident_teams
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
+from gg_api_core.tools.list_remediation_targets import list_remediation_targets
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.list_users import list_users
@@ -45,7 +46,6 @@ from gg_api_core.tools.manage_incident import (
     update_incident_severity,
 )
 from gg_api_core.tools.read_custom_tags import read_custom_tags
-from gg_api_core.tools.remediate_secret_incidents import remediate_secret_incidents
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
 from gg_api_core.tools.update_public_incident_status import update_public_incident_status
@@ -72,7 +72,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
   Identified by a `source_id`. Default category for most customer workflows.
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
-  `remediate_secret_incidents`, `list_sources`, `find_current_source_id`, `list_incident_comments`,
+  `list_remediation_targets`, `list_sources`, `find_current_source_id`, `list_incident_comments`,
   `list_incident_activity_logs`.
   Write tools: `manage_private_incident`, `update_incident_severity`, `assign_incident`,
   `update_or_create_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
@@ -98,8 +98,9 @@ write tool with a public incident ID (or vice versa) will silently 404.
 3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
    line numbers, and character indices.
 
-4. **Remediation** (`remediate_secret_incidents`, `create_code_fix_request`) — guided
-   secret removal with best-practice recommendations and automated pull requests.
+4. **Remediation** — locate occurrences with `list_remediation_targets`. Follow the
+   triage-incidents skill when available and call `get_remediation_workflow` for the
+   workspace's instructions. `create_code_fix_request` opens automated pull requests.
 
 5. **Honeytoken Management** — generate honeytokens, list and inspect existing ones.
 
@@ -120,10 +121,16 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     tools the access token cannot satisfy.
     """
     mcp.tool(
-        remediate_secret_incidents,
-        description="(Internal sources only) List secrets in a given source (identified by source_id) and return exact match locations (file paths, line numbers, character indices). "
-        "along with precise remediation instructions. This tool leverages the occurrences API."
-        "By default, this only shows incidents assigned to the current user. Pass mine=False to get all incidents related to this source.",
+        list_remediation_targets,
+        description="(Internal sources only) List candidate secret occurrences with file paths and match locations. "
+        "Pass source_id to select a repository. Defaults to its remote DEFAULT_BRANCH, not the checked-out branch, "
+        "with known-noise exclusions and most-recent-first ordering. Returns a flat page of occurrences, "
+        "occurrences_count (this response only), applied_filters, cursor, and has_more. "
+        "Follow cursor with the same filters while has_more is true, including with get_all=True. "
+        "Pass mine=True for incidents assigned to the current member, or incident_id to filter one incident. "
+        "Filters still apply; use list_repo_occurrences with exclusions cleared to enumerate all locations. "
+        "Returns data only; get incident metadata with get_incident and plan remediation using the triage-incidents skill "
+        "and get_remediation_workflow.",
         required_scopes=["incidents:read", "sources:read"],
     )
 
@@ -163,9 +170,11 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     mcp.tool(
         list_repo_occurrences,
         description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_occurrences) "
-        "List secret occurrences for a specific internal repository with exact match locations. "
+        "List secret occurrences for an internal repository (source_id) or incident (incident_id) with exact match locations. "
         "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
-        "Use this tool when you need to locate and remediate secrets in the codebase with precise file locations.",
+        "Follow cursor with the same filters until has_more is false. To enumerate every known occurrence of one incident, "
+        "pass incident_id, omit source_id, and set tags, exclude_tags, status, severity, and validity to []. "
+        "Use get_incident for incident metadata and get_remediation_workflow for remediation instructions.",
         required_scopes=["incidents:read"],
     )
 
