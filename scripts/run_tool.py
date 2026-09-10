@@ -6,8 +6,7 @@ from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences, ListR
 import asyncio
 
 from gg_api_core.tools.list_users import list_users, ListUsersParams
-from gg_api_core.tools.list_remediation_targets import ListRemediationTargetsParams, list_remediation_targets, \
-    ListRepoOccurrencesParamsForTargets
+from gg_api_core.tools.list_remediation_targets import ListRemediationTargetsParams, list_remediation_targets
 from gg_api_core.tools.revoke_secret import revoke_secret, RevokeSecretParams
 from gg_api_core.tools.scan_secret import scan_secrets, ScanSecretsParams
 
@@ -37,8 +36,7 @@ async def main():
 
     # Remediation targets
     print(await list_remediation_targets(
-        ListRemediationTargetsParams(
-            list_repo_occurrences_params=ListRepoOccurrencesParamsForTargets(source_id="9036019")))
+        ListRemediationTargetsParams(source_id="9036019"))
           )
 
     # Occurrences
