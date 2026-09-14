@@ -898,6 +898,7 @@ class GitGuardianClient:
 
             # Handle empty responses
             if not response["data"]:
+                cursor = response["cursor"]
                 logger.debug("Received empty response data, stopping pagination")
                 break
 
@@ -913,8 +914,8 @@ class GitGuardianClient:
                 )
                 truncated = True
                 has_more = True
-                # Keep the cursor so caller can continue if needed
-                cursor = response["cursor"]
+                # Keep the cursor for this unreturned page. Advancing to the
+                # response's next cursor would silently skip its occurrences.
                 break
 
             logger.debug(f"Received page with {len(response['data'])} items ({page_bytes} bytes)")
@@ -1853,6 +1854,7 @@ class GitGuardianClient:
         status: list[IncidentStatus] | None = None,
         with_sources: bool | None = None,
         member_assignee_id: int | None = None,
+        incident_id: int | None = None,
     ) -> ListResponse:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
@@ -1873,6 +1875,8 @@ class GitGuardianClient:
             validity: Filter by validity (list of validity names)
             status: Filter by status (list of status names)
             with_sources: Whether to include source details in the response
+            member_assignee_id: Filter by the incident's assigned member
+            incident_id: Filter by a specific incident across sources
 
         Returns:
             List of occurrences matching the criteria or an empty dict/list if no results
@@ -1912,7 +1916,9 @@ class GitGuardianClient:
         if with_sources is not None:
             params["with_sources"] = str(with_sources).lower()
         if member_assignee_id is not None:
-            params["member_assignee_id"] = str(member_assignee_id)
+            params["incident_assignee_id"] = str(member_assignee_id)
+        if incident_id is not None:
+            params["incident_id"] = str(incident_id)
 
         # If get_all is True, use paginate_all to get all results with truncation metadata
         if get_all:

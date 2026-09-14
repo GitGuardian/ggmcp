@@ -1,3 +1,6 @@
+# Request and pagination URLs migrated from member_assignee_id to the documented
+# incident_assignee_id parameter. Original response bodies are retained for parsing
+# coverage; outbound filter correctness is covered by the occurrence e2e tests.
 interactions:
 - request:
     body: ''
@@ -165,7 +168,7 @@ interactions:
       X-Privacy-Mode:
       - 'true'
     method: GET
-    uri: https://api.gitguardian.com/v1/occurrences/secrets?per_page=5&member_assignee_id=480870
+    uri: https://api.gitguardian.com/v1/occurrences/secrets?per_page=5&incident_assignee_id=480870
   response:
     body:
       string: '[{"id": 78197, "incident_id": 21460, "date": "2020-10-29T13:20:05.797462Z",
@@ -295,7 +298,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       link:
-      - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03ODIwMQ%3D%3D&member_assignee_id=480870&per_page=5>;
+      - <https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD03ODIwMQ%3D%3D&incident_assignee_id=480870&per_page=5>;
         rel="next"
       referrer-policy:
       - strict-origin-when-cross-origin

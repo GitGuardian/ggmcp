@@ -76,7 +76,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "manage_private_incident",
     "manage_public_incident_comment",
     "read_custom_tags",
-    "remediate_secret_incidents",
+    "list_remediation_targets",
     "revoke_current_token",
     "revoke_secret",
     "scan_secrets",

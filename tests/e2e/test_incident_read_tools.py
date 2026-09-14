@@ -296,7 +296,7 @@ class TestListRepoOccurrences:
         THEN the query carries the default noise filters and the decoded cursor
              is handed back with has_more=True
         """
-        occurrence = {"id": 9, "incident": {"id": 77}, "filepath": "src/config.py"}
+        occurrence = {"id": 9, "incident_id": 77, "filepath": "src/config.py"}
         route = gg_api.get("/occurrences/secrets").respond(
             200,
             json={"results": [occurrence]},
@@ -325,28 +325,130 @@ class TestListRepoOccurrences:
         """
         GIVEN mine=True
         WHEN list_repo_occurrences is called
-        THEN the member id from /api_tokens/self is sent as member_assignee_id
+        THEN the member id from /api_tokens/self is sent as incident_assignee_id
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
         await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
 
-        assert sent_params(route)["member_assignee_id"] == str(TEST_MEMBER_ID)
+        assert sent_params(route)["incident_assignee_id"] == str(TEST_MEMBER_ID)
+        assert "member_assignee_id" not in sent_params(route)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: mine=True silently drops the assignee filter for service tokens",
-    )
-    async def test_service_token_without_member_id_rejects_mine_filter(self, mcp_client, gg_api, mock_token_scopes):
+    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences", "list_remediation_targets"])
+    async def test_service_token_without_member_id_rejects_mine_filter(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name
+    ):
         """
         GIVEN a service-account token whose member_id is null
-        WHEN list_repo_occurrences is called with mine=True
+        WHEN an occurrences tool is called with mine=True
         THEN the tool fails clearly without querying unfiltered occurrences
         """
         gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
         occurrences = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
-        result = await call_tool(mcp_client, "list_repo_occurrences", {"params": {"mine": True}})
+        result = await call_tool(mcp_client, tool_name, {"params": {"mine": True}})
 
         assert "mine" in tool_error_text(result).lower()
         assert not occurrences.called
+
+    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences", "list_remediation_targets"])
+    async def test_incident_occurrences_can_be_paged_beyond_100(self, mcp_client, gg_api, mock_token_scopes, tool_name):
+        """
+        GIVEN an incident with 150 occurrences across two API pages
+        WHEN its occurrences are requested with a cursor and all exclusions disabled
+        THEN all 150 locations are returned exactly once with the incident scope preserved
+        """
+        occurrences = [{"id": i, "incident_id": 501, "filepath": f"file{i}.py"} for i in range(150)]
+        route = gg_api.get("/occurrences/secrets").mock(
+            side_effect=[
+                httpx.Response(
+                    200,
+                    json=occurrences[:100],
+                    headers={"Link": '<https://api.gitguardian.com/v1/occurrences/secrets?cursor=next100>; rel="next"'},
+                ),
+                httpx.Response(200, json=occurrences[100:]),
+            ]
+        )
+        filters = {
+            "incident_id": 501,
+            "tags": [],
+            "exclude_tags": [],
+            "status": [],
+            "severity": [],
+            "validity": [],
+            "per_page": 100,
+            "get_all": False,
+        }
+        first = unwrap_result(await call_tool(mcp_client, tool_name, {"params": filters}))
+        assert first["has_more"] is True
+        assert first["occurrences_count"] == 100
+        second = unwrap_result(
+            await call_tool(mcp_client, tool_name, {"params": {**filters, "cursor": first["cursor"]}})
+        )
+        assert second["has_more"] is False
+        assert second["cursor"] is None
+        assert second["occurrences_count"] == 50
+        assert first["occurrences"] + second["occurrences"] == occurrences
+        assert second["applied_filters"]["incident_id"] == 501
+        assert route.call_count == 2
+        for call in route.calls:
+            query = call.request.url.params
+            assert query["incident_id"] == "501"
+            assert query["per_page"] == "100"
+            assert not {"source_id", "tags", "exclude_tags", "status", "severity", "validity"}.intersection(query)
+        assert route.calls[1].request.url.params["cursor"] == "next100"
+
+    async def test_size_limited_pagination_resumes_without_skipping_a_page(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN three occurrence pages whose pairs exceed the aggregation byte limit
+        WHEN get_all results are continued using the returned cursor
+        THEN each page is returned once, including pages deferred by the byte limit
+        """
+        occurrences = [{"id": i, "incident_id": 501, "filepath": "a.py", "content": "x" * 12_000} for i in range(3)]
+
+        def page_response(request):
+            index = int(request.url.params.get("cursor", "0"))
+            headers = {}
+            if index < 2:
+                headers["Link"] = f'<https://api.gitguardian.com/v1/occurrences/secrets?cursor={index + 1}>; rel="next"'
+            return httpx.Response(200, json=[occurrences[index]], headers=headers)
+
+        gg_api.get("/occurrences/secrets").mock(side_effect=page_response)
+        params = {"source_id": 55, "get_all": True}
+        returned = []
+        for _ in range(3):
+            output = unwrap_result(await call_tool(mcp_client, "list_repo_occurrences", {"params": params}))
+            returned.extend(output["occurrences"])
+            if not output["has_more"]:
+                break
+            assert output["cursor"] is not None
+            params["cursor"] = output["cursor"]
+
+        assert [occ["id"] for occ in returned] == [0, 1, 2]
+        assert output["has_more"] is False
+
+    async def test_get_all_stops_when_the_last_page_is_empty(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an occurrence page followed by an empty terminal page
+        WHEN get_all follows the final cursor
+        THEN the response clears the cursor and does not advertise more data
+        """
+        occurrence = {"id": 1, "incident_id": 501, "filepath": "a.py"}
+        gg_api.get("/occurrences/secrets").mock(
+            side_effect=[
+                httpx.Response(
+                    200,
+                    json=[occurrence],
+                    headers={"Link": '<https://api.gitguardian.com/v1/occurrences/secrets?cursor=end>; rel="next"'},
+                ),
+                httpx.Response(200, json=[]),
+            ]
+        )
+
+        output = unwrap_result(
+            await call_tool(mcp_client, "list_repo_occurrences", {"params": {"source_id": 55, "get_all": True}})
+        )
+
+        assert output["occurrences"] == [occurrence]
+        assert output["has_more"] is False
+        assert output["cursor"] is None

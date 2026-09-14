@@ -125,8 +125,8 @@ class TestScopeBasedToolVisibility:
         assert "manage_private_incident" not in names
         assert "assign_incident" not in names
         assert "update_incident_severity" not in names
-        # remediate needs sources:read on top of incidents:read
-        assert "remediate_secret_incidents" not in names
+        # list_remediation_targets needs sources:read on top of incidents:read
+        assert "list_remediation_targets" not in names
 
     async def test_tool_visibility_is_isolated_between_tenants_on_one_server(self, mcp_client, gg_api):
         """
