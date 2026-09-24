@@ -82,9 +82,9 @@ class TestListPublicOccurrencesVCR:
                 applied = result.applied_filters
                 assert applied["incident_id"] == incident_id
                 assert applied["presence"] == "present"
-                assert applied["severity"] == "critical,high,medium,low,info,unknown"
-                assert applied["status"] == "TRIGGERED,ASSIGNED,RESOLVED,IGNORED"
-                assert applied["validity"] == "valid,invalid,failed_to_check,no_checker,unknown"
+                assert applied["severity"] == ["critical", "high", "medium", "low", "info", "unknown"]
+                assert applied["status"] == ["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"]
+                assert applied["validity"] == ["valid", "invalid", "failed_to_check", "no_checker", "unknown"]
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio

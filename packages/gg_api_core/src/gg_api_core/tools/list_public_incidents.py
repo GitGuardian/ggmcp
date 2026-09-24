@@ -3,12 +3,13 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
-from gg_api_core.client import (
-    DEFAULT_PAGINATION_MAX_BYTES,
-    IncidentSeverity,
-    IncidentStatus,
-    IncidentValidity,
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
 )
+from gg_api_core.incident_filters import coerce_to_list
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -16,23 +17,23 @@ logger = logging.getLogger(__name__)
 
 # Default filters mirror list_incidents to keep the two tools behaviorally consistent:
 # hide IGNORED statuses, LOW/INFO severities, and INVALID validity out of the box.
-DEFAULT_STATUSES: list[IncidentStatus] = [
-    IncidentStatus.TRIGGERED,
-    IncidentStatus.ASSIGNED,
-    IncidentStatus.RESOLVED,
+DEFAULT_STATUSES: list[IncidentStatusFilter] = [
+    "TRIGGERED",
+    "ASSIGNED",
+    "RESOLVED",
 ]
-DEFAULT_SEVERITIES: list[IncidentSeverity] = [
-    IncidentSeverity.CRITICAL,
-    IncidentSeverity.HIGH,
-    IncidentSeverity.MEDIUM,
-    IncidentSeverity.UNKNOWN,
+DEFAULT_SEVERITIES: list[IncidentSeverityFilter] = [
+    "critical",
+    "high",
+    "medium",
+    "unknown",
 ]
 # /public-incidents/secrets validity enum uses 'unknown' (not 'not_checked' like /incidents-for-mcp).
-DEFAULT_VALIDITIES: list[IncidentValidity] = [
-    IncidentValidity.VALID,
-    IncidentValidity.FAILED_TO_CHECK,
-    IncidentValidity.NO_CHECKER,
-    IncidentValidity.UNKNOWN,
+DEFAULT_VALIDITIES: list[IncidentValidityFilter] = [
+    "valid",
+    "failed_to_check",
+    "no_checker",
+    "unknown",
 ]
 
 
@@ -92,21 +93,21 @@ class ListPublicIncidentsParams(BaseModel):
     )
 
     # Status / severity / validity
-    status: list[IncidentStatus] | None = Field(
+    status: list[IncidentStatusFilter] | None = Field(
         default=DEFAULT_STATUSES,
         description=(
             "Filter by incident status. Values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. "
             "Accepts a single value or a list. Default excludes IGNORED."
         ),
     )
-    severity: list[IncidentSeverity] | None = Field(
+    severity: list[IncidentSeverityFilter] | None = Field(
         default=DEFAULT_SEVERITIES,
         description=(
             "Filter by severity. Values: critical, high, medium, low, info, unknown. "
             "Accepts a single value or a list. Default excludes LOW and INFO."
         ),
     )
-    validity: list[IncidentValidity] | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=DEFAULT_VALIDITIES,
         description=(
             "Filter by validity. Values: valid, invalid, failed_to_check, no_checker, unknown. "
@@ -196,11 +197,7 @@ class ListPublicIncidentsParams(BaseModel):
     @field_validator("status", "severity", "validity", mode="before")
     @classmethod
     def coerce_to_list(cls, v: Any) -> list[Any] | None:
-        if v is None:
-            return None
-        if isinstance(v, list):
-            return v
-        return [v]
+        return coerce_to_list(v)
 
 
 class ListPublicIncidentsResult(BaseModel):
@@ -234,11 +231,11 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     if params.assignee_id is not None:
         filters["assignee_id"] = params.assignee_id
     if params.status:
-        filters["status"] = [s.value if hasattr(s, "value") else s for s in params.status]
+        filters["status"] = params.status
     if params.severity:
-        filters["severity"] = [s.value if hasattr(s, "value") else s for s in params.severity]
+        filters["severity"] = params.severity
     if params.validity:
-        filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
+        filters["validity"] = params.validity
     if params.tags:
         filters["tags"] = params.tags
     if params.custom_tags:

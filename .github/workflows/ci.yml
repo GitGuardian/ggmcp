@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-groups
 
+      - name: Verify OpenAPI-generated filter vocabulary
+        run: python scripts/generate_filter_vocabulary.py --check
+
       - name: Run ruff check
         run: uv run ruff check .
 
