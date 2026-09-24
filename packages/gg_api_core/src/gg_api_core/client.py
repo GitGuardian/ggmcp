@@ -3,7 +3,7 @@ import json
 import logging
 import re
 import time
-from collections.abc import Awaitable, Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional, TypedDict, cast
@@ -12,7 +12,12 @@ from urllib.parse import quote_plus, unquote, urlparse
 import httpx
 from pydantic import TypeAdapter, ValidationError
 
-from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
+from gg_api_core.log_context import (
+    record_downstream_call,
+    record_downstream_wait,
+    record_truncation,
+)
+from gg_api_core.tool_context import current_tool_name
 from gg_api_core.settings import get_settings
 from gg_api_core.version import APP_VERSION
 
@@ -347,7 +352,7 @@ class GitGuardianClient:
         gitguardian_url: str | None = None,
         personal_access_token: str | None = None,
         allow_token_refresh: bool = False,
-        user_agent: str | None = None,
+        user_agent: Callable[[], str] | None = None,
     ):
         """Initialize the GitGuardian client.
 
@@ -360,16 +365,30 @@ class GitGuardianClient:
             allow_token_refresh: If True, the client can attempt to refresh the
                 token when a 401 error occurs (via env var or OAuth flow).
                 This enables self-healing when tokens expire or become invalid.
-            user_agent: Custom User-Agent string to identify the MCP client.
-                Defaults to DEFAULT_USER_AGENT if not provided.
+            user_agent: Zero-argument callable returning the User-Agent used to
+                identify the MCP client. Evaluated on every request so a
+                long-lived client reflects per-request context.
+                Defaults to a callable returning DEFAULT_USER_AGENT.
         """
         logger.debug("Initializing GitGuardian client")
 
         self._init_urls(gitguardian_url)
         self._oauth_token = personal_access_token
         self._allow_token_refresh = allow_token_refresh
-        self._user_agent = user_agent or self.DEFAULT_USER_AGENT
+        self._user_agent = user_agent or (lambda: self.DEFAULT_USER_AGENT)
         self._token_info: Any | None = None
+
+    def _base_headers(self) -> dict[str, str]:
+        headers = {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self._user_agent(),
+            "X-Privacy-Mode": "true",
+        }
+        tool_name = current_tool_name()
+        if tool_name:
+            headers["X-GG-MCP-Tool"] = tool_name
+        return headers
 
     def _init_urls(self, gitguardian_url: str | None = None):
         from .urls import derive_public_api_url
@@ -529,12 +548,7 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers()
         logger.debug("Using token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
@@ -795,12 +809,7 @@ class GitGuardianClient:
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making list request to {url}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers()
         headers.update(kwargs.pop("headers", {}))
 
         async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
