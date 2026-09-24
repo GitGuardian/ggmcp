@@ -1,5 +1,5 @@
 """Behavior of the local (stdio) server: PAT-from-env auth, startup scope
-caching, 401 self-healing, and local git introspection.
+caching, 401 self-healing, and transport-agnostic git source resolution.
 
 The server is exercised through an in-memory FastMCP client, which runs the
 same lifespan, middleware and tools as a stdio session; the raw stdio framing
@@ -7,7 +7,6 @@ itself is covered by test_stdio_transport.py. As in the remote suite, only
 the outbound GitGuardian API is faked with respx.
 """
 
-import subprocess
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -360,35 +359,32 @@ class TestSingleTenantSelfHealing:
 
 
 class TestLocalGitIntrospection:
-    """Local-repository behavior available specifically to the stdio server."""
+    """GitGuardian source resolution is transport-agnostic for stdio.
 
-    async def test_find_current_source_id_reads_the_local_git_remote(
+    The local (stdio) server no longer shells out to git; it resolves the
+    repository name solely from ``remote_url`` exactly like the hosted (HTTP)
+    server, so both transports share one code path.
+    """
+
+    async def test_find_current_source_id_resolves_from_remote_url(
         self,
         stdio_env: None,
         gg_api: Any,
         mock_token_scopes: Any,
-        tmp_path: Path,
     ) -> None:
         """
-        GIVEN a local git repository with an origin remote
-        WHEN find_current_source_id is called with its path (stdio server can
-             shell out, unlike the hosted server)
-        THEN the workspace sources are searched by the repository name and the
-             matching source id is returned
+        GIVEN a stdio server and a remote_url supplied by the agent
+        WHEN find_current_source_id is called with that remote_url
+        THEN the workspace sources are searched by the bare repository name and
+             the matching source id is returned (same as on the hosted server)
         """
-        repo = tmp_path / "widget-factory"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/widget-factory.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
         route = gg_api.get("/sources").respond(200, json=[{"id": 99, "name": "widget-factory"}])
 
         async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
+            result = await client.call_tool(
+                "find_current_source_id",
+                {"remote_url": "git@github.com:acme/widget-factory.git"},
+            )
 
         assert dict(route.calls.last.request.url.params) == {"search": "widget-factory", "per_page": "50"}
         assert result.structured_content is not None
@@ -396,31 +392,45 @@ class TestLocalGitIntrospection:
         assert output["source_id"] == 99
         assert output["repository_name"] == "widget-factory"
 
+    async def test_find_current_source_id_without_remote_url_returns_the_suggestion(
+        self,
+        stdio_env: None,
+        gg_api: Any,
+        mock_token_scopes: Any,
+    ) -> None:
+        """
+        GIVEN a stdio server and no remote_url
+        WHEN find_current_source_id is called without arguments
+        THEN it returns the same run-git-yourself suggestion as the hosted server
+             and does not touch the API
+        """
+        async with Client(build_server()) as client:
+            result = await client.call_tool("find_current_source_id", {})
+
+        assert result.structured_content is not None
+        output = result.structured_content["result"]
+        assert "git config --get remote.origin.url" in output["suggestion"]
+        assert output["message"] == "The repository could not be detected server-side."
+        assert not [call for call in gg_api.calls if call.request.url.path == "/v1/sources"]
+
     async def test_find_current_source_id_reports_when_no_source_matches(
         self,
         stdio_env: None,
         gg_api: Any,
         mock_token_scopes: Any,
-        tmp_path: Path,
     ) -> None:
         """
-        GIVEN a local git repository that has no matching GitGuardian source
-        WHEN find_current_source_id searches for its origin repository name
+        GIVEN a remote_url for a repository that has no matching GitGuardian source
+        WHEN find_current_source_id searches for its repository name
         THEN it returns a useful not-found error rather than a source id
         """
-        repo = tmp_path / "unmonitored-repository"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/unmonitored-repository.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
         route = gg_api.get("/sources").respond(200, json=[])
 
         async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
+            result = await client.call_tool(
+                "find_current_source_id",
+                {"remote_url": "git@github.com:acme/unmonitored-repository.git"},
+            )
 
         assert route.call_count == 1
         assert dict(route.calls.last.request.url.params) == {
