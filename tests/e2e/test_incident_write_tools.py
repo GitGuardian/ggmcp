@@ -107,6 +107,167 @@ class TestUpdateIncidentSeverity:
         assert tool_output(result) == {"id": 42, "severity": "high"}
 
 
+class TestManageIncidentCustomTags:
+    async def test_add_merges_into_existing_tags(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident that already carries tags and an additive tag request
+        WHEN manage_incident_custom_tags is called
+        THEN the incident is read first, then PATCHed with the merged union set
+             (existing tags preserved, new tag appended)
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={
+                "id": 42,
+                "custom_tags": [
+                    {"key": "team", "value": "red"},
+                    {"key": "env", "value": "prod"},
+                ],
+            },
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        result = await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {"params": {"incident_id": 42, "custom_tags": ["status:reviewed"]}},
+        )
+
+        assert sent_body(patch_route) == {
+            "custom_tags": [
+                {"key": "team", "value": "red"},
+                {"key": "env", "value": "prod"},
+                {"key": "status", "value": "reviewed"},
+            ]
+        }
+        assert tool_output(result) == {"id": 42}
+
+    async def test_add_does_not_duplicate_an_existing_tag(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident already carrying env:prod
+        WHEN adding env:prod again
+        THEN the PATCH payload contains it exactly once
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={"id": 42, "custom_tags": [{"key": "env", "value": "prod"}]},
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {
+                "params": {
+                    "incident_id": 42,
+                    "custom_tags": ["env:prod", "env:prod"],
+                }
+            },
+        )
+
+        assert sent_body(patch_route) == {"custom_tags": [{"key": "env", "value": "prod"}]}
+
+    async def test_remove_unlinks_only_the_requested_tags(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident carrying multiple tags
+        WHEN removing a subset
+        THEN the PATCH payload keeps the remaining tags and drops the requested one
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={
+                "id": 42,
+                "custom_tags": [
+                    {"key": "team", "value": "red"},
+                    {"key": "env", "value": "prod"},
+                ],
+            },
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {
+                "params": {
+                    "incident_id": 42,
+                    "action": "remove",
+                    "custom_tags": ["env:prod"],
+                }
+            },
+        )
+
+        assert sent_body(patch_route) == {"custom_tags": [{"key": "team", "value": "red"}]}
+
+    async def test_removing_all_tags_clears_the_set(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident carrying tags and a remove of every one of them
+        WHEN manage_incident_custom_tags is called
+        THEN the PATCH carries custom_tags=[] so the API clears the whole set
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={"id": 42, "custom_tags": [{"key": "env", "value": "prod"}]},
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {
+                "params": {
+                    "incident_id": 42,
+                    "action": "remove",
+                    "custom_tags": ["env:prod"],
+                }
+            },
+        )
+
+        assert sent_body(patch_route) == {"custom_tags": []}
+
+    async def test_set_replaces_the_whole_set(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident carrying existing tags
+        WHEN setting a new set
+        THEN the PATCH payload is exactly the requested tags
+        """
+        gg_api.get("/incidents/secrets/42").respond(
+            200,
+            json={
+                "id": 42,
+                "custom_tags": [
+                    {"key": "team", "value": "red"},
+                    {"key": "env", "value": "prod"},
+                ],
+            },
+        )
+        patch_route = gg_api.patch("/incidents/secrets/42").respond(
+            200, json={"id": 42}
+        )
+
+        await call_tool(
+            mcp_client,
+            "manage_incident_custom_tags",
+            {
+                "params": {
+                    "incident_id": 42,
+                    "action": "set",
+                    "custom_tags": ["status:reviewed"],
+                }
+            },
+        )
+
+        assert sent_body(patch_route) == {"custom_tags": [{"key": "status", "value": "reviewed"}]}
+
+
 class TestAssignIncident:
     async def test_mine_assigns_to_the_callers_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """

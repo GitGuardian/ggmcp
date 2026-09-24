@@ -81,7 +81,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "revoke_secret",
     "scan_secrets",
     "update_incident_severity",
-    "update_or_create_incident_custom_tags",
+    "manage_incident_custom_tags",
     "update_public_incident_status",
     "write_custom_tags",
 }
