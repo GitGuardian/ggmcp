@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1](https://github.com/GitGuardian/ggmcp/compare/v0.7.0...v0.7.1) (2026-10-07)
+
+
+### Bug Fixes
+
+* **custom_tags:** drop the redundant pre-create POST /custom_tags loop (SI-3933) ([#219](https://github.com/GitGuardian/ggmcp/issues/219)) ([73b6c8b](https://github.com/GitGuardian/ggmcp/commit/73b6c8b6d59e4e28b798eee7996f4b1cc8fe6ba1))
+* **deps:** bump anyio to 4.14.2 ([#233](https://github.com/GitGuardian/ggmcp/issues/233)) ([c149bb2](https://github.com/GitGuardian/ggmcp/commit/c149bb2dfbb3a02d61d88fe1328cc0fbe3b3c4d0))
+
 ## [0.7.0](https://github.com/GitGuardian/ggmcp/compare/v0.6.10...v0.7.0) (2026-08-18)
 
 
