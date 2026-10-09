@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/GitGuardian/ggmcp/compare/v0.7.1...v0.7.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** bump pyjwt to 2.14.0 ([#235](https://github.com/GitGuardian/ggmcp/issues/235)) ([10888c2](https://github.com/GitGuardian/ggmcp/commit/10888c2f54b85367d54f6cf76739793529f93ef6))
+
 ## [0.7.1](https://github.com/GitGuardian/ggmcp/compare/v0.7.0...v0.7.1) (2026-10-07)
 
 
