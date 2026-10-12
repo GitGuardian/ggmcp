@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2](https://github.com/GitGuardian/ggmcp/compare/v0.7.1...v0.7.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* **deps:** bump pyjwt to 2.14.0 ([#235](https://github.com/GitGuardian/ggmcp/issues/235)) ([10888c2](https://github.com/GitGuardian/ggmcp/commit/10888c2f54b85367d54f6cf76739793529f93ef6))
+* **deps:** bump urllib3 to 2.8.0 ([#234](https://github.com/GitGuardian/ggmcp/issues/234)) ([7ae3740](https://github.com/GitGuardian/ggmcp/commit/7ae3740ee55da3e492180d712fe085458d44b7a0))
+
 ## [0.7.1](https://github.com/GitGuardian/ggmcp/compare/v0.7.0...v0.7.1) (2026-10-07)
 
 
