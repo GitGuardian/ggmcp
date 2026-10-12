@@ -98,6 +98,10 @@ async def _track_api_request(
 
 DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else "GitGuardian-MCP-Server"
 
+# Honeytokens are decoys the caller must plant, so their values must reach the MCP
+# response unmasked: these calls opt out of the default privacy mode.
+HONEYTOKEN_HEADERS = {"X-Privacy-Mode": "false"}
+
 
 def _to_date_only(value: str) -> str:
     """Normalize a date/datetime string to its ``YYYY-MM-DD`` portion."""
@@ -837,6 +841,7 @@ class GitGuardianClient:
         endpoint: str,
         params: dict[str, Any] | None = None,
         max_bytes: int = DEFAULT_PAGINATION_MAX_BYTES,
+        headers: dict[str, str] | None = None,
     ) -> PaginatedResult:
         """Fetch all pages of results using cursor-based pagination.
 
@@ -847,6 +852,7 @@ class GitGuardianClient:
             params: Query parameters to include in the request
             max_bytes: Maximum total bytes of JSON data to accumulate (default: 20KB).
                       When this limit is reached, pagination stops and truncated=True is returned.
+            headers: Extra headers sent with every page request
 
         Returns:
             PaginatedResult with data, cursor, has_more, truncated info, and total_bytes
@@ -894,7 +900,7 @@ class GitGuardianClient:
             logger.debug(f"Making paginated request to: {full_endpoint}")
 
             # Use _request_list for standardized response handling
-            response = await self._request_list(full_endpoint)
+            response = await self._request_list(full_endpoint, headers=headers or {})
 
             # Handle empty responses
             if not response["data"]:
@@ -973,7 +979,9 @@ class GitGuardianClient:
 
         # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
         # the caller, so it should not be logged as a server fault.
-        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400])
+        return await self._request_post(
+            "/honeytokens", json=data, expected_client_errors=[400], headers=HONEYTOKEN_HEADERS
+        )
 
     async def create_honeytoken_with_context(
         self,
@@ -1014,7 +1022,7 @@ class GitGuardianClient:
         if project_extensions:
             data["project_extensions"] = project_extensions
 
-        return await self._request_post("/honeytokens/with-context", json=data)
+        return await self._request_post("/honeytokens/with-context", json=data, headers=HONEYTOKEN_HEADERS)
 
     async def get_honeytoken(self, honeytoken_id: str, show_token: bool = True) -> dict[str, Any]:
         """Get details for a specific honeytoken.
@@ -1027,7 +1035,9 @@ class GitGuardianClient:
             Honeytoken data
         """
         logger.info(f"Getting honeytoken details for ID: {honeytoken_id}")
-        return await self._request_get(f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}")
+        return await self._request_get(
+            f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}", headers=HONEYTOKEN_HEADERS
+        )
 
     async def list_incidents(
         self,
@@ -1279,13 +1289,13 @@ class GitGuardianClient:
 
         if get_all:
             # When get_all=True, return paginated result with truncation metadata
-            return await self.paginate_all(endpoint, params)
+            return await self.paginate_all(endpoint, params, headers=HONEYTOKEN_HEADERS)
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 
-        return await self._request_list(endpoint)
+        return await self._request_list(endpoint, headers=HONEYTOKEN_HEADERS)
 
     async def revoke_honeytoken(self, honeytoken_id: str) -> dict[str, Any]:
         """Revoke a honeytoken.

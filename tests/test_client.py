@@ -259,6 +259,7 @@ class TestGitGuardianClient:
                     "custom_tags": [{"key": "test", "value": "value"}],
                 },
                 expected_client_errors=[400],
+                headers={"X-Privacy-Mode": "false"},
             )
 
             # Assert response
@@ -283,7 +284,9 @@ class TestGitGuardianClient:
             result = await client.get_honeytoken("test_id", show_token=True)
 
             # Assert _request was called with correct parameters
-            mock_request.assert_called_once_with("GET", "/honeytokens/test_id?show_token=true")
+            mock_request.assert_called_once_with(
+                "GET", "/honeytokens/test_id?show_token=true", headers={"X-Privacy-Mode": "false"}
+            )
 
             # Assert response
             assert result == expected_response
@@ -607,6 +610,8 @@ class TestCursorPagination:
         with patch("httpx.AsyncClient", return_value=async_client_instance):
             result = await client.list_honeytokens(get_all=False)
 
+            # Honeytokens must come back unmasked so they can be planted
+            assert mock_httpx_client.get.call_args.kwargs["headers"]["X-Privacy-Mode"] == "false"
             assert "data" in result
             assert "cursor" in result
             assert "has_more" in result
