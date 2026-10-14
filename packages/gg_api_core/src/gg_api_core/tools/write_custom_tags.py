@@ -1,9 +1,10 @@
 import logging
-from typing import Any, Literal
+from typing import Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.custom_tags import parse_tag
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -53,14 +54,7 @@ async def write_custom_tags(params: WriteCustomTagsParams):
             if not params.tag:
                 raise ValueError("tag is required when action is 'create_tag'")
 
-            # Parse the tag format "key" or "key:value"
-            if ":" in params.tag:
-                key, value = params.tag.split(":", 1)
-            else:
-                key = params.tag
-                value = None
-
-            # Value is optional for label-only tags
+            key, value = parse_tag(params.tag)
             logger.debug(f"Creating custom tag with key: {key}, value: {value or 'None (label only)'}")
             return await client.create_custom_tag(key, value)
 
@@ -74,57 +68,4 @@ async def write_custom_tags(params: WriteCustomTagsParams):
             raise ValueError(f"Invalid action: {params.action}. Must be one of ['create_tag', 'delete_tag']")
     except Exception as e:
         logger.exception(f"Error writing custom tags: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
-
-
-class UpdateOrCreateIncidentCustomTagsParams(BaseModel):
-    """Parameters for updating or creating incident custom tags."""
-
-    incident_id: str | int = Field(description="ID of the secret incident")
-    custom_tags: list[str] = Field(
-        description='List of custom tags to apply to the incident. Format: "key" or "key:value"'
-    )
-
-
-async def update_or_create_incident_custom_tags(params: UpdateOrCreateIncidentCustomTagsParams) -> dict[str, Any]:
-    """
-    Update a secret incident with custom tags, creating tags if they don't exist.
-
-    Custom tags can be in two formats:
-    - "key" (creates a label without a value)
-    - "key:value" (creates a label with a value)
-
-    Args:
-        params: UpdateOrCreateIncidentCustomTagsParams model containing custom tags configuration
-
-    Returns:
-        Updated incident data
-    """
-    client = await get_client()
-    logger.debug(f"Updating custom tags for incident {params.incident_id}")
-
-    try:
-        # Parse custom tags into the format expected by update_incident
-        parsed_tags = []
-        for tag in params.custom_tags:
-            if ":" in tag:
-                # Split by first occurrence of ":"
-                key, value = tag.split(":", 1)
-            else:
-                # Tag is just a key with no value
-                key = tag
-                value = None
-            parsed_tags.append({"key": key, "value": value})
-
-        # The incident PATCH endpoint creates any missing tags itself, so no
-        # pre-create call is needed here.
-        result = await client.update_incident(
-            incident_id=str(params.incident_id),
-            custom_tags=parsed_tags,
-        )
-
-        logger.debug(f"Updated custom tags for incident {params.incident_id}")
-        return result
-    except Exception as e:
-        logger.exception(f"Error updating custom tags: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
