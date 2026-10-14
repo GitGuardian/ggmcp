@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/GitGuardian/ggmcp/compare/v0.7.2...v0.7.3) (2026-10-14)
+
+
+### Bug Fixes
+
+* **honeytokens:** return honeytoken values unmasked ([#237](https://github.com/GitGuardian/ggmcp/issues/237)) ([701f72e](https://github.com/GitGuardian/ggmcp/commit/701f72ee2e8694aad94b3d74d59c3d0a4d90125d))
+
 ## [0.7.2](https://github.com/GitGuardian/ggmcp/compare/v0.7.1...v0.7.2) (2026-10-12)
 
 
