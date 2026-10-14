@@ -5,6 +5,8 @@ import httpx
 import pytest
 from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
 
+HONEYTOKEN_ID = "00000000-0000-4000-8000-000000000001"
+
 
 @pytest.fixture
 def client():
@@ -259,7 +261,7 @@ class TestGitGuardianClient:
                     "custom_tags": [{"key": "test", "value": "value"}],
                 },
                 expected_client_errors=[400],
-                headers={"X-Privacy-Mode": "false"},
+                privacy_mode=False,
             )
 
             # Assert response
@@ -267,6 +269,14 @@ class TestGitGuardianClient:
             assert result["id"] == "test_id"
             assert result["name"] == "Test Token"
             assert result["token"] == "AKIAXXXXXXXXXXXXXXXX"
+
+    @pytest.mark.asyncio
+    async def test_get_honeytoken_rejects_non_uuid_id(self, client):
+        """A path-shaped ID must not escape /honeytokens/{id} on an unmasked request."""
+        with patch.object(client, "_request", AsyncMock()) as mock_request:
+            with pytest.raises(ValueError):
+                await client.get_honeytoken("../api_tokens/self")
+            mock_request.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_get_honeytoken(self, client):
@@ -281,11 +291,11 @@ class TestGitGuardianClient:
         }
 
         with patch.object(client, "_request", AsyncMock(return_value=expected_response)) as mock_request:
-            result = await client.get_honeytoken("test_id", show_token=True)
+            result = await client.get_honeytoken(HONEYTOKEN_ID, show_token=True)
 
             # Assert _request was called with correct parameters
             mock_request.assert_called_once_with(
-                "GET", "/honeytokens/test_id?show_token=true", headers={"X-Privacy-Mode": "false"}
+                "GET", f"/honeytokens/{HONEYTOKEN_ID}?show_token=true", privacy_mode=False
             )
 
             # Assert response
@@ -607,11 +617,12 @@ class TestCursorPagination:
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
 
-        with patch("httpx.AsyncClient", return_value=async_client_instance):
+        with patch("httpx.AsyncClient", return_value=async_client_instance) as httpx_async_client:
             result = await client.list_honeytokens(get_all=False)
 
-            # Honeytokens must come back unmasked so they can be planted
+            # Honeytokens must come back unmasked so they can be planted, without following redirects
             assert mock_httpx_client.get.call_args.kwargs["headers"]["X-Privacy-Mode"] == "false"
+            assert httpx_async_client.call_args.kwargs["follow_redirects"] is False
             assert "data" in result
             assert "cursor" in result
             assert "has_more" in result

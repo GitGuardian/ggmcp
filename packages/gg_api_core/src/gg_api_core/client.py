@@ -8,6 +8,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional, TypedDict, cast
 from urllib.parse import quote_plus, unquote, urlparse
+from uuid import UUID
 
 import httpx
 from pydantic import TypeAdapter, ValidationError
@@ -97,10 +98,6 @@ async def _track_api_request(
 
 
 DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else "GitGuardian-MCP-Server"
-
-# Honeytokens are decoys the caller must plant, so their values must reach the MCP
-# response unmasked: these calls opt out of the default privacy mode.
-HONEYTOKEN_HEADERS = {"X-Privacy-Mode": "false"}
 
 
 def _to_date_only(value: str) -> str:
@@ -375,6 +372,15 @@ class GitGuardianClient:
         self._user_agent = user_agent or self.DEFAULT_USER_AGENT
         self._token_info: Any | None = None
 
+    def _base_headers(self, *, privacy_mode: bool = True) -> dict[str, str]:
+        """Build request-local headers, keeping privacy enabled by default."""
+        return {
+            "Authorization": f"Token {self._oauth_token}",
+            "Content-Type": "application/json",
+            "User-Agent": self._user_agent,
+            "X-Privacy-Mode": "true" if privacy_mode else "false",
+        }
+
     def _init_urls(self, gitguardian_url: str | None = None):
         from .urls import derive_public_api_url
 
@@ -497,13 +503,21 @@ class GitGuardianClient:
             return False
 
     async def _request(
-        self, method: str, endpoint: str, *, expected_client_errors: Sequence[int] = (), **kwargs: Any
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        privacy_mode: bool = True,
+        expected_client_errors: Sequence[int] = (),
+        **kwargs: Any,
     ) -> Any:
         """Make a request to the GitGuardian API (generic method).
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint path
+            privacy_mode: Mask credentials in API responses. Defaults to True.
+                Opt-out requests do not follow redirects or log response bodies.
             expected_client_errors: Status codes (e.g. [400]) that this caller handles
                 itself and surfaces to the user; they are logged at warning instead of
                 exception so they don't become Sentry noise. List only the codes the
@@ -533,12 +547,7 @@ class GitGuardianClient:
                     safe_json[key] = "[REDACTED]"
             logger.debug(f"Request body: {safe_json}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers(privacy_mode=privacy_mode)
         logger.debug("Using token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
@@ -553,7 +562,7 @@ class GitGuardianClient:
 
         while retry_count <= max_retries:
             try:
-                async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
+                async with httpx.AsyncClient(follow_redirects=privacy_mode, timeout=DEFAULT_HTTP_TIMEOUT) as client:
                     logger.debug(f"Sending {method} request to {url}")
                     response = await _track_api_request(
                         method,
@@ -566,8 +575,8 @@ class GitGuardianClient:
                 logger.debug(f"Response status code: {response.status_code}")
                 logger.debug(f"Response headers: {dict(response.headers)}")
 
-                # Log response content if present
-                if response.content:
+                # Never log response bodies when privacy mode is disabled.
+                if privacy_mode and response.content:
                     try:
                         # Limit content length for logging
                         content_str = response.content.decode()
@@ -614,7 +623,8 @@ class GitGuardianClient:
                     return data
                 except json.JSONDecodeError as e:
                     logger.exception(f"Failed to parse JSON response: {str(e)}")
-                    logger.debug(f"Raw response content: {response.content!r}")
+                    if privacy_mode:
+                        logger.debug(f"Raw response content: {response.content!r}")
                     raise
 
             except httpx.HTTPStatusError as e:
@@ -670,7 +680,8 @@ class GitGuardianClient:
                     )
                 else:
                     logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
-                logger.debug(f"Error response content: {e.response.text}")
+                if privacy_mode:
+                    logger.debug(f"Error response content: {e.response.text}")
                 logger.debug(f"Failed URL: {url}")
                 if e.response.status_code == 401:
                     raise DownstreamUnauthorizedError(f"GitGuardian API returned 401 for {url}") from e
@@ -782,7 +793,7 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("DELETE", endpoint, **kwargs))
 
-    async def _request_list(self, endpoint: str, **kwargs: Any) -> ListResponse:
+    async def _request_list(self, endpoint: str, *, privacy_mode: bool = True, **kwargs: Any) -> ListResponse:
         """Make a request to a list endpoint that returns standardized ListResponse.
 
         This method handles list endpoints that may return either a list directly or
@@ -791,6 +802,8 @@ class GitGuardianClient:
 
         Args:
             endpoint: API endpoint path
+            privacy_mode: Mask credentials in API responses. Defaults to True.
+                Opt-out requests do not follow redirects.
             **kwargs: Additional arguments to pass to the request
 
         Returns:
@@ -799,15 +812,10 @@ class GitGuardianClient:
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
         logger.debug(f"Making list request to {url}")
 
-        headers = {
-            "Authorization": f"Token {self._oauth_token}",
-            "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
-            "X-Privacy-Mode": "true",
-        }
+        headers = self._base_headers(privacy_mode=privacy_mode)
         headers.update(kwargs.pop("headers", {}))
 
-        async with httpx.AsyncClient(follow_redirects=True, timeout=DEFAULT_HTTP_TIMEOUT) as client:
+        async with httpx.AsyncClient(follow_redirects=privacy_mode, timeout=DEFAULT_HTTP_TIMEOUT) as client:
             response = await _track_api_request(
                 "GET",
                 endpoint,
@@ -841,7 +849,8 @@ class GitGuardianClient:
         endpoint: str,
         params: dict[str, Any] | None = None,
         max_bytes: int = DEFAULT_PAGINATION_MAX_BYTES,
-        headers: dict[str, str] | None = None,
+        *,
+        privacy_mode: bool = True,
     ) -> PaginatedResult:
         """Fetch all pages of results using cursor-based pagination.
 
@@ -852,7 +861,7 @@ class GitGuardianClient:
             params: Query parameters to include in the request
             max_bytes: Maximum total bytes of JSON data to accumulate (default: 20KB).
                       When this limit is reached, pagination stops and truncated=True is returned.
-            headers: Extra headers sent with every page request
+            privacy_mode: Privacy policy applied to every page. Defaults to True.
 
         Returns:
             PaginatedResult with data, cursor, has_more, truncated info, and total_bytes
@@ -900,7 +909,7 @@ class GitGuardianClient:
             logger.debug(f"Making paginated request to: {full_endpoint}")
 
             # Use _request_list for standardized response handling
-            response = await self._request_list(full_endpoint, headers=headers or {})
+            response = await self._request_list(full_endpoint, privacy_mode=privacy_mode)
 
             # Handle empty responses
             if not response["data"]:
@@ -979,9 +988,7 @@ class GitGuardianClient:
 
         # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
         # the caller, so it should not be logged as a server fault.
-        return await self._request_post(
-            "/honeytokens", json=data, expected_client_errors=[400], headers=HONEYTOKEN_HEADERS
-        )
+        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400], privacy_mode=False)
 
     async def create_honeytoken_with_context(
         self,
@@ -1022,7 +1029,7 @@ class GitGuardianClient:
         if project_extensions:
             data["project_extensions"] = project_extensions
 
-        return await self._request_post("/honeytokens/with-context", json=data, headers=HONEYTOKEN_HEADERS)
+        return await self._request_post("/honeytokens/with-context", json=data, privacy_mode=False)
 
     async def get_honeytoken(self, honeytoken_id: str, show_token: bool = True) -> dict[str, Any]:
         """Get details for a specific honeytoken.
@@ -1034,9 +1041,10 @@ class GitGuardianClient:
         Returns:
             Honeytoken data
         """
+        honeytoken_id = str(UUID(honeytoken_id))
         logger.info(f"Getting honeytoken details for ID: {honeytoken_id}")
         return await self._request_get(
-            f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}", headers=HONEYTOKEN_HEADERS
+            f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}", privacy_mode=False
         )
 
     async def list_incidents(
@@ -1289,13 +1297,13 @@ class GitGuardianClient:
 
         if get_all:
             # When get_all=True, return paginated result with truncation metadata
-            return await self.paginate_all(endpoint, params, headers=HONEYTOKEN_HEADERS)
+            return await self.paginate_all(endpoint, params, privacy_mode=False)
 
         query_string = "&".join([f"{k}={v}" for k, v in params.items()])
         if query_string:
             endpoint = f"{endpoint}?{query_string}"
 
-        return await self._request_list(endpoint, headers=HONEYTOKEN_HEADERS)
+        return await self._request_list(endpoint, privacy_mode=False)
 
     async def revoke_honeytoken(self, honeytoken_id: str) -> dict[str, Any]:
         """Revoke a honeytoken.
