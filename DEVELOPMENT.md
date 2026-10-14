@@ -66,6 +66,16 @@ ggmcp/
 └── DEVELOPMENT.md           # This file
 ```
 
+## OpenAPI-generated filter vocabulary
+
+Incident status, severity, validity, and source-type values are generated from the public GitGuardian OpenAPI specification:
+
+```bash
+python scripts/generate_filter_vocabulary.py
+```
+
+This updates `packages/gg_api_core/src/gg_api_core/generated_filter_vocabulary.py`. CI runs the generator with `--check`; do not edit the generated module directly. Private `/incidents-for-mcp` wire mappings remain explicit in `incident_filter_adapters.py` because that endpoint is not part of the public specification.
+
 ## Adding a New Tool
 
 To add a new tool to the MCP server:

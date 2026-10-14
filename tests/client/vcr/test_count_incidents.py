@@ -46,11 +46,11 @@ class TestCountIncidentsForMcp:
     async def test_count_incidents_for_mcp_with_severity_filter(self, real_client, use_cassette):
         """
         GIVEN a valid GitGuardian API key
-        WHEN we request incident count with severity 10 (critical) and 20 (high)
+        WHEN we request incident count with critical and high severity
         THEN we should receive a count reflecting that filter
         """
         with use_cassette("test_count_incidents_for_mcp_with_severity_filter"):
-            result = await real_client.count_incidents_for_mcp(severity=[10, 20])
+            result = await real_client.count_incidents_for_mcp(severity=["critical", "high"])
 
             assert result is not None
             assert "count" in result
@@ -67,7 +67,7 @@ class TestCountIncidentsForMcp:
         with use_cassette("test_count_incidents_for_mcp_with_combined_filters"):
             result = await real_client.count_incidents_for_mcp(
                 status=["TRIGGERED", "ASSIGNED"],
-                severity=[10, 20],
+                severity=["critical", "high"],
                 validity=["valid"],
             )
 

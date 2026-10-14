@@ -1,9 +1,15 @@
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverityFilter,
+    IncidentStatusFilter,
+    IncidentValidityFilter,
+)
+from gg_api_core.incident_filters import coerce_to_list
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -73,29 +79,17 @@ class ListPublicOccurrencesParams(BaseModel):
     )
 
     # Related-incident filters
-    severity: str | None = Field(
+    severity: list[IncidentSeverityFilter] | None = Field(
         default=None,
-        description=(
-            "Filter occurrences by the severity of their related incident. "
-            "Comma-separated values allowed (e.g. 'critical,high'). "
-            "Options: critical, high, medium, low, info, unknown"
-        ),
+        description="Filter occurrences by related incident severity.",
     )
-    status: str | None = Field(
+    status: list[IncidentStatusFilter] | None = Field(
         default=None,
-        description=(
-            "Filter occurrences by the status of their related incident. "
-            "Comma-separated values allowed (e.g. 'TRIGGERED,ASSIGNED'). "
-            "Options: IGNORED, TRIGGERED, ASSIGNED, RESOLVED"
-        ),
+        description="Filter occurrences by related incident status.",
     )
-    validity: str | None = Field(
+    validity: list[IncidentValidityFilter] | None = Field(
         default=None,
-        description=(
-            "Filter occurrences by the validity of their related secret. "
-            "Comma-separated values allowed. "
-            "Options: valid, invalid, failed_to_check, no_checker, unknown"
-        ),
+        description="Filter occurrences by related secret validity.",
     )
     tags: str | None = Field(
         default=None,
@@ -109,6 +103,12 @@ class ListPublicOccurrencesParams(BaseModel):
         default="-date",
         description="Sort field with optional '-' prefix for descending. Options: id, -id, date, -date",
     )
+
+    @field_validator("severity", "status", "validity", mode="before")
+    @classmethod
+    def coerce_to_list(cls, value: Any) -> list[Any] | None:
+        """Accept a single value, a list, or a comma-separated string, and normalize to a list."""
+        return coerce_to_list(value)
 
 
 class ListPublicOccurrencesResult(BaseModel):

@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Generate incident filter types from the public GitGuardian OpenAPI specification."""
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+from urllib.request import Request, urlopen
+
+DEFAULT_SOURCE = "https://api.gitguardian.com/docs"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_OUTPUT = (
+    REPOSITORY_ROOT
+    / "packages"
+    / "gg_api_core"
+    / "src"
+    / "gg_api_core"
+    / "generated_filter_vocabulary.py"
+)
+
+FILTER_PARAMETERS = {
+    "IncidentSeverity": ("/v1/incidents/secrets", "severity"),
+    "IncidentSourceType": ("/v1/occurrences/secrets", "source_type"),
+    "IncidentStatus": ("/v1/incidents/secrets", "status"),
+    "IncidentValidity": ("/v1/incidents/secrets", "validity"),
+}
+
+
+def _read_source(source: str) -> str:
+    """Read an OpenAPI JSON document or the rendered API documentation page."""
+    if source.startswith(("http://", "https://")):
+        request = Request(source, headers={"User-Agent": "ggmcp-openapi-generator"})
+        with urlopen(request, timeout=30) as response:  # noqa: S310 - source is an explicit developer input
+            return response.read().decode()
+    return Path(source).read_text()
+
+
+def _load_spec(source: str) -> dict[str, Any]:
+    """Load OpenAPI JSON directly or extract it from Redoc's embedded state."""
+    content = _read_source(source)
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError:
+        marker = "const __redoc_state = "
+        marker_position = content.find(marker)
+        if marker_position < 0:
+            raise ValueError(f"{source!r} is neither OpenAPI JSON nor a supported Redoc page") from None
+        state, _ = json.JSONDecoder().raw_decode(content[marker_position + len(marker) :])
+        parsed = state["spec"]["data"]
+
+    if not isinstance(parsed, dict) or "paths" not in parsed:
+        raise ValueError(f"{source!r} does not contain an OpenAPI paths object")
+    return parsed
+
+
+def _find_enum(schema: dict[str, Any]) -> list[str] | None:
+    """Find the first string enum in an OpenAPI schema, including composed schemas."""
+    enum = schema.get("enum")
+    if isinstance(enum, list) and all(isinstance(value, str) for value in enum):
+        return enum
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        for nested_schema in schema.get(keyword, []):
+            nested_enum = _find_enum(nested_schema)
+            if nested_enum is not None:
+                return nested_enum
+    return None
+
+
+def _parameter_enum(spec: dict[str, Any], path: str, parameter_name: str) -> list[str]:
+    """Extract one query parameter's enum from an OpenAPI operation."""
+    try:
+        parameters = spec["paths"][path]["get"]["parameters"]
+    except KeyError as exc:
+        raise ValueError(f"OpenAPI operation GET {path} is missing") from exc
+
+    parameter = next(
+        (
+            candidate
+            for candidate in parameters
+            if candidate.get("in") == "query" and candidate.get("name") == parameter_name
+        ),
+        None,
+    )
+    if parameter is None:
+        raise ValueError(f"GET {path} has no {parameter_name!r} query parameter")
+
+    values = _find_enum(parameter.get("schema", {}))
+    if values is None:
+        raise ValueError(f"GET {path} parameter {parameter_name!r} has no string enum")
+    return values
+
+
+def _member_name(value: str) -> str:
+    """Convert an OpenAPI enum value into a valid uppercase Python member name."""
+    member_name = re.sub(r"[^A-Za-z0-9]+", "_", value).strip("_").upper()
+    if not member_name or member_name[0].isdigit():
+        member_name = f"VALUE_{member_name}"
+    return member_name
+
+
+def _render_type(name: str, values: list[str]) -> str:
+    """Render a generated StrEnum and matching Literal type alias."""
+    enum_lines = [f'class {name}(StrEnum):', f'    """Values generated from the public API {name} filter."""', ""]
+    enum_lines.extend(f"    {_member_name(value)} = {json.dumps(value)}" for value in values)
+
+    literal_lines = [f"{name}Filter: TypeAlias = Literal["]
+    literal_lines.extend(f"    {json.dumps(value)}," for value in values)
+    literal_lines.append("]")
+    return "\n".join([*enum_lines, "", "", *literal_lines])
+
+
+def generate_module(spec: dict[str, Any], source: str) -> str:
+    """Render the generated Python module for a parsed OpenAPI specification."""
+    generated_types = {
+        name: _parameter_enum(spec, path, parameter_name)
+        for name, (path, parameter_name) in FILTER_PARAMETERS.items()
+    }
+    exported_names = sorted(
+        name
+        for generated_name in generated_types
+        for name in (generated_name, f"{generated_name}Filter")
+    )
+    exports = "\n".join(f'    "{name}",' for name in exported_names)
+    rendered_types = "\n\n\n".join(
+        _render_type(name, values) for name, values in generated_types.items()
+    )
+    openapi_version = spec.get("info", {}).get("version", "unknown")
+
+    return f'''# Generated by scripts/generate_filter_vocabulary.py; DO NOT EDIT.
+# Source: {source}
+# OpenAPI info.version: {openapi_version}
+
+from enum import StrEnum
+from typing import Literal, TypeAlias
+
+__all__ = [
+{exports}
+]
+
+
+{rendered_types}
+'''
+
+
+def main() -> int:
+    """Generate the module or verify that the checked-in output is current."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", default=DEFAULT_SOURCE, help="OpenAPI JSON path/URL or rendered Redoc URL")
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Generated Python module path")
+    parser.add_argument("--check", action="store_true", help="Fail instead of writing when output is stale")
+    args = parser.parse_args()
+
+    generated = generate_module(_load_spec(args.source), args.source)
+    if args.check:
+        current = args.output.read_text() if args.output.exists() else None
+        if current != generated:
+            print(
+                f"{args.output} is stale; run scripts/generate_filter_vocabulary.py",
+                file=sys.stderr,
+            )
+            return 1
+        return 0
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(generated)
+    print(f"Generated {args.output}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

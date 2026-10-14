@@ -209,7 +209,7 @@ class TestCountIncidents:
         }
         output = unwrap_result(result)
         assert output["count"] == 1337
-        assert output["applied_filters"]["severity"] == [10, 20, 30, 100]
+        assert output["applied_filters"]["severity"] == ["critical", "high", "medium", "unknown"]
 
     async def test_count_mine_filters_on_the_resolved_member(self, mcp_client, gg_api, mock_token_scopes):
         """

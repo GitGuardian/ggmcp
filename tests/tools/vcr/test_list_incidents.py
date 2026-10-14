@@ -17,7 +17,6 @@ import pytest
 from gg_api_core.tools.list_incidents import (
     ListIncidentsParams,
     ListIncidentsResult,
-    SeverityValues,
     list_incidents,
 )
 
@@ -70,7 +69,7 @@ class TestListIncidentsCoercionVCR:
         WHEN: Calling list_incidents with a single severity value (not a list)
         THEN: The coercion converts it to a list and the API call succeeds
 
-        This tests that LLMs passing severity=10 instead of severity=[10]
+        This tests that LLMs passing severity="critical" instead of severity=["critical"]
         still works correctly.
         """
         with use_cassette("test_list_incidents_coerce_single_severity"):
@@ -78,15 +77,14 @@ class TestListIncidentsCoercionVCR:
                 "gg_api_core.tools.list_incidents.get_client",
                 return_value=real_client,
             ):
-                # Single int value for severity
                 params = ListIncidentsParams(
-                    severity=SeverityValues.CRITICAL,  # Single value: 10
+                    severity="critical",
                     page_size=5,
                     get_all=False,
                 )
 
                 # Verify coercion happened
-                assert params.severity == [SeverityValues.CRITICAL]
+                assert params.severity == ["critical"]
 
                 result = await list_incidents(params)
 
@@ -142,7 +140,7 @@ class TestListIncidentsCoercionVCR:
                 # This also tests that validity coercion works and uses a valid API value
                 params = ListIncidentsParams(
                     status="TRIGGERED",  # Single value - will be coerced to ["TRIGGERED"]
-                    severity=SeverityValues.CRITICAL,  # Single value - will be coerced to [10]
+                    severity="critical",  # Single value - will be coerced to ["critical"]
                     validity="valid",  # Single value - will be coerced to ["valid"]
                     exclude_tags="TEST_FILE",  # Single value - will be coerced to ["TEST_FILE"]
                     page_size=5,
@@ -151,7 +149,7 @@ class TestListIncidentsCoercionVCR:
 
                 # Verify all coercions happened
                 assert params.status == ["TRIGGERED"]
-                assert params.severity == [SeverityValues.CRITICAL]
+                assert params.severity == ["critical"]
                 assert params.validity == ["valid"]
                 assert params.exclude_tags == ["TEST_FILE"]
 

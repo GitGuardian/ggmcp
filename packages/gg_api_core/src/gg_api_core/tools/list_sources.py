@@ -5,6 +5,7 @@ from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
+from gg_api_core.generated_filter_vocabulary import IncidentSourceTypeFilter
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -37,33 +38,7 @@ class ListSourcesParams(BaseModel):
         default=None,
         description="Filter sources based on their health status",
     )
-    type: (
-        Literal[
-            "bitbucket",
-            "bitbucket_cloud",
-            "github",
-            "gitlab",
-            "azure_devops",
-            "slack",
-            "jira_cloud",
-            "confluence_cloud",
-            "microsoft_teams",
-            "confluence_data_center",
-            "jira_data_center",
-            "aws_ecr",
-            "azure_cr",
-            "google_artifact",
-            "jfrog_artifact",
-            "docker_hub",
-            "servicenow",
-            "sharepoint_online",
-            "sharepoint_online_drive",
-            "sharepoint_online_pages",
-            "microsoft_onedrive",
-            "custom_source",
-        ]
-        | None
-    ) = Field(
+    type: IncidentSourceTypeFilter | None = Field(
         default=None,
         description="Filter by source type (e.g., 'github', 'gitlab', 'bitbucket')",
     )

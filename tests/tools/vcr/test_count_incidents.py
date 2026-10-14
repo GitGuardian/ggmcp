@@ -16,7 +16,6 @@ from gg_api_core.tools.count_incidents import (
     CountIncidentsResult,
     count_incidents,
 )
-from gg_api_core.tools.list_incidents import SeverityValues
 
 
 class TestCountIncidentsVCR:
@@ -76,7 +75,7 @@ class TestCountIncidentsVCR:
                 "gg_api_core.tools.count_incidents.get_client",
                 return_value=real_client,
             ):
-                params = CountIncidentsParams(severity=[SeverityValues.CRITICAL])
+                params = CountIncidentsParams(severity=["critical"])
                 result = await count_incidents(params)
 
                 assert result is not None
@@ -98,7 +97,7 @@ class TestCountIncidentsVCR:
             ):
                 params = CountIncidentsParams(
                     status=["TRIGGERED", "ASSIGNED"],
-                    severity=[SeverityValues.CRITICAL, SeverityValues.HIGH],
+                    severity=["critical", "high"],
                     validity=["valid"],
                     exclude_tags=[],
                 )
@@ -125,13 +124,13 @@ class TestCountIncidentsVCR:
             ):
                 params = CountIncidentsParams(
                     status="TRIGGERED",
-                    severity=SeverityValues.CRITICAL,
+                    severity="critical",
                     validity="valid",
                 )
 
                 # Verify coercion happened
                 assert params.status == ["TRIGGERED"]
-                assert params.severity == [SeverityValues.CRITICAL]
+                assert params.severity == ["critical"]
                 assert params.validity == ["valid"]
 
                 result = await count_incidents(params)

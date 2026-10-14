@@ -164,3 +164,28 @@ class TestListPublicIncidents:
 
         assert hasattr(result, "error")
         assert "Failed to list public incidents" in result.error
+
+
+class TestListPublicIncidentsCoercion:
+    """Parametrized coercion tests for the public incidents status/severity/validity filters."""
+
+    @pytest.mark.parametrize(
+        ("field", "raw", "expected"),
+        [
+            ("severity", "critical", ["critical"]),
+            ("severity", "critical, high", ["critical", "high"]),
+            ("severity", ["critical", "unknown"], ["critical", "unknown"]),
+            ("status", "TRIGGERED", ["TRIGGERED"]),
+            ("status", "TRIGGERED,ASSIGNED", ["TRIGGERED", "ASSIGNED"]),
+            ("validity", "valid,unknown", ["valid", "unknown"]),
+            ("validity", "valid", ["valid"]),
+        ],
+    )
+    def test_coerce_filter_value(self, field, raw, expected):
+        """
+        GIVEN a single value, a CSV string, or a list for an enum filter
+        WHEN building ListPublicIncidentsParams
+        THEN the value is normalized to a canonical list
+        """
+        params = ListPublicIncidentsParams(**{field: raw})
+        assert getattr(params, field) == expected
