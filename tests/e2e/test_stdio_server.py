@@ -100,7 +100,7 @@ class TestPatEnvAuthentication:
         assert result.structured_content == {"incident": INCIDENT}
         assert_authenticated_request(scope_route, STDIO_PAT)
         assert_authenticated_request(route, STDIO_PAT)
-        assert "(transport=stdio)" in route.calls.last.request.headers["User-Agent"]
+        assert "transport=stdio" in route.calls.last.request.headers["User-Agent"]
 
     async def test_default_oauth_mode_still_uses_the_env_token_without_a_browser_flow(
         self,
@@ -213,7 +213,7 @@ class TestStartupScopeCache:
         # Unlike the remote server, which re-fetches scopes per tools/list.
         assert scope_route.call_count == 1
         assert_authenticated_request(scope_route, STDIO_PAT)
-        assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
+        assert "transport=stdio" in scope_route.calls.last.request.headers["User-Agent"]
 
     async def test_scan_only_token_prunes_the_catalog_at_startup(
         self,

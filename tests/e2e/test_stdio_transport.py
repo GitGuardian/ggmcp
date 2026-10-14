@@ -130,7 +130,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
     assert {request["authorization"] for request in api_requests} == {f"Token {STDIO_PAT}"}
     assert {request["privacy_mode"] for request in api_requests} == {"true"}
     assert all(
-        request["user_agent"] is not None and "(transport=stdio)" in request["user_agent"] for request in api_requests
+        request["user_agent"] is not None and "transport=stdio" in request["user_agent"] for request in api_requests
     )
 
     assert STDIO_PAT not in stderr_log.read_text()
