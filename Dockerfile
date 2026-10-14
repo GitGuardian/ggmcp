@@ -33,9 +33,6 @@ FROM ghcr.io/gitguardian/wolfi/python:3.13-shell
 # Switch to root for package installation
 USER root
 
-# Copy uv from builder
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-
 # Set working directory
 WORKDIR /app
 
@@ -50,7 +47,11 @@ COPY src ./src
 # `uv pip install <wheel>` ignores uv.lock and re-resolves each wheel's `~=` ranges at build
 # time, so rebuilds drift. Install the locked deps instead, then the wheels with --no-deps.
 # gg-mcp-server[sentry] covers every member's deps plus sentry-sdk for prod monitoring.
-RUN uv export --frozen --no-dev --no-emit-workspace \
+# uv is bind-mounted for the build steps rather than COPYed into the image. A COPY
+# commits it to its own layer, and nothing at runtime uses it, so that layer shipped
+# in every pull. A bind mount is never committed to a layer.
+RUN --mount=from=ghcr.io/astral-sh/uv:latest,source=/uv,target=/usr/local/bin/uv \
+    uv export --frozen --no-dev --no-emit-workspace \
         --package gg-mcp-server --extra sentry \
         --format requirements-txt -o /tmp/requirements.txt && \
     uv pip install --system --require-hashes -r /tmp/requirements.txt && \
@@ -59,7 +60,8 @@ RUN uv export --frozen --no-dev --no-emit-workspace \
 
 # Install root package to get entry points (http-mcp-server, etc.)
 # This is a metadata-only package that provides entry point scripts
-RUN uv pip install --system --no-deps .
+RUN --mount=from=ghcr.io/astral-sh/uv:latest,source=/uv,target=/usr/local/bin/uv \
+    uv pip install --system --no-deps .
 
 # Ensure app directory is owned by nonroot user
 RUN chown -R nonroot:nonroot /app
