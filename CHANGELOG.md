@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4](https://github.com/GitGuardian/ggmcp/compare/v0.7.3...v0.7.4) (2026-10-22)
+
+
+### Bug Fixes
+
+* **deps:** bump certifi to 2026.10.19 ([082d148](https://github.com/GitGuardian/ggmcp/commit/082d148fe52416545efe6ebbc97a16e3cbf3cfb4))
+
 ## [0.7.3](https://github.com/GitGuardian/ggmcp/compare/v0.7.2...v0.7.3) (2026-10-14)
 
 
