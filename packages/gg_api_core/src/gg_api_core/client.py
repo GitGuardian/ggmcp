@@ -13,6 +13,16 @@ from uuid import UUID
 import httpx
 from pydantic import TypeAdapter, ValidationError
 
+from gg_api_core.generated_filter_vocabulary import (
+    IncidentSeverity,
+    IncidentSeverityFilter,
+    IncidentSourceTypeFilter,
+    IncidentStatus,
+    IncidentStatusFilter,
+    IncidentValidity,
+    IncidentValidityFilter,
+)
+from gg_api_core.incident_filter_adapters import IncidentIntegrationFilter, to_mcp
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
 from gg_api_core.settings import get_settings
 from gg_api_core.version import APP_VERSION
@@ -114,42 +124,6 @@ class DownstreamUnauthorizedError(Exception):
     Bridged to an HTTP 401 + ``WWW-Authenticate`` response by middleware so
     the MCP client can re-run the OAuth flow.
     """
-
-
-class IncidentSeverity(str, Enum):
-    """Enum for incident severity levels."""
-
-    CRITICAL = "critical"
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    INFO = "info"
-    UNKNOWN = "unknown"
-
-
-class IncidentStatus(str, Enum):
-    """Enum for incident statuses."""
-
-    IGNORED = "IGNORED"
-    TRIGGERED = "TRIGGERED"
-    ASSIGNED = "ASSIGNED"
-    RESOLVED = "RESOLVED"
-
-
-class IncidentValidity(str, Enum):
-    """Enum for incident validity values.
-
-    Note: Different API endpoints accept different validity values:
-    - /incidents-for-mcp: accepts NOT_CHECKED but not UNKNOWN
-    - /occurrences/secrets: accepts UNKNOWN but not NOT_CHECKED
-    """
-
-    VALID = "valid"
-    INVALID = "invalid"
-    FAILED_TO_CHECK = "failed_to_check"
-    NO_CHECKER = "no_checker"
-    NOT_CHECKED = "not_checked"  # Valid for /incidents-for-mcp
-    UNKNOWN = "unknown"  # Valid for /occurrences/secrets
 
 
 class TagNames(str, Enum):
@@ -1858,7 +1832,7 @@ class GitGuardianClient:
         from_date: str | None = None,
         to_date: str | None = None,
         source_name: str | None = None,
-        source_type: str | None = None,
+        source_type: IncidentSourceTypeFilter | None = None,
         source_id: str | None = None,
         presence: str | None = None,
         tags: list[str] | None = None,
@@ -1867,9 +1841,9 @@ class GitGuardianClient:
         cursor: str | None = None,
         ordering: str | None = None,
         get_all: bool = False,
-        severity: list[IncidentSeverity] | None = None,
-        validity: list[IncidentValidity] | None = None,
-        status: list[IncidentStatus] | None = None,
+        severity: Sequence[IncidentSeverityFilter] | None = None,
+        validity: Sequence[IncidentValidityFilter] | None = None,
+        status: Sequence[IncidentStatusFilter] | None = None,
         with_sources: bool | None = None,
         member_assignee_id: int | None = None,
         incident_id: int | None = None,
@@ -1926,11 +1900,11 @@ class GitGuardianClient:
         if ordering:
             params["ordering"] = ordering
         if severity:
-            params["severity"] = ",".join(severity)
+            params["severity"] = _serialize_enum_filter(list(severity))
         if validity:
-            params["validity"] = ",".join(validity)
+            params["validity"] = _serialize_enum_filter(list(validity))
         if status:
-            params["status"] = ",".join(status)
+            params["status"] = _serialize_enum_filter(list(status))
         if with_sources is not None:
             params["with_sources"] = str(with_sources).lower()
         if member_assignee_id is not None:
@@ -1957,9 +1931,9 @@ class GitGuardianClient:
         triggered_at_after: str | None = None,
         assignee_email: str | None = None,
         assignee_id: int | None = None,
-        status: IncidentStatus | str | Sequence[IncidentStatus | str] | None = None,
-        severity: IncidentSeverity | str | Sequence[IncidentSeverity | str] | None = None,
-        validity: IncidentValidity | str | Sequence[IncidentValidity | str] | None = None,
+        status: IncidentStatusFilter | Sequence[IncidentStatusFilter] | None = None,
+        severity: IncidentSeverityFilter | Sequence[IncidentSeverityFilter] | None = None,
+        validity: IncidentValidityFilter | Sequence[IncidentValidityFilter] | None = None,
         tags: str | None = None,
         custom_tags: str | None = None,
         custom_tag_key: str | None = None,
@@ -2199,9 +2173,9 @@ class GitGuardianClient:
         sha: str | None = None,
         filepath: str | None = None,
         attachment_reason: str | None = None,
-        severity: str | None = None,
-        status: str | None = None,
-        validity: str | None = None,
+        severity: IncidentSeverityFilter | list[IncidentSeverityFilter] | None = None,
+        status: IncidentStatusFilter | list[IncidentStatusFilter] | None = None,
+        validity: IncidentValidityFilter | list[IncidentValidityFilter] | None = None,
         tags: str | None = None,
         ordering: str | None = None,
         get_all: bool = False,
@@ -2223,9 +2197,9 @@ class GitGuardianClient:
             attachment_reason: Filter by attachment reason
                 (by_dev_from_perimeter, on_github_org_in_perimeter, from_secret_grasper).
                 Multiple values can be comma-separated.
-            severity: Filter by incident severity (comma-separated allowed).
-            status: Filter by incident status (comma-separated allowed).
-            validity: Filter by secret validity (comma-separated allowed).
+            severity: Filter by one or more canonical incident severities.
+            status: Filter by one or more canonical incident statuses.
+            validity: Filter by one or more canonical secret validities.
             tags: Filter by tags (comma-separated, or "NONE" for occurrences without tags).
             ordering: Sort field (id, -id, date, -date).
             get_all: If True, fetch all results using cursor-based pagination.
@@ -2255,11 +2229,11 @@ class GitGuardianClient:
         if attachment_reason:
             params["attachment_reason"] = attachment_reason
         if severity:
-            params["severity"] = severity
+            params["severity"] = _serialize_enum_filter(severity)
         if status:
-            params["status"] = status
+            params["status"] = _serialize_enum_filter(status)
         if validity:
-            params["validity"] = validity
+            params["validity"] = _serialize_enum_filter(validity)
         if tags:
             params["tags"] = tags
         if ordering:
@@ -2520,13 +2494,13 @@ class GitGuardianClient:
         # Search
         search: str | None = None,
         # Status and assignment filters
-        status: str | list[str] | None = None,
+        status: IncidentStatusFilter | list[IncidentStatusFilter] | None = None,
         assignee_id: int | list[int] | None = None,
         # Severity, score, and validity filters
-        severity: str | list[str] | None = None,
+        severity: IncidentSeverityFilter | list[IncidentSeverityFilter] | None = None,
         score__ge: int | None = None,
         score__le: int | None = None,
-        validity: str | list[str] | None = None,
+        validity: IncidentValidityFilter | list[IncidentValidityFilter] | None = None,
         # Secret type filters
         detector_group_name: str | list[str] | None = None,
         detector_type: str | list[str] | None = None,
@@ -2537,7 +2511,7 @@ class GitGuardianClient:
         secret_provider: str | list[str] | None = None,
         # Source filters
         source: int | list[int] | None = None,
-        source_type: str | list[str] | None = None,
+        source_type: IncidentSourceTypeFilter | list[IncidentSourceTypeFilter] | None = None,
         source_criticality: str | list[str] | None = None,
         # Occurrence and presence filters
         occurrence_count: str | None = None,  # Supports operators like >=10
@@ -2548,7 +2522,7 @@ class GitGuardianClient:
         tags: str | list[str] | None = None,
         public_exposure: str | list[str] | None = None,
         # Integration filters
-        integration: str | list[str] | None = None,
+        integration: IncidentIntegrationFilter | list[IncidentIntegrationFilter] | None = None,
         issue_tracker: str | list[str] | None = None,
         # Boolean filters
         has_related_issues: bool | None = None,
@@ -2588,10 +2562,10 @@ class GitGuardianClient:
             search: Search term to filter incidents
             status: Filter by status (TRIGGERED, ASSIGNED, RESOLVED, IGNORED)
             assignee_id: Filter by assignee member ID(s), use 0 for unassigned
-            severity: Filter by severity level(s) - uses numeric values (10=critical, 20=high, etc.)
+            severity: Filter by public severity names (critical, high, medium, low, info, unknown)
             score__ge: Filter incidents with score >= this value (0-100)
             score__le: Filter incidents with score <= this value (0-100)
-            validity: Filter by validity status
+            validity: Filter by validity status, using the canonical values (see IncidentValidityFilter)
             detector_group_name: Filter by detector group name(s)
             detector_type: Filter by detector type/nature
             detector_category: Filter by detector category
@@ -2600,14 +2574,14 @@ class GitGuardianClient:
             secret_family: Filter by secret family
             secret_provider: Filter by secret provider
             source: Filter by source ID(s)
-            source_type: Filter by source type(s)
+            source_type: Filter by public API source type(s); translated for this endpoint
             source_criticality: Filter by source criticality
             occurrence_count: Filter by occurrence count (supports operators: >=, <=, =)
             presence: Filter by presence status (present, removed)
             opened_for: Filter by days open (supports operators: >=, <=, =)
             tags: Filter by tag names
             public_exposure: Filter by public exposure status
-            integration: Filter by integration type
+            integration: Filter by audited integration names (github, github_enterprise_server, gitlab)
             issue_tracker: Filter by issue tracker type (jira_cloud_notifier, jira_data_center_notifier, servicenow)
             has_related_issues: Filter to incidents with/without related issues
             location: Filter to incidents with/without location information
@@ -2648,7 +2622,7 @@ class GitGuardianClient:
         if search:
             params["search"] = search
         if status:
-            params["status__in"] = format_param(status)
+            params["status__in"] = format_param(to_mcp("status", status))
         if assignee_id is not None:
             # assignee_id is a *member* id (the public-API identity). The MCP
             # incidents endpoint resolves it to the underlying user id via the
@@ -2656,13 +2630,13 @@ class GitGuardianClient:
             # would expect a user id and silently match nothing.
             params["assignee_member_id"] = format_param(assignee_id)
         if severity:
-            params["severity__in"] = format_param(severity)
+            params["severity__in"] = format_param(to_mcp("severity", severity))
         if score__ge is not None:
             params["score__ge"] = score__ge
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(validity)
+            params["validity__in"] = format_param(to_mcp("validity", validity))
 
         # Secret type filters
         if detector_group_name:
@@ -2684,7 +2658,7 @@ class GitGuardianClient:
         if source:
             params["source__in"] = format_param(source)
         if source_type:
-            params["source_type__in"] = format_param(source_type)
+            params["source_type__in"] = format_param(to_mcp("source_type", source_type))
         if source_criticality:
             params["source_criticality__in"] = format_param(source_criticality)
 
@@ -2706,7 +2680,7 @@ class GitGuardianClient:
 
         # Integration filters
         if integration:
-            params["integration__in"] = format_param(integration)
+            params["integration__in"] = format_param(to_mcp("integration", integration))
         if issue_tracker:
             params["issue_tracker__in"] = format_param(issue_tracker)
 
@@ -2769,13 +2743,13 @@ class GitGuardianClient:
         # Search
         search: str | None = None,
         # Status and assignment filters
-        status: str | list[str] | None = None,
+        status: IncidentStatusFilter | list[IncidentStatusFilter] | None = None,
         assignee_id: int | list[int] | None = None,
         # Severity, score, and validity filters
-        severity: str | list[str] | None = None,
+        severity: IncidentSeverityFilter | list[IncidentSeverityFilter] | None = None,
         score__ge: int | None = None,
         score__le: int | None = None,
-        validity: str | list[str] | None = None,
+        validity: IncidentValidityFilter | list[IncidentValidityFilter] | None = None,
         # Secret type filters
         detector_group_name: str | list[str] | None = None,
         detector_type: str | list[str] | None = None,
@@ -2786,7 +2760,7 @@ class GitGuardianClient:
         secret_provider: str | list[str] | None = None,
         # Source filters
         source: int | list[int] | None = None,
-        source_type: str | list[str] | None = None,
+        source_type: IncidentSourceTypeFilter | list[IncidentSourceTypeFilter] | None = None,
         source_criticality: str | list[str] | None = None,
         # Occurrence and presence filters
         occurrence_count: str | None = None,
@@ -2797,7 +2771,7 @@ class GitGuardianClient:
         tags: str | list[str] | None = None,
         public_exposure: str | list[str] | None = None,
         # Integration filters
-        integration: str | list[str] | None = None,
+        integration: IncidentIntegrationFilter | list[IncidentIntegrationFilter] | None = None,
         issue_tracker: str | list[str] | None = None,
         # Boolean filters
         has_related_issues: bool | None = None,
@@ -2846,7 +2820,7 @@ class GitGuardianClient:
         if search:
             params["search"] = search
         if status:
-            params["status__in"] = format_param(status)
+            params["status__in"] = format_param(to_mcp("status", status))
         if assignee_id is not None:
             # assignee_id is a *member* id (the public-API identity). The MCP
             # incidents endpoint resolves it to the underlying user id via the
@@ -2854,13 +2828,13 @@ class GitGuardianClient:
             # would expect a user id and silently match nothing.
             params["assignee_member_id"] = format_param(assignee_id)
         if severity:
-            params["severity__in"] = format_param(severity)
+            params["severity__in"] = format_param(to_mcp("severity", severity))
         if score__ge is not None:
             params["score__ge"] = score__ge
         if score__le is not None:
             params["score__le"] = score__le
         if validity:
-            params["validity__in"] = format_param(validity)
+            params["validity__in"] = format_param(to_mcp("validity", validity))
         if detector_group_name:
             params["detector_group_name__in"] = format_param(detector_group_name)
         if detector_type:
@@ -2878,7 +2852,7 @@ class GitGuardianClient:
         if source:
             params["source__in"] = format_param(source)
         if source_type:
-            params["source_type__in"] = format_param(source_type)
+            params["source_type__in"] = format_param(to_mcp("source_type", source_type))
         if source_criticality:
             params["source_criticality__in"] = format_param(source_criticality)
         if occurrence_count:
@@ -2892,7 +2866,7 @@ class GitGuardianClient:
         if public_exposure:
             params["public_exposure__in"] = format_param(public_exposure)
         if integration:
-            params["integration__in"] = format_param(integration)
+            params["integration__in"] = format_param(to_mcp("integration", integration))
         if issue_tracker:
             params["issue_tracker__in"] = format_param(issue_tracker)
         if has_related_issues is not None:

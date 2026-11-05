@@ -5,6 +5,7 @@ Tests for the count_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from gg_api_core.client import GitGuardianClient
 from gg_api_core.tools.count_incidents import (
     CountIncidentsError,
     CountIncidentsParams,
@@ -16,8 +17,8 @@ from gg_api_core.tools.list_incidents import (
     DEFAULT_SEVERITIES,
     DEFAULT_STATUSES,
     DEFAULT_VALIDITIES,
-    SeverityValues,
 )
+from pydantic import ValidationError
 
 
 class TestCountIncidentsParamsDefaults:
@@ -31,8 +32,8 @@ class TestCountIncidentsParamsDefaults:
     def test_default_severity_excludes_low_and_info(self):
         params = CountIncidentsParams()
         assert params.severity == DEFAULT_SEVERITIES
-        assert SeverityValues.LOW not in params.severity
-        assert SeverityValues.INFO not in params.severity
+        assert "low" not in params.severity
+        assert "info" not in params.severity
 
     def test_default_validity_excludes_invalid(self):
         params = CountIncidentsParams()
@@ -64,8 +65,8 @@ class TestCountIncidentsParamsCoercion:
         assert params.status == ["TRIGGERED"]
 
     def test_coerce_single_severity_to_list(self):
-        params = CountIncidentsParams(severity=SeverityValues.CRITICAL)
-        assert params.severity == [SeverityValues.CRITICAL]
+        params = CountIncidentsParams(severity="critical")
+        assert params.severity == ["critical"]
 
     def test_coerce_single_validity_to_list(self):
         params = CountIncidentsParams(validity="valid")
@@ -116,7 +117,7 @@ class TestCountIncidentsTool:
 
         params = CountIncidentsParams(
             status=["TRIGGERED"],
-            severity=[SeverityValues.CRITICAL],
+            severity=["critical"],
             detector_group_name=["AWS Keys"],
         )
 
@@ -131,7 +132,7 @@ class TestCountIncidentsTool:
         # Verify the client was called with the right params
         call_kwargs = mock_client.count_incidents_for_mcp.call_args.kwargs
         assert call_kwargs["status"] == ["TRIGGERED"]
-        assert call_kwargs["severity"] == [SeverityValues.CRITICAL]
+        assert call_kwargs["severity"] == ["critical"]
         assert call_kwargs["detector_group_name"] == ["AWS Keys"]
 
     @pytest.mark.asyncio
@@ -162,6 +163,51 @@ class TestCountIncidentsTool:
 
         assert isinstance(result, CountIncidentsError)
         assert "Conflict" in result.error
+
+    @pytest.mark.asyncio
+    async def test_unknown_validity_is_sent_as_not_checked(self):
+        """
+        GIVEN: validity=['unknown'] (the canonical value)
+        WHEN: counting incidents
+        THEN: the /incidents-for-mcp count endpoint receives 'not_checked'
+        """
+        client = GitGuardianClient(personal_access_token="test_token")
+        client._request_get = AsyncMock(return_value={"count": 7})
+
+        with patch("gg_api_core.tools.count_incidents.get_client", return_value=client):
+            result = await count_incidents(CountIncidentsParams(validity=["unknown"]))
+
+        assert isinstance(result, CountIncidentsResult)
+        query = client._request_get.call_args.kwargs["params"]
+        assert query["validity__in"] == "not_checked"
+
+    @pytest.mark.asyncio
+    async def test_severity_names_are_mapped_to_numbers(self):
+        """
+        GIVEN: severity=['critical', 'unknown']
+        WHEN: counting incidents
+        THEN: the endpoint adapter receives canonical names to translate
+        """
+        mock_client = AsyncMock()
+        mock_client.count_incidents_for_mcp.return_value = {"count": 1}
+
+        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
+            await count_incidents(CountIncidentsParams(severity=["critical", "unknown"]))
+
+        call_kwargs = mock_client.count_incidents_for_mcp.call_args.kwargs
+        assert call_kwargs["severity"] == ["critical", "unknown"]
+
+    def test_numeric_severity_is_rejected(self):
+        """
+        GIVEN a private endpoint numeric severity
+        WHEN building public tool parameters
+        THEN validation rejects it before an API call can happen
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            CountIncidentsParams(severity=[10])
+
+        assert "severity" in str(exc_info.value)
+        assert "critical" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_count_returns_error_on_exception(self):
