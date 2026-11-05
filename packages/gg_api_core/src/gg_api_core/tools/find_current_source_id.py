@@ -1,18 +1,14 @@
 import logging
-import os
-import subprocess
-from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client, parse_repo_url
 
 logger = logging.getLogger(__name__)
 
 GIT_REMOTE_SUGGESTION = (
-    "This MCP server runs remotely and cannot access your local filesystem or git repository. "
+    "This MCP server cannot access your local filesystem or git repository. "
     "To find the source_id for the current repository, run "
     "`git config --get remote.origin.url` in the repository directory yourself "
     "(e.g. with a shell/Bash tool), then call this tool again passing the output as the "
@@ -44,10 +40,10 @@ class FindCurrentSourceIdResult(BaseModel):
 
 
 class FindCurrentSourceIdSuggestion(BaseModel):
-    """Returned when the server cannot detect the repository itself.
+    """Returned when no ``remote_url`` is provided.
 
-    The hosted (HTTP) server has no access to the user's filesystem or ``git``
-    binary, so it asks the calling agent to run git locally and call the tool
+    The server has no access to the user's filesystem or ``git`` binary (regardless
+    of transport), so it asks the calling agent to run git locally and call the tool
     again with the resulting ``remote_url``.
     """
 
@@ -65,8 +61,65 @@ class FindCurrentSourceIdError(BaseModel):
     suggestion: str | None = Field(default=None, description="Suggestions for resolving the error")
 
 
+def _repository_name_from(remote_url: str) -> str | None:
+    """Extract the bare repository name (no org prefix) from a git remote URL.
+
+    ``parse_repo_url`` returns ``org/repo`` (or ``org/proj/repo`` for Azure DevOps);
+    the GitGuardian source lookup matches on the bare repository name, so only the
+    final path segment is kept.
+    """
+    parsed = parse_repo_url(remote_url)
+    return parsed.split("/")[-1] if parsed else None
+
+
+def _exact_match(
+    repository_name: str, source: dict[str, Any]
+) -> FindCurrentSourceIdResult:
+    """Build a result for an exact source match."""
+    return FindCurrentSourceIdResult(
+        repository_name=repository_name,
+        source_id=source.get("id"),
+        source=source,
+        message=f"Successfully found exact match for GitGuardian source: {repository_name}",
+    )
+
+
+def _multiple_candidates(
+    repository_name: str, sources: list[dict[str, Any]]
+) -> FindCurrentSourceIdResult:
+    """Build a result listing candidate sources for the agent to pick from."""
+    return FindCurrentSourceIdResult(
+        repository_name=repository_name,
+        message=f"No exact match found for '{repository_name}', but found {len(sources)} potential matches.",
+        suggestion=(
+            "Review the candidates below and determine which source best matches "
+            "the current repository based on the name and URL."
+        ),
+        candidates=[
+            SourceCandidate(
+                id=source.get("id", -1),
+                url=source.get("url"),
+                name=source.get("full_name") or source.get("name"),
+                monitored=source.get("monitored"),
+                deleted_at=source.get("deleted_at"),
+            )
+            for source in sources
+        ],
+    )
+
+
+def _no_match(repository_name: str) -> FindCurrentSourceIdError:
+    """Build the error returned when the repository is not among the sources."""
+    return FindCurrentSourceIdError(
+        repository_name=repository_name,
+        error=f"Repository '{repository_name}' not found in GitGuardian",
+        message="The repository may not be connected to GitGuardian, or you may not have access to it.",
+        suggestion="Check that the repository is properly connected to GitGuardian and that your account has access to it.",
+    )
+
+
 async def find_current_source_id(
-    repository_path: str = ".", remote_url: str | None = None
+    remote_url: str | None = None,
 ) -> FindCurrentSourceIdResult | FindCurrentSourceIdError | FindCurrentSourceIdSuggestion:
     """
     Find the GitGuardian source_id for a repository.
@@ -77,21 +130,17 @@ async def find_current_source_id(
     3. Returns the source_id if an exact match is found
     4. If no exact match, returns all search results for the model to choose from
 
-    The remote URL is resolved as follows:
-    - If ``remote_url`` is passed, it is used directly (no git/filesystem access required).
-      This is the path to use against the hosted (HTTP) server, which has no access to your
-      local repository: run ``git config --get remote.origin.url`` yourself and pass the result.
-    - Otherwise, when running locally (stdio transport), the tool runs ``git`` in
-      ``repository_path`` and falls back to the directory name if git is unavailable.
-    - Otherwise, when running on the hosted server with no ``remote_url``, the tool returns a
-      suggestion asking the agent to obtain the remote URL and call again.
+    The repository is resolved solely from ``remote_url``; the tool never accesses the local
+    filesystem or shells out to git, so its behavior is identical across transports (hosted HTTP
+    and stdio). The calling agent is responsible for resolving the remote URL locally:
+    - If ``remote_url`` is passed, it is parsed to derive the repository name.
+    - Otherwise the tool returns a suggestion asking the agent to run
+      ``git config --get remote.origin.url`` and call again with the result.
 
     Args:
-        repository_path: Path to the repository directory. Defaults to "." (current directory).
-                        Only used when the tool runs git locally (stdio transport).
         remote_url: The repository's git remote URL (e.g. the output of
-                    ``git config --get remote.origin.url``). Provide this when the server cannot
-                    access your local repository.
+                    ``git config --get remote.origin.url``). Required for the tool to detect
+                    the repository.
 
     Returns:
         FindCurrentSourceIdResult: Pydantic model containing:
@@ -114,173 +163,36 @@ async def find_current_source_id(
             - message: User-friendly message
             - suggestion: Suggestions for resolving the error
     """
-    client = await get_client()
-    logger.debug(f"Finding source_id for repository at path: {repository_path}")
+    if remote_url is None:
+        logger.info("No remote_url provided; returning suggestion to run git locally")
+        return FindCurrentSourceIdSuggestion(
+            suggestion=GIT_REMOTE_SUGGESTION,
+            message="The repository could not be detected server-side.",
+        )
 
-    repository_name = None
-    detection_method = None
+    repository_name = _repository_name_from(remote_url)
+    if repository_name is None:
+        return FindCurrentSourceIdError(
+            error="Could not determine repository name",
+            message=f"The provided remote_url '{remote_url}' could not be parsed into a repository name.",
+            suggestion="Provide a valid git remote URL (e.g. the output of `git config --get remote.origin.url`).",
+        )
+
+    logger.info(f"Detected repository name: {repository_name}")
 
     try:
-        if remote_url is not None:
-            # Caller already resolved the remote URL (e.g. ran git locally). Use it directly.
-            parsed_url = parse_repo_url(remote_url)
-            repository_name = parsed_url.split("/")[-1] if parsed_url else None
-            detection_method = "provided remote URL"
-            logger.debug(f"Using provided remote URL: {remote_url}, parsed repository name: {repository_name}")
-        elif get_settings().mcp_port:
-            # Hosted (HTTP) transport: no access to the user's filesystem or git binary.
-            # Ask the agent to resolve the remote URL locally and call again.
-            logger.info("No remote_url provided on HTTP transport; returning suggestion to run git locally")
-            return FindCurrentSourceIdSuggestion(
-                suggestion=GIT_REMOTE_SUGGESTION,
-                message="The repository could not be detected server-side.",
-            )
-        else:
-            # Local (stdio) transport: detect the repository name from git, like before.
-            try:
-                result = subprocess.run(
-                    ["git", "config", "--get", "remote.origin.url"],
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                    timeout=5,
-                    cwd=repository_path,
-                )
-                detected_url = result.stdout.strip()
-                parsed_url = parse_repo_url(detected_url)
-                repository_name = parsed_url.split("/")[-1] if parsed_url else None
-                detection_method = "git remote URL"
-                logger.debug(f"Found remote URL: {detected_url}, parsed repository name: {repository_name}")
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError) as e:
-                logger.debug(f"Git remote detection failed: {e}, falling back to directory name")
-
-                # Fallback: Use the directory name as repository name
-                abs_path = os.path.abspath(repository_path)
-                repository_name = Path(abs_path).name
-                detection_method = "directory name"
-                logger.info(f"Using directory name as repository name: {repository_name}")
-
-        if not repository_name:
-            if detection_method == "provided remote URL":
-                return FindCurrentSourceIdError(
-                    error="Could not determine repository name",
-                    message=f"The provided remote_url '{remote_url}' could not be parsed into a repository name.",
-                    suggestion="Provide a valid git remote URL (e.g. the output of `git config --get remote.origin.url`).",
-                )
-            return FindCurrentSourceIdError(
-                error="Could not determine repository name",
-                message="Failed to determine repository name from both git remote and directory name.",
-                suggestion="Please ensure you're in a valid directory or provide a valid repository_path parameter.",
-            )
-
-        logger.info(f"Detected repository name: {repository_name} (method: {detection_method})")
-
-        # Search for the source in GitGuardian with robust non-exact matching
+        client = await get_client()
         source_result: dict[str, Any] | list[dict[str, Any]] | None = await client.get_source_by_name(
             repository_name, return_all_on_no_match=True
         )
 
-        # Handle exact match (single dict result)
         if isinstance(source_result, dict):
-            source_id: str | int | None = source_result.get("id")
-            logger.info(f"Found exact match with source_id: {source_id}")
+            return _exact_match(repository_name, source_result)
 
-            message = f"Successfully found exact match for GitGuardian source: {repository_name}"
-            if detection_method == "directory name":
-                message += f" (repository name inferred from {detection_method})"
+        if isinstance(source_result, list) and source_result:
+            return _multiple_candidates(repository_name, source_result)
 
-            return FindCurrentSourceIdResult(
-                repository_name=repository_name,
-                source_id=source_id if source_id is not None else "",
-                source=source_result,
-                message=message,
-            )
-
-        # Handle multiple candidates (list result)
-        elif isinstance(source_result, list) and len(source_result) > 0:
-            logger.info(f"Found {len(source_result)} candidate sources for repository: {repository_name}")
-
-            message = f"No exact match found for '{repository_name}', but found {len(source_result)} potential matches."
-            if detection_method == "directory name":
-                message += f" (repository name inferred from {detection_method})"
-
-            return FindCurrentSourceIdResult(
-                repository_name=repository_name,
-                message=message,
-                suggestion="Review the candidates below and determine which source best matches the current repository based on the name and URL.",
-                candidates=[
-                    SourceCandidate(
-                        id=source.get("id", -1),
-                        url=source.get("url"),
-                        name=source.get("full_name") or source.get("name"),
-                        monitored=source.get("monitored"),
-                        deleted_at=source.get("deleted_at"),
-                    )
-                    for source in source_result
-                ],
-            )
-
-        # No matches found at all
-        else:
-            # Try searching with just the repo name (without org) as fallback
-            if "/" in repository_name:
-                repo_only = repository_name.split("/")[-1]
-                logger.debug(f"Trying fallback search with repo name only: {repo_only}")
-                fallback_result = await client.get_source_by_name(repo_only, return_all_on_no_match=True)
-
-                # Handle fallback results
-                if isinstance(fallback_result, dict):
-                    fallback_source_id: str | int | None = fallback_result.get("id")
-                    logger.info(f"Found match using repo name only, source_id: {fallback_source_id}")
-
-                    message = f"Found match using repository name '{repo_only}' (without organization prefix)"
-                    if detection_method == "directory name":
-                        message += f" (repository name inferred from {detection_method})"
-
-                    return FindCurrentSourceIdResult(
-                        repository_name=repository_name,
-                        source_id=fallback_source_id if fallback_source_id is not None else "",
-                        source=fallback_result,
-                        message=message,
-                    )
-                elif isinstance(fallback_result, list) and len(fallback_result) > 0:
-                    logger.info(f"Found {len(fallback_result)} candidates using repo name only")
-
-                    message = f"No exact match for '{repository_name}', but found {len(fallback_result)} potential matches using repo name '{repo_only}'."
-                    if detection_method == "directory name":
-                        message += f" (repository name inferred from {detection_method})"
-
-                    return FindCurrentSourceIdResult(
-                        repository_name=repository_name,
-                        message=message,
-                        suggestion="Review the candidates below and determine which source best matches the current repository.",
-                        candidates=[
-                            SourceCandidate(
-                                id=source.get("id", -1),
-                                url=source.get("url"),
-                                name=source.get("full_name") or source.get("name"),
-                                monitored=source.get("monitored"),
-                                deleted_at=source.get("deleted_at"),
-                            )
-                            for source in fallback_result
-                            if source.get("id") is not None
-                        ],
-                    )
-
-            # Absolutely no matches found
-            logger.warning(f"No sources found for repository: {repository_name}")
-
-            message = "The repository may not be connected to GitGuardian, or you may not have access to it."
-            if detection_method == "directory name":
-                message += f" Note: repository name was inferred from {detection_method}, which may not match the actual GitGuardian source name."
-
-            return FindCurrentSourceIdError(
-                repository_name=repository_name,
-                error=f"Repository '{repository_name}' not found in GitGuardian",
-                message=message,
-                suggestion="Check that the repository is properly connected to GitGuardian and that your account has access to it.",
-            )
-
+        return _no_match(repository_name)
     except Exception as e:
         logger.exception(f"Error finding source_id: {str(e)}")
         return FindCurrentSourceIdError(error=f"Failed to find source_id: {str(e)}")
