@@ -51,9 +51,6 @@ class APITokenInfo(BaseModel):
 # is registered with specific redirect URI port ranges
 CALLBACK_PORT_RANGE = (29170, 29998)
 
-# Default token expiry in days (if not specified in token info)
-DEFAULT_TOKEN_EXPIRY_DAYS = 30
-
 # Global counter for OAuth client instances (debugging)
 _oauth_client_counter = 0
 
