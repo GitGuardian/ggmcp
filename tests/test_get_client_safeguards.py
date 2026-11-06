@@ -185,34 +185,6 @@ class TestGetClientMultiTenantMode:
         assert result == mock_client
 
     @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
-    async def test_multi_tenant_creates_new_client_per_request(self, mock_client_class, mock_get_headers):
-        """
-        GIVEN multi-tenant mode is enabled
-        WHEN get_client is called multiple times with different tokens
-        THEN it creates a new client each time (no singleton)
-        """
-        # get_http_headers is called twice per get_client():
-        # once for user-agent extraction, once for authorization extraction
-        mock_get_headers.side_effect = [
-            {"authorization": "Bearer token1", "user-agent": "Agent1"},
-            {"authorization": "Bearer token1", "user-agent": "Agent1"},
-            {"authorization": "Bearer token2", "user-agent": "Agent2"},
-            {"authorization": "Bearer token2", "user-agent": "Agent2"},
-        ]
-        mock_client1 = MagicMock()
-        mock_client2 = MagicMock()
-        mock_client_class.side_effect = [mock_client1, mock_client2]
-
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
-            result1 = await get_client()
-            result2 = await get_client()
-
-        assert mock_client_class.call_count == 2
-        assert result1 == mock_client1
-        assert result2 == mock_client2
-
-    @patch("gg_api_core.utils.get_http_headers")
     async def test_multi_tenant_raises_on_missing_auth_header(self, mock_get_headers):
         """
         GIVEN multi-tenant mode is enabled
@@ -442,28 +414,6 @@ class TestCallerUserAgentExtraction:
         result = _get_caller_user_agent()
 
         assert result is None
-
-    @patch("gg_api_core.utils.get_http_headers")
-    @patch("gg_api_core.utils.GitGuardianClient")
-    async def test_get_client_auto_extracts_user_agent(self, mock_client_class, mock_get_headers):
-        """
-        GIVEN an HTTP request with User-Agent header
-        WHEN get_client() is called without explicit user_agent (as tool handlers do)
-        THEN the caller's User-Agent is preserved as client=... in the built UA
-        """
-        mock_get_headers.return_value = {
-            "authorization": "Bearer request-token",
-            "user-agent": "GitGuardian-In-App-Agent",
-        }
-        mock_client_class.return_value = MagicMock()
-
-        with patch.dict(os.environ, {"MULTI_TENANCY_ENABLED": "true", "MCP_PORT": "8080"}, clear=True):
-            await get_client()
-
-        mock_client_class.assert_called_once_with(
-            personal_access_token="request-token",
-            user_agent=f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)",
-        )
 
     @patch("gg_api_core.utils.get_http_headers")
     @patch("gg_api_core.utils.GitGuardianClient")

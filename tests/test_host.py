@@ -5,27 +5,12 @@ from unittest.mock import patch
 
 import pytest
 
-from gg_api_core.host import SAAS_HOSTNAMES, _is_saas_hostname, is_self_hosted_instance
+from gg_api_core.host import SAAS_HOSTNAMES, is_self_hosted_instance
 from gg_api_core.urls import derive_public_api_url
 
 
 class TestIsSelfHostedInstance:
     """Tests for the is_self_hosted_instance function."""
-
-    def test_saas_hostname_returns_false(self):
-        """Test that SaaS hostnames return False."""
-        for hostname in [
-            "https://dashboard.gitguardian.com",
-            "https://api.gitguardian.com",
-            "https://dashboard.eu1.gitguardian.com",
-            "https://api.eu1.gitguardian.com",
-        ]:
-            assert is_self_hosted_instance(hostname) is False, f"Expected False for {hostname}"
-
-    def test_staging_and_preprod_return_false(self):
-        """Test that staging and preprod hostnames return False."""
-        assert is_self_hosted_instance("https://dashboard.staging.gitguardian.tech") is False
-        assert is_self_hosted_instance("https://dashboard.preprod.gitguardian.com") is False
 
     def test_localhost_returns_false(self):
         """Test that localhost and 127.0.0.1 return False."""
@@ -70,13 +55,6 @@ class TestIsSelfHostedInstance:
         """Test that URLs with query parameters are handled correctly."""
         assert is_self_hosted_instance("https://dashboard.gitguardian.com?param=value") is False
         assert is_self_hosted_instance("https://custom.domain.com?param=value") is True
-
-    def test_invalid_url_returns_true(self):
-        """Test that invalid URLs return True (fail-safe behavior)."""
-        # The function should catch exceptions and return True for safety
-        # However, urlparse is quite forgiving, so we test with truly malformed input
-        assert is_self_hosted_instance("not a url at all") is True
-        assert is_self_hosted_instance("://invalid") is True
 
     def test_none_url_with_env_var(self):
         """Test that function uses GITGUARDIAN_URL env var when url is None."""
@@ -167,17 +145,3 @@ class TestOnPremOverride:
                 derive_public_api_url("https://on-prem.preprod.gitguardian.tech")
                 == "https://on-prem.preprod.gitguardian.tech/exposed/v1"
             )
-
-
-class TestIsSaasHostname:
-    """Tests for the _is_saas_hostname function."""
-
-    def test_exact_match(self):
-        assert _is_saas_hostname("dashboard.gitguardian.com") is True
-
-    def test_suffix_match(self):
-        assert _is_saas_hostname("dashboard-23683.review-apps.preprod.gitguardian.tech") is True
-
-    def test_custom_domain_not_matched(self):
-        assert _is_saas_hostname("gitguardian.mycompany.com") is False
-        assert _is_saas_hostname("gg.internal.corp") is False

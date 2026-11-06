@@ -451,13 +451,6 @@ def real_client():
     return client
 
 
-@pytest.fixture
-def no_api_key(monkeypatch):
-    """Remove GITGUARDIAN_API_KEY from the environment, useful to test anonymous use."""
-    monkeypatch.delenv("GITGUARDIAN_API_KEY", raising=False)
-    monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN", raising=False)
-
-
 # =============================================================================
 # Mock Fixtures for Unit Testing (without real API calls)
 # =============================================================================
@@ -549,40 +542,6 @@ def mock_gitguardian_client(request):
         yield mock_client
         # Clean up singleton after test
         gg_api_core.utils._client_singleton = None
-
-
-@pytest.fixture()
-def mock_env_vars(request):
-    """Automatically mock environment variables for all tests.
-
-    Tests using VCR cassettes (marked with 'vcr_test') skip this to use real env vars.
-    """
-    # Skip mocking for tests marked with 'vcr_test' - they need real env vars
-    if request.node.get_closest_marker("vcr_test"):
-        yield
-        return
-
-    env_overrides = {
-        "GITGUARDIAN_URL": "https://test.api.gitguardian.com",
-        "GITGUARDIAN_PERSONAL_ACCESS_TOKEN": "",  # Clear PAT to test OAuth paths
-    }
-    with patch.dict(os.environ, env_overrides):
-        yield
-
-
-@pytest.fixture
-def setup_test_env():
-    """Set up and tear down environment variables for specific tests."""
-    original_env = os.environ.copy()
-
-    # Set test environment variables
-    os.environ["GITGUARDIAN_URL"] = "https://test.api.gitguardian.com"
-
-    yield
-
-    # Restore original environment
-    os.environ.clear()
-    os.environ.update(original_env)
 
 
 @pytest.fixture(autouse=True)

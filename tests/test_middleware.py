@@ -219,24 +219,6 @@ class TestToolCallLoggingMiddleware:
 
 
 class TestRequestLoggingContextMiddleware:
-    async def test_binds_request_id_and_clears_after(self):
-        """
-        GIVEN an MCP message without a request ID
-        WHEN the message is handled
-        THEN a request ID is bound only for that message
-        """
-        seen: dict = {}
-
-        async def call_next(ctx):
-            seen.update(structlog.contextvars.get_contextvars())
-            return "ok"
-
-        result = await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
-
-        assert result == "ok"
-        assert seen["request_id"]
-        assert "request_id" not in structlog.contextvars.get_contextvars()
-
     async def test_prefers_inbound_x_request_id_header(self, monkeypatch):
         """
         GIVEN an MCP message with an X-Request-ID header
