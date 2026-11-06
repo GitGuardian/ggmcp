@@ -71,9 +71,6 @@ dev = [
 
 [project.scripts]
 gg-mcp-server = "gg_mcp_server.run:run_mcp_server"
-# Deprecated names kept so existing client configurations keep starting the server.
-developer-mcp-server = "gg_mcp_server.run:run_deprecated_alias"
-secops-mcp-server = "gg_mcp_server.run:run_deprecated_alias"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gg_api_core", "src/gg_mcp_server"]

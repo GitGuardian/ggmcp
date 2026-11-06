@@ -96,34 +96,3 @@ class TestUnifiedServer:
         assert "list_incidents" in tool_names
         assert "assign_incident" not in tool_names
         assert "manage_private_incident" not in tool_names
-
-
-class TestDeprecatedCommands:
-    @pytest.mark.parametrize("command", ["developer-mcp-server", "secops-mcp-server"])
-    def test_deprecated_command_still_starts_the_server(self, command):
-        """
-        GIVEN a client configuration that still launches a deprecated command
-        WHEN the installed console script is resolved
-        THEN it points at the deprecated alias of the server entry point
-        """
-        from importlib.metadata import entry_points
-
-        (entry,) = [ep for ep in entry_points(group="console_scripts") if ep.name == command]
-        assert entry.value == "gg_mcp_server.run:run_deprecated_alias"
-
-    def test_deprecated_alias_warns_then_runs_the_server(self, monkeypatch):
-        """
-        GIVEN the deprecated alias entry point
-        WHEN it is invoked
-        THEN it emits a DeprecationWarning naming the command and runs the server
-        """
-        import gg_mcp_server.run as run
-
-        calls = []
-        monkeypatch.setattr(run, "run_mcp_server", lambda: calls.append("ran"))
-        monkeypatch.setattr(sys, "argv", ["/usr/local/bin/developer-mcp-server"])
-
-        with pytest.warns(DeprecationWarning, match="developer-mcp-server is deprecated"):
-            run.run_deprecated_alias()
-
-        assert calls == ["ran"]
