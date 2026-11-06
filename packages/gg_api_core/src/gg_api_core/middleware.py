@@ -22,7 +22,7 @@ from gg_api_core.log_context import (
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
-from gg_api_core.sentry_integration import set_sentry_request_id
+from gg_api_core.sentry_integration import capture_tool_failure, set_sentry_request_id
 from gg_api_core.settings import get_settings
 from gg_api_core.urls import derive_public_api_url
 
@@ -36,6 +36,9 @@ _SAFE_REQUEST_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
 
 # Handled by ToolCallLoggingMiddleware, which emits a richer line for it.
 _TOOL_CALL_METHOD = "tools/call"
+
+# Keep-alive traffic, not usage: no log line and no identity lookup.
+_PING_METHOD = "ping"
 
 
 def _resolve_request_id() -> str:
@@ -56,6 +59,22 @@ def _resolve_session_id(context: MiddlewareContext[Any]) -> str | None:
         return None
 
 
+def _session_client_identity(context: MiddlewareContext[Any]) -> dict[str, Any]:
+    """Return the client and protocol revision the client declared, if any.
+
+    Sessionless (2026-07-28) requests declare both in every request's
+    ``_meta``. Handshake-era requests know them only on a session that kept
+    its ``initialize`` params, which stateless HTTP does not, so those rely
+    on the ``mcp_initialize`` event instead. ``session.protocol_version`` is
+    deliberately not used: without a declaration it holds an SDK default.
+    """
+    request_context = getattr(context.fastmcp_context, "request_context", None)
+    client_params = getattr(getattr(request_context, "session", None), "client_params", None)
+    if client_params is None:
+        return {}
+    return derive_client_identity(client_params.client_info, client_params.protocol_version)
+
+
 class RequestLoggingContextMiddleware(Middleware):
     """Bind identity and correlation fields for one MCP message."""
 
@@ -64,6 +83,10 @@ class RequestLoggingContextMiddleware(Middleware):
 
     @override
     async def on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any:
+        if context.type != "request" or context.method == _PING_METHOD:
+            # Notifications and pings are protocol plumbing, not usage.
+            return await call_next(context)
+
         request_id = _resolve_request_id()
         bindings: dict[str, Any] = {
             "authentication_mode": self._mcp_server.authentication_mode.value,
@@ -78,6 +101,8 @@ class RequestLoggingContextMiddleware(Middleware):
         user_agent = get_http_headers().get("user-agent")
         if user_agent:
             bindings["user_agent"] = user_agent
+
+        bindings.update(_session_client_identity(context))
 
         with structlog.contextvars.bound_contextvars(**bindings):
             with structlog.contextvars.bound_contextvars(**await self._caller_identity()):
@@ -140,8 +165,8 @@ class RequestLoggingContextMiddleware(Middleware):
         """Record client and protocol metadata from initialization."""
         params = getattr(context.message, "params", context.message)
         client_identity = derive_client_identity(
-            getattr(params, "clientInfo", None),
-            getattr(params, "protocolVersion", None),
+            getattr(params, "client_info", None),
+            getattr(params, "protocol_version", None),
         )
         with structlog.contextvars.bound_contextvars(**client_identity):
             logger.info("mcp_initialize", extra=client_identity)
@@ -255,6 +280,7 @@ class ToolCallLoggingMiddleware(Middleware):
                         **downstream.as_log_fields(),
                     },
                 )
+                capture_tool_failure(exc)
                 raise
 
             logger.info(

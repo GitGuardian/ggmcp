@@ -35,6 +35,8 @@ logger = logging.getLogger(__name__)
 _MAX_SCRUB_DEPTH = 12
 _REQUEST_ID_FIELD = "request_id"
 _MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
+# Span attribute MCPIntegration uses to mark a failed tool call.
+_MCP_TOOL_RESULT_IS_ERROR = "mcp.tool.result.is_error"
 _SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
 
 
@@ -140,7 +142,7 @@ def init_sentry() -> bool:
     traces_sample_rate = sentry_settings.traces_sample_rate
     profiles_sample_rate = sentry_settings.profiles_sample_rate
 
-    # Logs provide breadcrumbs only. MCPIntegration owns tool-failure events.
+    # Logs provide breadcrumbs only. capture_tool_failure owns tool-failure events.
     logging_integration = LoggingIntegration(level=logging.INFO, event_level=None)
 
     try:
@@ -180,6 +182,26 @@ def set_sentry_request_id(request_id: str) -> None:
             span.set_data(_REQUEST_ID_FIELD, request_id)
     except Exception as exc:
         logger.debug("Failed to preserve request ID for Sentry: %s", exc)
+
+
+def capture_tool_failure(exception: BaseException) -> None:
+    """Report a failed tool call to Sentry.
+
+    FastMCP returns a tool failure to the protocol layer as an ``isError``
+    result instead of raising it, so MCPIntegration neither captures the
+    exception nor flags its ``mcp.server`` span. Both happen here instead.
+    An exception that does escape to MCPIntegration is the same object, which
+    Sentry's default deduplication drops, so a failure is reported once.
+    """
+    if sentry_sdk is None:
+        return
+    try:
+        span = sentry_sdk.get_current_span()
+        if span is not None:
+            span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)
+        sentry_sdk.capture_exception(exception)
+    except Exception as exc:
+        logger.debug("Failed to report tool failure to Sentry: %s", exc)
 
 
 def set_sentry_context(key: str, value: Any) -> None:

@@ -274,27 +274,22 @@ class TestScopeBasedToolVisibility:
 
 
 class TestPerRequestScopeCost:
-    async def test_tool_dispatch_fetches_scopes_once_then_reuses_a_shared_cache(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+    async def test_tool_dispatch_does_not_fetch_scopes(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the stateless remote deployment
         WHEN the same tool is called twice
-        THEN the first dispatch resolves scopes upstream (tool-cache refresh)
-             and the second reuses the process-wide cache
+        THEN neither dispatch resolves scopes upstream
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
         await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
         await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
 
-        # Only the dispatch path caches (per server instance, meaning
-        # process-wide in production). The scope-filtered tool list cached here
-        # is shared by all tenants of the process; per-call scope enforcement
+        # Scope filtering only runs on tools/list. Per-call scope enforcement
         # is delegated to the GitGuardian API rejecting tokens that lack the
-        # scope.
+        # scope (see test_a_scope_hidden_tool_is_still_callable).
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
-        assert len(scope_fetches) == 1
+        assert scope_fetches == []
 
     async def test_explicit_tools_list_refetches_scopes_every_time(self, mcp_client, gg_api, mock_token_scopes):
         """

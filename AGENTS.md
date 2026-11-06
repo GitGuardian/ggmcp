@@ -59,8 +59,8 @@
     - Example: `from src.gitguardian.your_module import YourClass`
 
 2. **FastMCP imports must use the correct package path**
-    - All imports concerning FastMCP must be done under `mcp.server.fastmcp`
-    - Example: `from mcp.server.fastmcp import FastMCP` instead of direct imports
+    - Import FastMCP from the standalone `fastmcp` package (FastMCP 4)
+    - Example: `from fastmcp import FastMCP`. `mcp.server.fastmcp` does not exist in MCP SDK v2
 
 This guide ensures all MCP implementations follow the project's standards of using native capabilities rather than
 external web servers.
