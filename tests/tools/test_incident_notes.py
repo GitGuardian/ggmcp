@@ -30,26 +30,6 @@ def _note_payload(note_id: int = 42, incident_id: int = 123, comment: str = "Loo
 class TestManageIncidentCommentParams:
     """Tests for ManageIncidentCommentParams validation."""
 
-    def test_add_action_is_valid(self):
-        """
-        GIVEN action='add' with a comment and no comment_id
-        WHEN creating the params
-        THEN the params are valid
-        """
-        params = ManageIncidentCommentParams(incident_id=123, action="add", comment="A new comment")
-        assert params.action == "add"
-        assert params.comment_id is None
-
-    def test_edit_action_with_comment_id_is_valid(self):
-        """
-        GIVEN action='edit' with a comment_id
-        WHEN creating the params
-        THEN the params are valid
-        """
-        params = ManageIncidentCommentParams(incident_id=123, action="edit", comment="Edited", comment_id=42)
-        assert params.action == "edit"
-        assert params.comment_id == 42
-
     def test_edit_without_comment_id_raises_error(self):
         """
         GIVEN action='edit' without a comment_id

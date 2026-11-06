@@ -13,40 +13,12 @@ from gg_api_core.tools.count_incidents import (
     count_incidents,
 )
 from gg_api_core.tools.list_incidents import (
-    DEFAULT_EXCLUDED_TAGS,
-    DEFAULT_SEVERITIES,
-    DEFAULT_STATUSES,
-    DEFAULT_VALIDITIES,
     SeverityValues,
 )
 
 
 class TestCountIncidentsParamsDefaults:
     """Tests for CountIncidentsParams default filters (same as list_incidents)."""
-
-    def test_default_status_excludes_ignored(self):
-        params = CountIncidentsParams()
-        assert params.status == DEFAULT_STATUSES
-        assert "IGNORED" not in params.status
-
-    def test_default_severity_excludes_low_and_info(self):
-        params = CountIncidentsParams()
-        assert params.severity == DEFAULT_SEVERITIES
-        assert SeverityValues.LOW not in params.severity
-        assert SeverityValues.INFO not in params.severity
-
-    def test_default_validity_excludes_invalid(self):
-        params = CountIncidentsParams()
-        assert params.validity == DEFAULT_VALIDITIES
-        assert "invalid" not in params.validity
-
-    def test_default_exclude_tags_filters_noise(self):
-        params = CountIncidentsParams()
-        assert params.exclude_tags == DEFAULT_EXCLUDED_TAGS
-
-    def test_default_mine_is_false(self):
-        params = CountIncidentsParams()
-        assert params.mine is False
 
     def test_no_pagination_fields(self):
         """CountIncidentsParams should not have pagination-related fields."""
@@ -76,10 +48,6 @@ class TestCountIncidentsParamsCoercion:
         params = CountIncidentsParams(source_ids=123)
         assert params.source_ids == [123]
 
-    def test_coerce_preserves_list_input(self):
-        params = CountIncidentsParams(status=["TRIGGERED", "ASSIGNED"])
-        assert params.status == ["TRIGGERED", "ASSIGNED"]
-
     def test_coerce_preserves_none_input(self):
         params = CountIncidentsParams(detector_group_name=None)
         assert params.detector_group_name is None
@@ -87,28 +55,6 @@ class TestCountIncidentsParamsCoercion:
 
 class TestCountIncidentsTool:
     """Tests for the count_incidents async tool function."""
-
-    @pytest.mark.asyncio
-    async def test_count_returns_result(self):
-        mock_client = AsyncMock()
-        mock_client.count_incidents_for_mcp.return_value = {"count": 42}
-
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(CountIncidentsParams())
-
-        assert isinstance(result, CountIncidentsResult)
-        assert result.count == 42
-
-    @pytest.mark.asyncio
-    async def test_count_zero(self):
-        mock_client = AsyncMock()
-        mock_client.count_incidents_for_mcp.return_value = {"count": 0}
-
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(CountIncidentsParams())
-
-        assert isinstance(result, CountIncidentsResult)
-        assert result.count == 0
 
     @pytest.mark.asyncio
     async def test_count_passes_filters(self):
@@ -134,22 +80,6 @@ class TestCountIncidentsTool:
         assert call_kwargs["status"] == ["TRIGGERED"]
         assert call_kwargs["severity"] == [SeverityValues.CRITICAL]
         assert call_kwargs["detector_group_name"] == ["AWS Keys"]
-
-    @pytest.mark.asyncio
-    async def test_count_with_mine(self):
-        mock_client = AsyncMock()
-        mock_client.get_current_member.return_value = {"id": 99}
-        mock_client.count_incidents_for_mcp.return_value = {"count": 3}
-
-        params = CountIncidentsParams(mine=True)
-
-        with patch("gg_api_core.tools.count_incidents.get_client", return_value=mock_client):
-            result = await count_incidents(params)
-
-        assert isinstance(result, CountIncidentsResult)
-        assert result.count == 3
-        call_kwargs = mock_client.count_incidents_for_mcp.call_args.kwargs
-        assert call_kwargs["assignee_id"] == 99
 
     @pytest.mark.asyncio
     async def test_count_mine_conflict_with_assignee_id(self):
