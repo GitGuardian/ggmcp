@@ -94,7 +94,7 @@ class ListRepoOccurrencesBaseParams(BaseModel):
 
     source_id: str | int | None = Field(
         default=None,
-        description="The GitGuardian source ID to filter by. Can be obtained using list_source or find_current_source_id tools.",
+        description="The GitGuardian source ID to filter by. Can be obtained using the list_sources tool.",
     )
     ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
     per_page: int = Field(

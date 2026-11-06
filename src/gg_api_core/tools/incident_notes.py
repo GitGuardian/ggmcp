@@ -53,10 +53,10 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
 
     - action='add': create a new comment on the incident.
     - action='edit': replace the body of the comment identified by `comment_id`
-      (find it with `list_incident_comments`).
+      (the `id` returned when that comment was added).
 
-    For Public Monitoring incidents use `manage_public_incident_comment` instead;
-    note ids are not interchangeable between the two perimeters.
+    Public Monitoring incident ids are not supported; incident and note ids are
+    not interchangeable between the two perimeters.
 
     Args:
         params: ManageIncidentCommentParams with the incident ID, action, comment
