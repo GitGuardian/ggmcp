@@ -11,11 +11,7 @@ from fastmcp.server.http import create_streamable_http_app
 from starlette.applications import Starlette
 
 from gg_api_core.logging_config import configure_logging_from_settings
-from gg_api_core.mcp_server import (
-    AbstractGitGuardianFastMCP,
-    get_mcp_server,
-    register_common_tools,
-)
+from gg_api_core.mcp_server import AbstractGitGuardianFastMCP, get_mcp_server
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
 from gg_mcp_server.add_health_check import add_health_check
@@ -35,7 +31,6 @@ def build_server() -> AbstractGitGuardianFastMCP:
         instructions=GITGUARDIAN_INSTRUCTIONS,
     )
     register_tools(mcp)
-    register_common_tools(mcp)
     add_health_check(mcp)
     return mcp
 

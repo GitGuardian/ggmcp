@@ -504,13 +504,10 @@ def mock_gitguardian_client(request):
 
     # Mock other common methods that tests might use
     mock_client.list_incidents_directly = AsyncMock(return_value={"incidents": [], "total_count": 0})
+    mock_client.list_honeytokens = AsyncMock(return_value={"honeytokens": []})
     mock_client.list_occurrences = AsyncMock(return_value={"occurrences": [], "total_count": 0})
     mock_client.multiple_scan = AsyncMock(return_value=[])
-    mock_client.get_source_by_name = AsyncMock(return_value=None)
-    mock_client.list_source_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.paginate_all = AsyncMock(return_value={"data": [], "cursor": None, "has_more": False})
-    mock_client.list_honeytokens = AsyncMock(return_value={"honeytokens": []})
-    mock_client.list_incidents = AsyncMock(return_value={"data": [], "total_count": 0})
     mock_client.get_current_member = AsyncMock(return_value={"email": "test@example.com"})
 
     # List of all modules that import get_client directly with "from gg_api_core.utils import get_client"
@@ -518,33 +515,20 @@ def mock_gitguardian_client(request):
     modules_using_get_client = [
         "gg_api_core.utils",
         "gg_api_core.mcp_server",
-        "gg_api_core.tools.scan_secret",
-        "gg_api_core.tools.list_incidents",
-        "gg_api_core.tools.list_honeytokens",
-        "gg_api_core.tools.generate_honey_token",
-        "gg_api_core.tools.find_current_source_id",
-        "gg_api_core.tools.create_code_fix_request",
         "gg_api_core.tools.assign_incident",
-        "gg_api_core.tools.assign_public_incident",
-        "gg_api_core.tools.activity_logs",
+        "gg_api_core.tools.count_incidents",
+        "gg_api_core.tools.generate_honey_token",
+        "gg_api_core.tools.get_incident",
+        "gg_api_core.tools.get_public_incident",
+        "gg_api_core.tools.get_remediation_workflow",
         "gg_api_core.tools.incident_notes",
-        "gg_api_core.tools.manage_incident",
-        "gg_api_core.tools.update_public_incident_status",
+        "gg_api_core.tools.list_incidents",
         "gg_api_core.tools.list_public_incidents",
         "gg_api_core.tools.list_public_occurrences",
         "gg_api_core.tools.list_repo_occurrences",
-        "gg_api_core.tools.write_custom_tags",
-        "gg_api_core.tools.revoke_secret",
-        "gg_api_core.tools.read_custom_tags",
-        "gg_api_core.tools.list_users",
-        "gg_api_core.tools.list_incident_members",
-        "gg_api_core.tools.list_incident_teams",
-        "gg_api_core.tools.list_detectors",
         "gg_api_core.tools.list_sources",
-        "gg_api_core.tools.get_incident",
-        "gg_api_core.tools.get_public_incident",
-        "gg_api_core.tools.get_member",
-        "gg_api_core.tools.count_incidents",
+        "gg_api_core.tools.manage_incident",
+        "gg_api_core.tools.scan_secret",
     ]
 
     with ExitStack() as stack:

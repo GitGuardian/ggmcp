@@ -7,7 +7,6 @@ itself is covered by test_stdio_transport.py. As in the remote suite, only
 the outbound GitGuardian API is faked with respx.
 """
 
-import subprocess
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -130,27 +129,6 @@ class TestPatEnvAuthentication:
 
         assert result.structured_content == {"incident": INCIDENT}
         assert route.calls.last.request.headers["Authorization"] == f"Token {STDIO_PAT}"
-
-    async def test_get_authenticated_user_info_reports_the_env_var_mode(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a stdio server authenticated by the PAT env var
-        WHEN get_authenticated_user_info is called
-        THEN it reports the PERSONAL_ACCESS_TOKEN_ENV_VAR mode and the scopes
-        """
-        mock_token_scopes(scopes=["scan", "incidents:read"])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("get_authenticated_user_info", {})
-
-        output = result.structured_content
-        assert output is not None
-        assert output["authentication_mode"] == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
-        assert set(output["available_scopes"]) == {"scan", "incidents:read"}
 
     async def test_stored_oauth_token_is_used_without_starting_a_browser_flow(
         self,
@@ -357,78 +335,3 @@ class TestSingleTenantSelfHealing:
         error_content = result.content[0]
         assert isinstance(error_content, TextContent)
         assert "403" in error_content.text
-
-
-class TestLocalGitIntrospection:
-    """Local-repository behavior available specifically to the stdio server."""
-
-    async def test_find_current_source_id_reads_the_local_git_remote(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-        tmp_path: Path,
-    ) -> None:
-        """
-        GIVEN a local git repository with an origin remote
-        WHEN find_current_source_id is called with its path (stdio server can
-             shell out, unlike the hosted server)
-        THEN the workspace sources are searched by the repository name and the
-             matching source id is returned
-        """
-        repo = tmp_path / "widget-factory"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/widget-factory.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
-        route = gg_api.get("/sources").respond(200, json=[{"id": 99, "name": "widget-factory"}])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
-
-        assert dict(route.calls.last.request.url.params) == {"search": "widget-factory", "per_page": "50"}
-        assert result.structured_content is not None
-        output = result.structured_content["result"]
-        assert output["source_id"] == 99
-        assert output["repository_name"] == "widget-factory"
-
-    async def test_find_current_source_id_reports_when_no_source_matches(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-        tmp_path: Path,
-    ) -> None:
-        """
-        GIVEN a local git repository that has no matching GitGuardian source
-        WHEN find_current_source_id searches for its origin repository name
-        THEN it returns a useful not-found error rather than a source id
-        """
-        repo = tmp_path / "unmonitored-repository"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/unmonitored-repository.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
-        route = gg_api.get("/sources").respond(200, json=[])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
-
-        assert route.call_count == 1
-        assert dict(route.calls.last.request.url.params) == {
-            "search": "unmonitored-repository",
-            "per_page": "50",
-        }
-        assert result.structured_content is not None
-        output = result.structured_content["result"]
-        assert output["repository_name"] == "unmonitored-repository"
-        assert output["error"] == "Repository 'unmonitored-repository' not found in GitGuardian"
-        assert "source_id" not in output

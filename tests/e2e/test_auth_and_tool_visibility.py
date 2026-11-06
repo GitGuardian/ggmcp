@@ -121,12 +121,17 @@ class TestScopeBasedToolVisibility:
 
         names = await list_tool_names(mcp_client)
 
-        assert {"list_incidents", "count_incidents", "get_incident", "get_remediation_workflow"} <= names
-        assert "manage_private_incident" not in names
-        assert "assign_incident" not in names
-        assert "update_incident_severity" not in names
-        # list_remediation_targets needs sources:read on top of incidents:read
-        assert "list_remediation_targets" not in names
+        # Write tools need incidents:write, list_sources needs sources:read, scan_secrets needs scan.
+        assert names == {
+            "count_incidents",
+            "get_incident",
+            "get_public_incident",
+            "get_remediation_workflow",
+            "list_incidents",
+            "list_public_incidents",
+            "list_public_occurrences",
+            "list_repo_occurrences",
+        }
 
     async def test_tool_visibility_is_isolated_between_tenants_on_one_server(self, mcp_client, gg_api):
         """
@@ -302,23 +307,6 @@ class TestPerRequestScopeCost:
 
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
         assert len(scope_fetches) == 2
-
-
-class TestAuthenticatedUserInfo:
-    async def test_get_authenticated_user_info_reports_proxy_mode_and_scopes(self, mcp_client, mock_token_scopes):
-        """
-        GIVEN the hosted server in OAuth proxy mode
-        WHEN get_authenticated_user_info is called
-        THEN it returns the token info, the OAUTH_PROXY mode marker, and the scopes
-        """
-        mock_token_scopes(scopes=["scan", "incidents:read"])
-
-        result = await call_tool(mcp_client, "get_authenticated_user_info")
-        output = tool_output(result)
-
-        assert output["authentication_mode"] == "OAUTH_PROXY"
-        assert set(output["available_scopes"]) == {"scan", "incidents:read"}
-        assert output["token_info"]["scopes"] == ["scan", "incidents:read"]
 
 
 class TestExpiredTokenOnToolsList:

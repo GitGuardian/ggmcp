@@ -97,34 +97,3 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
     except Exception as e:
         logger.exception(f"Error managing incident: {str(e)}")
         raise ToolError(f"Error: {str(e)}")
-
-
-class UpdateIncidentSeverityParams(BaseModel):
-    """Parameters for updating incident severity."""
-
-    incident_id: str | int = Field(description="ID of the secret incident")
-    severity: Literal["critical", "high", "medium", "low", "info", "unknown"] = Field(
-        description="New severity for the incident"
-    )
-
-
-async def update_incident_severity(params: UpdateIncidentSeverityParams) -> dict[str, Any]:
-    """
-    Set the severity of a secret incident.
-
-    Args:
-        params: UpdateIncidentSeverityParams model containing the severity update configuration
-
-    Returns:
-        Updated incident data
-    """
-    client = await get_client()
-    logger.debug(f"Updating incident {params.incident_id} severity to {params.severity}")
-
-    try:
-        result = await client.update_incident(incident_id=str(params.incident_id), severity=params.severity)
-        logger.debug(f"Updated incident {params.incident_id} severity to {params.severity}")
-        return result
-    except Exception as e:
-        logger.exception(f"Error updating incident severity: {str(e)}")
-        raise ToolError(f"Error: {str(e)}")
