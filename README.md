@@ -239,10 +239,8 @@ your domain.
 
 ## Migration notes
 
-The `developer-mcp-server` and `secops-mcp-server` console scripts are
-deprecated and re-export the unified `gg-mcp-server`. Update your MCP client
-configuration to invoke `gg-mcp-server` directly; both old scripts will be
-removed in a future release.
+The `developer-mcp-server` and `secops-mcp-server` console scripts have been
+removed. Update your MCP client configuration to invoke `gg-mcp-server`.
 
 ## Want more?
 
