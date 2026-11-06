@@ -4,7 +4,6 @@ find_current_source_id, list_remediation_targets.
 
 from http import HTTPStatus
 
-import httpx
 import pytest
 
 from tests.e2e.harness import (
@@ -12,7 +11,6 @@ from tests.e2e.harness import (
     assert_authenticated_request,
     call_tool,
     sent_params,
-    token_info,
     tool_error_text,
     tool_output,
     unwrap_result,
@@ -216,11 +214,9 @@ class TestListRemediationTargets:
         THEN the API failure surfaces instead of returning everyone's incidents
         """
         occurrences = gg_api.get("/occurrences/secrets").respond(200, json=self.OCCURRENCES)
-        # First call: the per-request scope fetch (must succeed for the tool to
-        # be dispatched at all). Second call: the mine filter's member lookup.
-        gg_api.get("/api_tokens/self").mock(
-            side_effect=[httpx.Response(200, json=token_info())] + [httpx.Response(500, text="boom")] * 4
-        )
+        # Tool dispatch fetches no scopes, so every token-info call is the mine
+        # filter's member lookup (and its retries).
+        gg_api.get("/api_tokens/self").respond(500, text="boom")
 
         result = await call_tool(mcp_client, "list_remediation_targets", {"params": {"source_id": 55, "mine": True}})
 

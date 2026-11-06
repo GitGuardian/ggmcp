@@ -15,7 +15,7 @@ def get_gitguardian_icons() -> list[Icon]:
     return [
         Icon(
             src=f"data:image/png;base64,{encoded}",
-            mimeType="image/png",
+            mime_type="image/png",
             sizes=["256x256"],
         )
     ]

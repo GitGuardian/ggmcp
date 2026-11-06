@@ -181,7 +181,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             # Or with function passed directly
             mcp.tool(my_func, required_scopes=["scan"])
         """
-        # In FastMCP v3, @mcp.tool() returns the original function, not a Tool object.
+        # @mcp.tool() returns the original function, not a Tool object.
         # Derive the tool name from the explicit kwarg or from the function itself.
 
         if args and callable(args[0]):

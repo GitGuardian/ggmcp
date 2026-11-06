@@ -7,10 +7,9 @@ from pathlib import Path
 from typing import Any
 
 import sentry_sdk
+from fastmcp import Client, FastMCP
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.tools.scan_secret import ScanSecretsParams
-from mcp.server.fastmcp import FastMCP
-from mcp.shared.memory import create_connected_server_and_client_session
 from sentry_sdk.envelope import Envelope
 from sentry_sdk.transport import Transport
 
@@ -28,8 +27,8 @@ class _CapturingTransport(Transport):
 
 
 async def _call_scan_tool(server: FastMCP) -> None:
-    async with create_connected_server_and_client_session(server) as session:
-        await session.call_tool(
+    async with Client(server) as client:
+        await client.call_tool(
             "scan_secrets",
             {
                 "params": {
