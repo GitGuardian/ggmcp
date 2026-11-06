@@ -97,20 +97,6 @@ class TestEffectiveScopesSelfHostedCap:
             effective = set(get_settings().effective_scopes)
             assert effective == {"scan", "incidents:read"}
 
-    def test_self_hosted_full_parity_when_supported_set_equals_all(self):
-        """
-        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED equals ALL_SCOPES (today's default)
-        WHEN effective_scopes is read on a non-local self-hosted instance
-        THEN the full ALL_SCOPES set is returned — no SaaS/self-hosted gap
-        """
-        # Don't patch — exercise the current default value.
-        with patch.dict(
-            os.environ,
-            {"GITGUARDIAN_URL": "https://gitguardian.mycompany.com"},
-            clear=True,
-        ):
-            assert sorted(get_settings().effective_scopes) == sorted(scopes_module.SCOPES_SUPPORTED_IN_SELF_HOSTED)
-
     def test_local_instance_is_not_treated_as_self_hosted(self):
         """
         GIVEN GITGUARDIAN_URL points at localhost

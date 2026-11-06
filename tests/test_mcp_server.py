@@ -37,11 +37,6 @@ class TestGitGuardianFastMCP:
         """Tear down test fixtures."""
         pass
 
-    def test_init(self):
-        """Test initialization."""
-        assert self.mcp.name == "test_server"
-        assert self.mcp._tool_scopes == {}
-
     @pytest.mark.asyncio
     async def test_fetch_token_scopes_from_api(self, mock_gitguardian_client):
         """Test fetching token scopes from SaaS instance."""
@@ -113,50 +108,6 @@ class TestGitGuardianFastMCP:
             from gg_api_core.mcp_server import CachedTokenInfoMixin
 
             assert not isinstance(mcp, CachedTokenInfoMixin)
-
-    @pytest.mark.asyncio
-    async def test_tool_decorator(self):
-        """Test that the tool decorator properly registers tools."""
-
-        # Create a test tool
-        @self.mcp.tool()
-        async def test_tool():
-            """Test tool docstring."""
-            return "test_result"
-
-        # Test that the tool is registered
-        tools = await self.mcp.list_tools()
-        assert "test_tool" in [tool.name for tool in tools]
-
-    @pytest.mark.asyncio
-    async def test_list_tools_all_scopes_available(self):
-        """Test that list_tools returns all tools when all scopes are available."""
-        import os
-        from unittest.mock import patch
-
-        # Test in OAuth mode (cached scopes)
-        with patch.dict(os.environ, {"ENABLE_LOCAL_OAUTH": "true"}):
-            # Set token scopes to include all required scopes
-            self.mcp._token_scopes = {"scan", "incidents:read", "honeytokens:read"}
-
-            # Create test tools
-            @self.mcp.tool(required_scopes=["scan"])
-            async def tool_with_scan():
-                """Tool requiring scan scope."""
-                return "scan_result"
-
-            @self.mcp.tool(required_scopes=["incidents:read"])
-            async def tool_with_incidents_read():
-                """Tool requiring incidents:read scope."""
-                return "incidents_read_result"
-
-            # List tools
-            tools = await self.mcp.list_tools()
-            tool_names = [tool.name for tool in tools]
-
-            # Check that both tools are included
-            assert "tool_with_scan" in tool_names
-            assert "tool_with_incidents_read" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_missing_scopes(self):

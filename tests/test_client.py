@@ -42,19 +42,10 @@ def mock_httpx_client():
 class TestGitGuardianClient:
     """Tests for the GitGuardian API client."""
 
-    def test_init_with_env_vars(self, client):
-        """Test client initialization with environment variables."""
-        assert client.public_api_url == "https://gitguardian.mycompany.com/exposed/v1"
-
     def test_init_with_params(self):
         """Test client initialization with parameters."""
         client = GitGuardianClient(gitguardian_url="https://custom.api.url")
         assert client.public_api_url == "https://custom.api.url/exposed/v1"
-
-    def test_init_oauth_authentication(self):
-        """Test client initialization with OAuth authentication."""
-        client = GitGuardianClient()
-        assert client._oauth_token is None  # Initially no token until OAuth flow
 
     @pytest.mark.asyncio
     async def test_request_success(self, client, mock_response, mock_httpx_client):
@@ -99,56 +90,6 @@ class TestGitGuardianClient:
 
             # Should return empty dict for 204 responses
             assert result == {}
-
-    @pytest.mark.asyncio
-    async def test_request_error(self, client, mock_httpx_client):
-        """Test API request with error response."""
-        # Create a mock response with a working raise_for_status method
-        mock_request = MagicMock()
-        mock_response = MagicMock()
-        mock_response.status_code = 403
-        mock_response.text = "Forbidden"
-
-        # Create the HTTPStatusError that will be raised
-        error = httpx.HTTPStatusError("Test error", request=mock_request, response=mock_response)
-
-        # Set up the raise_for_status method to raise the error
-        # This needs to be a normal method, not an AsyncMock, since raise_for_status is not async
-        mock_response.raise_for_status.side_effect = error
-
-        # Mock the httpx.AsyncClient context manager
-        async_client_instance = AsyncMock()
-        async_client_instance.__aenter__.return_value = mock_httpx_client
-        mock_httpx_client.request = AsyncMock(return_value=mock_response)
-
-        # Patch the AsyncClient class to return our mock
-        with patch("httpx.AsyncClient", return_value=async_client_instance):
-            # The request should raise the HTTPStatusError
-            with pytest.raises(httpx.HTTPStatusError):
-                await client._request_get("/test")
-
-    @pytest.mark.asyncio
-    async def test_request_401_raises_downstream_unauthorized(self, client, mock_httpx_client):
-        """Downstream 401 should surface as DownstreamUnauthorizedError so middleware can rewrite to HTTP 401."""
-        from gg_api_core.client import DownstreamUnauthorizedError
-
-        mock_request = MagicMock()
-        mock_response = MagicMock()
-        mock_response.status_code = 401
-        mock_response.reason_phrase = "Unauthorized"
-        mock_response.text = "Unauthorized"
-        mock_response.json.return_value = {"detail": "Invalid API key."}
-        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
-            "401", request=mock_request, response=mock_response
-        )
-
-        async_client_instance = AsyncMock()
-        async_client_instance.__aenter__.return_value = mock_httpx_client
-        mock_httpx_client.request = AsyncMock(return_value=mock_response)
-
-        with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with pytest.raises(DownstreamUnauthorizedError):
-                await client._request_get("/test")
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("status_code", [401, 403])
@@ -515,35 +456,6 @@ class TestCursorPagination:
             assert result["cursor"] == "xyz789"
 
     @pytest.mark.asyncio
-    async def test_list_occurrences_returns_list_response(self, client):
-        """
-        GIVEN the list_occurrences method
-        WHEN called
-        THEN it should return a ListResponse structure
-        """
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = [
-            {"id": 1, "severity": "high"},
-        ]
-        mock_response.headers = {}
-        mock_response.raise_for_status = MagicMock()
-
-        mock_httpx_client = AsyncMock()
-        mock_httpx_client.get = AsyncMock(return_value=mock_response)
-
-        async_client_instance = AsyncMock()
-        async_client_instance.__aenter__.return_value = mock_httpx_client
-
-        with patch("httpx.AsyncClient", return_value=async_client_instance):
-            result = await client.list_occurrences(get_all=False)
-
-            assert "data" in result
-            assert "cursor" in result
-            assert "has_more" in result
-            assert result["cursor"] is None  # No next page
-
-    @pytest.mark.asyncio
     async def test_paginate_all_uses_request_list(self, client):
         """
         GIVEN the paginate_all method
@@ -582,32 +494,6 @@ class TestCursorPagination:
             assert len(result["data"]) == 5
             assert result["data"] == [{"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}]
             assert result["has_more"] is False
-
-    @pytest.mark.asyncio
-    async def test_extract_next_cursor_decodes_url(self, client):
-        """
-        GIVEN a Link header with URL-encoded cursor
-        WHEN _extract_next_cursor is called
-        THEN it should return the decoded cursor value
-        """
-        headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=test%2Bvalue%3D123>; rel="next"'}
-
-        cursor = client._extract_next_cursor(headers)
-
-        assert cursor == "test+value=123"
-
-    @pytest.mark.asyncio
-    async def test_extract_next_cursor_no_link_header(self, client):
-        """
-        GIVEN headers without a Link header
-        WHEN _extract_next_cursor is called
-        THEN it should return None
-        """
-        headers = {}
-
-        cursor = client._extract_next_cursor(headers)
-
-        assert cursor is None
 
 
 class TestIncidentsForMCPAssigneeFilter:

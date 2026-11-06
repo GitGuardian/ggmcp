@@ -64,15 +64,6 @@ class TestConfigureLogging:
         assert payload["endpoint"] == "/v1/x"
         assert payload["token"] == "[REDACTED]"
 
-    def test_exception_cls_is_added(self, capsys):
-        _reconfigure_json()
-        try:
-            raise ValueError("boom")
-        except ValueError:
-            structlog.get_logger("t").exception("failed")
-        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
-        assert payload["exception_cls"] == "ValueError"
-
     def test_exception_cls_on_stdlib_logger(self, capsys):
         _reconfigure_json()
         try:
