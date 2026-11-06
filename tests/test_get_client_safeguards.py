@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastmcp.exceptions import ValidationError
+
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import _get_caller_user_agent, get_client

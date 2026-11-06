@@ -8,6 +8,7 @@ without requiring a live API connection.
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.tools.list_repo_occurrences import (
     ListRepoOccurrencesParams,
     ListRepoOccurrencesResult,

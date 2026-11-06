@@ -5,6 +5,7 @@ Tests for the list_incidents tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from gg_api_core.tools.list_incidents import (
     DEFAULT_EXCLUDED_TAGS,
     DEFAULT_SEVERITIES,

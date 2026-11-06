@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, quote, unquote, urlparse
 import pytest
 import structlog
 import vcr
+
 from gg_api_core.logging_config import _DEMOTED_LOGGERS
 
 # Configure logging for VCR debugging

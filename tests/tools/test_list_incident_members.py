@@ -5,6 +5,7 @@ Tests for list_incident_members tool.
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from gg_api_core.tools.list_incident_members import (
     ListIncidentMembersParams,
     ListIncidentMembersResult,

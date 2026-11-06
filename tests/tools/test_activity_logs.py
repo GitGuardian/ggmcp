@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastmcp.exceptions import ToolError
+
 from gg_api_core.tools.activity_logs import (
     ListActivityLogsParams,
     ListActivityLogsResult,

@@ -2,6 +2,7 @@ import logging
 from types import SimpleNamespace
 
 import pytest
+
 from gg_api_core.middleware import ToolCallLoggingMiddleware
 
 

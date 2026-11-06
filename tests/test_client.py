@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
+
 from gg_api_core.client import GitGuardianClient, IncidentSeverity, IncidentStatus, IncidentValidity
 
 HONEYTOKEN_ID = "00000000-0000-4000-8000-000000000001"

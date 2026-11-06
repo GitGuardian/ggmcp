@@ -5,12 +5,13 @@ Tests for the assign_incident tool.
 from unittest.mock import AsyncMock
 
 import pytest
+from pydantic import ValidationError
+
 from gg_api_core.tools.assign_incident import (
     AssignIncidentParams,
     AssignIncidentResult,
     assign_incident,
 )
-from pydantic import ValidationError
 
 
 class TestAssignIncidentParams:
