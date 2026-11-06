@@ -36,26 +36,6 @@ class TestTokenMethods:
             # Should have member_id for user context
             assert "member_id" in result
 
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_api_tokens(self, real_client, use_cassette):
-        """
-        Test listing all API tokens for the account.
-
-        GIVEN a valid GitGuardian API key with appropriate permissions
-        WHEN we request the list of API tokens
-        THEN we should receive a list of tokens
-        """
-        with use_cassette("test_list_api_tokens"):
-            result = await real_client.list_api_tokens()
-
-            assert result is not None
-            # Result should be a list or contain a list
-            if isinstance(result, dict):
-                assert "results" in result or "data" in result or isinstance(result.get("tokens"), list)
-            else:
-                assert isinstance(result, list)
-
 
 class TestMemberMethods:
     """Tests for member/user related methods."""
@@ -76,23 +56,6 @@ class TestMemberMethods:
             assert result is not None
             assert "id" in result
             assert "email" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_members(self, real_client, use_cassette):
-        """
-        Test listing members in the organization.
-
-        GIVEN a valid GitGuardian API key with member read permissions
-        WHEN we request the list of members
-        THEN we should receive a list response with member data
-        """
-        with use_cassette("test_list_members"):
-            result = await real_client.list_members(params={"per_page": 5})
-
-            assert result is not None
-            assert "data" in result
-            assert isinstance(result["data"], list)
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio

@@ -189,15 +189,6 @@ MAX_PAGINATION_PAGES = 10
 DEFAULT_HTTP_TIMEOUT = 20
 
 
-def _serialize_enum_filter(value: Any) -> str:
-    """Serialize a single enum/string or a list of them into a comma-separated API query value."""
-    if isinstance(value, list):
-        return ",".join(str(v.value) if isinstance(v, Enum) else str(v) for v in value)
-    if isinstance(value, Enum):
-        return str(value.value)
-    return str(value)
-
-
 class PaginatedResult(TypedDict):
     """Result from paginate_all with size limit protection."""
 
@@ -331,6 +322,15 @@ async def acquire_single_tenant_token(
         "(2) Set ENABLE_LOCAL_OAUTH=true to trigger interactive OAuth flow, "
         "(3) For HTTP deployments, set MULTI_TENANCY_ENABLED=true and MCP_PORT."
     )
+
+
+def _serialize_enum_filter(value: Any) -> str:
+    """Serialize a single enum/string or a list of them into a comma-separated API query value."""
+    if isinstance(value, list):
+        return ",".join(str(v.value) if isinstance(v, Enum) else str(v) for v in value)
+    if isinstance(value, Enum):
+        return str(value.value)
+    return str(value)
 
 
 class GitGuardianClient:
@@ -778,21 +778,6 @@ class GitGuardianClient:
         """
         return cast(dict[str, Any], await self._request("PATCH", endpoint, **kwargs))
 
-    async def _request_delete(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
-        """Make a DELETE request to the GitGuardian API.
-
-        Args:
-            endpoint: API endpoint path
-            **kwargs: Additional arguments to pass to the request
-
-        Returns:
-            Response data as dictionary
-
-        Raises:
-            httpx.HTTPStatusError: If the API returns an error
-        """
-        return cast(dict[str, Any], await self._request("DELETE", endpoint, **kwargs))
-
     async def _request_list(self, endpoint: str, *, privacy_mode: bool = True, **kwargs: Any) -> ListResponse:
         """Make a request to a list endpoint that returns standardized ListResponse.
 
@@ -965,203 +950,6 @@ class GitGuardianClient:
             "has_more": has_more or (cursor is not None),
         }
 
-    async def create_honeytoken(
-        self, name: str, description: str = "", custom_tags: list[dict[str, str | None]] | None = None
-    ) -> dict[str, Any]:
-        """Create a new honeytoken in GitGuardian.
-
-        Args:
-            name: Name of the honeytoken
-            description: Description of the honeytoken
-            custom_tags: List of custom tags to apply to the honeytoken
-
-        Returns:
-            Honeytoken data
-        """
-        logger.info(f"Creating honeytoken: {name}")
-        data = {
-            "name": name,
-            "description": description,
-            "type": "AWS",
-            "custom_tags": custom_tags or [],
-        }
-
-        # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
-        # the caller, so it should not be logged as a server fault.
-        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400], privacy_mode=False)
-
-    async def create_honeytoken_with_context(
-        self,
-        name: str,
-        description: str = "",
-        custom_tags: list[dict[str, str | None]] | None = None,
-        language: str | None = None,
-        filename: str | None = None,
-        project_extensions: str | None = None,
-    ) -> dict[str, Any]:
-        """Create a honeytoken with context for smart injection into code.
-
-        Args:
-            name: Name of the honeytoken
-            description: Description of the honeytoken
-            custom_tags: List of custom tags to apply to the honeytoken
-            language: Programming language for context
-            filename: Suggested filename
-            project_extensions: Comma-separated string of file extensions in the project (e.g. 'py,yml,json')
-
-        Returns:
-            Honeytoken context data including content, filepath, and honeytoken_id
-        """
-        logger.info(f"Creating honeytoken with context: {name}")
-        logger.debug(f"Context: language={language}, filename={filename}, extensions={project_extensions}")
-
-        data = {
-            "name": name,
-            "description": description,
-            "type": "AWS",
-            "custom_tags": custom_tags or [],
-        }
-
-        if language:
-            data["language"] = language
-        if filename:
-            data["filename"] = filename
-        if project_extensions:
-            data["project_extensions"] = project_extensions
-
-        return await self._request_post("/honeytokens/with-context", json=data, privacy_mode=False)
-
-    async def get_honeytoken(self, honeytoken_id: str, show_token: bool = True) -> dict[str, Any]:
-        """Get details for a specific honeytoken.
-
-        Args:
-            honeytoken_id: ID of the honeytoken
-            show_token: Whether to include token details
-
-        Returns:
-            Honeytoken data
-        """
-        honeytoken_id = str(UUID(honeytoken_id))
-        logger.info(f"Getting honeytoken details for ID: {honeytoken_id}")
-        return await self._request_get(
-            f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}", privacy_mode=False
-        )
-
-    async def list_incidents(
-        self,
-        severity: IncidentSeverity | str | None = None,
-        status: IncidentStatus | str | None = None,
-        from_date: str | None = None,
-        to_date: str | None = None,
-        assignee_email: str | None = None,
-        assignee_id: str | None = None,
-        validity: IncidentValidity | str | None = None,
-        source_id: str | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        ordering: str | None = None,
-        get_all: bool = False,
-        tags: str | None = None,
-    ) -> ListResponse:
-        """List secrets incidents with optional filtering and cursor-based pagination.
-
-        Args:
-            severity: Filter by severity level (IncidentSeverity enum or string: critical, high, medium, low)
-            status: Filter by status (IncidentStatus enum or string: IGNORED, TRIGGERED, ASSIGNED, RESOLVED)
-            from_date: Filter incidents created after this date (ISO format: YYYY-MM-DD)
-            to_date: Filter incidents created before this date (ISO format: YYYY-MM-DD)
-            assignee_email: Filter incidents assigned to a specific email address
-            assignee_id: Filter incidents assigned to a specific member ID
-            validity: Filter by validity status (IncidentValidity enum or string: valid, invalid, failed_to_check, no_checker, unknown)
-            source_id: Filter by specific source ID
-            per_page: Number of results per page (default: 20)
-            cursor: Pagination cursor (for cursor-based pagination)
-            ordering: Sort field (Enum: date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at)
-                     Default is ASC, DESC if preceded by '-'
-            get_all: If True, fetch all results using cursor-based pagination
-            tags: Filter by tags (comma-separated tag names)
-
-        Returns:
-            List of incidents matching the criteria or an empty dict/list if no results
-        """
-        logger.info(
-            f"Listing incidents with filters: severity={severity}, status={status}, assignee_email={assignee_email}, assignee_id={assignee_id}, validity={validity}, source_id={source_id}, ordering={ordering}"
-        )
-
-        # Build query parameters
-        params = {}
-
-        # Process severity parameter
-        if severity:
-            # If it's an enum, get its value
-            if isinstance(severity, IncidentSeverity):
-                params["severity"] = severity.value
-            # If it's a string, pass it through directly
-            # The API will handle validation and support comma-separated values
-            elif isinstance(severity, str):
-                params["severity"] = severity
-            else:
-                raise TypeError("severity must be a string or IncidentSeverity enum")
-
-        # Process status parameter
-        if status:
-            # If it's an enum, get its value
-            if isinstance(status, IncidentStatus):
-                params["status"] = status.value
-            # If it's a string, pass it through directly
-            # The API will handle validation and support comma-separated values
-            elif isinstance(status, str):
-                params["status"] = status
-            else:
-                raise TypeError("status must be a string or IncidentStatus enum")
-
-        # Process validity parameter
-        if validity:
-            # If it's an enum, get its value
-            if isinstance(validity, IncidentValidity):
-                params["validity"] = validity.value
-            # If it's a string, pass it through directly
-            # The API will handle validation and support comma-separated values
-            elif isinstance(validity, str):
-                params["validity"] = validity
-            else:
-                raise TypeError("validity must be a string or IncidentValidity enum")
-
-        # Add other parameters
-        if from_date:
-            params["from_date"] = from_date
-        if to_date:
-            params["to_date"] = to_date
-        if assignee_email:
-            params["assignee_email"] = assignee_email
-        if assignee_id:
-            params["assignee_id"] = assignee_id
-        if per_page:
-            params["per_page"] = str(per_page)
-        if cursor:
-            params["cursor"] = cursor
-        if ordering:
-            params["ordering"] = ordering
-        if tags:
-            params["tags"] = tags
-
-        # Use source-specific endpoint when source_id is provided
-        # The /incidents/secrets endpoint silently ignores source_id query param
-        if source_id:
-            endpoint = f"/sources/{source_id}/incidents/secrets"
-        else:
-            endpoint = "/incidents/secrets"
-
-        if get_all:
-            # When get_all=True, return paginated result with truncation metadata
-            return await self.paginate_all(endpoint, params)
-
-        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-        if query_string:
-            endpoint = f"{endpoint}?{query_string}"
-
-        return await self._request_list(endpoint)
-
     async def get_incident(
         self,
         incident_id: int,
@@ -1181,141 +969,6 @@ class GitGuardianClient:
         if with_occurrences != 20:
             params["with_occurrences"] = with_occurrences
         return await self._request_get(f"/incidents/secrets/{incident_id}", params=params)
-
-    async def get_incidents(self, incident_ids: list[int]) -> list[dict[str, Any]]:
-        """Get detailed information about multiple incidents in a single batch.
-
-        This method optimizes API usage by fetching multiple incidents in parallel
-        rather than making separate serial requests for each one.
-
-        Args:
-            incident_ids: List of incident IDs to retrieve
-
-        Returns:
-            List of detailed incident data objects
-        """
-        logger.info(f"Batch fetching {len(incident_ids)} incidents")
-
-        # Use asyncio.gather to fetch incidents in parallel
-        tasks = [self.get_incident(incident_id) for incident_id in incident_ids]
-
-        # Wait for all requests to complete
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # Filter out any exceptions that occurred
-        incidents: list[dict[str, Any]] = []
-        for i, result in enumerate(results):
-            if isinstance(result, Exception):
-                logger.warning(f"Failed to fetch incident {incident_ids[i]}: {str(result)}")
-            elif isinstance(result, dict):
-                incidents.append(result)
-
-        return incidents
-
-    async def update_incident(
-        self,
-        incident_id: str,
-        severity: str | None = None,
-        custom_tags: list[dict[str, str | None]] | None = None,
-    ) -> dict[str, Any]:
-        """Update a secret incident.
-
-        Args:
-            incident_id: ID of the incident
-            status: New status (e.g., "IGNORED", "TRIGGERED", "ASSIGNED", "RESOLVED")
-            custom_tags: List of custom tags to apply to the incident
-                         Format: [{"key": "key1", "value": "value1"}, {"key": "key2", "value": "value2"}]
-
-        Returns:
-            Updated incident data
-        """
-        logger.info(f"Updating incident {incident_id} with severity={severity}, custom_tags={custom_tags}")
-
-        payload: dict[str, Any] = {}
-        if severity:
-            payload["severity"] = severity
-        if custom_tags:
-            payload["custom_tags"] = custom_tags
-
-        if not payload:
-            raise ValueError("At least one of severity or custom_tags must be provided")
-
-        return await self._request_patch(f"/incidents/secrets/{incident_id}", json=payload)
-
-    async def list_honeytokens(
-        self,
-        status: str | None = None,
-        search: str | None = None,
-        ordering: str | None = None,
-        show_token: bool = False,
-        creator_id: str | None = None,
-        creator_api_token_id: str | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List all honeytokens with optional filtering and cursor-based pagination.
-
-        Args:
-            status: Filter by status (active, triggered, or revoked)
-            search: Search string to filter results
-            ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
-            show_token: Whether to include token details in the response
-            creator_id: Filter by creator ID
-            creator_api_token_id: Filter by creator API token ID
-            per_page: Number of results per page (default: 20)
-            cursor: Pagination cursor (for cursor-based pagination)
-            get_all: If True, fetch all results using cursor-based pagination
-
-        Returns:
-            List of honeytokens matching the criteria or an empty dict/list if no results
-        """
-        logger.info(
-            f"Listing honeytokens with filters: status={status}, search={search}, ordering={ordering}, creator_id={creator_id}, creator_api_token_id={creator_api_token_id}"
-        )
-
-        # Build query parameters
-        params = {}
-        if status:
-            params["status"] = status
-        if search:
-            params["search"] = search
-        if ordering:
-            params["ordering"] = ordering
-        if show_token is not None:
-            params["show_token"] = str(show_token).lower()
-        if creator_id:
-            params["creator_id"] = creator_id
-        if creator_api_token_id:
-            params["creator_api_token_id"] = creator_api_token_id
-        if per_page:
-            params["per_page"] = str(per_page)
-        if cursor:
-            params["cursor"] = cursor
-
-        endpoint = "/honeytokens"
-
-        if get_all:
-            # When get_all=True, return paginated result with truncation metadata
-            return await self.paginate_all(endpoint, params, privacy_mode=False)
-
-        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
-        if query_string:
-            endpoint = f"{endpoint}?{query_string}"
-
-        return await self._request_list(endpoint, privacy_mode=False)
-
-    async def revoke_honeytoken(self, honeytoken_id: str) -> dict[str, Any]:
-        """Revoke a honeytoken.
-
-        Args:
-            honeytoken_id: ID of the honeytoken
-
-        Returns:
-            Result of the operation
-        """
-        logger.info(f"Revoking honeytoken: {honeytoken_id}")
-        return await self._request_post(f"/honeytokens/{honeytoken_id}/revoke")
 
     async def get_current_token_info(self) -> dict[str, Any]:
         """Get information about the current API token.
@@ -1341,27 +994,6 @@ class GitGuardianClient:
         # Otherwise fetch from the API
         return await self._request_get("/api_tokens/self")
 
-    async def list_api_tokens(self) -> dict[str, Any]:
-        """List all API tokens for the account.
-
-        Returns:
-            List of API tokens
-        """
-        logger.info("Listing API tokens")
-        return await self._request_get("/api_tokens")
-
-    async def revoke_current_token(self) -> dict[str, Any]:
-        """Revoke the current API token.
-
-        This endpoint revokes the API token being used for the current request,
-        effectively invalidating it immediately.
-
-        Returns:
-            Dictionary containing the revocation status
-        """
-        logger.info("Revoking current API token")
-        return await self._request_delete("/api_tokens/self")
-
     async def multiple_scan(self, documents: list[dict[str, str]]) -> dict[str, Any]:
         """Scan multiple documents for secrets and policy breaks.
 
@@ -1380,88 +1012,6 @@ class GitGuardianClient:
                 raise ValueError(f"Document at index {i} is missing required 'document' field")
 
         return await self._request_post("/multiscan", json=documents)
-
-    async def get_audit_logs(self, limit: int = 100) -> dict[str, Any]:
-        """Get audit logs for the organization.
-
-        Args:
-            limit: Maximum number of logs to return
-
-        Returns:
-            List of audit log entries
-        """
-        logger.info(f"Getting audit logs (limit: {limit})")
-        return await self._request_get(f"/audit_logs?per_page={limit}")
-
-    async def list_custom_tags(self) -> dict[str, Any]:
-        """List all custom tags.
-
-        Returns:
-            List of custom tags
-        """
-        logger.info("Listing custom tags")
-        return await self._request_get("/custom_tags")
-
-    async def create_custom_tag(self, key: str, value: str | None = None) -> dict[str, Any]:
-        """Create a custom tag.
-
-        Args:
-            key: Tag key
-            value: Tag value
-
-        Returns:
-            Created custom tag data
-        """
-        logger.info(f"Creating custom tag with key={key}, value={value}")
-        return await self._request_post("/custom_tags", json={"key": key, "value": value})
-
-    async def update_custom_tag(self, tag_id: str, key: str | None = None, value: str | None = None) -> dict[str, Any]:
-        """Update a custom tag.
-
-        Args:
-            tag_id: ID of the custom tag to update
-            key: New tag key (optional)
-            value: New tag value (optional)
-
-        Returns:
-            Updated custom tag data
-        """
-        logger.info(f"Updating custom tag {tag_id} with key={key}, value={value}")
-
-        payload: dict[str, Any] = {}
-        if key is not None:
-            payload["key"] = key
-        if value is not None:
-            payload["value"] = value
-
-        if not payload:
-            raise ValueError("At least one of key or value must be provided")
-
-        return await self._request_patch(f"/custom_tags/{tag_id}", json=payload)
-
-    async def delete_custom_tag(self, tag_id: str) -> dict[str, Any]:
-        """Delete a custom tag.
-
-        Args:
-            tag_id: ID of the custom tag to delete
-
-        Returns:
-            Empty dict on success
-        """
-        logger.info(f"Deleting custom tag {tag_id}")
-        return await self._request_delete(f"/custom_tags/{tag_id}")
-
-    async def get_custom_tag(self, tag_id: str) -> dict[str, Any]:
-        """Get a specific custom tag by ID.
-
-        Args:
-            tag_id: ID of the custom tag to retrieve
-
-        Returns:
-            Custom tag data
-        """
-        logger.info(f"Getting custom tag {tag_id}")
-        return await self._request_get(f"/custom_tags/{tag_id}")
 
     # Secret Incident management endpoints
     async def assign_incident(
@@ -1538,109 +1088,6 @@ class GitGuardianClient:
         logger.info(f"Reopening incident {incident_id}")
         return await self._request_post(f"/incidents/secrets/{incident_id}/reopen")
 
-    async def share_incident(self, incident_id: str) -> dict[str, Any]:
-        """Share a secret incident (create a share link).
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            Share information including share URL
-        """
-        logger.info(f"Creating share link for incident {incident_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/share")
-
-    async def unshare_incident(self, incident_id: str) -> dict[str, Any]:
-        """Unshare a secret incident (remove share link).
-
-        Args:
-            incident_id: ID of the secret incident
-
-        Returns:
-            Status of the operation
-        """
-        logger.info(f"Removing share link for incident {incident_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/unshare")
-
-    async def grant_incident_access(self, incident_id: str, member_id: str | None = None) -> dict[str, Any]:
-        """Grant access to a secret incident to a member.
-
-        Args:
-            incident_id: ID of the secret incident
-            member_id: ID of the member to grant access to
-
-        Returns:
-            Status of the operation
-        """
-        if not member_id:
-            raise ValueError("member_id must be provided")
-
-        payload = {"member_id": member_id}
-        logger.info(f"Granting access to incident {incident_id} for member {member_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/grant_access", json=payload)
-
-    async def revoke_incident_access(self, incident_id: str, member_id: str) -> dict[str, Any]:
-        """Revoke access to a secret incident from a member.
-
-        Args:
-            incident_id: ID of the secret incident
-            member_id: ID of the member to revoke access from
-
-        Returns:
-            Status of the operation
-        """
-        payload = {"member_id": member_id}
-        logger.info(f"Revoking access to incident {incident_id} from member {member_id}")
-        return await self._request_post(f"/incidents/secrets/{incident_id}/revoke_access", json=payload)
-
-    async def list_incident_members(
-        self,
-        incident_id: int,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List members having access to a secret incident.
-
-        Args:
-            incident_id: ID of the secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing members with access to incident {incident_id}")
-        endpoint = f"/incidents/secrets/{incident_id}/members"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
-    async def list_incident_teams(
-        self,
-        incident_id: int,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List teams having access to a secret incident.
-
-        Args:
-            incident_id: ID of the secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing teams with access to incident {incident_id}")
-        endpoint = f"/incidents/secrets/{incident_id}/teams"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
     # Secret Incident Notes (comments) management
     #
     # Notes are free-form comments left by members or API tokens on an incident.
@@ -1649,32 +1096,6 @@ class GitGuardianClient:
     # live under ``/incidents/secrets/{id}/notes`` while Public Monitoring
     # incidents live under ``/public-incidents/secrets/{id}/notes``; the note ids
     # are not interchangeable between the two perimeters.
-    async def list_incident_notes(
-        self,
-        incident_id: int | str,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List notes (comments) on an internal secret incident.
-
-        Wraps GET /v1/incidents/secrets/{incident_id}/notes.
-
-        Args:
-            incident_id: ID of the secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing notes for incident {incident_id}")
-        endpoint = f"/incidents/secrets/{incident_id}/notes"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
     async def create_incident_note(self, incident_id: int | str, comment: str) -> dict[str, Any]:
         """Create a note (comment) on an internal secret incident.
 
@@ -1708,150 +1129,6 @@ class GitGuardianClient:
             f"/incidents/secrets/{incident_id}/notes/{note_id}",
             json={"comment": comment},
         )
-
-    async def delete_incident_note(self, incident_id: int | str, note_id: int | str) -> dict[str, Any]:
-        """Delete a note (comment) from an internal secret incident.
-
-        Wraps DELETE /v1/incidents/secrets/{incident_id}/notes/{note_id}.
-
-        Args:
-            incident_id: ID of the secret incident
-            note_id: ID of the note to delete
-
-        Returns:
-            Status of the operation
-        """
-        logger.info(f"Deleting note {note_id} from incident {incident_id}")
-        return await self._request_delete(f"/incidents/secrets/{incident_id}/notes/{note_id}")
-
-    async def list_public_incident_notes(
-        self,
-        incident_id: int | str,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List notes (comments) on a public secret incident.
-
-        Wraps GET /v1/public-incidents/secrets/{incident_id}/notes.
-
-        Args:
-            incident_id: ID of the public secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing notes for public incident {incident_id}")
-        endpoint = f"/public-incidents/secrets/{incident_id}/notes"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
-    async def create_public_incident_note(self, incident_id: int | str, comment: str) -> dict[str, Any]:
-        """Create a note (comment) on a public secret incident.
-
-        Wraps POST /v1/public-incidents/secrets/{incident_id}/notes.
-
-        Args:
-            incident_id: ID of the public secret incident
-            comment: Content of the comment (1-10000 characters)
-
-        Returns:
-            Created note details
-        """
-        logger.info(f"Creating note for public incident {incident_id}")
-        return await self._request_post(f"/public-incidents/secrets/{incident_id}/notes", json={"comment": comment})
-
-    async def update_public_incident_note(
-        self, incident_id: int | str, note_id: int | str, comment: str
-    ) -> dict[str, Any]:
-        """Update a note (comment) on a public secret incident.
-
-        Wraps PATCH /v1/public-incidents/secrets/{incident_id}/notes/{note_id}.
-
-        Args:
-            incident_id: ID of the public secret incident
-            note_id: ID of the note to update
-            comment: New content for the comment (1-10000 characters)
-
-        Returns:
-            Updated note details
-        """
-        logger.info(f"Updating note {note_id} for public incident {incident_id}")
-        return await self._request_patch(
-            f"/public-incidents/secrets/{incident_id}/notes/{note_id}",
-            json={"comment": comment},
-        )
-
-    async def delete_public_incident_note(self, incident_id: int | str, note_id: int | str) -> dict[str, Any]:
-        """Delete a note (comment) from a public secret incident.
-
-        Wraps DELETE /v1/public-incidents/secrets/{incident_id}/notes/{note_id}.
-
-        Args:
-            incident_id: ID of the public secret incident
-            note_id: ID of the note to delete
-
-        Returns:
-            Status of the operation
-        """
-        logger.info(f"Deleting note {note_id} from public incident {incident_id}")
-        return await self._request_delete(f"/public-incidents/secrets/{incident_id}/notes/{note_id}")
-
-    async def list_incident_activity_logs(
-        self,
-        incident_id: int | str,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List the full activity log (user notes AND system actions) of an internal secret incident.
-
-        Wraps GET /v1/incidents/secrets/{incident_id}/activity-logs.
-
-        Args:
-            incident_id: ID of the secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing activity logs for incident {incident_id}")
-        endpoint = f"/incidents/secrets/{incident_id}/activity-logs"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
-    async def list_public_incident_activity_logs(
-        self,
-        incident_id: int | str,
-        params: dict[str, Any] | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List the full activity log (user notes AND system actions) of a public secret incident.
-
-        Wraps GET /v1/public-incidents/secrets/{incident_id}/activity-logs.
-
-        Args:
-            incident_id: ID of the public secret incident
-            params: Optional query parameters for filtering and pagination
-            get_all: If True, fetch all pages using paginate_all
-
-        Returns:
-            ListResponse with data, cursor, and has_more fields
-        """
-        logger.info(f"Listing activity logs for public incident {incident_id}")
-        endpoint = f"/public-incidents/secrets/{incident_id}/activity-logs"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
 
     async def list_occurrences(
         self,
@@ -1947,246 +1224,6 @@ class GitGuardianClient:
         logger.info(f"Getting occurrences with params: {params}")
         return await self._request_list("occurrences/secrets", params=params)
 
-    async def list_public_incidents(
-        self,
-        cursor: str | None = None,
-        per_page: int = 20,
-        date_before: str | None = None,
-        date_after: str | None = None,
-        triggered_at_before: str | None = None,
-        triggered_at_after: str | None = None,
-        assignee_email: str | None = None,
-        assignee_id: int | None = None,
-        status: IncidentStatus | str | Sequence[IncidentStatus | str] | None = None,
-        severity: IncidentSeverity | str | Sequence[IncidentSeverity | str] | None = None,
-        validity: IncidentValidity | str | Sequence[IncidentValidity | str] | None = None,
-        tags: str | None = None,
-        custom_tags: str | None = None,
-        custom_tag_key: str | None = None,
-        custom_tag_value: str | None = None,
-        ordering: str | None = None,
-        detector_group_name: str | None = None,
-        ignorer_id: int | None = None,
-        ignorer_api_token_id: str | None = None,
-        resolver_id: int | None = None,
-        resolver_api_token_id: str | None = None,
-        feedback: bool | None = None,
-        declarative_secret_status: str | None = None,
-        risk_score_min: int | None = None,
-        risk_score_max: int | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List public secret incidents (from public sources like public GitHub).
-
-        Wraps GET /v1/public-incidents/secrets.
-
-        Args:
-            cursor: Pagination cursor.
-            per_page: Number of results per page (1-100, default 20).
-            date_before: Entries found before this date (ISO datetime).
-            date_after: Entries found after this date (ISO datetime).
-            triggered_at_before: Incidents triggered before this date (ISO datetime).
-            triggered_at_after: Incidents triggered after this date (ISO datetime).
-            assignee_email: Incidents assigned to this email.
-            assignee_id: Incidents assigned to this user id.
-            status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED).
-                Accepts a single value or a list (sent as comma-separated; the API
-                accepts multi-value filters here, like the sibling /incidents/secrets endpoint).
-            severity: Filter by severity (critical, high, medium, low, info, unknown).
-                Accepts a single value or a list (comma-separated).
-            validity: Filter by validity (valid, invalid, failed_to_check, no_checker, unknown).
-                Accepts a single value or a list (comma-separated).
-            tags: Filter by tags (comma-separated tag names, or "NONE" for incidents without tags).
-            custom_tags: Filter by custom tag UUIDs (comma-separated).
-            custom_tag_key: Filter by custom tag key.
-            custom_tag_value: Filter by custom tag value.
-            ordering: Sort field (date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at,
-                risk_score, -risk_score).
-            detector_group_name: Filter by detector group name.
-            ignorer_id: Incidents ignored by this user id.
-            ignorer_api_token_id: Incidents ignored by this API token id.
-            resolver_id: Incidents resolved by this user id.
-            resolver_api_token_id: Incidents resolved by this API token id.
-            feedback: Filter by presence of feedback.
-            declarative_secret_status: Filter by declarative secret status (revoked, active,
-                test_credential, false_positive, low_risk).
-            risk_score_min: Minimum risk score (0-100).
-            risk_score_max: Maximum risk score (0-100).
-            get_all: If True, fetch all results using cursor-based pagination.
-
-        Returns:
-            ListResponse with public incident data, cursor, and has_more flag.
-        """
-        logger.info("Listing public secret incidents")
-
-        params: dict[str, Any] = {}
-        if cursor:
-            params["cursor"] = cursor
-        if per_page:
-            params["per_page"] = str(per_page)
-        if date_before:
-            params["date_before"] = date_before
-        if date_after:
-            params["date_after"] = date_after
-        if triggered_at_before:
-            params["triggered_at_before"] = triggered_at_before
-        if triggered_at_after:
-            params["triggered_at_after"] = triggered_at_after
-        if assignee_email:
-            params["assignee_email"] = assignee_email
-        if assignee_id is not None:
-            params["assignee_id"] = str(assignee_id)
-        if status:
-            params["status"] = _serialize_enum_filter(status)
-        if severity:
-            params["severity"] = _serialize_enum_filter(severity)
-        if validity:
-            params["validity"] = _serialize_enum_filter(validity)
-        if tags:
-            params["tags"] = tags
-        if custom_tags:
-            params["custom_tags"] = custom_tags
-        if custom_tag_key:
-            params["custom_tag_key"] = custom_tag_key
-        if custom_tag_value:
-            params["custom_tag_value"] = custom_tag_value
-        if ordering:
-            params["ordering"] = ordering
-        if detector_group_name:
-            params["detector_group_name"] = detector_group_name
-        if ignorer_id is not None:
-            params["ignorer_id"] = str(ignorer_id)
-        if ignorer_api_token_id:
-            params["ignorer_api_token_id"] = ignorer_api_token_id
-        if resolver_id is not None:
-            params["resolver_id"] = str(resolver_id)
-        if resolver_api_token_id:
-            params["resolver_api_token_id"] = resolver_api_token_id
-        if feedback is not None:
-            params["feedback"] = str(feedback).lower()
-        if declarative_secret_status:
-            params["declarative_secret_status"] = declarative_secret_status
-        if risk_score_min is not None:
-            params["risk_score_min"] = str(risk_score_min)
-        if risk_score_max is not None:
-            params["risk_score_max"] = str(risk_score_max)
-
-        endpoint = "/public-incidents/secrets"
-
-        if get_all:
-            return await self.paginate_all(endpoint, params)
-
-        return await self._request_list(endpoint, params=params)
-
-    async def get_public_incident(self, incident_id: int) -> dict[str, Any]:
-        """Retrieve a single public secret incident by id.
-
-        Wraps GET /v1/public-incidents/secrets/{incident_id}.
-
-        Args:
-            incident_id: The id of the public incident to retrieve.
-
-        Returns:
-            Detailed public incident data.
-        """
-        logger.info(f"Getting public incident {incident_id}")
-        return await self._request_get(f"/public-incidents/secrets/{incident_id}")
-
-    async def assign_public_incident(
-        self,
-        incident_id: int,
-        assignee_id: int | str | None = None,
-        email: str | None = None,
-        send_email: bool | None = None,
-    ) -> dict[str, Any]:
-        """Assign a public secret incident to a workspace member.
-
-        Wraps POST /v1/public-incidents/secrets/{incident_id}/assign.
-
-        Args:
-            incident_id: The id of the public incident to assign.
-            assignee_id: Member id to assign the incident to. Mutually exclusive with email.
-            email: Email of the member to assign the incident to. Mutually exclusive with
-                assignee_id.
-            send_email: If False, skip notifying the assignee. Defaults to the API default
-                (True) when omitted.
-
-        Returns:
-            The updated public incident payload.
-        """
-        if assignee_id is not None and email is not None:
-            raise ValueError("either email or assignee_id should be provided. Not both")
-        if assignee_id is None and email is None:
-            raise ValueError("either email or assignee_id must be provided")
-
-        logger.info(f"Assigning public incident {incident_id} to member {assignee_id or email}")
-
-        payload: dict[str, Any] = {}
-        if assignee_id is not None:
-            payload["member_id"] = int(assignee_id)
-        if email is not None:
-            payload["email"] = email
-
-        kwargs: dict[str, Any] = {"json": payload}
-        if send_email is not None:
-            kwargs["params"] = {"send_email": str(send_email).lower()}
-
-        return await self._request_post(
-            f"/public-incidents/secrets/{incident_id}/assign",
-            **kwargs,
-        )
-
-    async def resolve_public_incident(self, incident_id: int, resolve_reason: str) -> dict[str, Any]:
-        """Resolve a public secret incident.
-
-        Wraps POST /v1/public-incidents/secrets/{incident_id}/resolve.
-
-        Args:
-            incident_id: The id of the public incident to resolve.
-            resolve_reason: Reason for resolving (revoked, dmca_request, source_deleted).
-
-        Returns:
-            The updated public incident payload.
-        """
-        logger.info(f"Resolving public incident {incident_id} (resolve_reason={resolve_reason})")
-        return await self._request_post(
-            f"/public-incidents/secrets/{incident_id}/resolve",
-            json={"resolve_reason": resolve_reason},
-        )
-
-    async def ignore_public_incident(self, incident_id: int, ignore_reason: str) -> dict[str, Any]:
-        """Ignore a public secret incident.
-
-        Wraps POST /v1/public-incidents/secrets/{incident_id}/ignore.
-
-        Args:
-            incident_id: The id of the public incident to ignore.
-            ignore_reason: Reason for ignoring (test_credential, false_positive, low_risk,
-                invalid, ignore_actor, ignore_secret).
-
-        Returns:
-            The updated public incident payload.
-        """
-        logger.info(f"Ignoring public incident {incident_id} with reason: {ignore_reason}")
-        return await self._request_post(
-            f"/public-incidents/secrets/{incident_id}/ignore",
-            json={"ignore_reason": ignore_reason},
-        )
-
-    async def reopen_public_incident(self, incident_id: int) -> dict[str, Any]:
-        """Reopen a public secret incident that was previously resolved or ignored.
-
-        Wraps POST /v1/public-incidents/secrets/{incident_id}/reopen.
-
-        Args:
-            incident_id: The id of the public incident to reopen.
-
-        Returns:
-            The updated public incident payload.
-        """
-        logger.info(f"Reopening public incident {incident_id}")
-        return await self._request_post(f"/public-incidents/secrets/{incident_id}/reopen")
-
     async def list_public_occurrences(
         self,
         incident_id: int,
@@ -2272,46 +1309,6 @@ class GitGuardianClient:
 
         return await self._request_list(endpoint, params=params)
 
-    async def list_source_incidents(self, source_id: str, **kwargs: Any) -> dict[str, Any]:
-        """List secret incidents of a source.
-
-        Args:
-            source_id: ID of the source
-            **kwargs: Additional filtering parameters
-
-        Returns:
-            List of incidents for the source
-        """
-        logger.info(f"Listing incidents for source {source_id}")
-
-        # Convert kwargs to query parameters
-        query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
-        endpoint = f"/sources/{source_id}/incidents/secrets"
-        if query_params:
-            endpoint = f"{endpoint}?{query_params}"
-
-        return await self._request_get(endpoint)
-
-    async def list_member_incidents(self, member_id: str, **kwargs: Any) -> dict[str, Any]:
-        """List secret incidents a member has access to.
-
-        Args:
-            member_id: ID of the member
-            **kwargs: Additional filtering parameters
-
-        Returns:
-            List of incidents the member has access to
-        """
-        logger.info(f"Listing incidents for member {member_id}")
-
-        # Convert kwargs to query parameters
-        query_params = "&".join([f"{k}={v}" for k, v in kwargs.items()])
-        endpoint = f"/members/{member_id}/secret-incidents"
-        if query_params:
-            endpoint = f"{endpoint}?{query_params}"
-
-        return await self._request_get(endpoint)
-
     async def list_sources(
         self,
         search: str | None = None,
@@ -2385,83 +1382,6 @@ class GitGuardianClient:
 
         return await self._request_list(endpoint, params=params)
 
-    async def get_source_by_name(
-        self, source_name: str, return_all_on_no_match: bool = False
-    ) -> dict[str, Any] | list[dict[str, Any]] | None:
-        """Get a source by its name (repository name).
-
-        Args:
-            source_name: Name of the source/repository to find
-            return_all_on_no_match: If True and no exact match is found, return all search results
-                                   instead of None. This allows the caller to choose from candidates.
-
-        Returns:
-            - If exact match found: Single source object (dict)
-            - If no exact match and return_all_on_no_match=True: List of all matching sources
-            - If no exact match and return_all_on_no_match=False: None
-        """
-        logger.info(f"Looking up source ID for repository name: {source_name}")
-
-        # Fetch all sources matching the search term
-        params = {
-            "search": source_name,
-            "per_page": 50,  # Get more results for better matching
-        }
-
-        try:
-            # Get sources matching the search term
-            response = await self._request_list("/sources", params=params)
-            sources_data = response["data"]
-
-            # Try to find exact match by name
-            for source in sources_data:
-                # Check for both the full name (org/repo) and just the repo name
-                if source.get("name") == source_name or source.get("full_name") == source_name:
-                    logger.info(f"Found exact match - source ID {source.get('id')} for {source_name}")
-                    return source
-
-            # No exact match found
-            logger.info(f"No exact match found for '{source_name}'. Found {len(sources_data)} potential matches.")
-
-            if return_all_on_no_match:
-                logger.info(f"Returning all {len(sources_data)} candidates for manual selection")
-                return sources_data
-            else:
-                logger.warning(f"No exact match found for: {source_name}")
-                return None
-
-        except Exception as e:
-            logger.exception(f"Error getting source by name: {str(e)}")
-            return None
-
-    async def create_code_fix_request(self, locations: list[dict[str, Any]]) -> dict[str, Any]:
-        """Create code fix requests for multiple secret incidents with their locations.
-
-        This will generate pull requests to automatically remediate the detected secrets.
-        Each request must include one or more issues (by issue_id) and one or more
-        location IDs for each issue.
-
-        The system will group locations by source repository and create one pull request per source.
-
-        Args:
-            locations: List of issues with their location IDs to fix. Each item should have:
-                - issue_id (int): The ID of the secret incident
-                - location_ids (list[int]): List of location IDs to fix for this issue
-
-        Returns:
-            dict with success message containing count of created requests and locations
-
-        Raises:
-            Exception: If the request fails (400: invalid input, 403: insufficient permissions,
-                      404: API key not configured)
-        """
-        logger.info(f"Creating code fix request for {len(locations)} issue(s)")
-        return await self._request_post("/code-fix-requests", json={"locations": locations})
-
-    async def list_members(self, params: dict[str, Any]) -> ListResponse:
-        """List all users in the account."""
-        return await self._request_list("/members", params=params)
-
     async def get_member(self, member_id: int) -> dict[str, Any]:
         """Get a specific user's information.
 
@@ -2474,43 +1394,11 @@ class GitGuardianClient:
         logger.info(f"Getting member details for ID: {member_id}")
         return await self._request_get(f"/members/{member_id}")
 
-    async def get_remediation_workflow(self) -> dict[str, Any]:
-        """Get the workspace's remediation workflow.
-
-        Wraps GET /v1/remediation-workflow. Returns the account's custom
-        remediation workflow if one is configured, otherwise a default workflow.
-
-        Returns:
-            Remediation workflow data including the ordered ``steps`` and, for a
-            configured custom workflow, ``id``/``created_at``/``updated_at``.
-        """
-        logger.info("Getting remediation workflow")
-        return await self._request_get("/remediation-workflow")
-
     async def get_current_member(self):
         """Get the current user's information."""
         data = await self.get_current_token_info()
         member_id = data["member_id"]
         return await self.get_member(member_id)
-
-    async def revoke_secret(self, secret_id: str | int) -> dict[str, Any]:
-        """Revoke a secret by its ID.
-
-        This triggers the revocation of a secret through the GitGuardian API.
-        The revocation may be processed synchronously or asynchronously depending
-        on the secret type and provider.
-
-        Args:
-            secret_id: ID of the secret to revoke
-
-        Returns:
-            Dictionary containing:
-                - success: Whether the revocation was successful
-                - reason: Optional reason for the result
-                - is_async: Whether the revocation is being processed asynchronously
-        """
-        logger.info(f"Revoking secret with ID: {secret_id}")
-        return await self._request_post(f"/secrets/{secret_id}/revoke")
 
     async def list_incidents_for_mcp(
         self,
@@ -2931,44 +1819,264 @@ class GitGuardianClient:
 
         return await self._request_get("/incidents-for-mcp/count", params=params)
 
-    async def list_detectors(
-        self,
-        search: str | None = None,
-        type: str | None = None,
-        per_page: int = 20,
-        cursor: str | None = None,
-        get_all: bool = False,
-    ) -> ListResponse:
-        """List secret detectors known by GitGuardian with optional filtering.
+    async def get_remediation_workflow(self) -> dict[str, Any]:
+        """Get the workspace's remediation workflow.
 
-        This endpoint returns information about the secret detectors available
-        in the GitGuardian detection engine.
-
-        Args:
-            search: Search string to filter detectors by name
-            type: Filter by detector type (specific, generic, custom)
-            per_page: Number of results per page (default: 20, max: 100)
-            cursor: Pagination cursor from a previous response
-            get_all: If True, fetch all results using cursor-based pagination
+        Wraps GET /v1/remediation-workflow. Returns the account's custom
+        remediation workflow if one is configured, otherwise a default workflow.
 
         Returns:
-            ListResponse with detector data, cursor, and has_more fields
+            Remediation workflow data including the ordered ``steps`` and, for a
+            configured custom workflow, ``id``/``created_at``/``updated_at``.
         """
-        logger.info("Listing secret detectors")
+        logger.info("Getting remediation workflow")
+        return await self._request_get("/remediation-workflow")
+
+    async def list_public_incidents(
+        self,
+        cursor: str | None = None,
+        per_page: int = 20,
+        date_before: str | None = None,
+        date_after: str | None = None,
+        triggered_at_before: str | None = None,
+        triggered_at_after: str | None = None,
+        assignee_email: str | None = None,
+        assignee_id: int | None = None,
+        status: IncidentStatus | str | Sequence[IncidentStatus | str] | None = None,
+        severity: IncidentSeverity | str | Sequence[IncidentSeverity | str] | None = None,
+        validity: IncidentValidity | str | Sequence[IncidentValidity | str] | None = None,
+        tags: str | None = None,
+        custom_tags: str | None = None,
+        custom_tag_key: str | None = None,
+        custom_tag_value: str | None = None,
+        ordering: str | None = None,
+        detector_group_name: str | None = None,
+        ignorer_id: int | None = None,
+        ignorer_api_token_id: str | None = None,
+        resolver_id: int | None = None,
+        resolver_api_token_id: str | None = None,
+        feedback: bool | None = None,
+        declarative_secret_status: str | None = None,
+        risk_score_min: int | None = None,
+        risk_score_max: int | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List public secret incidents (from public sources like public GitHub).
+
+        Wraps GET /v1/public-incidents/secrets.
+
+        Args:
+            cursor: Pagination cursor.
+            per_page: Number of results per page (1-100, default 20).
+            date_before: Entries found before this date (ISO datetime).
+            date_after: Entries found after this date (ISO datetime).
+            triggered_at_before: Incidents triggered before this date (ISO datetime).
+            triggered_at_after: Incidents triggered after this date (ISO datetime).
+            assignee_email: Incidents assigned to this email.
+            assignee_id: Incidents assigned to this user id.
+            status: Filter by status (IGNORED, TRIGGERED, ASSIGNED, RESOLVED).
+                Accepts a single value or a list (sent as comma-separated; the API
+                accepts multi-value filters here, like the sibling /incidents/secrets endpoint).
+            severity: Filter by severity (critical, high, medium, low, info, unknown).
+                Accepts a single value or a list (comma-separated).
+            validity: Filter by validity (valid, invalid, failed_to_check, no_checker, unknown).
+                Accepts a single value or a list (comma-separated).
+            tags: Filter by tags (comma-separated tag names, or "NONE" for incidents without tags).
+            custom_tags: Filter by custom tag UUIDs (comma-separated).
+            custom_tag_key: Filter by custom tag key.
+            custom_tag_value: Filter by custom tag value.
+            ordering: Sort field (date, -date, resolved_at, -resolved_at, ignored_at, -ignored_at,
+                risk_score, -risk_score).
+            detector_group_name: Filter by detector group name.
+            ignorer_id: Incidents ignored by this user id.
+            ignorer_api_token_id: Incidents ignored by this API token id.
+            resolver_id: Incidents resolved by this user id.
+            resolver_api_token_id: Incidents resolved by this API token id.
+            feedback: Filter by presence of feedback.
+            declarative_secret_status: Filter by declarative secret status (revoked, active,
+                test_credential, false_positive, low_risk).
+            risk_score_min: Minimum risk score (0-100).
+            risk_score_max: Maximum risk score (0-100).
+            get_all: If True, fetch all results using cursor-based pagination.
+
+        Returns:
+            ListResponse with public incident data, cursor, and has_more flag.
+        """
+        logger.info("Listing public secret incidents")
 
         params: dict[str, Any] = {}
-        if search:
-            params["search"] = search
-        if type:
-            params["type"] = type
-        if per_page:
-            params["per_page"] = str(per_page)
         if cursor:
             params["cursor"] = cursor
+        if per_page:
+            params["per_page"] = str(per_page)
+        if date_before:
+            params["date_before"] = date_before
+        if date_after:
+            params["date_after"] = date_after
+        if triggered_at_before:
+            params["triggered_at_before"] = triggered_at_before
+        if triggered_at_after:
+            params["triggered_at_after"] = triggered_at_after
+        if assignee_email:
+            params["assignee_email"] = assignee_email
+        if assignee_id is not None:
+            params["assignee_id"] = str(assignee_id)
+        if status:
+            params["status"] = _serialize_enum_filter(status)
+        if severity:
+            params["severity"] = _serialize_enum_filter(severity)
+        if validity:
+            params["validity"] = _serialize_enum_filter(validity)
+        if tags:
+            params["tags"] = tags
+        if custom_tags:
+            params["custom_tags"] = custom_tags
+        if custom_tag_key:
+            params["custom_tag_key"] = custom_tag_key
+        if custom_tag_value:
+            params["custom_tag_value"] = custom_tag_value
+        if ordering:
+            params["ordering"] = ordering
+        if detector_group_name:
+            params["detector_group_name"] = detector_group_name
+        if ignorer_id is not None:
+            params["ignorer_id"] = str(ignorer_id)
+        if ignorer_api_token_id:
+            params["ignorer_api_token_id"] = ignorer_api_token_id
+        if resolver_id is not None:
+            params["resolver_id"] = str(resolver_id)
+        if resolver_api_token_id:
+            params["resolver_api_token_id"] = resolver_api_token_id
+        if feedback is not None:
+            params["feedback"] = str(feedback).lower()
+        if declarative_secret_status:
+            params["declarative_secret_status"] = declarative_secret_status
+        if risk_score_min is not None:
+            params["risk_score_min"] = str(risk_score_min)
+        if risk_score_max is not None:
+            params["risk_score_max"] = str(risk_score_max)
 
-        endpoint = "/secret_detectors"
+        endpoint = "/public-incidents/secrets"
 
         if get_all:
             return await self.paginate_all(endpoint, params)
 
         return await self._request_list(endpoint, params=params)
+
+    async def get_public_incident(self, incident_id: int) -> dict[str, Any]:
+        """Retrieve a single public secret incident by id.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}.
+
+        Args:
+            incident_id: The id of the public incident to retrieve.
+
+        Returns:
+            Detailed public incident data.
+        """
+        logger.info(f"Getting public incident {incident_id}")
+        return await self._request_get(f"/public-incidents/secrets/{incident_id}")
+
+    async def list_honeytokens(
+        self,
+        status: str | None = None,
+        search: str | None = None,
+        ordering: str | None = None,
+        show_token: bool = False,
+        creator_id: str | None = None,
+        creator_api_token_id: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse:
+        """List all honeytokens with optional filtering and cursor-based pagination.
+
+        Args:
+            status: Filter by status (active, triggered, or revoked)
+            search: Search string to filter results
+            ordering: Sort field (e.g., 'name', '-name', 'created_at', '-created_at')
+            show_token: Whether to include token details in the response
+            creator_id: Filter by creator ID
+            creator_api_token_id: Filter by creator API token ID
+            per_page: Number of results per page (default: 20)
+            cursor: Pagination cursor (for cursor-based pagination)
+            get_all: If True, fetch all results using cursor-based pagination
+
+        Returns:
+            List of honeytokens matching the criteria or an empty dict/list if no results
+        """
+        logger.info(
+            f"Listing honeytokens with filters: status={status}, search={search}, ordering={ordering}, creator_id={creator_id}, creator_api_token_id={creator_api_token_id}"
+        )
+
+        # Build query parameters
+        params = {}
+        if status:
+            params["status"] = status
+        if search:
+            params["search"] = search
+        if ordering:
+            params["ordering"] = ordering
+        if show_token is not None:
+            params["show_token"] = str(show_token).lower()
+        if creator_id:
+            params["creator_id"] = creator_id
+        if creator_api_token_id:
+            params["creator_api_token_id"] = creator_api_token_id
+        if per_page:
+            params["per_page"] = str(per_page)
+        if cursor:
+            params["cursor"] = cursor
+
+        endpoint = "/honeytokens"
+
+        if get_all:
+            # When get_all=True, return paginated result with truncation metadata
+            return await self.paginate_all(endpoint, params, privacy_mode=False)
+
+        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+        if query_string:
+            endpoint = f"{endpoint}?{query_string}"
+
+        return await self._request_list(endpoint, privacy_mode=False)
+
+    async def get_honeytoken(self, honeytoken_id: str, show_token: bool = True) -> dict[str, Any]:
+        """Get details for a specific honeytoken.
+
+        Args:
+            honeytoken_id: ID of the honeytoken
+            show_token: Whether to include token details
+
+        Returns:
+            Honeytoken data
+        """
+        honeytoken_id = str(UUID(honeytoken_id))
+        logger.info(f"Getting honeytoken details for ID: {honeytoken_id}")
+        return await self._request_get(
+            f"/honeytokens/{honeytoken_id}?show_token={str(show_token).lower()}", privacy_mode=False
+        )
+
+    async def create_honeytoken(
+        self, name: str, description: str = "", custom_tags: list[dict[str, str | None]] | None = None
+    ) -> dict[str, Any]:
+        """Create a new honeytoken in GitGuardian.
+
+        Args:
+            name: Name of the honeytoken
+            description: Description of the honeytoken
+            custom_tags: List of custom tags to apply to the honeytoken
+
+        Returns:
+            Honeytoken data
+        """
+        logger.info(f"Creating honeytoken: {name}")
+        data = {
+            "name": name,
+            "description": description,
+            "type": "AWS",
+            "custom_tags": custom_tags or [],
+        }
+
+        # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
+        # the caller, so it should not be logged as a server fault.
+        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400], privacy_mode=False)

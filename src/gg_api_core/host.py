@@ -76,7 +76,3 @@ def is_local_instance(gitguardian_url: str | None = None) -> bool:
 
     parsed = urlparse(gitguardian_url)
     return _is_local_hostname(parsed.hostname)
-
-
-def has_exposed_prefix_for_api(gitguardian_url: str | None) -> bool:
-    return is_self_hosted_instance(gitguardian_url) or is_local_instance(gitguardian_url)
