@@ -226,3 +226,28 @@ class TestSentryCaptureOwnership:
         assert "hunter2" not in payload["exception"]
         assert payload["exception_cls"] == "ValueError"
         assert sentry_events == []
+
+
+class TestMcpIntegrationActivation:
+    def test_mcp_integration_is_active(self, sentry_events):
+        """
+        GIVEN the installed sentry-sdk and MCP SDK
+        WHEN Sentry is initialized
+        THEN the MCP integration is active, so tool calls get mcp.server spans
+        """
+        assert sentry_sdk.get_client().get_integration("mcp") is not None
+
+    def test_inactive_mcp_integration_is_reported(self, monkeypatch, caplog):
+        """
+        GIVEN a sentry-sdk whose MCP integration cannot hook the installed MCP SDK
+        WHEN Sentry is initialized
+        THEN a warning says tool calls will have no mcp.server spans
+        """
+        monkeypatch.setattr(sentry_sdk.client._Client, "get_integration", lambda self, name_or_class: None)
+        caplog.set_level(logging.WARNING, logger="gg_api_core.sentry_integration")
+        try:
+            _init_local_sentry(monkeypatch, [], [])
+        finally:
+            sentry_sdk.get_global_scope().set_client(None)
+
+        assert "Sentry MCP integration is not active" in caplog.text

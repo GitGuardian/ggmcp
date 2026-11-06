@@ -161,6 +161,11 @@ def init_sentry() -> bool:
             send_default_pii=False,  # Don't send personally identifiable information by default
         )
 
+        # MCPIntegration enables itself only when it can hook the installed MCP SDK
+        # (MCP SDK v2 needs sentry-sdk 2.64+), and skips silently otherwise.
+        if sentry_sdk.get_client().get_integration("mcp") is None:
+            logger.warning("Sentry MCP integration is not active: tool calls will have no mcp.server spans")
+
         logger.info(
             f"Sentry initialized successfully for environment: {environment}"
             + (f", release: {release}" if release else "")

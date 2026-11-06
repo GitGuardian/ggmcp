@@ -549,7 +549,7 @@ requires-dist = [
     { name = "pydantic", specifier = "~=2.12" },
     { name = "pydantic-settings", specifier = "~=2.9" },
     { name = "python-dotenv", specifier = "~=1.1" },
-    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.45" },
+    { name = "sentry-sdk", marker = "extra == 'sentry'", specifier = "~=2.64" },
     { name = "structlog", specifier = "~=26.1" },
     { name = "uvicorn", specifier = "~=0.34" },
 ]
@@ -567,7 +567,7 @@ dev = [
     { name = "pyyaml", specifier = "~=6.0" },
     { name = "respx", specifier = "~=0.22" },
     { name = "ruff", specifier = "~=0.14" },
-    { name = "sentry-sdk", specifier = "~=2.45" },
+    { name = "sentry-sdk", specifier = "~=2.64" },
     { name = "vcrpy", specifier = "~=8.0" },
 ]
 
