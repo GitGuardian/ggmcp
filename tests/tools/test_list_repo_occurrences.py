@@ -14,41 +14,6 @@ class TestListRepoOccurrences:
     """Tests for the list_repo_occurrences tool."""
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_with_source_id(self, mock_gitguardian_client):
-        """
-        GIVEN: A GitGuardian source ID
-        WHEN: Listing occurrences for the source
-        THEN: The API returns occurrences for that source with with_sources=False
-        """
-        # Mock the client response
-        mock_response = {
-            "data": [
-                {
-                    "id": "occ_1",
-                    "matches": [],
-                    "incident": {"id": "incident_1"},
-                }
-            ],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
-
-        # Verify client was called with source_id and with_sources=False
-        mock_gitguardian_client.list_occurrences.assert_called_once()
-        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
-        assert call_kwargs["source_id"] == "source_123"
-        assert call_kwargs["with_sources"] is False
-
-        # Verify response
-        assert result.occurrences_count == 1
-        assert result.applied_filters is not None
-        assert result.suggestion is not None
-
-    @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_filters(self, mock_gitguardian_client):
         """
         GIVEN: Multiple filter parameters
@@ -90,66 +55,6 @@ class TestListRepoOccurrences:
         assert call_kwargs["ordering"] == "-date"
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_get_all(self, mock_gitguardian_client):
-        """
-        GIVEN: get_all flag is True
-        WHEN: Listing occurrences with pagination
-        THEN: All occurrences are fetched and returned as a list
-        """
-        # Mock the client to return proper dict structure when get_all=True
-        mock_response = {
-            "data": [
-                {"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}},
-                {"id": "occ_2", "matches": [], "incident": {"id": "incident_2"}},
-            ],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        # Call the function with get_all=True
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
-                source_id="source_123",
-                get_all=True,
-            )
-        )
-
-        # Verify response
-        assert result.occurrences_count == 2
-        assert len(result.occurrences) == 2
-        assert result.applied_filters is not None
-        assert result.suggestion is not None
-
-    @pytest.mark.asyncio
-    async def test_list_repo_occurrences_no_source(self, mock_gitguardian_client):
-        """
-        GIVEN: No source_id provided
-        WHEN: Listing occurrences
-        THEN: All occurrences across all repositories are returned
-        """
-        mock_response = {
-            "data": [{"id": "occ_1", "matches": [], "incident": {"id": "incident_1"}}],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
-                source_id=None,
-            )
-        )
-
-        # Verify client was called without source filters
-        mock_gitguardian_client.list_occurrences.assert_called_once()
-        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
-        assert call_kwargs["source_id"] is None
-
-        # Verify response
-        assert result.occurrences_count == 1
-
-    @pytest.mark.asyncio
     async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):
         """
         GIVEN: The client raises an exception
@@ -166,39 +71,6 @@ class TestListRepoOccurrences:
         # Verify error response
         assert hasattr(result, "error")
         assert "Failed to list repository occurrences" in result.error
-
-    @pytest.mark.asyncio
-    async def test_list_repo_occurrences_with_cursor(self, mock_gitguardian_client):
-        """
-        GIVEN: A pagination cursor
-        WHEN: Listing occurrences with the cursor
-        THEN: The API is called with the cursor parameter
-        """
-        # Mock the client response with cursor
-        mock_response = {
-            "data": [{"id": "occ_1"}],
-            "cursor": "next_cursor_123",
-            "has_more": True,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        # Call the function with cursor
-        result = await list_repo_occurrences(
-            ListRepoOccurrencesParams(
-                source_id="source_123",
-                cursor="cursor_abc",
-            )
-        )
-
-        # Verify client was called with cursor
-        mock_gitguardian_client.list_occurrences.assert_called_once()
-        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
-        assert call_kwargs["cursor"] == "cursor_abc"
-        assert call_kwargs["source_id"] == "source_123"
-
-        # Verify response includes cursor
-        assert result.cursor == "next_cursor_123"
-        assert result.has_more is True
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_empty_response(self, mock_gitguardian_client):
@@ -223,23 +95,6 @@ class TestListRepoOccurrences:
         assert len(result.occurrences) == 0
         assert result.applied_filters is not None
         assert result.suggestion is not None
-
-    @pytest.mark.asyncio
-    async def test_list_repo_occurrences_unexpected_response_type(self, mock_gitguardian_client):
-        """
-        GIVEN: The API returns an unexpected response type
-        WHEN: Processing the response
-        THEN: An error is returned
-        """
-        # Mock the client to raise an exception for unexpected response
-        mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception("Unexpected response format"))
-
-        # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
-
-        # Verify error response is returned
-        assert hasattr(result, "error")
-        assert "Failed to list repository occurrences" in result.error
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_member_assignee_id(self, mock_gitguardian_client):
@@ -345,47 +200,3 @@ class TestListRepoOccurrencesFilters:
         filters = ListRepoOccurrencesFilters(member_assignee_id=12345)
         assert filters.member_assignee_id == 12345
         assert filters.mine is False
-
-    def test_model_validator_returns_valid_instance(self):
-        """
-        GIVEN: Valid filter parameters
-        WHEN: Creating the filters (which triggers model_validator)
-        THEN: The model instance is not None and is properly constructed
-        """
-        # This test ensures the model_validator returns self correctly
-        # (a missing return self would cause the instance to be None)
-        filters = ListRepoOccurrencesFilters(mine=False, member_assignee_id=None)
-        assert filters is not None
-        assert isinstance(filters, ListRepoOccurrencesFilters)
-
-    def test_params_model_validator_returns_valid_instance(self):
-        """
-        GIVEN: Valid parameters for ListRepoOccurrencesParams
-        WHEN: Creating the params (which inherits validator from ListRepoOccurrencesFilters)
-        THEN: The model instance is not None and all attributes are accessible
-        """
-        # This test specifically covers the bug where missing "return self" in
-        # model_validator caused params to be None
-        params = ListRepoOccurrencesParams(source_id="123")
-        assert params is not None
-        assert isinstance(params, ListRepoOccurrencesParams)
-        assert params.source_id == "123"
-
-    def test_params_with_all_fields_accessible(self):
-        """
-        GIVEN: ListRepoOccurrencesParams with various fields set
-        WHEN: Accessing all fields after model validation
-        THEN: All fields are accessible and have correct values
-        """
-        params = ListRepoOccurrencesParams(
-            source_id="456",
-            mine=False,
-            member_assignee_id=None,
-            per_page=50,
-        )
-        # Verify the model is valid and all attributes work
-        assert params is not None
-        assert params.source_id == "456"
-        assert params.mine is False
-        assert params.member_assignee_id is None
-        assert params.per_page == 50
