@@ -14,6 +14,7 @@ The coercion feature unit tests are in tests/tools/test_list_incidents.py
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.tools.list_incidents import (
     ListIncidentsParams,
     ListIncidentsResult,

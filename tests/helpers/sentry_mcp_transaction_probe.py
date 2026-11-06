@@ -8,10 +8,11 @@ from typing import Any
 
 import sentry_sdk
 from fastmcp import Client, FastMCP
-from gg_api_core.sentry_integration import init_sentry
-from gg_api_core.tools.scan_secret import ScanSecretsParams
 from sentry_sdk.envelope import Envelope
 from sentry_sdk.transport import Transport
+
+from gg_api_core.sentry_integration import init_sentry
+from gg_api_core.tools.scan_secret import ScanSecretsParams
 
 RAW_DOCUMENT = "AKIAIOSFODNN7EXAMPLE password = 'unrecognized-secret-format'"
 

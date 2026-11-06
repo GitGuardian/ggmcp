@@ -23,8 +23,8 @@ from contextlib import asynccontextmanager
 import httpx
 import pytest
 import respx
-from gg_mcp_server.server import build_http_app, build_server
 
+from gg_mcp_server.server import build_http_app, build_server
 from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, token_info
 
 

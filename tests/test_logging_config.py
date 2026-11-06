@@ -3,6 +3,7 @@ import logging
 
 import pytest
 import structlog
+
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.version import APP_VERSION
 

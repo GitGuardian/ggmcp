@@ -9,6 +9,7 @@ serves both developer and SecOps audiences.
 from typing import Any
 
 from fastmcp.exceptions import ToolError
+
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.activity_logs import (
     list_incident_activity_logs,

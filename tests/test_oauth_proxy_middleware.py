@@ -3,6 +3,7 @@
 import json
 
 import pytest
+
 from gg_api_core.oauth_proxy_auth import (
     AdvertiseAuthorizationServerMetadataMiddleware,
     TranslateDownstreamUnauthorizedMiddleware,

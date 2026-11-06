@@ -6,9 +6,11 @@ This module provides different ways to run the MCP server:
 """
 
 import logging
+import os
+import sys
+import warnings
 
 from gg_api_core.settings import get_settings
-
 from gg_mcp_server.server import get_server
 
 logger = logging.getLogger(__name__)
@@ -59,6 +61,17 @@ def run_mcp_server():
         run_http_with_uvicorn()
     else:
         run_stdio()
+
+
+def run_deprecated_alias():
+    """Entry point of the deprecated ``developer-mcp-server`` / ``secops-mcp-server`` commands."""
+    command = os.path.basename(sys.argv[0]) if sys.argv else "this command"
+    warnings.warn(
+        f"{command} is deprecated; use gg-mcp-server instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    run_mcp_server()
 
 
 if __name__ == "__main__":

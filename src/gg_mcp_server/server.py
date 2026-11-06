@@ -8,6 +8,8 @@ import logging
 from functools import cache
 
 from fastmcp.server.http import create_streamable_http_app
+from starlette.applications import Starlette
+
 from gg_api_core.logging_config import configure_logging_from_settings
 from gg_api_core.mcp_server import (
     AbstractGitGuardianFastMCP,
@@ -16,8 +18,6 @@ from gg_api_core.mcp_server import (
 )
 from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
-from starlette.applications import Starlette
-
 from gg_mcp_server.add_health_check import add_health_check
 from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
 

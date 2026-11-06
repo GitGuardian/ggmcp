@@ -278,7 +278,7 @@ uvx --from git+https://github.com/GitGuardian/ggmcp.git@main gg-mcp-server
 - **sentry**: Adds the Sentry SDK for error tracking
   - Core package: `gg-api-core[sentry]`
   - Available in: `gg-mcp-server[sentry]`
-  - Implementation: `gg_api_core/src/gg_api_core/sentry_integration.py`
+  - Implementation: `src/gg_api_core/sentry_integration.py`
   - Used for: MCP exception capture, sanitized breadcrumbs, monitoring, and alerting
 
 ## Testing

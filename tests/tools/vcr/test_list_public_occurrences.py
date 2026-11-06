@@ -8,6 +8,7 @@ and cover every filter parameter exposed by ListPublicOccurrencesParams.
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.tools.list_public_occurrences import (
     ListPublicOccurrencesParams,
     ListPublicOccurrencesResult,

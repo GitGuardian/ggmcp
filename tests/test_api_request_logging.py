@@ -5,6 +5,7 @@ import logging
 
 import httpx
 import pytest
+
 from gg_api_core.client import GitGuardianClient, _path_template
 from gg_api_core.log_context import track_downstream_calls
 from gg_api_core.logging_config import configure_logging

@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from gg_api_core.tools.write_custom_tags import (
     UpdateOrCreateIncidentCustomTagsParams,
     WriteCustomTagsParams,

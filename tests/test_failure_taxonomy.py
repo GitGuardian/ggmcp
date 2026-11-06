@@ -1,6 +1,7 @@
 """Grading of tool failures into queryable fields."""
 
 import httpx
+
 from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.log_context import classify_failure
 

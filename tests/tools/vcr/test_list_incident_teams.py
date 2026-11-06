@@ -12,6 +12,7 @@ GITGUARDIAN_API_KEY to record cassettes:
 from unittest.mock import patch
 
 import pytest
+
 from gg_api_core.tools.list_incident_teams import (
     ListIncidentTeamsParams,
     ListIncidentTeamsResult,

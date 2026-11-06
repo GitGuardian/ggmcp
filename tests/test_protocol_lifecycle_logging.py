@@ -5,8 +5,8 @@ import logging
 import pytest
 import structlog
 from fastmcp import Client, FastMCP
-from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 
+from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 from tests.test_middleware import FakeServer
 
 

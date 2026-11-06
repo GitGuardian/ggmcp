@@ -49,11 +49,11 @@ class TestUnifiedServer:
         assert srv.mcp.name == "GitGuardian"
 
     @pytest.mark.asyncio
-    async def test_secops_specific_tools_are_registered(self, mock_gitguardian_modules, mock_env_no_http):
+    async def test_write_tools_are_listed_with_write_scope(self, mock_gitguardian_modules, mock_env_no_http):
         """
         GIVEN a token holding both read and write scopes
-        WHEN the unified server lists tools
-        THEN both developer-flavour and secops-flavour tools are present
+        WHEN the server lists tools
+        THEN both read and write tools are present
         """
         clean_module_imports("gg_mcp_server")
 
@@ -98,35 +98,32 @@ class TestUnifiedServer:
         assert "create_code_fix_request" not in tool_names
 
 
-class TestDeprecatedShims:
-    def test_developer_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
+class TestDeprecatedCommands:
+    @pytest.mark.parametrize("command", ["developer-mcp-server", "secops-mcp-server"])
+    def test_deprecated_command_still_starts_the_server(self, command):
         """
-        GIVEN the deprecated developer_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
+        GIVEN a client configuration that still launches a deprecated command
+        WHEN the installed console script is resolved
+        THEN it points at the deprecated alias of the server entry point
         """
-        clean_module_imports("developer_mcp_server")
-        clean_module_imports("gg_mcp_server")
+        from importlib.metadata import entry_points
 
-        with pytest.warns(DeprecationWarning):
-            import developer_mcp_server.server as shim
+        (entry,) = [ep for ep in entry_points(group="console_scripts") if ep.name == command]
+        assert entry.value == "gg_mcp_server.run:run_deprecated_alias"
 
-        import gg_mcp_server.server as srv
-
-        assert shim.mcp is srv.mcp
-
-    def test_secops_shim_reexports_unified_server(self, mock_gitguardian_modules, mock_env_no_http):
+    def test_deprecated_alias_warns_then_runs_the_server(self, monkeypatch):
         """
-        GIVEN the deprecated secops_mcp_server.server shim
-        WHEN imported
-        THEN it re-exports the unified MCP instance and emits a DeprecationWarning
+        GIVEN the deprecated alias entry point
+        WHEN it is invoked
+        THEN it emits a DeprecationWarning naming the command and runs the server
         """
-        clean_module_imports("secops_mcp_server")
-        clean_module_imports("gg_mcp_server")
+        import gg_mcp_server.run as run
 
-        with pytest.warns(DeprecationWarning):
-            import secops_mcp_server.server as shim
+        calls = []
+        monkeypatch.setattr(run, "run_mcp_server", lambda: calls.append("ran"))
+        monkeypatch.setattr(sys, "argv", ["/usr/local/bin/developer-mcp-server"])
 
-        import gg_mcp_server.server as srv
+        with pytest.warns(DeprecationWarning, match="developer-mcp-server is deprecated"):
+            run.run_deprecated_alias()
 
-        assert shim.mcp is srv.mcp
+        assert calls == ["ran"]
