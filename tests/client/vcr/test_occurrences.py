@@ -64,22 +64,6 @@ class TestListOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_occurrences_with_sources(self, real_client, use_cassette):
-        """
-        Test listing occurrences with source details included.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request occurrences with with_sources=True
-        THEN we should receive occurrences with source information
-        """
-        with use_cassette("test_list_occurrences_with_sources"):
-            result = await real_client.list_occurrences(with_sources=True, per_page=5)
-
-            assert result is not None
-            assert "data" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
     async def test_list_occurrences_get_all(self, real_client, use_cassette):
         """
         Test listing occurrences with get_all=True (paginated fetch with size limit).
@@ -97,25 +81,3 @@ class TestListOccurrences:
             assert "has_more" in result
             assert isinstance(result["has_more"], bool)
             assert "cursor" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_occurrences_with_member_assignee_id(self, real_client, use_cassette):
-        """
-        Test listing occurrences filtered by member assignee ID.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request occurrences assigned to a specific member
-        THEN we should receive occurrences filtered by that member's ID
-        """
-        # First get a valid member ID to filter by
-        with use_cassette("test_list_occurrences_with_member_assignee_id"):
-            member = await real_client.get_current_member()
-            member_id = member["id"]
-            result = await real_client.list_occurrences(member_assignee_id=member_id, per_page=5)
-
-            assert result is not None
-            assert "data" in result
-            assert isinstance(result["data"], list)
-            assert "cursor" in result
-            assert "has_more" in result

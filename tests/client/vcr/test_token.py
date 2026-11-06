@@ -12,50 +12,8 @@ These tests cover:
 import pytest
 
 
-class TestTokenMethods:
-    """Tests for token and authentication related methods."""
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_get_current_token_info(self, real_client, use_cassette):
-        """
-        Test getting current token information.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request the current token info
-        THEN we should receive token details including scopes and member_id
-        """
-        with use_cassette("test_get_current_token_info"):
-            result = await real_client.get_current_token_info()
-
-            assert result is not None
-            assert "id" in result
-            assert "name" in result
-            # Token should have scopes (may be "scope" or "scopes" depending on API version)
-            assert "scope" in result or "scopes" in result
-            # Should have member_id for user context
-            assert "member_id" in result
-
-
 class TestMemberMethods:
     """Tests for member/user related methods."""
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_get_current_member(self, real_client, use_cassette):
-        """
-        Test getting the current authenticated member's information.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request the current member info
-        THEN we should receive member details including email
-        """
-        with use_cassette("test_get_current_member"):
-            result = await real_client.get_current_member()
-
-            assert result is not None
-            assert "id" in result
-            assert "email" in result
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio

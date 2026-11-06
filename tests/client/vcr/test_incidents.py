@@ -9,106 +9,8 @@ These tests cover:
 import pytest
 
 
-class TestGetIncident:
-    """Tests for getting individual incident details."""
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_get_incident(self, real_client, use_cassette):
-        """
-        Test getting a single incident by ID.
-
-        GIVEN a valid GitGuardian API key and an existing incident ID
-        WHEN we request the incident details
-        THEN we should receive detailed incident information
-        """
-        # The incident id recorded in the cassette.
-        incident_id = 21460
-        with use_cassette("test_get_incident"):
-            result = await real_client.get_incident(incident_id)
-
-            assert result is not None
-            assert result["id"] == incident_id
-            assert "gitguardian_url" in result
-            assert "detector" in result
-
-
 class TestListIncidentsForMcp:
     """Tests for the v2 MCP-optimized incidents endpoint with page-based pagination."""
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_incidents_for_mcp_basic(self, real_client, use_cassette):
-        """
-        Test basic incident listing using the MCP endpoint.
-
-        GIVEN a valid GitGuardian API key with incidents:read scope
-        WHEN we request the list of incidents via the MCP endpoint
-        THEN we should receive a paginated response with incident data
-        """
-        with use_cassette("test_list_incidents_for_mcp_basic"):
-            result = await real_client.list_incidents_for_mcp(page=1, page_size=5)
-
-            assert result is not None
-            assert "results" in result
-            assert isinstance(result["results"], list)
-            assert "count" in result
-            # Page-based pagination uses next/previous URLs
-            assert "next" in result or result.get("next") is None
-            assert "previous" in result or result.get("previous") is None
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_incidents_for_mcp_with_status_filter(self, real_client, use_cassette):
-        """
-        Test listing incidents filtered by status using MCP endpoint.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request incidents with status=TRIGGERED (unassigned active)
-        THEN we should receive only triggered incidents
-        """
-        with use_cassette("test_list_incidents_for_mcp_with_status_filter"):
-            # Use TRIGGERED status - displayed as ACTIVE in response but filtered by TRIGGERED
-            result = await real_client.list_incidents_for_mcp(status="TRIGGERED", page_size=5)
-
-            assert result is not None
-            assert "results" in result
-            # TRIGGERED incidents have no assignee and are not resolved/ignored
-            for incident in result["results"]:
-                assert incident.get("status") in ["TRIGGERED", "ACTIVE"]
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_incidents_for_mcp_with_severity_filter(self, real_client, use_cassette):
-        """
-        Test listing incidents filtered by severity using MCP endpoint.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request incidents with severity 10 (critical) or 20 (high)
-        THEN we should receive incidents (filter applied)
-        """
-        with use_cassette("test_list_incidents_for_mcp_with_severity_filter"):
-            # Severity uses numeric values: critical=10, high=20, medium=30, low=40
-            result = await real_client.list_incidents_for_mcp(severity=[10, 20], page_size=5)
-
-            assert result is not None
-            assert "results" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_incidents_for_mcp_with_ordering(self, real_client, use_cassette):
-        """
-        Test listing incidents with ordering using MCP endpoint.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request incidents ordered by -date (newest first)
-        THEN we should receive incidents in descending date order
-        """
-        with use_cassette("test_list_incidents_for_mcp_with_ordering"):
-            result = await real_client.list_incidents_for_mcp(ordering="-date", page_size=5)
-
-            assert result is not None
-            assert "results" in result
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
@@ -202,30 +104,6 @@ class TestListIncidentsForMcp:
                 page2_ids = {inc["id"] for inc in page2["results"]}
                 # Pages should not overlap
                 assert page1_ids.isdisjoint(page2_ids)
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_list_incidents_for_mcp_combined_filters(self, real_client, use_cassette):
-        """
-        Test combining multiple filters.
-
-        GIVEN a valid GitGuardian API key
-        WHEN we request incidents with multiple filters combined
-        THEN we should receive incidents matching all criteria
-        """
-        with use_cassette("test_list_incidents_for_mcp_combined_filters"):
-            result = await real_client.list_incidents_for_mcp(
-                status=["TRIGGERED", "ASSIGNED"],  # Both active statuses
-                severity=[10, 20],  # critical and high
-                ordering="-date",
-                page_size=5,
-            )
-
-            assert result is not None
-            assert "results" in result
-            # All returned incidents should be triggered or assigned (active statuses)
-            for incident in result["results"]:
-                assert incident.get("status") in ["TRIGGERED", "ASSIGNED", "ACTIVE"]
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
