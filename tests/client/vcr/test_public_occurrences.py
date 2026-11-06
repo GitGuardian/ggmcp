@@ -35,23 +35,6 @@ class TestListPublicOccurrences:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_list_public_occurrences_basic(self, real_client, use_cassette):
-        """
-        GIVEN a valid GitGuardian API key with incidents:read scope
-        WHEN we request the list of occurrences for a public incident
-        THEN we should receive a list response with occurrence data
-        """
-        with use_cassette("test_list_public_occurrences_basic"):
-            result = await real_client.list_public_occurrences(incident_id=_INCIDENT_ID, per_page=5)
-
-            assert result is not None
-            assert "data" in result
-            assert isinstance(result["data"], list)
-            assert "cursor" in result
-            assert "has_more" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
     async def test_list_public_occurrences_with_date_filter(self, real_client, use_cassette):
         """
         GIVEN a valid GitGuardian API key

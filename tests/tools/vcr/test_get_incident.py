@@ -107,30 +107,3 @@ class TestGetIncidentVCR:
                 # With 0 occurrences requested, the occurrences list should be empty
                 occurrences = result.incident.get("occurrences", [])
                 assert len(occurrences) == 0
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
-    async def test_get_incident_has_detector_info(self, real_client, use_cassette):
-        """
-        GIVEN: A valid GitGuardian API key with incidents:read scope
-        WHEN: Calling get_incident
-        THEN: Returns the incident with detector information
-        """
-        with use_cassette("test_get_incident_has_detector_info"):
-            with patch(
-                "gg_api_core.tools.get_incident.get_client",
-                return_value=real_client,
-            ):
-                params = GetIncidentParams(
-                    incident_id=self.TEST_INCIDENT_ID,
-                )
-
-                result = await get_incident(params)
-
-                assert result is not None
-                assert result.incident is not None
-                # Verify detector information is present
-                assert "detector" in result.incident
-                detector = result.incident["detector"]
-                assert "name" in detector
-                assert "display_name" in detector

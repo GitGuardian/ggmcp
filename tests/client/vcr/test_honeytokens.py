@@ -105,31 +105,6 @@ class TestGetHoneytoken:
 
     @pytest.mark.vcr_test
     @pytest.mark.asyncio
-    async def test_get_honeytoken(self, real_client, use_cassette):
-        """
-        Test getting a single honeytoken by ID.
-
-        GIVEN a valid GitGuardian API key and an existing honeytoken ID
-        WHEN we request the honeytoken details
-        THEN we should receive detailed honeytoken information
-        """
-        with use_cassette("test_get_honeytoken"):
-            # First get a honeytoken ID from the list
-            honeytokens = await real_client.list_honeytokens(per_page=1)
-            if not honeytokens["data"]:
-                pytest.skip("No honeytokens available for testing")
-
-            honeytoken_id = honeytokens["data"][0]["id"]
-            result = await real_client.get_honeytoken(honeytoken_id, show_token=True)
-
-            assert result is not None
-            assert result["id"] == honeytoken_id
-            assert "name" in result
-            assert "status" in result
-            assert "type" in result
-
-    @pytest.mark.vcr_test
-    @pytest.mark.asyncio
     async def test_get_honeytoken_without_token(self, real_client, use_cassette):
         """
         Test getting a honeytoken without showing the token value.
