@@ -74,7 +74,7 @@ class TestUnifiedServer:
 
         assert "list_incidents" in tool_names
         assert "assign_incident" in tool_names
-        assert "create_code_fix_request" in tool_names
+        assert "manage_private_incident" in tool_names
 
     @pytest.mark.asyncio
     async def test_write_tools_hidden_without_write_scope(self, mock_gitguardian_modules, mock_env_no_http):
@@ -95,7 +95,7 @@ class TestUnifiedServer:
 
         assert "list_incidents" in tool_names
         assert "assign_incident" not in tool_names
-        assert "create_code_fix_request" not in tool_names
+        assert "manage_private_incident" not in tool_names
 
 
 class TestDeprecatedCommands:

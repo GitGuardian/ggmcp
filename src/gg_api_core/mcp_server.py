@@ -14,7 +14,6 @@ from typing_extensions import override
 
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.icons import get_gitguardian_icons
-from gg_api_core.log_context import clear_caller_identity_cache
 from gg_api_core.middleware import (
     DownstreamUnauthorizedMiddleware,
     RequestLoggingContextMiddleware,
@@ -149,25 +148,6 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             personal_access_token=self.get_personal_access_token(),
         )
 
-    async def revoke_current_token(self) -> dict[str, Any]:
-        """Revoke the current API token via GitGuardian API."""
-        try:
-            logger.debug("Revoking current API token")
-            # Call the DELETE /api_tokens/self endpoint
-            token = self.get_personal_access_token()
-            client = await self.get_client()
-            result = await client.revoke_current_token()
-            logger.debug("API token revoked")
-            # The revoked token's workspace/member ids are no longer worth
-            # stamping onto log lines, and the entry would otherwise survive for
-            # the rest of its TTL. Only this token's entry: the server is
-            # multi-tenant, and other callers' credentials are still valid.
-            clear_caller_identity_cache(token)
-            return result
-        except Exception as e:
-            logger.exception(f"Error revoking current API token: {str(e)}")
-            raise
-
     @override
     def tool(self, *args: Any, required_scopes: list[str] | None = None, **kwargs: Any) -> Any:
         """
@@ -240,56 +220,6 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         scopes = await self._fetch_token_scopes_from_api()
         logger.debug(f"scopes: {scopes}")
         return scopes
-
-
-# Common MCP tools for user information and token management
-def register_common_tools(mcp_instance: AbstractGitGuardianFastMCP):
-    """Register common MCP tools for user information and token management."""
-
-    logger.debug("Registering common MCP tools...")
-
-    @mcp_instance.tool(
-        name="get_authenticated_user_info",
-        description="Get comprehensive information about the authenticated user and current API token including scopes and authentication method",
-    )
-    async def get_authenticated_user_info() -> dict[str, Any]:
-        """Get information about the authenticated user and current API token."""
-        logger.debug("Getting authenticated user information")
-
-        token_info = await mcp_instance.get_token_info()
-        scopes = await mcp_instance.get_scopes()
-        return {
-            "token_info": token_info,
-            "authentication_mode": mcp_instance.authentication_mode.value,
-            "available_scopes": list(scopes),
-        }
-
-    @mcp_instance.tool(
-        name="revoke_current_token",
-        description="Revoke the current API token and clean up stored credentials",
-    )
-    async def revoke_current_token() -> dict[str, Any]:
-        """Revoke the current API token and clean up stored credentials."""
-        logger.debug("Starting token revocation process")
-
-        try:
-            await mcp_instance.revoke_current_token()
-            logger.debug("Token revoked via API")
-
-            # Clear cached data
-            mcp_instance.clear_cache()
-
-            return {
-                "success": True,
-                "message": "Token revoked and credentials cleaned up",
-                "authentication_method": mcp_instance.authentication_mode.value,
-            }
-
-        except Exception as e:
-            logger.exception(f"Error during token revocation: {str(e)}")
-            return {"success": False, "error": f"Failed to revoke token: {str(e)}"}
-
-    logger.debug("Registered common MCP tools")
 
 
 # Concrete implementations for different authentication modes

@@ -334,7 +334,7 @@ class TestListRepoOccurrences:
         assert sent_params(route)["incident_assignee_id"] == str(TEST_MEMBER_ID)
         assert "member_assignee_id" not in sent_params(route)
 
-    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences", "list_remediation_targets"])
+    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences"])
     async def test_service_token_without_member_id_rejects_mine_filter(
         self, mcp_client, gg_api, mock_token_scopes, tool_name
     ):
@@ -351,7 +351,7 @@ class TestListRepoOccurrences:
         assert "mine" in tool_error_text(result).lower()
         assert not occurrences.called
 
-    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences", "list_remediation_targets"])
+    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences"])
     async def test_incident_occurrences_can_be_paged_beyond_100(self, mcp_client, gg_api, mock_token_scopes, tool_name):
         """
         GIVEN an incident with 150 occurrences across two API pages

@@ -90,23 +90,6 @@ class TestManagePrivateIncident:
         assert not route.called
 
 
-class TestUpdateIncidentSeverity:
-    async def test_severity_is_patched_on_the_incident(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN a severity change
-        WHEN update_incident_severity is called
-        THEN the incident is PATCHed with exactly the severity field
-        """
-        route = gg_api.patch("/incidents/secrets/42").respond(200, json={"id": 42, "severity": "high"})
-
-        result = await call_tool(
-            mcp_client, "update_incident_severity", {"params": {"incident_id": 42, "severity": "high"}}
-        )
-
-        assert sent_body(route) == {"severity": "high"}
-        assert tool_output(result) == {"id": 42, "severity": "high"}
-
-
 class TestAssignIncident:
     async def test_mine_assigns_to_the_callers_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """
@@ -135,39 +118,3 @@ class TestAssignIncident:
         await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "email": "dev@corp.test"}})
 
         assert sent_body(route) == {"member_id": None, "email": "dev@corp.test"}
-
-
-class TestUpdatePublicIncidentStatus:
-    async def test_resolving_a_public_incident_requires_and_sends_the_reason(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
-        """
-        GIVEN a public incident resolution with a reason
-        WHEN update_public_incident_status is called
-        THEN the public-incidents endpoint receives the resolve_reason body
-        """
-        route = gg_api.post("/public-incidents/secrets/7/resolve").respond(200, json={"id": 7, "status": "RESOLVED"})
-
-        result = await call_tool(
-            mcp_client,
-            "update_public_incident_status",
-            {"params": {"incident_id": 7, "action": "resolve", "resolve_reason": "revoked"}},
-        )
-
-        assert sent_body(route) == {"resolve_reason": "revoked"}
-        assert tool_output(result) == {"id": 7, "status": "RESOLVED"}
-
-    async def test_resolving_without_a_reason_is_blocked_locally(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN action=resolve without resolve_reason
-        WHEN update_public_incident_status is called
-        THEN the tool refuses with guidance and no API call happens
-        """
-        route = gg_api.post("/public-incidents/secrets/7/resolve").respond(200, json={})
-
-        result = await call_tool(
-            mcp_client, "update_public_incident_status", {"params": {"incident_id": 7, "action": "resolve"}}
-        )
-
-        assert "'resolve_reason' parameter is required" in tool_error_text(result)
-        assert not route.called

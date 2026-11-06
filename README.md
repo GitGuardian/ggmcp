@@ -14,12 +14,18 @@ backed by GitGuardian's 500+ detectors.
 
 ## What it does
 
-- **Secret scanning** — proactively scan files for leaked credentials.
-- **Incident management** — list, filter, assign, resolve, and tag incidents
-  (both internal and Public Monitoring incidents).
-- **Honeytokens** — generate honeytokens and list existing ones.
-- **Code-fix automation** — open pull requests that remediate secrets in
-  repositories your workspace monitors.
+- **Secret scanning**: proactively scan files for leaked credentials (`scan_secrets`).
+- **Incident triage**: list, count and inspect internal incidents (`list_incidents`,
+  `count_incidents`, `get_incident`), and drill into their exact locations
+  (`list_repo_occurrences`, `list_sources`).
+- **Incident management**: assign, unassign, resolve, ignore, reopen, and comment
+  on internal incidents (`assign_incident`, `manage_private_incident`,
+  `manage_incident_comment`).
+- **Public Monitoring**: list and inspect public incidents and their occurrences
+  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`).
+- **Remediation**: fetch your workspace's remediation workflow
+  (`get_remediation_workflow`).
+- **Honeytokens**: generate honeytokens (`generate_honeytoken`).
 
 The exact set of tools exposed to your agent depends on the OAuth scopes
 granted to your access token.
@@ -40,10 +46,6 @@ Check if there are any new security incidents assigned to me.
 
 ```
 Help me understand this security incident and provide remediation steps.
-```
-
-```
-List all my active honeytokens.
 ```
 
 ```

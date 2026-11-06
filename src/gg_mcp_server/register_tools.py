@@ -1,59 +1,31 @@
-"""Tool registration for the unified GitGuardian MCP server.
+"""Tool registration for the GitGuardian MCP server.
 
 Every tool is declared here with its ``required_scopes``. At runtime the
 ``ScopeFilteringMiddleware`` (see ``gg_api_core.mcp_server``) hides tools
-the current access token cannot satisfy, so a single registration list
-serves both developer and SecOps audiences.
+the current access token cannot satisfy.
+
+The tools below are the ten that carry real traffic plus the four that
+GitGuardian's published agent skills depend on (remediation workflow, public
+incidents, honeytokens). Their names, input schemas and outputs are kept
+identical to the previous 38-tool server, so existing agents, prompts and
+skills keep working.
 """
 
-from typing import Any
-
-from fastmcp.exceptions import ToolError
-
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
-from gg_api_core.tools.activity_logs import (
-    list_incident_activity_logs,
-    list_public_incident_activity_logs,
-)
 from gg_api_core.tools.assign_incident import assign_incident
-from gg_api_core.tools.assign_public_incident import assign_public_incident
 from gg_api_core.tools.count_incidents import count_incidents
-from gg_api_core.tools.create_code_fix_request import create_code_fix_request
-from gg_api_core.tools.find_current_source_id import find_current_source_id
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_incident import get_incident
-from gg_api_core.tools.get_member import get_member
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
-from gg_api_core.tools.incident_notes import (
-    list_incident_comments,
-    list_public_incident_comments,
-    manage_incident_comment,
-    manage_public_incident_comment,
-)
-from gg_api_core.tools.list_detectors import list_detectors
-from gg_api_core.tools.list_honeytokens import list_honeytokens
-from gg_api_core.tools.list_incident_members import list_incident_members
-from gg_api_core.tools.list_incident_teams import list_incident_teams
+from gg_api_core.tools.incident_notes import manage_incident_comment
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
-from gg_api_core.tools.list_remediation_targets import list_remediation_targets
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
-from gg_api_core.tools.list_users import list_users
-from gg_api_core.tools.manage_incident import (
-    manage_private_incident,
-    update_incident_severity,
-)
-from gg_api_core.tools.read_custom_tags import read_custom_tags
-from gg_api_core.tools.revoke_secret import revoke_secret
+from gg_api_core.tools.manage_incident import manage_private_incident
 from gg_api_core.tools.scan_secret import scan_secrets
-from gg_api_core.tools.update_public_incident_status import update_public_incident_status
-from gg_api_core.tools.write_custom_tags import (
-    update_or_create_incident_custom_tags,
-    write_custom_tags,
-)
 
 GITGUARDIAN_INSTRUCTIONS = """
 # GitGuardian MCP Tools
@@ -73,15 +45,11 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
   Identified by a `source_id`. Default category for most customer workflows.
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
-  `list_remediation_targets`, `list_sources`, `find_current_source_id`, `list_incident_comments`,
-  `list_incident_activity_logs`.
-  Write tools: `manage_private_incident`, `update_incident_severity`, `assign_incident`,
-  `update_or_create_incident_custom_tags`, `create_code_fix_request`, `manage_incident_comment`.
+  `list_sources`.
+  Write tools: `manage_private_incident`, `assign_incident`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
-  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`,
-  `list_public_incident_comments`, `list_public_incident_activity_logs`.
-  Write tools: `assign_public_incident`, `update_public_incident_status`, `manage_public_incident_comment`.
+  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -93,25 +61,21 @@ write tool with a public incident ID (or vice versa) will silently 404.
 1. **Proactive Secret Scanning** (`scan_secrets`) — detect secrets in code before they're
    committed. Use to prevent accidental secret commits.
 
-2. **Incident Management** — list and filter incidents (internal and public), assign,
-   resolve, ignore, reopen, and tag.
+2. **Incident Management** — list and filter incidents (internal and public); assign,
+   unassign, resolve, ignore, reopen, and comment on internal incidents.
 
 3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
    line numbers, and character indices.
 
-4. **Remediation** — locate occurrences with `list_remediation_targets`. Follow the
-   triage-incidents skill when available and call `get_remediation_workflow` for the
-   workspace's instructions. `create_code_fix_request` opens automated pull requests.
+4. **Remediation** — follow the triage-incidents skill when available and call
+   `get_remediation_workflow` for the workspace's instructions.
 
-5. **Honeytoken Management** — generate honeytokens, list and inspect existing ones.
-
-6. **Workspace metadata** — list users, members, teams, sources, detectors, custom tags.
+5. **Honeytokens** — generate honeytokens with `generate_honeytoken`.
 
 ## Behavioural notes
 
 - If a prompt is asking to filter results for the current user, you MUST use the `mine`
-  parameter. Examples: "list incidents assigned to me", "list my incidents",
-  "list my honeytokens".
+  parameter. Examples: "list incidents assigned to me", "list my incidents".
 """
 
 
@@ -121,20 +85,6 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     Tools are gated by ``required_scopes``; the runtime scope filter hides
     tools the access token cannot satisfy.
     """
-    mcp.tool(
-        list_remediation_targets,
-        description="(Internal sources only) List candidate secret occurrences with file paths and match locations. "
-        "Pass source_id to select a repository. Defaults to its remote DEFAULT_BRANCH, not the checked-out branch, "
-        "with known-noise exclusions and most-recent-first ordering. Returns a flat page of occurrences, "
-        "occurrences_count (this response only), applied_filters, cursor, and has_more. "
-        "Follow cursor with the same filters while has_more is true, including with get_all=True. "
-        "Pass mine=True for incidents assigned to the current member, or incident_id to filter one incident. "
-        "Filters still apply; use list_repo_occurrences with exclusions cleared to enumerate all locations. "
-        "Returns data only; get incident metadata with get_incident and plan remediation using the triage-incidents skill "
-        "and get_remediation_workflow.",
-        required_scopes=["incidents:read", "sources:read"],
-    )
-
     mcp.tool(
         scan_secrets,
         description="""
@@ -208,39 +158,10 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        find_current_source_id,
-        description="(Internal sources only) Find the GitGuardian source_id for the current repository in the workspace's "
-        "internal perimeter, searching among the sources the workspace monitors. Useful when you need to reference the "
-        "repository in other internal-incident API calls. This server runs remotely and cannot access your local "
-        "repository: run `git config --get remote.origin.url` yourself and pass the result as the `remote_url` argument. "
-        "If you call it without `remote_url`, it returns a suggestion telling you to do exactly that. "
-        "Does not apply to public GitHub / Public Monitoring.",
-        required_scopes=["sources:read"],
-    )
-
-    mcp.tool(
         generate_honeytoken,
         description="Generate an AWS GitGuardian honeytoken and get injection recommendations. "
         "Honeytoken names must be unique among the workspace's active honeytokens.",
         required_scopes=["honeytokens:write"],
-    )
-
-    mcp.tool(
-        list_honeytokens,
-        description="List honeytokens from the GitGuardian dashboard with filtering options",
-        required_scopes=["honeytokens:read"],
-    )
-
-    mcp.tool(
-        list_users,
-        description="List users on the workspace/account",
-        required_scopes=["members:read"],
-    )
-
-    mcp.tool(
-        list_detectors,
-        description="List secret detectors available in the GitGuardian detection engine. Returns information about detectors including name, category, type",
-        required_scopes=["scan"],
     )
 
     mcp.tool(
@@ -260,111 +181,11 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        get_member,
-        description="Retrieve a specific member by their ID with information including name, email, role, access level, and activity status.",
-        required_scopes=["members:read"],
-    )
-
-    mcp.tool(
         get_remediation_workflow,
         description="Retrieve the workspace remediation workflow — the ordered, step-by-step guidance shown for secret "
         "incidents. Returns the configured custom workflow if one exists, otherwise the default workflow. Use this to "
         "remediate an incident following the same instructions a human sees in the dashboard.",
         required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_incident_members,
-        description="(Internal sources only)"
-        "List members with access to a secret incident. Filter by access level, search by name/email,"
-        " and filter on direct or indirect accesses.",
-        required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_incident_teams,
-        description="(Internal sources only)"
-        "List teams with access to a secret incident."
-        " Search by team name/description and filter on direct or indirect accesses.",
-        required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_incident_comments,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_incident_comments) "
-        "List the comments (notes) left on an internal secret incident. Use this to read the discussion on an "
-        "incident and to find the comment_id of a comment you want to edit with manage_incident_comment.",
-        required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_public_incident_comments,
-        description="(Public Monitoring only — for internal sources use list_incident_comments) "
-        "List the comments (notes) left on a public secret incident detected by GitGuardian Public Monitoring. "
-        "Use this to read the discussion and to find the comment_id to edit with manage_public_incident_comment. "
-        "Public incident IDs are NOT interchangeable with internal incident IDs.",
-        required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_incident_activity_logs,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_incident_activity_logs) "
-        "List the full activity log of an internal secret incident: both user notes (comments) and system actions "
-        "(status changes, assignments, severity edits, new locations detected, etc.) in one timeline. Broader than "
-        "list_incident_comments, which returns notes only. Filter by content_key (action type) or member_id.",
-        required_scopes=["incidents:read"],
-    )
-
-    mcp.tool(
-        list_public_incident_activity_logs,
-        description="(Public Monitoring only — for internal sources use list_incident_activity_logs) "
-        "List the full activity log of a public secret incident detected by GitGuardian Public Monitoring: both user "
-        "notes (comments) and system actions in one timeline. Broader than list_public_incident_comments, which "
-        "returns notes only. Public incident IDs are NOT interchangeable with internal incident IDs.",
-        required_scopes=["incidents:read"],
-    )
-
-    # Write tools — previously SecOps-only.
-
-    @mcp.tool(
-        name="get_current_token_info",
-        description="Get information about the current API token",
-        required_scopes=["api_tokens:read"],
-    )
-    async def get_current_token_info() -> dict[str, Any]:
-        """Return the current API token's metadata (scopes, member, expiry...)."""
-        client = await mcp.get_client()
-        try:
-            result = await client.get_current_token_info()
-            assert isinstance(result, dict)
-            return result
-        except Exception as e:
-            raise ToolError(f"Error: {str(e)}")
-
-    mcp.tool(
-        update_or_create_incident_custom_tags,
-        description="(Internal sources only) Update or create custom tags for an internal secret incident. "
-        "Does not work on public-monitoring incident IDs.",
-        required_scopes=["incidents:write", "custom_tags:write"],
-    )
-
-    mcp.tool(
-        update_incident_severity,
-        description="(Internal sources only) Set the severity of an internal secret incident. "
-        "Does not work on public-monitoring incident IDs.",
-        required_scopes=["incidents:write"],
-    )
-
-    mcp.tool(
-        read_custom_tags,
-        description="Read custom tags from the GitGuardian dashboard.",
-        required_scopes=["custom_tags:read"],
-    )
-
-    mcp.tool(
-        write_custom_tags,
-        description="Create or delete custom tags in the GitGuardian dashboard.",
-        required_scopes=["custom_tags:write"],
     )
 
     mcp.tool(
@@ -375,13 +196,6 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        revoke_secret,
-        description="Revoke a secret by its ID through the GitGuardian API. Operates on a secret_id regardless of whether "
-        "the incident surfaced on an internal source or via Public Monitoring.",
-        required_scopes=["secrets:write"],
-    )
-
-    mcp.tool(
         assign_incident,
         description="(Internal sources only) Assign an internal secret incident to a specific member or to the current user. "
         "Does not work on public-monitoring incident IDs.",
@@ -389,46 +203,10 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        assign_public_incident,
-        description="(Public Monitoring only — for internal sources use assign_incident) "
-        "Assign a public secret incident detected by GitGuardian Public Monitoring to a specific "
-        "member or to the current user. Public incident IDs are NOT interchangeable with internal "
-        "incident IDs.",
-        required_scopes=["incidents:write"],
-    )
-
-    mcp.tool(
-        update_public_incident_status,
-        description="(Public Monitoring only — for internal sources use manage_private_incident) "
-        "Update the status of a public secret incident (resolve, ignore, reopen) detected by "
-        "GitGuardian Public Monitoring. Public incident IDs are NOT interchangeable with internal "
-        "incident IDs.",
-        required_scopes=["incidents:write"],
-    )
-
-    mcp.tool(
-        create_code_fix_request,
-        description="(Internal sources only) Create code fix requests for multiple internal secret incidents with their "
-        "locations. This will generate pull requests to automatically remediate detected secrets in the repositories the "
-        "workspace monitors. Does not apply to public-monitoring incidents.",
-        required_scopes=["incidents:write"],
-    )
-
-    mcp.tool(
         manage_incident_comment,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub use manage_public_incident_comment) "
+        description="(Internal sources only) "
         "Add a comment (note) to an internal secret incident, or edit an existing one. Use action='add' to create a "
-        "new comment, or action='edit' with a comment_id (from list_incident_comments) to replace a comment's body. "
+        "new comment, or action='edit' with the comment_id of an existing comment to replace its body. "
         "Does not work on public-monitoring incident IDs.",
-        required_scopes=["incidents:write"],
-    )
-
-    mcp.tool(
-        manage_public_incident_comment,
-        description="(Public Monitoring only — for internal sources use manage_incident_comment) "
-        "Add a comment (note) to a public secret incident detected by GitGuardian Public Monitoring, or edit an "
-        "existing one. Use action='add' to create a new comment, or action='edit' with a comment_id (from "
-        "list_public_incident_comments) to replace a comment's body. Public incident IDs are NOT interchangeable "
-        "with internal incident IDs.",
         required_scopes=["incidents:write"],
     )
