@@ -7,6 +7,8 @@ GitGuardian API).
 """
 
 import asyncio
+import json
+import re
 from http import HTTPStatus
 
 import httpx
@@ -27,6 +29,22 @@ from tests.e2e.harness import (
     tool_output,
     unwrap_result,
 )
+
+# Tool-shaped identifiers (verb_noun) as they appear in cross-tool guidance.
+_TOOL_NAME_PATTERN = re.compile(
+    r"\b(?:assign|count|create|find|generate|get|list|manage|read|revoke|scan|update|write)_[a-z]+(?:_[a-z]+)*\b"
+)
+
+
+def _property_names(schema):
+    """Yield every property name declared anywhere in a JSON schema."""
+    if isinstance(schema, dict):
+        yield from schema.get("properties", {})
+        for value in schema.values():
+            yield from _property_names(value)
+    elif isinstance(schema, list):
+        for value in schema:
+            yield from _property_names(value)
 
 
 class TestProtocolHandshake:
@@ -82,6 +100,21 @@ class TestScopeBasedToolVisibility:
         names = await list_tool_names(mcp_client)
 
         assert names == EXPECTED_FULL_TOOL_CATALOG
+
+    async def test_tool_definitions_only_point_at_exposed_tools(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding every GitGuardian scope
+        WHEN tools/list is requested
+        THEN no tool description or input schema sends agents to a tool the server does not expose
+        """
+        tools = rpc_result(await rpc(mcp_client, "tools/list", request_id=1), expected_id=1)["tools"]
+        exposed = {tool["name"] for tool in tools}
+
+        for tool in tools:
+            schema = tool["inputSchema"]
+            text = json.dumps([tool.get("description", ""), schema])
+            mentioned = set(_TOOL_NAME_PATTERN.findall(text)) - set(_property_names(schema))
+            assert mentioned <= exposed, f"{tool['name']} points at unexposed tools {sorted(mentioned - exposed)}"
 
     async def test_token_scopes_are_fetched_from_the_api_with_the_callers_token(
         self, mcp_client, gg_api, mock_token_scopes

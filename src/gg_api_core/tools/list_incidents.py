@@ -285,7 +285,7 @@ class ListIncidentsParams(BaseModel):
     # Source filters
     source_ids: list[int] | None = Field(
         default=None,
-        description="Filter by source ID(s). Can be obtained using list_source or find_current_source_id tools.",
+        description="Filter by source ID(s). Can be obtained using the list_sources tool.",
     )
     source_type: list[str] | None = Field(
         default=None,
