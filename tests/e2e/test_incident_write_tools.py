@@ -1,4 +1,4 @@
-"""Mutating incident tools: status changes, severity edits and assignment.
+"""Mutating incident tools: status changes, assignment and comments.
 
 These tools write to customer workspaces, so the tests pin the exact endpoint
 and JSON body for every action, and that guard rails (required reasons) block
@@ -118,3 +118,42 @@ class TestAssignIncident:
         await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "email": "dev@corp.test"}})
 
         assert sent_body(route) == {"member_id": None, "email": "dev@corp.test"}
+
+
+class TestManageIncidentComment:
+    async def test_add_posts_a_note_with_the_comment(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN action=add
+        WHEN manage_incident_comment is called
+        THEN a note is POSTed on the incident with the comment as its only field
+             and the created note is returned
+        """
+        note = {"id": 9, "incident_id": 77, "comment": "Rotating the key today"}
+        route = gg_api.post("/incidents/secrets/77/notes").respond(201, json=note)
+
+        result = await call_tool(
+            mcp_client,
+            "manage_incident_comment",
+            {"params": {"incident_id": 77, "action": "add", "comment": "Rotating the key today"}},
+        )
+
+        assert sent_body(route) == {"comment": "Rotating the key today"}
+        assert tool_output(result) == note
+
+    async def test_edit_patches_the_existing_note(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN action=edit with a comment id
+        WHEN manage_incident_comment is called
+        THEN that note is PATCHed with the new comment
+        """
+        note = {"id": 9, "incident_id": 77, "comment": "Key rotated"}
+        route = gg_api.patch("/incidents/secrets/77/notes/9").respond(200, json=note)
+
+        result = await call_tool(
+            mcp_client,
+            "manage_incident_comment",
+            {"params": {"incident_id": 77, "action": "edit", "comment_id": 9, "comment": "Key rotated"}},
+        )
+
+        assert sent_body(route) == {"comment": "Key rotated"}
+        assert tool_output(result) == note

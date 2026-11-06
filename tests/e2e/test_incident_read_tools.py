@@ -35,6 +35,9 @@ DEFAULT_LIST_QUERY = {
     "tags__nin": "TEST_FILE,FALSE_POSITIVE,CHECK_RUN_SKIP_FALSE_POSITIVE,CHECK_RUN_SKIP_LOW_RISK,CHECK_RUN_SKIP_TEST_CRED",
 }
 
+# Turns off the filters list_incidents and count_incidents apply by default.
+NO_DEFAULT_FILTERS = {"status": None, "severity": None, "validity": None, "exclude_tags": None}
+
 
 class TestListIncidents:
     async def test_default_call_applies_the_opinionated_filters(self, mcp_client, gg_api, mock_token_scopes):
@@ -190,6 +193,67 @@ class TestListIncidents:
 
         assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
 
+    @pytest.mark.parametrize(
+        ("filters", "expected"),
+        [
+            pytest.param(
+                {"source_criticality": ["critical", "high"]},
+                {"source_criticality__in": "critical,high"},
+                id="source-criticality",
+            ),
+            pytest.param(
+                {"detector_group_name": ["AWS Keys"]}, {"detector_group_name__in": "AWS Keys"}, id="detector-group"
+            ),
+            pytest.param(
+                {"detector_category": ["specific"]}, {"detector_category__in": "specific"}, id="detector-category"
+            ),
+            pytest.param({"presence": ["present"]}, {"presence__in": "present"}, id="presence"),
+            pytest.param(
+                {"issue_tracker": ["jira_cloud_notifier"]},
+                {"issue_tracker__in": "jira_cloud_notifier"},
+                id="issue-tracker",
+            ),
+            pytest.param(
+                {"secret_manager_type": ["hashicorpvault", "awssecretsmanager"]},
+                {"secret_manager_type__in": "hashicorpvault,awssecretsmanager"},
+                id="secret-manager-type",
+            ),
+            pytest.param({"teams": [1]}, {"teams__in": "1"}, id="teams"),
+            pytest.param({"validity": ["valid", "not_checked"]}, {"validity__in": "valid,not_checked"}, id="validity"),
+            pytest.param({"search": "aws"}, {"search": "aws"}, id="search"),
+            pytest.param({"feedback": True}, {"feedback": "true"}, id="feedback"),
+            pytest.param({"assignee_id": 0}, {"assignee_member_id": "0"}, id="unassigned"),
+            pytest.param(
+                {"date_after": "2024-01-01", "date_before": "2025-12-31"},
+                {"date__ge": "2024-01-01", "date__le": "2025-12-31"},
+                id="date-range",
+            ),
+            pytest.param(
+                {"score_min": 50, "ordering": "-score"}, {"score__ge": "50", "ordering": "-score"}, id="score-floor"
+            ),
+            pytest.param(
+                {"status": "TRIGGERED", "severity": "critical", "validity": "valid", "exclude_tags": "TEST_FILE"},
+                {"status__in": "TRIGGERED", "severity__in": "10", "validity__in": "valid", "tags__nin": "TEST_FILE"},
+                id="single-values-coerced",
+            ),
+        ],
+    )
+    async def test_each_filter_maps_to_its_api_parameter(
+        self, mcp_client, gg_api, mock_token_scopes, filters, expected
+    ):
+        """
+        GIVEN one tool filter
+        WHEN list_incidents is called
+        THEN the API receives it under its own query parameter, serialized the
+             way the API expects
+        """
+        route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
+
+        await call_tool(mcp_client, "list_incidents", {"params": filters})
+
+        params = sent_params(route)
+        assert {key: params.get(key) for key in expected} == expected
+
 
 class TestCountIncidents:
     async def test_count_uses_the_dedicated_endpoint_with_the_same_filters(self, mcp_client, gg_api, mock_token_scopes):
@@ -224,6 +288,52 @@ class TestCountIncidents:
 
         assert sent_params(route)["assignee_member_id"] == str(TEST_MEMBER_ID)
         assert unwrap_result(result)["count"] == 2
+
+    @pytest.mark.parametrize(
+        ("filters", "expected_query"),
+        [
+            pytest.param(
+                {
+                    "status": ["TRIGGERED", "ASSIGNED"],
+                    "severity": ["critical", "high"],
+                    "validity": ["valid"],
+                    "exclude_tags": [],
+                },
+                {"status__in": "TRIGGERED,ASSIGNED", "severity__in": "10,20", "validity__in": "valid"},
+                id="empty-exclude-tags-drops-the-tag-filter",
+            ),
+            pytest.param(
+                {"status": "TRIGGERED", "severity": "critical", "validity": "valid"},
+                {
+                    "status__in": "TRIGGERED",
+                    "severity__in": "10",
+                    "validity__in": "valid",
+                    "tags__nin": DEFAULT_LIST_QUERY["tags__nin"],
+                },
+                id="single-values-coerced",
+            ),
+            pytest.param(
+                {"date_after": "2024-01-01", "date_before": "2025-12-31", **NO_DEFAULT_FILTERS},
+                {"date__ge": "2024-01-01", "date__le": "2025-12-31"},
+                id="date-range",
+            ),
+            pytest.param({"search": "aws", **NO_DEFAULT_FILTERS}, {"search": "aws"}, id="search"),
+        ],
+    )
+    async def test_filters_serialize_to_the_count_query(
+        self, mcp_client, gg_api, mock_token_scopes, filters, expected_query
+    ):
+        """
+        GIVEN count filters
+        WHEN count_incidents is called
+        THEN the count endpoint receives exactly the query list_incidents would
+             send for them, without pagination
+        """
+        route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 3})
+
+        await call_tool(mcp_client, "count_incidents", {"params": filters})
+
+        assert sent_params(route) == expected_query
 
 
 class TestGetIncident:
@@ -286,6 +396,19 @@ class TestGetIncident:
         result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": incident_id}})
 
         assert str(HTTPStatus.NOT_FOUND.value) in tool_error_text(result)
+
+    async def test_zero_occurrences_is_forwarded_not_dropped(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN with_occurrences=0
+        WHEN get_incident is called
+        THEN the API is asked for no occurrences explicitly, instead of falling
+             back to its default of 20
+        """
+        route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+
+        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77, "with_occurrences": 0}})
+
+        assert sent_params(route) == {"with_occurrences": "0"}
 
 
 class TestListRepoOccurrences:
@@ -452,3 +575,22 @@ class TestListRepoOccurrences:
         assert output["occurrences"] == [occurrence]
         assert output["has_more"] is False
         assert output["cursor"] is None
+
+    async def test_date_range_and_presence_are_forwarded(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a date range and a presence filter
+        WHEN list_repo_occurrences is called
+        THEN both reach the occurrences query unchanged
+        """
+        route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
+
+        await call_tool(
+            mcp_client,
+            "list_repo_occurrences",
+            {"params": {"from_date": "2024-01-01", "to_date": "2024-12-31", "presence": "present"}},
+        )
+
+        params = sent_params(route)
+        assert params["from_date"] == "2024-01-01"
+        assert params["to_date"] == "2024-12-31"
+        assert params["presence"] == "present"
