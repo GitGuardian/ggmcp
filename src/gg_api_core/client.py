@@ -108,6 +108,25 @@ def _to_date_only(value: str) -> str:
         raise ValueError(f"Invalid date value: {value!r}") from exc
 
 
+def api_error_detail(response: httpx.Response) -> str:
+    """Pull a human-readable reason out of a GitGuardian API error response, so the
+    caller sees *why* the request was rejected rather than a bare status code."""
+    try:
+        body = response.json()
+    except Exception:
+        return response.text or f"HTTP {response.status_code}"
+    if isinstance(body, dict):
+        if body.get("detail"):
+            return str(body["detail"])
+        # DRF field errors, e.g. {"name": ["This field may not be blank."]}
+        field_errors = [
+            f"{field}: {'; '.join(errs) if isinstance(errs, list) else errs}" for field, errs in body.items()
+        ]
+        if field_errors:
+            return " | ".join(field_errors)
+    return str(body)
+
+
 class DownstreamUnauthorizedError(Exception):
     """Raised when the downstream GitGuardian API returns 401.
 

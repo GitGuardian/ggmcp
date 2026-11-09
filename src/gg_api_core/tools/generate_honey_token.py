@@ -5,28 +5,10 @@ import httpx
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.client import api_error_detail
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
-
-
-def _extract_api_detail(response: httpx.Response) -> str:
-    """Pull a human-readable reason out of a GitGuardian API error response, so the
-    caller sees *why* the request was rejected rather than a bare status code."""
-    try:
-        body = response.json()
-    except Exception:
-        return response.text or f"HTTP {response.status_code}"
-    if isinstance(body, dict):
-        if body.get("detail"):
-            return str(body["detail"])
-        # DRF field errors, e.g. {"name": ["This field may not be blank."]}
-        field_errors = [
-            f"{field}: {'; '.join(errs) if isinstance(errs, list) else errs}" for field, errs in body.items()
-        ]
-        if field_errors:
-            return " | ".join(field_errors)
-    return str(body)
 
 
 class GenerateHoneytokenParams(BaseModel):
@@ -131,7 +113,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         # caller-actionable condition, not a server fault: surface the API's reason so the
         # client can retry with a different name (or adjust new_token). Log at warning so
         # it does not surface as a Sentry error.
-        detail = _extract_api_detail(e.response)
+        detail = api_error_detail(e.response)
         logger.warning(f"Honeytoken creation rejected ({e.response.status_code}): {detail}")
         raise ToolError(f"Could not create honeytoken: {detail}") from e
     except Exception as e:
