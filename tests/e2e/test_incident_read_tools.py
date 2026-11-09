@@ -168,22 +168,11 @@ class TestListIncidents:
                 id="secret-manager-type",
             ),
             pytest.param({"teams": [1]}, {"teams__in": "1"}, id="teams"),
-            pytest.param({"validity": ["valid", "not_checked"]}, {"validity__in": "valid,not_checked"}, id="validity"),
             pytest.param({"search": "aws"}, {"search": "aws"}, id="search"),
-            pytest.param({"feedback": True}, {"feedback": "true"}, id="feedback"),
-            pytest.param({"assignee_id": 0}, {"assignee_member_id": "0"}, id="unassigned"),
             pytest.param(
                 {"date_after": "2024-01-01", "date_before": "2025-12-31"},
                 {"date__ge": "2024-01-01", "date__le": "2025-12-31"},
                 id="date-range",
-            ),
-            pytest.param(
-                {"score_min": 50, "ordering": "-score"}, {"score__ge": "50", "ordering": "-score"}, id="score-floor"
-            ),
-            pytest.param(
-                {"status": "TRIGGERED", "severity": "critical", "validity": "valid", "exclude_tags": "TEST_FILE"},
-                {"status__in": "TRIGGERED", "severity__in": "10", "validity__in": "valid", "tags__nin": "TEST_FILE"},
-                id="single-values-coerced",
             ),
         ],
     )

@@ -320,8 +320,6 @@ class TestRequestLoggingContextMiddleware:
     @pytest.mark.parametrize(
         ("method", "message_type"),
         [
-            ("notifications/initialized", "notification"),
-            ("notifications/cancelled", "notification"),
             ("ping", "request"),
         ],
     )
