@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -11,8 +10,6 @@ from gg_api_core.client import (
     TagNames,
 )
 from gg_api_core.utils import get_client
-
-logger = logging.getLogger(__name__)
 
 DEFAULT_EXCLUDED_TAGS = [
     TagNames.TEST_FILE,
@@ -123,12 +120,6 @@ class ListRepoOccurrencesResult(BaseModel):
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
 
 
-class ListRepoOccurrencesError(BaseModel):
-    """Error result from listing repository occurrences."""
-
-    error: str = Field(description="Error message")
-
-
 def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     """Build a dictionary describing the filters applied to the query."""
     filters: dict[str, Any] = {}
@@ -190,6 +181,14 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
     return "\n".join(suggestions) if suggestions else ""
 
 
+# Stays in the tool's return type so its output schema, and the result wrapper
+# that schema implies, are unchanged. The tool raises instead of returning it.
+class ListRepoOccurrencesError(BaseModel):
+    """Error result from listing repository occurrences."""
+
+    error: str = Field(description="Error message")
+
+
 async def list_repo_occurrences(
     params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
@@ -213,41 +212,36 @@ async def list_repo_occurrences(
                 "Use member_assignee_id to select an assignee with a service token."
             )
 
-    try:
-        result = await client.list_occurrences(
-            incident_id=params.incident_id,
-            source_id=str(params.source_id) if params.source_id is not None else None,
-            from_date=params.from_date,
-            to_date=params.to_date,
-            presence=params.presence,
-            tags=params.tags,
-            exclude_tags=params.exclude_tags,
-            per_page=params.per_page,
-            cursor=params.cursor,
-            ordering=params.ordering,
-            get_all=params.get_all,
-            status=params.status,
-            severity=params.severity,
-            validity=params.validity,
-            member_assignee_id=member_assignee_id,
-            with_sources=False,
-        )
+    result = await client.list_occurrences(
+        incident_id=params.incident_id,
+        source_id=str(params.source_id) if params.source_id is not None else None,
+        from_date=params.from_date,
+        to_date=params.to_date,
+        presence=params.presence,
+        tags=params.tags,
+        exclude_tags=params.exclude_tags,
+        per_page=params.per_page,
+        cursor=params.cursor,
+        ordering=params.ordering,
+        get_all=params.get_all,
+        status=params.status,
+        severity=params.severity,
+        validity=params.validity,
+        member_assignee_id=member_assignee_id,
+        with_sources=False,
+    )
 
-        # Extract data from ListResponse or PaginatedResult
-        occurrences_data = result["data"]
-        next_cursor = result["cursor"]
-        has_more = result.get("has_more", False)
+    # Extract data from ListResponse or PaginatedResult
+    occurrences_data = result["data"]
+    next_cursor = result["cursor"]
+    has_more = result.get("has_more", False)
 
-        count = len(occurrences_data)
-        return ListRepoOccurrencesResult(
-            occurrences_count=count,
-            occurrences=occurrences_data,
-            cursor=next_cursor,
-            has_more=has_more,
-            applied_filters=_build_filter_info(params),
-            suggestion=_build_suggestion(params, count),
-        )
-
-    except Exception as e:
-        logger.exception(f"Error listing repository occurrences: {str(e)}")
-        return ListRepoOccurrencesError(error=f"Failed to list repository occurrences: {str(e)}")
+    count = len(occurrences_data)
+    return ListRepoOccurrencesResult(
+        occurrences_count=count,
+        occurrences=occurrences_data,
+        cursor=next_cursor,
+        has_more=has_more,
+        applied_filters=_build_filter_info(params),
+        suggestion=_build_suggestion(params, count),
+    )

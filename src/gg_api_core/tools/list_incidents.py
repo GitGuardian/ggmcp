@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any
 
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
@@ -111,6 +112,8 @@ class ListIncidentsResult(BaseModel):
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
 
 
+# Stays in the tool's return type so its output schema, and the result wrapper
+# that schema implies, are unchanged. The tool raises instead of returning it.
 class ListIncidentsError(BaseModel):
     """Error result from listing incidents."""
 
@@ -127,83 +130,78 @@ async def list_incidents(
     """
     client = await get_client()
 
-    try:
-        assignee_id, conflict = await resolve_assignee(client, params)
-        if conflict:
-            return ListIncidentsError(error=conflict)
-        query = build_incident_query(params, assignee_id)
+    assignee_id, conflict = await resolve_assignee(client, params)
+    if conflict:
+        raise ToolError(conflict)
+    query = build_incident_query(params, assignee_id)
 
-        if params.get_all:
-            # Fetch all pages with byte limit protection and hard page cap.
-            all_incidents: list[dict[str, Any]] = []
-            current_page = 1
-            total_bytes = 0
-            has_more = False
+    if params.get_all:
+        # Fetch all pages with byte limit protection and hard page cap.
+        all_incidents: list[dict[str, Any]] = []
+        current_page = 1
+        total_bytes = 0
+        has_more = False
 
-            while True:
-                if current_page > MAX_PAGINATION_PAGES:
-                    logger.warning(f"get_all pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES})")
-                    has_more = True
-                    break
+        while True:
+            if current_page > MAX_PAGINATION_PAGES:
+                logger.warning(f"get_all pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES})")
+                has_more = True
+                break
 
-                response = await client.list_incidents_for_mcp(
-                    query, page=current_page, page_size=params.page_size, ordering=params.ordering
-                )
-
-                page_incidents = response.get("results", [])
-                has_next_page = response.get("next") is not None
-
-                # Empty page means no more matching results
-                if not page_incidents:
-                    break
-
-                # Check byte limit before adding results
-                page_bytes = len(json.dumps(page_incidents))
-                if total_bytes + page_bytes > DEFAULT_PAGINATION_MAX_BYTES and all_incidents:
-                    # Would exceed limit, stop here
-                    has_more = True
-                    break
-
-                all_incidents.extend(page_incidents)
-                total_bytes += page_bytes
-
-                if not has_next_page:
-                    break
-
-                current_page += 1
-
-            return ListIncidentsResult(
-                incidents=all_incidents,
-                page=current_page,
-                page_size=params.page_size,
-                has_next=has_more,
-                has_previous=False,
-                has_more=has_more,
-                applied_filters=build_filter_info(params),
-                suggestion=_build_suggestion(params, len(all_incidents)),
-            )
-        else:
-            # Single page request
             response = await client.list_incidents_for_mcp(
-                query, page=params.page, page_size=params.page_size, ordering=params.ordering
+                query, page=current_page, page_size=params.page_size, ordering=params.ordering
             )
 
-            # Parse the response
-            incidents_data = response.get("results", [])
-            has_next = response.get("next") is not None
-            has_previous = response.get("previous") is not None
+            page_incidents = response.get("results", [])
+            has_next_page = response.get("next") is not None
 
-            return ListIncidentsResult(
-                incidents=incidents_data,
-                page=params.page,
-                page_size=params.page_size,
-                has_next=has_next,
-                has_previous=has_previous,
-                has_more=False,
-                applied_filters=build_filter_info(params),
-                suggestion=_build_suggestion(params, len(incidents_data)),
-            )
+            # Empty page means no more matching results
+            if not page_incidents:
+                break
 
-    except Exception as e:
-        logger.exception(f"Error listing incidents: {str(e)}")
-        return ListIncidentsError(error=f"Failed to list incidents: {str(e)}")
+            # Check byte limit before adding results
+            page_bytes = len(json.dumps(page_incidents))
+            if total_bytes + page_bytes > DEFAULT_PAGINATION_MAX_BYTES and all_incidents:
+                # Would exceed limit, stop here
+                has_more = True
+                break
+
+            all_incidents.extend(page_incidents)
+            total_bytes += page_bytes
+
+            if not has_next_page:
+                break
+
+            current_page += 1
+
+        return ListIncidentsResult(
+            incidents=all_incidents,
+            page=current_page,
+            page_size=params.page_size,
+            has_next=has_more,
+            has_previous=False,
+            has_more=has_more,
+            applied_filters=build_filter_info(params),
+            suggestion=_build_suggestion(params, len(all_incidents)),
+        )
+    else:
+        # Single page request
+        response = await client.list_incidents_for_mcp(
+            query, page=params.page, page_size=params.page_size, ordering=params.ordering
+        )
+
+        # Parse the response
+        incidents_data = response.get("results", [])
+        has_next = response.get("next") is not None
+        has_previous = response.get("previous") is not None
+
+        return ListIncidentsResult(
+            incidents=incidents_data,
+            page=params.page,
+            page_size=params.page_size,
+            has_next=has_next,
+            has_previous=has_previous,
+            has_more=False,
+            applied_filters=build_filter_info(params),
+            suggestion=_build_suggestion(params, len(incidents_data)),
+        )

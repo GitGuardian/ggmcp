@@ -96,17 +96,3 @@ class TestListPublicOccurrences:
         assert call_kwargs["cursor"] == "prev_cursor"
         assert result.cursor == "next_cursor"
         assert result.has_more is True
-
-    @pytest.mark.asyncio
-    async def test_client_error_returns_error_result(self, mock_gitguardian_client):
-        """
-        GIVEN: The client raises an exception
-        WHEN: Listing public occurrences
-        THEN: An error result is returned
-        """
-        mock_gitguardian_client.list_public_occurrences = AsyncMock(side_effect=Exception("Boom"))
-
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1))
-
-        assert hasattr(result, "error")
-        assert "Failed to list public occurrences" in result.error

@@ -281,32 +281,12 @@ class TestSharedIncidentFilters:
 
         result = await call_tool(mcp_client, tool_name, {"params": {"mine": True, "assignee_id": 1}})
 
-        output = unwrap_result(result)
-        assert output["error"].startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
+        assert tool_error_text(result).startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
         assert not incidents.called
 
 
 @pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
 class TestSharedIncidentErrors:
-    async def test_api_failure_comes_back_inside_the_result(self, mcp_client, gg_api, mock_token_scopes, tool_name):
-        """
-        GIVEN the API rejecting the query with 400
-        WHEN either internal incident tool is called
-        THEN the MCP call succeeds and its result carries an error naming the status
-        """
-        gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(400, json={"detail": "Invalid filter."})
-
-        result = await call_tool(mcp_client, tool_name, {"params": {}})
-
-        error = unwrap_result(result)["error"]
-        verb = "list" if tool_name == "list_incidents" else "count"
-        assert error.startswith(f"Failed to {verb} incidents:")
-        assert "400" in error
-
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: list_incidents and count_incidents swallow downstream authorization failures into their result",
-    )
     async def test_api_rejection_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes, tool_name):
         """
         GIVEN the API rejecting the token with 401
