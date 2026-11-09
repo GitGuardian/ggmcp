@@ -49,91 +49,17 @@ pre-commit run ruff --all-files
 
 ## Project Structure
 
-```
-ggmcp/
-├── src/
-│   ├── server.py            # Main MCP server entry point
-│   ├── gitguardian/         # GitGuardian Honeytoken tool
-│   │   ├── __init__.py
-│   │   ├── client.py        # API client for GitGuardian
-│   │   └── tools.py         # Tool implementation
-│   └── [other_tools]/       # Additional tools will be added here
-├── tests/                   # Test suite
-│   ├── test_gitguardian_client.py
-│   └── ...
-├── pyproject.toml           # Project configuration and dependencies
-├── README.md                # Main documentation
-└── DEVELOPMENT.md           # This file
-```
+- `src/gg_api_core/client.py`: the GitGuardian API client.
+- `src/gg_api_core/tools/`: one module per tool, each with a pydantic params model.
+- `src/gg_mcp_server/register_tools.py`: registers every tool with its `required_scopes`.
+- `tests/e2e/`: end-to-end tests that pin the request each tool sends to the API and the output it returns.
 
 ## Adding a New Tool
 
-To add a new tool to the MCP server:
-
-1. Create a new directory in `src/` for your tool
-2. Implement your tool following the MCP Tools specification
-3. Register your tool in `src/server.py`
-4. Add unit tests for your tool
-5. Update the README.md to document your tool
-
-### Example Tool Structure
-
-```python
-# src/example/tools.py
-from fastmcp import Request, Response, Tool
-from typing import Dict, Any
-
-
-class ExampleTool(Tool):
-    """Example tool implementation."""
-
-    def __init__(self):
-        """Initialize the tool."""
-        pass
-
-    def schema(self) -> Dict[str, Any]:
-        """Define the schema for the tool."""
-        return {
-            "name": "example_tool",
-            "description": "Example tool description",
-            "parameters": {
-                "type": "object",
-                "required": ["param1"],
-                "properties": {
-                    "param1": {
-                        "type": "string",
-                        "description": "First parameter"
-                    }
-                }
-            }
-        }
-
-    async def execute(self, request: Request) -> Response:
-        """Execute the tool."""
-        param1 = request.data.get("param1")
-
-        result = f"Processed: {param1}"
-
-        return Response(
-            status="success",
-            data={"result": result}
-        )
-
-
-# List of tools to be exported
-tools = [ExampleTool()]
-```
-
-Then register the tool in `src/server.py`:
-
-```python
-# src/server.py
-from example.tools import tools as example_tools
-
-# Register the tools
-for tool in example_tools:
-    mcp.tool(tool)
-```
+1. Add the tool function and its params model in `src/gg_api_core/tools/`.
+2. Register it in `src/gg_mcp_server/register_tools.py` with its `required_scopes`. If it needs a scope
+   that `DEFAULT_SCOPES` in `src/gg_api_core/scopes.py` lacks, add it there, or new tokens won't see the tool.
+3. Add e2e tests in `tests/e2e/` for the API request and the tool output.
 
 ## Authentication Modes
 
@@ -143,7 +69,8 @@ contributors who need to know how the selection happens internally.
 
 ### OAuth proxy (HTTP, recommended)
 
-Set `MCP_OAUTH_PROXY_ENABLED=true` on an HTTP deployment. The server
+Set `MCP_OAUTH_PROXY_ENABLED=true`, `MULTI_TENANCY_ENABLED=true` and `MCP_PORT`
+on an HTTP deployment. The server
 advertises OAuth Protected Resource metadata (RFC 9728) and proxies
 `/authorize`, `/token`, `/register` to the GG dashboard. MCP clients run
 the OAuth flow themselves and send `Authorization: Bearer <PAT>` on every
@@ -151,10 +78,12 @@ request. This is what the hosted server at `mcp.gitguardian.com` runs.
 
 ### Per-request bearer (HTTP fallback)
 
-When `ENABLE_LOCAL_OAUTH=false` and `MCP_OAUTH_PROXY_ENABLED` is unset on
-HTTP, clients pass `Authorization: Bearer <PAT>` directly; the server
-forwards verbatim. Used by raw HTTP integrations and the production Helm
-chart's gunicorn target.
+When `ENABLE_LOCAL_OAUTH=false`, `MULTI_TENANCY_ENABLED=true`, `MCP_PORT` is set
+and `MCP_OAUTH_PROXY_ENABLED` is unset, clients pass `Authorization: Bearer <PAT>`
+directly and the server forwards it verbatim. Used by raw HTTP integrations.
+
+Both HTTP modes need `MULTI_TENANCY_ENABLED=true`: without it, `get_client()`
+ignores the request's token and looks for a single server-wide one.
 
 ### PAT environment variable (any transport)
 
@@ -265,8 +194,8 @@ uv add --optional sentry sentry-sdk
 When running the server with `uvx` from Git, you can include optional dependencies:
 
 ```bash
-# Include extras using the #egg syntax
-uvx --from 'git+https://github.com/GitGuardian/ggmcp.git@main#egg=gg-mcp-server[sentry]' gg-mcp-server
+# Include extras by naming the distribution
+uvx --from 'ggmcp[sentry] @ git+https://github.com/GitGuardian/ggmcp.git@main' gg-mcp-server
 
 # Or install the optional dependency separately
 uv pip install sentry-sdk
@@ -295,12 +224,6 @@ Run tests with verbose output:
 ENABLE_LOCAL_OAUTH=false uv run pytest -v
 ```
 
-Run tests with coverage:
-
-```bash
-uv run pytest --cov=packages --cov-report=html
-```
-
 Create test files in the `tests/` directory that match the pattern `test_*.py`.
 
 ## Code Style
@@ -322,27 +245,10 @@ ruff format src tests
 **Note:** Pre-commit hooks will automatically run ruff on your staged files when you commit, so you usually don't need
 to run it manually.
 
-## Cursor Rules
-
-This project includes Cursor IDE rules in the `.cursor/rules` directory that enforce coding standards:
-
-1. **Don't use uvicorn or fastapi with MCP** - MCP has its own server implementation, external web servers are not
-   needed
-2. **Use pyproject.toml with uv** - Modern Python projects should use pyproject.toml with uv for dependency management
-
-These rules help maintain consistent code quality and follow best practices for MCP development.
-
 ## Documentation
 
-When adding a new tool, please document it in the README.md following the same structure as existing tools. Include:
-
-1. A brief description of the tool
-2. Required environment variables or configuration
-3. Tool usage examples
-4. Parameter descriptions
-5. Response format
-6. Integration examples with LLMs
-7. Any important notes or warnings
+When adding a new tool, list it under "What it does" in `README.md`. When removing one, add it to the README's
+"Migration notes".
 
 ## Pull Request Process
 
@@ -364,25 +270,3 @@ commits. Never bump versions by hand: release-please maintains a rolling
 publishes the Docker image (`X.Y.Z`, `X.Y`, `latest`). Ordinary merges only
 refresh the `main` and `main-<sha>-<seq>` image tags. See `PUBLISHING.md`
 for details and the manual escape hatch.
-
-## Python 3.13 Features
-
-This project leverages Python 3.13's modern features:
-
-1. **Built-in type annotations**: Use `dict[str, Any]` instead of importing `Dict` from typing
-2. **Union types with pipe operator**: Use `str | None` instead of `Optional[str]`
-3. **No need for most typing imports**: Many typing constructs are now built into Python
-
-Example:
-
-```python
-# Python 3.13 style
-def process_data(items: list[str], config: dict[str, Any] | None = None) -> dict[str, Any]:
-    # Implementation
-    return {"result": True}
-
-# Instead of the older style:
-from typing import Dict, List, Optional, Any
-def process_data(items: List[str], config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    # Implementation
-    return {"result": True}

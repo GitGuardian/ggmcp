@@ -142,8 +142,8 @@ env vars.
 
 | Mode                                   | Configuration                                                          | Used by                                                                                                             |
 |----------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `ENABLE_LOCAL_OAUTH=false`            | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
-| **Raw bearer** (HTTP)                  | `ENABLE_LOCAL_OAUTH=false` + `MCP_PORT` set                            | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
+| **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
+| **Raw bearer** (HTTP)                  | `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
 | **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
 | **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy `uvx --from …` flow that opens a localhost callback and stores the PAT on disk.                              |
 
@@ -203,6 +203,8 @@ docker run -p 8000:8000 \
   -e IS_ON_PREM=true \
   -e MCP_BASE_URL=https://mcp.mycorp.local \
   -e MCP_OAUTH_PROXY_ENABLED=true \
+  -e MULTI_TENANCY_ENABLED=true \
+  -e MCP_PORT=8000 \
   -e ENABLE_LOCAL_OAUTH=false \
   ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
@@ -220,6 +222,11 @@ Protected Resource (RFC 9728) and proxy `/authorize`, `/token`, `/register`
 to your GitGuardian dashboard. MCP clients then run the OAuth flow against
 your domain.
 
+`MULTI_TENANCY_ENABLED=true` (with `MCP_PORT` set) makes the server use the
+token each request carries in its `Authorization` header. Without it, the
+server looks for a single server-wide token and every tool call fails with
+`No API token available`.
+
 ## Configuration reference
 
 | Variable                            | Description                                      | Default                             |
@@ -227,20 +234,36 @@ your domain.
 | `GITGUARDIAN_URL`                   | GitGuardian dashboard URL                        | `https://dashboard.gitguardian.com` |
 | `IS_ON_PREM`                        | `true` => self-hosted; `false` => SaaS; unset ⇒ guess from hostname | Unset            |
 | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | PAT (overrides OAuth)                            | Unset                               |
-| `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | Auto                                |
+| `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | The scopes the tools use            |
 | `GITGUARDIAN_CLIENT_ID`             | OAuth client ID                                  | `ggshield_oauth`                    |
 | `GITGUARDIAN_TOKEN_NAME`            | Display name for OAuth-issued PATs               | `MCP Token`                         |
 | `GITGUARDIAN_TOKEN_LIFETIME`        | PAT lifetime in days (or `never`)                | `30`                                |
 | `MCP_PORT`                          | Port for HTTP transport (unset ⇒ stdio)          | Unset                               |
+| `MULTI_TENANCY_ENABLED`             | Use each request's `Authorization` token (HTTP)  | `false`                             |
 | `MCP_HOST`                          | Bind address for HTTP transport                  | `127.0.0.1`                         |
 | `MCP_BASE_URL`                      | Public URL of this MCP server (OAuth proxy mode) | `http://localhost:8000`             |
 | `MCP_OAUTH_PROXY_ENABLED`           | Advertise OAuth Protected Resource metadata      | `false`                             |
 | `ENABLE_LOCAL_OAUTH`                | Legacy: enable stdio OAuth flow (deprecated)     | `true`                              |
+| `LOG_LEVEL`                         | Log level                                        | `INFO`                              |
+| `LOG_FORMAT`                        | `json` or `console`                              | `console` on a TTY, else `json`     |
 
 ## Migration notes
 
-The `developer-mcp-server` and `secops-mcp-server` console scripts have been
-removed. Update your MCP client configuration to invoke `gg-mcp-server`.
+- The server now exposes the 14 tools listed in [What it does](#what-it-does).
+  These tools were removed: `assign_public_incident`, `create_code_fix_request`,
+  `find_current_source_id`, `get_authenticated_user_info`, `get_current_token_info`,
+  `get_member`, `list_detectors`, `list_honeytokens`, `list_incident_activity_logs`,
+  `list_incident_comments`, `list_incident_members`, `list_incident_teams`,
+  `list_public_incident_activity_logs`, `list_public_incident_comments`,
+  `list_remediation_targets`, `list_users`, `manage_public_incident_comment`,
+  `read_custom_tags`, `revoke_current_token`, `revoke_secret`,
+  `update_incident_severity`, `update_or_create_incident_custom_tags`,
+  `update_public_incident_status`, `write_custom_tags`. Use the GitGuardian
+  dashboard for those actions.
+- The SSE app (`gg_mcp_server.sse_app:app`) was removed. Serve
+  `gg_mcp_server.http_app:app` instead.
+- The `developer-mcp-server` and `secops-mcp-server` console scripts were
+  removed. Update your MCP client configuration to invoke `gg-mcp-server`.
 
 ## Want more?
 
