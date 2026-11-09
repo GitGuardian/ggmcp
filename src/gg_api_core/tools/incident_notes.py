@@ -55,7 +55,6 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
             body, and comment_id (for edits)
     """
     client = await get_client()
-    logger.debug(f"Managing comment on incident {params.incident_id} with action: {params.action}")
 
     try:
         if params.action == "add":

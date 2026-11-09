@@ -110,8 +110,7 @@ async def resolve_caller_identity(
     try:
         identity = derive_caller_identity(await fetch_token_info(), api_url=api_url)
         ttl = _IDENTITY_TTL_SECONDS
-    except Exception as exc:
-        logger.debug("caller_identity_unavailable", extra={"reason": str(exc)})
+    except Exception:
         identity = {}
         ttl = _IDENTITY_FAILURE_TTL_SECONDS
 

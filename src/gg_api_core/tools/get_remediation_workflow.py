@@ -18,12 +18,10 @@ class GetRemediationWorkflowResult(BaseModel):
 async def get_remediation_workflow() -> GetRemediationWorkflowResult:
     """Retrieve the remediation workflow for the current workspace."""
     client = await get_client()
-    logger.debug("Retrieving remediation workflow")
 
     try:
         response = await client.get_remediation_workflow()
 
-        logger.debug("Retrieved remediation workflow")
         return GetRemediationWorkflowResult(workflow=response)
     except Exception as e:
         logger.exception(f"Error retrieving remediation workflow: {str(e)}")

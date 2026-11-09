@@ -68,28 +68,23 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
     if params.assignee_member_id is not None:
         # Direct member ID provided
         assignee_id = params.assignee_member_id
-        logger.debug(f"Using provided member ID: {assignee_id}")
 
     elif params.email is not None:
         # Email provided - pass directly to API (no need to look up member ID)
         # The API supports assigning by email directly
         assignee_email = params.email
-        logger.debug(f"Using provided email for assignment: {assignee_email}")
 
     elif params.mine:
         # Get current user's ID from token info (avoids needing members:read scope)
         token_info = await client.get_current_token_info()
         if token_info and "member_id" in token_info:
             assignee_id = token_info["member_id"]
-            logger.debug(f"Using current user ID for assignment: {assignee_id}")
         else:
             raise ToolError("Could not determine current user ID from token info")
 
     # Final validation
     if not assignee_id and not assignee_email:
         raise ToolError("Failed to determine assignee (member ID or email)")
-
-    logger.debug(f"Assigning incident {params.incident_id} to member {assignee_id or assignee_email}")
 
     try:
         # Call the client method with either member_id or email
@@ -98,8 +93,6 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             assignee_id=str(assignee_id) if assignee_id else None,
             email=assignee_email,
         )
-
-        logger.debug(f"Successfully assigned incident {params.incident_id} to {assignee_id or assignee_email}")
 
         # Parse the response - get the actual assignee_id from the API response
         response_assignee_id = assignee_id

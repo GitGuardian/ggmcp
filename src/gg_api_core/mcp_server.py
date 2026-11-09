@@ -72,14 +72,12 @@ class CachedTokenInfoMixin:
 
             # Call the original lifespan if provided
             if original_lifespan:
-                logger.debug("Calling original lifespan")
                 async with original_lifespan(fastmcp) as original_context:
                     context_result = original_context
 
             # Cache scopes at startup (single token throughout lifespan)
             try:
                 self._token_scopes = await self._fetch_token_scopes_from_api()  # type: ignore[attr-defined]
-                logger.debug(f"Retrieved token scopes: {self._token_scopes}")
             except Exception as e:
                 logger.warning(f"Failed to fetch token scopes during startup: {str(e)}")
                 logger.warning("Some tools may not be available if scope detection fails")
@@ -189,12 +187,10 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         client_to_use = await self.get_client()
 
         # Fetch the complete token info
-        logger.debug("Attempting to fetch token scopes from GitGuardian API")
         token_info = await client_to_use.get_current_token_info()
 
         # Extract scopes
         scopes = token_info.get("scopes", [])
-        logger.debug(f"Retrieved token scopes: {scopes}")
 
         return set(scopes)
 
@@ -205,11 +201,9 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
     async def get_scopes(self) -> set[str]:
         cached_scopes: set[str] | None = getattr(self, "_token_scopes", None)
         if cached_scopes:
-            logger.debug("reading from cached scopes")
             return cached_scopes
 
         scopes = await self._fetch_token_scopes_from_api()
-        logger.debug(f"scopes: {scopes}")
         return scopes
 
 

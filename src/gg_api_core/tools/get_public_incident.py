@@ -28,7 +28,6 @@ async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncid
         params: GetPublicIncidentParams model containing the incident_id.
     """
     client = await get_client()
-    logger.debug(f"Retrieving public incident {params.incident_id}")
 
     try:
         response = await client.get_public_incident(incident_id=params.incident_id)

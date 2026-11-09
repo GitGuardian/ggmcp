@@ -218,8 +218,6 @@ class ScopeFilteringMiddleware(Middleware):
                 filtered_tools.append(tool)
             else:
                 hidden.append(tool_name)
-                missing_scopes = required_scopes - scopes
-                logger.debug(f"Removing tool '{tool_name}' due to missing scopes: {', '.join(missing_scopes)}")
 
         logger.info(
             "list_tools",

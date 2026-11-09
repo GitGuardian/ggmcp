@@ -34,11 +34,9 @@ def derive_public_api_url(gitguardian_url: str) -> str:
             if "dashboard" in parsed.netloc:
                 api_netloc = parsed.netloc.replace("dashboard", "api")
                 normalized = f"{parsed.scheme}://{api_netloc}/v1"
-                logger.debug(f"Normalized SaaS dashboard URL: {api_url} -> {normalized}")
                 return normalized
             if not parsed.path.endswith("/v1"):
                 normalized = f"{api_url}/v1"
-                logger.debug(f"Normalized SaaS API URL: {api_url} -> {normalized}")
                 return normalized
             return api_url
 

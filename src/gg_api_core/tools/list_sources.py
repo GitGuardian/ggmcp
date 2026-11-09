@@ -126,7 +126,6 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
         params: ListSourcesParams model containing all filtering options
     """
     client = await get_client()
-    logger.debug("Listing sources")
 
     try:
         response = await client.list_sources(
@@ -148,7 +147,6 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
         sources_data = response["data"]
         next_cursor = response["cursor"]
 
-        logger.debug(f"Found {len(sources_data)} sources")
         return ListSourcesResult(
             sources=sources_data,
             next_cursor=next_cursor,

@@ -58,12 +58,8 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
                 {"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview}
             )
 
-        logger.debug(f"Scanning {len(params.documents)} documents for secrets")
-        logger.debug(f"Documents to scan: {safe_docs_log}")
-
         # Make the API call
         result = await client.multiple_scan(params.documents)
-        logger.debug(f"Scanned {len(params.documents)} documents")
 
         # Wrap the result in Pydantic model
         if isinstance(result, list):

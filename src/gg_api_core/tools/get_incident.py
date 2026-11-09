@@ -36,7 +36,6 @@ async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
             - with_occurrences: Number of occurrences to include (0-100)
     """
     client = await get_client()
-    logger.debug(f"Retrieving incident {params.incident_id}")
 
     try:
         response = await client.get_incident(
@@ -44,7 +43,6 @@ async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
             with_occurrences=params.with_occurrences,
         )
 
-        logger.debug(f"Retrieved incident {params.incident_id}")
         return GetIncidentResult(incident=response)
     except Exception as e:
         logger.exception(f"Error retrieving incident {params.incident_id}: {str(e)}")
