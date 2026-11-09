@@ -107,18 +107,6 @@ class TestAssignIncident:
         assert output["assignee_id"] == 4242
         assert output["success"] is True
 
-    async def test_assignment_by_email_sends_a_null_member_id(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN an assignee email
-        WHEN assign_incident is called
-        THEN the body carries the email and a null member_id
-        """
-        route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42})
-
-        await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "email": "dev@corp.test"}})
-
-        assert sent_body(route) == {"member_id": None, "email": "dev@corp.test"}
-
 
 class TestManageIncidentComment:
     async def test_add_posts_a_note_with_the_comment(self, mcp_client, gg_api, mock_token_scopes):

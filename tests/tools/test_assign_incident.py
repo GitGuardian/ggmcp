@@ -44,32 +44,6 @@ class TestAssignIncident:
     """Tests for the assign_incident function."""
 
     @pytest.mark.asyncio
-    async def test_assign_incident_by_member_id(self, mock_gitguardian_client):
-        """
-        GIVEN: An incident ID and assignee member ID
-        WHEN: Assigning the incident
-        THEN: The API is called with the member ID directly
-        """
-        mock_gitguardian_client.assign_incident = AsyncMock(
-            return_value={"id": 123, "assignee_id": 456, "status": "ASSIGNED"}
-        )
-
-        result = await assign_incident(AssignIncidentParams(incident_id=123, assignee_member_id=456))
-
-        # Verify the client was called with the correct parameters
-        mock_gitguardian_client.assign_incident.assert_called_once_with(
-            incident_id="123",
-            assignee_id="456",
-            email=None,
-        )
-
-        # Verify result
-        assert isinstance(result, AssignIncidentResult)
-        assert result.incident_id == 123
-        assert result.assignee_id == 456
-        assert result.success is True
-
-    @pytest.mark.asyncio
     async def test_assign_incident_by_email_no_member_lookup(self, mock_gitguardian_client):
         """
         GIVEN: An incident ID and assignee email

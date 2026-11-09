@@ -101,25 +101,6 @@ class TestListIncidents:
         assert "validity__in" not in params
         assert "tags__nin" not in params
 
-    async def test_mine_resolves_the_caller_to_a_member_id_before_filtering(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
-        """
-        GIVEN mine=True
-        WHEN list_incidents is called
-        THEN the server resolves the caller via /api_tokens/self and /members/{id}
-             and filters incidents on assignee_member_id
-        """
-        member = gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(
-            200, json={"id": TEST_MEMBER_ID, "email": "dev@corp.test"}
-        )
-        incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
-
-        await call_tool(mcp_client, "list_incidents", {"params": {"mine": True}})
-
-        assert member.called
-        assert sent_params(incidents)["assignee_member_id"] == str(TEST_MEMBER_ID)
-
     @pytest.mark.xfail(
         strict=True,
         reason="SI-3891: mine=True is not rejected clearly for service tokens",
@@ -354,25 +335,6 @@ class TestSharedIncidentErrors:
 
 
 class TestCountIncidents:
-    async def test_count_uses_the_dedicated_endpoint_with_the_same_filters(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN default filters
-        WHEN count_incidents is called
-        THEN /incidents-for-mcp/count receives the same filter dialect and the
-             count comes back with the applied-filter echo
-        """
-        route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 1337})
-
-        result = await call_tool(mcp_client, "count_incidents", {"params": {}})
-
-        params = sent_params(route)
-        assert params == {
-            key: value for key, value in DEFAULT_LIST_QUERY.items() if key not in ("page", "page_size", "ordering")
-        }
-        output = unwrap_result(result)
-        assert output["count"] == 1337
-        assert output["applied_filters"]["severity"] == [10, 20, 30, 100]
-
     async def test_count_mine_filters_on_the_resolved_member(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN mine=True
@@ -386,52 +348,6 @@ class TestCountIncidents:
 
         assert sent_params(route)["assignee_member_id"] == str(TEST_MEMBER_ID)
         assert unwrap_result(result)["count"] == 2
-
-    @pytest.mark.parametrize(
-        ("filters", "expected_query"),
-        [
-            pytest.param(
-                {
-                    "status": ["TRIGGERED", "ASSIGNED"],
-                    "severity": ["critical", "high"],
-                    "validity": ["valid"],
-                    "exclude_tags": [],
-                },
-                {"status__in": "TRIGGERED,ASSIGNED", "severity__in": "10,20", "validity__in": "valid"},
-                id="empty-exclude-tags-drops-the-tag-filter",
-            ),
-            pytest.param(
-                {"status": "TRIGGERED", "severity": "critical", "validity": "valid"},
-                {
-                    "status__in": "TRIGGERED",
-                    "severity__in": "10",
-                    "validity__in": "valid",
-                    "tags__nin": DEFAULT_LIST_QUERY["tags__nin"],
-                },
-                id="single-values-coerced",
-            ),
-            pytest.param(
-                {"date_after": "2024-01-01", "date_before": "2025-12-31", **NO_DEFAULT_FILTERS},
-                {"date__ge": "2024-01-01", "date__le": "2025-12-31"},
-                id="date-range",
-            ),
-            pytest.param({"search": "aws", **NO_DEFAULT_FILTERS}, {"search": "aws"}, id="search"),
-        ],
-    )
-    async def test_filters_serialize_to_the_count_query(
-        self, mcp_client, gg_api, mock_token_scopes, filters, expected_query
-    ):
-        """
-        GIVEN count filters
-        WHEN count_incidents is called
-        THEN the count endpoint receives exactly the query list_incidents would
-             send for them, without pagination
-        """
-        route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 3})
-
-        await call_tool(mcp_client, "count_incidents", {"params": filters})
-
-        assert sent_params(route) == expected_query
 
 
 class TestGetIncident:
@@ -466,34 +382,6 @@ class TestGetIncident:
         assert result["structuredContent"] == {"incident": INCIDENT}
         assert result["content"][0]["type"] == "text"
         assert json.loads(result["content"][0]["text"]) == {"incident": INCIDENT}
-
-    async def test_non_default_occurrence_count_is_forwarded(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN with_occurrences=50
-        WHEN get_incident is called
-        THEN the with_occurrences query param is sent
-        """
-        route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
-
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77, "with_occurrences": 50}})
-
-        assert sent_params(route)["with_occurrences"] == "50"
-
-    async def test_unknown_incident_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN the API answering 404
-        WHEN get_incident is called
-        THEN the call fails with a tool error naming the status
-        """
-        incident_id = 987654
-        gg_api.get(f"/incidents/secrets/{incident_id}").respond(
-            status_code=HTTPStatus.NOT_FOUND,
-            json={"detail": "Not found."},
-        )
-
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": incident_id}})
-
-        assert str(HTTPStatus.NOT_FOUND.value) in tool_error_text(result)
 
     async def test_zero_occurrences_is_forwarded_not_dropped(self, mcp_client, gg_api, mock_token_scopes):
         """

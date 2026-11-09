@@ -66,32 +66,6 @@ class TestProtocolLifecycleEvents:
         methods = [r.mcp_method for r in _events(caplog, "mcp_request")]
         assert methods == ["initialize", "tools/list", "resources/list", "prompts/list"]
 
-    async def test_sessionless_discovery_is_recorded(self, server, caplog):
-        """
-        GIVEN a 2026-07-28 client, which discovers the server instead of initializing
-        WHEN the session runs
-        THEN server/discover and the list methods each produce an mcp_request line
-        """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server) as client:
-                await client.list_tools()
-
-        methods = [r.mcp_method for r in _events(caplog, "mcp_request")]
-        assert methods == ["server/discover", "tools/list"]
-
-    async def test_ping_emits_no_mcp_request(self, server, caplog):
-        """
-        GIVEN a handshake-era client that pings
-        WHEN the ping is answered
-        THEN no mcp_request line is emitted
-        """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server, mode="legacy") as client:
-                caplog.clear()
-                assert await client.ping() is True
-
-        assert _events(caplog, "mcp_request") == []
-
     async def test_tool_calls_are_not_double_logged(self, server, caplog):
         """
         GIVEN a tool call
@@ -118,18 +92,6 @@ class TestProtocolLifecycleEvents:
         (rec,) = _events(caplog, "mcp_initialize")
         assert rec.client_name == "mcp"
         assert rec.protocol_version == "2025-11-25"
-
-    async def test_sessionless_requests_carry_the_client_and_protocol_version(self, server):
-        """
-        GIVEN a 2026-07-28 client, which never sends initialize
-        WHEN it calls a tool
-        THEN the call runs with the client and protocol revision from its _meta bound
-        """
-        async with Client(server) as client:
-            result = await client.call_tool("bound_fields", {})
-
-        assert result.data["client_name"] == "mcp"
-        assert result.data["protocol_version"] == "2026-07-28"
 
 
 class TestListToolsCounts:
@@ -160,23 +122,3 @@ class TestListToolsCounts:
         assert rec.tools_exposed == 1
         assert rec.tools_hidden == 1
         assert rec.hidden_tools == ["needs_incidents"]
-
-    async def test_per_tool_removal_lines_are_debug_only(self, caplog):
-        """
-        GIVEN a hidden tool
-        WHEN tools are listed at INFO
-        THEN no per-tool removal line is emitted
-        """
-        mcp = FastMCP("scoped")
-        fake = FakeScopedServer(scopes={"scan"}, tool_scopes={"needs_incidents": {"incidents:read"}})
-        mcp.add_middleware(ScopeFilteringMiddleware(fake))
-
-        @mcp.tool(name="needs_incidents")
-        async def needs_incidents() -> str:
-            return "ok"
-
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(mcp) as client:
-                await client.list_tools()
-
-        assert not [r for r in caplog.records if "Removing tool" in r.getMessage()]

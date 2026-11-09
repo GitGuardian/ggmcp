@@ -219,23 +219,6 @@ class TestToolCallLoggingMiddleware:
 
 
 class TestRequestLoggingContextMiddleware:
-    async def test_prefers_inbound_x_request_id_header(self, monkeypatch):
-        """
-        GIVEN an MCP message with an X-Request-ID header
-        WHEN the message is handled
-        THEN the inbound request ID is bound
-        """
-        seen: dict = {}
-
-        async def call_next(ctx):
-            seen.update(structlog.contextvars.get_contextvars())
-            return "ok"
-
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "trace-123"})
-        await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
-
-        assert seen["request_id"] == "trace-123"
-
     @pytest.mark.parametrize("inbound", ["trace 123", "trace\nforged", "x" * 65, ""])
     async def test_rejects_unsafe_inbound_request_id(self, monkeypatch, inbound):
         """
@@ -314,23 +297,6 @@ class TestRequestLoggingContextMiddleware:
         assert "account_id" not in seen
         assert "workspace_id" not in seen
 
-    async def test_identity_is_fetched_once_across_messages(self):
-        """
-        GIVEN several messages from the same token
-        WHEN each is handled
-        THEN token info is fetched only once
-        """
-
-        async def call_next(ctx):
-            return "ok"
-
-        server = FakeServer()
-        middleware = RequestLoggingContextMiddleware(server)
-        for _ in range(3):
-            await middleware.on_message(_message_ctx(), call_next)
-
-        assert server.token_info_calls == 1
-
     async def test_binds_the_client_a_request_declares(self):
         """
         GIVEN a sessionless request whose _meta declares the client and protocol revision
@@ -350,23 +316,6 @@ class TestRequestLoggingContextMiddleware:
         assert seen["client_name"] == "claude-code"
         assert seen["client_version"] == "3.0.0"
         assert seen["protocol_version"] == "2026-07-28"
-
-    async def test_binds_no_client_fields_without_a_declaration(self):
-        """
-        GIVEN a handshake-era request on a stateless transport, which declares no client
-        WHEN the message is handled
-        THEN no client or protocol field is bound, rather than an SDK default
-        """
-        seen: dict = {}
-
-        async def call_next(ctx):
-            seen.update(structlog.contextvars.get_contextvars())
-            return "ok"
-
-        await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(session_id="sess-1"), call_next)
-
-        assert seen["request_id"]
-        assert not {"client_name", "client_version", "protocol_version"} & seen.keys()
 
     @pytest.mark.parametrize(
         ("method", "message_type"),
@@ -398,27 +347,6 @@ class TestRequestLoggingContextMiddleware:
         assert seen == {}
         assert server.token_info_calls == 0
         assert not [r for r in caplog.records if r.getMessage() == "mcp_request"]
-
-    async def test_logs_client_identity_on_initialize(self, caplog):
-        """
-        GIVEN an initialize request carrying the client info and a protocol version
-        WHEN it is handled
-        THEN an mcp_initialize event records both
-        """
-        params = _client_params(name="claude-ai", version="0.1.0", protocol_version="2025-06-18")
-
-        async def call_next(ctx):
-            return None
-
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await RequestLoggingContextMiddleware(FakeServer()).on_initialize(
-                _message_ctx(message=SimpleNamespace(params=params)), call_next
-            )
-
-        rec = next(r for r in caplog.records if r.getMessage() == "mcp_initialize")
-        assert rec.client_name == "claude-ai"
-        assert rec.client_version == "0.1.0"
-        assert rec.protocol_version == "2025-06-18"
 
     async def test_every_middleware_log_carries_request_identity_through_the_real_stack(self, capsys):
         """

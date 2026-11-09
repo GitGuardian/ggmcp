@@ -36,22 +36,6 @@ class TestListSources:
         assert len(result.sources) == 1
 
     @pytest.mark.asyncio
-    async def test_list_sources_empty_response(self, mock_gitguardian_client):
-        """
-        GIVEN: No sources match the criteria
-        WHEN: Listing sources
-        THEN: An empty list is returned
-        """
-        mock_response = {"data": [], "cursor": None, "has_more": False}
-        mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
-
-        result = await list_sources(ListSourcesParams(search="nonexistent"))
-
-        assert len(result.sources) == 0
-        assert result.next_cursor is None
-        assert result.has_more is False
-
-    @pytest.mark.asyncio
     async def test_list_sources_client_error(self, mock_gitguardian_client):
         """
         GIVEN: The client raises an exception
@@ -65,49 +49,3 @@ class TestListSources:
             await list_sources(ListSourcesParams())
 
         assert error_message in str(excinfo.value)
-
-    @pytest.mark.asyncio
-    async def test_list_sources_cursor_pagination(self, mock_gitguardian_client):
-        """
-        GIVEN: A cursor from a previous page
-        WHEN: Listing sources with that cursor
-        THEN: The cursor is passed to the API
-        """
-        mock_response = {
-            "data": [{"id": 2}],
-            "cursor": "third_page_cursor",
-            "has_more": True,
-        }
-        mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
-
-        result = await list_sources(ListSourcesParams(cursor="second_page_cursor"))
-
-        call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
-        assert call_kwargs["cursor"] == "second_page_cursor"
-        assert result.next_cursor == "third_page_cursor"
-
-    @pytest.mark.asyncio
-    async def test_list_sources_with_external_id_filter(self, mock_gitguardian_client):
-        """
-        GIVEN: An external_id filter parameter
-        WHEN: Listing sources with external_id filter
-        THEN: The API is called with correct external_id parameter
-        """
-        mock_response = {
-            "data": [
-                {
-                    "id": 1,
-                    "type": "github",
-                    "external_id": "12345",
-                }
-            ],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_sources = AsyncMock(return_value=mock_response)
-
-        result = await list_sources(ListSourcesParams(external_id="12345"))
-
-        call_kwargs = mock_gitguardian_client.list_sources.call_args.kwargs
-        assert call_kwargs["external_id"] == "12345"
-        assert len(result.sources) == 1

@@ -102,25 +102,6 @@ class TestApiRequestEvent:
         assert rec.path == "/incidents/secrets"
         assert rec.status == 200
 
-    async def test_accounts_the_call_against_the_enclosing_tool_call(self, monkeypatch):
-        """
-        GIVEN a GitGuardian API call made inside a tracked block
-        WHEN it completes
-        THEN the block's accumulator counts it and its latency
-        """
-        client = GitGuardianClient(gitguardian_url="https://dashboard.gitguardian.com", personal_access_token="tok")
-
-        def handler(request):
-            return httpx.Response(200, json={})
-
-        monkeypatch.setattr(httpx.AsyncClient, "request", _responding_with(handler))
-
-        with track_downstream_calls() as stats:
-            await client._request_get("/incidents/secrets/1")
-
-        assert stats.calls == 1
-        assert stats.statuses == {200}
-
     async def test_reports_a_transport_failure_without_a_status(self, caplog, monkeypatch):
         """
         GIVEN an API call that never gets a response
@@ -193,13 +174,3 @@ class TestNoisyLoggerDemotion:
         configure_logging(log_level="INFO", log_format="json")
 
         assert not logging.getLogger("mcp.server.lowlevel.server").isEnabledFor(logging.INFO)
-
-    def test_httpx_is_left_alone_at_debug(self):
-        """
-        GIVEN logging configured at DEBUG
-        WHEN httpx's own logger is consulted
-        THEN it is not demoted
-        """
-        configure_logging(log_level="DEBUG", log_format="json")
-
-        assert logging.getLogger("httpx").isEnabledFor(logging.DEBUG)

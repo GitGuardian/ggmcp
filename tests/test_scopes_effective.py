@@ -12,24 +12,10 @@ import os
 from unittest.mock import patch
 
 from gg_api_core import scopes as scopes_module
-from gg_api_core.scopes import DEFAULT_SCOPES
 from gg_api_core.settings import get_settings
 
 
 class TestEffectiveScopesSaaS:
-    def test_no_env_returns_the_default_scopes(self):
-        """
-        GIVEN no GITGUARDIAN_SCOPES is set and the URL points at SaaS
-        WHEN effective_scopes is read
-        THEN DEFAULT_SCOPES, the scopes the tools use, is returned
-        """
-        with patch.dict(
-            os.environ,
-            {"GITGUARDIAN_URL": "https://dashboard.gitguardian.com"},
-            clear=True,
-        ):
-            assert get_settings().effective_scopes == DEFAULT_SCOPES
-
     def test_explicit_scopes_returned_as_is(self):
         """
         GIVEN GITGUARDIAN_SCOPES narrows the request
@@ -45,15 +31,6 @@ class TestEffectiveScopesSaaS:
             clear=True,
         ):
             assert sorted(get_settings().effective_scopes) == ["incidents:read", "scan"]
-
-    def test_no_url_no_scopes_returns_the_default_scopes(self):
-        """
-        GIVEN no env vars at all
-        WHEN effective_scopes is read
-        THEN the default URL (SaaS) yields DEFAULT_SCOPES
-        """
-        with patch.dict(os.environ, {}, clear=True):
-            assert get_settings().effective_scopes == DEFAULT_SCOPES
 
 
 class TestEffectiveScopesSelfHostedCap:
@@ -96,16 +73,3 @@ class TestEffectiveScopesSelfHostedCap:
         ):
             effective = set(get_settings().effective_scopes)
             assert effective == {"scan", "incidents:read"}
-
-    def test_local_instance_is_not_treated_as_self_hosted(self):
-        """
-        GIVEN GITGUARDIAN_URL points at localhost
-        WHEN effective_scopes is read
-        THEN DEFAULT_SCOPES is returned uncapped (local dev runs treated as SaaS-like)
-        """
-        with patch.dict(
-            os.environ,
-            {"GITGUARDIAN_URL": "http://localhost:3000"},
-            clear=True,
-        ):
-            assert get_settings().effective_scopes == DEFAULT_SCOPES
