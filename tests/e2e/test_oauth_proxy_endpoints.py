@@ -7,6 +7,8 @@ exchange transformation regress, every remote user loses access.
 
 from urllib.parse import parse_qs, urlparse
 
+import httpx
+import pytest
 from pytest_voluptuous import S, Unordered
 
 from tests.e2e.harness import EXPECTED_REQUESTED_SCOPES, MCP_BASE_URL, sent_body
@@ -211,3 +213,41 @@ class TestTokenExchange:
 
         assert response.status_code == 400
         assert response.json() == {"error": "invalid_grant"}
+
+
+PROXIED_OAUTH_CALLS = [
+    pytest.param(
+        "/register",
+        "/oauth/register",
+        {"json": {"client_name": "Claude", "redirect_uris": ["https://x.test/cb"]}},
+        id="register",
+    ),
+    pytest.param("/token", "/oauth/token", {"data": {"grant_type": "authorization_code", "code": "c"}}, id="token"),
+]
+
+UNREADABLE_UPSTREAM_ANSWERS = [
+    pytest.param(httpx.Response(503, text="<html>Service Unavailable</html>"), 503, id="html-503-keeps-its-status"),
+    pytest.param(httpx.Response(200, text="<html>maintenance</html>"), 502, id="html-200-becomes-502"),
+    pytest.param(httpx.ConnectError("refused"), 502, id="unreachable-becomes-502"),
+]
+
+
+@pytest.mark.parametrize(("upstream_answer", "expected_status"), UNREADABLE_UPSTREAM_ANSWERS)
+@pytest.mark.parametrize(("path", "upstream_path", "request_kwargs"), PROXIED_OAUTH_CALLS)
+async def test_an_unreadable_or_unreachable_dashboard_gives_an_oauth_server_error(
+    mcp_client, gg_api, path, upstream_path, request_kwargs, upstream_answer, expected_status
+):
+    """
+    GIVEN the dashboard answering an OAuth call with something that is not JSON, or not answering at all
+    WHEN a client registers or exchanges a code through the proxy
+    THEN it gets a JSON OAuth server_error with a gateway status instead of a crash
+    """
+    gg_api.post(upstream_path).mock(side_effect=[upstream_answer])
+
+    response = await mcp_client.post(path, **request_kwargs)
+
+    assert response.status_code == expected_status
+    assert response.json() == {
+        "error": "server_error",
+        "error_description": "The GitGuardian authorization server is unavailable.",
+    }
