@@ -11,8 +11,6 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import parse_qs, urlparse
 
-from mcp.client.auth import TokenStorage
-from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import BaseModel, Field
 from typing_extensions import override
 
@@ -142,30 +140,6 @@ class FileTokenStorage:
 
         access_token = token_data.get("access_token")
         return str(access_token) if access_token else None
-
-
-class InMemoryTokenStorage(TokenStorage):
-    """Simple in-memory token storage implementation."""
-
-    def __init__(self):
-        self._tokens: Optional[OAuthToken] = None
-        self._client_info: Optional[OAuthClientInformationFull] = None
-
-    @override
-    async def get_tokens(self) -> Optional[OAuthToken]:
-        return self._tokens
-
-    @override
-    async def set_tokens(self, tokens: OAuthToken) -> None:
-        self._tokens = tokens
-
-    @override
-    async def get_client_info(self) -> Optional[OAuthClientInformationFull]:
-        return self._client_info
-
-    @override
-    async def set_client_info(self, client_info: OAuthClientInformationFull) -> None:
-        self._client_info = client_info
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
@@ -447,9 +421,7 @@ class GitGuardianOAuthClient:
         self.api_url = api_url
         self.dashboard_url = dashboard_url
         self.scopes = scopes or ["scan"]
-        self.token_storage = InMemoryTokenStorage()
         self.file_token_storage = FileTokenStorage()
-        self.oauth_provider: Any = None
         self.access_token: str | None = None
         self.token_info: APITokenInfo | None = None
 
