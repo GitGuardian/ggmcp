@@ -127,6 +127,30 @@ def api_error_detail(response: httpx.Response) -> str:
     return str(body)
 
 
+# What a refusal means for the caller, for the statuses agents otherwise retry.
+_REFUSAL_GUIDANCE = {
+    404: (
+        "It does not exist, or this account cannot access it: incidents outside the caller's teams also "
+        "return 404, and internal and public incident IDs are not interchangeable. Retrying will not help."
+    ),
+    409: "Nothing was changed: the incident is already in the requested state. Do not retry.",
+}
+_MAX_DETAIL_CHARS = 300
+
+
+def describe_api_error(response: httpx.Response) -> str:
+    """Explain an API refusal with the API's own reason, in terms an agent can act on."""
+    message = f"GitGuardian API returned {response.status_code} {response.reason_phrase}"
+    if 400 <= response.status_code < 500:
+        detail = api_error_detail(response)[:_MAX_DETAIL_CHARS].rstrip(". ")
+        message = f"{message}: {detail}."
+    else:
+        message = f"{message}."
+    if guidance := _REFUSAL_GUIDANCE.get(response.status_code):
+        message = f"{message} {guidance}"
+    return message
+
+
 class DownstreamUnauthorizedError(Exception):
     """Raised when the downstream GitGuardian API returns 401.
 
@@ -677,7 +701,11 @@ class GitGuardianClient:
                     logger.debug(f"Error response content: {e.response.text}")
                 if e.response.status_code == 401:
                     raise DownstreamUnauthorizedError(f"GitGuardian API returned 401 for {url}") from e
-                raise
+                # Same exception type, so status checks and failure classification are
+                # unchanged. Tools pass this message to the agent.
+                raise httpx.HTTPStatusError(
+                    describe_api_error(e.response), request=e.request, response=e.response
+                ) from e
             except httpx.RequestError as e:
                 logger.exception(f"Request error occurred: {str(e)}")
                 raise

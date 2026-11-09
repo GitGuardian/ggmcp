@@ -1,5 +1,5 @@
 """Resilience of the client core (_request) observed through real tool calls:
-500 retries, network failures, and the downstream-401 re-auth bridge.
+refusal messages, 500 retries, network failures, and the downstream-401 re-auth bridge.
 """
 
 from http import HTTPStatus
@@ -39,6 +39,98 @@ async def test_a_rejected_list_query_surfaces_as_a_tool_error(
     result = await call_tool(mcp_client, tool_name, {"params": params})
 
     assert "400" in tool_error_text(result)
+
+
+ALREADY_IN_STATE_CALLS = [
+    pytest.param(
+        "assign_incident",
+        "/incidents/secrets/77/assign",
+        {"incident_id": 77, "assignee_member_id": 4242},
+        "Incident already assigned to this user.",
+        id="assign",
+    ),
+    pytest.param(
+        "manage_private_incident",
+        "/incidents/secrets/77/unassign",
+        {"incident_id": 77, "action": "unassign"},
+        "Incident not assigned.",
+        id="unassign",
+    ),
+    pytest.param(
+        "manage_private_incident",
+        "/incidents/secrets/77/resolve",
+        {"incident_id": 77, "action": "resolve", "secret_revoked": False},
+        "Incident is already resolved.",
+        id="resolve",
+    ),
+    pytest.param(
+        "manage_private_incident",
+        "/incidents/secrets/77/ignore",
+        {"incident_id": 77, "action": "ignore", "ignore_reason": "test_credential"},
+        "Incident is already ignored.",
+        id="ignore",
+    ),
+    pytest.param(
+        "manage_private_incident",
+        "/incidents/secrets/77/reopen",
+        {"incident_id": 77, "action": "reopen"},
+        "Incident is already open.",
+        id="reopen",
+    ),
+]
+
+
+class TestRefusalMessages:
+    async def test_a_missing_or_out_of_scope_incident_says_retrying_will_not_help(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN the API answering 404 for an incident, as it does for one outside the caller's teams
+        WHEN get_incident is called
+        THEN the tool error gives the API's reason, both possible causes, and says retrying will not help
+        """
+        gg_api.get("/incidents/secrets/77").respond(404, json={"detail": "Not found."})
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        text = tool_error_text(result)
+        assert "GitGuardian API returned 404 Not Found: Not found." in text
+        assert "incidents outside the caller's teams also return 404" in text
+        assert "internal and public incident IDs are not interchangeable" in text
+        assert "Retrying will not help." in text
+
+    @pytest.mark.parametrize(("tool_name", "endpoint", "params", "detail"), ALREADY_IN_STATE_CALLS)
+    async def test_an_incident_already_in_the_requested_state_says_nothing_changed(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params, detail
+    ):
+        """
+        GIVEN the API answering 409 because the incident is already in the requested state
+        WHEN the write tool is called
+        THEN the tool error gives the API's reason and tells the agent not to retry
+        """
+        gg_api.post(endpoint).respond(409, json={"detail": detail})
+
+        result = await call_tool(mcp_client, tool_name, {"params": params})
+
+        text = tool_error_text(result)
+        assert f"GitGuardian API returned 409 Conflict: {detail}" in text
+        assert "Nothing was changed: the incident is already in the requested state. Do not retry." in text
+
+    async def test_a_non_json_refusal_is_reported_without_flooding_the_agent(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN the API answering 403 with a long HTML page instead of JSON
+        WHEN get_incident is called
+        THEN the tool error names the status and keeps only the start of the page
+        """
+        gg_api.get("/incidents/secrets/77").respond(403, text="<html>" + "x" * 5000 + "</html>")
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        text = tool_error_text(result)
+        assert "GitGuardian API returned 403 Forbidden: <html>xxx" in text
+        assert len(text) < 600
 
 
 class TestServerErrorRetries:
