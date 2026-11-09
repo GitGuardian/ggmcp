@@ -8,9 +8,9 @@ from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGE
 from gg_api_core.tools.incident_filters import (
     DEFAULT_STATUSES,
     IncidentFilters,
-    build_api_filters,
     build_filter_info,
-    resolve_assignee_filter,
+    build_incident_query,
+    resolve_assignee,
 )
 from gg_api_core.utils import get_client
 
@@ -150,10 +150,10 @@ async def list_incidents(
     client = await get_client()
 
     try:
-        api_params, conflict = await resolve_assignee_filter(client, params)
+        assignee_id, conflict = await resolve_assignee(client, params)
         if conflict:
             return ListIncidentsError(error=conflict)
-        api_params.update(build_api_filters(params))
+        query = build_incident_query(params, assignee_id)
 
         if params.get_all:
             # Fetch all pages with byte limit protection and hard page cap.
@@ -169,10 +169,7 @@ async def list_incidents(
                     break
 
                 response = await client.list_incidents_for_mcp(
-                    page=current_page,
-                    page_size=params.page_size,
-                    ordering=params.ordering,
-                    **api_params,
+                    query, page=current_page, page_size=params.page_size, ordering=params.ordering
                 )
 
                 page_incidents = response.get("results", [])
@@ -210,10 +207,7 @@ async def list_incidents(
         else:
             # Single page request
             response = await client.list_incidents_for_mcp(
-                page=params.page,
-                page_size=params.page_size,
-                ordering=params.ordering,
-                **api_params,
+                query, page=params.page, page_size=params.page_size, ordering=params.ordering
             )
 
             # Parse the response

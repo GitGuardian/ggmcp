@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 
 from gg_api_core.tools.incident_filters import (
     IncidentFilters,
-    build_api_filters,
     build_filter_info,
-    resolve_assignee_filter,
+    build_incident_query,
+    resolve_assignee,
 )
 from gg_api_core.utils import get_client
 
@@ -60,12 +60,11 @@ async def count_incidents(
     client = await get_client()
 
     try:
-        api_params, conflict = await resolve_assignee_filter(client, params)
+        assignee_id, conflict = await resolve_assignee(client, params)
         if conflict:
             return CountIncidentsError(error=conflict)
-        api_params.update(build_api_filters(params))
 
-        response = await client.count_incidents_for_mcp(**api_params)
+        response = await client.count_incidents_for_mcp(build_incident_query(params, assignee_id))
 
         return CountIncidentsResult(
             count=response["count"],

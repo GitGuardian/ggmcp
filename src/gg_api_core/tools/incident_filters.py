@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
-from gg_api_core.client import GitGuardianClient
+from gg_api_core.client import GitGuardianClient, _serialize_enum_filter, _to_date_only
 
 
 class IncidentStatus:
@@ -396,136 +396,98 @@ def build_filter_info(params: IncidentFilters) -> dict[str, Any]:
     return filters
 
 
-async def resolve_assignee_filter(
-    client: GitGuardianClient, params: IncidentFilters
-) -> tuple[dict[str, Any], str | None]:
-    """Map mine and assignee_id to the API assignee filter, or return the error for a conflict."""
+async def resolve_assignee(client: GitGuardianClient, params: IncidentFilters) -> tuple[int | None, str | None]:
+    """The member id to filter on, from mine and assignee_id, or the error when they conflict."""
     if params.mine:
         member = await client.get_current_member()
         current_user_id = member["id"]
         if params.assignee_id is not None and params.assignee_id != current_user_id:
-            return {}, (
+            return None, (
                 f"Conflict: 'mine=True' implies assignee_id={current_user_id}, "
                 f"but assignee_id={params.assignee_id} was explicitly provided. "
                 "Please use either 'mine=True' or an explicit 'assignee_id', not both."
             )
-        return {"assignee_id": current_user_id}, None
-    if params.assignee_id is not None:
-        return {"assignee_id": params.assignee_id}, None
-    return {}, None
+        return current_user_id, None
+    return params.assignee_id, None
 
 
-def build_api_filters(params: IncidentFilters) -> dict[str, Any]:
-    """Translate shared filters; resolve_assignee_filter handles mine and assignee_id."""
-    api_params: dict[str, Any] = {}
+def _severity_values(severities: list[str | int]) -> list[int | str]:
+    """Severity names to the API's numeric values; numbers and unknown names pass through."""
+    values: list[int | str] = []
+    for sev in severities:
+        if isinstance(sev, int):
+            values.append(sev)
+        elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
+            values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
+        else:
+            try:
+                values.append(int(str(sev)))
+            except ValueError:
+                values.append(str(sev))
+    return values
+
+
+def build_incident_query(params: IncidentFilters, assignee_id: int | None) -> dict[str, Any]:
+    """Translate the shared filters into the /incidents-for-mcp query.
+
+    Multi-value filters are comma-joined under ``<name>__in``. The key order is
+    the order the API has always received them in.
+    """
+    query: dict[str, Any] = {}
+
+    def add_list(key: str, values: list[Any] | None) -> None:
+        if values:
+            query[key] = _serialize_enum_filter(values)
 
     if params.search:
-        api_params["search"] = params.search
-
-    if params.status:
-        api_params["status"] = params.status
+        query["search"] = params.search
+    add_list("status__in", params.status)
+    if assignee_id is not None:
+        # A member id: the endpoint resolves it to the user. assignee__in expects
+        # a user id and would silently match nothing.
+        query["assignee_member_id"] = _serialize_enum_filter(assignee_id)
     if params.severity:
-        severity_values: list[int | str] = []
-        for sev in params.severity:
-            if isinstance(sev, int):
-                severity_values.append(sev)
-            elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-                severity_values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-            else:
-                try:
-                    severity_values.append(int(str(sev)))
-                except ValueError:
-                    severity_values.append(str(sev))
-        api_params["severity"] = severity_values
+        add_list("severity__in", _severity_values(params.severity))
     if params.score_min is not None:
-        api_params["score__ge"] = params.score_min
+        query["score__ge"] = params.score_min
     if params.score_max is not None:
-        api_params["score__le"] = params.score_max
-    if params.validity:
-        api_params["validity"] = params.validity
-
-    if params.detector_group_name:
-        api_params["detector_group_name"] = params.detector_group_name
-    if params.detector_type:
-        api_params["detector_type"] = params.detector_type
-    if params.detector_category:
-        api_params["detector_category"] = params.detector_category
-    if params.issue_name:
-        api_params["issue_name"] = params.issue_name
-    if params.secret_category:
-        api_params["secret_category"] = params.secret_category
-    if params.secret_family:
-        api_params["secret_family"] = params.secret_family
-    if params.secret_provider:
-        api_params["secret_provider"] = params.secret_provider
-
-    source_ids: list[int | str] = list(params.source_ids) if params.source_ids else []
-    if source_ids:
-        api_params["source"] = source_ids
-    if params.source_type:
-        api_params["source_type"] = params.source_type
-    if params.source_criticality:
-        api_params["source_criticality"] = params.source_criticality
-
+        query["score__le"] = params.score_max
+    add_list("validity__in", params.validity)
+    for name in (
+        "detector_group_name",
+        "detector_type",
+        "detector_category",
+        "issue_name",
+        "secret_category",
+        "secret_family",
+        "secret_provider",
+    ):
+        add_list(f"{name}__in", getattr(params, name))
+    add_list("source__in", params.source_ids)
+    add_list("source_type__in", params.source_type)
+    add_list("source_criticality__in", params.source_criticality)
     if params.occurrence_count_min is not None:
-        api_params["occurrence_count"] = f">={params.occurrence_count_min}"
-    if params.presence:
-        api_params["presence"] = params.presence
-
+        query["occurrence_count"] = f">={params.occurrence_count_min}"
+    add_list("presence__in", params.presence)
     if params.opened_for_days is not None:
-        api_params["opened_for"] = f">={params.opened_for_days}"
-
-    if params.tags:
-        api_params["tags"] = params.tags
-    if params.exclude_tags:
-        api_params["custom_filters"] = api_params.get("custom_filters", {})
-        api_params["custom_filters"]["tags__nin"] = ",".join(params.exclude_tags)
-
-    if params.public_exposure:
-        api_params["public_exposure"] = params.public_exposure
-
-    if params.integration:
-        api_params["integration"] = params.integration
-    if params.issue_tracker:
-        api_params["issue_tracker"] = params.issue_tracker
-
-    if params.has_related_issues is not None:
-        api_params["has_related_issues"] = params.has_related_issues
-    if params.location is not None:
-        api_params["location"] = params.location
-    if params.feedback is not None:
-        api_params["feedback"] = params.feedback
-    if params.publicly_shared is not None:
-        api_params["publicly_shared"] = params.publicly_shared
-
-    if params.secret_manager_type:
-        api_params["secret_manager_type"] = params.secret_manager_type
-    if params.secret_manager_instance:
-        api_params["secret_manager_instance"] = params.secret_manager_instance
-
-    if params.nhi_env:
-        api_params["nhi_env"] = params.nhi_env
-    if params.nhi_policy:
-        api_params["nhi_policy"] = params.nhi_policy
-
-    if params.teams:
-        api_params["teams"] = params.teams
-
+        query["opened_for"] = f">={params.opened_for_days}"
+    add_list("tags__in", params.tags)
+    for name in ("public_exposure", "integration", "issue_tracker"):
+        add_list(f"{name}__in", getattr(params, name))
+    for name in ("has_related_issues", "location", "feedback", "publicly_shared"):
+        value = getattr(params, name)
+        if value is not None:
+            query[name] = str(value).lower()
+    for name in ("secret_manager_type", "secret_manager_instance", "nhi_env", "nhi_policy", "teams"):
+        add_list(f"{name}__in", getattr(params, name))
     if params.similar_to is not None:
-        api_params["similar_to"] = params.similar_to
-
+        query["similar_to"] = params.similar_to
     if params.date_before:
-        api_params["date_before"] = params.date_before
+        query["date__le"] = _to_date_only(params.date_before)
     if params.date_after:
-        api_params["date_after"] = params.date_after
-
-    if params.secret_scope:
-        api_params["secret_scope"] = params.secret_scope
-
-    if params.analyzer_status:
-        api_params["analyzer_status"] = params.analyzer_status
-
-    if params.custom_tags:
-        api_params["custom_tags"] = params.custom_tags
-
-    return api_params
+        query["date__ge"] = _to_date_only(params.date_after)
+    for name in ("secret_scope", "analyzer_status", "custom_tags"):
+        add_list(f"{name}__in", getattr(params, name))
+    if params.exclude_tags:
+        query["tags__nin"] = ",".join(params.exclude_tags)
+    return query
