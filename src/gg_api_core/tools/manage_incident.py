@@ -27,16 +27,7 @@ class ManageIncidentParams(BaseModel):
 
 
 async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any]:
-    """
-    Perform lifecycle management actions on a secret incident.
-
-    This tool allows you to change the state of a secret incident through various actions:
-    - 'unassign': Remove the assigned member from an incident (useful when reassigning or leaving unassigned)
-    - 'resolve': Mark an incident as resolved (typically after the secret has been rotated/revoked)
-    - 'ignore': Mark an incident as ignored with a reason (test_credential, false_positive, low_risk, or invalid)
-    - 'reopen': Reopen a previously resolved or ignored incident
-
-    Note: To assign an incident to a member, use the dedicated 'assign_incident' tool instead.
+    """Perform lifecycle management actions on a secret incident.
 
     Args:
         params: ManageIncidentParams containing:
@@ -44,12 +35,6 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
             - action: The lifecycle action to perform (unassign, resolve, ignore, or reopen)
             - ignore_reason: Required when action is 'ignore'. One of: test_credential, false_positive, low_risk, invalid
             - secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
-
-    Returns:
-        Dictionary containing the updated incident data from the API
-
-    Raises:
-        ToolError: If the action fails or if an invalid action is provided
     """
     client = await get_client()
     logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")

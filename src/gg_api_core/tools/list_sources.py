@@ -120,23 +120,10 @@ class ListSourcesResult(BaseModel):
 
 
 async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListSourcesResult:
-    """
-    List sources known by GitGuardian.
-
-    Returns information about the sources (repositories, integrations) that
-    GitGuardian is monitoring for secrets.
+    """List sources known by GitGuardian.
 
     Args:
         params: ListSourcesParams model containing all filtering options
-
-    Returns:
-        ListSourcesResult: Pydantic model containing:
-            - sources: List of source objects with id, url, type, health, etc.
-            - next_cursor: Cursor for pagination
-            - has_more: Whether more results exist
-
-    Raises:
-        ToolError: If the listing operation fails
     """
     client = await get_client()
     logger.debug("Listing sources")

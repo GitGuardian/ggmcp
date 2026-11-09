@@ -61,28 +61,10 @@ class GenerateHoneytokenResult(BaseModel):
 
 
 async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoneytokenResult:
-    """
-    Generate an AWS GitGuardian honeytoken and get injection recommendations.
-
-    If new_token is False, attempts to retrieve an existing active honeytoken created by the current user
-    instead of generating a new one. If no existing token is found, a new one will be created.
+    """Generate an AWS GitGuardian honeytoken and get injection recommendations.
 
     Args:
         params: GenerateHoneytokenParams model containing honeytoken configuration
-
-    Returns:
-        GenerateHoneytokenResult: Pydantic model containing:
-            - id: Honeytoken ID
-            - name: Honeytoken name
-            - description: Honeytoken description
-            - type: Honeytoken type
-            - status: Honeytoken status
-            - token: Token details (if show_token=True was used)
-            - injection_recommendations: Instructions for injecting the honeytoken
-            - Additional fields from the API response
-
-    Raises:
-        ToolError: If the honeytoken generation or retrieval fails
     """
     client = await get_client()
     logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")

@@ -120,32 +120,10 @@ class ListIncidentsError(BaseModel):
 async def list_incidents(
     params: ListIncidentsParams = ListIncidentsParams(),
 ) -> ListIncidentsResult | ListIncidentsError:
-    """
-    List secret incidents with enhanced filtering using the MCP-optimized endpoint.
-
-    This endpoint provides filtering options including detector type, secret category,
-    source criticality, public exposure, and more. It uses page-based pagination.
-
-    Features:
-    - Page-based pagination
-    - Status values: TRIGGERED, ASSIGNED, RESOLVED, IGNORED. Note that OPENED is not a valid status but means
-     'TRIGGERED OR ASSIGNED'
-    - Rich filtering options for detector types, secret categories, and public exposure
-    - Returns detailed incident data including custom tags, vault metadata, and similar issue counts
+    """List secret incidents with enhanced filtering using the MCP-optimized endpoint.
 
     Args:
         params: ListIncidentsParams model containing all filtering options.
-
-    Returns:
-        ListIncidentsResult: Pydantic model containing:
-            - incidents: List of incident objects with detailed information
-            - page: Current page number
-            - page_size: Results per page
-            - has_next/has_previous: Pagination indicators
-            - applied_filters: Dictionary of filters that were applied
-            - suggestion: Suggestions for interpreting or modifying results
-
-        ListIncidentsError: Pydantic model with error message if the operation fails
     """
     client = await get_client()
 

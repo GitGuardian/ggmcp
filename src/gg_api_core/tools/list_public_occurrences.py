@@ -159,18 +159,8 @@ async def list_public_occurrences(
 ) -> ListPublicOccurrencesResult | ListPublicOccurrencesError:
     """List occurrences of a public secret incident detected by GitGuardian Public Monitoring.
 
-    Returns occurrence-level details for a single public incident, including filepath,
-    commit sha, source repository, actor, and attachment reasons. Use this after
-    `list_public_incidents` to drill into a specific public incident.
-
-    Wraps GET /v1/public-incidents/secrets/{incident_id}/occurrences and uses cursor-based pagination.
-
     Args:
         params: ListPublicOccurrencesParams model containing the incident_id and all filters.
-
-    Returns:
-        ListPublicOccurrencesResult with the occurrences page, or
-        ListPublicOccurrencesError on failure.
     """
     client = await get_client()
 

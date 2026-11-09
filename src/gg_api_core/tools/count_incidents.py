@@ -37,25 +37,10 @@ class CountIncidentsError(BaseModel):
 async def count_incidents(
     params: CountIncidentsParams = CountIncidentsParams(),
 ) -> CountIncidentsResult | CountIncidentsError:
-    """
-    Count secret incidents matching the given filters.
-
-    Returns the total number of matching incidents without fetching the full list.
-    This is useful to get an overview of incident volume, check filter results
-    before paginating, or build dashboards.
-
-    Accepts the same filters as list_incidents (status, severity, detector type,
-    source, tags, etc.) but returns only the count.
+    """Count secret incidents matching the given filters.
 
     Args:
         params: CountIncidentsParams model containing all filtering options.
-
-    Returns:
-        CountIncidentsResult: Pydantic model containing:
-            - count: Total number of matching incidents
-            - applied_filters: Dictionary of filters that were applied
-
-        CountIncidentsError: Pydantic model with error message if the operation fails
     """
     client = await get_client()
 

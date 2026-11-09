@@ -49,15 +49,7 @@ class AssignIncidentResult(BaseModel):
 
 
 async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
-    """
-    Assign a secret incident to a specific member or to the current user.
-
-    This tool assigns a secret incident to a workspace member. You can specify the assignee in three ways:
-    - Provide assignee_member_id to assign to a specific member by ID
-    - Provide email to assign to a member by their email address
-    - Set mine=True to assign to the current authenticated user
-
-    Exactly one of these three options must be provided.
+    """Assign a secret incident to a specific member or to the current user.
 
     Args:
         params: AssignIncidentParams model containing:
@@ -65,17 +57,6 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             - assignee_member_id: Optional ID of the member to assign to
             - email: Optional email address of the member to assign to
             - mine: If True, assigns to current user
-
-    Returns:
-        AssignIncidentResult: Pydantic model containing:
-            - incident_id: ID of the incident that was assigned
-            - assignee_id: ID of the member assigned to
-            - success: Whether the assignment was successful
-            - Additional fields from the API response
-
-    Raises:
-        ToolError: If the assignment operation fails
-        ValueError: If validation fails (none or multiple assignee options provided)
     """
     client = await get_client()
 

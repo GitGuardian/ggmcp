@@ -32,30 +32,10 @@ class ScanSecretsResult(BaseModel):
 
 
 async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
-    """
-    Scan multiple content items for secrets and policy breaks.
-
-    This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
-    Each document must have a 'document' field and can optionally include a 'filename' field for better context.
-
-    IMPORTANT:
-    - Only send documents that are part of the codebase
-    - Do not send documents that are in .gitignore
-    - The 'document' field is the file content (string), not the filename
+    """Scan multiple content items for secrets and policy breaks.
 
     Args:
         params: ScanSecretsParams model containing documents to scan
-
-    Returns:
-        ScanSecretsResult: Pydantic model containing:
-            - scan_results: List of scan result objects for each document, including:
-                - policy_break_count: Number of policy violations found
-                - policies: List of policies applied
-                - policy_breaks: Detailed information about each policy break/secret detected
-                - Additional fields from the API response
-
-    Raises:
-        Exception: If the scan operation fails or documents are invalid
     """
     try:
         client = await get_client()
