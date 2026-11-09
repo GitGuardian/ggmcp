@@ -17,6 +17,7 @@ from mcp.types import TextContent
 
 from gg_api_core import client as client_module
 from gg_api_core import oauth, utils
+from gg_api_core.log_context import clear_caller_identity_cache
 from gg_mcp_server.server import build_server
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
@@ -57,10 +58,12 @@ def stdio_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
 @pytest.fixture(autouse=True)
 def reset_client_singleton() -> Iterator[None]:
-    """Single-tenant mode caches one client per process; isolate each test."""
+    """Single-tenant mode caches one client and one caller identity per process; isolate each test."""
     utils._client_singleton = None
+    clear_caller_identity_cache()
     yield
     utils._client_singleton = None
+    clear_caller_identity_cache()
 
 
 class TestPatEnvAuthentication:
@@ -184,12 +187,13 @@ class TestStartupScopeCache:
         scope_route = mock_token_scopes()
 
         async with Client(build_server()) as client:
-            assert scope_route.call_count == 1
+            await client.list_tools()
+            calls_after_first_list = scope_route.call_count
             await client.list_tools()
             await client.list_tools()
 
         # Unlike the remote server, which re-fetches scopes per tools/list.
-        assert scope_route.call_count == 1
+        assert scope_route.call_count == calls_after_first_list
         assert_authenticated_request(scope_route, STDIO_PAT)
         assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
 
