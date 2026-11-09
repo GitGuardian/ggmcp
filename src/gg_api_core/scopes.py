@@ -1,21 +1,27 @@
 """GitGuardian API scope definitions."""
 
-# All available GitGuardian API scopes as per documentation
-# https://docs.gitguardian.com/api-docs/authentication#scopes
-MINIMAL_SCOPES = [
-    "scan",  # Core scanning functionality
-    "incidents:read",  # Read incidents
-    "sources:read",  # Read source repositories
-]
-
-HONEYTOKEN_SCOPES = [
+# The scopes the server requests by default: the ones its tools use. members:read
+# resolves mine=True in list_incidents and count_incidents; honeytokens:read lets
+# generate_honeytoken reuse an existing honeytoken.
+DEFAULT_SCOPES = [
+    "scan",
+    "incidents:read",
+    "incidents:write",
+    "sources:read",
+    "members:read",
     "honeytokens:read",
     "honeytokens:write",
 ]
 
+# All available GitGuardian API scopes as per documentation
+# https://docs.gitguardian.com/api-docs/authentication#scopes
+# GITGUARDIAN_SCOPES may name any of them.
 ALL_SCOPES = [
-    *MINIMAL_SCOPES,
-    *HONEYTOKEN_SCOPES,
+    "scan",
+    "incidents:read",
+    "sources:read",
+    "honeytokens:read",
+    "honeytokens:write",
     "incidents:write",
     "incidents:share",
     "audit_logs:read",

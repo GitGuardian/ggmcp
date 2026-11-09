@@ -22,8 +22,7 @@ TEST_PAT = "e2e-test-pat"
 
 TEST_MEMBER_ID = 4242
 
-# Keep this test oracle independent from ``gg_api_core.scopes.ALL_SCOPES``:
-# an accidental production-scope removal must fail the remote contract tests.
+# Every GitGuardian scope: what a full-access token holds.
 EXPECTED_SCOPES = [
     "scan",
     "incidents:read",
@@ -43,6 +42,18 @@ EXPECTED_SCOPES = [
     "members:read",
     "secrets:write",
     "secrets:read",
+]
+
+# The scopes the server asks for. Kept independent from ``gg_api_core.scopes.DEFAULT_SCOPES``
+# so a change to what new tokens can do fails the remote contract tests.
+EXPECTED_REQUESTED_SCOPES = [
+    "scan",
+    "incidents:read",
+    "incidents:write",
+    "sources:read",
+    "members:read",
+    "honeytokens:read",
+    "honeytokens:write",
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {

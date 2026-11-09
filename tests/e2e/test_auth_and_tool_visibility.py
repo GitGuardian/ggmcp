@@ -16,6 +16,7 @@ import pytest
 
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
+    EXPECTED_REQUESTED_SCOPES,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,
     EXPECTED_SCOPES,
     TEST_PAT,
@@ -97,6 +98,18 @@ class TestScopeBasedToolVisibility:
         WHEN tools/list is requested
         THEN read, write, scan and honeytoken tools are all visible
         """
+        names = await list_tool_names(mcp_client)
+
+        assert names == EXPECTED_FULL_TOOL_CATALOG
+
+    async def test_requested_scopes_expose_the_whole_catalog(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding exactly the scopes the server requests
+        WHEN tools/list is requested
+        THEN every tool is visible
+        """
+        mock_token_scopes(EXPECTED_REQUESTED_SCOPES)
+
         names = await list_tool_names(mcp_client)
 
         assert names == EXPECTED_FULL_TOOL_CATALOG

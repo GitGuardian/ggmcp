@@ -12,23 +12,23 @@ import os
 from unittest.mock import patch
 
 from gg_api_core import scopes as scopes_module
-from gg_api_core.scopes import ALL_SCOPES
+from gg_api_core.scopes import DEFAULT_SCOPES
 from gg_api_core.settings import get_settings
 
 
 class TestEffectiveScopesSaaS:
-    def test_no_env_returns_all_scopes(self):
+    def test_no_env_returns_the_default_scopes(self):
         """
         GIVEN no GITGUARDIAN_SCOPES is set and the URL points at SaaS
         WHEN effective_scopes is read
-        THEN the full ALL_SCOPES set is returned (the dashboard's consent UI narrows it)
+        THEN DEFAULT_SCOPES, the scopes the tools use, is returned
         """
         with patch.dict(
             os.environ,
             {"GITGUARDIAN_URL": "https://dashboard.gitguardian.com"},
             clear=True,
         ):
-            assert sorted(get_settings().effective_scopes) == sorted(ALL_SCOPES)
+            assert get_settings().effective_scopes == DEFAULT_SCOPES
 
     def test_explicit_scopes_returned_as_is(self):
         """
@@ -46,24 +46,24 @@ class TestEffectiveScopesSaaS:
         ):
             assert sorted(get_settings().effective_scopes) == ["incidents:read", "scan"]
 
-    def test_no_url_no_scopes_returns_all_scopes(self):
+    def test_no_url_no_scopes_returns_the_default_scopes(self):
         """
         GIVEN no env vars at all
         WHEN effective_scopes is read
-        THEN the default URL (SaaS) yields the full ALL_SCOPES set
+        THEN the default URL (SaaS) yields DEFAULT_SCOPES
         """
         with patch.dict(os.environ, {}, clear=True):
-            assert sorted(get_settings().effective_scopes) == sorted(ALL_SCOPES)
+            assert get_settings().effective_scopes == DEFAULT_SCOPES
 
 
 class TestEffectiveScopesSelfHostedCap:
     def test_non_local_self_hosted_caps_to_supported_set_when_no_user_scopes(self, monkeypatch):
         """
-        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED is a subset of ALL_SCOPES
+        GIVEN SCOPES_SUPPORTED_IN_SELF_HOSTED is a subset of DEFAULT_SCOPES
         AND GITGUARDIAN_URL is a non-local self-hosted instance
         AND GITGUARDIAN_SCOPES is unset
         WHEN effective_scopes is read
-        THEN it is capped to SCOPES_SUPPORTED_IN_SELF_HOSTED
+        THEN the default scopes are capped to SCOPES_SUPPORTED_IN_SELF_HOSTED
         """
         narrowed = ["scan", "incidents:read", "sources:read"]
         monkeypatch.setattr(scopes_module, "SCOPES_SUPPORTED_IN_SELF_HOSTED", narrowed)
@@ -101,11 +101,11 @@ class TestEffectiveScopesSelfHostedCap:
         """
         GIVEN GITGUARDIAN_URL points at localhost
         WHEN effective_scopes is read
-        THEN the full ALL_SCOPES set is allowed (local dev runs treated as SaaS-like)
+        THEN DEFAULT_SCOPES is returned uncapped (local dev runs treated as SaaS-like)
         """
         with patch.dict(
             os.environ,
             {"GITGUARDIAN_URL": "http://localhost:3000"},
             clear=True,
         ):
-            assert sorted(get_settings().effective_scopes) == sorted(ALL_SCOPES)
+            assert get_settings().effective_scopes == DEFAULT_SCOPES
