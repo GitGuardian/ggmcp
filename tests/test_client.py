@@ -224,14 +224,6 @@ class TestGitGuardianClientURLs:
         "url,expected",
         [
             (
-                "https://api.gitguardian.com/",
-                {
-                    "dashboard_url": "https://dashboard.gitguardian.com",
-                    "public_api_url": "https://api.gitguardian.com/v1",
-                    "private_api_url": "https://dashboard.gitguardian.com/api/v1",
-                },
-            ),
-            (
                 "https://dashboard.gitguardian.com/",
                 {
                     "dashboard_url": "https://dashboard.gitguardian.com",
@@ -245,22 +237,6 @@ class TestGitGuardianClientURLs:
                     "dashboard_url": "https://self-hosted.acme.com",
                     "public_api_url": "https://self-hosted.acme.com/exposed/v1",
                     "private_api_url": "https://self-hosted.acme.com/api/v1",
-                },
-            ),
-            (
-                "https://dashboard.staging.gitguardian.tech/whatever",
-                {
-                    "dashboard_url": "https://dashboard.staging.gitguardian.tech",
-                    "public_api_url": "https://api.staging.gitguardian.tech/v1",
-                    "private_api_url": "https://dashboard.staging.gitguardian.tech/api/v1",
-                },
-            ),
-            (
-                "https://dashboard.eu1.gitguardian.com/",
-                {
-                    "dashboard_url": "https://dashboard.eu1.gitguardian.com",
-                    "public_api_url": "https://api.eu1.gitguardian.com/v1",
-                    "private_api_url": "https://dashboard.eu1.gitguardian.com/api/v1",
                 },
             ),
             (

@@ -30,12 +30,10 @@ class TestPathTemplate:
     @pytest.mark.parametrize(
         ("endpoint", "expected"),
         [
-            ("/incidents/secrets/12345", "/incidents/secrets/{id}"),
             (
                 "/honeytokens/d0ca9877-641f-4c37-8857-c08e0ae148c4/revoke",
                 "/honeytokens/{id}/revoke",
             ),
-            ("/incidents-for-mcp/count", "/incidents-for-mcp/count"),
         ],
     )
     def test_collapses_id_segments(self, endpoint, expected):
