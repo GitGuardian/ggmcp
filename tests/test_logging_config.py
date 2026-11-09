@@ -3,6 +3,7 @@ import logging
 
 import pytest
 import structlog
+from pydantic import BaseModel, ValidationError
 
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.version import APP_VERSION
@@ -53,3 +54,19 @@ class TestConfigureLogging:
         assert payload["account_id"] == 1
         assert payload["endpoint"] == "/v1/x"
         assert payload["token"] == "[REDACTED]"
+
+    def test_logged_validation_errors_do_not_carry_the_rejected_input(self, capsys):
+        _reconfigure_json()
+
+        class Params(BaseModel):
+            incident_id: int
+
+        # Built at runtime: the traceback quotes source lines, and this one must not hold the value.
+        rejected_input = "-".join(("pasted", "secret"))
+        try:
+            Params.model_validate({"incident_id": rejected_input})
+        except ValidationError:
+            logging.getLogger("t.stdlib").exception("tool_call_failed")
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert "type=int_parsing" in payload["exception"]
+        assert "pasted-secret" not in json.dumps(payload)
