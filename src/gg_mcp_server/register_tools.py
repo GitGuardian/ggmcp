@@ -11,6 +11,8 @@ identical to the previous 38-tool server, so existing agents, prompts and
 skills keep working.
 """
 
+from mcp.types import ToolAnnotations
+
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.count_incidents import count_incidents
@@ -26,6 +28,22 @@ from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.manage_incident import manage_private_incident
 from gg_api_core.tools.scan_secret import scan_secrets
+
+# Every tool talks only to the GitGuardian API, so none is open-world.
+READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=False)
+# Assign, unassign, resolve, ignore and reopen replace the incident's current state.
+# Repeating the same call changes nothing further: the API answers 409.
+CHANGES_INCIDENT_STATE = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
+)
+# Adding a comment is additive, but editing one replaces its body.
+WRITES_INCIDENT_COMMENT = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
+)
+# Each call creates a new honeytoken and changes nothing that exists.
+CREATES_HONEYTOKEN = ToolAnnotations(
+    read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
+)
 
 GITGUARDIAN_INSTRUCTIONS = """
 # GitGuardian MCP Tools
@@ -96,6 +114,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         Do not send documents that are in the .gitignore file.
         """,
         required_scopes=["scan"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -107,6 +126,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "(TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
         "With mine=True, this tool only shows incidents assigned to the current user. Uses page-based pagination.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -116,6 +136,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "Accepts the same filters as list_incidents (status, severity, detector type, source, tags, etc.) "
         "but returns only the total count. Useful for getting an overview of incident volume or checking filter results before paginating.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -127,6 +148,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "pass incident_id, omit source_id, and set tags, exclude_tags, status, severity, and validity to []. "
         "Use get_incident for incident metadata and get_remediation_workflow for remediation instructions.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -137,6 +159,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "leaked outside the organization perimeter. Incident IDs here are NOT interchangeable with internal incident IDs. "
         "Uses cursor-based pagination.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -146,6 +169,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "validity, risk_score, tags, timestamps, assignee, and share_url. Incident IDs here "
         "are NOT interchangeable with internal incident IDs.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -155,6 +179,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "public sources, including filepath, commit sha, source repository, actor, and attachment reasons. "
         "Use this after list_public_incidents to drill into a specific public incident.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -162,6 +187,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="Generate an AWS GitGuardian honeytoken and get injection recommendations. "
         "Honeytoken names must be unique among the workspace's active honeytokens.",
         required_scopes=["honeytokens:write"],
+        annotations=CREATES_HONEYTOKEN,
     )
 
     mcp.tool(
@@ -170,6 +196,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "private/org Git repos, Slack, Jira, container registries, etc. Filter by type, health, visibility, criticality, "
         "and scan status. The worldwide public perimeter scanned by Public Monitoring is not represented here.",
         required_scopes=["sources:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -178,6 +205,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "Retrieve a specific internal secret incident by its ID with detailed information including occurrences, "
         "detector info, assignee details, and custom tags.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -186,6 +214,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "incidents. Returns the configured custom workflow if one exists, otherwise the default workflow. Use this to "
         "remediate an incident following the same instructions a human sees in the dashboard.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
@@ -193,6 +222,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Internal sources only) Manage an internal secret incident (assign, unassign, resolve, ignore, reopen). "
         "Does not work on public-monitoring incident IDs.",
         required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
     )
 
     mcp.tool(
@@ -200,6 +230,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Internal sources only) Assign an internal secret incident to a specific member or to the current user. "
         "Does not work on public-monitoring incident IDs.",
         required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
     )
 
     mcp.tool(
@@ -209,4 +240,5 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "new comment, or action='edit' with the comment_id of an existing comment to replace its body. "
         "Does not work on public-monitoring incident IDs.",
         required_scopes=["incidents:write"],
+        annotations=WRITES_INCIDENT_COMMENT,
     )
