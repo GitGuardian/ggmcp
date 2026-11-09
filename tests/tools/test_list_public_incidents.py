@@ -56,17 +56,3 @@ class TestListPublicIncidents:
         assert result.applied_filters["validity"] == ["valid"]
         assert result.applied_filters["risk_score_min"] == 70
         assert result.applied_filters["assignee_id"] == 42
-
-    @pytest.mark.asyncio
-    async def test_client_error_returns_error_result(self, mock_gitguardian_client):
-        """
-        GIVEN: The client raises an exception
-        WHEN: Listing public incidents
-        THEN: An error result is returned
-        """
-        mock_gitguardian_client.list_public_incidents = AsyncMock(side_effect=Exception("Boom"))
-
-        result = await list_public_incidents(ListPublicIncidentsParams())
-
-        assert hasattr(result, "error")
-        assert "Failed to list public incidents" in result.error

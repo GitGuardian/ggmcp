@@ -14,24 +14,6 @@ class TestListRepoOccurrences:
     """Tests for the list_repo_occurrences tool."""
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):
-        """
-        GIVEN: The client raises an exception
-        WHEN: Attempting to list occurrences
-        THEN: An error response is returned
-        """
-        # Mock the client to raise an exception
-        error_message = "API connection failed"
-        mock_gitguardian_client.list_occurrences = AsyncMock(side_effect=Exception(error_message))
-
-        # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
-
-        # Verify error response
-        assert hasattr(result, "error")
-        assert "Failed to list repository occurrences" in result.error
-
-    @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_member_assignee_id(self, mock_gitguardian_client):
         """
         GIVEN: A member_assignee_id filter

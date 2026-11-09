@@ -1,4 +1,3 @@
-import logging
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
@@ -10,9 +9,6 @@ from gg_api_core.client import (
     IncidentValidity,
 )
 from gg_api_core.utils import get_client
-
-logger = logging.getLogger(__name__)
-
 
 # Default filters mirror list_incidents to keep the two tools behaviorally consistent:
 # hide IGNORED statuses, LOW/INFO severities, and INVALID validity out of the box.
@@ -213,12 +209,6 @@ class ListPublicIncidentsResult(BaseModel):
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
 
 
-class ListPublicIncidentsError(BaseModel):
-    """Error result from listing public secret incidents."""
-
-    error: str = Field(description="Error message")
-
-
 def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     filters: dict[str, Any] = {}
     if params.date_before:
@@ -268,6 +258,14 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     return filters
 
 
+# Stays in the tool's return type so its output schema, and the result wrapper
+# that schema implies, are unchanged. The tool raises instead of returning it.
+class ListPublicIncidentsError(BaseModel):
+    """Error result from listing public secret incidents."""
+
+    error: str = Field(description="Error message")
+
+
 async def list_public_incidents(
     params: ListPublicIncidentsParams = ListPublicIncidentsParams(),
 ) -> ListPublicIncidentsResult | ListPublicIncidentsError:
@@ -278,48 +276,43 @@ async def list_public_incidents(
     """
     client = await get_client()
 
-    try:
-        result = await client.list_public_incidents(
-            cursor=params.cursor,
-            per_page=params.per_page,
-            date_before=params.date_before,
-            date_after=params.date_after,
-            triggered_at_before=params.triggered_at_before,
-            triggered_at_after=params.triggered_at_after,
-            assignee_email=params.assignee_email,
-            assignee_id=params.assignee_id,
-            status=params.status,
-            severity=params.severity,
-            validity=params.validity,
-            tags=params.tags,
-            custom_tags=params.custom_tags,
-            custom_tag_key=params.custom_tag_key,
-            custom_tag_value=params.custom_tag_value,
-            ordering=params.ordering,
-            detector_group_name=params.detector_group_name,
-            ignorer_id=params.ignorer_id,
-            ignorer_api_token_id=params.ignorer_api_token_id,
-            resolver_id=params.resolver_id,
-            resolver_api_token_id=params.resolver_api_token_id,
-            feedback=params.feedback,
-            declarative_secret_status=params.declarative_secret_status,
-            risk_score_min=params.risk_score_min,
-            risk_score_max=params.risk_score_max,
-            get_all=params.get_all,
-        )
+    result = await client.list_public_incidents(
+        cursor=params.cursor,
+        per_page=params.per_page,
+        date_before=params.date_before,
+        date_after=params.date_after,
+        triggered_at_before=params.triggered_at_before,
+        triggered_at_after=params.triggered_at_after,
+        assignee_email=params.assignee_email,
+        assignee_id=params.assignee_id,
+        status=params.status,
+        severity=params.severity,
+        validity=params.validity,
+        tags=params.tags,
+        custom_tags=params.custom_tags,
+        custom_tag_key=params.custom_tag_key,
+        custom_tag_value=params.custom_tag_value,
+        ordering=params.ordering,
+        detector_group_name=params.detector_group_name,
+        ignorer_id=params.ignorer_id,
+        ignorer_api_token_id=params.ignorer_api_token_id,
+        resolver_id=params.resolver_id,
+        resolver_api_token_id=params.resolver_api_token_id,
+        feedback=params.feedback,
+        declarative_secret_status=params.declarative_secret_status,
+        risk_score_min=params.risk_score_min,
+        risk_score_max=params.risk_score_max,
+        get_all=params.get_all,
+    )
 
-        incidents_data = result["data"]
-        next_cursor = result["cursor"]
-        has_more = result.get("has_more", False)
+    incidents_data = result["data"]
+    next_cursor = result["cursor"]
+    has_more = result.get("has_more", False)
 
-        return ListPublicIncidentsResult(
-            incidents_count=len(incidents_data),
-            incidents=incidents_data,
-            cursor=next_cursor,
-            has_more=has_more,
-            applied_filters=_build_filter_info(params),
-        )
-
-    except Exception as e:
-        logger.exception(f"Error listing public incidents: {str(e)}")
-        return ListPublicIncidentsError(error=f"Failed to list public incidents: {str(e)}")
+    return ListPublicIncidentsResult(
+        incidents_count=len(incidents_data),
+        incidents=incidents_data,
+        cursor=next_cursor,
+        has_more=has_more,
+        applied_filters=_build_filter_info(params),
+    )

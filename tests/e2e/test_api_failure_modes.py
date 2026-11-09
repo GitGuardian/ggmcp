@@ -11,6 +11,36 @@ from tests.e2e.harness import call_tool, rpc, tool_error_text
 INCIDENT = {"id": 77, "status": "TRIGGERED"}
 
 
+LIST_TOOL_CALLS = [
+    pytest.param("list_incidents", "/incidents-for-mcp", {}, id="list_incidents"),
+    pytest.param("count_incidents", "/incidents-for-mcp/count", {}, id="count_incidents"),
+    pytest.param("list_repo_occurrences", "/occurrences/secrets", {"source_id": 1}, id="list_repo_occurrences"),
+    pytest.param("list_public_incidents", "/public-incidents/secrets", {}, id="list_public_incidents"),
+    pytest.param(
+        "list_public_occurrences",
+        "/public-incidents/secrets/103/occurrences",
+        {"incident_id": 103},
+        id="list_public_occurrences",
+    ),
+]
+
+
+@pytest.mark.parametrize(("tool_name", "endpoint", "params"), LIST_TOOL_CALLS)
+async def test_a_rejected_list_query_surfaces_as_a_tool_error(
+    mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params
+):
+    """
+    GIVEN the API rejecting a list query with 400
+    WHEN the list tool is called
+    THEN the call fails as a tool error naming the status, not as a successful result
+    """
+    gg_api.get(endpoint).respond(400, json={"detail": "Invalid filter."})
+
+    result = await call_tool(mcp_client, tool_name, {"params": params})
+
+    assert "400" in tool_error_text(result)
+
+
 class TestServerErrorRetries:
     async def test_persistent_500s_fail_after_three_retries(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay

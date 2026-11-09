@@ -1,12 +1,9 @@
-import logging
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.utils import get_client
-
-logger = logging.getLogger(__name__)
 
 
 class ListPublicOccurrencesParams(BaseModel):
@@ -121,12 +118,6 @@ class ListPublicOccurrencesResult(BaseModel):
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
 
 
-class ListPublicOccurrencesError(BaseModel):
-    """Error result from listing public secret occurrences."""
-
-    error: str = Field(description="Error message")
-
-
 def _build_filter_info(params: ListPublicOccurrencesParams) -> dict[str, Any]:
     filters: dict[str, Any] = {"incident_id": params.incident_id}
     if params.date_before:
@@ -154,6 +145,14 @@ def _build_filter_info(params: ListPublicOccurrencesParams) -> dict[str, Any]:
     return filters
 
 
+# Stays in the tool's return type so its output schema, and the result wrapper
+# that schema implies, are unchanged. The tool raises instead of returning it.
+class ListPublicOccurrencesError(BaseModel):
+    """Error result from listing public secret occurrences."""
+
+    error: str = Field(description="Error message")
+
+
 async def list_public_occurrences(
     params: ListPublicOccurrencesParams,
 ) -> ListPublicOccurrencesResult | ListPublicOccurrencesError:
@@ -164,38 +163,33 @@ async def list_public_occurrences(
     """
     client = await get_client()
 
-    try:
-        result = await client.list_public_occurrences(
-            incident_id=params.incident_id,
-            cursor=params.cursor,
-            per_page=params.per_page,
-            date_before=params.date_before,
-            date_after=params.date_after,
-            source_id=params.source_id,
-            presence=params.presence,
-            sha=params.sha,
-            filepath=params.filepath,
-            attachment_reason=params.attachment_reason,
-            severity=params.severity,
-            status=params.status,
-            validity=params.validity,
-            tags=params.tags,
-            ordering=params.ordering,
-            get_all=params.get_all,
-        )
+    result = await client.list_public_occurrences(
+        incident_id=params.incident_id,
+        cursor=params.cursor,
+        per_page=params.per_page,
+        date_before=params.date_before,
+        date_after=params.date_after,
+        source_id=params.source_id,
+        presence=params.presence,
+        sha=params.sha,
+        filepath=params.filepath,
+        attachment_reason=params.attachment_reason,
+        severity=params.severity,
+        status=params.status,
+        validity=params.validity,
+        tags=params.tags,
+        ordering=params.ordering,
+        get_all=params.get_all,
+    )
 
-        occurrences_data = result["data"]
-        next_cursor = result["cursor"]
-        has_more = result.get("has_more", False)
+    occurrences_data = result["data"]
+    next_cursor = result["cursor"]
+    has_more = result.get("has_more", False)
 
-        return ListPublicOccurrencesResult(
-            occurrences_count=len(occurrences_data),
-            occurrences=occurrences_data,
-            cursor=next_cursor,
-            has_more=has_more,
-            applied_filters=_build_filter_info(params),
-        )
-
-    except Exception as e:
-        logger.exception(f"Error listing public occurrences: {str(e)}")
-        return ListPublicOccurrencesError(error=f"Failed to list public occurrences: {str(e)}")
+    return ListPublicOccurrencesResult(
+        occurrences_count=len(occurrences_data),
+        occurrences=occurrences_data,
+        cursor=next_cursor,
+        has_more=has_more,
+        applied_filters=_build_filter_info(params),
+    )
