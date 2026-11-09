@@ -130,7 +130,6 @@ def init_sentry() -> bool:
     dsn = sentry_settings.dsn
 
     if not dsn:
-        logger.debug("SENTRY_DSN not configured, skipping Sentry initialization")
         return False
 
     if sentry_sdk is None or LoggingIntegration is None:

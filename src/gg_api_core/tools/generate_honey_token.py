@@ -67,7 +67,6 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         params: GenerateHoneytokenParams model containing honeytoken configuration
     """
     client = await get_client()
-    logger.debug(f"Processing honeytoken request with name: {params.name}, new_token: {params.new_token}")
 
     # If new_token is False, try to find an existing honeytoken created by the current user
     if not params.new_token:
@@ -85,7 +84,6 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
                     "ordering": "-created_at",  # Get newest first
                 }
 
-                logger.debug(f"Looking for existing honeytokens for user {current_user_id}")
                 result = await client.list_honeytokens(**filters)
 
                 # Process the result to get the list of tokens
@@ -93,15 +91,12 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
 
                 # Find the most recent active token
                 if honeytokens:
-                    logger.debug(f"Found {len(honeytokens)} existing honeytokens, using the most recent one")
                     # Get the full honeytoken with token details
                     honeytoken_id = honeytokens[0].get("id")
                     if honeytoken_id:
                         detailed_token = await client.get_honeytoken(honeytoken_id, show_token=True)
-                        logger.debug(f"Retrieved existing honeytoken with ID: {honeytoken_id}")
                         return GenerateHoneytokenResult(**detailed_token)
 
-                logger.debug("No suitable existing honeytokens found, creating a new one")
             else:
                 logger.warning("Could not determine current user ID, creating a new honeytoken instead")
         except Exception as e:
@@ -121,8 +116,6 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         # Validate that we got an ID in the response
         if not creation_result.get("id"):
             raise ToolError("Failed to get honeytoken ID from GitGuardian API")
-
-        logger.debug(f"Generated new honeytoken with ID: {creation_result.get('id')}")
 
         # Add injection recommendations to the response
         creation_result["injection_recommendations"] = {

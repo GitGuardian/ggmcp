@@ -224,11 +224,9 @@ def _get_stored_oauth_token(dashboard_url: str) -> str | None:
         file_storage = FileTokenStorage()
         token = file_storage.get_token(dashboard_url)
         if token:
-            logger.debug(f"Found stored OAuth token for {dashboard_url}")
             return token
         return None
-    except Exception as e:
-        logger.debug(f"Could not load stored OAuth token: {e}")
+    except Exception:
         return None
 
 
@@ -364,7 +362,6 @@ class GitGuardianClient:
             user_agent: Custom User-Agent string to identify the MCP client.
                 Defaults to DEFAULT_USER_AGENT if not provided.
         """
-        logger.debug("Initializing GitGuardian client")
 
         self._init_urls(gitguardian_url)
         self._oauth_token = personal_access_token
@@ -484,7 +481,6 @@ class GitGuardianClient:
             True if token was successfully refreshed, False otherwise
         """
         if not self._allow_token_refresh:
-            logger.debug("Token refresh not allowed for this client")
             return False
 
         logger.info("Attempting to refresh token...")
@@ -531,7 +527,6 @@ class GitGuardianClient:
             httpx.HTTPStatusError: If the API returns an error
         """
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
-        logger.debug(f"Making {method} request to {url}")
 
         # Log params if present for easier debugging
         if "params" in kwargs and kwargs["params"]:
@@ -545,15 +540,10 @@ class GitGuardianClient:
             for key in safe_json:
                 if any(sensitive in key.lower() for sensitive in ["token", "key", "secret", "password", "auth"]):
                     safe_json[key] = "[REDACTED]"
-            logger.debug(f"Request body: {safe_json}")
 
         headers = self._base_headers(privacy_mode=privacy_mode)
-        logger.debug("Using token for authorization")
 
         headers.update(kwargs.pop("headers", {}))
-        logger.debug(
-            f"Final request headers: {dict((k, '[REDACTED]' if k.lower() == 'authorization' else v) for k, v in headers.items())}"
-        )
 
         # Initialize retry count
         max_retries = 3
@@ -563,7 +553,6 @@ class GitGuardianClient:
         while retry_count <= max_retries:
             try:
                 async with httpx.AsyncClient(follow_redirects=privacy_mode, timeout=DEFAULT_HTTP_TIMEOUT) as client:
-                    logger.debug(f"Sending {method} request to {url}")
                     response = await _track_api_request(
                         method,
                         endpoint,
@@ -572,8 +561,6 @@ class GitGuardianClient:
                     )
 
                 # Log detailed response information
-                logger.debug(f"Response status code: {response.status_code}")
-                logger.debug(f"Response headers: {dict(response.headers)}")
 
                 # Never log response bodies when privacy mode is disabled.
                 if privacy_mode and response.content:
@@ -601,26 +588,13 @@ class GitGuardianClient:
                 response.raise_for_status()
 
                 if response.status_code == 204:  # No content
-                    logger.debug("Received 204 No Content response")
                     return cast(dict[str, Any], {})
 
                 try:
                     if not response.content or response.content.strip() == b"":
-                        logger.debug("Received empty response content")
                         return cast(dict[str, Any], {})
 
-                    data = response.json()
-
-                    # Log success response summary
-                    if isinstance(data, dict):
-                        keys_str = ", ".join(list(data.keys())[:10])
-                        logger.debug(f"Parsed JSON response with keys: {keys_str + ('...' if len(data) > 10 else '')}")
-                    elif isinstance(data, list):
-                        logger.debug(f"Parsed JSON response as list with {len(data)} items")
-                    else:
-                        logger.debug(f"Parsed JSON response as {type(data).__name__}")
-
-                    return data
+                    return response.json()
                 except json.JSONDecodeError as e:
                     logger.exception(f"Failed to parse JSON response: {str(e)}")
                     if privacy_mode:
@@ -682,17 +656,14 @@ class GitGuardianClient:
                     logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 if privacy_mode:
                     logger.debug(f"Error response content: {e.response.text}")
-                logger.debug(f"Failed URL: {url}")
                 if e.response.status_code == 401:
                     raise DownstreamUnauthorizedError(f"GitGuardian API returned 401 for {url}") from e
                 raise
             except httpx.RequestError as e:
                 logger.exception(f"Request error occurred: {str(e)}")
-                logger.debug(f"Failed URL: {url}")
                 raise
             except Exception as e:
                 logger.exception(f"Unexpected error during API request: {str(e)}")
-                logger.debug(f"Failed URL: {url}")
                 raise
 
         # This should never be reached, but required for type checking
@@ -727,7 +698,6 @@ class GitGuardianClient:
         # This prevents double-encoding when it's used in the next request
         cursor_encoded = cursor_match.group(1)
         cursor_decoded = unquote(cursor_encoded)
-        logger.debug(f"Extracted and decoded cursor: {cursor_encoded} -> {cursor_decoded}")
         return cursor_decoded
 
     async def _request_get(self, endpoint: str, **kwargs: Any) -> dict[str, Any]:
@@ -792,7 +762,6 @@ class GitGuardianClient:
             ListResponse with data, cursor, and has_more fields
         """
         url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
-        logger.debug(f"Making list request to {url}")
 
         headers = self._base_headers(privacy_mode=privacy_mode)
         headers.update(kwargs.pop("headers", {}))
@@ -856,8 +825,6 @@ class GitGuardianClient:
         has_more = False
         page_count = 0
 
-        logger.debug(f"Starting pagination for endpoint '{endpoint}' with initial params: {params}")
-
         while True:
             page_count += 1
             if page_count > MAX_PAGINATION_PAGES:
@@ -871,7 +838,6 @@ class GitGuardianClient:
             # If we have a cursor, add it to params
             if cursor:
                 params["cursor"] = cursor
-                logger.debug(f"Using pagination cursor: {cursor}")
 
             # Build query string with proper URL encoding
             query_parts = []
@@ -888,15 +854,12 @@ class GitGuardianClient:
             query_string = "&".join(query_parts) if query_parts else ""
             full_endpoint = f"{endpoint}?{query_string}" if query_string else endpoint
 
-            logger.debug(f"Making paginated request to: {full_endpoint}")
-
             # Use _request_list for standardized response handling
             response = await self._request_list(full_endpoint, privacy_mode=privacy_mode)
 
             # Handle empty responses
             if not response["data"]:
                 cursor = response["cursor"]
-                logger.debug("Received empty response data, stopping pagination")
                 break
 
             # Calculate size of this page's data
@@ -915,17 +878,14 @@ class GitGuardianClient:
                 # response's next cursor would silently skip its occurrences.
                 break
 
-            logger.debug(f"Received page with {len(response['data'])} items ({page_bytes} bytes)")
             all_items.extend(response["data"])
             total_bytes += page_bytes
-            logger.debug(f"Total items collected so far: {len(all_items)} ({total_bytes} bytes)")
 
             # Check for next cursor
             cursor = response["cursor"]
             if cursor:
                 logger.debug(f"Found next cursor: {cursor}")
             else:
-                logger.debug("No next cursor found, pagination complete")
                 break
 
         if truncated:

@@ -200,7 +200,6 @@ async def list_repo_occurrences(
                Optionally filter by source_id.
     """
     client = await get_client()
-    logger.debug(f"Listing occurrences with source_id={params.source_id}")
 
     member_assignee_id = params.member_assignee_id
     if params.mine:

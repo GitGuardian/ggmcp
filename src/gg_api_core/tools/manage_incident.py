@@ -37,7 +37,6 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
             - secret_revoked: Required when action is 'resolve'. Whether the secret was revoked/rotated
     """
     client = await get_client()
-    logger.debug(f"Managing incident {params.incident_id} with action: {params.action}")
 
     try:
         # Route the action to the appropriate client method
@@ -75,7 +74,6 @@ async def manage_private_incident(params: ManageIncidentParams) -> dict[str, Any
         else:
             raise ToolError(f"Unknown action: {params.action}")
 
-        logger.debug(f"Successfully managed incident {params.incident_id} with action: {params.action}")
         return result
     except ToolError:
         raise

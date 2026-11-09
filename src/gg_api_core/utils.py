@@ -55,7 +55,6 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
 
     # 1. Explicit PAT provided - caller manages the token (no caching, no automatic refresh)
     if personal_access_token:
-        logger.debug("Creating client with explicitly provided token")
         return GitGuardianClient(personal_access_token=personal_access_token, user_agent=user_agent)
 
     # 2. Multi-tenant mode (explicit opt-in via MULTI_TENANCY_ENABLED=true) : no caching, no automatic refresh
@@ -66,7 +65,6 @@ async def get_client(personal_access_token: str | None = None, user_agent: str |
                 "MULTI_TENANCY_ENABLED=true requires MCP_PORT to be set. "
                 "Multi-tenant mode only works with HTTP transport."
             )
-        logger.debug("Multi-tenant mode: extracting token from request headers")
         token = _get_token_from_request_headers()
         return GitGuardianClient(personal_access_token=token, user_agent=user_agent)
 
