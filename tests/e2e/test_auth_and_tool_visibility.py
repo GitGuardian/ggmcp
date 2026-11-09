@@ -12,6 +12,7 @@ import re
 from http import HTTPStatus
 
 import httpx
+import pytest
 
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
@@ -192,9 +193,28 @@ class TestScopeBasedToolVisibility:
         assert first_full_catalog == EXPECTED_FULL_TOOL_CATALOG
         assert scan_catalog == EXPECTED_SCAN_ONLY_TOOL_CATALOG
         assert second_full_catalog == EXPECTED_FULL_TOOL_CATALOG
-        # Each tools/list resolves scopes. Logging enrichment also resolves caller
-        # identity once per distinct token, then serves repeat calls from its cache.
-        assert token_route.call_count == 5
+        # One lookup per distinct token: scopes and logged caller identity both come
+        # from the same cached token info.
+        assert token_route.call_count == 2
+
+    @pytest.mark.parametrize(("ttl_seconds", "new_lookups"), [(300.0, 0), (0.0, 1)], ids=["fresh", "expired"])
+    async def test_a_tokens_scopes_are_looked_up_again_only_once_its_cache_entry_expires(
+        self, mcp_client, mock_token_scopes, monkeypatch, ttl_seconds, new_lookups
+    ):
+        """
+        GIVEN a token whose scopes were looked up for a first tools/list
+        WHEN the same token lists tools again
+        THEN the scopes come from the cache while the entry is fresh, and from the API once it expired
+        """
+        monkeypatch.setattr("gg_api_core.mcp_server._TOKEN_INFO_TTL_SECONDS", ttl_seconds)
+        token_route = mock_token_scopes()
+
+        first = await list_tool_names(mcp_client)
+        lookups_after_first = token_route.call_count
+        second = await list_tool_names(mcp_client, request_id=2)
+
+        assert first == second == EXPECTED_FULL_TOOL_CATALOG
+        assert token_route.call_count - lookups_after_first == new_lookups
 
     async def test_concurrent_requests_keep_tenant_context_isolated(self, mcp_client, gg_api):
         """
@@ -332,6 +352,28 @@ class TestExpiredTokenOnToolsList:
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert "www-authenticate" in response.headers
+
+    async def test_a_rejected_scope_lookup_is_not_remembered(self, mcp_client, gg_api):
+        """
+        GIVEN a token the API rejected during a first tools/list
+        WHEN the API accepts the same token on the next tools/list
+        THEN that tools/list succeeds, because only successful lookups are cached
+        """
+        api_state = {"rejects_token": True}
+
+        def token_response(request: httpx.Request) -> httpx.Response:
+            if api_state["rejects_token"]:
+                return httpx.Response(HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+            return httpx.Response(HTTPStatus.OK, json=token_info(EXPECTED_SCOPES))
+
+        gg_api.get("/api_tokens/self").mock(side_effect=token_response)
+
+        rejected = await rpc(mcp_client, "tools/list")
+        api_state["rejects_token"] = False
+        names = await list_tool_names(mcp_client, request_id=2)
+
+        assert rejected.status_code == HTTPStatus.UNAUTHORIZED
+        assert names == EXPECTED_FULL_TOOL_CATALOG
 
 
 async def test_health_endpoint_requires_no_auth(mcp_client, gg_api):

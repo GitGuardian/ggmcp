@@ -29,7 +29,8 @@ __all__ = [
     "track_downstream_calls",
 ]
 
-# Logging-only cache; authorization deliberately uses uncached scopes.
+# Logging-only cache. It also remembers failed lookups, which the authorization
+# cache in mcp_server must not.
 _IDENTITY_TTL_SECONDS = 300.0
 _IDENTITY_FAILURE_TTL_SECONDS = 30.0
 _IDENTITY_CACHE_MAX_ENTRIES = 512

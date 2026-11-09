@@ -1,7 +1,10 @@
 """Simplified GitGuardian MCP Server with scope-based tool filtering."""
 
+import hashlib
 import logging
+import time
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from enum import Enum
@@ -29,6 +32,11 @@ from gg_api_core.utils import get_client
 
 # Configure logger
 logger = logging.getLogger(__name__)
+
+# Scope changes and revocations reach tools/list within this delay. A revoked token
+# can still list tools until its entry expires, but every tool call it makes is rejected.
+_TOKEN_INFO_TTL_SECONDS = 300.0
+_TOKEN_INFO_CACHE_MAX_ENTRIES = 512
 
 
 class AuthenticationMode(Enum):
@@ -243,7 +251,18 @@ class _BearerTokenMCP(AbstractGitGuardianFastMCP):
     request — :class:`PassThroughTokenVerifier` for raw header mode, or
     :class:`GitGuardianOAuthThinProxy` for OAuth proxy mode. Both classes
     below differ only in :attr:`authentication_mode`.
+
+    Token info, scopes included, is cached per token for
+    ``_TOKEN_INFO_TTL_SECONDS``, so a client that repeats ``tools/list`` does
+    not cost one ``/api_tokens/self`` call each time. Only successful lookups
+    are cached: a token the API rejects is checked again on the next request,
+    so it still triggers re-authentication.
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        # Keyed by a hash of the token; the token itself is never stored.
+        self._token_info_cache: OrderedDict[str, tuple[float, dict[str, Any]]] = OrderedDict()
 
     @override
     def get_personal_access_token(self) -> str:
@@ -254,7 +273,21 @@ class _BearerTokenMCP(AbstractGitGuardianFastMCP):
 
     @override
     async def get_token_info(self) -> dict[str, Any]:
-        return await self._fetch_token_info_from_api()
+        key = hashlib.sha256(self.get_personal_access_token().encode()).hexdigest()
+        cached = self._token_info_cache.get(key)
+        if cached is not None and cached[0] > time.monotonic():
+            return cached[1]
+
+        token_info = await self._fetch_token_info_from_api()
+        self._token_info_cache.pop(key, None)
+        while len(self._token_info_cache) >= _TOKEN_INFO_CACHE_MAX_ENTRIES:
+            self._token_info_cache.popitem(last=False)
+        self._token_info_cache[key] = (time.monotonic() + _TOKEN_INFO_TTL_SECONDS, token_info)
+        return token_info
+
+    @override
+    async def get_scopes(self) -> set[str]:
+        return set((await self.get_token_info()).get("scopes", []))
 
 
 class GitGuardianAuthorizationHeaderMCP(_BearerTokenMCP):
