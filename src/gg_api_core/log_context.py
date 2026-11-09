@@ -19,7 +19,6 @@ __all__ = [
     "DownstreamStats",
     "classify_failure",
     "clear_caller_identity_cache",
-    "current_downstream_stats",
     "derive_caller_identity",
     "derive_client_identity",
     "record_downstream_call",
@@ -161,11 +160,6 @@ def track_downstream_calls() -> Iterator[DownstreamStats]:
         yield stats
     finally:
         _downstream_stats.reset(token)
-
-
-def current_downstream_stats() -> DownstreamStats | None:
-    """The accumulator for the call in flight, if anything is tracking."""
-    return _downstream_stats.get()
 
 
 def record_downstream_call(*, duration_ms: float, status: int | None = None, retried: bool = False) -> None:

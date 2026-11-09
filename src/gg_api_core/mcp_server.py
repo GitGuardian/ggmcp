@@ -62,11 +62,6 @@ class CachedTokenInfoMixin:
         # Call parent __init__ in the MRO chain
         super().__init__(*args, **kwargs)
 
-    def clear_cache(self) -> None:
-        """Clear cached token information and scopes."""
-        self._token_scopes = set()
-        self._token_info = None
-
     def _create_token_scope_lifespan(self, original_lifespan: Any = None) -> Any:
         """Create a lifespan context manager that fetches token scopes."""
 
@@ -113,7 +108,7 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
     authentication_mode: AuthenticationMode
 
-    def __init__(self, *args: Any, default_scopes: list[str] | None = None, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize the GitGuardian MCP server.
         """
@@ -128,10 +123,6 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         self.add_middleware(ScopeFilteringMiddleware(self))
         self.add_middleware(DownstreamUnauthorizedMiddleware())
         self.add_middleware(ToolCallLoggingMiddleware())
-
-    def clear_cache(self) -> None:
-        """Clear cached data. Override in subclasses that cache."""
-        pass
 
     @abstractmethod
     def get_personal_access_token(self) -> str | None:
