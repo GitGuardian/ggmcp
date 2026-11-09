@@ -303,7 +303,7 @@ class TestCursorPagination:
         mock_response.raise_for_status = MagicMock()
 
         mock_httpx_client = AsyncMock()
-        mock_httpx_client.get = AsyncMock(return_value=mock_response)
+        mock_httpx_client.request = AsyncMock(return_value=mock_response)
 
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client
@@ -312,7 +312,7 @@ class TestCursorPagination:
             result = await client.list_honeytokens(get_all=False)
 
             # Honeytokens must come back unmasked so they can be planted, without following redirects
-            assert mock_httpx_client.get.call_args.kwargs["headers"]["X-Privacy-Mode"] == "false"
+            assert mock_httpx_client.request.call_args.kwargs["headers"]["X-Privacy-Mode"] == "false"
             assert httpx_async_client.call_args.kwargs["follow_redirects"] is False
             assert "data" in result
             assert "cursor" in result
@@ -347,7 +347,7 @@ class TestCursorPagination:
         page3_response.raise_for_status = MagicMock()
 
         mock_httpx_client = AsyncMock()
-        mock_httpx_client.get = AsyncMock(side_effect=[page1_response, page2_response, page3_response])
+        mock_httpx_client.request = AsyncMock(side_effect=[page1_response, page2_response, page3_response])
 
         async_client_instance = AsyncMock()
         async_client_instance.__aenter__.return_value = mock_httpx_client

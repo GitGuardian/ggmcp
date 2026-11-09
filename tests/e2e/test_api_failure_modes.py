@@ -32,13 +32,30 @@ async def test_a_rejected_list_query_surfaces_as_a_tool_error(
     """
     GIVEN the API rejecting a list query with 400
     WHEN the list tool is called
-    THEN the call fails as a tool error naming the status, not as a successful result
+    THEN the call fails as a tool error giving the status and the API's reason, not as a successful result
     """
     gg_api.get(endpoint).respond(400, json={"detail": "Invalid filter."})
 
     result = await call_tool(mcp_client, tool_name, {"params": params})
 
-    assert "400" in tool_error_text(result)
+    assert "GitGuardian API returned 400 Bad Request: Invalid filter." in tool_error_text(result)
+
+
+@pytest.mark.parametrize(("tool_name", "endpoint", "params"), LIST_TOOL_CALLS)
+async def test_a_rejected_token_on_a_list_call_triggers_reauthentication(
+    mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params
+):
+    """
+    GIVEN the API rejecting the caller's token with 401 on a list endpoint
+    WHEN the list tool is called
+    THEN the response asks the MCP client to authenticate again
+    """
+    gg_api.get(endpoint).respond(HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+
+    response = await rpc(mcp_client, "tools/call", {"name": tool_name, "arguments": {"params": params}})
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert "www-authenticate" in response.headers
 
 
 ALREADY_IN_STATE_CALLS = [

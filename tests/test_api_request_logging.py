@@ -85,12 +85,12 @@ class TestApiRequestEvent:
         """
         client = GitGuardianClient(gitguardian_url="https://dashboard.gitguardian.com", personal_access_token="tok")
 
-        async def get(self, url, **kwargs):
+        async def request(self, method, url, **kwargs):
             response = httpx.Response(200, json=[])
-            response.request = httpx.Request("GET", url)
+            response.request = httpx.Request(method, url)
             return response
 
-        monkeypatch.setattr(httpx.AsyncClient, "get", get)
+        monkeypatch.setattr(httpx.AsyncClient, "request", request)
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.client"):
             await client._request_list("/incidents/secrets")
