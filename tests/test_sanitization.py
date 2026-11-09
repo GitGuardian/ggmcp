@@ -1,4 +1,5 @@
 import pytest
+from pydantic import BaseModel, ValidationError
 
 from gg_api_core.sanitization import (
     SENSITIVE_DATA_PLACEHOLDER,
@@ -79,3 +80,31 @@ class TestScrubByValue:
     )
     def test_scrub_by_value(self, value, expected):
         assert scrub_by_value(value) == expected
+
+
+class _ToolParams(BaseModel):
+    incident_id: int
+    tags: list[str]
+
+
+def _validation_error_text(payload: dict) -> str:
+    with pytest.raises(ValidationError) as excinfo:
+        _ToolParams.model_validate(payload)
+    return str(excinfo.value)
+
+
+class TestScrubValidationInputs:
+    def test_rejected_inputs_are_redacted_but_the_error_stays_readable(self):
+        """
+        GIVEN a validation error quoting two rejected inputs, one of which contains ", input_type="
+        WHEN the error text is value-scrubbed
+        THEN neither input survives, while field names, error types and input types do
+        """
+        text = _validation_error_text({"incident_id": "pasted-secret-1", "tags": "x, input_type=str pasted-secret-2"})
+
+        scrubbed = scrub_by_value(text)
+
+        assert "pasted-secret" not in scrubbed
+        assert scrubbed.count(f"input_value={PLACEHOLDER}, input_type=str") == 2
+        assert "incident_id" in scrubbed and "type=int_parsing" in scrubbed
+        assert "tags" in scrubbed and "type=list_type" in scrubbed

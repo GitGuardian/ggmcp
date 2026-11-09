@@ -189,3 +189,23 @@ def test_error_event_keeps_url_paths_but_not_their_queries():
     assert outgoing["request"] == {"url": "https://mcp.gitguardian.com/mcp"}
     assert outgoing["breadcrumbs"]["values"][0]["data"] == {}
     assert "pasted-secret" not in json.dumps(outgoing)
+
+
+def test_error_event_redacts_the_input_a_validation_error_quotes():
+    """
+    GIVEN a tool-call validation error whose message quotes the agent's input
+    WHEN Sentry prepares the event for transport
+    THEN the input is redacted and the rest of the message stays
+    """
+    message = (
+        "1 validation error for call[get_incident]\nparams.incident_id\n"
+        "  Input should be a valid integer, unable to parse string as an integer "
+        "[type=int_parsing, input_value='pasted-secret', input_type=str]"
+    )
+    event = {"exception": {"values": [{"type": "ValidationError", "value": message}]}}
+
+    outgoing = _before_send_event(event, {})
+
+    value = outgoing["exception"]["values"][0]["value"]
+    assert "pasted-secret" not in value
+    assert f"[type=int_parsing, input_value={SENSITIVE_DATA_PLACEHOLDER}, input_type=str]" in value

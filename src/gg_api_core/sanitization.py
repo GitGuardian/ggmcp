@@ -45,6 +45,10 @@ _LEAF_TYPES: Final = (int, float, bool, date, datetime, type(None))
 
 _SENSITIVE_URL_PARAMS_RE = re.compile(rf"(({'|'.join(SENSITIVE_PARAMETER_NAMES)})=)([^&]+)(&|$)")
 _SENSITIVE_GIT_CLONE_RE = re.compile(r"(https?://)[^:@/\s]*:[^@/\s]*@")
+# Pydantic validation errors quote the rejected input ("input_value=..., input_type=str"),
+# which is whatever the agent sent: documents, search terms, pasted secrets. The match
+# runs to the last input_type on the line, so an input containing that text cannot end it early.
+_VALIDATION_INPUT_RE = re.compile(r"input_value=.*(?=, input_type=)")
 
 
 def scrub_url_params(string: str) -> str:
@@ -58,11 +62,16 @@ def scrub_git_credentials(string: str) -> str:
     )
 
 
+def scrub_validation_inputs(string: str) -> str:
+    return _VALIDATION_INPUT_RE.sub(f"input_value={SENSITIVE_DATA_PLACEHOLDER}", string)
+
+
 def scrub_by_value(value: Any) -> Any:
     if not isinstance(value, str):
         return value
     value = scrub_url_params(value)
     value = scrub_git_credentials(value)
+    value = scrub_validation_inputs(value)
     return value
 
 
