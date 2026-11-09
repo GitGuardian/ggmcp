@@ -105,16 +105,21 @@ async def mcp_client(remote_app):
 def no_retry_delay(monkeypatch):
     """Make retry tests instant by patching asyncio.sleep to yield without waiting.
 
+    Returns the list of delays the code asked for, in order.
+
     The client awaits ``asyncio.sleep`` directly, so this patches the asyncio
     module attribute: every ``asyncio.sleep`` in the process is affected for
     the duration of the test, not just the client's backoff.
     """
     real_sleep = asyncio.sleep
+    requested_delays: list[float] = []
 
-    async def instant(_delay):
+    async def instant(delay):
+        requested_delays.append(delay)
         await real_sleep(0)
 
     monkeypatch.setattr(asyncio, "sleep", instant)
+    return requested_delays
 
 
 @pytest.fixture

@@ -127,6 +127,22 @@ def api_error_detail(response: httpx.Response) -> str:
     return str(body)
 
 
+# Reads are retried on these statuses. Writes never are: the API may have applied a
+# write that then failed, and repeating it can create a second comment or honeytoken.
+_RETRYABLE_READ_STATUSES = frozenset({429, 500, 503})
+# A longer Retry-After fails the call now rather than holding the tool call open.
+_MAX_RETRY_AFTER_SECONDS = 10
+
+
+def _retry_delay_seconds(response: httpx.Response, attempt: int) -> float | None:
+    """Seconds to wait before retrying a read, or None when it should not be retried."""
+    retry_after = response.headers.get("retry-after", "").strip()
+    if retry_after.isdigit():
+        seconds = int(retry_after)
+        return float(seconds) if seconds <= _MAX_RETRY_AFTER_SECONDS else None
+    return float(2 ** (attempt - 1))
+
+
 # What a refusal means for the caller, for the statuses agents otherwise retry.
 _REFUSAL_GUIDANCE = {
     404: (
@@ -592,10 +608,8 @@ class GitGuardianClient:
 
         headers.update(kwargs.pop("headers", {}))
 
-        # Initialize retry count
         max_retries = 3
         retry_count = 0
-        retry_delay = 1  # initial delay in seconds
 
         while retry_count <= max_retries:
             try:
@@ -621,12 +635,16 @@ class GitGuardianClient:
                     except UnicodeDecodeError:
                         logger.debug("Response content could not be decoded as UTF-8")
 
-                # Special handling for 500 errors - retry
-                if response.status_code == 500 and retry_count < max_retries:
+                if (
+                    method.upper() == "GET"
+                    and response.status_code in _RETRYABLE_READ_STATUSES
+                    and retry_count < max_retries
+                    and (wait_time := _retry_delay_seconds(response, retry_count + 1)) is not None
+                ):
                     retry_count += 1
-                    wait_time = retry_delay * (2 ** (retry_count - 1))  # exponential backoff
                     logger.warning(
-                        f"Received 500 error, retrying in {wait_time}s (attempt {retry_count}/{max_retries})"
+                        f"Received {response.status_code}, retrying in {wait_time}s "
+                        f"(attempt {retry_count}/{max_retries})"
                     )
                     record_downstream_wait(duration_ms=wait_time * 1000)
                     await asyncio.sleep(wait_time)

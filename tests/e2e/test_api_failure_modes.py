@@ -4,6 +4,7 @@ refusal messages, 500 retries, network failures, and the downstream-401 re-auth 
 
 from http import HTTPStatus
 
+import httpx
 import pytest
 
 from tests.e2e.harness import call_tool, rpc, tool_error_text
@@ -165,6 +166,78 @@ class TestServerErrorRetries:
 
         assert route.call_count == 4
         assert "500" in tool_error_text(result)
+
+    @pytest.mark.parametrize("status", [500, 503])
+    async def test_a_read_that_fails_once_is_retried(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, status
+    ):
+        """
+        GIVEN the API failing a read once with a transient status
+        WHEN get_incident is called
+        THEN the read is retried after one second and the tool succeeds
+        """
+        route = gg_api.get("/incidents/secrets/77").mock(
+            side_effect=[httpx.Response(status, text="busy"), httpx.Response(200, json=INCIDENT)]
+        )
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        assert route.call_count == 2
+        assert not result.get("isError")
+        assert no_retry_delay == [1.0]
+
+    async def test_a_rate_limited_read_waits_for_the_apis_retry_after(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay
+    ):
+        """
+        GIVEN the API rate-limiting a read with Retry-After: 3
+        WHEN get_incident is called
+        THEN the read is retried after exactly that delay and the tool succeeds
+        """
+        route = gg_api.get("/incidents/secrets/77").mock(
+            side_effect=[httpx.Response(429, headers={"Retry-After": "3"}), httpx.Response(200, json=INCIDENT)]
+        )
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        assert route.call_count == 2
+        assert not result.get("isError")
+        assert no_retry_delay == [3.0]
+
+    async def test_a_long_retry_after_fails_the_read_at_once(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay
+    ):
+        """
+        GIVEN the API rate-limiting a read with a Retry-After longer than the server waits
+        WHEN get_incident is called
+        THEN the tool fails at once with the 429 instead of holding the call open
+        """
+        route = gg_api.get("/incidents/secrets/77").respond(
+            429, headers={"Retry-After": "60"}, json={"detail": "Throttled."}
+        )
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        assert route.call_count == 1
+        assert "GitGuardian API returned 429 Too Many Requests: Throttled." in tool_error_text(result)
+        assert no_retry_delay == []
+
+    @pytest.mark.parametrize("status", [429, 500, 503])
+    async def test_a_failed_write_is_never_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, status):
+        """
+        GIVEN the API failing a comment write, which it may have applied before failing
+        WHEN manage_incident_comment adds a comment
+        THEN the write is sent exactly once, so the comment cannot be posted twice
+        """
+        route = gg_api.post("/incidents/secrets/77/notes").respond(status, json={"detail": "Unavailable."})
+
+        result = await call_tool(
+            mcp_client, "manage_incident_comment", {"params": {"incident_id": 77, "action": "add", "comment": "hi"}}
+        )
+
+        assert route.call_count == 1
+        assert str(status) in tool_error_text(result)
+        assert no_retry_delay == []
 
 
 class TestDownstreamUnauthorizedBridge:
