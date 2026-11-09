@@ -174,20 +174,37 @@ class RequestLoggingContextMiddleware(Middleware):
 
 
 class DownstreamUnauthorizedMiddleware(Middleware):
-    """Flag the request when a tool surfaces a downstream 401.
+    """Flag the request when a downstream 401 surfaces, from a tool or from the scope fetch.
 
-    The exception still propagates so FastMCP serializes a JSON-RPC error
-    body for clients that ignore the HTTP status. The ASGI middleware
-    rewrites the status to 401 based on the flag set here.
+    The exception still propagates, so clients that ignore the HTTP status
+    still get the usual error body. The ASGI middleware rewrites the status
+    to 401 based on the flag set here.
     """
 
     @override
     async def on_message(self, context: MiddlewareContext[Any], call_next: CallNext[Any, Any]) -> Any:
         try:
             return await call_next(context)
-        except DownstreamUnauthorizedError:
-            mark_downstream_unauthorized()
+        except Exception as exc:
+            if _caused_by_downstream_401(exc):
+                mark_downstream_unauthorized()
             raise
+
+
+def _caused_by_downstream_401(exc: BaseException) -> bool:
+    """Whether a downstream 401 is anywhere in the exception chain.
+
+    FastMCP wraps an exception raised by a tool in a ToolError, so the
+    DownstreamUnauthorizedError is usually the cause, not the exception itself.
+    """
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        if isinstance(current, DownstreamUnauthorizedError):
+            return True
+        seen.add(id(current))
+        current = current.__cause__ or current.__context__
+    return False
 
 
 class ScopeFilteringMiddleware(Middleware):
