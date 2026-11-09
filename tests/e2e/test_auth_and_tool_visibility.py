@@ -12,7 +12,6 @@ import re
 from http import HTTPStatus
 
 import httpx
-import pytest
 
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
@@ -293,10 +292,6 @@ class TestPerRequestScopeCost:
 
 
 class TestExpiredTokenOnToolsList:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: scope-fetch failures do not reach the downstream reauthentication middleware",
-    )
     async def test_rejected_token_on_scope_fetch_triggers_reauthentication(self, mcp_client, gg_api):
         """
         GIVEN a token the GitGuardian API rejects with 401

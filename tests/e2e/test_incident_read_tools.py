@@ -16,6 +16,7 @@ import pytest
 from tests.e2e.harness import (
     TEST_MEMBER_ID,
     call_tool,
+    rpc,
     sent_params,
     token_info,
     tool_error_text,
@@ -287,20 +288,21 @@ class TestSharedIncidentFilters:
 
 @pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
 class TestSharedIncidentErrors:
-    async def test_api_rejection_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes, tool_name):
+    async def test_a_rejected_token_triggers_reauthentication(self, mcp_client, gg_api, mock_token_scopes, tool_name):
         """
         GIVEN the API rejecting the token with 401
         WHEN either internal incident tool is called
-        THEN the call fails with a tool error naming the status
+        THEN the response asks the MCP client to authenticate again
         """
         gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(
             status_code=HTTPStatus.UNAUTHORIZED,
             json={"detail": "Invalid API key."},
         )
 
-        result = await call_tool(mcp_client, tool_name, {"params": {}})
+        response = await rpc(mcp_client, "tools/call", {"name": tool_name, "arguments": {"params": {}}})
 
-        assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "www-authenticate" in response.headers
 
 
 class TestCountIncidents:

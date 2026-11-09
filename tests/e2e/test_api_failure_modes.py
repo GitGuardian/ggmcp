@@ -59,10 +59,6 @@ class TestServerErrorRetries:
 
 
 class TestDownstreamUnauthorizedBridge:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: FastMCP wraps downstream authorization failures before the reauthentication middleware",
-    )
     async def test_a_downstream_401_during_a_tool_call_triggers_reauthentication(
         self, mcp_client, gg_api, mock_token_scopes
     ):

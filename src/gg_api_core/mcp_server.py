@@ -118,8 +118,9 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
 
         # Bind request context before downstream middleware emits logs.
         self.add_middleware(RequestLoggingContextMiddleware(self))
-        self.add_middleware(ScopeFilteringMiddleware(self))
+        # Outside ScopeFilteringMiddleware, so a 401 from the tools/list scope fetch is flagged too.
         self.add_middleware(DownstreamUnauthorizedMiddleware())
+        self.add_middleware(ScopeFilteringMiddleware(self))
         self.add_middleware(ToolCallLoggingMiddleware())
 
     @abstractmethod

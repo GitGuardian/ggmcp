@@ -33,7 +33,9 @@ from .settings import get_settings
 logger = logging.getLogger(__name__)
 
 
-_downstream_unauthorized: ContextVar[bool] = ContextVar("downstream_unauthorized", default=False)
+# A mutable holder: the MCP handler runs in a child task with a copy of the request context,
+# so it can only signal the HTTP layer by mutating an object they share.
+_downstream_unauthorized: ContextVar[list[bool] | None] = ContextVar("downstream_unauthorized", default=None)
 
 
 def _log_oauth_step(step: str, *, outcome: str, status: int | None = None, **fields: Any) -> None:
@@ -54,7 +56,9 @@ def mark_downstream_unauthorized() -> None:
     OAuth flow.
     """
     _log_oauth_step("downstream_unauthorized", outcome="reauth_required", status=401)
-    _downstream_unauthorized.set(True)
+    flag = _downstream_unauthorized.get()
+    if flag is not None:
+        flag[0] = True
 
 
 class PassThroughTokenVerifier(TokenVerifier):
@@ -87,10 +91,11 @@ class TranslateDownstreamUnauthorizedMiddleware:
             await self.app(scope, receive, send)
             return
 
-        token = _downstream_unauthorized.set(False)
+        flag = [False]
+        token = _downstream_unauthorized.set(flag)
 
         async def send_wrapper(message: Message) -> None:
-            if message["type"] == "http.response.start" and _downstream_unauthorized.get():
+            if message["type"] == "http.response.start" and flag[0]:
                 message["status"] = 401
             await send(message)
 
@@ -196,14 +201,15 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
     def get_middleware(self) -> list[Middleware]:
         """Add downstream-401 handling and WWW-Authenticate advertising.
 
-        Order matters. ``TranslateDownstreamUnauthorizedMiddleware`` runs
-        first so a flagged response becomes a 401; then
-        ``AdvertiseAuthorizationServerMetadataMiddleware`` enriches the
-        resulting ``WWW-Authenticate`` header with ``resource_metadata``
-        and ``as_metadata`` parameters.
+        Order matters. Starlette makes the first entry the outermost layer,
+        and a response passes through the innermost layer first. So
+        ``TranslateDownstreamUnauthorizedMiddleware`` goes last: it turns a
+        flagged response into a 401 before
+        ``AdvertiseAuthorizationServerMetadataMiddleware`` adds the
+        ``WWW-Authenticate`` header with ``resource_metadata`` and
+        ``as_metadata`` parameters.
         """
         middleware = super().get_middleware()
-        middleware.append(Middleware(TranslateDownstreamUnauthorizedMiddleware))
         base = str(self.base_url).rstrip("/") if self.base_url else ""
         if base:
             middleware.append(
@@ -213,6 +219,7 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
                     resource_metadata_url_provider=self._build_resource_metadata_url,
                 )
             )
+        middleware.append(Middleware(TranslateDownstreamUnauthorizedMiddleware))
         return middleware
 
     def _build_resource_metadata_url(self) -> str | None:
