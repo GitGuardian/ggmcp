@@ -548,6 +548,7 @@ class GitGuardianClient:
         *,
         privacy_mode: bool = True,
         expected_client_errors: Sequence[int] = (),
+        return_response: bool = False,
         **kwargs: Any,
     ) -> Any:
         """Make a request to the GitGuardian API (generic method).
@@ -561,10 +562,13 @@ class GitGuardianClient:
                 itself and surfaces to the user; they are logged at warning instead of
                 exception so they don't become Sentry noise. List only the codes the
                 caller truly expects — any other error stays visible via logger.exception.
+            return_response: Return the successful httpx.Response instead of its parsed
+                body, for callers that also need the headers.
             **kwargs: Additional arguments to pass to requests
 
         Returns:
-            Response data (typically dict[str, Any] or list[dict[str, Any]])
+            Response data (typically dict[str, Any] or list[dict[str, Any]]), or the
+            response itself when return_response is set
 
         Raises:
             httpx.HTTPStatusError: If the API returns an error
@@ -629,6 +633,9 @@ class GitGuardianClient:
                     continue
 
                 response.raise_for_status()
+
+                if return_response:
+                    return response
 
                 if response.status_code == 204:  # No content
                     return cast(dict[str, Any], {})
@@ -808,21 +815,14 @@ class GitGuardianClient:
         Returns:
             ListResponse with data, cursor, and has_more fields
         """
-        url = f"{self.public_api_url}/{endpoint.lstrip('/')}"
-
-        headers = self._base_headers(privacy_mode=privacy_mode)
-        headers.update(kwargs.pop("headers", {}))
-
-        async with httpx.AsyncClient(follow_redirects=privacy_mode, timeout=DEFAULT_HTTP_TIMEOUT) as client:
-            response = await _track_api_request(
-                "GET",
-                endpoint,
-                client.get(url, headers=headers, **kwargs),
-            )
-            response.raise_for_status()
-
-            data: Any = response.json() if response.content else {}
-            response_headers = dict(response.headers)
+        # The shared request path gives list calls the same retries, 401 re-authentication
+        # and refusal messages as every other call.
+        response = cast(
+            httpx.Response,
+            await self._request("GET", endpoint, privacy_mode=privacy_mode, return_response=True, **kwargs),
+        )
+        data: Any = response.json() if response.content else {}
+        response_headers = dict(response.headers)
 
         # Handle both direct list and dict with "results" or "data" key
         items: list[dict[str, Any]]
