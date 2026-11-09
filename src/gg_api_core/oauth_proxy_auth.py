@@ -46,6 +46,40 @@ def _log_oauth_step(step: str, *, outcome: str, status: int | None = None, **fie
     )
 
 
+class _UpstreamUnavailable(Exception):
+    """The dashboard could not be reached, or answered with something that is not JSON."""
+
+    def __init__(self, status: int) -> None:
+        super().__init__(status)
+        self.status = status
+
+
+async def _post_upstream(url: str, **kwargs: Any) -> tuple[httpx.Response, Any]:
+    """POST to a dashboard OAuth endpoint and return the response with its JSON body.
+
+    Raises:
+        _UpstreamUnavailable: The dashboard was unreachable or its answer was not
+            JSON, such as an error page from a proxy in front of it.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(url, **kwargs)
+    except httpx.RequestError as exc:
+        raise _UpstreamUnavailable(502) from exc
+    try:
+        return response, response.json()
+    except ValueError as exc:
+        # An upstream 5xx keeps its status, so a client that retries on 503 still can.
+        raise _UpstreamUnavailable(response.status_code if response.status_code >= 500 else 502) from exc
+
+
+def _upstream_unavailable_response(exc: _UpstreamUnavailable) -> JSONResponse:
+    return JSONResponse(
+        {"error": "server_error", "error_description": "The GitGuardian authorization server is unavailable."},
+        status_code=exc.status,
+    )
+
+
 def mark_downstream_unauthorized() -> None:
     """Signal that the downstream GG API rejected the current request as unauthorized.
 
@@ -347,12 +381,20 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         """Proxy Dynamic Client Registration (DCR) to the GG dashboard."""
         body = await request.body()
 
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(
+        try:
+            response, registration = await _post_upstream(
                 self.gg_register_url,
                 content=body,
                 headers={"Content-Type": "application/json"},
             )
+        except _UpstreamUnavailable as exc:
+            _log_oauth_step(
+                "register",
+                outcome="upstream_unavailable",
+                status=exc.status,
+                user_agent=request.headers.get("user-agent"),
+            )
+            return _upstream_unavailable_response(exc)
 
         _log_oauth_step(
             "register",
@@ -361,7 +403,7 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
             user_agent=request.headers.get("user-agent"),
         )
         return JSONResponse(
-            response.json(),
+            registration,
             status_code=response.status_code,
         )
 
@@ -427,15 +469,24 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
         if token_lifetime and token_lifetime.lower() != "never":
             form_data.setdefault("lifetime", token_lifetime)
 
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(
+        grant_type = form_data.get("grant_type")
+        oauth_client_id = form_data.get("client_id")
+
+        try:
+            response, token_data = await _post_upstream(
                 self.gg_token_url,
                 data=form_data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
-
-        grant_type = form_data.get("grant_type")
-        oauth_client_id = form_data.get("client_id")
+        except _UpstreamUnavailable as exc:
+            _log_oauth_step(
+                "token",
+                outcome="upstream_unavailable",
+                status=exc.status,
+                grant_type=grant_type,
+                oauth_client_id=oauth_client_id,
+            )
+            return _upstream_unavailable_response(exc)
 
         if response.status_code != 200:
             _log_oauth_step(
@@ -445,14 +496,7 @@ class GitGuardianOAuthThinProxy(PassThroughTokenVerifier):
                 grant_type=grant_type,
                 oauth_client_id=oauth_client_id,
             )
-            return JSONResponse(
-                response.json()
-                if response.headers.get("content-type", "").startswith("application/json")
-                else {"error": response.text},
-                status_code=response.status_code,
-            )
-
-        token_data = response.json()
+            return JSONResponse(token_data, status_code=response.status_code)
 
         # Transform GG's non-standard response to OAuth standard
         access_token = token_data.get("access_token") or token_data.get("key")
