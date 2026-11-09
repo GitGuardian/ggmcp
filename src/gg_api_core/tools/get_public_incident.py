@@ -24,23 +24,8 @@ class GetPublicIncidentResult(BaseModel):
 async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncidentResult:
     """Retrieve a single public secret incident detected by GitGuardian Public Monitoring.
 
-    Public incidents live on public sources (public GitHub repos/gists, Docker Hub, etc.) and
-    have their own id namespace — incident ids are NOT interchangeable with internal incident
-    ids. Use this tool instead of `get_incident` when drilling into a leak surfaced by
-    `list_public_incidents`.
-
-    Wraps GET /v1/public-incidents/secrets/{incident_id}.
-
     Args:
         params: GetPublicIncidentParams model containing the incident_id.
-
-    Returns:
-        GetPublicIncidentResult: Pydantic model containing:
-            - incident: Detailed public incident data (detector, status, severity, validity,
-              risk_score, tags, custom_tags, timestamps, assignee, share_url, etc.)
-
-    Raises:
-        ToolError: If the retrieval operation fails (e.g. unknown id, API error).
     """
     client = await get_client()
     logger.debug(f"Retrieving public incident {params.incident_id}")

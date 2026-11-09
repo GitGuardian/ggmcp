@@ -273,18 +273,8 @@ async def list_public_incidents(
 ) -> ListPublicIncidentsResult | ListPublicIncidentsError:
     """List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
 
-    Public incidents differ from internal incidents: they correspond to secrets leaked outside the
-    organization perimeter and surfaced via GitGuardian Public Monitoring (Explore). Use this tool
-    instead of `list_incidents` when investigating leaks on public sources.
-
-    Wraps GET /v1/public-incidents/secrets and uses cursor-based pagination.
-
     Args:
         params: ListPublicIncidentsParams model containing all filtering options.
-
-    Returns:
-        ListPublicIncidentsResult with the public incidents page, or
-        ListPublicIncidentsError on failure.
     """
     client = await get_client()
 

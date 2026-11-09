@@ -28,28 +28,12 @@ class GetIncidentResult(BaseModel):
 
 
 async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
-    """
-    Retrieve a specific secret incident by its ID.
-
-    Returns detailed information about the incident including:
-    - Incident metadata (date, status, severity, validity)
-    - Detector information
-    - Assignee details
-    - Secret presence information
-    - Custom tags and feedback
-    - Occurrences (up to the specified limit)
+    """Retrieve a specific secret incident by its ID.
 
     Args:
         params: GetIncidentParams model containing:
             - incident_id: The ID of the incident to retrieve
             - with_occurrences: Number of occurrences to include (0-100)
-
-    Returns:
-        GetIncidentResult: Pydantic model containing:
-            - incident: Detailed incident data
-
-    Raises:
-        ToolError: If the retrieval operation fails
     """
     client = await get_client()
     logger.debug(f"Retrieving incident {params.incident_id}")

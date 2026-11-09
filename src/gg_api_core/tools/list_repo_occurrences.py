@@ -193,47 +193,11 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
 async def list_repo_occurrences(
     params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
-    """
-    List secret occurrences for a repository or incident using the GitGuardian v1/occurrences/secrets API.
-
-    Pass incident_id to enumerate one incident's occurrences, including beyond the
-    get_incident embedded-occurrence limit. To include all known locations, omit
-    source_id and set tags, exclude_tags, status, severity, and validity to [].
-    Follow cursor with the same filters until has_more is false. occurrences_count
-    is the number returned in this response, not the incident's global total.
-
-    This tool returns detailed occurrence data with EXACT match locations, including:
-    - File path where the secret was found
-    - Line number in the file
-    - Start and end character indices of the match
-    - The type of secret detected
-    - Match context and patterns
-
-    This is particularly useful for automated remediation workflows where the agent needs to:
-    1. Locate the exact position of secrets in files
-    2. Read the surrounding code context
-    3. Make precise edits to remove or replace secrets
-    4. Verify that secrets have been properly removed
-
-    Use list_incidents for a higher-level view of incidents grouped by secret type.
-
-    By default, occurrences tagged with TEST_FILE or FALSE_POSITIVE are excluded. Pass exclude_tags=[] to disable this filtering.
+    """List secret occurrences for a repository or incident using the GitGuardian v1/occurrences/secrets API.
 
     Args:
         params: ListRepoOccurrencesParams model containing all filtering options.
                Optionally filter by source_id.
-
-    Returns:
-        ListRepoOccurrencesResult: Pydantic model containing:
-            - repository: Repository name
-            - occurrences_count: Number of occurrences returned
-            - occurrences: List of occurrence objects with exact match locations
-            - cursor: Pagination cursor (if applicable)
-            - has_more: Whether more results are available
-            - applied_filters: Dictionary of filters that were applied
-            - suggestion: Suggestions for interpreting or modifying results
-
-        ListRepoOccurrencesError: Pydantic model with error message if the operation fails
     """
     client = await get_client()
     logger.debug(f"Listing occurrences with source_id={params.source_id}")

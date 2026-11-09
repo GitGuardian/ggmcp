@@ -16,26 +16,7 @@ class GetRemediationWorkflowResult(BaseModel):
 
 
 async def get_remediation_workflow() -> GetRemediationWorkflowResult:
-    """
-    Retrieve the remediation workflow for the current workspace.
-
-    This is the ordered, step-by-step remediation guidance shown for secret
-    incidents. It returns the workspace's custom remediation workflow when one
-    is configured, otherwise a default workflow.
-
-    Returns:
-        GetRemediationWorkflowResult: Pydantic model containing:
-            - workflow: Remediation workflow dictionary with:
-                - account_id: The workspace account identifier
-                - steps: Ordered list of remediation steps, each with a
-                  ``title`` and optional ``description`` and ``link``
-                  (``{"text"?, "url"}``)
-                - id, created_at, updated_at: Present only for a configured
-                  custom workflow (absent for the default workflow)
-
-    Raises:
-        ToolError: If the retrieval operation fails
-    """
+    """Retrieve the remediation workflow for the current workspace."""
     client = await get_client()
     logger.debug("Retrieving remediation workflow")
 

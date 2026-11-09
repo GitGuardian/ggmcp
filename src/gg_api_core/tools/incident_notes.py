@@ -48,25 +48,11 @@ class ManageIncidentCommentParams(BaseModel):
 
 
 async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[str, Any]:
-    """
-    Add a new comment to an internal secret incident, or edit an existing one.
-
-    - action='add': create a new comment on the incident.
-    - action='edit': replace the body of the comment identified by `comment_id`
-      (the `id` returned when that comment was added).
-
-    Public Monitoring incident ids are not supported; incident and note ids are
-    not interchangeable between the two perimeters.
+    """Add a new comment to an internal secret incident, or edit an existing one.
 
     Args:
         params: ManageIncidentCommentParams with the incident ID, action, comment
             body, and comment_id (for edits)
-
-    Returns:
-        Dictionary containing the created or updated comment data from the API
-
-    Raises:
-        ToolError: If the operation fails
     """
     client = await get_client()
     logger.debug(f"Managing comment on incident {params.incident_id} with action: {params.action}")
