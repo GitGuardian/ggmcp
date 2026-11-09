@@ -3,6 +3,7 @@ import logging
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
 
+from gg_api_core.tools.ids import PathId
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 class AssignIncidentParams(BaseModel):
     """Parameters for assigning an incident to a member."""
 
-    incident_id: str | int = Field(description="ID of the secret incident to assign")
+    incident_id: PathId = Field(description="ID of the secret incident to assign")
     assignee_member_id: str | int | None = Field(
         default=None,
         description="ID of the member to assign the incident to. One of assignee_member_id, email, or mine must be provided",

@@ -4,6 +4,7 @@ from typing import Any, Literal
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.ids import PathId
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ManageIncidentParams(BaseModel):
     """Parameters for managing an incident."""
 
-    incident_id: str | int = Field(description="ID of the secret incident to manage")
+    incident_id: PathId = Field(description="ID of the secret incident to manage")
     action: Literal["unassign", "resolve", "ignore", "reopen"] = Field(
         description="Action to perform on the incident: 'unassign' removes any assigned member, 'resolve' marks the incident as resolved, 'ignore' marks as ignored (use with ignore_reason), 'reopen' reopens a resolved or ignored incident"
     )

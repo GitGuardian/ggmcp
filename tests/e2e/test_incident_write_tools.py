@@ -90,6 +90,52 @@ class TestManagePrivateIncident:
         assert not route.called
 
 
+CRAFTED_INCIDENT_IDS = [
+    pytest.param("1/../../members/5", id="path-traversal"),
+    pytest.param("42?show_token=true", id="query-injection"),
+    pytest.param("abc", id="not-a-number"),
+    pytest.param("4\u0662", id="non-ascii-digit"),
+]
+
+ID_IN_PATH_CALLS = [
+    pytest.param("assign_incident", {"mine": True}, id="assign_incident"),
+    pytest.param("manage_private_incident", {"action": "reopen"}, id="manage_private_incident"),
+]
+
+
+@pytest.mark.parametrize("incident_id", CRAFTED_INCIDENT_IDS)
+@pytest.mark.parametrize(("tool_name", "arguments"), ID_IN_PATH_CALLS)
+async def test_an_incident_id_that_is_not_a_number_never_reaches_the_api(
+    mcp_client, gg_api, mock_token_scopes, tool_name, arguments, incident_id
+):
+    """
+    GIVEN an incident_id string that is not made of digits
+    WHEN a tool that places it in the URL path is called
+    THEN the call fails validation and no incident endpoint is requested
+    """
+    result = await call_tool(mcp_client, tool_name, {"params": {"incident_id": incident_id, **arguments}})
+
+    assert "must be a numeric ID" in tool_error_text(result)
+    assert all(call.request.url.path == "/v1/api_tokens/self" for call in gg_api.calls)
+
+
+@pytest.mark.parametrize(("tool_name", "arguments"), ID_IN_PATH_CALLS)
+async def test_a_numeric_string_incident_id_is_still_accepted(
+    mcp_client, gg_api, mock_token_scopes, tool_name, arguments
+):
+    """
+    GIVEN an incident_id sent as a string of digits, as some clients do
+    WHEN a tool that places it in the URL path is called
+    THEN the request goes to that incident's endpoint
+    """
+    endpoint = "/incidents/secrets/42/assign" if tool_name == "assign_incident" else "/incidents/secrets/42/reopen"
+    route = gg_api.post(endpoint).respond(200, json={"id": 42})
+
+    await call_tool(mcp_client, tool_name, {"params": {"incident_id": "42", **arguments}})
+
+    assert route.called
+
+
 class TestAssignIncident:
     async def test_mine_assigns_to_the_callers_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """
