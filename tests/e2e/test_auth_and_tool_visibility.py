@@ -127,6 +127,31 @@ class TestScopeBasedToolVisibility:
             mentioned = set(_TOOL_NAME_PATTERN.findall(text)) - set(_property_names(schema))
             assert mentioned <= exposed, f"{tool['name']} points at unexposed tools {sorted(mentioned - exposed)}"
 
+    async def test_tool_annotations_tell_clients_which_tools_write(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding every GitGuardian scope
+        WHEN tools/list is requested
+        THEN every tool declares whether it writes, and how, so clients can decide what to auto-approve
+        """
+        tools = rpc_result(await rpc(mcp_client, "tools/list", request_id=1), expected_id=1)["tools"]
+        read_only = {"readOnlyHint": True, "openWorldHint": False}
+        changes_state = {
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        }
+        writes_comment = {**changes_state, "idempotentHint": False}
+        creates = {**changes_state, "destructiveHint": False, "idempotentHint": False}
+        expected = dict.fromkeys(EXPECTED_FULL_TOOL_CATALOG, read_only) | {
+            "manage_private_incident": changes_state,
+            "assign_incident": changes_state,
+            "manage_incident_comment": writes_comment,
+            "generate_honeytoken": creates,
+        }
+
+        assert {tool["name"]: tool.get("annotations") for tool in tools} == expected
+
     async def test_token_scopes_are_fetched_from_the_api_with_the_callers_token(
         self, mcp_client, gg_api, mock_token_scopes
     ):
