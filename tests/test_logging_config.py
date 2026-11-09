@@ -1,6 +1,7 @@
 import json
 import logging
 
+import httpx
 import pytest
 import structlog
 from pydantic import BaseModel, ValidationError
@@ -69,4 +70,16 @@ class TestConfigureLogging:
             logging.getLogger("t.stdlib").exception("tool_call_failed")
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert "type=int_parsing" in payload["exception"]
+        assert "pasted-secret" not in json.dumps(payload)
+
+    def test_logged_http_errors_keep_the_url_path_but_not_its_query(self, capsys):
+        _reconfigure_json()
+        request = httpx.Request("GET", "https://api.gitguardian.com/v1/incidents-for-mcp?search=pasted-secret&page=1")
+        response = httpx.Response(404, request=request)
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError:
+            logging.getLogger("t.stdlib").exception("tool_call_failed")
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert "https://api.gitguardian.com/v1/incidents-for-mcp?[REDACTED]" in payload["exception"]
         assert "pasted-secret" not in json.dumps(payload)
