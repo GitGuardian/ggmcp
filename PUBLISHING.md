@@ -34,7 +34,6 @@ it to:
 
 - `pyproject.toml` (`[project] version`) — what the code reads at runtime via
   `importlib.metadata`
-- `src/ggmcp/__init__.py` (updated by the Python release strategy)
 - `server.json` (`$.version` and `$.packages[0].version`, via `extra-files`
   in `release-please-config.json`)
 - `uv.lock` (the root `ggmcp` package entry, via `extra-files`)
