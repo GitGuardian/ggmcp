@@ -15,7 +15,6 @@ Environment Variables:
 from __future__ import annotations
 
 import logging
-import re
 from typing import TYPE_CHECKING, Any
 
 try:
@@ -41,8 +40,8 @@ _MCP_TOOL_RESULT_IS_ERROR = "mcp.tool.result.is_error"
 _SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
 # Query strings carry tool arguments (users paste secrets into `search`) and OAuth
 # parameters, and request bodies carry the OAuth token form. Neither reaches Sentry:
-# URLs keep their path only, and these span, breadcrumb and request fields are dropped.
-_URL_QUERY = re.compile(r"(https?://[^\s'\"?#]+)\?[^\s'\"#]*")
+# scrub_by_value cuts queries out of URLs, and these span, breadcrumb and request fields
+# are dropped.
 _QUERY_DATA_KEYS = ("http.query", "http.fragment")
 _REQUEST_QUERY_KEYS = ("query_string", "data")
 
@@ -52,7 +51,7 @@ def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
     if depth >= _MAX_SCRUB_DEPTH:
         return SENSITIVE_DATA_PLACEHOLDER
     if isinstance(value, str):
-        return scrub_by_value(_URL_QUERY.sub(rf"\1?{SENSITIVE_DATA_PLACEHOLDER}", value))
+        return scrub_by_value(value)
     if isinstance(value, dict):
         return {key: _scrub_sentry_payload(item, depth + 1) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
