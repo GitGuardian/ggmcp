@@ -1,0 +1,235 @@
+"""Optional Sentry integration for error tracking and monitoring.
+
+This module provides optional Sentry instrumentation that can be enabled
+via environment variables. It's designed to be non-invasive and vendor-neutral,
+allowing users to opt-in to Sentry monitoring without forcing a dependency.
+
+Environment Variables:
+    SENTRY_DSN: Sentry Data Source Name (required to enable Sentry)
+    SENTRY_ENVIRONMENT: Environment name (e.g., production, development)
+    SENTRY_RELEASE: Release version or commit SHA
+    SENTRY_TRACES_SAMPLE_RATE: Sampling rate for performance traces (0.0 to 1.0)
+    SENTRY_PROFILES_SAMPLE_RATE: Sampling rate for profiling (0.0 to 1.0)
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING, Any
+
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.logging import LoggingIntegration
+except ImportError:
+    sentry_sdk = None
+    LoggingIntegration = None
+
+from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
+from .settings import SentrySettings
+
+if TYPE_CHECKING:
+    from sentry_sdk.types import Event, Hint
+
+logger = logging.getLogger(__name__)
+
+_MAX_SCRUB_DEPTH = 12
+_REQUEST_ID_FIELD = "request_id"
+_MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
+# Span attribute MCPIntegration uses to mark a failed tool call.
+_MCP_TOOL_RESULT_IS_ERROR = "mcp.tool.result.is_error"
+_SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
+# Query strings carry tool arguments (users paste secrets into `search`) and OAuth
+# parameters, and request bodies carry the OAuth token form. Neither reaches Sentry:
+# scrub_by_value cuts queries out of URLs, and these span, breadcrumb and request fields
+# are dropped.
+_QUERY_DATA_KEYS = ("http.query", "http.fragment")
+_REQUEST_QUERY_KEYS = ("query_string", "data")
+
+
+def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
+    """Value-scrub strings recursively at the Sentry SDK boundary."""
+    if depth >= _MAX_SCRUB_DEPTH:
+        return SENSITIVE_DATA_PLACEHOLDER
+    if isinstance(value, str):
+        return scrub_by_value(value)
+    if isinstance(value, dict):
+        return {key: _scrub_sentry_payload(item, depth + 1) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_scrub_sentry_payload(item, depth + 1) for item in value)
+    return value
+
+
+def _drop_query_data(data: Any) -> None:
+    """Remove the query and fragment fields the httpx integration records, in place."""
+    if isinstance(data, dict):
+        for key in _QUERY_DATA_KEYS:
+            data.pop(key, None)
+
+
+def _drop_request_query(event: Event) -> None:
+    """Remove the incoming request's query string and body, in place."""
+    request = event.get("request")
+    if isinstance(request, dict):
+        for key in _REQUEST_QUERY_KEYS:
+            request.pop(key, None)
+
+
+def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
+    """Scrub breadcrumb values and sensitive logging ``data`` fields."""
+    data = breadcrumb.get("data")
+    if isinstance(data, dict):
+        _drop_query_data(data)
+        breadcrumb["data"] = {str(key): scrub_by_name(str(key), value) for key, value in data.items()}
+    return _scrub_sentry_payload(breadcrumb)
+
+
+def _scrub_free_form_fields(event: Event) -> None:
+    """Redact free-form application data by sensitive key name, in place."""
+    for key in _SENTRY_CUSTOM_DATA_KEYS:
+        if isinstance(mapping := event.get(key), dict):
+            event[key] = scrub_mapping(mapping)
+
+    breadcrumbs = event.get("breadcrumbs")
+    if isinstance(breadcrumbs, dict):
+        for breadcrumb in breadcrumbs.get("values", []):
+            if isinstance(breadcrumb, dict) and isinstance(data := breadcrumb.get("data"), dict):
+                _drop_query_data(data)
+                breadcrumb["data"] = scrub_mapping(data)
+
+
+def _request_id_from_trace(event: Event) -> str | None:
+    contexts = event.get("contexts")
+    if not isinstance(contexts, dict):
+        return None
+    trace = contexts.get("trace")
+    if not isinstance(trace, dict):
+        return None
+    data = trace.get("data")
+    if not isinstance(data, dict):
+        return None
+    request_id = data.get(_REQUEST_ID_FIELD)
+    return request_id if isinstance(request_id, str) else None
+
+
+def _before_send_event(event: Event, hint: Hint) -> Event:
+    event = _scrub_sentry_payload(event)
+    _scrub_free_form_fields(event)
+    _drop_request_query(event)
+    request_id = _request_id_from_trace(event)
+    if request_id:
+        event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
+    return event
+
+
+def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
+    """Scrub free-form fields, and drop MCP tool arguments and query strings from spans.
+
+    MCPIntegration writes every MCP tool argument into span data verbatim
+    with no PII gate, and send_default_pii=False does not prevent it. A
+    sampled scan_secrets call ships the scanned document, secrets included,
+    to Sentry the moment the sentry-init ordering fix reaches a release.
+
+    Scrubbing arbitrary document content by regex is unreliable, so scrub by
+    drop: every mcp.request.argument.* key is removed from span data.
+    """
+    event = _scrub_sentry_payload(event)
+    _scrub_free_form_fields(event)
+    _drop_request_query(event)
+    spans = event.get("spans")
+    if not isinstance(spans, list):
+        return event
+
+    for span in spans:
+        if not isinstance(span, dict) or not isinstance(data := span.get("data"), dict):
+            continue
+        _drop_query_data(data)
+        for key in tuple(data):
+            if str(key).startswith(_MCP_REQUEST_ARGUMENT_PREFIX):
+                del data[key]
+
+    return event
+
+
+def init_sentry() -> bool:
+    """Initialize Sentry when configured and available."""
+    sentry_settings = SentrySettings()
+    dsn = sentry_settings.dsn
+
+    if not dsn:
+        return False
+
+    if sentry_sdk is None or LoggingIntegration is None:
+        logger.warning("Sentry SDK not installed")
+        return False
+
+    environment = sentry_settings.environment
+    release = sentry_settings.release
+    traces_sample_rate = sentry_settings.traces_sample_rate
+    profiles_sample_rate = sentry_settings.profiles_sample_rate
+
+    # Logs provide breadcrumbs only. capture_tool_failure owns tool-failure events.
+    logging_integration = LoggingIntegration(level=logging.INFO, event_level=None)
+
+    try:
+        sentry_sdk.init(
+            dsn=dsn,
+            environment=environment,
+            release=release,
+            traces_sample_rate=traces_sample_rate,
+            profiles_sample_rate=profiles_sample_rate,
+            integrations=[logging_integration],
+            include_local_variables=False,
+            max_request_body_size="never",
+            before_send=_before_send_event,
+            before_breadcrumb=_scrub_breadcrumb,
+            before_send_transaction=_before_send_transaction,
+            # Automatically capture unhandled exceptions
+            send_default_pii=False,  # Don't send personally identifiable information by default
+        )
+
+        # MCPIntegration enables itself only when it can hook the installed MCP SDK
+        # (MCP SDK v2 needs sentry-sdk 2.64+), and skips silently otherwise.
+        if sentry_sdk.get_client().get_integration("mcp") is None:
+            logger.warning("Sentry MCP integration is not active: tool calls will have no mcp.server spans")
+
+        logger.info(
+            f"Sentry initialized successfully for environment: {environment}"
+            + (f", release: {release}" if release else "")
+        )
+        return True
+
+    except Exception as e:
+        logger.exception(f"Failed to initialize Sentry: {str(e)}")
+        return False
+
+
+def set_sentry_request_id(request_id: str) -> None:
+    """Preserve a request ID on the active Sentry span."""
+    if sentry_sdk is None:
+        return
+    try:
+        span = sentry_sdk.get_current_span()
+        if span is not None:
+            span.set_data(_REQUEST_ID_FIELD, request_id)
+    except Exception as exc:
+        logger.debug("Failed to preserve request ID for Sentry: %s", exc)
+
+
+def capture_tool_failure(exception: BaseException) -> None:
+    """Report a failed tool call to Sentry.
+
+    FastMCP returns a tool failure to the protocol layer as an ``isError``
+    result instead of raising it, so MCPIntegration neither captures the
+    exception nor flags its ``mcp.server`` span. Both happen here instead.
+    An exception that does escape to MCPIntegration is the same object, which
+    Sentry's default deduplication drops, so a failure is reported once.
+    """
+    if sentry_sdk is None:
+        return
+    try:
+        span = sentry_sdk.get_current_span()
+        if span is not None:
+            span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)
+        sentry_sdk.capture_exception(exception)
+    except Exception as exc:
+        logger.debug("Failed to report tool failure to Sentry: %s", exc)

@@ -1,0 +1,121 @@
+import logging
+from typing import Any
+
+import httpx
+from fastmcp.exceptions import ToolError
+from pydantic import BaseModel, Field
+
+from gg_api_core.client import api_error_detail
+from gg_api_core.utils import get_client
+
+logger = logging.getLogger(__name__)
+
+
+class GenerateHoneytokenParams(BaseModel):
+    """Parameters for generating a honeytoken."""
+
+    name: str = Field(
+        description="Name for the honeytoken. Must be UNIQUE among the workspace's active honeytokens — "
+        "reusing the name of an existing active token is rejected by the API. Pick a specific, descriptive "
+        "name (e.g. 'aws-prod-db-decoy-2026-07'), not a generic one."
+    )
+    description: str = Field(default="", description="Description of what the honeytoken is used for")
+    new_token: bool = Field(
+        default=False,
+        description="If False (default), reuse your most recent active honeytoken instead of generating a new one; "
+        "the name is only used when no reusable token exists and one must be created. "
+        "If True, always create a new honeytoken — this fails if the name is already taken, so pass a fresh unique name.",
+    )
+
+
+class GenerateHoneytokenResult(BaseModel):
+    """Result from generating or retrieving a honeytoken."""
+
+    model_config = {"extra": "allow"}  # Allow additional fields from API
+
+    id: str | int = Field(description="Honeytoken ID")
+    name: str | None = Field(default=None, description="Honeytoken name")
+    description: str | None = Field(default=None, description="Honeytoken description")
+    type: str | None = Field(default=None, description="Honeytoken type")
+    status: str | None = Field(default=None, description="Honeytoken status")
+    token: dict[str, Any] | None = Field(default=None, description="Token details if show_token=True")
+    injection_recommendations: dict[str, Any] | None = Field(default=None, description="Injection recommendations")
+
+
+async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoneytokenResult:
+    """Generate an AWS GitGuardian honeytoken and get injection recommendations.
+
+    Args:
+        params: GenerateHoneytokenParams model containing honeytoken configuration
+    """
+    client = await get_client()
+
+    # If new_token is False, try to find an existing honeytoken created by the current user
+    if not params.new_token:
+        try:
+            # Get current user's info
+            token_info = await client.get_current_token_info()
+            if token_info and "member_id" in token_info:
+                current_user_id = token_info["member_id"]
+
+                # List honeytokens created by the current user
+                filters = {
+                    "status": "ACTIVE",  # Only get active tokens
+                    "creator_id": current_user_id,
+                    "per_page": 10,  # Fetch just a few recent ones
+                    "ordering": "-created_at",  # Get newest first
+                }
+
+                result = await client.list_honeytokens(**filters)
+
+                # Process the result to get the list of tokens
+                honeytokens = result.get("data", [])
+
+                # Find the most recent active token
+                if honeytokens:
+                    # Get the full honeytoken with token details
+                    honeytoken_id = honeytokens[0].get("id")
+                    if honeytoken_id:
+                        detailed_token = await client.get_honeytoken(honeytoken_id, show_token=True)
+                        return GenerateHoneytokenResult(**detailed_token)
+
+            else:
+                logger.warning("Could not determine current user ID, creating a new honeytoken instead")
+        except Exception as e:
+            logger.warning(f"Error while looking for existing honeytokens: {str(e)}. Creating a new one instead.")
+
+    # Create a new honeytoken if requested or if we couldn't find an existing one
+    try:
+        # Generate the honeytoken with default tags
+        custom_tags: list[dict[str, str | None]] = [
+            {"key": "source", "value": "auto-generated"},
+            {"key": "type", "value": "aws"},
+        ]
+        creation_result = await client.create_honeytoken(
+            name=params.name, description=params.description, custom_tags=custom_tags
+        )
+
+        # Validate that we got an ID in the response
+        if not creation_result.get("id"):
+            raise ToolError("Failed to get honeytoken ID from GitGuardian API")
+
+        # Add injection recommendations to the response
+        creation_result["injection_recommendations"] = {
+            "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, or code comments to detect unauthorized access."
+        }
+
+        return GenerateHoneytokenResult(**creation_result)
+    except ToolError:
+        raise
+    except httpx.HTTPStatusError as e:
+        # The API rejected the request — most often because an active honeytoken with
+        # this name already exists (names are unique per workspace). This is an expected,
+        # caller-actionable condition, not a server fault: surface the API's reason so the
+        # client can retry with a different name (or adjust new_token). Log at warning so
+        # it does not surface as a Sentry error.
+        detail = api_error_detail(e.response)
+        logger.warning(f"Honeytoken creation rejected ({e.response.status_code}): {detail}")
+        raise ToolError(f"Could not create honeytoken: {detail}") from e
+    except Exception as e:
+        logger.exception(f"Error generating honeytoken: {str(e)}")
+        raise ToolError(f"Failed to generate honeytoken: {str(e)}")

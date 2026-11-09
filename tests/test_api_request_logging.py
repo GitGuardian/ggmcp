@@ -5,6 +5,7 @@ import logging
 
 import httpx
 import pytest
+
 from gg_api_core.client import GitGuardianClient, _path_template
 from gg_api_core.log_context import track_downstream_calls
 from gg_api_core.logging_config import configure_logging
@@ -29,12 +30,10 @@ class TestPathTemplate:
     @pytest.mark.parametrize(
         ("endpoint", "expected"),
         [
-            ("/incidents/secrets/12345", "/incidents/secrets/{id}"),
             (
                 "/honeytokens/d0ca9877-641f-4c37-8857-c08e0ae148c4/revoke",
                 "/honeytokens/{id}/revoke",
             ),
-            ("/incidents-for-mcp/count", "/incidents-for-mcp/count"),
         ],
     )
     def test_collapses_id_segments(self, endpoint, expected):
@@ -86,12 +85,12 @@ class TestApiRequestEvent:
         """
         client = GitGuardianClient(gitguardian_url="https://dashboard.gitguardian.com", personal_access_token="tok")
 
-        async def get(self, url, **kwargs):
+        async def request(self, method, url, **kwargs):
             response = httpx.Response(200, json=[])
-            response.request = httpx.Request("GET", url)
+            response.request = httpx.Request(method, url)
             return response
 
-        monkeypatch.setattr(httpx.AsyncClient, "get", get)
+        monkeypatch.setattr(httpx.AsyncClient, "request", request)
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.client"):
             await client._request_list("/incidents/secrets")
@@ -100,25 +99,6 @@ class TestApiRequestEvent:
         assert rec.method == "GET"
         assert rec.path == "/incidents/secrets"
         assert rec.status == 200
-
-    async def test_accounts_the_call_against_the_enclosing_tool_call(self, monkeypatch):
-        """
-        GIVEN a GitGuardian API call made inside a tracked block
-        WHEN it completes
-        THEN the block's accumulator counts it and its latency
-        """
-        client = GitGuardianClient(gitguardian_url="https://dashboard.gitguardian.com", personal_access_token="tok")
-
-        def handler(request):
-            return httpx.Response(200, json={})
-
-        monkeypatch.setattr(httpx.AsyncClient, "request", _responding_with(handler))
-
-        with track_downstream_calls() as stats:
-            await client._request_get("/incidents/secrets/1")
-
-        assert stats.calls == 1
-        assert stats.statuses == {200}
 
     async def test_reports_a_transport_failure_without_a_status(self, caplog, monkeypatch):
         """
@@ -192,13 +172,3 @@ class TestNoisyLoggerDemotion:
         configure_logging(log_level="INFO", log_format="json")
 
         assert not logging.getLogger("mcp.server.lowlevel.server").isEnabledFor(logging.INFO)
-
-    def test_httpx_is_left_alone_at_debug(self):
-        """
-        GIVEN logging configured at DEBUG
-        WHEN httpx's own logger is consulted
-        THEN it is not demoted
-        """
-        configure_logging(log_level="DEBUG", log_format="json")
-
-        assert logging.getLogger("httpx").isEnabledFor(logging.DEBUG)

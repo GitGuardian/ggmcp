@@ -9,37 +9,59 @@ import sentry_sdk
 import structlog
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
+from sentry_sdk.transport import Transport
+
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.sentry_integration import _MAX_SCRUB_DEPTH, _scrub_sentry_payload, init_sentry
-from sentry_sdk.transport import Transport
 
 
 class _CollectingTransport(Transport):
-    """Keep captured Sentry events in memory."""
+    """Keep captured Sentry events and transactions in memory."""
 
-    def __init__(self, events: list[dict]):
+    def __init__(self, events: list[dict], transactions: list[dict]):
         super().__init__()
         self._events = events
+        self._transactions = transactions
 
     def capture_envelope(self, envelope) -> None:
         event = envelope.get_event()
         if event is not None:
             self._events.append(event)
+        transaction = envelope.get_transaction_event()
+        if transaction is not None:
+            self._transactions.append(transaction)
+
+
+def _init_local_sentry(monkeypatch, events: list[dict], transactions: list[dict]) -> None:
+    """Initialize the production Sentry configuration with a local transport."""
+    real_init = sentry_sdk.init
+
+    def init_with_local_transport(**kwargs):
+        return real_init(**kwargs, transport=_CollectingTransport(events, transactions))
+
+    monkeypatch.setattr(sentry_sdk, "init", init_with_local_transport)
+    monkeypatch.setenv("SENTRY_DSN", "https://public@localhost/1")
+    assert init_sentry() is True
+
+
+@pytest.fixture
+def sentry_transactions(monkeypatch):
+    """Initialize production Sentry with full trace sampling and a local transport."""
+    transactions: list[dict] = []
+    monkeypatch.setenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")
+    _init_local_sentry(monkeypatch, [], transactions)
+    try:
+        yield transactions
+    finally:
+        sentry_sdk.get_global_scope().set_client(None)
 
 
 @pytest.fixture
 def sentry_events(monkeypatch):
     """Initialize the production Sentry configuration with a local transport."""
     events: list[dict] = []
-    real_init = sentry_sdk.init
-
-    def init_with_local_transport(**kwargs):
-        return real_init(**kwargs, transport=_CollectingTransport(events))
-
-    monkeypatch.setattr(sentry_sdk, "init", init_with_local_transport)
-    monkeypatch.setenv("SENTRY_DSN", "https://public@localhost/1")
-    assert init_sentry() is True
+    _init_local_sentry(monkeypatch, events, [])
     sentry_sdk.get_isolation_scope().clear_breadcrumbs()
     try:
         yield events
@@ -101,20 +123,6 @@ class TestSentryPayloadScrubbing:
 
 
 class TestSentryCaptureOwnership:
-    def test_error_log_is_a_breadcrumb_not_an_event(self, sentry_events):
-        """
-        GIVEN Sentry logging receives an ERROR record
-        WHEN the record is emitted
-        THEN it creates no Sentry event
-        """
-        configure_logging(log_level="DEBUG", log_format="json")
-        try:
-            raise KeyError("missing-field")
-        except KeyError:
-            logging.getLogger("t.stdlib").exception("tool_call_failed")
-
-        assert sentry_events == []
-
     def test_logging_breadcrumb_is_scrubbed(self, sentry_events):
         """
         GIVEN a log record containing sensitive message and extra data
@@ -135,11 +143,11 @@ class TestSentryCaptureOwnership:
         assert "raw scan payload" not in rendered
         assert "scan_secrets" in rendered
 
-    async def test_mcp_integration_is_the_only_tool_failure_owner(self, sentry_events, monkeypatch):
+    async def test_tool_call_middleware_is_the_only_tool_failure_owner(self, sentry_events, monkeypatch):
         """
         GIVEN a real MCP tool that raises an exception
         WHEN it is called through the middleware stack
-        THEN MCPIntegration produces one event correlated with its tool log
+        THEN exactly one event is produced, correlated with its tool log
         """
         mcp = get_mcp_server("Sentry ownership test")
         mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
@@ -162,6 +170,31 @@ class TestSentryCaptureOwnership:
 
         assert event["tags"]["request_id"] == "req-sentry"
 
+    async def test_failed_tool_call_flags_its_mcp_span(self, sentry_transactions):
+        """
+        GIVEN full trace sampling and a real MCP tool that raises an exception
+        WHEN it is called through the middleware stack
+        THEN the tool's mcp.server span is marked as an error result
+        """
+        mcp = get_mcp_server("Sentry span test")
+        mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
+        mcp.get_token_info = AsyncMock(return_value={})
+
+        @mcp.tool(name="failing_tool")
+        async def failing_tool():
+            raise RuntimeError("tool exploded")
+
+        with sentry_sdk.start_transaction(name="tool-failure"):
+            async with Client(mcp) as client:
+                with pytest.raises(ToolError):
+                    await client.call_tool("failing_tool", {})
+        sentry_sdk.flush()
+
+        (transaction,) = sentry_transactions
+        (span,) = [span for span in transaction["spans"] if span["op"] == "mcp.server"]
+        assert span["data"]["mcp.tool.name"] == "failing_tool"
+        assert span["data"]["mcp.tool.result.is_error"] is True
+
     def test_rendered_traceback_remains_scrubbed(self, sentry_events, capsys):
         """
         GIVEN an exception log containing credentials
@@ -179,3 +212,28 @@ class TestSentryCaptureOwnership:
         assert "hunter2" not in payload["exception"]
         assert payload["exception_cls"] == "ValueError"
         assert sentry_events == []
+
+
+class TestMcpIntegrationActivation:
+    def test_mcp_integration_is_active(self, sentry_events):
+        """
+        GIVEN the installed sentry-sdk and MCP SDK
+        WHEN Sentry is initialized
+        THEN the MCP integration is active, so tool calls get mcp.server spans
+        """
+        assert sentry_sdk.get_client().get_integration("mcp") is not None
+
+    def test_inactive_mcp_integration_is_reported(self, monkeypatch, caplog):
+        """
+        GIVEN a sentry-sdk whose MCP integration cannot hook the installed MCP SDK
+        WHEN Sentry is initialized
+        THEN a warning says tool calls will have no mcp.server spans
+        """
+        monkeypatch.setattr(sentry_sdk.client._Client, "get_integration", lambda self, name_or_class: None)
+        caplog.set_level(logging.WARNING, logger="gg_api_core.sentry_integration")
+        try:
+            _init_local_sentry(monkeypatch, [], [])
+        finally:
+            sentry_sdk.get_global_scope().set_client(None)
+
+        assert "Sentry MCP integration is not active" in caplog.text

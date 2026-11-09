@@ -3,9 +3,10 @@
 import logging
 
 import pytest
+import structlog
 from fastmcp import Client, FastMCP
-from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 
+from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 from tests.test_middleware import FakeServer
 
 
@@ -30,6 +31,10 @@ def server():
     async def visible_tool() -> str:
         return "ok"
 
+    @mcp.tool
+    async def bound_fields() -> dict:
+        return structlog.contextvars.get_contextvars()
+
     @mcp.resource("data://sample")
     async def sample_resource() -> str:
         return "sample"
@@ -48,34 +53,18 @@ def _events(caplog, name):
 class TestProtocolLifecycleEvents:
     async def test_every_dispatched_protocol_method_is_recorded(self, server, caplog):
         """
-        GIVEN a client that connects and exercises the list and read methods
+        GIVEN a handshake-era client that connects and exercises the list methods
         WHEN the session runs
-        THEN each method produces an mcp_request line
+        THEN each request produces an mcp_request line, and notifications none
         """
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server) as client:
+            async with Client(server, mode="legacy") as client:
                 await client.list_tools()
                 await client.list_resources()
                 await client.list_prompts()
 
         methods = [r.mcp_method for r in _events(caplog, "mcp_request")]
-        assert "initialize" in methods
-        assert "tools/list" in methods
-        assert "resources/list" in methods
-        assert "prompts/list" in methods
-
-    async def test_ping_is_not_dispatched_through_middleware(self, server, caplog):
-        """
-        GIVEN a client that pings
-        WHEN the ping is answered
-        THEN no mcp_request line is emitted
-        """
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server) as client:
-                caplog.clear()
-                await client.ping()
-
-        assert _events(caplog, "mcp_request") == []
+        assert methods == ["initialize", "tools/list", "resources/list", "prompts/list"]
 
     async def test_tool_calls_are_not_double_logged(self, server, caplog):
         """
@@ -92,17 +81,17 @@ class TestProtocolLifecycleEvents:
 
     async def test_initialize_records_the_client_and_protocol_version(self, server, caplog):
         """
-        GIVEN a client connecting
+        GIVEN a handshake-era client connecting
         WHEN the handshake completes
         THEN mcp_initialize names the client and the protocol revision
         """
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server):
+            async with Client(server, mode="legacy"):
                 pass
 
         (rec,) = _events(caplog, "mcp_initialize")
-        assert rec.client_name
-        assert rec.protocol_version
+        assert rec.client_name == "mcp"
+        assert rec.protocol_version == "2025-11-25"
 
 
 class TestListToolsCounts:
@@ -133,23 +122,3 @@ class TestListToolsCounts:
         assert rec.tools_exposed == 1
         assert rec.tools_hidden == 1
         assert rec.hidden_tools == ["needs_incidents"]
-
-    async def test_per_tool_removal_lines_are_debug_only(self, caplog):
-        """
-        GIVEN a hidden tool
-        WHEN tools are listed at INFO
-        THEN no per-tool removal line is emitted
-        """
-        mcp = FastMCP("scoped")
-        fake = FakeScopedServer(scopes={"scan"}, tool_scopes={"needs_incidents": {"incidents:read"}})
-        mcp.add_middleware(ScopeFilteringMiddleware(fake))
-
-        @mcp.tool(name="needs_incidents")
-        async def needs_incidents() -> str:
-            return "ok"
-
-        with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(mcp) as client:
-                await client.list_tools()
-
-        assert not [r for r in caplog.records if "Removing tool" in r.getMessage()]

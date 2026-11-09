@@ -2,68 +2,30 @@
 
 ## Technologies used
 
-- **uv** - Fast Python package installer and resolver
-- **Python 3.13** - Modern Python with type hints and performance improvements
-- **FastMCP** - MCP server implementation
-- **Pytest** - Testing framework with fixtures and plugins
-- **Pydantic** - Data validation using Python type annotations
-- **Structlog** - Structured logging for better observability
+- **uv** - dependency and environment management (`pyproject.toml` and `uv.lock`)
+- **Python 3.13**
+- **FastMCP 4** on the **MCP SDK v2**
+- **httpx** (async) for GitGuardian API calls
+- **Pydantic** and **pydantic-settings** for tool parameters and configuration
+- **Structlog** - structured logging
+- **Pytest**, **respx** and **pytest-socket** for tests
 
-## Dependencies Management
+## Layout
 
-1. **Use pyproject.toml with uv**
-    - Use `pyproject.toml` for dependency management, not requirements.txt
-    - Works well with `uv` for fast, reliable package management
-    - Properly specify dependencies with version constraints
-    - Use `uv sync` to install dependencies
+- `src/gg_api_core/client.py`: the GitGuardian API client. Tools get one from `gg_api_core.utils.get_client()`.
+- `src/gg_api_core/tools/`: one module per tool, each with a pydantic params model.
+- `src/gg_mcp_server/register_tools.py`: registers every tool with its description and `required_scopes`. The
+  scope filter hides the tools a caller's token cannot use.
+- `src/gg_mcp_server/http_app.py`: the ASGI app served over HTTP (uvicorn or gunicorn). The `gg-mcp-server`
+  command runs over stdio, or over HTTP when `MCP_PORT` is set.
+- `src/gg_api_core/settings.py`: read configuration through `get_settings()`, never `os.environ`.
 
-2. **Example pyproject.toml**
-   ```toml
-   [build-system]
-   requires = ["setuptools>=42", "wheel"]
-   build-backend = "setuptools.build_meta"
+## Conventions
 
-   [project]
-   name = "my-mcp-server"
-   version = "0.1.0"
-   description = "My MCP server"
-   requires-python = ">=3.9"
-   dependencies = [
-       "mcp>=0.2.0",
-       "requests>=2.28.0",
-   ]
-   ```
-
-## Server Implementation Guidelines
-
-1. **Do NOT use uvicorn or fastapi with MCP/FastMCP**
-    - MCP has its own server implementation
-    - FastMCP/MCP can run directly using `mcp.run()` with no need for external web servers
-    - Avoid adding uvicorn or fastapi to dependencies
-    - Do not use `uvicorn.run(...)` in code
-
-2. **Use the correct server method**
-    - Use `mcp.run()` to start the server (no additional parameters needed for stdio transport)
-    - Example: `mcp.run()` instead of `uvicorn.run(mcp.app, ...)`
-
-3. **Dependencies**
-    - Only include required dependencies
-    - For basic MCP implementation, only `mcp` or `fastmcp` and possibly `requests` are needed
-    - Do not include web server packages unnecessarily
-
-## Code Organization and Imports
-
-1. **Use `src` as the root code directory**
-    - Ensure all code is placed within the `src` directory
-    - Handle imports accordingly by using the appropriate package path
-    - Example: `from src.gitguardian.your_module import YourClass`
-
-2. **FastMCP imports must use the correct package path**
-    - All imports concerning FastMCP must be done under `mcp.server.fastmcp`
-    - Example: `from mcp.server.fastmcp import FastMCP` instead of direct imports
-
-This guide ensures all MCP implementations follow the project's standards of using native capabilities rather than
-external web servers.
+- Import FastMCP from the standalone `fastmcp` package: `from fastmcp import FastMCP`. `mcp.server.fastmcp` does
+  not exist in MCP SDK v2.
+- A tool's name, input schema, scopes and output are its public contract. Change them deliberately, and pin the API
+  request and the tool output in `tests/e2e/`.
 
 # Lower level Python rules
 
@@ -72,16 +34,17 @@ external web servers.
 - Follow PEP 8 style guidelines
 - Add docstrings to all public functions and classes
 - Keep imports organized and sorted
-- Don't use lazy/deferred imports, except inside Celery tasks definitions
+- Don't use lazy/deferred imports
 
 ## Running tests
 
-To run the tests, `uv run pytest`
+Run the tests with `make test`. Lint with `make lint`, type-check with `make typecheck`.
 
 ## Creating tests :
 
 - We use pytest, and plain classes. Don't use unittest classes
-- Use project fixtures (`test_account`, `owner_client`, `api_client`) instead of creating new instances
+- Use the existing fixtures instead of building clients by hand: `mock_gitguardian_client` in `tests/conftest.py`,
+  and `mcp_client`, `gg_api` and `mock_token_scopes` in `tests/e2e/conftest.py`
 - file naming convention : `test_<whatever>.py`
 - don't use self.assertEqual (and so on) helpers but only assert
 - The docstring of every test function must follow this format :
@@ -129,9 +92,10 @@ simple loop counter.
     - Use `async def` for all tool definitions
     - Use appropriate async libraries and patterns (e.g., httpx.AsyncClient instead of requests)
 
-2. **Include descriptive docstrings**
-    - Each tool must have a clear, descriptive docstring
-    - Docstrings should explain what the tool does and describe parameters
+2. **Describe the tool where clients see it**
+    - The tool description is the `description=` passed in `register_tools.py`
+    - Parameter descriptions come from the params model fields; the `params` line of the docstring's `Args:` section
+      becomes the description of the `params` argument
 
 ## Common Mistakes to Avoid
 

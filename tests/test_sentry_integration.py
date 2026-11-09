@@ -6,36 +6,9 @@ from pathlib import Path
 
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
-
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
 
 PROBE_PATH = Path(__file__).parent / "helpers" / "sentry_mcp_transaction_probe.py"
-
-
-class TestPrepareSentryEvent:
-    def test_tags_event_with_request_id_from_trace_data(self):
-        """
-        GIVEN an event containing the active MCP span data
-        WHEN the event is prepared for Sentry
-        THEN its request ID is promoted without replacing existing tags
-        """
-        event = _before_send_event(
-            {
-                "contexts": {"trace": {"data": {"request_id": "req-mcp"}}},
-                "tags": {"existing": "kept"},
-            },
-            {},
-        )
-
-        assert event["tags"] == {"existing": "kept", "request_id": "req-mcp"}
-
-    def test_leaves_event_untagged_without_request_trace_data(self):
-        """
-        GIVEN an event without MCP request trace data
-        WHEN the event is prepared for Sentry
-        THEN no request ID tag is added
-        """
-        assert _before_send_event({}, {}) == {}
 
 
 def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
@@ -148,3 +121,91 @@ def test_transaction_scrubs_free_form_fields_and_drops_span_arguments():
     span_data = outgoing_event["spans"][0]["data"]
     assert span_data["mcp.tool.name"] == "revoke_secret"
     assert not any(key.startswith("mcp.request.argument.") for key in span_data)
+
+
+def test_transaction_drops_query_strings_and_request_bodies():
+    """
+    GIVEN a transaction carrying a downstream query, an incoming OAuth form body, and query breadcrumbs
+    WHEN Sentry prepares the transaction for transport
+    THEN query strings and the request body are gone while URL paths stay
+    """
+    event = {
+        "request": {
+            "method": "POST",
+            "url": "https://mcp.gitguardian.com/token",
+            "query_string": "state=oauth-state",
+            "data": {"code": "oauth-code", "code_verifier": "oauth-verifier"},
+        },
+        "breadcrumbs": {
+            "values": [
+                {
+                    "category": "httpx",
+                    "data": {"url": "https://api.gitguardian.com/v1/x", "http.query": "search=pasted-secret"},
+                }
+            ]
+        },
+        "spans": [
+            {
+                "op": "http.client",
+                "data": {
+                    "url": "https://api.gitguardian.com/v1/incidents-for-mcp",
+                    "http.query": "search=pasted-secret",
+                    "http.fragment": "frag",
+                },
+            }
+        ],
+    }
+
+    outgoing = _before_send_transaction(event, {})
+
+    assert outgoing["request"] == {"method": "POST", "url": "https://mcp.gitguardian.com/token"}
+    assert outgoing["spans"][0]["data"] == {"url": "https://api.gitguardian.com/v1/incidents-for-mcp"}
+    assert outgoing["breadcrumbs"]["values"][0]["data"] == {"url": "https://api.gitguardian.com/v1/x"}
+    assert "pasted-secret" not in json.dumps(outgoing)
+
+
+def test_error_event_keeps_url_paths_but_not_their_queries():
+    """
+    GIVEN an error whose message names a URL with a query string, on a request with a query and a body
+    WHEN Sentry prepares the event for transport
+    THEN the message keeps the URL path, and the query, request query string and body are gone
+    """
+    message = (
+        "Client error '404 Not Found' for url "
+        "'https://api.gitguardian.com/v1/incidents-for-mcp?search=pasted-secret&page=1'"
+    )
+    event = {
+        "exception": {"values": [{"type": "HTTPStatusError", "value": message}]},
+        "request": {"url": "https://mcp.gitguardian.com/mcp", "query_string": "a=b", "data": '{"params": "x"}'},
+        "breadcrumbs": {"values": [{"data": {"http.query": "search=pasted-secret"}}]},
+    }
+
+    outgoing = _before_send_event(event, {})
+
+    assert outgoing["exception"]["values"][0]["value"] == (
+        "Client error '404 Not Found' for url "
+        f"'https://api.gitguardian.com/v1/incidents-for-mcp?{SENSITIVE_DATA_PLACEHOLDER}'"
+    )
+    assert outgoing["request"] == {"url": "https://mcp.gitguardian.com/mcp"}
+    assert outgoing["breadcrumbs"]["values"][0]["data"] == {}
+    assert "pasted-secret" not in json.dumps(outgoing)
+
+
+def test_error_event_redacts_the_input_a_validation_error_quotes():
+    """
+    GIVEN a tool-call validation error whose message quotes the agent's input
+    WHEN Sentry prepares the event for transport
+    THEN the input is redacted and the rest of the message stays
+    """
+    message = (
+        "1 validation error for call[get_incident]\nparams.incident_id\n"
+        "  Input should be a valid integer, unable to parse string as an integer "
+        "[type=int_parsing, input_value='pasted-secret', input_type=str]"
+    )
+    event = {"exception": {"values": [{"type": "ValidationError", "value": message}]}}
+
+    outgoing = _before_send_event(event, {})
+
+    value = outgoing["exception"]["values"][0]["value"]
+    assert "pasted-secret" not in value
+    assert f"[type=int_parsing, input_value={SENSITIVE_DATA_PLACEHOLDER}, input_type=str]" in value

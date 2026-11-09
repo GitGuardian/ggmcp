@@ -1,4 +1,4 @@
-"""Mutating incident tools: status changes, severity edits and assignment.
+"""Mutating incident tools: status changes, assignment and comments.
 
 These tools write to customer workspaces, so the tests pin the exact endpoint
 and JSON body for every action, and that guard rails (required reasons) block
@@ -90,21 +90,50 @@ class TestManagePrivateIncident:
         assert not route.called
 
 
-class TestUpdateIncidentSeverity:
-    async def test_severity_is_patched_on_the_incident(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN a severity change
-        WHEN update_incident_severity is called
-        THEN the incident is PATCHed with exactly the severity field
-        """
-        route = gg_api.patch("/incidents/secrets/42").respond(200, json={"id": 42, "severity": "high"})
+CRAFTED_INCIDENT_IDS = [
+    pytest.param("1/../../members/5", id="path-traversal"),
+    pytest.param("42?show_token=true", id="query-injection"),
+    pytest.param("abc", id="not-a-number"),
+    pytest.param("4\u0662", id="non-ascii-digit"),
+]
 
-        result = await call_tool(
-            mcp_client, "update_incident_severity", {"params": {"incident_id": 42, "severity": "high"}}
-        )
+ID_IN_PATH_CALLS = [
+    pytest.param("assign_incident", {"mine": True}, id="assign_incident"),
+    pytest.param("manage_private_incident", {"action": "reopen"}, id="manage_private_incident"),
+]
 
-        assert sent_body(route) == {"severity": "high"}
-        assert tool_output(result) == {"id": 42, "severity": "high"}
+
+@pytest.mark.parametrize("incident_id", CRAFTED_INCIDENT_IDS)
+@pytest.mark.parametrize(("tool_name", "arguments"), ID_IN_PATH_CALLS)
+async def test_an_incident_id_that_is_not_a_number_never_reaches_the_api(
+    mcp_client, gg_api, mock_token_scopes, tool_name, arguments, incident_id
+):
+    """
+    GIVEN an incident_id string that is not made of digits
+    WHEN a tool that places it in the URL path is called
+    THEN the call fails validation and no incident endpoint is requested
+    """
+    result = await call_tool(mcp_client, tool_name, {"params": {"incident_id": incident_id, **arguments}})
+
+    assert "must be a numeric ID" in tool_error_text(result)
+    assert all(call.request.url.path == "/v1/api_tokens/self" for call in gg_api.calls)
+
+
+@pytest.mark.parametrize(("tool_name", "arguments"), ID_IN_PATH_CALLS)
+async def test_a_numeric_string_incident_id_is_still_accepted(
+    mcp_client, gg_api, mock_token_scopes, tool_name, arguments
+):
+    """
+    GIVEN an incident_id sent as a string of digits, as some clients do
+    WHEN a tool that places it in the URL path is called
+    THEN the request goes to that incident's endpoint
+    """
+    endpoint = "/incidents/secrets/42/assign" if tool_name == "assign_incident" else "/incidents/secrets/42/reopen"
+    route = gg_api.post(endpoint).respond(200, json={"id": 42})
+
+    await call_tool(mcp_client, tool_name, {"params": {"incident_id": "42", **arguments}})
+
+    assert route.called
 
 
 class TestAssignIncident:
@@ -124,50 +153,41 @@ class TestAssignIncident:
         assert output["assignee_id"] == 4242
         assert output["success"] is True
 
-    async def test_assignment_by_email_sends_a_null_member_id(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN an assignee email
-        WHEN assign_incident is called
-        THEN the body carries the email and a null member_id
-        """
-        route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42})
 
-        await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "email": "dev@corp.test"}})
-
-        assert sent_body(route) == {"member_id": None, "email": "dev@corp.test"}
-
-
-class TestUpdatePublicIncidentStatus:
-    async def test_resolving_a_public_incident_requires_and_sends_the_reason(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+class TestManageIncidentComment:
+    async def test_add_posts_a_note_with_the_comment(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN a public incident resolution with a reason
-        WHEN update_public_incident_status is called
-        THEN the public-incidents endpoint receives the resolve_reason body
+        GIVEN action=add
+        WHEN manage_incident_comment is called
+        THEN a note is POSTed on the incident with the comment as its only field
+             and the created note is returned
         """
-        route = gg_api.post("/public-incidents/secrets/7/resolve").respond(200, json={"id": 7, "status": "RESOLVED"})
+        note = {"id": 9, "incident_id": 77, "comment": "Rotating the key today"}
+        route = gg_api.post("/incidents/secrets/77/notes").respond(201, json=note)
 
         result = await call_tool(
             mcp_client,
-            "update_public_incident_status",
-            {"params": {"incident_id": 7, "action": "resolve", "resolve_reason": "revoked"}},
+            "manage_incident_comment",
+            {"params": {"incident_id": 77, "action": "add", "comment": "Rotating the key today"}},
         )
 
-        assert sent_body(route) == {"resolve_reason": "revoked"}
-        assert tool_output(result) == {"id": 7, "status": "RESOLVED"}
+        assert sent_body(route) == {"comment": "Rotating the key today"}
+        assert tool_output(result) == note
 
-    async def test_resolving_without_a_reason_is_blocked_locally(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_edit_patches_the_existing_note(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN action=resolve without resolve_reason
-        WHEN update_public_incident_status is called
-        THEN the tool refuses with guidance and no API call happens
+        GIVEN action=edit with a comment id
+        WHEN manage_incident_comment is called
+        THEN that note is PATCHed with the new comment
         """
-        route = gg_api.post("/public-incidents/secrets/7/resolve").respond(200, json={})
+        note = {"id": 9, "incident_id": 77, "comment": "Key rotated"}
+        route = gg_api.patch("/incidents/secrets/77/notes/9").respond(200, json=note)
 
         result = await call_tool(
-            mcp_client, "update_public_incident_status", {"params": {"incident_id": 7, "action": "resolve"}}
+            mcp_client,
+            "manage_incident_comment",
+            {"params": {"incident_id": 77, "action": "edit", "comment_id": 9, "comment": "Key rotated"}},
         )
 
-        assert "'resolve_reason' parameter is required" in tool_error_text(result)
-        assert not route.called
+        assert sent_body(route) == {"comment": "Key rotated"}
+        assert tool_output(result) == note

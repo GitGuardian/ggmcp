@@ -1,4 +1,6 @@
 import pytest
+from pydantic import BaseModel, ValidationError
+
 from gg_api_core.sanitization import (
     SENSITIVE_DATA_PLACEHOLDER,
     scrub_by_name,
@@ -24,7 +26,7 @@ class TestScrubByName:
             ("token_id", "d0ca9877-641f-4c37-8857-c08e0ae148c4", "d0ca9877-641f-4c37-8857-c08e0ae148c4"),
             ("endpoint", "/v1/incidents", "/v1/incidents"),
             # benign key whose value carries a secret shape -> value-scrubbed
-            ("url", "https://gg.com/cb?token=abc&safe=1", f"https://gg.com/cb?token={PLACEHOLDER}&safe=1"),
+            ("url", "https://gg.com/cb?token=abc&safe=1", f"https://gg.com/cb?{PLACEHOLDER}"),
             # dict under a benign key -> recurse, redact sensitive child keys
             ("payload", {"account_id": 1, "token": "x"}, {"account_id": 1, "token": PLACEHOLDER}),
             # list under a sensitive key -> whole value redacted
@@ -78,3 +80,31 @@ class TestScrubByValue:
     )
     def test_scrub_by_value(self, value, expected):
         assert scrub_by_value(value) == expected
+
+
+class _ToolParams(BaseModel):
+    incident_id: int
+    tags: list[str]
+
+
+def _validation_error_text(payload: dict) -> str:
+    with pytest.raises(ValidationError) as excinfo:
+        _ToolParams.model_validate(payload)
+    return str(excinfo.value)
+
+
+class TestScrubValidationInputs:
+    def test_rejected_inputs_are_redacted_but_the_error_stays_readable(self):
+        """
+        GIVEN a validation error quoting two rejected inputs, one of which contains ", input_type="
+        WHEN the error text is value-scrubbed
+        THEN neither input survives, while field names, error types and input types do
+        """
+        text = _validation_error_text({"incident_id": "pasted-secret-1", "tags": "x, input_type=str pasted-secret-2"})
+
+        scrubbed = scrub_by_value(text)
+
+        assert "pasted-secret" not in scrubbed
+        assert scrubbed.count(f"input_value={PLACEHOLDER}, input_type=str") == 2
+        assert "incident_id" in scrubbed and "type=int_parsing" in scrubbed
+        assert "tags" in scrubbed and "type=list_type" in scrubbed

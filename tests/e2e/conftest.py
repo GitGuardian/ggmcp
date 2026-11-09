@@ -23,8 +23,8 @@ from contextlib import asynccontextmanager
 import httpx
 import pytest
 import respx
-from gg_mcp_server.server import build_http_app, build_server
 
+from gg_mcp_server.server import build_http_app, build_server
 from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, token_info
 
 
@@ -38,8 +38,7 @@ def remote_env(monkeypatch):
     """Environment of the hosted multi-tenant deployment (OAuth proxy mode)."""
     monkeypatch.setenv("MULTI_TENANCY_ENABLED", "true")
     # The presence of MCP_PORT marks the server as HTTP-transport: it gates
-    # multi-tenant token extraction and the hosted-server behavior of tools
-    # like find_current_source_id.
+    # multi-tenant token extraction.
     monkeypatch.setenv("MCP_PORT", "8000")
     monkeypatch.setenv("MCP_OAUTH_PROXY_ENABLED", "true")
     monkeypatch.setenv("MCP_BASE_URL", MCP_BASE_URL)
@@ -47,7 +46,6 @@ def remote_env(monkeypatch):
     monkeypatch.setenv("ENABLE_LOCAL_OAUTH", "false")
     monkeypatch.delenv("GITGUARDIAN_API_URL", raising=False)
     monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN", raising=False)
-    monkeypatch.delenv("GITGUARDIAN_API_KEY", raising=False)
     monkeypatch.delenv("GITGUARDIAN_SCOPES", raising=False)
     monkeypatch.delenv("GITGUARDIAN_REQUESTED_SCOPES", raising=False)
 
@@ -107,16 +105,21 @@ async def mcp_client(remote_app):
 def no_retry_delay(monkeypatch):
     """Make retry tests instant by patching asyncio.sleep to yield without waiting.
 
+    Returns the list of delays the code asked for, in order.
+
     The client awaits ``asyncio.sleep`` directly, so this patches the asyncio
     module attribute: every ``asyncio.sleep`` in the process is affected for
     the duration of the test, not just the client's backoff.
     """
     real_sleep = asyncio.sleep
+    requested_delays: list[float] = []
 
-    async def instant(_delay):
+    async def instant(delay):
+        requested_delays.append(delay)
         await real_sleep(0)
 
     monkeypatch.setattr(asyncio, "sleep", instant)
+    return requested_delays
 
 
 @pytest.fixture

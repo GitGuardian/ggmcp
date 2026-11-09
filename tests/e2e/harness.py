@@ -22,8 +22,7 @@ TEST_PAT = "e2e-test-pat"
 
 TEST_MEMBER_ID = 4242
 
-# Keep this test oracle independent from ``gg_api_core.scopes.ALL_SCOPES``:
-# an accidental production-scope removal must fail the remote contract tests.
+# Every GitGuardian scope: what a full-access token holds.
 EXPECTED_SCOPES = [
     "scan",
     "incidents:read",
@@ -45,51 +44,36 @@ EXPECTED_SCOPES = [
     "secrets:read",
 ]
 
+# The scopes the server asks for. Kept independent from ``gg_api_core.scopes.DEFAULT_SCOPES``
+# so a change to what new tokens can do fails the remote contract tests.
+EXPECTED_REQUESTED_SCOPES = [
+    "scan",
+    "incidents:read",
+    "incidents:write",
+    "sources:read",
+    "members:read",
+    "honeytokens:read",
+    "honeytokens:write",
+]
+
 EXPECTED_FULL_TOOL_CATALOG = {
     "assign_incident",
-    "assign_public_incident",
     "count_incidents",
-    "create_code_fix_request",
-    "find_current_source_id",
     "generate_honeytoken",
-    "get_authenticated_user_info",
-    "get_current_token_info",
     "get_incident",
-    "get_member",
     "get_public_incident",
     "get_remediation_workflow",
-    "list_detectors",
-    "list_honeytokens",
-    "list_incident_activity_logs",
-    "list_incident_comments",
-    "list_incident_members",
-    "list_incident_teams",
     "list_incidents",
-    "list_public_incident_activity_logs",
-    "list_public_incident_comments",
     "list_public_incidents",
     "list_public_occurrences",
     "list_repo_occurrences",
     "list_sources",
-    "list_users",
     "manage_incident_comment",
     "manage_private_incident",
-    "manage_public_incident_comment",
-    "read_custom_tags",
-    "list_remediation_targets",
-    "revoke_current_token",
-    "revoke_secret",
     "scan_secrets",
-    "update_incident_severity",
-    "update_or_create_incident_custom_tags",
-    "update_public_incident_status",
-    "write_custom_tags",
 }
 
 EXPECTED_SCAN_ONLY_TOOL_CATALOG = {
-    "get_authenticated_user_info",
-    "list_detectors",
-    "revoke_current_token",
     "scan_secrets",
 }
 
