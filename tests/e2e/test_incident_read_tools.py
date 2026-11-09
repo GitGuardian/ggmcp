@@ -38,6 +38,8 @@ DEFAULT_LIST_QUERY = {
 # Turns off the filters list_incidents and count_incidents apply by default.
 NO_DEFAULT_FILTERS = {"status": None, "severity": None, "validity": None, "exclude_tags": None}
 
+INCIDENT_ENDPOINTS = {"list_incidents": "/incidents-for-mcp", "count_incidents": "/incidents-for-mcp/count"}
+
 
 class TestListIncidents:
     async def test_default_call_applies_the_opinionated_filters(self, mcp_client, gg_api, mock_token_scopes):
@@ -136,21 +138,6 @@ class TestListIncidents:
         assert "mine" in tool_error_text(result).lower()
         assert not incidents.called
 
-    async def test_mine_conflicting_with_assignee_id_short_circuits(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN mine=True together with a different explicit assignee_id
-        WHEN list_incidents is called
-        THEN a conflict error is returned and the incidents API is never queried
-        """
-        gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(200, json={"id": TEST_MEMBER_ID})
-        incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": []})
-
-        result = await call_tool(mcp_client, "list_incidents", {"params": {"mine": True, "assignee_id": 1}})
-
-        output = unwrap_result(result)
-        assert output["error"].startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
-        assert not incidents.called
-
     async def test_get_all_accumulates_page_number_pagination_until_exhausted(
         self, mcp_client, gg_api, mock_token_scopes
     ):
@@ -173,25 +160,6 @@ class TestListIncidents:
         output = unwrap_result(result)
         assert [i["id"] for i in output["incidents"]] == [1, 2]
         assert output["has_more"] is False
-
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: list_incidents swallows downstream authorization failures into its result payload",
-    )
-    async def test_api_rejection_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN the API rejecting the token with 401
-        WHEN list_incidents is called
-        THEN the call fails with a tool error naming the status
-        """
-        gg_api.get("/incidents-for-mcp").respond(
-            status_code=HTTPStatus.UNAUTHORIZED,
-            json={"detail": "Invalid API key."},
-        )
-
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
-
-        assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
 
     @pytest.mark.parametrize(
         ("filters", "expected"),
@@ -253,6 +221,136 @@ class TestListIncidents:
 
         params = sent_params(route)
         assert {key: params.get(key) for key in expected} == expected
+
+
+@pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
+class TestSharedIncidentFilters:
+    @pytest.mark.parametrize(
+        ("filters", "expected_query", "expected_echo"),
+        [
+            pytest.param(
+                {
+                    "score_min": 0,
+                    "score_max": 0,
+                    "occurrence_count_min": 0,
+                    "opened_for_days": 0,
+                    "assignee_id": 0,
+                    "similar_to": 0,
+                    "has_related_issues": False,
+                    "location": False,
+                    "feedback": False,
+                    "publicly_shared": False,
+                },
+                {
+                    "score__ge": "0",
+                    "score__le": "0",
+                    "occurrence_count": ">=0",
+                    "opened_for": ">=0",
+                    "assignee_member_id": "0",
+                    "similar_to": "0",
+                    "has_related_issues": "false",
+                    "location": "false",
+                    "feedback": "false",
+                    "publicly_shared": "false",
+                },
+                {
+                    "score_min": 0,
+                    "score_max": 0,
+                    "assignee_id": 0,
+                    "similar_to": 0,
+                    "has_related_issues": False,
+                    "location": False,
+                    "feedback": False,
+                    "publicly_shared": False,
+                },
+                id="zero-and-false",
+            ),
+            pytest.param(
+                {"status": [], "severity": [], "validity": [], "exclude_tags": []},
+                {},
+                {},
+                id="empty-lists-clear-defaults",
+            ),
+            pytest.param(
+                {"severity": ["CRITICAL", "20", 100, "custom"]},
+                {"severity__in": "10,20,100,custom"},
+                {"severity": ["CRITICAL", "20", 100, "custom"]},
+                id="mixed-severity-values",
+            ),
+        ],
+    )
+    async def test_filter_edge_cases_preserve_query_and_echo(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name, filters, expected_query, expected_echo
+    ):
+        """
+        GIVEN zero, false, empty, or mixed-type filter values
+        WHEN either internal incident tool is called
+        THEN query serialization and the applied-filter echo retain their existing behavior
+        """
+        route = gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(
+            200, json={"results": [], "count": 0, "next": None, "previous": None}
+        )
+
+        result = await call_tool(mcp_client, tool_name, {"params": {**NO_DEFAULT_FILTERS, **filters}})
+
+        pagination = {"page": "1", "page_size": "20", "ordering": "-date"} if tool_name == "list_incidents" else {}
+        assert sent_params(route) == {**pagination, **expected_query}
+        # The existing echo omits zero occurrence/day floors even though the API receives them.
+        assert unwrap_result(result)["applied_filters"] == expected_echo
+
+    async def test_mine_conflicting_with_assignee_id_short_circuits(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name
+    ):
+        """
+        GIVEN mine=True together with a different explicit assignee_id
+        WHEN either internal incident tool is called
+        THEN a conflict error is returned and the incidents API is never queried
+        """
+        gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(200, json={"id": TEST_MEMBER_ID})
+        incidents = gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(200, json={"results": [], "count": 0})
+
+        result = await call_tool(mcp_client, tool_name, {"params": {"mine": True, "assignee_id": 1}})
+
+        output = unwrap_result(result)
+        assert output["error"].startswith(f"Conflict: 'mine=True' implies assignee_id={TEST_MEMBER_ID}")
+        assert not incidents.called
+
+
+@pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
+class TestSharedIncidentErrors:
+    async def test_api_failure_comes_back_inside_the_result(self, mcp_client, gg_api, mock_token_scopes, tool_name):
+        """
+        GIVEN the API rejecting the query with 400
+        WHEN either internal incident tool is called
+        THEN the MCP call succeeds and its result carries an error naming the status
+        """
+        gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(400, json={"detail": "Invalid filter."})
+
+        result = await call_tool(mcp_client, tool_name, {"params": {}})
+
+        error = unwrap_result(result)["error"]
+        verb = "list" if tool_name == "list_incidents" else "count"
+        assert error.startswith(f"Failed to {verb} incidents:")
+        assert "400" in error
+
+    @pytest.mark.xfail(
+        strict=True,
+        reason="SI-3891: list_incidents and count_incidents swallow downstream authorization failures into their result",
+    )
+    async def test_api_rejection_surfaces_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes, tool_name):
+        """
+        GIVEN the API rejecting the token with 401
+        WHEN either internal incident tool is called
+        THEN the call fails with a tool error naming the status
+        """
+        gg_api.get(INCIDENT_ENDPOINTS[tool_name]).respond(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            json={"detail": "Invalid API key."},
+        )
+
+        result = await call_tool(mcp_client, tool_name, {"params": {}})
+
+        assert str(HTTPStatus.UNAUTHORIZED.value) in tool_error_text(result)
 
 
 class TestCountIncidents:
