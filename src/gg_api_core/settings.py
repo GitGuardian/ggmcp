@@ -132,7 +132,7 @@ class Settings(BaseSettings):
         """Final scope set the OAuth flow should request.
 
         - If the user explicitly set ``GITGUARDIAN_SCOPES``, that list is used as-is.
-        - Otherwise the full :data:`ALL_SCOPES` set is requested.
+        - Otherwise :data:`DEFAULT_SCOPES`, the scopes the tools use, is requested.
         - Non-local self-hosted instances are capped to
           :data:`SCOPES_SUPPORTED_IN_SELF_HOSTED` (self-hosted releases lag
           behind SaaS, so a scope available in SaaS may not yet be available
@@ -145,16 +145,16 @@ class Settings(BaseSettings):
         # Lazy import: ``host`` and ``scopes`` could otherwise cycle through
         # this module via their own imports.
         from .host import is_local_instance, is_self_hosted_instance
-        from .scopes import ALL_SCOPES, SCOPES_SUPPORTED_IN_SELF_HOSTED
+        from .scopes import DEFAULT_SCOPES, SCOPES_SUPPORTED_IN_SELF_HOSTED
 
         requested = self.requested_scopes
 
         if is_self_hosted_instance(self.gitguardian_url) and not is_local_instance(self.gitguardian_url):
             if not requested:
-                return list(SCOPES_SUPPORTED_IN_SELF_HOSTED)
+                return [scope for scope in DEFAULT_SCOPES if scope in SCOPES_SUPPORTED_IN_SELF_HOSTED]
             return sorted(set(SCOPES_SUPPORTED_IN_SELF_HOSTED) & set(requested))
 
-        return requested if requested else list(ALL_SCOPES)
+        return requested if requested else list(DEFAULT_SCOPES)
 
 
 class SentrySettings(BaseSettings):

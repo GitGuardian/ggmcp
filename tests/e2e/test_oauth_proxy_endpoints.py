@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlparse
 
 from pytest_voluptuous import S, Unordered
 
-from tests.e2e.harness import EXPECTED_SCOPES, MCP_BASE_URL, sent_body
+from tests.e2e.harness import EXPECTED_REQUESTED_SCOPES, MCP_BASE_URL, sent_body
 
 
 class TestDiscoveryMetadata:
@@ -33,7 +33,7 @@ class TestDiscoveryMetadata:
                 "response_types_supported": ["code"],
                 "grant_types_supported": ["authorization_code"],
                 "token_endpoint_auth_methods_supported": ["none", "client_secret_post"],
-                "scopes_supported": Unordered(EXPECTED_SCOPES),
+                "scopes_supported": Unordered(EXPECTED_REQUESTED_SCOPES),
             }
         )
 
@@ -52,7 +52,7 @@ class TestDiscoveryMetadata:
                 "resource": f"{MCP_BASE_URL}/mcp",
                 "authorization_servers": [MCP_BASE_URL],
                 "bearer_methods_supported": ["header"],
-                "scopes_supported": Unordered(EXPECTED_SCOPES),
+                "scopes_supported": Unordered(EXPECTED_REQUESTED_SCOPES),
             }
         )
 
