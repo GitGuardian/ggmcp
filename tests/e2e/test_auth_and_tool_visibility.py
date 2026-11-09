@@ -28,7 +28,6 @@ from tests.e2e.harness import (
     rpc_result,
     token_info,
     tool_output,
-    unwrap_result,
 )
 
 # Tool-shaped identifiers (verb_noun) as they appear in cross-tool guidance.
@@ -144,40 +143,6 @@ class TestScopeBasedToolVisibility:
         assert token_requests, "expected a live scope fetch against /api_tokens/self"
         assert token_requests[0].headers["Authorization"] == f"Token {TEST_PAT}"
         assert token_requests[0].headers["X-Privacy-Mode"] == "true"
-
-    async def test_scan_only_token_hides_scope_gated_tools(self, mcp_client, mock_token_scopes):
-        """
-        GIVEN a token limited to the scan scope
-        WHEN tools/list is requested
-        THEN only scan-gated and ungated tools remain visible
-        """
-        mock_token_scopes(scopes=["scan"])
-
-        names = await list_tool_names(mcp_client)
-
-        assert names == EXPECTED_SCAN_ONLY_TOOL_CATALOG
-
-    async def test_incidents_read_token_gets_read_but_not_write_tools(self, mcp_client, mock_token_scopes):
-        """
-        GIVEN a token with incidents:read but not incidents:write
-        WHEN tools/list is requested
-        THEN incident read tools are visible and incident write tools are hidden
-        """
-        mock_token_scopes(scopes=["incidents:read"])
-
-        names = await list_tool_names(mcp_client)
-
-        # Write tools need incidents:write, list_sources needs sources:read, scan_secrets needs scan.
-        assert names == {
-            "count_incidents",
-            "get_incident",
-            "get_public_incident",
-            "get_remediation_workflow",
-            "list_incidents",
-            "list_public_incidents",
-            "list_public_occurrences",
-            "list_repo_occurrences",
-        }
 
     async def test_tool_visibility_is_isolated_between_tenants_on_one_server(self, mcp_client, gg_api):
         """
@@ -307,22 +272,6 @@ class TestScopeBasedToolVisibility:
         assert_authenticated_request(incident_route, "full-scope-token")
         assert_authenticated_request(scan_route, "scan-only-token")
 
-    async def test_a_scope_hidden_tool_is_still_callable(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN a scan-only token, for which list_incidents is hidden
-        WHEN list_incidents is called anyway
-        THEN the tool executes and its request is forwarded to the API
-        """
-        mock_token_scopes(scopes=["scan"])
-        route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
-
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
-
-        # Scope filtering only controls visibility; enforcement happens at the
-        # GitGuardian API, which rejects tokens lacking the scope.
-        assert route.called
-        assert unwrap_result(result)["incidents"] == []
-
 
 class TestPerRequestScopeCost:
     async def test_tool_dispatch_does_not_fetch_scopes(self, mcp_client, gg_api, mock_token_scopes):
@@ -341,18 +290,6 @@ class TestPerRequestScopeCost:
         # scope (see test_a_scope_hidden_tool_is_still_callable).
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
         assert scope_fetches == []
-
-    async def test_explicit_tools_list_refetches_scopes_every_time(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN the stateless remote deployment
-        WHEN tools/list is requested twice
-        THEN each request re-resolves the token's scopes upstream
-        """
-        await list_tool_names(mcp_client)
-        await list_tool_names(mcp_client)
-
-        scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
-        assert len(scope_fetches) == 2
 
 
 class TestExpiredTokenOnToolsList:

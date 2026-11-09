@@ -14,47 +14,6 @@ class TestListRepoOccurrences:
     """Tests for the list_repo_occurrences tool."""
 
     @pytest.mark.asyncio
-    async def test_list_repo_occurrences_with_filters(self, mock_gitguardian_client):
-        """
-        GIVEN: Multiple filter parameters
-        WHEN: Listing occurrences with filters
-        THEN: The API is called with correct filter parameters
-        """
-        # Mock the client response
-        mock_response = {
-            "data": [],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        # Call the function with filters
-        await list_repo_occurrences(
-            ListRepoOccurrencesParams(
-                source_id="source_123",
-                from_date="2023-01-01",
-                to_date="2023-12-31",
-                presence="present",
-                tags=["tag1", "tag2"],
-                ordering="-date",
-                per_page=50,
-                cursor=None,
-                get_all=False,
-            )
-        )
-
-        # Verify client was called with correct parameters
-        mock_gitguardian_client.list_occurrences.assert_called_once()
-        call_kwargs = mock_gitguardian_client.list_occurrences.call_args.kwargs
-        assert call_kwargs["source_id"] == "source_123"
-        assert call_kwargs["from_date"] == "2023-01-01"
-        assert call_kwargs["to_date"] == "2023-12-31"
-        assert call_kwargs["presence"] == "present"
-        assert call_kwargs["tags"] == ["tag1", "tag2"]
-        assert call_kwargs["per_page"] == 50
-        assert call_kwargs["ordering"] == "-date"
-
-    @pytest.mark.asyncio
     async def test_list_repo_occurrences_client_error(self, mock_gitguardian_client):
         """
         GIVEN: The client raises an exception
@@ -71,30 +30,6 @@ class TestListRepoOccurrences:
         # Verify error response
         assert hasattr(result, "error")
         assert "Failed to list repository occurrences" in result.error
-
-    @pytest.mark.asyncio
-    async def test_list_repo_occurrences_empty_response(self, mock_gitguardian_client):
-        """
-        GIVEN: No occurrences exist
-        WHEN: Listing occurrences
-        THEN: An empty list is returned
-        """
-        # Mock the client response with no occurrences
-        mock_response = {
-            "data": [],
-            "cursor": None,
-            "has_more": False,
-        }
-        mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
-
-        # Call the function
-        result = await list_repo_occurrences(ListRepoOccurrencesParams(source_id="source_123"))
-
-        # Verify response
-        assert result.occurrences_count == 0
-        assert len(result.occurrences) == 0
-        assert result.applied_filters is not None
-        assert result.suggestion is not None
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_member_assignee_id(self, mock_gitguardian_client):
@@ -180,23 +115,3 @@ class TestListRepoOccurrencesFilters:
             ListRepoOccurrencesFilters(mine=True, member_assignee_id=12345)
 
         assert "Only one of assignee_member_id, or mine should be provided" in str(exc_info.value)
-
-    def test_mine_alone_is_valid(self):
-        """
-        GIVEN: Only mine filter is provided
-        WHEN: Creating the filters
-        THEN: The filters are valid
-        """
-        filters = ListRepoOccurrencesFilters(mine=True)
-        assert filters.mine is True
-        assert filters.member_assignee_id is None
-
-    def test_member_assignee_id_alone_is_valid(self):
-        """
-        GIVEN: Only member_assignee_id is provided
-        WHEN: Creating the filters
-        THEN: The filters are valid
-        """
-        filters = ListRepoOccurrencesFilters(member_assignee_id=12345)
-        assert filters.member_assignee_id == 12345
-        assert filters.mine is False

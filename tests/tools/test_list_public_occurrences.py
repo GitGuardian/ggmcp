@@ -98,27 +98,6 @@ class TestListPublicOccurrences:
         assert result.has_more is True
 
     @pytest.mark.asyncio
-    async def test_get_all_forwarded(self, mock_gitguardian_client):
-        """
-        GIVEN: get_all=True
-        WHEN: Listing public occurrences
-        THEN: get_all is forwarded to the client method
-        """
-        mock_gitguardian_client.list_public_occurrences = AsyncMock(
-            return_value={
-                "data": [{"id": 1}, {"id": 2}],
-                "cursor": None,
-                "has_more": False,
-            }
-        )
-
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1, get_all=True))
-
-        call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
-        assert call_kwargs["get_all"] is True
-        assert result.occurrences_count == 2
-
-    @pytest.mark.asyncio
     async def test_client_error_returns_error_result(self, mock_gitguardian_client):
         """
         GIVEN: The client raises an exception

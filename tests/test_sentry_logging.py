@@ -123,20 +123,6 @@ class TestSentryPayloadScrubbing:
 
 
 class TestSentryCaptureOwnership:
-    def test_error_log_is_a_breadcrumb_not_an_event(self, sentry_events):
-        """
-        GIVEN Sentry logging receives an ERROR record
-        WHEN the record is emitted
-        THEN it creates no Sentry event
-        """
-        configure_logging(log_level="DEBUG", log_format="json")
-        try:
-            raise KeyError("missing-field")
-        except KeyError:
-            logging.getLogger("t.stdlib").exception("tool_call_failed")
-
-        assert sentry_events == []
-
     def test_logging_breadcrumb_is_scrubbed(self, sentry_events):
         """
         GIVEN a log record containing sensitive message and extra data

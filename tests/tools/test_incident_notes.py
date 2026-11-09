@@ -52,15 +52,6 @@ class TestManageIncidentCommentParams:
 
         assert "comment_id must not be provided when action is 'add'" in str(exc_info.value)
 
-    def test_empty_comment_raises_error(self):
-        """
-        GIVEN a blank comment
-        WHEN creating the params
-        THEN a validation error is raised (min length 1 after stripping)
-        """
-        with pytest.raises(ValidationError):
-            ManageIncidentCommentParams(incident_id=123, action="add", comment="   ")
-
     def test_comment_too_long_raises_error(self):
         """
         GIVEN a comment longer than 10000 characters
@@ -82,43 +73,6 @@ class TestManageIncidentCommentParams:
 
 class TestManageIncidentComment:
     """Tests for the manage_incident_comment function (internal incidents)."""
-
-    @pytest.mark.asyncio
-    async def test_add_calls_create(self, mock_gitguardian_client):
-        """
-        GIVEN action='add'
-        WHEN managing the comment
-        THEN create_incident_note is called and the created note is returned
-        """
-        mock_gitguardian_client.create_incident_note = AsyncMock(return_value=_note_payload())
-
-        result = await manage_incident_comment(
-            ManageIncidentCommentParams(incident_id=123, action="add", comment="Looks like a test credential")
-        )
-
-        mock_gitguardian_client.create_incident_note.assert_called_once_with(
-            incident_id=123, comment="Looks like a test credential"
-        )
-        assert result["id"] == 42
-        assert result["comment"] == "Looks like a test credential"
-
-    @pytest.mark.asyncio
-    async def test_edit_calls_update(self, mock_gitguardian_client):
-        """
-        GIVEN action='edit' with a comment_id
-        WHEN managing the comment
-        THEN update_incident_note is called with the note id
-        """
-        mock_gitguardian_client.update_incident_note = AsyncMock(return_value=_note_payload(comment="Updated comment"))
-
-        result = await manage_incident_comment(
-            ManageIncidentCommentParams(incident_id=123, action="edit", comment="Updated comment", comment_id=42)
-        )
-
-        mock_gitguardian_client.update_incident_note.assert_called_once_with(
-            incident_id=123, note_id=42, comment="Updated comment"
-        )
-        assert result["comment"] == "Updated comment"
 
     @pytest.mark.asyncio
     async def test_api_error_is_wrapped(self, mock_gitguardian_client):

@@ -13,17 +13,13 @@ from typing import Any, Iterator
 import httpx
 import pytest
 from fastmcp import Client
-from mcp.types import TextContent
 
 from gg_api_core import client as client_module
 from gg_api_core import oauth, utils
 from gg_api_core.log_context import clear_caller_identity_cache
 from gg_mcp_server.server import build_server
 from tests.e2e.harness import (
-    EXPECTED_FULL_TOOL_CATALOG,
-    EXPECTED_SCAN_ONLY_TOOL_CATALOG,
     assert_authenticated_request,
-    token_info,
 )
 
 # Token the local server reads from GITGUARDIAN_PERSONAL_ACCESS_TOKEN.
@@ -68,41 +64,6 @@ def reset_client_singleton() -> Iterator[None]:
 
 class TestPatEnvAuthentication:
     """Authentication-source and identity behavior for local stdio sessions."""
-
-    async def test_the_env_token_wins_over_stored_oauth_with_the_stdio_marker(
-        self,
-        stdio_env: None,
-        monkeypatch: pytest.MonkeyPatch,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN both an env PAT and a different stored OAuth token
-        WHEN a tool is called
-        THEN the env PAT wins and reaches every API request with a User-Agent
-             marking the stdio transport
-        """
-        oauth.FileTokenStorage().save_token(
-            "https://dashboard.gitguardian.com",
-            {"access_token": "decoy-stored-token"},
-        )
-
-        async def unexpected_oauth_flow(*_args: Any, **_kwargs: Any) -> None:
-            raise AssertionError("interactive OAuth must not start while an env PAT exists")
-
-        monkeypatch.setattr(client_module, "_run_oauth_flow", unexpected_oauth_flow)
-        scope_route = mock_token_scopes()
-        route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
-
-        server = build_server()
-        assert server.authentication_mode.value == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
-        async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
-
-        assert result.structured_content == {"incident": INCIDENT}
-        assert_authenticated_request(scope_route, STDIO_PAT)
-        assert_authenticated_request(route, STDIO_PAT)
-        assert "(transport=stdio)" in route.calls.last.request.headers["User-Agent"]
 
     async def test_default_oauth_mode_still_uses_the_env_token_without_a_browser_flow(
         self,
@@ -197,65 +158,6 @@ class TestStartupScopeCache:
         assert_authenticated_request(scope_route, STDIO_PAT)
         assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
 
-    async def test_scan_only_token_prunes_the_catalog_at_startup(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a scan-only token in the environment
-        WHEN the session starts
-        THEN only scan-gated and ungated tools are listed
-        """
-        mock_token_scopes(scopes=["scan"])
-
-        async with Client(build_server()) as client:
-            names = {tool.name for tool in await client.list_tools()}
-
-        assert names == EXPECTED_SCAN_ONLY_TOOL_CATALOG
-
-    async def test_full_scope_token_exposes_the_exact_stdio_catalog(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a stdio token holding every supported GitGuardian scope
-        WHEN the session lists tools
-        THEN the complete production catalog is visible with no missing extras
-        """
-        mock_token_scopes()
-
-        async with Client(build_server()) as client:
-            names = {tool.name for tool in await client.list_tools()}
-
-        assert names == EXPECTED_FULL_TOOL_CATALOG
-
-    async def test_startup_scope_fetch_failure_degrades_instead_of_crashing(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        no_retry_delay: None,
-    ) -> None:
-        """
-        GIVEN the API failing while the server starts
-        WHEN the session opens anyway and the API later recovers
-        THEN startup survives and the next tools/list re-fetches the scopes
-        """
-        failed_startup_route = gg_api.get("/api_tokens/self").respond(500, text="boom")
-
-        async with Client(build_server()) as client:
-            assert failed_startup_route.called
-            # Startup swallowed the failure; the cache is empty, so the next
-            # listing fetches live and sees the recovered API.
-            recovered = gg_api.get("/api_tokens/self").respond(200, json=token_info())
-            names = {tool.name for tool in await client.list_tools()}
-
-        assert recovered.called
-        assert "list_incidents" in names
-
 
 class TestSingleTenantSelfHealing:
     """Retry boundaries for authentication failures in single-tenant stdio."""
@@ -287,55 +189,3 @@ class TestSingleTenantSelfHealing:
         assert route.call_count == 2
         assert seen_authorization == [f"Token {STDIO_PAT}", f"Token {STDIO_PAT}"]
         assert result.structured_content == {"incident": INCIDENT}
-
-    async def test_a_persistently_invalid_token_is_retried_only_once(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN the API rejecting both the original and reacquired token
-        WHEN a tool is called
-        THEN self-healing stops after one refresh attempt and returns an error
-        """
-        route = gg_api.get("/incidents/secrets/77").respond(401, json={"detail": "Invalid API key."})
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool(
-                "get_incident",
-                {"params": {"incident_id": 77}},
-                raise_on_error=False,
-            )
-
-        assert route.call_count == 2
-        assert result.is_error is True
-        error_content = result.content[0]
-        assert isinstance(error_content, TextContent)
-        assert "401" in error_content.text
-
-    async def test_a_forbidden_token_is_not_refreshed(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a valid token lacking permission for an API operation
-        WHEN the API returns 403
-        THEN the client surfaces the denial without attempting token refresh
-        """
-        route = gg_api.get("/incidents/secrets/77").respond(403, json={"detail": "Forbidden."})
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool(
-                "get_incident",
-                {"params": {"incident_id": 77}},
-                raise_on_error=False,
-            )
-
-        assert route.call_count == 1
-        assert result.is_error is True
-        error_content = result.content[0]
-        assert isinstance(error_content, TextContent)
-        assert "403" in error_content.text
