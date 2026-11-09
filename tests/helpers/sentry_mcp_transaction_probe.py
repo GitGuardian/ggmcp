@@ -58,6 +58,7 @@ def main(output_path: Path) -> None:
     sentry_client = sentry_sdk.get_client()
     assert sentry_client.options["send_default_pii"] is False
     assert sentry_client.options["traces_sample_rate"] == 1.0
+    assert sentry_client.options["max_request_body_size"] == "never"
 
     transport = _CapturingTransport()
     sentry_client.transport = transport

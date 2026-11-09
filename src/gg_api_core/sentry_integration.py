@@ -15,6 +15,7 @@ Environment Variables:
 from __future__ import annotations
 
 import logging
+import re
 from typing import TYPE_CHECKING, Any
 
 try:
@@ -38,6 +39,12 @@ _MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
 # Span attribute MCPIntegration uses to mark a failed tool call.
 _MCP_TOOL_RESULT_IS_ERROR = "mcp.tool.result.is_error"
 _SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
+# Query strings carry tool arguments (users paste secrets into `search`) and OAuth
+# parameters, and request bodies carry the OAuth token form. Neither reaches Sentry:
+# URLs keep their path only, and these span, breadcrumb and request fields are dropped.
+_URL_QUERY = re.compile(r"(https?://[^\s'\"?#]+)\?[^\s'\"#]*")
+_QUERY_DATA_KEYS = ("http.query", "http.fragment")
+_REQUEST_QUERY_KEYS = ("query_string", "data")
 
 
 def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
@@ -45,7 +52,7 @@ def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
     if depth >= _MAX_SCRUB_DEPTH:
         return SENSITIVE_DATA_PLACEHOLDER
     if isinstance(value, str):
-        return scrub_by_value(value)
+        return scrub_by_value(_URL_QUERY.sub(rf"\1?{SENSITIVE_DATA_PLACEHOLDER}", value))
     if isinstance(value, dict):
         return {key: _scrub_sentry_payload(item, depth + 1) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -53,10 +60,26 @@ def _scrub_sentry_payload(value: Any, depth: int = 0) -> Any:
     return value
 
 
+def _drop_query_data(data: Any) -> None:
+    """Remove the query and fragment fields the httpx integration records, in place."""
+    if isinstance(data, dict):
+        for key in _QUERY_DATA_KEYS:
+            data.pop(key, None)
+
+
+def _drop_request_query(event: Event) -> None:
+    """Remove the incoming request's query string and body, in place."""
+    request = event.get("request")
+    if isinstance(request, dict):
+        for key in _REQUEST_QUERY_KEYS:
+            request.pop(key, None)
+
+
 def _scrub_breadcrumb(breadcrumb: dict[str, Any], hint: Hint) -> dict[str, Any]:
     """Scrub breadcrumb values and sensitive logging ``data`` fields."""
     data = breadcrumb.get("data")
     if isinstance(data, dict):
+        _drop_query_data(data)
         breadcrumb["data"] = {str(key): scrub_by_name(str(key), value) for key, value in data.items()}
     return _scrub_sentry_payload(breadcrumb)
 
@@ -71,6 +94,7 @@ def _scrub_free_form_fields(event: Event) -> None:
     if isinstance(breadcrumbs, dict):
         for breadcrumb in breadcrumbs.get("values", []):
             if isinstance(breadcrumb, dict) and isinstance(data := breadcrumb.get("data"), dict):
+                _drop_query_data(data)
                 breadcrumb["data"] = scrub_mapping(data)
 
 
@@ -91,6 +115,7 @@ def _request_id_from_trace(event: Event) -> str | None:
 def _before_send_event(event: Event, hint: Hint) -> Event:
     event = _scrub_sentry_payload(event)
     _scrub_free_form_fields(event)
+    _drop_request_query(event)
     request_id = _request_id_from_trace(event)
     if request_id:
         event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
@@ -98,7 +123,7 @@ def _before_send_event(event: Event, hint: Hint) -> Event:
 
 
 def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
-    """Scrub free-form fields and drop MCP tool arguments from spans.
+    """Scrub free-form fields, and drop MCP tool arguments and query strings from spans.
 
     MCPIntegration writes every MCP tool argument into span data verbatim
     with no PII gate, and send_default_pii=False does not prevent it. A
@@ -110,6 +135,7 @@ def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
     """
     event = _scrub_sentry_payload(event)
     _scrub_free_form_fields(event)
+    _drop_request_query(event)
     spans = event.get("spans")
     if not isinstance(spans, list):
         return event
@@ -117,6 +143,7 @@ def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
     for span in spans:
         if not isinstance(span, dict) or not isinstance(data := span.get("data"), dict):
             continue
+        _drop_query_data(data)
         for key in tuple(data):
             if str(key).startswith(_MCP_REQUEST_ARGUMENT_PREFIX):
                 del data[key]
@@ -153,6 +180,7 @@ def init_sentry() -> bool:
             profiles_sample_rate=profiles_sample_rate,
             integrations=[logging_integration],
             include_local_variables=False,
+            max_request_body_size="never",
             before_send=_before_send_event,
             before_breadcrumb=_scrub_breadcrumb,
             before_send_transaction=_before_send_transaction,
