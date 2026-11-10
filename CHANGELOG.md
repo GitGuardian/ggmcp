@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/GitGuardian/ggmcp/compare/v0.7.4...v0.7.5) (2026-11-10)
+
+
+### Bug Fixes
+
+* **deps:** bump authlib, dnspython and joserfc ([#242](https://github.com/GitGuardian/ggmcp/issues/242)) ([980313e](https://github.com/GitGuardian/ggmcp/commit/980313eb9a2d5ef34c864385f9e944e0cad105f6))
+
 ## [0.7.4](https://github.com/GitGuardian/ggmcp/compare/v0.7.3...v0.7.4) (2026-10-22)
 
 
