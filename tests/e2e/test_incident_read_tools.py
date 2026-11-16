@@ -13,6 +13,7 @@ from http import HTTPStatus
 import httpx
 import pytest
 
+from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
 from tests.e2e.harness import (
     TEST_MEMBER_ID,
     call_tool,
@@ -142,6 +143,57 @@ class TestListIncidents:
         output = unwrap_result(result)
         assert [i["id"] for i in output["incidents"]] == [1, 2]
         assert output["has_more"] is False
+        assert output["page"] == 2
+
+    async def test_get_all_cut_by_the_size_cap_resumes_at_the_dropped_page(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN three pages whose second page would push the result past the size cap
+        WHEN list_incidents is called with get_all=True, then again with the returned page + 1
+        THEN the first call returns page 1 only, and the second call returns the page it dropped
+        """
+        big = "x" * (DEFAULT_PAGINATION_MAX_BYTES * 3 // 5)
+        pages = {
+            str(n): {
+                "results": [{"id": n, "note": big}],
+                "next": None if n == 3 else f"https://api.gitguardian.com/v1/incidents-for-mcp?page={n + 1}",
+            }
+            for n in (1, 2, 3)
+        }
+        gg_api.get("/incidents-for-mcp").mock(
+            side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
+        )
+
+        first = unwrap_result(await call_tool(mcp_client, "list_incidents", {"params": {"get_all": True}}))
+        resumed = unwrap_result(await call_tool(mcp_client, "list_incidents", {"params": {"page": first["page"] + 1}}))
+
+        assert [i["id"] for i in first["incidents"]] == [1]
+        assert first["has_more"] is True
+        assert first["page"] == 1
+        assert [i["id"] for i in resumed["incidents"]] == [2]
+
+    async def test_get_all_cut_by_the_page_cap_reports_the_last_page_it_returned(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN more pages than the get_all page cap
+        WHEN list_incidents is called with get_all=True
+        THEN the result reports the last page it includes, so page + 1 is the first one it left out
+        """
+        gg_api.get("/incidents-for-mcp").mock(
+            side_effect=lambda request: httpx.Response(
+                200,
+                json={
+                    "results": [{"id": int(request.url.params["page"])}],
+                    "next": "https://api.gitguardian.com/v1/incidents-for-mcp?page=next",
+                },
+            )
+        )
+
+        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"params": {"get_all": True}}))
+
+        assert [i["id"] for i in output["incidents"]] == list(range(1, MAX_PAGINATION_PAGES + 1))
+        assert output["has_more"] is True
+        assert output["page"] == MAX_PAGINATION_PAGES
 
     @pytest.mark.parametrize(
         ("filters", "expected"),

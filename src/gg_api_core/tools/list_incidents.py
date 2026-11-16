@@ -100,7 +100,10 @@ class ListIncidentsResult(BaseModel):
     """Result from listing incidents."""
 
     incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of incident objects")
-    page: int = Field(description="Current page number (last page fetched when get_all=True)")
+    page: int = Field(
+        description="Current page number. With get_all=True, the last page whose incidents are included: "
+        "when has_more is true, continue with page + 1."
+    )
     page_size: int = Field(description="Number of results per page")
     has_next: bool = Field(default=False, description="True if there are more pages available")
     has_previous: bool = Field(default=False, description="True if there are previous pages")
@@ -139,6 +142,9 @@ async def list_incidents(
         # Fetch all pages with byte limit protection and hard page cap.
         all_incidents: list[dict[str, Any]] = []
         current_page = 1
+        # Last page whose incidents are in the result. Pages dropped by the size or
+        # page cap are not, so a caller resuming at last_included_page + 1 sees them.
+        last_included_page = 0
         total_bytes = 0
         has_more = False
 
@@ -168,6 +174,7 @@ async def list_incidents(
 
             all_incidents.extend(page_incidents)
             total_bytes += page_bytes
+            last_included_page = current_page
 
             if not has_next_page:
                 break
@@ -176,7 +183,7 @@ async def list_incidents(
 
         return ListIncidentsResult(
             incidents=all_incidents,
-            page=current_page,
+            page=last_included_page or 1,
             page_size=params.page_size,
             has_next=has_more,
             has_previous=False,
