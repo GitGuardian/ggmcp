@@ -367,6 +367,59 @@ class TestExpectedToolFailures:
         assert span["status"] == "internal_error"
         assert span["data"]["mcp.tool.failure_kind"] == "expected"
 
+    async def test_a_token_rejected_by_the_scope_check_fails_its_span_without_a_sentry_event(self, sentry_capture):
+        sentry_events, sentry_transactions = sentry_capture
+        """
+        GIVEN a token the API rejects with 401 when a tool call looks up its scopes
+        WHEN a tool that requires a scope is called
+        THEN no Sentry error event is sent, and the call's span is failed and marked expected
+        """
+        mcp = get_mcp_server("Sentry rejected token test")
+        rejected = _caused_by(DownstreamUnauthorizedError("GitGuardian API returned 401"), _status_error(401))
+        mcp._fetch_token_scopes_from_api = AsyncMock(side_effect=rejected)
+        mcp.get_token_info = AsyncMock(side_effect=rejected)
+
+        @mcp.tool(name="scoped_tool", required_scopes=["incidents:read"])
+        async def scoped_tool():
+            return "never reached"
+
+        with sentry_sdk.start_transaction(name="tool-rejected-token"):
+            async with Client(mcp) as client:
+                with pytest.raises(ToolError, match="Authenticate again"):
+                    await client.call_tool("scoped_tool", {})
+        sentry_sdk.flush()
+
+        assert sentry_events == []
+        (span,) = [span for span in sentry_transactions[0]["spans"] if span["op"] == "mcp.server"]
+        assert span["status"] == "internal_error"
+        assert span["data"]["mcp.tool.failure_kind"] == "expected"
+
+    async def test_a_scope_refusal_fails_its_span_as_expected(self, sentry_capture):
+        sentry_events, sentry_transactions = sentry_capture
+        """
+        GIVEN a token without the scope a tool requires
+        WHEN the tool is called directly
+        THEN the call is refused, no Sentry error event is sent, and its span is failed and marked expected
+        """
+        mcp = get_mcp_server("Sentry scope refusal test")
+        mcp._fetch_token_scopes_from_api = AsyncMock(return_value={"scan"})
+        mcp.get_token_info = AsyncMock(return_value={"scopes": ["scan"]})
+
+        @mcp.tool(name="write_tool", required_scopes=["incidents:write"])
+        async def write_tool():
+            return "never reached"
+
+        with sentry_sdk.start_transaction(name="tool-scope-refused"):
+            async with Client(mcp) as client:
+                with pytest.raises(ToolError, match="incidents:write"):
+                    await client.call_tool("write_tool", {})
+        sentry_sdk.flush()
+
+        assert sentry_events == []
+        (span,) = [span for span in sentry_transactions[0]["spans"] if span["op"] == "mcp.server"]
+        assert span["status"] == "internal_error"
+        assert span["data"]["mcp.tool.failure_kind"] == "expected"
+
     async def test_a_crash_is_reported_and_marked_unexpected(self, sentry_capture):
         sentry_events, sentry_transactions = sentry_capture
         """

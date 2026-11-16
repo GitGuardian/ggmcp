@@ -131,8 +131,10 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
         self.add_middleware(RequestLoggingContextMiddleware(self))
         # Outside ScopeFilteringMiddleware, so a 401 from the tools/list scope fetch is flagged too.
         self.add_middleware(DownstreamUnauthorizedMiddleware())
-        self.add_middleware(ScopeFilteringMiddleware(self))
+        # Outside ScopeFilteringMiddleware, so a call it refuses is logged and recorded on its
+        # span like any other failed call.
         self.add_middleware(ToolCallLoggingMiddleware())
+        self.add_middleware(ScopeFilteringMiddleware(self))
 
     @abstractmethod
     def get_personal_access_token(self) -> str | None:

@@ -257,12 +257,23 @@ class ScopeFilteringMiddleware(Middleware):
 
         Scopes come from the same per-token cache tools/list and the caller
         identity lookup use, so a call adds no API request while it is warm.
+        Every refusal is a ToolError, so it reaches the client as a failed tool
+        call and is logged and classified like one. A lookup failure keeps its
+        cause, so a rejected token still gets the 401 challenge.
         """
         tool_name = context.message.name
         if self._mcp_server._tool_scopes.get(tool_name):
-            missing = sorted(self._missing_scopes(tool_name, await self._mcp_server.get_scopes()))
+            try:
+                scopes = await self._mcp_server.get_scopes()
+            except DownstreamUnauthorizedError as exc:
+                raise ToolError(
+                    f"Tool '{tool_name}' was not run: the GitGuardian API rejected this token as expired, "
+                    "revoked, or invalid. Authenticate again."
+                ) from exc
+            except Exception as exc:
+                raise ToolError(f"Tool '{tool_name}' was not run: this token's scopes could not be checked.") from exc
+            missing = sorted(self._missing_scopes(tool_name, scopes))
             if missing:
-                logger.warning("tool_call_refused", extra={"tool": tool_name, "missing_scopes": missing})
                 raise ToolError(
                     f"Tool '{tool_name}' was not run: it needs the {', '.join(missing)} scope, which this "
                     "token does not have. Do not retry; authenticate with a token that has this scope."

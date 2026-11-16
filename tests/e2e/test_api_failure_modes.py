@@ -376,6 +376,39 @@ class TestOneRecordPerFailure:
         (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
         assert failed.levelno == logging.WARNING
 
+    async def test_a_token_rejected_by_the_scope_check_gets_a_401_and_logs_no_error(self, mcp_client, gg_api, caplog):
+        """
+        GIVEN a token the API rejects with 401 when a tool call looks up its scopes
+        WHEN list_sources is called
+        THEN the client gets the 401 challenge, nothing is logged at ERROR, and tool_call_failed is a warning
+        """
+        gg_api.get("/api_tokens/self").respond(status_code=HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+        sources_route = gg_api.get("/sources").respond(200, json=[])
+
+        with caplog.at_level(logging.WARNING):
+            response = await rpc(mcp_client, "tools/call", {"name": "list_sources", "arguments": {}})
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "resource_metadata=" in response.headers["www-authenticate"]
+        assert not sources_route.called
+        assert [r.getMessage() for r in caplog.records if r.levelno >= logging.ERROR] == []
+        (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert failed.levelno == logging.WARNING
+
+    async def test_a_scope_refusal_is_logged_once_as_a_failed_call(self, mcp_client, gg_api, mock_token_scopes, caplog):
+        """
+        GIVEN a scan-only token
+        WHEN a client calls a tool that needs incidents:write
+        THEN the refusal is logged once, as a tool_call_failed warning
+        """
+        mock_token_scopes(["scan"])
+
+        with caplog.at_level(logging.WARNING):
+            await call_tool(mcp_client, "manage_private_incident", {"incident_id": 77, "action": "reopen"})
+
+        outcomes = [r for r in caplog.records if r.getMessage().startswith("tool_call")]
+        assert [(r.getMessage(), r.levelno) for r in outcomes] == [("tool_call_failed", logging.WARNING)]
+
     async def test_an_unexpected_failure_logs_one_traceback(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, caplog
     ):
