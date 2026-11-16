@@ -14,6 +14,7 @@ from urllib.parse import parse_qs, urlparse
 from pydantic import BaseModel, Field
 from typing_extensions import override
 
+from .redirects import request_following_same_origin
 from .settings import get_settings
 
 # Configure logger
@@ -671,8 +672,10 @@ class GitGuardianOAuthClient:
                 "User-Agent": f"GitGuardian-MCP-Server/{self.token_name}",  # Include in user agent
             }
 
-            async with httpx.AsyncClient(follow_redirects=True) as client:
-                response = await client.post(token_url, data=token_params, headers=headers)
+            async with httpx.AsyncClient(follow_redirects=False) as client:
+                response = await request_following_same_origin(
+                    client, "POST", token_url, data=token_params, headers=headers
+                )
 
                 if response.status_code == 200:
                     token_data = response.json()
@@ -744,9 +747,11 @@ class GitGuardianOAuthClient:
         try:
             import httpx  # Import here to avoid circular imports
 
-            async with httpx.AsyncClient(follow_redirects=True) as client:
+            async with httpx.AsyncClient(follow_redirects=False) as client:
                 # Use the correct API endpoint with the full path
-                response = await client.get(
+                response = await request_following_same_origin(
+                    client,
+                    "GET",
                     f"{self.api_url}/api_tokens/self",
                     headers={"Authorization": f"Token {self.access_token}"},
                 )

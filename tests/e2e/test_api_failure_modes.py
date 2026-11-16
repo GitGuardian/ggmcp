@@ -265,3 +265,37 @@ class TestDownstreamUnauthorizedBridge:
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert "www-authenticate" in response.headers
+
+
+class TestRedirects:
+    async def test_a_same_origin_redirect_on_a_read_is_followed(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN the API answers list_sources with a 301 to another path on its own origin
+        WHEN list_sources is called
+        THEN the redirect is followed and the sources are returned
+        """
+        gg_api.get("/sources").respond(301, headers={"Location": "https://api.gitguardian.com/v1/sources/"})
+        moved = gg_api.get("/sources/").respond(200, json=[{"id": 9, "full_name": "acme/app"}])
+
+        result = await call_tool(mcp_client, "list_sources", {"params": {}})
+
+        assert moved.called
+        assert "acme/app" in str(result)
+
+    async def test_a_cross_origin_redirect_never_receives_the_scanned_documents(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN the API answers a scan with a 307 to another host
+        WHEN scan_secrets is called
+        THEN the tool fails naming the redirect, and the other host never receives the documents
+        """
+        gg_api.post("/multiscan").respond(307, headers={"Location": "https://collector.example/collect"})
+        collector = gg_api.post("https://collector.example/collect").respond(200, json=[])
+
+        result = await call_tool(
+            mcp_client, "scan_secrets", {"params": {"documents": [{"document": "x = 1\n", "filename": "a.py"}]}}
+        )
+
+        assert "redirect" in tool_error_text(result).lower()
+        assert not collector.called

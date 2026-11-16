@@ -47,6 +47,7 @@ class TestGitGuardianClient:
         """Test API request with no content response."""
         # Create a mock response with 204 status
         mock_response = MagicMock()
+        mock_response.next_request = None
         mock_response.status_code = 204
         # Use regular MagicMock for raise_for_status since it's not an async method
         mock_response.raise_for_status = MagicMock()
@@ -75,6 +76,7 @@ class TestGitGuardianClient:
 
         mock_request = MagicMock()
         mock_response = MagicMock()
+        mock_response.next_request = None
         mock_response.status_code = status_code
         mock_response.reason_phrase = "Unauthorized" if status_code == 401 else "Forbidden"
         mock_response.text = "auth error"
@@ -104,6 +106,7 @@ class TestGitGuardianClient:
         """Wire the mocked httpx client to raise a 400 on the next request."""
         mock_request = MagicMock()
         mock_response = MagicMock()
+        mock_response.next_request = None
         mock_response.status_code = 400
         mock_response.reason_phrase = "Bad Request"
         mock_response.text = "client error"
@@ -294,6 +297,7 @@ class TestCursorPagination:
         THEN it should return a ListResponse structure
         """
         mock_response = MagicMock()
+        mock_response.next_request = None
         mock_response.status_code = 200
         mock_response.json.return_value = [
             {"id": 1, "name": "token1"},
@@ -329,18 +333,23 @@ class TestCursorPagination:
         """
         # Mock three pages of results
         page1_response = MagicMock()
+        page1_response.next_request = None
         page1_response.status_code = 200
         page1_response.json.return_value = [{"id": 1}, {"id": 2}]
         page1_response.headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=page2>; rel="next"'}
         page1_response.raise_for_status = MagicMock()
 
         page2_response = MagicMock()
+
+        page2_response.next_request = None
         page2_response.status_code = 200
         page2_response.json.return_value = [{"id": 3}, {"id": 4}]
         page2_response.headers = {"link": '<https://api.gitguardian.com/v1/test?cursor=page3>; rel="next"'}
         page2_response.raise_for_status = MagicMock()
 
         page3_response = MagicMock()
+
+        page3_response.next_request = None
         page3_response.status_code = 200
         page3_response.json.return_value = [{"id": 5}]
         page3_response.headers = {}  # Last page

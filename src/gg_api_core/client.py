@@ -14,6 +14,7 @@ import httpx
 from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
+from gg_api_core.redirects import MAX_REDIRECTS, request_following_same_origin
 from gg_api_core.settings import get_settings
 from gg_api_core.version import APP_VERSION
 
@@ -604,11 +605,19 @@ class GitGuardianClient:
 
         while retry_count <= max_retries:
             try:
-                async with httpx.AsyncClient(follow_redirects=privacy_mode, timeout=DEFAULT_HTTP_TIMEOUT) as client:
+                async with httpx.AsyncClient(follow_redirects=False, timeout=DEFAULT_HTTP_TIMEOUT) as client:
                     response = await _track_api_request(
                         method,
                         endpoint,
-                        client.request(method, url, headers=headers, **kwargs),
+                        request_following_same_origin(
+                            client,
+                            method,
+                            url,
+                            headers=headers,
+                            # Requests that ask for unmasked values follow no redirect at all.
+                            max_redirects=MAX_REDIRECTS if privacy_mode else 0,
+                            **kwargs,
+                        ),
                         retried=retry_count > 0,
                     )
 
