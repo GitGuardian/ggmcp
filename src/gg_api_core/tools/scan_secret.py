@@ -38,39 +38,33 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
     Args:
         params: ScanSecretsParams model containing documents to scan
     """
-    try:
-        client = await get_client()
+    client = await get_client()
 
-        # Validate input documents
-        if not params.documents or not isinstance(params.documents, list):
-            raise ToolError("Documents parameter must be a non-empty list")
+    # Validate input documents
+    if not params.documents or not isinstance(params.documents, list):
+        raise ToolError("Documents parameter must be a non-empty list")
 
-        for i, doc in enumerate(params.documents):
-            if not isinstance(doc, dict) or "document" not in doc:
-                raise ToolError(f"Document at index {i} must be a dictionary with a 'document' field")
+    for i, doc in enumerate(params.documents):
+        if not isinstance(doc, dict) or "document" not in doc:
+            raise ToolError(f"Document at index {i} must be a dictionary with a 'document' field")
 
-        # Log the scan request (without exposing the full document contents)
-        safe_docs_log = []
-        for doc in params.documents:
-            doc_preview = (
-                doc.get("document", "")[:20] + "..." if len(doc.get("document", "")) > 20 else doc.get("document", "")
-            )
-            safe_docs_log.append(
-                {"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview}
-            )
+    # Log the scan request (without exposing the full document contents)
+    safe_docs_log = []
+    for doc in params.documents:
+        doc_preview = (
+            doc.get("document", "")[:20] + "..." if len(doc.get("document", "")) > 20 else doc.get("document", "")
+        )
+        safe_docs_log.append({"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview})
 
-        # Make the API call
-        result = await client.multiple_scan(params.documents)
+    # Make the API call
+    result = await client.multiple_scan(params.documents)
 
-        # Wrap the result in Pydantic model
-        if isinstance(result, list):
-            return ScanSecretsResult(scan_results=result)
-        elif isinstance(result, dict):
-            # If API returns a dict with scan_results key
-            return ScanSecretsResult(**result)
-        else:
-            # Fallback: wrap in scan_results
-            return ScanSecretsResult(scan_results=[result])
-    except Exception as e:
-        logger.exception(f"Error scanning for secrets: {str(e)}")
-        raise
+    # Wrap the result in Pydantic model
+    if isinstance(result, list):
+        return ScanSecretsResult(scan_results=result)
+    elif isinstance(result, dict):
+        # If API returns a dict with scan_results key
+        return ScanSecretsResult(**result)
+    else:
+        # Fallback: wrap in scan_results
+        return ScanSecretsResult(scan_results=[result])

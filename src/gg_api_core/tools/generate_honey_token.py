@@ -78,7 +78,6 @@ async def _most_recent_active_honeytoken(client: Any) -> dict[str, Any] | None:
             "Pass new_token=true to create a new one anyway."
         ) from e
     except Exception as e:
-        logger.exception(f"Honeytoken reuse lookup failed: {e}")
         raise ToolError(
             f"No honeytoken was created: looking up your existing honeytokens failed ({e}). "
             "Pass new_token=true to create a new one anyway."
@@ -133,5 +132,4 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         logger.warning(f"Honeytoken creation rejected ({e.response.status_code}): {detail}")
         raise ToolError(f"Could not create honeytoken: {detail}") from e
     except Exception as e:
-        logger.exception(f"Error generating honeytoken: {str(e)}")
         raise ToolError(f"Failed to generate honeytoken: {str(e)}")

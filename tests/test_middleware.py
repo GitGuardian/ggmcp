@@ -176,7 +176,7 @@ class TestToolCallLoggingMiddleware:
         """
         GIVEN a tool failing with a wrapped GitGuardian 400
         WHEN the failure is logged
-        THEN status, fault and error class are fields on that same line
+        THEN status, fault and error class are fields on that same line, a warning without a traceback
         """
         request = httpx.Request("GET", "https://api.gitguardian.com/v1/incidents/secrets")
         response = httpx.Response(400, json={"code": "invalid_severity"}, request=request)
@@ -184,7 +184,7 @@ class TestToolCallLoggingMiddleware:
         async def call_next(ctx):
             raise httpx.HTTPStatusError("bad request", request=request, response=response)
 
-        with caplog.at_level(logging.ERROR, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
             with pytest.raises(httpx.HTTPStatusError):
                 await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
 
@@ -193,6 +193,28 @@ class TestToolCallLoggingMiddleware:
         assert rec.fault == "client"
         assert rec.gg_error_code == "invalid_severity"
         assert rec.error_class == "httpx.HTTPStatusError"
+        assert rec.levelno == logging.WARNING
+        assert rec.failure_kind == "expected"
+        assert not rec.exc_info
+
+    async def test_an_unexpected_failure_is_an_error_with_its_traceback(self, caplog):
+        """
+        GIVEN a tool failing because of a bug
+        WHEN the failure is logged
+        THEN it is one error line carrying the traceback
+        """
+
+        async def call_next(ctx):
+            raise KeyError("results")
+
+        with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
+            with pytest.raises(KeyError):
+                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+
+        (rec,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert rec.levelno == logging.ERROR
+        assert rec.failure_kind == "unexpected"
+        assert rec.exc_info
 
     async def test_downstream_stats_do_not_leak_between_calls(self, caplog):
         """

@@ -153,5 +153,4 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
             has_more=response.get("has_more", False),
         )
     except Exception as e:
-        logger.exception(f"Error listing sources: {str(e)}")
         raise ToolError(str(e))

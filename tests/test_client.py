@@ -119,35 +119,25 @@ class TestGitGuardianClient:
         mock_httpx_client.request = AsyncMock(return_value=mock_response)
         return async_client_instance
 
-    async def test_request_client_error_logged_as_error_by_default(self, client, mock_httpx_client, caplog):
-        """A 4xx is logged at ERROR by default, so unexpected client errors stay visible."""
+    async def test_an_api_refusal_is_logged_once_without_a_traceback(self, client, mock_httpx_client, caplog):
+        """
+        GIVEN the API refusing a request with a 400
+        WHEN the client raises it
+        THEN it logs one warning naming the status, with no traceback: tool_call_failed owns the
+        failure's record, at the tool boundary
+        """
         import logging
 
         async_client_instance = self._mock_400(mock_httpx_client)
         with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
+            with caplog.at_level(logging.DEBUG, logger="gg_api_core.client"):
                 with pytest.raises(httpx.HTTPStatusError):
                     await client._request("GET", "/test")
 
-        assert [r for r in caplog.records if r.levelno >= logging.ERROR], "default 4xx should be logged at ERROR"
-
-    async def test_request_client_error_warning_when_expected(self, client, mock_httpx_client, caplog):
-        """With the status listed in expected_client_errors (e.g. honeytoken creation
-        passing [400]), that 4xx is logged at warning, not error, so a handled rejection
-        like a duplicate-name 400 is not Sentry noise (GIM-MCP-SERVER-3 / GIM-MCP-SERVER-Z)."""
-        import logging
-
-        async_client_instance = self._mock_400(mock_httpx_client)
-        with patch("httpx.AsyncClient", return_value=async_client_instance):
-            with caplog.at_level(logging.WARNING, logger="gg_api_core.client"):
-                with pytest.raises(httpx.HTTPStatusError):
-                    await client._request("POST", "/test", expected_client_errors=[400])
-
-        errors = [r for r in caplog.records if r.levelno >= logging.ERROR]
-        assert not errors, f"an expected 4xx should not be logged at ERROR level: {errors}"
-        assert any(r.levelno == logging.WARNING and "400" in r.getMessage() for r in caplog.records), (
-            "expected a WARNING log mentioning the 400 status code"
-        )
+        records = [r for r in caplog.records if r.levelno >= logging.WARNING]
+        assert [r.levelno for r in records] == [logging.WARNING]
+        assert "400" in records[0].getMessage()
+        assert not records[0].exc_info
 
     @pytest.mark.asyncio
     async def test_create_honeytoken(self, client):
@@ -176,7 +166,6 @@ class TestGitGuardianClient:
                     "type": "AWS",
                     "custom_tags": [{"key": "test", "value": "value"}],
                 },
-                expected_client_errors=[400],
                 privacy_mode=False,
             )
 

@@ -24,5 +24,4 @@ async def get_remediation_workflow() -> GetRemediationWorkflowResult:
 
         return GetRemediationWorkflowResult(workflow=response)
     except Exception as e:
-        logger.exception(f"Error retrieving remediation workflow: {str(e)}")
         raise ToolError(str(e))

@@ -68,5 +68,4 @@ async def manage_incident_comment(params: ManageIncidentCommentParams) -> dict[s
             comment=params.comment,
         )
     except Exception as e:
-        logger.exception(f"Error managing comment on incident {params.incident_id}: {str(e)}")
         raise ToolError(f"Error: {str(e)}")

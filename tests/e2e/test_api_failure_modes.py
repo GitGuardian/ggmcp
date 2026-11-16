@@ -2,6 +2,7 @@
 refusal messages, 500 retries, network failures, and the downstream-401 re-auth bridge.
 """
 
+import logging
 from http import HTTPStatus
 
 import httpx
@@ -356,3 +357,37 @@ class TestRedirects:
 
         assert "redirect" in tool_error_text(result).lower()
         assert not collector.called
+
+
+class TestOneRecordPerFailure:
+    async def test_an_api_refusal_logs_no_error_and_no_traceback(self, mcp_client, gg_api, mock_token_scopes, caplog):
+        """
+        GIVEN the API refusing get_incident with a 404
+        WHEN the tool is called
+        THEN nothing is logged at ERROR, no record carries a traceback, and tool_call_failed is a warning
+        """
+        gg_api.get("/incidents/secrets/77").respond(404, json={"detail": "Not found."})
+
+        with caplog.at_level(logging.WARNING):
+            await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+
+        assert [r.getMessage() for r in caplog.records if r.levelno >= logging.ERROR] == []
+        assert [r.getMessage() for r in caplog.records if r.exc_info] == []
+        (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert failed.levelno == logging.WARNING
+
+    async def test_an_unexpected_failure_logs_one_traceback(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, caplog
+    ):
+        """
+        GIVEN the API failing get_incident with a 500 on every retry
+        WHEN the tool is called
+        THEN exactly one record carries the traceback: the tool_call_failed error
+        """
+        gg_api.get("/incidents/secrets/77").respond(500, json={"detail": "boom"})
+
+        with caplog.at_level(logging.WARNING):
+            await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+
+        with_traceback = [r for r in caplog.records if r.exc_info]
+        assert [(r.getMessage(), r.levelno) for r in with_traceback] == [("tool_call_failed", logging.ERROR)]

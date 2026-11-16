@@ -23,7 +23,7 @@ from gg_api_core.log_context import (
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
-from gg_api_core.sentry_integration import capture_tool_failure, set_sentry_request_id
+from gg_api_core.sentry_integration import capture_tool_failure, is_expected_tool_failure, set_sentry_request_id
 from gg_api_core.settings import get_settings
 from gg_api_core.urls import derive_public_api_url
 
@@ -308,11 +308,19 @@ class ToolCallLoggingMiddleware(Middleware):
             try:
                 result = await call_next(context)
             except Exception as exc:
-                logger.exception(
+                # The one record of a failed call. An expected failure (a refusal the
+                # caller can act on) is a warning without a traceback; an unexpected one
+                # is an error and carries the traceback, logged nowhere else.
+                expected = is_expected_tool_failure(exc)
+                logger.log(
+                    logging.WARNING if expected else logging.ERROR,
                     "tool_call_failed",
+                    exc_info=not expected,
                     extra={
                         "tool": tool,
                         "status": "error",
+                        "failure_kind": "expected" if expected else "unexpected",
+                        "error": str(exc),
                         "duration_ms": round((time.perf_counter() - start) * 1000),
                         **classify_failure(exc),
                         **downstream.as_log_fields(),

@@ -45,5 +45,4 @@ async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
 
         return GetIncidentResult(incident=response)
     except Exception as e:
-        logger.exception(f"Error retrieving incident {params.incident_id}: {str(e)}")
         raise ToolError(str(e))

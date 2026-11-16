@@ -111,5 +111,4 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             return AssignIncidentResult(incident_id=params.incident_id, assignee_id=response_assignee_id, success=True)
 
     except Exception as e:
-        logger.exception(f"Error assigning incident {params.incident_id}: {str(e)}")
         raise ToolError(str(e))

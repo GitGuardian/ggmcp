@@ -582,7 +582,6 @@ class GitGuardianClient:
         endpoint: str,
         *,
         privacy_mode: bool = True,
-        expected_client_errors: Sequence[int] = (),
         return_response: bool = False,
         **kwargs: Any,
     ) -> Any:
@@ -593,10 +592,6 @@ class GitGuardianClient:
             endpoint: API endpoint path
             privacy_mode: Mask credentials in API responses. Defaults to True.
                 Opt-out requests do not follow redirects or log response bodies.
-            expected_client_errors: Status codes (e.g. [400]) that this caller handles
-                itself and surfaces to the user; they are logged at warning instead of
-                exception so they don't become Sentry noise. List only the codes the
-                caller truly expects — any other error stays visible via logger.exception.
             return_response: Return the successful httpx.Response instead of its parsed
                 body, for callers that also need the headers.
             **kwargs: Additional arguments to pass to requests
@@ -682,7 +677,7 @@ class GitGuardianClient:
 
                     return response.json()
                 except json.JSONDecodeError as e:
-                    logger.exception(f"Failed to parse JSON response: {str(e)}")
+                    logger.warning(f"Failed to parse JSON response: {str(e)}")
                     if privacy_mode:
                         logger.debug(f"Raw response content: {response.content!r}")
                     raise
@@ -712,34 +707,25 @@ class GitGuardianClient:
                                     retry_count += 1
                                     continue
                                 else:
-                                    logger.exception("Could not refresh token, request will fail")
+                                    logger.warning("Could not refresh token, request will fail")
                         except (json.JSONDecodeError, AttributeError):
                             # If we can't parse the error response, continue with normal error handling
                             pass
 
-                # 401/403 from the GitGuardian API are expected, handled client
-                # conditions — the caller's token is invalid/expired/revoked or
-                # lacks the required scope — not server faults. Log them at warning
-                # level so they do not surface as Sentry errors (logger.exception
-                # would). The 401 path still raises DownstreamUnauthorizedError,
-                # which middleware rewrites to an MCP 401 so clients can re-auth.
+                # One line, no traceback: the failure is logged with its traceback once,
+                # as tool_call_failed, when it reaches the tool boundary. The 401 path
+                # still raises DownstreamUnauthorizedError, which middleware rewrites to
+                # an HTTP 401 so clients can re-authenticate.
                 if e.response.status_code in (401, 403):
                     logger.warning(
                         f"GitGuardian API returned {e.response.status_code} "
                         f"{e.response.reason_phrase} for {url} - token may be invalid, "
                         "expired, revoked, or lacking the required scope"
                     )
-                elif e.response.status_code in expected_client_errors:
-                    # This caller declared this status as one it handles itself (e.g. a
-                    # duplicate-name 400 on honeytoken creation) and surfaces to the user,
-                    # so it is an expected client condition, not a server fault. Warn
-                    # instead of logger.exception so it doesn't become Sentry noise. Any
-                    # status not listed still hits logger.exception below.
+                else:
                     logger.warning(
                         f"GitGuardian API returned {e.response.status_code} {e.response.reason_phrase} for {url}"
                     )
-                else:
-                    logger.exception(f"HTTP error occurred: {e.response.status_code} - {e.response.reason_phrase}")
                 if privacy_mode:
                     logger.debug(f"Error response content: {e.response.text}")
                 if e.response.status_code == 401:
@@ -750,10 +736,10 @@ class GitGuardianClient:
                     describe_api_error(e.response), request=e.request, response=e.response
                 ) from e
             except httpx.RequestError as e:
-                logger.exception(f"Request error occurred: {str(e)}")
+                logger.warning(f"Request error occurred: {str(e)}")
                 raise
             except Exception as e:
-                logger.exception(f"Unexpected error during API request: {str(e)}")
+                logger.warning(f"Unexpected error during API request: {str(e)}")
                 raise
 
         # This should never be reached, but required for type checking
@@ -1718,4 +1704,4 @@ class GitGuardianClient:
 
         # The generate_honeytoken tool handles a duplicate-name 400 and surfaces it to
         # the caller, so it should not be logged as a server fault.
-        return await self._request_post("/honeytokens", json=data, expected_client_errors=[400], privacy_mode=False)
+        return await self._request_post("/honeytokens", json=data, privacy_mode=False)

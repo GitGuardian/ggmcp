@@ -33,5 +33,4 @@ async def get_public_incident(params: GetPublicIncidentParams) -> GetPublicIncid
         response = await client.get_public_incident(incident_id=params.incident_id)
         return GetPublicIncidentResult(incident=response)
     except Exception as e:
-        logger.exception(f"Error retrieving public incident {params.incident_id}: {str(e)}")
         raise ToolError(str(e))
