@@ -1033,7 +1033,10 @@ class GitGuardianClient:
             if "document" not in doc:
                 raise ValueError(f"Document at index {i} is missing required 'document' field")
 
-        return await self._request_post("/multiscan", json=documents)
+        # Without all_secrets the API drops a secret whose incident was resolved or ignored,
+        # so a file still holding it would scan clean. With it, such a break comes back
+        # flagged with is_excluded and exclude_reason.
+        return await self._request_post("/multiscan", json=documents, params={"all_secrets": "true"})
 
     # Secret Incident management endpoints
     async def assign_incident(

@@ -57,3 +57,30 @@ class TestScanSecrets:
 
         assert "non-empty list" in tool_error_text(result)
         assert not route.called
+
+
+class TestExcludedSecrets:
+    async def test_a_secret_with_a_resolved_or_ignored_incident_is_still_reported(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN a document holding a secret whose incident was ignored in GitGuardian
+        WHEN scan_secrets is called
+        THEN the scan asks the API for all secrets, and the break comes back flagged as excluded
+        """
+        excluded_break = {
+            "type": "AWS Keys",
+            "policy": "Secrets detection",
+            "matches": [{"type": "apikey", "match": "AKIA...", "line_start": 1}],
+            "is_excluded": True,
+            "exclude_reason": "Ignored in dashboard",
+        }
+        scan_result = {"policy_break_count": 1, "policies": ["Secrets detection"], "policy_breaks": [excluded_break]}
+        route = gg_api.post("/multiscan").respond(200, json=[scan_result])
+
+        result = await call_tool(
+            mcp_client, "scan_secrets", {"params": {"documents": [{"document": "k = 1\n", "filename": "a.py"}]}}
+        )
+
+        assert route.calls.last.request.url.params["all_secrets"] == "true"
+        assert tool_output(result) == {"scan_results": [scan_result]}

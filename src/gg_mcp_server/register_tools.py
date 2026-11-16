@@ -112,6 +112,10 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         Each document must have a 'document' field and can optionally include a 'filename' field for better context.
         Do not send documents that are not related to the codebase, only send files that are part of the codebase.
         Do not send documents that are in the .gitignore file.
+
+        Every secret found is reported, including ones whose GitGuardian incident was already resolved
+        or ignored. Those policy breaks have is_excluded=true and an exclude_reason: the secret is still
+        present in the scanned content, so do not report the content as clean.
         """,
         required_scopes=["scan"],
         annotations=READ_ONLY,
