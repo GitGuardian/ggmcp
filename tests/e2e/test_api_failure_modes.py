@@ -266,6 +266,63 @@ class TestDownstreamUnauthorizedBridge:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert "www-authenticate" in response.headers
 
+    async def test_the_oauth_proxy_challenge_still_names_its_metadata(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN the OAuth proxy deployment and a token the API rejects
+        WHEN a tool is called
+        THEN the 401 challenge still points at the authorization metadata, not a bare invalid_token
+        """
+        gg_api.get("/sources").respond(status_code=HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+
+        response = await rpc(mcp_client, "tools/call", {"name": "list_sources", "arguments": {}})
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "resource_metadata=" in response.headers["www-authenticate"]
+
+
+class TestRawBearerRejectedToken:
+    """Raw-bearer mode (no OAuth proxy): each request brings its own PAT."""
+
+    async def test_a_token_the_api_rejects_gets_a_401_on_a_tool_call(
+        self, raw_bearer_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN a raw-bearer server and a PAT the API rejects with 401
+        WHEN a tool is called
+        THEN the HTTP status is 401 with an invalid_token challenge, as for a missing token
+        """
+        gg_api.get("/sources").respond(status_code=HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+
+        response = await rpc(raw_bearer_client, "tools/call", {"name": "list_sources", "arguments": {}})
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.headers["www-authenticate"] == 'Bearer error="invalid_token"'
+
+    async def test_a_token_the_api_rejects_gets_a_401_on_tools_list(self, raw_bearer_client, gg_api):
+        """
+        GIVEN a raw-bearer server and a PAT the API rejects when its scopes are looked up
+        WHEN the tools are listed
+        THEN the HTTP status is 401
+        """
+        gg_api.get("/api_tokens/self").respond(status_code=HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+
+        response = await rpc(raw_bearer_client, "tools/list", {})
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+    async def test_a_valid_token_is_unaffected(self, raw_bearer_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a raw-bearer server and a valid PAT
+        WHEN a tool is called
+        THEN it answers 200 with no challenge
+        """
+        gg_api.get("/sources").respond(200, json=[])
+
+        response = await rpc(raw_bearer_client, "tools/call", {"name": "list_sources", "arguments": {}})
+
+        assert response.status_code == HTTPStatus.OK
+        assert "www-authenticate" not in response.headers
+
 
 class TestRedirects:
     async def test_a_same_origin_redirect_on_a_read_is_followed(self, mcp_client, gg_api, mock_token_scopes):

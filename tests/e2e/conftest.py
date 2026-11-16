@@ -102,6 +102,18 @@ async def mcp_client(remote_app):
 
 
 @pytest.fixture
+async def raw_bearer_client(remote_env, monkeypatch, gg_api):
+    """An httpx client against the HTTP server in raw-bearer mode: no OAuth proxy,
+    each request carries its own PAT in the Authorization header."""
+    monkeypatch.delenv("MCP_OAUTH_PROXY_ENABLED", raising=False)
+    app = build_http_app(build_server())
+    async with _run_lifespan(app):
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url=MCP_BASE_URL) as client:
+            yield client
+
+
+@pytest.fixture
 def no_retry_delay(monkeypatch):
     """Make retry tests instant by patching asyncio.sleep to yield without waiting.
 

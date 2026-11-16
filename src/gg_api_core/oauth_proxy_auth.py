@@ -107,6 +107,19 @@ class PassThroughTokenVerifier(TokenVerifier):
     async def verify_token(self, token: str) -> AccessToken | None:
         return AccessToken(token=token, client_id="unknown", scopes=[])
 
+    @override
+    def get_middleware(self) -> list[Middleware]:
+        """Answer a token the GitGuardian API rejects with HTTP 401, as a missing token is.
+
+        Without this, the API's 401 reached the client as a tool error inside an
+        HTTP 200, so a client holding a revoked or expired token never learned it.
+        """
+        middleware = super().get_middleware()
+        middleware.append(
+            Middleware(TranslateDownstreamUnauthorizedMiddleware, www_authenticate='Bearer error="invalid_token"')
+        )
+        return middleware
+
 
 class TranslateDownstreamUnauthorizedMiddleware:
     """Convert flagged tool responses into HTTP 401.
@@ -117,8 +130,11 @@ class TranslateDownstreamUnauthorizedMiddleware:
     ensures ``WWW-Authenticate`` is present.
     """
 
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app: ASGIApp, www_authenticate: str | None = None):
         self.app = app
+        # Challenge to send when the 401 carries none. The OAuth proxy leaves it unset:
+        # AdvertiseAuthorizationServerMetadataMiddleware builds its own.
+        self.www_authenticate = www_authenticate
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -131,6 +147,10 @@ class TranslateDownstreamUnauthorizedMiddleware:
         async def send_wrapper(message: Message) -> None:
             if message["type"] == "http.response.start" and flag[0]:
                 message["status"] = 401
+                headers = list(message.get("headers", []))
+                if self.www_authenticate and not any(name.lower() == b"www-authenticate" for name, _ in headers):
+                    headers.append((b"www-authenticate", self.www_authenticate.encode()))
+                    message["headers"] = headers
             await send(message)
 
         try:
