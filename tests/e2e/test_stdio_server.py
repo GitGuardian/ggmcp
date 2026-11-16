@@ -158,6 +158,31 @@ class TestStartupScopeCache:
         assert_authenticated_request(scope_route, STDIO_PAT)
         assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
 
+    async def test_a_scope_hidden_tool_is_refused_before_reaching_the_api(
+        self,
+        stdio_env: None,
+        gg_api: Any,
+        mock_token_scopes: Any,
+    ) -> None:
+        """
+        GIVEN a stdio server whose token only has the scan scope
+        WHEN the client calls an incident write tool that tools/list hides
+        THEN the call fails naming the missing scope, and the API is never asked to act
+        """
+        mock_token_scopes(["scan"])
+        write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json=INCIDENT)
+
+        async with Client(build_server()) as client:
+            result = await client.call_tool(
+                "manage_private_incident",
+                {"params": {"incident_id": 77, "action": "reopen"}},
+                raise_on_error=False,
+            )
+
+        assert result.is_error
+        assert "incidents:write" in result.content[0].text
+        assert not write_route.called
+
 
 class TestSingleTenantSelfHealing:
     """Retry boundaries for authentication failures in single-tenant stdio."""

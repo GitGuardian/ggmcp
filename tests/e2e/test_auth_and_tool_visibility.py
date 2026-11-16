@@ -27,6 +27,7 @@ from tests.e2e.harness import (
     rpc,
     rpc_result,
     token_info,
+    tool_error_text,
     tool_output,
 )
 
@@ -318,22 +319,51 @@ class TestScopeBasedToolVisibility:
 
 
 class TestPerRequestScopeCost:
-    async def test_tool_dispatch_does_not_fetch_scopes(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_tool_dispatch_reuses_the_cached_scopes(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the stateless remote deployment
-        WHEN the same tool is called twice
-        THEN neither dispatch resolves scopes upstream
+        WHEN the same tool is called twice with one token
+        THEN the scopes are looked up upstream once, then served from the token's cache entry
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
         await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
         await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
 
-        # Scope filtering only runs on tools/list. Per-call scope enforcement
-        # is delegated to the GitGuardian API rejecting tokens that lack the
-        # scope (see test_a_scope_hidden_tool_is_still_callable).
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
-        assert scope_fetches == []
+        assert len(scope_fetches) == 1
+
+
+class TestScopeEnforcementOnCall:
+    async def test_a_scope_hidden_tool_is_refused_before_reaching_the_api(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a scan-only token, for which incident write tools are hidden
+        WHEN a client calls one of those tools directly
+        THEN the call fails naming the missing scope, and the API is never asked to act
+        """
+        mock_token_scopes(["scan"])
+        write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json={"id": 77})
+
+        result = await call_tool(
+            mcp_client, "manage_private_incident", {"params": {"incident_id": 77, "action": "reopen"}}
+        )
+
+        assert "incidents:write" in tool_error_text(result)
+        assert not write_route.called
+
+    async def test_a_tool_the_scopes_allow_still_runs(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a token with the incidents:read scope
+        WHEN a client calls get_incident
+        THEN the call reaches the API and returns its result
+        """
+        mock_token_scopes(["incidents:read"])
+        route = gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
+
+        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+
+        assert route.called
+        assert tool_output(result) == {"incident": {"id": 77}}
 
 
 class TestExpiredTokenOnToolsList:

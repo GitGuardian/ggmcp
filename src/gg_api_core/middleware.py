@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 import mcp.types as mt
 import structlog
+from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_http_headers
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import Tool, ToolResult
@@ -208,10 +209,13 @@ def _caused_by_downstream_401(exc: BaseException) -> bool:
 
 
 class ScopeFilteringMiddleware(Middleware):
-    """Middleware to filter tools based on token scopes."""
+    """Hide the tools a token's scopes do not allow, and refuse calls to them."""
 
     def __init__(self, mcp_server: "AbstractGitGuardianFastMCP"):
         self._mcp_server = mcp_server
+
+    def _missing_scopes(self, tool_name: str, scopes: set[str]) -> set[str]:
+        return self._mcp_server._tool_scopes.get(tool_name, set()) - scopes
 
     @override
     async def on_list_tools(
@@ -228,13 +232,10 @@ class ScopeFilteringMiddleware(Middleware):
         filtered_tools: list[Tool] = []
         hidden: list[str] = []
         for tool in all_tools:
-            tool_name = tool.name
-            required_scopes = self._mcp_server._tool_scopes.get(tool_name, set())
-
-            if not required_scopes or required_scopes.issubset(scopes):
-                filtered_tools.append(tool)
+            if self._missing_scopes(tool.name, scopes):
+                hidden.append(tool.name)
             else:
-                hidden.append(tool_name)
+                filtered_tools.append(tool)
 
         logger.info(
             "list_tools",
@@ -245,6 +246,28 @@ class ScopeFilteringMiddleware(Middleware):
             },
         )
         return filtered_tools
+
+    @override
+    async def on_call_tool(
+        self,
+        context: MiddlewareContext[mt.CallToolRequestParams],
+        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+    ) -> ToolResult:
+        """Refuse a call to a tool the token's scopes hide, before it runs or reaches the API.
+
+        Scopes come from the same per-token cache tools/list and the caller
+        identity lookup use, so a call adds no API request while it is warm.
+        """
+        tool_name = context.message.name
+        if self._mcp_server._tool_scopes.get(tool_name):
+            missing = sorted(self._missing_scopes(tool_name, await self._mcp_server.get_scopes()))
+            if missing:
+                logger.warning("tool_call_refused", extra={"tool": tool_name, "missing_scopes": missing})
+                raise ToolError(
+                    f"Tool '{tool_name}' was not run: it needs the {', '.join(missing)} scope, which this "
+                    "token does not have. Do not retry; authenticate with a token that has this scope."
+                )
+        return await call_next(context)
 
 
 def _result_shape(result: Any) -> dict[str, Any]:
