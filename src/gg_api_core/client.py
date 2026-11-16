@@ -595,15 +595,6 @@ class GitGuardianClient:
         if "params" in kwargs and kwargs["params"]:
             logger.debug(f"Request params: {kwargs['params']}")
 
-        # Log json body if present (without sensitive details)
-        if "json" in kwargs and kwargs["json"]:
-            # Create a copy to avoid modifying the original
-            safe_json = dict(kwargs["json"])
-            # Redact sensitive fields
-            for key in safe_json:
-                if any(sensitive in key.lower() for sensitive in ["token", "key", "secret", "password", "auth"]):
-                    safe_json[key] = "[REDACTED]"
-
         headers = self._base_headers(privacy_mode=privacy_mode)
 
         headers.update(kwargs.pop("headers", {}))

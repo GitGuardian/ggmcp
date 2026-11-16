@@ -22,24 +22,28 @@ SCAN_RESULT = {
 
 
 class TestScanSecrets:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: request logging crashes when a scan document has no filename",
+    @pytest.mark.parametrize(
+        "documents",
+        [
+            pytest.param([{"document": "x = 1\n"}], id="no-filename"),
+            pytest.param([{"document": "x = 1\n", "filename": "a.py", "language": "python"}], id="extra-key"),
+            pytest.param([{"document": "x = 1\n", "filename": "a.py"}, {"document": "y = 2\n"}], id="mixed-batch"),
+        ],
     )
-    async def test_document_without_filename_is_scanned(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_document_of_any_shape_is_scanned(self, mcp_client, gg_api, mock_token_scopes, documents):
         """
-        GIVEN a document dict carrying only the document key
+        GIVEN documents without a filename, with an extra key, or mixed in one batch
         WHEN scan_secrets is called
-        THEN the document is sent to the API and its result is returned
+        THEN every document is sent to the API and the results are returned
         """
-        route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT])
-        documents = [{"document": "x = 1\n"}]
+        results = [SCAN_RESULT] * len(documents)
+        route = gg_api.post("/multiscan").respond(200, json=results)
 
         result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
 
         assert route.called
         assert sent_body(route) == documents
-        assert tool_output(result) == {"scan_results": [SCAN_RESULT]}
+        assert tool_output(result) == {"scan_results": results}
 
     async def test_empty_document_list_is_rejected_without_an_api_call(self, mcp_client, gg_api, mock_token_scopes):
         """
