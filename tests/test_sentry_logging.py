@@ -174,7 +174,7 @@ class TestSentryCaptureOwnership:
         """
         GIVEN full trace sampling and a real MCP tool that raises an exception
         WHEN it is called through the middleware stack
-        THEN the tool's mcp.server span is marked as an error result
+        THEN the tool's mcp.server span is marked as an error result with a failed status
         """
         mcp = get_mcp_server("Sentry span test")
         mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
@@ -194,6 +194,31 @@ class TestSentryCaptureOwnership:
         (span,) = [span for span in transaction["spans"] if span["op"] == "mcp.server"]
         assert span["data"]["mcp.tool.name"] == "failing_tool"
         assert span["data"]["mcp.tool.result.is_error"] is True
+        assert span["status"] == "internal_error"
+
+    async def test_successful_tool_call_keeps_its_mcp_span_ok(self, sentry_transactions):
+        """
+        GIVEN full trace sampling and a real MCP tool that returns normally
+        WHEN it is called through the middleware stack
+        THEN the tool's mcp.server span is neither flagged nor failed
+        """
+        mcp = get_mcp_server("Sentry span test")
+        mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
+        mcp.get_token_info = AsyncMock(return_value={})
+
+        @mcp.tool(name="working_tool")
+        async def working_tool():
+            return "done"
+
+        with sentry_sdk.start_transaction(name="tool-success"):
+            async with Client(mcp) as client:
+                await client.call_tool("working_tool", {})
+        sentry_sdk.flush()
+
+        (transaction,) = sentry_transactions
+        (span,) = [span for span in transaction["spans"] if span["op"] == "mcp.server"]
+        assert "mcp.tool.result.is_error" not in span["data"]
+        assert span.get("status") in (None, "ok")
 
     def test_rendered_traceback_remains_scrubbed(self, sentry_events, capsys):
         """

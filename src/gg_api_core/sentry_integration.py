@@ -19,9 +19,11 @@ from typing import TYPE_CHECKING, Any
 
 try:
     import sentry_sdk
+    from sentry_sdk.consts import SPANSTATUS
     from sentry_sdk.integrations.logging import LoggingIntegration
 except ImportError:
     sentry_sdk = None
+    SPANSTATUS = None
     LoggingIntegration = None
 
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
@@ -220,16 +222,20 @@ def capture_tool_failure(exception: BaseException) -> None:
 
     FastMCP returns a tool failure to the protocol layer as an ``isError``
     result instead of raising it, so MCPIntegration neither captures the
-    exception nor flags its ``mcp.server`` span. Both happen here instead.
-    An exception that does escape to MCPIntegration is the same object, which
-    Sentry's default deduplication drops, so a failure is reported once.
+    exception nor flags its ``mcp.server`` span, and the span ends with an
+    ``ok`` status. All three happen here instead: the span is flagged and
+    given the ``internal_error`` status MCPIntegration sets on a raised
+    exception. An exception that does escape to MCPIntegration is the same
+    object, which Sentry's default deduplication drops, so a failure is
+    reported once.
     """
-    if sentry_sdk is None:
+    if sentry_sdk is None or SPANSTATUS is None:
         return
     try:
         span = sentry_sdk.get_current_span()
         if span is not None:
             span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)
+            span.set_status(SPANSTATUS.INTERNAL_ERROR)
         sentry_sdk.capture_exception(exception)
     except Exception as exc:
         logger.debug("Failed to report tool failure to Sentry: %s", exc)
