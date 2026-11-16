@@ -26,6 +26,10 @@ except ImportError:
     SPANSTATUS = None
     LoggingIntegration = None
 
+import httpx
+from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ValidationError as ArgumentValidationError
+
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
 from .settings import SentrySettings
 
@@ -39,6 +43,10 @@ _REQUEST_ID_FIELD = "request_id"
 _MCP_REQUEST_ARGUMENT_PREFIX = "mcp.request.argument."
 # Span attribute MCPIntegration uses to mark a failed tool call.
 _MCP_TOOL_RESULT_IS_ERROR = "mcp.tool.result.is_error"
+# "expected" (a refusal the caller can act on) or "unexpected" (a defect to fix).
+_MCP_TOOL_FAILURE_KIND = "mcp.tool.failure_kind"
+# 4xx answers that say the API is overloaded or slow rather than that the request was wrong.
+_UPSTREAM_TROUBLE_STATUSES = frozenset({408, 429})
 _SENTRY_CUSTOM_DATA_KEYS = ("contexts", "extra")
 # Query strings carry tool arguments (users paste secrets into `search`) and OAuth
 # parameters, and request bodies carry the OAuth token form. Neither reaches Sentry:
@@ -217,25 +225,60 @@ def set_sentry_request_id(request_id: str) -> None:
         logger.debug("Failed to preserve request ID for Sentry: %s", exc)
 
 
+def _exception_chain(exception: BaseException) -> list[BaseException]:
+    """The exception followed by its causes, outermost first."""
+    chain: list[BaseException] = []
+    current: BaseException | None = exception
+    while current is not None and all(current is not seen for seen in chain):
+        chain.append(current)
+        current = current.__cause__ or current.__context__
+    return chain
+
+
+def is_expected_tool_failure(exception: BaseException) -> bool:
+    """Whether a failed tool call is a refusal the caller can act on rather than a defect.
+
+    Expected: invalid arguments, a ToolError a tool raises on purpose (one with
+    no underlying exception), and a 4xx answer from the API other than 408 and
+    429, the expired-token 401 included. Everything else is unexpected: a bug
+    in our code, a timeout, a 5xx after retries, rate limiting, or a refused
+    cross-origin redirect.
+    """
+    chain = _exception_chain(exception)
+    if any(isinstance(link, ArgumentValidationError) for link in chain):
+        return True
+    root = chain[-1]
+    if isinstance(root, httpx.HTTPStatusError):
+        status = root.response.status_code
+        return 400 <= status < 500 and status not in _UPSTREAM_TROUBLE_STATUSES
+    return type(root) is ToolError
+
+
 def capture_tool_failure(exception: BaseException) -> None:
-    """Report a failed tool call to Sentry.
+    """Record a failed tool call on its span, and report it to Sentry when it is unexpected.
 
     FastMCP returns a tool failure to the protocol layer as an ``isError``
     result instead of raising it, so MCPIntegration neither captures the
     exception nor flags its ``mcp.server`` span, and the span ends with an
-    ``ok`` status. All three happen here instead: the span is flagged and
-    given the ``internal_error`` status MCPIntegration sets on a raised
-    exception. An exception that does escape to MCPIntegration is the same
-    object, which Sentry's default deduplication drops, so a failure is
+    ``ok`` status. Here every failed call's span is flagged, marked expected or
+    unexpected, and given the ``internal_error`` status MCPIntegration sets on
+    a raised exception, so span failure rates count every failure. Only an
+    unexpected failure becomes a Sentry error event: an expected one is the
+    API or the server correctly refusing a request, and reporting those would
+    bury the defects. An exception that does escape to MCPIntegration is the
+    same object, which Sentry's default deduplication drops, so a failure is
     reported once.
     """
     if sentry_sdk is None or SPANSTATUS is None:
         return
     try:
+        expected = is_expected_tool_failure(exception)
         span = sentry_sdk.get_current_span()
         if span is not None:
             span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)
+            span.set_data(_MCP_TOOL_FAILURE_KIND, "expected" if expected else "unexpected")
             span.set_status(SPANSTATUS.INTERNAL_ERROR)
-        sentry_sdk.capture_exception(exception)
+        if not expected:
+            sentry_sdk.capture_exception(exception)
     except Exception as exc:
         logger.debug("Failed to report tool failure to Sentry: %s", exc)

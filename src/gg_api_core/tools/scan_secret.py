@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.utils import get_client
@@ -42,11 +43,11 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
 
         # Validate input documents
         if not params.documents or not isinstance(params.documents, list):
-            raise ValueError("Documents parameter must be a non-empty list")
+            raise ToolError("Documents parameter must be a non-empty list")
 
         for i, doc in enumerate(params.documents):
             if not isinstance(doc, dict) or "document" not in doc:
-                raise ValueError(f"Document at index {i} must be a dictionary with a 'document' field")
+                raise ToolError(f"Document at index {i} must be a dictionary with a 'document' field")
 
         # Log the scan request (without exposing the full document contents)
         safe_docs_log = []

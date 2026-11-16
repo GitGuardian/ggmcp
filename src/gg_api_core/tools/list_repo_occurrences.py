@@ -1,5 +1,6 @@
 from typing import Any
 
+from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import (
@@ -207,7 +208,7 @@ async def list_repo_occurrences(
         token_info = await client.get_current_token_info()
         member_assignee_id = token_info.get("member_id")
         if member_assignee_id is None:
-            raise ValueError(
+            raise ToolError(
                 "mine=True requires a personal token with a member_id. "
                 "Use member_assignee_id to select an assignee with a service token."
             )

@@ -4,16 +4,26 @@ import json
 import logging
 from unittest.mock import AsyncMock
 
+import httpx
 import pytest
 import sentry_sdk
 import structlog
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ValidationError as FastMCPValidationError
 from sentry_sdk.transport import Transport
 
+from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
-from gg_api_core.sentry_integration import _MAX_SCRUB_DEPTH, _scrub_sentry_payload, init_sentry
+from gg_api_core.model_arguments import ToolBodyError
+from gg_api_core.redirects import CrossOriginRedirectError
+from gg_api_core.sentry_integration import (
+    _MAX_SCRUB_DEPTH,
+    _scrub_sentry_payload,
+    init_sentry,
+    is_expected_tool_failure,
+)
 
 
 class _CollectingTransport(Transport):
@@ -53,6 +63,19 @@ def sentry_transactions(monkeypatch):
     _init_local_sentry(monkeypatch, [], transactions)
     try:
         yield transactions
+    finally:
+        sentry_sdk.get_global_scope().set_client(None)
+
+
+@pytest.fixture
+def sentry_capture(monkeypatch):
+    """Initialize production Sentry with full trace sampling; collect error events and transactions."""
+    events: list[dict] = []
+    transactions: list[dict] = []
+    monkeypatch.setenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")
+    _init_local_sentry(monkeypatch, events, transactions)
+    try:
+        yield events, transactions
     finally:
         sentry_sdk.get_global_scope().set_client(None)
 
@@ -262,3 +285,109 @@ class TestMcpIntegrationActivation:
             sentry_sdk.get_global_scope().set_client(None)
 
         assert "Sentry MCP integration is not active" in caplog.text
+
+
+def _status_error(status: int) -> httpx.HTTPStatusError:
+    request = httpx.Request("GET", "https://api.gitguardian.com/v1/incidents/secrets/77")
+    return httpx.HTTPStatusError(str(status), request=request, response=httpx.Response(status, request=request))
+
+
+def _caused_by(outer: BaseException, cause: BaseException) -> BaseException:
+    outer.__cause__ = cause
+    return outer
+
+
+class TestExpectedToolFailures:
+    @pytest.mark.parametrize(
+        "exception",
+        [
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(404)), id="api-404"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(409)), id="api-409"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(403)), id="api-403"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(400)), id="api-400"),
+            pytest.param(
+                _caused_by(ToolError("x"), _caused_by(DownstreamUnauthorizedError("401"), _status_error(401))),
+                id="expired-token",
+            ),
+            pytest.param(FastMCPValidationError("Invalid arguments for tool 'get_incident'"), id="bad-arguments"),
+            pytest.param(ToolError("No honeytoken was created: ..."), id="deliberate-refusal"),
+        ],
+    )
+    def test_a_refusal_the_caller_can_act_on_is_expected(self, exception):
+        assert is_expected_tool_failure(exception) is True
+
+    @pytest.mark.parametrize(
+        "exception",
+        [
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(500)), id="api-500"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(503)), id="api-503"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(429)), id="rate-limited"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), _status_error(408)), id="api-timeout"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), RuntimeError("bug")), id="bug"),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), ValueError("dictionary update sequence element #0")),
+                id="value-error-bug",
+            ),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), httpx.ReadTimeout("timed out")), id="transport-timeout"
+            ),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), CrossOriginRedirectError("redirected")),
+                id="cross-origin-redirect",
+            ),
+            pytest.param(_caused_by(ToolBodyError("bad response shape"), ValueError("x")), id="response-parsing"),
+        ],
+    )
+    def test_a_defect_or_an_upstream_failure_is_unexpected(self, exception):
+        assert is_expected_tool_failure(exception) is False
+
+    async def test_an_api_refusal_fails_its_span_without_a_sentry_event(self, sentry_capture):
+        sentry_events, sentry_transactions = sentry_capture
+        """
+        GIVEN a real MCP tool whose API call is refused with a 404
+        WHEN it is called through the middleware stack
+        THEN no Sentry error event is sent, and its span is still failed and marked expected
+        """
+        mcp = get_mcp_server("Sentry expected failure test")
+        mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
+        mcp.get_token_info = AsyncMock(return_value={})
+
+        @mcp.tool(name="refused_tool")
+        async def refused_tool():
+            raise _status_error(404)
+
+        with sentry_sdk.start_transaction(name="tool-refused"):
+            async with Client(mcp) as client:
+                with pytest.raises(ToolError):
+                    await client.call_tool("refused_tool", {})
+        sentry_sdk.flush()
+
+        assert sentry_events == []
+        (span,) = [span for span in sentry_transactions[0]["spans"] if span["op"] == "mcp.server"]
+        assert span["status"] == "internal_error"
+        assert span["data"]["mcp.tool.failure_kind"] == "expected"
+
+    async def test_a_crash_is_reported_and_marked_unexpected(self, sentry_capture):
+        sentry_events, sentry_transactions = sentry_capture
+        """
+        GIVEN a real MCP tool that crashes
+        WHEN it is called through the middleware stack
+        THEN one Sentry error event is sent, and its span is failed and marked unexpected
+        """
+        mcp = get_mcp_server("Sentry unexpected failure test")
+        mcp._fetch_token_scopes_from_api = AsyncMock(return_value=set())
+        mcp.get_token_info = AsyncMock(return_value={})
+
+        @mcp.tool(name="crashing_tool")
+        async def crashing_tool():
+            raise KeyError("results")
+
+        with sentry_sdk.start_transaction(name="tool-crash"):
+            async with Client(mcp) as client:
+                with pytest.raises(ToolError):
+                    await client.call_tool("crashing_tool", {})
+        sentry_sdk.flush()
+
+        assert len(sentry_events) == 1
+        (span,) = [span for span in sentry_transactions[0]["spans"] if span["op"] == "mcp.server"]
+        assert span["data"]["mcp.tool.failure_kind"] == "unexpected"

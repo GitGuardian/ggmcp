@@ -1,4 +1,5 @@
 import pytest
+from fastmcp.exceptions import ToolError
 
 from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
 
@@ -11,10 +12,10 @@ class TestScanSecrets:
         """
         GIVEN: A document with invalid format
         WHEN: Attempting to scan
-        THEN: A ValueError is raised
+        THEN: The tool refuses it with a ToolError naming the missing field
         """
         # Call the function with invalid document format
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ToolError) as excinfo:
             await scan_secrets(ScanSecretsParams(documents=[{"invalid_key": "value"}]))
 
         # Verify error message
