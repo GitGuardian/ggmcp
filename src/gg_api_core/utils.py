@@ -103,7 +103,7 @@ def _build_user_agent() -> str:
     The string always starts with ``GitGuardian-MCP-Server/<version>`` so that
     monitoring filtering on that substring keeps matching every MCP request,
     regardless of transport. A ``transport=stdio|http`` marker is appended to
-    tell legacy local (stdio) clients apart from the hosted HTTP server, and
+    tell local (stdio) clients apart from the hosted HTTP server, and
     when the request arrives over HTTP the calling client's own User-Agent is
     preserved as ``client=...`` for per-client analytics.
 

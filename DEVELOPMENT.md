@@ -92,16 +92,14 @@ GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> gg-mcp-server
 ```
 
 The server uses the PAT for every GitGuardian API call. Useful for CI,
-scripts, and the recommended path for local stdio.
+scripts, and headless stdio setups.
 
-### Local OAuth flow (stdio, deprecated)
+### Local OAuth flow (stdio)
 
-The legacy `ENABLE_LOCAL_OAUTH=true` flow in stdio opens a browser and
+The `ENABLE_LOCAL_OAUTH=true` flow, the default in stdio, opens a browser and
 runs a localhost callback on a port in 29170-29998, storing the PAT under
 `~/Library/Application Support/GitGuardian/` (macOS) or
-`$XDG_CONFIG_HOME/gitguardian/` (Linux). This mode is deprecated; new
-stdio deployments should use a PAT. The code path will be removed in a
-future release.
+`$XDG_CONFIG_HOME/gitguardian/` (Linux).
 
 ## Logging
 

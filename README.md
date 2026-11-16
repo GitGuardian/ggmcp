@@ -89,8 +89,8 @@ Edit `~/.cursor/mcp.json`:
 
 Edit `~/Library/Application Support/Claude Desktop/mcp.json` (macOS) or
 `%APPDATA%\Claude Desktop\mcp.json` (Windows). Same JSON as Cursor. Claude
-Desktop versions that pre-date HTTP MCP support need the
-[Local stdio fallback](#local-stdio-mode-pat-only).
+Desktop versions that pre-date HTTP MCP support can run the server
+[locally over stdio](#local-stdio-mode).
 
 ### Claude.ai (web)
 
@@ -122,20 +122,20 @@ Edit `~/Library/Application Support/Zed/mcp.json` (or
 
 ## Choosing a deployment
 
-Two deployment paths are supported. Pick based on where your GitGuardian
+Three deployment paths are supported. Pick based on where your GitGuardian
 instance lives and what tradeoffs you accept.
 
-| Deployment                                                 | When to use                                                                                                              |
-|------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| **Hosted MCP** (Quick start above)                         | GitGuardian SaaS (US/EU) and you accept that requests transit `mcp.gitguardian.com` in addition to `api.gitguardian.com` |
-| **Self-hosted MCP** ([§](#self-hosting-the-mcp-server))    | Self-hosted GitGuardian, airgapped environments, or you want the MCP server on your own infrastructure                   |
-| **Local stdio with PAT** ([§](#local-stdio-mode-pat-only)) | CI/CD, scripts, one-off invocations, or older MCP clients without `type: http` support                                   |
+| Deployment                                              | When to use                                                                                                              |
+|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| **Hosted MCP** (Quick start above)                      | GitGuardian SaaS (US/EU) and you accept that requests transit `mcp.gitguardian.com` in addition to `api.gitguardian.com` |
+| **Self-hosted MCP** ([§](#self-hosting-the-mcp-server)) | Self-hosted GitGuardian, airgapped environments, or you want the MCP server on your own infrastructure                   |
+| **Local stdio** ([§](#local-stdio-mode))                | MCP clients without `type: http` support, CI/CD and scripts, or you want the server to run on your own machine          |
 
 ## Authentication
 
-> Most users do not need to touch this — the [Quick start](#quick-start)
-> config implicitly uses the **OAuth proxy** mode on the hosted server, and the
-[Local stdio](#local-stdio-mode-pat-only) config uses **PAT env**.
+> Most users do not need to touch this. The [Quick start](#quick-start)
+> config uses the **OAuth proxy** mode on the hosted server, and
+> [Local stdio](#local-stdio-mode) uses **Browser OAuth** or **PAT env**.
 
 There are four authentication modes the server can run in; you pick one via
 env vars.
@@ -145,19 +145,46 @@ env vars.
 | **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
 | **Raw bearer** (HTTP)                  | `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
 | **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
-| **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy `uvx --from …` flow that opens a localhost callback and stores the PAT on disk.                              |
+| **Browser OAuth** (stdio)              | `ENABLE_LOCAL_OAUTH=true` (the default in stdio)                       | Local stdio without a PAT. The server opens a GitGuardian login in the browser and stores the PAT it receives on disk. |
 
-> [!NOTE]
-> Browser-driven OAuth in stdio mode is **deprecated**. New stdio deployments
-> should authenticate with a PAT; OAuth-driven flows should use the hosted or
-> self-hosted HTTP server. The stdio OAuth code path will be removed in a
-> future release; until then it remains the default in stdio for backward
-> compatibility.
+## Local stdio mode
 
-## Local stdio mode (PAT-only)
+Run the server on your own machine over stdio, with
+[`uvx`](https://docs.astral.sh/uv/). Use it for MCP clients without
+`type: http` support, for CI/CD and scripts, or when you want requests to go
+straight from your machine to the GitGuardian API.
 
-For CI/CD, airgapped environments, or older MCP clients, run the server
-locally over stdio with a PAT:
+### Sign in with your browser
+
+By default the server opens a GitGuardian login in your browser the first time
+a tool runs, then stores the PAT it receives on disk and reuses it on later
+starts:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardian": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/GitGuardian/ggmcp.git",
+        "gg-mcp-server"
+      ],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"
+      }
+    }
+  }
+}
+```
+
+Set `GITGUARDIAN_URL` to your own dashboard URL if you are not on US SaaS. Each
+login creates a new PAT in your GitGuardian account.
+
+### Use a PAT
+
+For CI/CD, headless machines, or when you manage the token yourself, pass a PAT
+and turn the browser login off:
 
 ```json
 {
@@ -180,10 +207,13 @@ locally over stdio with a PAT:
 ```
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
-Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+Tokens**.
+
+In both cases the set of tools the server exposes depends on the token's
+scopes.
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
-to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
+to `uvx` (e.g. `/Users/you/.local/bin/uvx`): Claude Desktop does not resolve
 `$PATH` for MCP servers.
 
 ## Self-hosting the MCP server
@@ -243,7 +273,7 @@ server looks for a single server-wide token and every tool call fails with
 | `MCP_HOST`                          | Bind address for HTTP transport                  | `127.0.0.1`                         |
 | `MCP_BASE_URL`                      | Public URL of this MCP server (OAuth proxy mode) | `http://localhost:8000`             |
 | `MCP_OAUTH_PROXY_ENABLED`           | Advertise OAuth Protected Resource metadata      | `false`                             |
-| `ENABLE_LOCAL_OAUTH`                | Legacy: enable stdio OAuth flow (deprecated)     | `true`                              |
+| `ENABLE_LOCAL_OAUTH`                | Browser login flow in stdio                      | `true`                              |
 | `LOG_LEVEL`                         | Log level                                        | `INFO`                              |
 | `LOG_FORMAT`                        | `json` or `console`                              | `console` on a TTY, else `json`     |
 
