@@ -31,6 +31,7 @@ from gg_api_core.oauth_proxy_auth import (
 )
 from gg_api_core.settings import get_settings
 from gg_api_core.utils import get_client
+from gg_api_core.version import APP_VERSION
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -317,6 +318,8 @@ class GitGuardianOAuthProxyMCP(_BearerTokenMCP):
 
 def get_mcp_server(*args: Any, **kwargs: Any) -> AbstractGitGuardianFastMCP:
     kwargs.setdefault("icons", get_gitguardian_icons())
+    # FastMCP reports its own version in serverInfo unless the server names one.
+    kwargs.setdefault("version", APP_VERSION or "unknown")
 
     settings = get_settings()
 

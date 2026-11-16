@@ -11,9 +11,11 @@ import json
 import re
 from http import HTTPStatus
 
+import fastmcp
 import httpx
 import pytest
 
+from gg_api_core.version import APP_VERSION
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
     EXPECTED_REQUESTED_SCOPES,
@@ -68,6 +70,8 @@ class TestProtocolHandshake:
         result = rpc_result(response)
         assert result["protocolVersion"] == "2025-06-18"
         assert result["serverInfo"]["name"] == "GitGuardian"
+        assert result["serverInfo"]["version"] == APP_VERSION
+        assert result["serverInfo"]["version"] != fastmcp.__version__
         assert "tools" in result["capabilities"]
         assert result["instructions"]
         assert not gg_api.calls
