@@ -215,19 +215,17 @@ class IncidentStatus(str, Enum):
 
 
 class IncidentValidity(str, Enum):
-    """Enum for incident validity values.
+    """Validity values /occurrences/secrets and /public-incidents/secrets accept.
 
-    Note: Different API endpoints accept different validity values:
-    - /incidents-for-mcp: accepts NOT_CHECKED but not UNKNOWN
-    - /occurrences/secrets: accepts UNKNOWN but not NOT_CHECKED
+    Both reject not_checked with a 400. /incidents-for-mcp takes the opposite
+    set, not_checked but not unknown, through its own list in incident_filters.
     """
 
     VALID = "valid"
     INVALID = "invalid"
     FAILED_TO_CHECK = "failed_to_check"
     NO_CHECKER = "no_checker"
-    NOT_CHECKED = "not_checked"  # Valid for /incidents-for-mcp
-    UNKNOWN = "unknown"  # Valid for /occurrences/secrets
+    UNKNOWN = "unknown"
 
 
 class TagNames(str, Enum):

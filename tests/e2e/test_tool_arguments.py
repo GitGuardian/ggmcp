@@ -4,6 +4,8 @@ Each tool's arguments are the fields of one pydantic model. The model's fields
 are the tool's top-level arguments, and the model still validates them.
 """
 
+import json
+
 import httpx
 
 from tests.e2e.harness import call_tool, rpc, rpc_result, sent_params, tool_error_text, tool_output
@@ -105,3 +107,18 @@ class TestTopLevelArguments:
         assert "Invalid arguments for tool 'get_incident': incident_id: Field required" in error
         assert "GetIncidentParams" not in error
         assert "input_value" not in error
+
+    async def test_validity_filters_only_offer_values_their_endpoint_accepts(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN the occurrence and public incident endpoints, which reject not_checked and accept unknown,
+        and the incident endpoint, which does the opposite
+        WHEN the tools are listed
+        THEN each tool's validity filter offers only the values its endpoint accepts
+        """
+        schemas = await _tool_schemas(mcp_client)
+
+        for tool in ("list_repo_occurrences", "list_public_incidents"):
+            offered = json.dumps(schemas[tool])
+            assert '"not_checked"' not in offered, tool
+            assert '"unknown"' in offered, tool
+        assert "not_checked" in schemas["list_incidents"]["properties"]["validity"]["description"]
