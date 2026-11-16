@@ -254,8 +254,10 @@ class ListResponse(TypedDict):
     has_more: bool
 
 
-# Default limit for paginate_all to prevent context bloat
-DEFAULT_PAGINATION_MAX_BYTES = 20_000
+# Size budget for a get_all result. About 17k tokens of JSON: room for several pages,
+# under the 25k-token limit some clients (Claude Code by default) put on tool output.
+# The first page is always returned whole, even when it alone exceeds the budget.
+DEFAULT_PAGINATION_MAX_BYTES = 60_000
 
 # Hard cap on number of pages fetched during get_all pagination
 # Prevents runaway loops regardless of byte limit effectiveness

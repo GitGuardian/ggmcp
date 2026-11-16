@@ -129,7 +129,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "container registries, etc.) with advanced filtering including detector type, secret category, source criticality, "
         "and public exposure. Filter by repository (via source_ids), detector type, severity, status "
         "(TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
-        "With mine=True, this tool only shows incidents assigned to the current user. Uses page-based pagination.",
+        "With mine=True, this tool only shows incidents assigned to the current user. Uses page-based pagination. "
+        "Each incident's secret and displayed occurrence are summarized; call get_incident for an incident's full details.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )

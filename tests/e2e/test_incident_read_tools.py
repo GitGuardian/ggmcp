@@ -597,3 +597,143 @@ class TestListRepoOccurrences:
         assert params["from_date"] == "2024-01-01"
         assert params["to_date"] == "2024-12-31"
         assert params["presence"] == "present"
+
+
+def _full_incident(incident_id: int, bulk: int = 0) -> dict:
+    """An incident shaped like the API's, with optional bulk in fields a list summary drops."""
+    return {
+        "id": incident_id,
+        "status": "TRIGGERED",
+        "severity": "high",
+        "score": 80,
+        "occurrences_count": 3,
+        "hash": "a" * 64,
+        "secret": {
+            "id": 11,
+            "status": "active",
+            "validity_status": "valid",
+            "hash": "b" * 64,
+            "last_validity_check_at": "2026-11-01T00:00:00Z",
+            "revocation_requested_at": None,
+            "detector": {
+                "name": "aws_iam",
+                "display_name": "AWS Keys",
+                "detector_group_name": "aws_iam",
+                "category": "cloud",
+                "supports_analyzer": True,
+                "revocation_credentials": None,
+            },
+        },
+        "displayed_occurrence": {
+            "id": 21,
+            "filepath": "config/settings.py",
+            "presence": "present",
+            "value_hash": "c" * 64,
+            "secrets_engine_version": "2.140.0",
+            "insights": [{"name": "x", "source": "y", "metadata": {"blob": "z" * bulk}}],
+            "source": {
+                "id": 31,
+                "type": "github",
+                "display_name": "acme/app",
+                "source_criticality": "high",
+                "monitoring_status": "monitored",
+                "deleted_at": None,
+            },
+            "matches": [
+                {
+                    "name": "apikey",
+                    "string_matched": "AKIA****",
+                    "indice_start": 4,
+                    "indice_end": 24,
+                    "pre_line_start": None,
+                    "pre_line_end": None,
+                    "post_line_start": 12,
+                    "post_line_end": 12,
+                }
+            ],
+        },
+    }
+
+
+class TestIncidentSummariesInLists:
+    async def test_a_listed_incident_keeps_what_triage_reads(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN the API returns full incidents
+        WHEN list_incidents is called
+        THEN each incident keeps its top-level fields, and its secret and displayed occurrence are cut
+        to validity, detector, source, file and lines
+        """
+        gg_api.get("/incidents-for-mcp").respond(200, json={"results": [_full_incident(7)], "next": None})
+
+        (incident,) = unwrap_result(await call_tool(mcp_client, "list_incidents", {}))["incidents"]
+
+        assert {k: incident[k] for k in ("id", "status", "severity", "score", "occurrences_count", "hash")} == {
+            "id": 7,
+            "status": "TRIGGERED",
+            "severity": "high",
+            "score": 80,
+            "occurrences_count": 3,
+            "hash": "a" * 64,
+        }
+        assert incident["secret"] == {
+            "id": 11,
+            "status": "active",
+            "validity_status": "valid",
+            "detector": {
+                "name": "aws_iam",
+                "display_name": "AWS Keys",
+                "detector_group_name": "aws_iam",
+                "category": "cloud",
+            },
+        }
+        assert incident["displayed_occurrence"] == {
+            "id": 21,
+            "filepath": "config/settings.py",
+            "presence": "present",
+            "source": {"id": 31, "type": "github", "display_name": "acme/app", "source_criticality": "high"},
+            "matches": [
+                {
+                    "name": "apikey",
+                    "pre_line_start": None,
+                    "pre_line_end": None,
+                    "post_line_start": 12,
+                    "post_line_end": 12,
+                }
+            ],
+        }
+
+    async def test_get_incident_returns_the_apis_incident_untouched(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN the API returns a full incident
+        WHEN get_incident is called
+        THEN it comes back untouched, nested objects included
+        """
+        full = _full_incident(7)
+        gg_api.get("/incidents/secrets/7").respond(200, json=full)
+
+        output = tool_output(await call_tool(mcp_client, "get_incident", {"incident_id": 7}))
+
+        assert output["incident"]["secret"] == full["secret"]
+        assert output["incident"]["displayed_occurrence"] == full["displayed_occurrence"]
+
+    async def test_get_all_sizes_its_budget_on_the_summarized_incidents(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN three pages whose full incidents are each larger than the whole get_all budget
+        WHEN list_incidents is called with get_all=True
+        THEN all three pages are returned, since the budget counts the summaries agents receive
+        """
+        pages = {
+            str(n): {
+                "results": [_full_incident(n, bulk=DEFAULT_PAGINATION_MAX_BYTES)],
+                "next": None if n == 3 else f"https://api.gitguardian.com/v1/incidents-for-mcp?page={n + 1}",
+            }
+            for n in (1, 2, 3)
+        }
+        gg_api.get("/incidents-for-mcp").mock(
+            side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
+        )
+
+        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True}))
+
+        assert [i["id"] for i in output["incidents"]] == [1, 2, 3]
+        assert output["has_more"] is False

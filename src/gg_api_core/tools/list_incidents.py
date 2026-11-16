@@ -96,10 +96,78 @@ class ListIncidentsParams(IncidentFilters, _Pagination):
     )
 
 
+# A listed incident keeps every top-level field, but its secret and displayed occurrence
+# are cut to what triage reads: they are most of an incident's size, and a page of full
+# incidents outgrows what clients accept as tool output. get_incident gives an incident's full details.
+_SECRET_FIELDS = (
+    "id",
+    "status",
+    "validity_status",
+    "validity_status_override",
+    "category",
+    "family",
+    "provider",
+    "analyzer_status",
+    "publicly_leaked_count",
+)
+_DETECTOR_FIELDS = (
+    "name",
+    "display_name",
+    "detector_group_name",
+    "detector_group_display_name",
+    "category",
+    "family",
+    "provider",
+    "nature",
+)
+_OCCURRENCE_FIELDS = (
+    "id",
+    "kind",
+    "element",
+    "element_type",
+    "url",
+    "filepath",
+    "filename",
+    "presence",
+    "date",
+    "author_name",
+)
+_SOURCE_FIELDS = ("id", "type", "display_name", "url", "source_criticality", "visibility")
+_MATCH_FIELDS = ("name", "pre_line_start", "pre_line_end", "post_line_start", "post_line_end")
+
+
+def _pick(obj: dict[str, Any], fields: tuple[str, ...]) -> dict[str, Any]:
+    return {field: obj[field] for field in fields if field in obj}
+
+
+def summarize_incident(incident: dict[str, Any]) -> dict[str, Any]:
+    """An incident as listed: its secret and displayed occurrence cut to the fields triage reads."""
+    summary = dict(incident)
+    secret = incident.get("secret")
+    if isinstance(secret, dict):
+        summary["secret"] = _pick(secret, _SECRET_FIELDS)
+        if isinstance(secret.get("detector"), dict):
+            summary["secret"]["detector"] = _pick(secret["detector"], _DETECTOR_FIELDS)
+    occurrence = incident.get("displayed_occurrence")
+    if isinstance(occurrence, dict):
+        summary["displayed_occurrence"] = _pick(occurrence, _OCCURRENCE_FIELDS)
+        if isinstance(occurrence.get("source"), dict):
+            summary["displayed_occurrence"]["source"] = _pick(occurrence["source"], _SOURCE_FIELDS)
+        if isinstance(occurrence.get("matches"), list):
+            summary["displayed_occurrence"]["matches"] = [
+                _pick(match, _MATCH_FIELDS) for match in occurrence["matches"] if isinstance(match, dict)
+            ]
+    return summary
+
+
 class ListIncidentsResult(BaseModel):
     """Result from listing incidents."""
 
-    incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of incident objects")
+    incidents: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Incidents. Each one's secret and displayed_occurrence are summarized (validity, detector, "
+        "source, file and lines); call get_incident for an incident's full details.",
+    )
     page: int = Field(
         description="Current page number. With get_all=True, the last page whose incidents are included: "
         "when has_more is true, continue with page + 1."
@@ -158,7 +226,7 @@ async def list_incidents(
                 query, page=current_page, page_size=params.page_size, ordering=params.ordering
             )
 
-            page_incidents = response.get("results", [])
+            page_incidents = [summarize_incident(incident) for incident in response.get("results", [])]
             has_next_page = response.get("next") is not None
 
             # Empty page means no more matching results
@@ -198,7 +266,7 @@ async def list_incidents(
         )
 
         # Parse the response
-        incidents_data = response.get("results", [])
+        incidents_data = [summarize_incident(incident) for incident in response.get("results", [])]
         has_next = response.get("next") is not None
         has_previous = response.get("previous") is not None
 
