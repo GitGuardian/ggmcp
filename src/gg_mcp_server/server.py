@@ -35,13 +35,35 @@ def build_server() -> AbstractGitGuardianFastMCP:
     return mcp
 
 
+def require_per_request_tokens() -> None:
+    """Refuse to serve HTTP unless every request runs under the token it carries.
+
+    Without multi-tenancy, tool calls use one process-wide token (an env PAT
+    or a local OAuth login) whatever bearer the caller sends, so every HTTP
+    caller would act as the server's own identity.
+
+    Raises:
+        RuntimeError: MULTI_TENANCY_ENABLED is not true.
+    """
+    if not get_settings().is_multi_tenant:
+        raise RuntimeError(
+            "Refusing to serve MCP over HTTP without MULTI_TENANCY_ENABLED=true: tool calls would run "
+            "under one server-wide GitGuardian token instead of each caller's own token. Set "
+            "MULTI_TENANCY_ENABLED=true (with MCP_PORT) so every request uses the token it carries."
+        )
+
+
 def build_http_app(mcp: AbstractGitGuardianFastMCP) -> Starlette:
     """Wrap the server in its production StreamableHTTP ASGI app.
 
     json_response=True and stateless_http=True allow horizontal scaling
     without sticky sessions since no session state is maintained between
     requests.
+
+    Raises:
+        RuntimeError: multi-tenancy is off, see :func:`require_per_request_tokens`.
     """
+    require_per_request_tokens()
     return create_streamable_http_app(
         server=mcp,
         streamable_http_path="/mcp",

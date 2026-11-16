@@ -8,7 +8,7 @@ This module provides different ways to run the MCP server:
 import logging
 
 from gg_api_core.settings import get_settings
-from gg_mcp_server.server import get_server
+from gg_mcp_server.server import get_server, require_per_request_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,7 @@ def run_http_with_uvicorn():
     This is meant for local development. For production setups, use gunicorn
     with uvicorn ASGI workers via ``gg_mcp_server.http_app:http_app``.
     """
+    require_per_request_tokens()
     mcp = get_server()
 
     settings = get_settings()

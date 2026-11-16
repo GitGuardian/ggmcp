@@ -82,10 +82,11 @@ When `ENABLE_LOCAL_OAUTH=false`, `MULTI_TENANCY_ENABLED=true`, `MCP_PORT` is set
 and `MCP_OAUTH_PROXY_ENABLED` is unset, clients pass `Authorization: Bearer <PAT>`
 directly and the server forwards it verbatim. Used by raw HTTP integrations.
 
-Both HTTP modes need `MULTI_TENANCY_ENABLED=true`: without it, `get_client()`
-ignores the request's token and looks for a single server-wide one.
+Both HTTP modes need `MULTI_TENANCY_ENABLED=true`, and the server refuses to
+serve HTTP without it: `get_client()` would otherwise ignore the request's token
+and use a single server-wide one.
 
-### PAT environment variable (any transport)
+### PAT environment variable (stdio)
 
 ```bash
 GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<your-pat> gg-mcp-server

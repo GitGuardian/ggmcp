@@ -144,7 +144,7 @@ env vars.
 |----------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
 | **Raw bearer** (HTTP)                  | `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
-| **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
+| **PAT env** (stdio)                    | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
 | **Browser OAuth** (stdio)              | `ENABLE_LOCAL_OAUTH=true` (the default in stdio)                       | Local stdio without a PAT. The server opens a GitGuardian login in the browser and stores the PAT it receives on disk. |
 
 ## Local stdio mode
@@ -254,8 +254,8 @@ your domain.
 
 `MULTI_TENANCY_ENABLED=true` (with `MCP_PORT` set) makes the server use the
 token each request carries in its `Authorization` header. Without it, the
-server looks for a single server-wide token and every tool call fails with
-`No API token available`.
+server refuses to start over HTTP, since every caller would otherwise act under
+a single server-wide token.
 
 ## Configuration reference
 
@@ -269,7 +269,7 @@ server looks for a single server-wide token and every tool call fails with
 | `GITGUARDIAN_TOKEN_NAME`            | Display name for OAuth-issued PATs               | `MCP Token`                         |
 | `GITGUARDIAN_TOKEN_LIFETIME`        | PAT lifetime in days (or `never`)                | `30`                                |
 | `MCP_PORT`                          | Port for HTTP transport (unset ⇒ stdio)          | Unset                               |
-| `MULTI_TENANCY_ENABLED`             | Use each request's `Authorization` token (HTTP)  | `false`                             |
+| `MULTI_TENANCY_ENABLED`             | Use each request's `Authorization` token; required over HTTP | `false`                 |
 | `MCP_HOST`                          | Bind address for HTTP transport                  | `127.0.0.1`                         |
 | `MCP_BASE_URL`                      | Public URL of this MCP server (OAuth proxy mode) | `http://localhost:8000`             |
 | `MCP_OAUTH_PROXY_ENABLED`           | Advertise OAuth Protected Resource metadata      | `false`                             |
