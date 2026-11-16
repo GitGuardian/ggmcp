@@ -281,3 +281,49 @@ class TestListPublicOccurrences:
         output = unwrap_result(result)
         assert output["occurrences"] == [PUBLIC_OCCURRENCE, second]
         assert output["has_more"] is False
+
+
+class TestWorkspaceWithoutPublicMonitoring:
+    @pytest.mark.parametrize(
+        ("tool", "args", "path"),
+        [
+            pytest.param("list_public_incidents", {}, "/public-incidents/secrets", id="list_public_incidents"),
+            pytest.param("get_public_incident", {"incident_id": 103}, "/public-incidents/secrets/103", id="get"),
+            pytest.param(
+                "list_public_occurrences",
+                {"incident_id": 103},
+                "/public-incidents/secrets/103/occurrences",
+                id="list_public_occurrences",
+            ),
+        ],
+    )
+    async def test_a_forbidden_public_incident_read_says_retrying_will_not_help(
+        self, mcp_client, gg_api, mock_token_scopes, tool, args, path
+    ):
+        """
+        GIVEN a workspace whose public incident endpoints answer 403
+        WHEN any public incident tool is called
+        THEN the error keeps the API's reason and says Public Monitoring is likely not enabled, so retrying will not help
+        """
+        gg_api.get(path).respond(403, json={"detail": "You do not have permission to perform this action."})
+
+        error = tool_error_text(await call_tool(mcp_client, tool, {"params": args}))
+
+        assert "You do not have permission to perform this action" in error
+        assert "Public Monitoring" in error
+        assert "Retrying will not help" in error
+
+    async def test_a_forbidden_internal_incident_read_does_not_mention_public_monitoring(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN an internal incident endpoint that answers 403
+        WHEN get_incident is called
+        THEN the error keeps the API's reason without the Public Monitoring guidance
+        """
+        gg_api.get("/incidents/secrets/77").respond(403, json={"detail": "You do not have permission."})
+
+        error = tool_error_text(await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}}))
+
+        assert "You do not have permission" in error
+        assert "Public Monitoring" not in error

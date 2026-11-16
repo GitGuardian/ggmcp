@@ -152,7 +152,22 @@ _REFUSAL_GUIDANCE = {
     ),
     409: "Nothing was changed: the incident is already in the requested state. Do not retry.",
 }
+# Public incidents come from Public Monitoring, which a workspace may not have. The
+# scope gate refuses calls without incidents:read, so a 403 here is the workspace's.
+_PUBLIC_INCIDENTS_PATH = "/public-incidents/"
+_PUBLIC_MONITORING_GUIDANCE = (
+    "This usually means Public Monitoring is not enabled for this workspace. Retrying will not help; "
+    "internal incidents are still available through the internal incident tools."
+)
 _MAX_DETAIL_CHARS = 300
+
+
+def _request_path(response: httpx.Response) -> str:
+    try:
+        return response.request.url.path
+    except RuntimeError:
+        # A response built without a request has no path to match.
+        return ""
 
 
 def describe_api_error(response: httpx.Response) -> str:
@@ -163,7 +178,10 @@ def describe_api_error(response: httpx.Response) -> str:
         message = f"{message}: {detail}."
     else:
         message = f"{message}."
-    if guidance := _REFUSAL_GUIDANCE.get(response.status_code):
+    guidance = _REFUSAL_GUIDANCE.get(response.status_code)
+    if response.status_code == 403 and _PUBLIC_INCIDENTS_PATH in _request_path(response):
+        guidance = _PUBLIC_MONITORING_GUIDANCE
+    if guidance:
         message = f"{message} {guidance}"
     return message
 
