@@ -1,10 +1,12 @@
 import json
 import logging
 
+import anyio
 import httpx
 import pytest
 import structlog
 from pydantic import BaseModel, ValidationError
+from starlette.requests import ClientDisconnect
 
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.version import APP_VERSION
@@ -83,3 +85,70 @@ class TestConfigureLogging:
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert "https://api.gitguardian.com/v1/incidents-for-mcp?[REDACTED]" in payload["exception"]
         assert "pasted-secret" not in json.dumps(payload)
+
+
+def _log_error_with(logger_name: str, exception: BaseException, message: str = "Stateless session crashed") -> None:
+    try:
+        raise exception
+    except BaseException:
+        logging.getLogger(logger_name).exception(message)
+
+
+class TestClientDisconnectNoise:
+    @pytest.mark.parametrize(
+        ("logger_name", "exception", "message"),
+        [
+            pytest.param(
+                "mcp.server.streamable_http", ClientDisconnect(), "Error handling POST request", id="body-read"
+            ),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                anyio.ClosedResourceError(),
+                "Stateless session crashed",
+                id="closed-stream",
+            ),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                BaseExceptionGroup("unhandled", [anyio.ClosedResourceError(), anyio.BrokenResourceError()]),
+                "Stateless session crashed",
+                id="group-of-disconnects",
+            ),
+        ],
+    )
+    def test_a_client_disconnect_is_logged_as_a_warning(self, capsys, logger_name, exception, message):
+        """
+        GIVEN the MCP SDK logging an error because the client hung up
+        WHEN the record is emitted
+        THEN it goes out as a warning, traceback kept
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception, message)
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "warning"
+        assert payload["event"] == message
+        assert "exception" in payload
+
+    @pytest.mark.parametrize(
+        ("logger_name", "exception"),
+        [
+            pytest.param("mcp.server.streamable_http_manager", RuntimeError("bug"), id="real-error-same-logger"),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                BaseExceptionGroup("unhandled", [anyio.ClosedResourceError(), RuntimeError("bug")]),
+                id="disconnect-mixed-with-a-real-error",
+            ),
+            pytest.param("gg_api_core.client", ClientDisconnect(), id="disconnect-from-another-logger"),
+        ],
+    )
+    def test_any_other_error_keeps_its_level(self, capsys, logger_name, exception):
+        """
+        GIVEN an error that is not only a client disconnect, or one logged elsewhere
+        WHEN the record is emitted
+        THEN it stays an error
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception)
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "error"

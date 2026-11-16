@@ -4,7 +4,9 @@ import logging
 import sys
 from typing import TYPE_CHECKING
 
+import anyio
 import structlog
+from starlette.requests import ClientDisconnect
 from structlog.types import EventDict, Processor, WrappedLogger
 
 from gg_api_core.sanitization import scrub_by_name, scrub_by_value
@@ -33,6 +35,34 @@ _RESERVED_KEYS = frozenset(
 
 # Their per-request INFO lines are replaced by structured events.
 _DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
+
+# A client that hangs up mid-request makes the MCP SDK log an ERROR with a traceback:
+# ClientDisconnect while the request body is read ("Error handling POST request"), or
+# ClosedResourceError once the answer can no longer be sent ("Stateless session crashed").
+# Nobody is left to answer and nothing failed on our side, so those records go out as
+# WARNING. Any other error from these loggers keeps its level.
+_CLIENT_DISCONNECT_LOGGERS = frozenset({"mcp.server.streamable_http", "mcp.server.streamable_http_manager"})
+_CLIENT_DISCONNECT_ERRORS = (ClientDisconnect, anyio.ClosedResourceError, anyio.BrokenResourceError)
+
+
+def _is_client_disconnect(exception: BaseException | None) -> bool:
+    """Whether the exception, every exception of a group included, means the client went away."""
+    if isinstance(exception, BaseExceptionGroup):
+        return all(_is_client_disconnect(nested) for nested in exception.exceptions)
+    return isinstance(exception, _CLIENT_DISCONNECT_ERRORS)
+
+
+def _demote_client_disconnects(record: logging.LogRecord) -> bool:
+    """Log a client disconnect reported by the MCP SDK as WARNING instead of ERROR."""
+    if (
+        record.levelno >= logging.ERROR
+        and record.name in _CLIENT_DISCONNECT_LOGGERS
+        and record.exc_info
+        and _is_client_disconnect(record.exc_info[1])
+    ):
+        record.levelno = logging.WARNING
+        record.levelname = "WARNING"
+    return True
 
 
 def _scrub_event(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
@@ -102,6 +132,7 @@ def configure_logging(
     handler = logging.StreamHandler(sys.stderr)
     handler.name = "ggmcp-log"
     handler.setFormatter(formatter)
+    handler.addFilter(_demote_client_disconnects)
 
     root = logging.getLogger()
     root.handlers = [h for h in root.handlers if h.name != "ggmcp-log"]
