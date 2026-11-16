@@ -6,9 +6,10 @@ the current access token cannot satisfy.
 
 The tools below are the ten that carry real traffic plus the four that
 GitGuardian's published agent skills depend on (remediation workflow, public
-incidents, honeytokens). Their names, input schemas and outputs are kept
-identical to the previous 38-tool server, so existing agents, prompts and
-skills keep working.
+incidents, honeytokens). Their names and outputs are kept identical to the
+previous 38-tool server, so existing agents, prompts and skills keep working.
+Each tool function takes one pydantic model, whose fields are the tool's
+top-level arguments (see ``gg_api_core.model_arguments``).
 """
 
 from mcp.types import ToolAnnotations

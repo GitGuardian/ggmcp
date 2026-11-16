@@ -116,7 +116,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
     async with Client(transport) as client:
         result = await client.call_tool(
             "get_incident",
-            {"params": {"incident_id": 77}},
+            {"incident_id": 77},
         )
 
     assert result.structured_content == {"incident": INCIDENT}

@@ -29,7 +29,7 @@ class TestListSources:
         result = await call_tool(
             mcp_client,
             "list_sources",
-            {"params": {"type": "github", "monitored": True, "search": "gg"}},
+            {"type": "github", "monitored": True, "search": "gg"},
         )
 
         params = sent_params(route)
@@ -66,7 +66,7 @@ class TestListSources:
         """
         route = gg_api.get("/sources").respond(200, json=[])
 
-        await call_tool(mcp_client, "list_sources", {"params": filters})
+        await call_tool(mcp_client, "list_sources", filters)
 
         assert sent_params(route) == expected_query
 
@@ -88,7 +88,7 @@ class TestListSources:
             ]
         )
 
-        result = await call_tool(mcp_client, "list_sources", {"params": {"get_all": True}})
+        result = await call_tool(mcp_client, "list_sources", {"get_all": True})
 
         assert route.call_count == 2
         assert dict(route.calls[1].request.url.params)["cursor"] == "cD0x"

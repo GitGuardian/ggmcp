@@ -51,7 +51,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post(expected_path).respond(200, json={"id": 42, "status": "UPDATED"})
 
-        result = await call_tool(mcp_client, "manage_private_incident", {"params": arguments})
+        result = await call_tool(mcp_client, "manage_private_incident", arguments)
 
         assert route.called
         assert sent_body(route) == expected_body
@@ -67,9 +67,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post("/incidents/secrets/42/resolve").respond(200, json={})
 
-        result = await call_tool(
-            mcp_client, "manage_private_incident", {"params": {"incident_id": 42, "action": "resolve"}}
-        )
+        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "resolve"})
 
         assert "'secret_revoked' parameter is required" in tool_error_text(result)
         assert not route.called
@@ -82,9 +80,7 @@ class TestManagePrivateIncident:
         """
         route = gg_api.post("/incidents/secrets/42/ignore").respond(200, json={})
 
-        result = await call_tool(
-            mcp_client, "manage_private_incident", {"params": {"incident_id": 42, "action": "ignore"}}
-        )
+        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "ignore"})
 
         assert "'ignore_reason' parameter is required" in tool_error_text(result)
         assert not route.called
@@ -113,7 +109,7 @@ async def test_an_incident_id_that_is_not_a_number_never_reaches_the_api(
     WHEN a tool that places it in the URL path is called
     THEN the call fails validation and no incident endpoint is requested
     """
-    result = await call_tool(mcp_client, tool_name, {"params": {"incident_id": incident_id, **arguments}})
+    result = await call_tool(mcp_client, tool_name, {"incident_id": incident_id, **arguments})
 
     assert "must be a numeric ID" in tool_error_text(result)
     assert all(call.request.url.path == "/v1/api_tokens/self" for call in gg_api.calls)
@@ -131,7 +127,7 @@ async def test_a_numeric_string_incident_id_is_still_accepted(
     endpoint = "/incidents/secrets/42/assign" if tool_name == "assign_incident" else "/incidents/secrets/42/reopen"
     route = gg_api.post(endpoint).respond(200, json={"id": 42})
 
-    await call_tool(mcp_client, tool_name, {"params": {"incident_id": "42", **arguments}})
+    await call_tool(mcp_client, tool_name, {"incident_id": "42", **arguments})
 
     assert route.called
 
@@ -146,7 +142,7 @@ class TestAssignIncident:
         """
         route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42, "assignee_id": 4242})
 
-        result = await call_tool(mcp_client, "assign_incident", {"params": {"incident_id": 42, "mine": True}})
+        result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "mine": True})
 
         assert sent_body(route) == {"member_id": "4242", "email": None}
         output = tool_output(result)
@@ -168,7 +164,7 @@ class TestManageIncidentComment:
         result = await call_tool(
             mcp_client,
             "manage_incident_comment",
-            {"params": {"incident_id": 77, "action": "add", "comment": "Rotating the key today"}},
+            {"incident_id": 77, "action": "add", "comment": "Rotating the key today"},
         )
 
         assert sent_body(route) == {"comment": "Rotating the key today"}
@@ -186,7 +182,7 @@ class TestManageIncidentComment:
         result = await call_tool(
             mcp_client,
             "manage_incident_comment",
-            {"params": {"incident_id": 77, "action": "edit", "comment_id": 9, "comment": "Key rotated"}},
+            {"incident_id": 77, "action": "edit", "comment_id": 9, "comment": "Key rotated"},
         )
 
         assert sent_body(route) == {"comment": "Key rotated"}

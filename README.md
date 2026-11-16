@@ -279,6 +279,10 @@ a single server-wide token.
 
 ## Migration notes
 
+- Tool arguments are passed at the top level, `{"incident_id": 123}`, instead of
+  inside a `params` object, `{"params": {"incident_id": 123}}`. A call in the old
+  shape is refused with an error that says so. MCP clients that read the tool list
+  pick this up on their own.
 - The server now exposes the 14 tools listed in [What it does](#what-it-does).
   These tools were removed: `assign_public_incident`, `create_code_fix_request`,
   `find_current_source_id`, `get_authenticated_user_info`, `get_current_token_info`,

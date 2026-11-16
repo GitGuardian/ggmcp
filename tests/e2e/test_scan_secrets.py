@@ -39,7 +39,7 @@ class TestScanSecrets:
         results = [SCAN_RESULT] * len(documents)
         route = gg_api.post("/multiscan").respond(200, json=results)
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": documents})
 
         assert route.called
         assert sent_body(route) == documents
@@ -53,7 +53,7 @@ class TestScanSecrets:
         """
         route = gg_api.post("/multiscan").respond(200, json=[])
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": []}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": []})
 
         assert "non-empty list" in tool_error_text(result)
         assert not route.called
@@ -79,7 +79,7 @@ class TestExcludedSecrets:
         route = gg_api.post("/multiscan").respond(200, json=[scan_result])
 
         result = await call_tool(
-            mcp_client, "scan_secrets", {"params": {"documents": [{"document": "k = 1\n", "filename": "a.py"}]}}
+            mcp_client, "scan_secrets", {"documents": [{"document": "k = 1\n", "filename": "a.py"}]}
         )
 
         assert route.calls.last.request.url.params["all_secrets"] == "true"

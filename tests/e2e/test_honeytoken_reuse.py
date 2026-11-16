@@ -17,7 +17,7 @@ EXISTING = {
 
 
 def _reuse(name: str = "decoy") -> dict:
-    return {"params": {"name": name, "new_token": False}}
+    return {"name": name, "new_token": False}
 
 
 class TestHoneytokenReuse:

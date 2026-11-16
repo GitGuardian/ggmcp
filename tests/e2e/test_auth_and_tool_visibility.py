@@ -297,14 +297,14 @@ class TestScopeBasedToolVisibility:
                 call_tool(
                     mcp_client,
                     "get_incident",
-                    {"params": {"incident_id": 77}},
+                    {"incident_id": 77},
                     headers=mcp_headers("full-scope-token"),
                     request_id=201,
                 ),
                 call_tool(
                     mcp_client,
                     "scan_secrets",
-                    {"params": {"documents": [{"document": "x = 1", "filename": "x.py"}]}},
+                    {"documents": [{"document": "x = 1", "filename": "x.py"}]},
                     headers=mcp_headers("scan-only-token"),
                     request_id=202,
                 ),
@@ -327,8 +327,8 @@ class TestPerRequestScopeCost:
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
         assert len(scope_fetches) == 1
@@ -344,9 +344,7 @@ class TestScopeEnforcementOnCall:
         mock_token_scopes(["scan"])
         write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json={"id": 77})
 
-        result = await call_tool(
-            mcp_client, "manage_private_incident", {"params": {"incident_id": 77, "action": "reopen"}}
-        )
+        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 77, "action": "reopen"})
 
         assert "incidents:write" in tool_error_text(result)
         assert not write_route.called
@@ -360,7 +358,7 @@ class TestScopeEnforcementOnCall:
         mock_token_scopes(["incidents:read"])
         route = gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.called
         assert tool_output(result) == {"incident": {"id": 77}}

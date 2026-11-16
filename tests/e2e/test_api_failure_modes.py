@@ -37,7 +37,7 @@ async def test_a_rejected_list_query_surfaces_as_a_tool_error(
     """
     gg_api.get(endpoint).respond(400, json={"detail": "Invalid filter."})
 
-    result = await call_tool(mcp_client, tool_name, {"params": params})
+    result = await call_tool(mcp_client, tool_name, params)
 
     assert "GitGuardian API returned 400 Bad Request: Invalid filter." in tool_error_text(result)
 
@@ -53,7 +53,7 @@ async def test_a_rejected_token_on_a_list_call_triggers_reauthentication(
     """
     gg_api.get(endpoint).respond(HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
 
-    response = await rpc(mcp_client, "tools/call", {"name": tool_name, "arguments": {"params": params}})
+    response = await rpc(mcp_client, "tools/call", {"name": tool_name, "arguments": params})
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert "www-authenticate" in response.headers
@@ -109,7 +109,7 @@ class TestRefusalMessages:
         """
         gg_api.get("/incidents/secrets/77").respond(404, json={"detail": "Not found."})
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         text = tool_error_text(result)
         assert "GitGuardian API returned 404 Not Found: Not found." in text
@@ -128,7 +128,7 @@ class TestRefusalMessages:
         """
         gg_api.post(endpoint).respond(409, json={"detail": detail})
 
-        result = await call_tool(mcp_client, tool_name, {"params": params})
+        result = await call_tool(mcp_client, tool_name, params)
 
         text = tool_error_text(result)
         assert f"GitGuardian API returned 409 Conflict: {detail}" in text
@@ -144,7 +144,7 @@ class TestRefusalMessages:
         """
         gg_api.get("/incidents/secrets/77").respond(403, text="<html>" + "x" * 5000 + "</html>")
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         text = tool_error_text(result)
         assert "GitGuardian API returned 403 Forbidden: <html>xxx" in text
@@ -162,7 +162,7 @@ class TestServerErrorRetries:
         """
         route = gg_api.get("/incidents/secrets/77").respond(500, text="boom")
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 4
         assert "500" in tool_error_text(result)
@@ -180,7 +180,7 @@ class TestServerErrorRetries:
             side_effect=[httpx.Response(status, text="busy"), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert not result.get("isError")
@@ -198,7 +198,7 @@ class TestServerErrorRetries:
             side_effect=[httpx.Response(429, headers={"Retry-After": "3"}), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert not result.get("isError")
@@ -216,7 +216,7 @@ class TestServerErrorRetries:
             429, headers={"Retry-After": "60"}, json={"detail": "Throttled."}
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
 
         assert route.call_count == 1
         assert "GitGuardian API returned 429 Too Many Requests: Throttled." in tool_error_text(result)
@@ -232,7 +232,7 @@ class TestServerErrorRetries:
         route = gg_api.post("/incidents/secrets/77/notes").respond(status, json={"detail": "Unavailable."})
 
         result = await call_tool(
-            mcp_client, "manage_incident_comment", {"params": {"incident_id": 77, "action": "add", "comment": "hi"}}
+            mcp_client, "manage_incident_comment", {"incident_id": 77, "action": "add", "comment": "hi"}
         )
 
         assert route.call_count == 1
@@ -259,7 +259,7 @@ class TestDownstreamUnauthorizedBridge:
             "tools/call",
             {
                 "name": "scan_secrets",
-                "arguments": {"params": {"documents": [{"document": "x", "filename": "x.py"}]}},
+                "arguments": {"documents": [{"document": "x", "filename": "x.py"}]},
             },
         )
 
@@ -277,7 +277,7 @@ class TestRedirects:
         gg_api.get("/sources").respond(301, headers={"Location": "https://api.gitguardian.com/v1/sources/"})
         moved = gg_api.get("/sources/").respond(200, json=[{"id": 9, "full_name": "acme/app"}])
 
-        result = await call_tool(mcp_client, "list_sources", {"params": {}})
+        result = await call_tool(mcp_client, "list_sources", {})
 
         assert moved.called
         assert "acme/app" in str(result)
@@ -294,7 +294,7 @@ class TestRedirects:
         collector = gg_api.post("https://collector.example/collect").respond(200, json=[])
 
         result = await call_tool(
-            mcp_client, "scan_secrets", {"params": {"documents": [{"document": "x = 1\n", "filename": "a.py"}]}}
+            mcp_client, "scan_secrets", {"documents": [{"document": "x = 1\n", "filename": "a.py"}]}
         )
 
         assert "redirect" in tool_error_text(result).lower()

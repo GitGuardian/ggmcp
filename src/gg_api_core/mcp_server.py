@@ -13,6 +13,7 @@ from typing import Any
 from fastmcp import FastMCP
 from fastmcp.exceptions import ValidationError
 from fastmcp.server.dependencies import get_access_token
+from fastmcp.tools import Tool
 from typing_extensions import override
 
 from gg_api_core.client import GitGuardianClient
@@ -23,6 +24,7 @@ from gg_api_core.middleware import (
     ScopeFilteringMiddleware,
     ToolCallLoggingMiddleware,
 )
+from gg_api_core.model_arguments import ModelArgumentsTool, arguments_model
 from gg_api_core.oauth_proxy_auth import (
     PassThroughTokenVerifier,
     create_oauth_proxy,
@@ -166,22 +168,29 @@ class AbstractGitGuardianFastMCP(FastMCP, ABC):
             # Direct call: mcp.tool(fn, required_scopes=...)
             fn = args[0]
             name: str = kwargs.get("name") or fn.__name__
-            result = super().tool(*args, **kwargs)
+            result = self._register_tool(fn, *args[1:], **kwargs)
             if required_scopes:
                 self._tool_scopes[name] = set(required_scopes)
             return result
         else:
             # Decorator usage: @mcp.tool(required_scopes=...)
-            parent_decorator = super().tool(*args, **kwargs)
 
             def wrapper(fn: Any) -> Any:
                 name: str = kwargs.get("name") or fn.__name__
-                result = parent_decorator(fn)
+                result = self._register_tool(fn, *args, **kwargs)
                 if required_scopes:
                     self._tool_scopes[name] = set(required_scopes)
                 return result
 
             return wrapper
+
+    def _register_tool(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
+        """Register ``fn``; a function taking one pydantic model gets that model's fields as its arguments."""
+        model = arguments_model(fn)
+        if model is None:
+            return super().tool(fn, *args, **kwargs)
+        self.add_tool(ModelArgumentsTool.from_function_tool(Tool.from_function(fn, *args, **kwargs), model))
+        return fn
 
     async def _fetch_token_scopes_from_api(self, client: GitGuardianClient | None = None) -> set[str]:
         """Fetch token scopes from the GitGuardian API.

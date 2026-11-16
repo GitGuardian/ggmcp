@@ -35,7 +35,7 @@ class TestListPublicIncidents:
         """
         route = gg_api.get("/public-incidents/secrets").respond(200, json=[PUBLIC_INCIDENT])
 
-        result = await call_tool(mcp_client, "list_public_incidents", {"params": {}})
+        result = await call_tool(mcp_client, "list_public_incidents", {})
 
         assert_authenticated_request(route)
         assert sent_params(route) == {
@@ -108,7 +108,7 @@ class TestListPublicIncidents:
         """
         route = gg_api.get("/public-incidents/secrets").respond(200, json=[])
 
-        await call_tool(mcp_client, "list_public_incidents", {"params": {**NO_DEFAULT_FILTERS, **filters}})
+        await call_tool(mcp_client, "list_public_incidents", {**NO_DEFAULT_FILTERS, **filters})
 
         params = sent_params(route)
         assert {key: params.get(key) for key in expected} == expected
@@ -125,7 +125,7 @@ class TestListPublicIncidents:
             headers={"Link": '<https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0y>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_public_incidents", {"params": {"cursor": "cD0x", "per_page": 1}})
+        result = await call_tool(mcp_client, "list_public_incidents", {"cursor": "cD0x", "per_page": 1})
 
         params = sent_params(route)
         assert params["cursor"] == "cD0x"
@@ -154,7 +154,7 @@ class TestListPublicIncidents:
             ]
         )
 
-        result = await call_tool(mcp_client, "list_public_incidents", {"params": {"get_all": True}})
+        result = await call_tool(mcp_client, "list_public_incidents", {"get_all": True})
 
         assert route.call_count == 2
         assert dict(route.calls[1].request.url.params)["cursor"] == "cD01"
@@ -173,7 +173,7 @@ class TestGetPublicIncident:
         """
         route = gg_api.get("/public-incidents/secrets/103").respond(200, json=PUBLIC_INCIDENT)
 
-        result = await call_tool(mcp_client, "get_public_incident", {"params": {"incident_id": 103}})
+        result = await call_tool(mcp_client, "get_public_incident", {"incident_id": 103})
 
         assert_authenticated_request(route)
         assert tool_output(result) == {"incident": PUBLIC_INCIDENT}
@@ -186,7 +186,7 @@ class TestGetPublicIncident:
         """
         gg_api.get("/public-incidents/secrets/999999999").respond(404, json={"detail": "Not found."})
 
-        result = await call_tool(mcp_client, "get_public_incident", {"params": {"incident_id": 999999999}})
+        result = await call_tool(mcp_client, "get_public_incident", {"incident_id": 999999999})
 
         assert "404" in tool_error_text(result)
 
@@ -202,7 +202,7 @@ class TestListPublicOccurrences:
         """
         route = gg_api.get("/public-incidents/secrets/103/occurrences").respond(200, json=[PUBLIC_OCCURRENCE])
 
-        result = await call_tool(mcp_client, "list_public_occurrences", {"params": {"incident_id": 103}})
+        result = await call_tool(mcp_client, "list_public_occurrences", {"incident_id": 103})
 
         assert_authenticated_request(route)
         assert sent_params(route) == {"per_page": "20", "ordering": "-date"}
@@ -247,7 +247,7 @@ class TestListPublicOccurrences:
         """
         route = gg_api.get("/public-incidents/secrets/103/occurrences").respond(200, json=[])
 
-        await call_tool(mcp_client, "list_public_occurrences", {"params": {"incident_id": 103, **filters}})
+        await call_tool(mcp_client, "list_public_occurrences", {"incident_id": 103, **filters})
 
         params = sent_params(route)
         assert {key: params.get(key) for key in expected} == expected
@@ -272,9 +272,7 @@ class TestListPublicOccurrences:
             ]
         )
 
-        result = await call_tool(
-            mcp_client, "list_public_occurrences", {"params": {"incident_id": 103, "get_all": True}}
-        )
+        result = await call_tool(mcp_client, "list_public_occurrences", {"incident_id": 103, "get_all": True})
 
         assert route.call_count == 2
         assert dict(route.calls[1].request.url.params)["cursor"] == "cD0x"
@@ -307,7 +305,7 @@ class TestWorkspaceWithoutPublicMonitoring:
         """
         gg_api.get(path).respond(403, json={"detail": "You do not have permission to perform this action."})
 
-        error = tool_error_text(await call_tool(mcp_client, tool, {"params": args}))
+        error = tool_error_text(await call_tool(mcp_client, tool, args))
 
         assert "You do not have permission to perform this action" in error
         assert "Public Monitoring" in error
@@ -323,7 +321,7 @@ class TestWorkspaceWithoutPublicMonitoring:
         """
         gg_api.get("/incidents/secrets/77").respond(403, json={"detail": "You do not have permission."})
 
-        error = tool_error_text(await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}}))
+        error = tool_error_text(await call_tool(mcp_client, "get_incident", {"incident_id": 77}))
 
         assert "You do not have permission" in error
         assert "Public Monitoring" not in error
