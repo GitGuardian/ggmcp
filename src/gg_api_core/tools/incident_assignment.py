@@ -10,7 +10,13 @@ from pydantic import BaseModel, Field, model_validator
 
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.tools.ids import NumericId
-from gg_api_core.tools.incident_writes import CHANGED_DESCRIPTION, IncidentKind, apply_or_confirm, incident_reader
+from gg_api_core.tools.incident_writes import (
+    CHANGED_DESCRIPTION,
+    IncidentKind,
+    apply_or_confirm,
+    check_advice,
+    incident_reader,
+)
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -127,7 +133,9 @@ async def _assign(
         def is_assigned(current: dict[str, Any]) -> bool:
             return current.get("assignee_id") == member_id
 
-    return await apply_or_confirm(call, incident_reader(client, kind, params.incident_id), is_assigned)
+    return await apply_or_confirm(
+        call, incident_reader(client, kind, params.incident_id), is_assigned, check_advice(kind)
+    )
 
 
 async def _assign_by_email(
@@ -165,6 +173,7 @@ async def unassign_internal_incident(params: UnassignInternalIncidentParams) -> 
         client.unassign_incident(str(params.incident_id)),
         incident_reader(client, "internal", params.incident_id),
         _is_unassigned,
+        check_advice("internal"),
     )
     return _result("internal", params.incident_id, "unassign", outcome)
 
@@ -183,5 +192,6 @@ async def unassign_public_incident(params: UnassignPublicIncidentParams) -> Assi
         client.unassign_public_incident(str(params.incident_id)),
         incident_reader(client, "public", params.incident_id),
         _is_unassigned,
+        check_advice("public"),
     )
     return _result("public", params.incident_id, "unassign", outcome)

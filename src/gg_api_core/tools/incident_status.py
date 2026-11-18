@@ -8,7 +8,13 @@ from pydantic import BaseModel, Field
 
 from gg_api_core.client import GitGuardianClient
 from gg_api_core.tools.ids import NumericId
-from gg_api_core.tools.incident_writes import CHANGED_DESCRIPTION, IncidentKind, apply_or_confirm, incident_reader
+from gg_api_core.tools.incident_writes import (
+    CHANGED_DESCRIPTION,
+    IncidentKind,
+    apply_or_confirm,
+    check_advice,
+    incident_reader,
+)
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -97,6 +103,7 @@ async def _apply(
         call,
         incident_reader(client, kind, incident_id),
         lambda current: current.get("status") in _STATUSES_AFTER[action],
+        check_advice(kind),
     )
     return IncidentStatusResult(
         incident_kind=kind,

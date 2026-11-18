@@ -22,6 +22,27 @@ CHANGED_DESCRIPTION = (
 )
 
 
+def uncertain_write_error(error: Exception, check: str) -> ToolError | None:
+    """The error for a write whose outcome is unknown, or None when the API answered.
+
+    A write that timed out, lost its connection, or got a server error may have been
+    applied before it failed. Writes are never retried, so the agent is told how to
+    check rather than to try again blindly.
+    """
+    if isinstance(error, httpx.HTTPStatusError) and error.response.status_code < 500:
+        return None
+    if not isinstance(error, (httpx.HTTPStatusError, httpx.RequestError)):
+        return None
+    reason = str(error) or type(error).__name__
+    return ToolError(f"{reason} The change may or may not have been applied. {check} before trying again.")
+
+
+def check_advice(kind: IncidentKind) -> str:
+    """How to see whether a change to an incident of this kind was applied."""
+    tool = "get_public_incident" if kind == "public" else "get_internal_incident"
+    return f"Read the incident with {tool} to check"
+
+
 def incident_reader(
     client: GitGuardianClient, kind: IncidentKind, incident_id: int
 ) -> Callable[[], Awaitable[dict[str, Any]]]:
@@ -35,24 +56,25 @@ async def apply_or_confirm(
     call: Awaitable[dict[str, Any]],
     read_current: Callable[[], Awaitable[dict[str, Any]]],
     in_requested_state: Callable[[dict[str, Any]], bool],
+    check: str,
 ) -> tuple[dict[str, Any], bool]:
     """Make the change, and say whether it changed anything.
 
     Returns the incident and True after a change, or the incident as read back and
     False when the API refused the change as a conflict and the incident already
-    has it. Any other failure raises a ToolError, inside the except block so that a
+    has it. A failure that leaves the outcome unknown says how to check it; any other
+    failure raises a ToolError. Both are raised inside the except block, so that a
     rejected token still asks the client to authenticate again.
     """
     try:
         return await call, True
-    except httpx.HTTPStatusError as e:
-        if e.response.status_code != 409:
-            raise ToolError(str(e))
-        conflict = e
     except ToolError:
         raise
     except Exception as e:
-        raise ToolError(str(e))
+        if isinstance(e, httpx.HTTPStatusError) and e.response.status_code == 409:
+            conflict = e
+        else:
+            raise uncertain_write_error(e, check) or ToolError(str(e))
 
     try:
         current = await read_current()

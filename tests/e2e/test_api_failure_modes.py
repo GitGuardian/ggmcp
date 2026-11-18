@@ -310,6 +310,84 @@ class TestServerErrorRetries:
         assert no_retry_delay == []
 
 
+# (tool, arguments, write endpoint, what the error says to check with)
+UNCERTAIN_WRITES = [
+    pytest.param(
+        "resolve_internal_incident",
+        {"incident_id": 77, "secret_revoked": True},
+        "/incidents/secrets/77/resolve",
+        "get_internal_incident",
+        id="resolve_internal_incident",
+    ),
+    pytest.param(
+        "assign_public_incident",
+        {"incident_id": 77, "assignee_member_id": 7},
+        "/public-incidents/secrets/77/assign",
+        "get_public_incident",
+        id="assign_public_incident",
+    ),
+    pytest.param(
+        "add_internal_incident_comment",
+        {"incident_id": 77, "comment": "hi"},
+        "/incidents/secrets/77/notes",
+        "may post it twice",
+        id="add_internal_incident_comment",
+    ),
+    pytest.param(
+        "generate_honeytoken",
+        {"name": "decoy", "new_token": True},
+        "/honeytokens",
+        "without new_token",
+        id="generate_honeytoken",
+    ),
+]
+
+
+class TestUncertainWrites:
+    @pytest.mark.parametrize(("tool", "arguments", "endpoint", "check"), UNCERTAIN_WRITES)
+    @pytest.mark.parametrize(
+        "failure",
+        [
+            pytest.param(httpx.ReadTimeout("timed out"), id="timeout"),
+            pytest.param(httpx.Response(503, json={"detail": "Unavailable."}), id="server-error"),
+        ],
+    )
+    async def test_a_write_with_an_unknown_outcome_says_how_to_check_it(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, tool, arguments, endpoint, check, failure
+    ):
+        """
+        GIVEN a write that times out or gets a server error, which the API may have applied before failing
+        WHEN the write tool is called
+        THEN the error says the change may or may not have been applied, and how to check before trying again
+        """
+        route = gg_api.post(endpoint)
+        if isinstance(failure, httpx.Response):
+            route.mock(return_value=failure)
+        else:
+            route.mock(side_effect=failure)
+
+        result = await call_tool(mcp_client, tool, arguments)
+
+        text = tool_error_text(result)
+        assert route.call_count == 1
+        assert "may or may not have been applied" in text
+        assert check in text
+
+    async def test_a_refused_write_is_not_called_uncertain(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a write the API refuses with a 400, which it did not apply
+        WHEN the write tool is called
+        THEN the error gives the API's reason and does not suggest the change may have been applied
+        """
+        gg_api.post("/incidents/secrets/77/resolve").respond(400, json={"detail": "Invalid payload."})
+
+        result = await call_tool(mcp_client, "resolve_internal_incident", {"incident_id": 77, "secret_revoked": True})
+
+        text = tool_error_text(result)
+        assert "Invalid payload" in text
+        assert "may or may not have been applied" not in text
+
+
 class TestDownstreamUnauthorizedBridge:
     async def test_a_downstream_401_during_a_tool_call_triggers_reauthentication(
         self, mcp_client, gg_api, mock_token_scopes

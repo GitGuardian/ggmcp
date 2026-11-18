@@ -13,11 +13,24 @@ from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, StringConstraints
 
 from gg_api_core.tools.ids import NumericId
+from gg_api_core.tools.incident_writes import IncidentKind, uncertain_write_error
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
-IncidentKind = Literal["internal", "public"]
+# How to see whether a comment write whose outcome is unknown went through. No tool reads
+# a public incident's comments, and adding one again may post it twice.
+_COMMENT_CHECK = {
+    "internal": {
+        "add": "Adding it again may post it twice: read the incident's history with get_internal_incident and "
+        "with_history to check",
+        "edit": "Read the incident's history with get_internal_incident and with_history to check",
+    },
+    "public": {
+        "add": "Adding it again may post it twice: check the incident in the GitGuardian dashboard",
+        "edit": "Check the incident in the GitGuardian dashboard",
+    },
+}
 
 # The public API limits a comment body to 1-10000 characters (whitespace stripped).
 CommentStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10_000)]
@@ -74,7 +87,7 @@ async def _apply(
     try:
         note = await call
     except Exception as e:
-        raise ToolError(str(e))
+        raise uncertain_write_error(e, _COMMENT_CHECK[kind][action]) or ToolError(str(e))
     return IncidentCommentResult(
         incident_kind=kind, incident_id=incident_id, action=action, comment_id=note.get("id"), comment=note
     )

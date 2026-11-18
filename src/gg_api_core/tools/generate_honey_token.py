@@ -6,6 +6,7 @@ from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import api_error_detail
+from gg_api_core.tools.incident_writes import uncertain_write_error
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,13 @@ class GenerateHoneytokenResult(BaseModel):
         "when this call created it"
     )
 
+
+# How to see whether a creation whose outcome is unknown went through: without new_token,
+# the tool returns the caller's most recent active honeytoken.
+_CREATION_CHECK = (
+    "Creating another may leave two: call generate_honeytoken without new_token, which returns your most recent "
+    "active honeytoken, to check"
+)
 
 # Returned with every honeytoken, reused or created.
 INJECTION_RECOMMENDATIONS = {
@@ -133,6 +141,8 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     except ToolError:
         raise
     except httpx.HTTPStatusError as e:
+        if uncertain := uncertain_write_error(e, _CREATION_CHECK):
+            raise uncertain from e
         # The API rejected the request — most often because an active honeytoken with
         # this name already exists (names are unique per workspace). This is an expected,
         # caller-actionable condition, not a server fault: surface the API's reason so the
@@ -142,4 +152,4 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         logger.warning(f"Honeytoken creation rejected ({e.response.status_code}): {detail}")
         raise ToolError(f"Could not create honeytoken: {detail}") from e
     except Exception as e:
-        raise ToolError(f"Failed to generate honeytoken: {str(e)}")
+        raise uncertain_write_error(e, _CREATION_CHECK) or ToolError(f"Failed to generate honeytoken: {str(e)}")
