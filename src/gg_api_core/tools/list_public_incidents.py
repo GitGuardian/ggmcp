@@ -10,7 +10,7 @@ from gg_api_core.client import (
 )
 from gg_api_core.utils import get_client
 
-# Default filters mirror list_incidents to keep the two tools behaviorally consistent:
+# Default filters mirror list_internal_incidents to keep the two tools behaviorally consistent:
 # hide IGNORED statuses, LOW/INFO severities, and INVALID validity out of the box.
 DEFAULT_STATUSES: list[IncidentStatus] = [
     IncidentStatus.TRIGGERED,

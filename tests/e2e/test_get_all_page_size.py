@@ -32,7 +32,7 @@ CURSOR_TOOLS = [
         id="public-occurrences",
     ),
     pytest.param(
-        "list_repo_occurrences",
+        "list_internal_occurrences",
         {"source_id": 55},
         "/occurrences/secrets",
         "occurrences",

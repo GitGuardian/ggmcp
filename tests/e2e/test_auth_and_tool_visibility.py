@@ -310,7 +310,7 @@ class TestScopeBasedToolVisibility:
             asyncio.gather(
                 call_tool(
                     mcp_client,
-                    "get_incident",
+                    "get_internal_incident",
                     {"incident_id": 77},
                     headers=mcp_headers("full-scope-token"),
                     request_id=201,
@@ -341,8 +341,8 @@ class TestPerRequestScopeCost:
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
-        await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
+        await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
         assert len(scope_fetches) == 1
@@ -366,13 +366,13 @@ class TestScopeEnforcementOnCall:
     async def test_a_tool_the_scopes_allow_still_runs(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a token with the incidents:read scope
-        WHEN a client calls get_incident
+        WHEN a client calls get_internal_incident
         THEN the call reaches the API and returns its result
         """
         mock_token_scopes(["incidents:read"])
         route = gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.called
         assert tool_output(result) == {"incident": {"id": 77}}

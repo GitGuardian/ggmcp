@@ -317,7 +317,9 @@ class TestExpectedToolFailures:
                 _caused_by(ToolError("x"), _caused_by(DownstreamUnauthorizedError("401"), _status_error(401))),
                 id="expired-token",
             ),
-            pytest.param(FastMCPValidationError("Invalid arguments for tool 'get_incident'"), id="bad-arguments"),
+            pytest.param(
+                FastMCPValidationError("Invalid arguments for tool 'get_internal_incident'"), id="bad-arguments"
+            ),
             pytest.param(ToolError("No honeytoken was created: ..."), id="deliberate-refusal"),
             pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), id="missing-scopes"),
             pytest.param(

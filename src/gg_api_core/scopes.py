@@ -18,7 +18,7 @@ class MissingScopesError(ToolError):
 
 
 # The scopes the server requests by default: the ones its tools use. members:read
-# resolves mine=True in list_incidents and count_incidents; honeytokens:read lets
+# resolves mine=True in list_internal_incidents and count_internal_incidents; honeytokens:read lets
 # generate_honeytoken reuse an existing honeytoken.
 DEFAULT_SCOPES = [
     "scan",

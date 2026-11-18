@@ -71,7 +71,7 @@ def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> st
 
 
 class _Pagination(BaseModel):
-    """Pagination fields, declared first so list_incidents' schema lists them first."""
+    """Pagination fields, declared first so list_internal_incidents' schema lists them first."""
 
     page: int = Field(default=1, description="Page number (1-indexed)", ge=1)
     page_size: int = Field(
@@ -114,7 +114,7 @@ class ListIncidentsParams(IncidentFilters, _Pagination):
 
 # A listed incident keeps every top-level field, but its secret and displayed occurrence
 # are cut to what triage reads: they are most of an incident's size, and a page of full
-# incidents outgrows what clients accept as tool output. get_incident gives an incident's full details.
+# incidents outgrows what clients accept as tool output. get_internal_incident gives an incident's full details.
 _SECRET_FIELDS = (
     "id",
     "status",
@@ -182,7 +182,7 @@ class ListIncidentsResult(BaseModel):
     incidents: list[dict[str, Any]] = Field(
         default_factory=list,
         description="Incidents. Each one's secret and displayed_occurrence are summarized (validity, detector, "
-        "source, file and lines); call get_incident for an incident's full details.",
+        "source, file and lines); call get_internal_incident for an incident's full details.",
     )
     page: int = Field(
         description="Current page number. With get_all=True, the last page whose incidents are included: "
@@ -211,7 +211,7 @@ class ListIncidentsError(BaseModel):
     error: str = Field(description="Error message")
 
 
-async def list_incidents(
+async def list_internal_incidents(
     params: ListIncidentsParams = ListIncidentsParams(),
 ) -> ListIncidentsResult | ListIncidentsError:
     """List secret incidents with enhanced filtering using the MCP-optimized endpoint.

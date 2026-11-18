@@ -1,5 +1,5 @@
-"""Read-path incident tools: list_incidents, count_incidents, get_incident,
-list_repo_occurrences.
+"""Read-path incident tools: list_internal_incidents, count_internal_incidents, get_internal_incident,
+list_internal_occurrences.
 
 These are the highest-traffic tools of the remote server. The tests pin the
 exact wire contract with the GitGuardian API (paths, query params, and their
@@ -37,17 +37,20 @@ DEFAULT_LIST_QUERY = {
     "tags__nin": "TEST_FILE,FALSE_POSITIVE,CHECK_RUN_SKIP_FALSE_POSITIVE,CHECK_RUN_SKIP_LOW_RISK,CHECK_RUN_SKIP_TEST_CRED",
 }
 
-# Turns off the filters list_incidents and count_incidents apply by default.
+# Turns off the filters list_internal_incidents and count_internal_incidents apply by default.
 NO_DEFAULT_FILTERS = {"status": None, "severity": None, "validity": None, "exclude_tags": None}
 
-INCIDENT_ENDPOINTS = {"list_incidents": "/incidents-for-mcp", "count_incidents": "/incidents-for-mcp/count"}
+INCIDENT_ENDPOINTS = {
+    "list_internal_incidents": "/incidents-for-mcp",
+    "count_internal_incidents": "/incidents-for-mcp/count",
+}
 
 
 class TestListIncidents:
     async def test_default_call_applies_the_opinionated_filters(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN no explicit filters
-        WHEN list_incidents is called
+        WHEN list_internal_incidents is called
         THEN the API receives the documented default filters (open statuses,
              low/info severity excluded, noise tags excluded) and the response
              is reshaped with pagination flags and the applied-filter echo
@@ -56,7 +59,7 @@ class TestListIncidents:
             200, json={"results": [INCIDENT], "count": 1, "next": None, "previous": None}
         )
 
-        result = await call_tool(mcp_client, "list_incidents", {})
+        result = await call_tool(mcp_client, "list_internal_incidents", {})
 
         assert sent_params(route) == DEFAULT_LIST_QUERY
         output = unwrap_result(result)
@@ -70,7 +73,7 @@ class TestListIncidents:
     async def test_filters_serialize_to_the_api_dialect(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN severity names, source ids, booleans, a count floor and a date
-        WHEN list_incidents is called
+        WHEN list_internal_incidents is called
         THEN they serialize as severity codes, source__in, lowercase booleans,
              a ">=N" operator string, and a date-only bound
         """
@@ -78,7 +81,7 @@ class TestListIncidents:
 
         await call_tool(
             mcp_client,
-            "list_incidents",
+            "list_internal_incidents",
             {
                 "severity": ["critical", "high"],
                 "source_ids": [11, 22],
@@ -108,13 +111,13 @@ class TestListIncidents:
     async def test_service_token_without_member_id_rejects_mine_filter(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a service token without a member ID
-        WHEN list_incidents is called with mine=True
+        WHEN list_internal_incidents is called with mine=True
         THEN the tool fails clearly without querying unfiltered incidents
         """
         gg_api.get("/api_tokens/self").respond(200, json=token_info(member_id=None))
         incidents = gg_api.get("/incidents-for-mcp").respond(200, json={"results": []})
 
-        result = await call_tool(mcp_client, "list_incidents", {"mine": True})
+        result = await call_tool(mcp_client, "list_internal_incidents", {"mine": True})
 
         assert "mine" in tool_error_text(result).lower()
         assert not incidents.called
@@ -124,7 +127,7 @@ class TestListIncidents:
     ):
         """
         GIVEN two pages of incidents
-        WHEN list_incidents is called with get_all=True
+        WHEN list_internal_incidents is called with get_all=True
         THEN both pages are fetched and merged into a single response
         """
         pages = {
@@ -135,7 +138,7 @@ class TestListIncidents:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        result = await call_tool(mcp_client, "list_incidents", {"get_all": True})
+        result = await call_tool(mcp_client, "list_internal_incidents", {"get_all": True})
 
         assert route.call_count == 2
         output = unwrap_result(result)
@@ -146,7 +149,7 @@ class TestListIncidents:
     async def test_get_all_cut_by_the_size_cap_resumes_at_the_dropped_page(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN three pages whose second page would push the result past the size cap
-        WHEN list_incidents is called with get_all=True, then again with the returned page + 1
+        WHEN list_internal_incidents is called with get_all=True, then again with the returned page + 1
         THEN the first call returns page 1 only, and the second call returns the page it dropped
         """
         big = "x" * (DEFAULT_PAGINATION_MAX_BYTES * 3 // 5)
@@ -161,9 +164,11 @@ class TestListIncidents:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        first = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True}))
+        first = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
         resumed = unwrap_result(
-            await call_tool(mcp_client, "list_incidents", {"page": first["page"] + 1, "page_size": first["page_size"]})
+            await call_tool(
+                mcp_client, "list_internal_incidents", {"page": first["page"] + 1, "page_size": first["page_size"]}
+            )
         )
 
         assert [i["id"] for i in first["incidents"]] == [1]
@@ -176,7 +181,7 @@ class TestListIncidents:
     ):
         """
         GIVEN more pages than the get_all page cap
-        WHEN list_incidents is called with get_all=True
+        WHEN list_internal_incidents is called with get_all=True
         THEN the result reports the last page it includes, so page + 1 is the first one it left out
         """
         gg_api.get("/incidents-for-mcp").mock(
@@ -189,7 +194,7 @@ class TestListIncidents:
             )
         )
 
-        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True}))
+        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
 
         assert [i["id"] for i in output["incidents"]] == list(range(1, MAX_PAGINATION_PAGES + 1))
         assert output["has_more"] is True
@@ -219,12 +224,14 @@ class TestListIncidents:
     ):
         """
         GIVEN incidents of about 3 KB each, and get_all asked for pages of 100
-        WHEN list_incidents is called
+        WHEN list_internal_incidents is called
         THEN it fetches small pages, stops within its size budget, and says how to continue
         """
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=500, note_bytes=3000))
 
-        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True, "page_size": 100}))
+        output = unwrap_result(
+            await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "page_size": 100})
+        )
 
         assert {call.request.url.params["page_size"] for call in route.calls} == {"5"}
         assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
@@ -245,7 +252,7 @@ class TestListIncidents:
         seen: list[int] = []
         arguments = {"get_all": True, "page_size": 100}
         for _ in range(10):
-            output = unwrap_result(await call_tool(mcp_client, "list_incidents", arguments))
+            output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", arguments))
             assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
             seen.extend(i["id"] for i in output["incidents"])
             if not output["has_more"]:
@@ -269,7 +276,9 @@ class TestListIncidents:
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=200))
 
         output = unwrap_result(
-            await call_tool(mcp_client, "list_incidents", {"get_all": True, "page": page, "page_size": page_size})
+            await call_tool(
+                mcp_client, "list_internal_incidents", {"get_all": True, "page": page, "page_size": page_size}
+            )
         )
 
         assert output["incidents"][0]["id"] == (page - 1) * page_size + 1
@@ -283,12 +292,12 @@ class TestListIncidents:
     ):
         """
         GIVEN a page of incidents, with or without a next page
-        WHEN list_incidents is called without get_all
+        WHEN list_internal_incidents is called without get_all
         THEN has_more says whether more incidents match, as in the other list tools
         """
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=10 if more else 5))
 
-        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"page_size": 5}))
+        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"page_size": 5}))
 
         assert output["has_more"] is more
         assert output["has_next"] is more
@@ -332,19 +341,19 @@ class TestListIncidents:
     ):
         """
         GIVEN one tool filter
-        WHEN list_incidents is called
+        WHEN list_internal_incidents is called
         THEN the API receives it under its own query parameter, serialized the
              way the API expects
         """
         route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
 
-        await call_tool(mcp_client, "list_incidents", filters)
+        await call_tool(mcp_client, "list_internal_incidents", filters)
 
         params = sent_params(route)
         assert {key: params.get(key) for key in expected} == expected
 
 
-@pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
+@pytest.mark.parametrize("tool_name", ["list_internal_incidents", "count_internal_incidents"])
 class TestSharedIncidentFilters:
     @pytest.mark.parametrize(
         ("filters", "expected_query", "expected_echo"),
@@ -414,7 +423,9 @@ class TestSharedIncidentFilters:
 
         result = await call_tool(mcp_client, tool_name, {**NO_DEFAULT_FILTERS, **filters})
 
-        pagination = {"page": "1", "page_size": "20", "ordering": "-date"} if tool_name == "list_incidents" else {}
+        pagination = (
+            {"page": "1", "page_size": "20", "ordering": "-date"} if tool_name == "list_internal_incidents" else {}
+        )
         assert sent_params(route) == {**pagination, **expected_query}
         # The existing echo omits zero occurrence/day floors even though the API receives them.
         assert unwrap_result(result)["applied_filters"] == expected_echo
@@ -436,7 +447,7 @@ class TestSharedIncidentFilters:
         assert not incidents.called
 
 
-@pytest.mark.parametrize("tool_name", ["list_incidents", "count_incidents"])
+@pytest.mark.parametrize("tool_name", ["list_internal_incidents", "count_internal_incidents"])
 class TestSharedIncidentErrors:
     async def test_a_rejected_token_triggers_reauthentication(self, mcp_client, gg_api, mock_token_scopes, tool_name):
         """
@@ -459,13 +470,13 @@ class TestCountIncidents:
     async def test_count_mine_filters_on_the_resolved_member(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN mine=True
-        WHEN count_incidents is called
+        WHEN count_internal_incidents is called
         THEN the count query filters on the caller's member id
         """
         gg_api.get(f"/members/{TEST_MEMBER_ID}").respond(200, json={"id": TEST_MEMBER_ID})
         route = gg_api.get("/incidents-for-mcp/count").respond(200, json={"count": 2})
 
-        result = await call_tool(mcp_client, "count_incidents", {"mine": True})
+        result = await call_tool(mcp_client, "count_internal_incidents", {"mine": True})
 
         assert sent_params(route)["assignee_member_id"] == str(TEST_MEMBER_ID)
         assert unwrap_result(result)["count"] == 2
@@ -475,13 +486,13 @@ class TestGetIncident:
     async def test_incident_is_fetched_by_id_and_wrapped(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN an incident id
-        WHEN get_incident is called with defaults
+        WHEN get_internal_incident is called with defaults
         THEN the incident endpoint is hit without query params and the raw
              incident is returned under the incident key
         """
         route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert str(route.calls.last.request.url) == "https://api.gitguardian.com/v1/incidents/secrets/77"
         assert tool_output(result) == {"incident": INCIDENT}
@@ -497,7 +508,7 @@ class TestGetIncident:
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert result["isError"] is False
         assert result["structuredContent"] == {"incident": INCIDENT}
@@ -507,13 +518,13 @@ class TestGetIncident:
     async def test_zero_occurrences_is_forwarded_not_dropped(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN with_occurrences=0
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the API is asked for no occurrences explicitly, instead of falling
              back to its default of 20
         """
         route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
 
-        await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_occurrences": 0})
+        await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "with_occurrences": 0})
 
         assert sent_params(route) == {"with_occurrences": "0"}
 
@@ -528,13 +539,13 @@ class TestGetIncidentHistory:
     async def test_history_is_not_read_unless_asked_for(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN an incident id and no with_history
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the activity log is not requested and the output has no history key
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
         history_route = gg_api.get("/incidents/secrets/77/activity-logs").respond(200, json=ACTIVITY_LOG)
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert not history_route.called
         assert tool_output(result) == {"incident": INCIDENT}
@@ -544,13 +555,13 @@ class TestGetIncidentHistory:
     ):
         """
         GIVEN an incident with two activity log entries
-        WHEN get_incident is called with with_history=true
+        WHEN get_internal_incident is called with with_history=true
         THEN the 50 most recent entries are requested, newest first, and returned under history with has_more false
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
         history_route = gg_api.get("/incidents/secrets/77/activity-logs").respond(200, json=ACTIVITY_LOG)
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "with_history": True})
 
         assert sent_params(history_route) == {"per_page": "50", "ordering": "-created_at"}
         assert tool_output(result) == {
@@ -561,7 +572,7 @@ class TestGetIncidentHistory:
     async def test_a_longer_history_says_more_entries_exist(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN an activity log with a next page
-        WHEN get_incident is called with with_history=true
+        WHEN get_internal_incident is called with with_history=true
         THEN history.has_more is true
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
@@ -573,20 +584,20 @@ class TestGetIncidentHistory:
             },
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "with_history": True})
 
         assert tool_output(result)["history"]["has_more"] is True
 
     async def test_an_unreadable_history_still_returns_the_incident(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN an activity log the API refuses with a 403
-        WHEN get_incident is called with with_history=true
+        WHEN get_internal_incident is called with with_history=true
         THEN the incident is returned, and history says why it could not be read
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
         gg_api.get("/incidents/secrets/77/activity-logs").respond(403, json={"detail": "Insufficient permissions."})
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "with_history": True})
 
         output = tool_output(result)
         assert output["incident"] == INCIDENT
@@ -599,7 +610,7 @@ class TestGetIncidentHistory:
     ):
         """
         GIVEN a token the API rejects with a 401 on the activity log
-        WHEN get_incident is called with with_history=true
+        WHEN get_internal_incident is called with with_history=true
         THEN the response asks the MCP client to authenticate again
         """
         gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
@@ -608,7 +619,7 @@ class TestGetIncidentHistory:
         response = await rpc(
             mcp_client,
             "tools/call",
-            {"name": "get_incident", "arguments": {"incident_id": 77, "with_history": True}},
+            {"name": "get_internal_incident", "arguments": {"incident_id": 77, "with_history": True}},
         )
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -619,7 +630,7 @@ class TestListRepoOccurrences:
     async def test_occurrences_query_and_cursor_pagination(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a source id and a next page advertised via the Link header
-        WHEN list_repo_occurrences is called
+        WHEN list_internal_occurrences is called
         THEN the query carries the default noise filters and the decoded cursor
              is handed back with has_more=True
         """
@@ -630,7 +641,7 @@ class TestListRepoOccurrences:
             headers={"Link": '<https://api.gitguardian.com/v1/occurrences/secrets?cursor=cD0yMDI2%3D%3D>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_repo_occurrences", {"source_id": 55})
+        result = await call_tool(mcp_client, "list_internal_occurrences", {"source_id": 55})
 
         params = sent_params(route)
         assert params["source_id"] == "55"
@@ -651,17 +662,17 @@ class TestListRepoOccurrences:
     async def test_mine_filters_on_the_token_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN mine=True
-        WHEN list_repo_occurrences is called
+        WHEN list_internal_occurrences is called
         THEN the member id from /api_tokens/self is sent as incident_assignee_id
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
-        await call_tool(mcp_client, "list_repo_occurrences", {"mine": True})
+        await call_tool(mcp_client, "list_internal_occurrences", {"mine": True})
 
         assert sent_params(route)["incident_assignee_id"] == str(TEST_MEMBER_ID)
         assert "member_assignee_id" not in sent_params(route)
 
-    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences"])
+    @pytest.mark.parametrize("tool_name", ["list_internal_occurrences"])
     async def test_service_token_without_member_id_rejects_mine_filter(
         self, mcp_client, gg_api, mock_token_scopes, tool_name
     ):
@@ -678,7 +689,7 @@ class TestListRepoOccurrences:
         assert "mine" in tool_error_text(result).lower()
         assert not occurrences.called
 
-    @pytest.mark.parametrize("tool_name", ["list_repo_occurrences"])
+    @pytest.mark.parametrize("tool_name", ["list_internal_occurrences"])
     async def test_incident_occurrences_can_be_paged_beyond_100(self, mcp_client, gg_api, mock_token_scopes, tool_name):
         """
         GIVEN an incident with 150 occurrences across two API pages
@@ -742,7 +753,7 @@ class TestListRepoOccurrences:
         params = {"source_id": 55, "get_all": True}
         returned = []
         for _ in range(3):
-            output = unwrap_result(await call_tool(mcp_client, "list_repo_occurrences", params))
+            output = unwrap_result(await call_tool(mcp_client, "list_internal_occurrences", params))
             returned.extend(output["occurrences"])
             if not output["has_more"]:
                 break
@@ -770,7 +781,9 @@ class TestListRepoOccurrences:
             ]
         )
 
-        output = unwrap_result(await call_tool(mcp_client, "list_repo_occurrences", {"source_id": 55, "get_all": True}))
+        output = unwrap_result(
+            await call_tool(mcp_client, "list_internal_occurrences", {"source_id": 55, "get_all": True})
+        )
 
         assert output["occurrences"] == [occurrence]
         assert output["has_more"] is False
@@ -779,14 +792,14 @@ class TestListRepoOccurrences:
     async def test_date_range_and_presence_are_forwarded(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a date range and a presence filter
-        WHEN list_repo_occurrences is called
+        WHEN list_internal_occurrences is called
         THEN both reach the occurrences query unchanged
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
         await call_tool(
             mcp_client,
-            "list_repo_occurrences",
+            "list_internal_occurrences",
             {"from_date": "2024-01-01", "to_date": "2024-12-31", "presence": "present"},
         )
 
@@ -856,13 +869,13 @@ class TestIncidentSummariesInLists:
     async def test_a_listed_incident_keeps_what_triage_reads(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the API returns full incidents
-        WHEN list_incidents is called
+        WHEN list_internal_incidents is called
         THEN each incident keeps its top-level fields, and its secret and displayed occurrence are cut
         to validity, detector, source, file and lines
         """
         gg_api.get("/incidents-for-mcp").respond(200, json={"results": [_full_incident(7)], "next": None})
 
-        (incident,) = unwrap_result(await call_tool(mcp_client, "list_incidents", {}))["incidents"]
+        (incident,) = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {}))["incidents"]
 
         assert {k: incident[k] for k in ("id", "status", "severity", "score", "occurrences_count", "hash")} == {
             "id": 7,
@@ -902,13 +915,13 @@ class TestIncidentSummariesInLists:
     async def test_get_incident_returns_the_apis_incident_untouched(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the API returns a full incident
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN it comes back untouched, nested objects included
         """
         full = _full_incident(7)
         gg_api.get("/incidents/secrets/7").respond(200, json=full)
 
-        output = tool_output(await call_tool(mcp_client, "get_incident", {"incident_id": 7}))
+        output = tool_output(await call_tool(mcp_client, "get_internal_incident", {"incident_id": 7}))
 
         assert output["incident"]["secret"] == full["secret"]
         assert output["incident"]["displayed_occurrence"] == full["displayed_occurrence"]
@@ -916,7 +929,7 @@ class TestIncidentSummariesInLists:
     async def test_get_all_sizes_its_budget_on_the_summarized_incidents(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN three pages whose full incidents are each larger than the whole get_all budget
-        WHEN list_incidents is called with get_all=True
+        WHEN list_internal_incidents is called with get_all=True
         THEN all three pages are returned, since the budget counts the summaries agents receive
         """
         pages = {
@@ -930,7 +943,7 @@ class TestIncidentSummariesInLists:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True}))
+        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
 
         assert [i["id"] for i in output["incidents"]] == [1, 2, 3]
         assert output["has_more"] is False

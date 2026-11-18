@@ -15,9 +15,10 @@ backed by GitGuardian's 500+ detectors.
 ## What it does
 
 - **Secret scanning**: proactively scan files for leaked credentials (`scan_secrets`).
-- **Incident triage**: list, count and inspect internal incidents (`list_incidents`,
-  `count_incidents`, `get_incident`, which can include an incident's comments and
-  history), and drill into their exact locations (`list_repo_occurrences`, `list_sources`).
+- **Incident triage**: list, count and inspect internal incidents
+  (`list_internal_incidents`, `count_internal_incidents`, `get_internal_incident`,
+  which can include an incident's comments and history), and drill into their exact
+  locations (`list_internal_occurrences`, `list_sources`).
 - **Incident links and IDs**: open an incident from a pasted dashboard or public API
   link, or from a bare incident ID (`get_gitguardian_resource`). It works out whether
   the incident is internal or from Public Monitoring and returns its details. Links

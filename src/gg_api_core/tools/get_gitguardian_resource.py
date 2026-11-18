@@ -25,8 +25,8 @@ _INCIDENT_ID = r"[0-9]{1,20}"
 # Dashboard pages that list or search instead of showing one incident, and where to go instead.
 _LIST_PAGE_GUIDANCE = {
     "incidents": (
-        "This GitGuardian link is the internal incidents list, not one incident. Use list_incidents or "
-        "count_incidents with filters, or pass the link of a single incident."
+        "This GitGuardian link is the internal incidents list, not one incident. Use list_internal_incidents or "
+        "count_internal_incidents with filters, or pass the link of a single incident."
     ),
     "public-incidents": (
         "This GitGuardian link is the public incidents list, not one incident. Use list_public_incidents "
@@ -199,7 +199,7 @@ async def _resolve_bare_id(
     if isinstance(internal, dict) and isinstance(public, dict):
         raise ToolError(
             f"Incident ID {incident_id} exists both as an internal incident and as a public incident, and they "
-            "are different incidents. Ask the user which one they mean, then call get_incident or "
+            "are different incidents. Ask the user which one they mean, then call get_internal_incident or "
             "get_public_incident, or pass the incident's dashboard link."
         )
     if isinstance(internal, dict) and public_absent:

@@ -4,9 +4,9 @@ import typing
 
 import pytest
 
-from gg_api_core.tools.count_incidents import CountIncidentsParams
+from gg_api_core.tools.count_internal_incidents import CountIncidentsParams
 from gg_api_core.tools.incident_filters import IncidentFilters
-from gg_api_core.tools.list_incidents import ListIncidentsParams
+from gg_api_core.tools.list_internal_incidents import ListIncidentsParams
 
 
 def _list_filters():

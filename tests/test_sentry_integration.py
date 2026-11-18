@@ -198,7 +198,7 @@ def test_error_event_redacts_the_input_a_validation_error_quotes():
     THEN the input is redacted and the rest of the message stays
     """
     message = (
-        "1 validation error for call[get_incident]\nparams.incident_id\n"
+        "1 validation error for call[get_internal_incident]\nparams.incident_id\n"
         "  Input should be a valid integer, unable to parse string as an integer "
         "[type=int_parsing, input_value='pasted-secret', input_type=str]"
     )

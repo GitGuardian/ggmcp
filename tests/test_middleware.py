@@ -87,12 +87,12 @@ class TestToolCallLoggingMiddleware:
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
             result = await ToolCallLoggingMiddleware().on_call_tool(
-                _ctx("get_incident", {"incident_id": "123"}), call_next
+                _ctx("get_internal_incident", {"incident_id": "123"}), call_next
             )
 
         assert result == "result"
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
-        assert rec.tool == "get_incident"
+        assert rec.tool == "get_internal_incident"
         assert rec.status == "ok"
         assert isinstance(rec.duration_ms, int)
 
@@ -128,7 +128,7 @@ class TestToolCallLoggingMiddleware:
             )
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.result_bytes == len('{"data": [1, 2, 3]}')
@@ -148,7 +148,7 @@ class TestToolCallLoggingMiddleware:
             return ToolResult(content=[])
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("get_incident"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("get_internal_incident"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.downstream_calls == 2
@@ -167,7 +167,7 @@ class TestToolCallLoggingMiddleware:
             return ToolResult(content=[])
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.truncated is True
@@ -186,7 +186,7 @@ class TestToolCallLoggingMiddleware:
 
         with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
             with pytest.raises(httpx.HTTPStatusError):
-                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call_failed")
         assert rec.upstream_status == 400
@@ -209,7 +209,7 @@ class TestToolCallLoggingMiddleware:
 
         with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
             with pytest.raises(KeyError):
-                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         (rec,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
         assert rec.levelno == logging.ERROR
@@ -232,7 +232,7 @@ class TestToolCallLoggingMiddleware:
 
         middleware = ToolCallLoggingMiddleware()
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await middleware.on_call_tool(_ctx("get_incident"), call_next_with_downstream)
+            await middleware.on_call_tool(_ctx("get_internal_incident"), call_next_with_downstream)
             await middleware.on_call_tool(_ctx("list_detectors"), call_next_without)
 
         first, second = (r for r in caplog.records if r.getMessage() == "tool_call")

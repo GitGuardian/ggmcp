@@ -3,15 +3,15 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import ValidationError
 
-from gg_api_core.tools.list_repo_occurrences import (
+from gg_api_core.tools.list_internal_occurrences import (
     ListRepoOccurrencesFilters,
     ListRepoOccurrencesParams,
-    list_repo_occurrences,
+    list_internal_occurrences,
 )
 
 
 class TestListRepoOccurrences:
-    """Tests for the list_repo_occurrences tool."""
+    """Tests for the list_internal_occurrences tool."""
 
     @pytest.mark.asyncio
     async def test_list_repo_occurrences_with_member_assignee_id(self, mock_gitguardian_client):
@@ -28,7 +28,7 @@ class TestListRepoOccurrences:
         mock_gitguardian_client.list_occurrences = AsyncMock(return_value=mock_response)
 
         # Call the function with member_assignee_id
-        result = await list_repo_occurrences(
+        result = await list_internal_occurrences(
             ListRepoOccurrencesParams(
                 source_id="source_123",
                 member_assignee_id=12345,
@@ -64,7 +64,7 @@ class TestListRepoOccurrences:
         )
 
         # Call the function with mine=True
-        result = await list_repo_occurrences(
+        result = await list_internal_occurrences(
             ListRepoOccurrencesParams(
                 source_id="source_123",
                 mine=True,

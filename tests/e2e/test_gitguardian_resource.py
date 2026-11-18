@@ -301,7 +301,7 @@ async def test_a_bare_id_that_exists_as_both_kinds_is_reported_as_ambiguous(mcp_
 
     error = tool_error_text(result)
     assert "both as an internal incident and as a public incident" in error
-    assert "get_incident" in error and "get_public_incident" in error
+    assert "get_internal_incident" in error and "get_public_incident" in error
 
 
 @pytest.mark.parametrize(
@@ -384,8 +384,8 @@ async def test_exactly_one_of_link_or_id_is_accepted(mcp_client, gg_api, mock_to
 @pytest.mark.parametrize(
     "path, pointer",
     [
-        ("/workspace/1/incidents?status=TRIGGERED&severity=high", "list_incidents"),
-        ("/workspace/1/incidents/", "list_incidents"),
+        ("/workspace/1/incidents?status=TRIGGERED&severity=high", "list_internal_incidents"),
+        ("/workspace/1/incidents/", "list_internal_incidents"),
         ("/workspace/1/public-incidents", "list_public_incidents"),
         ("/workspace/1/honeytokens", "generate_honeytoken"),
         ("/workspace/1/honeytokens/dcfa8ef5-d3eb-46a8-9d57-3c7d66e7d053", "generate_honeytoken"),

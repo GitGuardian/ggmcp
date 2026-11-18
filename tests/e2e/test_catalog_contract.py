@@ -22,35 +22,35 @@ INSTRUCTIONS_HEAD = 512
 # Tools that still break a rule. Remove a tool once it follows the rule.
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
 WRAPPED_OUTPUT = {
-    "count_incidents",
-    "list_incidents",
+    "count_internal_incidents",
+    "list_internal_incidents",
     "list_public_incidents",
     "list_public_occurrences",
-    "list_repo_occurrences",
+    "list_internal_occurrences",
 }
 MISSING_HINTS = {
-    "count_incidents",
+    "count_internal_incidents",
     "get_gitguardian_resource",
-    "get_incident",
+    "get_internal_incident",
     "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
-    "list_incidents",
+    "list_internal_incidents",
     "list_public_incidents",
     "list_public_occurrences",
-    "list_repo_occurrences",
+    "list_internal_occurrences",
     "list_sources",
     "scan_secrets",
 }
 OTHER_PAGE_ARGUMENTS = {
-    "list_incidents",
+    "list_internal_incidents",
     "list_public_incidents",
     "list_public_occurrences",
-    "list_repo_occurrences",
+    "list_internal_occurrences",
     "list_sources",
 }
 LOOSE_INCIDENT_ID = {
-    "get_incident",
+    "get_internal_incident",
     "get_public_incident",
     "list_public_occurrences",
 }

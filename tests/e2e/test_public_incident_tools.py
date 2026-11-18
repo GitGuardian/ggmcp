@@ -316,12 +316,12 @@ class TestWorkspaceWithoutPublicMonitoring:
     ):
         """
         GIVEN an internal incident endpoint that answers 403
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the error keeps the API's reason without the Public Monitoring guidance
         """
         gg_api.get("/incidents/secrets/77").respond(403, json={"detail": "You do not have permission."})
 
-        error = tool_error_text(await call_tool(mcp_client, "get_incident", {"incident_id": 77}))
+        error = tool_error_text(await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77}))
 
         assert "You do not have permission" in error
         assert "Public Monitoring" not in error

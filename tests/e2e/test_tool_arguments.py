@@ -37,21 +37,25 @@ class TestTopLevelArguments:
         """
         schemas = await _tool_schemas(mcp_client)
 
-        assert schemas["get_incident"]["required"] == ["incident_id"]
-        assert set(schemas["get_incident"]["properties"]) == {"incident_id", "with_occurrences", "with_history"}
+        assert schemas["get_internal_incident"]["required"] == ["incident_id"]
+        assert set(schemas["get_internal_incident"]["properties"]) == {
+            "incident_id",
+            "with_occurrences",
+            "with_history",
+        }
         assert schemas["resolve_internal_incident"]["required"] == ["incident_id", "secret_revoked"]
         assert schemas["scan_secrets"]["required"] == ["documents"]
-        assert "required" not in schemas["list_incidents"]
+        assert "required" not in schemas["list_internal_incidents"]
 
     async def test_a_flat_call_reaches_the_api(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN get_incident called with incident_id at the top level
+        GIVEN get_internal_incident called with incident_id at the top level
         WHEN it runs
         THEN the incident is fetched
         """
         route = gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.called
         assert tool_output(result) == {"incident": {"id": 77}}
@@ -84,12 +88,12 @@ class TestTopLevelArguments:
     async def test_a_call_in_the_old_params_shape_is_refused_with_a_hint(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN a client that still sends its arguments inside a params object
-        WHEN list_incidents, whose arguments are all optional, is called that way
+        WHEN list_internal_incidents, whose arguments are all optional, is called that way
         THEN it is refused with a hint instead of running with default filters
         """
         route = gg_api.get("/incidents-for-mcp").mock(return_value=httpx.Response(200, json={"results": []}))
 
-        result = await call_tool(mcp_client, "list_incidents", {"params": {"status": ["RESOLVED"]}})
+        result = await call_tool(mcp_client, "list_internal_incidents", {"params": {"status": ["RESOLVED"]}})
 
         error = tool_error_text(result)
         assert "params" in error
@@ -98,13 +102,13 @@ class TestTopLevelArguments:
 
     async def test_a_missing_argument_is_named_without_internal_details(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN get_incident called without its required incident_id
+        GIVEN get_internal_incident called without its required incident_id
         WHEN it runs
         THEN the error names the missing argument, not the internal model, and echoes no input
         """
-        error = tool_error_text(await call_tool(mcp_client, "get_incident", {"with_occurrences": 0}))
+        error = tool_error_text(await call_tool(mcp_client, "get_internal_incident", {"with_occurrences": 0}))
 
-        assert "Invalid arguments for tool 'get_incident': incident_id: Field required" in error
+        assert "Invalid arguments for tool 'get_internal_incident': incident_id: Field required" in error
         assert "GetIncidentParams" not in error
         assert "input_value" not in error
 
@@ -117,8 +121,8 @@ class TestTopLevelArguments:
         """
         schemas = await _tool_schemas(mcp_client)
 
-        for tool in ("list_repo_occurrences", "list_public_incidents"):
+        for tool in ("list_internal_occurrences", "list_public_incidents"):
             offered = json.dumps(schemas[tool])
             assert '"not_checked"' not in offered, tool
             assert '"unknown"' in offered, tool
-        assert "not_checked" in schemas["list_incidents"]["properties"]["validity"]["description"]
+        assert "not_checked" in schemas["list_internal_incidents"]["properties"]["validity"]["description"]

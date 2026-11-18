@@ -190,7 +190,7 @@ class ListRepoOccurrencesError(BaseModel):
     error: str = Field(description="Error message")
 
 
-async def list_repo_occurrences(
+async def list_internal_occurrences(
     params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
 ) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
     """List secret occurrences for a repository or incident using the GitGuardian v1/occurrences/secrets API.

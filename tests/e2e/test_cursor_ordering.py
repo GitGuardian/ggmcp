@@ -22,7 +22,7 @@ CURSOR_TOOLS = [
         id="public-occurrences",
     ),
     pytest.param(
-        "list_repo_occurrences",
+        "list_internal_occurrences",
         {"source_id": 55, "ordering": "-date"},
         "/occurrences/secrets",
         "occurrences",
@@ -104,11 +104,11 @@ async def test_ordering_gets_an_id_tiebreaker_in_its_direction(mcp_client, gg_ap
 async def test_repo_occurrences_without_an_ordering_send_none(mcp_client, gg_api, mock_token_scopes):
     """
     GIVEN no ordering
-    WHEN list_repo_occurrences is called
+    WHEN list_internal_occurrences is called
     THEN no ordering is sent, and the API's default order (by id) applies
     """
     route = gg_api.get("/occurrences/secrets").respond(200, json=[])
 
-    await call_tool(mcp_client, "list_repo_occurrences", {"source_id": 55})
+    await call_tool(mcp_client, "list_internal_occurrences", {"source_id": 55})
 
     assert "ordering" not in sent_params(route)

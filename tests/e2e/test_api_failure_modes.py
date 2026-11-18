@@ -14,9 +14,9 @@ INCIDENT = {"id": 77, "status": "TRIGGERED"}
 
 
 LIST_TOOL_CALLS = [
-    pytest.param("list_incidents", "/incidents-for-mcp", {}, id="list_incidents"),
-    pytest.param("count_incidents", "/incidents-for-mcp/count", {}, id="count_incidents"),
-    pytest.param("list_repo_occurrences", "/occurrences/secrets", {"source_id": 1}, id="list_repo_occurrences"),
+    pytest.param("list_internal_incidents", "/incidents-for-mcp", {}, id="list_internal_incidents"),
+    pytest.param("count_internal_incidents", "/incidents-for-mcp/count", {}, id="count_internal_incidents"),
+    pytest.param("list_internal_occurrences", "/occurrences/secrets", {"source_id": 1}, id="list_internal_occurrences"),
     pytest.param("list_public_incidents", "/public-incidents/secrets", {}, id="list_public_incidents"),
     pytest.param(
         "list_public_occurrences",
@@ -105,12 +105,12 @@ class TestRefusalMessages:
     ):
         """
         GIVEN the API answering 404 for an incident, as it does for one outside the caller's teams
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the tool error gives the API's reason, both possible causes, and says retrying will not help
         """
         gg_api.get("/incidents/secrets/77").respond(404, json={"detail": "Not found."})
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         text = tool_error_text(result)
         assert "GitGuardian API returned 404 Not Found: Not found." in text
@@ -140,12 +140,12 @@ class TestRefusalMessages:
     ):
         """
         GIVEN the API answering 403 with a long HTML page instead of JSON
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the tool error names the status and keeps only the start of the page
         """
         gg_api.get("/incidents/secrets/77").respond(403, text="<html>" + "x" * 5000 + "</html>")
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         text = tool_error_text(result)
         assert "GitGuardian API returned 403 Forbidden: <html>xxx" in text
@@ -158,12 +158,12 @@ class TestServerErrorRetries:
     ):
         """
         GIVEN the API failing with 500 on every attempt
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN exactly four requests are made (initial + 3 retries) and the tool fails
         """
         route = gg_api.get("/incidents/secrets/77").respond(500, text="boom")
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 4
         assert "500" in tool_error_text(result)
@@ -174,14 +174,14 @@ class TestServerErrorRetries:
     ):
         """
         GIVEN the API failing a read once with a transient status
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the read is retried after one second and the tool succeeds
         """
         route = gg_api.get("/incidents/secrets/77").mock(
             side_effect=[httpx.Response(status, text="busy"), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert not result.get("isError")
@@ -192,14 +192,14 @@ class TestServerErrorRetries:
     ):
         """
         GIVEN the API rate-limiting a read with Retry-After: 3
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the read is retried after exactly that delay and the tool succeeds
         """
         route = gg_api.get("/incidents/secrets/77").mock(
             side_effect=[httpx.Response(429, headers={"Retry-After": "3"}), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert not result.get("isError")
@@ -210,14 +210,14 @@ class TestServerErrorRetries:
     ):
         """
         GIVEN the API rate-limiting a read with a Retry-After longer than the server waits
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the tool fails at once with the 429 instead of holding the call open
         """
         route = gg_api.get("/incidents/secrets/77").respond(
             429, headers={"Retry-After": "60"}, json={"detail": "Throttled."}
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 1
         assert "GitGuardian API returned 429 Too Many Requests: Throttled." in tool_error_text(result)
@@ -226,14 +226,14 @@ class TestServerErrorRetries:
     async def test_a_read_that_times_out_once_is_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay):
         """
         GIVEN a read that times out once, then answers
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN the read is repeated at once and the tool succeeds
         """
         route = gg_api.get("/incidents/secrets/77").mock(
             side_effect=[httpx.ReadTimeout("timed out"), httpx.Response(200, json=INCIDENT)]
         )
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert not result.get("isError")
@@ -244,12 +244,12 @@ class TestServerErrorRetries:
     ):
         """
         GIVEN a read that times out on every attempt
-        WHEN get_incident is called
+        WHEN get_internal_incident is called
         THEN it is tried twice in all, and the timeout reaches the agent
         """
         route = gg_api.get("/incidents/secrets/77").mock(side_effect=httpx.ReadTimeout("timed out"))
 
-        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert "timed out" in tool_error_text(result)
@@ -404,14 +404,14 @@ class TestRedirects:
 class TestOneRecordPerFailure:
     async def test_an_api_refusal_logs_no_error_and_no_traceback(self, mcp_client, gg_api, mock_token_scopes, caplog):
         """
-        GIVEN the API refusing get_incident with a 404
+        GIVEN the API refusing get_internal_incident with a 404
         WHEN the tool is called
         THEN nothing is logged at ERROR, no record carries a traceback, and tool_call_failed is a warning
         """
         gg_api.get("/incidents/secrets/77").respond(404, json={"detail": "Not found."})
 
         with caplog.at_level(logging.WARNING):
-            await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+            await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         assert [r.getMessage() for r in caplog.records if r.levelno >= logging.ERROR] == []
         assert [r.getMessage() for r in caplog.records if r.exc_info] == []
@@ -469,7 +469,7 @@ class TestOneRecordPerFailure:
     @pytest.mark.parametrize(
         ("tool", "arguments"),
         [
-            pytest.param("get_incident", {"params": {"incident_id": 77}}, id="bad-arguments"),
+            pytest.param("get_internal_incident", {"params": {"incident_id": 77}}, id="bad-arguments"),
             pytest.param("resolve_internal_incident", {"incident_id": 77}, id="deliberate-refusal"),
             pytest.param(
                 "get_gitguardian_resource", {"url": "https://[invalid/workspace/1/incidents/77"}, id="bad-link"
@@ -495,14 +495,14 @@ class TestOneRecordPerFailure:
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, caplog
     ):
         """
-        GIVEN the API failing get_incident with a 500 on every retry
+        GIVEN the API failing get_internal_incident with a 500 on every retry
         WHEN the tool is called
         THEN exactly one record carries the traceback: the tool_call_failed error
         """
         gg_api.get("/incidents/secrets/77").respond(500, json={"detail": "boom"})
 
         with caplog.at_level(logging.WARNING):
-            await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+            await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
         with_traceback = [r for r in caplog.records if r.exc_info]
         assert [(r.getMessage(), r.levelno) for r in with_traceback] == [("tool_call_failed", logging.ERROR)]

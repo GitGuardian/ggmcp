@@ -78,7 +78,7 @@ async def _incident_history(client: GitGuardianClient, incident_id: int) -> Inci
     return IncidentHistory(entries=page["data"], has_more=page["has_more"])
 
 
-async def get_incident(params: GetIncidentParams) -> GetIncidentResult:
+async def get_internal_incident(params: GetIncidentParams) -> GetIncidentResult:
     """Retrieve a specific secret incident by its ID.
 
     Args:

@@ -96,7 +96,9 @@ class TestClassifyFailure:
         ("exception", "fault"),
         [
             pytest.param(
-                FastMCPValidationError("Invalid arguments for tool 'get_incident'"), "client", id="bad-arguments"
+                FastMCPValidationError("Invalid arguments for tool 'get_internal_incident'"),
+                "client",
+                id="bad-arguments",
             ),
             pytest.param(ToolError("The 'ignore_reason' parameter is required"), "client", id="deliberate-refusal"),
             pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), "client", id="missing-scopes"),

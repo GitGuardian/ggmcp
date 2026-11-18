@@ -1,10 +1,10 @@
 import pytest
 
-from gg_api_core.tools.get_incident import GetIncidentParams
+from gg_api_core.tools.get_internal_incident import GetIncidentParams
 
 
 class TestGetIncident:
-    """Tests for the get_incident tool."""
+    """Tests for the get_internal_incident tool."""
 
     def test_get_incident_params_validation(self):
         """

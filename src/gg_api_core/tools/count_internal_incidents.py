@@ -15,7 +15,7 @@ from gg_api_core.utils import get_client
 class CountIncidentsParams(IncidentFilters):
     """Parameters for counting incidents using the MCP-optimized count endpoint.
 
-    Accepts the same filters as list_incidents but returns only a count.
+    Accepts the same filters as list_internal_incidents but returns only a count.
     """
 
 
@@ -34,7 +34,7 @@ class CountIncidentsError(BaseModel):
     error: str = Field(description="Error message")
 
 
-async def count_incidents(
+async def count_internal_incidents(
     params: CountIncidentsParams = CountIncidentsParams(),
 ) -> CountIncidentsResult | CountIncidentsError:
     """Count secret incidents matching the given filters.

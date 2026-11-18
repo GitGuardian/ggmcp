@@ -14,10 +14,10 @@ top-level arguments (see ``gg_api_core.model_arguments``).
 from mcp.types import ToolAnnotations
 
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
-from gg_api_core.tools.count_incidents import count_incidents
+from gg_api_core.tools.count_internal_incidents import count_internal_incidents
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
-from gg_api_core.tools.get_incident import get_incident
+from gg_api_core.tools.get_internal_incident import get_internal_incident
 from gg_api_core.tools.get_my_identity import get_my_identity
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
@@ -41,10 +41,10 @@ from gg_api_core.tools.incident_status import (
     resolve_internal_incident,
     resolve_public_incident,
 )
-from gg_api_core.tools.list_incidents import list_incidents
+from gg_api_core.tools.list_internal_incidents import list_internal_incidents
+from gg_api_core.tools.list_internal_occurrences import list_internal_occurrences
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
-from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.scan_secret import scan_secrets
 
@@ -92,7 +92,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
 - **Internal incidents** — detected in sources the workspace has explicitly integrated:
   private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
   Identified by a `source_id`. Default category for most customer workflows.
-  Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
+  Read tools: `list_internal_incidents`, `count_internal_incidents`, `get_internal_incident`, `list_internal_occurrences`,
   `list_sources`.
   Write tools: `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
   `assign_internal_incident`, `unassign_internal_incident`, `add_internal_incident_comment`,
@@ -160,43 +160,43 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        list_incidents,
+        list_internal_incidents,
         description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_incidents) "
         "List secret incidents detected in sources the workspace has integrated (private/org Git repos, Slack, Jira, "
         "container registries, etc.) with advanced filtering including detector type, secret category, source criticality, "
         "and public exposure. Filter by repository (via source_ids), detector type, severity, status "
         "(TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
         "With mine=True, this tool only shows incidents assigned to the current user. Uses page-based pagination. "
-        "Each incident's secret and displayed occurrence are summarized; call get_incident for an incident's full details.",
+        "Each incident's secret and displayed occurrence are summarized; call get_internal_incident for an incident's full details.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
-        count_incidents,
+        count_internal_incidents,
         description="(Internal sources only — for public GitHub/gists/Docker Hub there is no equivalent count tool) "
         "Count internal secret incidents matching the given filters without fetching the full list. "
-        "Accepts the same filters as list_incidents (status, severity, detector type, source, tags, etc.) "
+        "Accepts the same filters as list_internal_incidents (status, severity, detector type, source, tags, etc.) "
         "but returns only the total count. Useful for getting an overview of incident volume or checking filter results before paginating.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
-        list_repo_occurrences,
+        list_internal_occurrences,
         description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_occurrences) "
         "List secret occurrences for an internal repository (source_id) or incident (incident_id) with exact match locations. "
         "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
         "Follow cursor with the same filters until has_more is false. To enumerate every known occurrence of one incident, "
         "pass incident_id, omit source_id, and set tags, exclude_tags, status, severity, and validity to []. "
-        "Use get_incident for incident metadata and get_remediation_workflow for remediation instructions.",
+        "Use get_internal_incident for incident metadata and get_remediation_workflow for remediation instructions.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         list_public_incidents,
-        description="(Public Monitoring only — for internal sources use list_incidents) "
+        description="(Public Monitoring only — for internal sources use list_internal_incidents) "
         "List public secret incidents detected by GitGuardian Public Monitoring on the worldwide public perimeter "
         "(public GitHub repositories, public GitHub gists, Docker Hub, etc.). Use this when investigating secrets "
         "leaked outside the organization perimeter. Incident IDs here are NOT interchangeable with internal incident IDs. "
@@ -207,7 +207,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         get_public_incident,
-        description="(Public Monitoring only — for internal sources use get_incident) "
+        description="(Public Monitoring only — for internal sources use get_internal_incident) "
         "Retrieve a single public secret incident by id, with detector, status, severity, "
         "validity, risk_score, tags, timestamps, assignee, and share_url. Incident IDs here "
         "are NOT interchangeable with internal incident IDs.",
@@ -217,7 +217,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         list_public_occurrences,
-        description="(Public Monitoring only — for internal sources use list_repo_occurrences) "
+        description="(Public Monitoring only — for internal sources use list_internal_occurrences) "
         "List occurrences of a specific public secret incident detected by GitGuardian Public Monitoring on "
         "public sources, including filepath, commit sha, source repository, actor, and attachment reasons. "
         "Use this after list_public_incidents to drill into a specific public incident.",
@@ -256,7 +256,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        get_incident,
+        get_internal_incident,
         description="(Internal sources only - for public GitHub/gists/Docker Hub incidents use get_public_incident)"
         "Retrieve a specific internal secret incident by its ID with detailed information including occurrences, "
         "detector info, assignee details, and custom tags. Set with_history to also get its comments and the "
