@@ -28,6 +28,7 @@ DEFAULT_SCOPES = [
     "members:read",
     "honeytokens:read",
     "honeytokens:write",
+    "custom_tags:read",
 ]
 
 # All available GitGuardian API scopes as per documentation

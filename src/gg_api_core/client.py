@@ -1765,6 +1765,41 @@ class GitGuardianClient:
         payload: dict[str, Any] = {"member_id": int(assignee_id)} if assignee_id else {"email": email}
         return await self._request_post(f"/public-incidents/secrets/{incident_id}/assign", json=payload)
 
+    async def set_incident_custom_tags(self, incident_id: int, custom_tags: list[dict[str, Any]]) -> dict[str, Any]:
+        """Replace the custom tags of an internal secret incident.
+
+        Wraps PATCH /v1/incidents/secrets/{incident_id} with only custom_tags. The API
+        replaces the incident's whole tag set, and creates any tag the workspace lacks.
+        """
+        logger.info(f"Setting {len(custom_tags)} custom tags on incident {incident_id}")
+        return await self._request_patch(f"/incidents/secrets/{incident_id}", json={"custom_tags": custom_tags})
+
+    async def set_public_incident_custom_tags(
+        self, incident_id: int, custom_tags: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Replace the custom tags of a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/set_custom_tags. The API
+        replaces the incident's whole tag set.
+        """
+        logger.info(f"Setting {len(custom_tags)} custom tags on public incident {incident_id}")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/set_custom_tags", json={"custom_tags": custom_tags}
+        )
+
+    async def list_custom_tags(
+        self, key: str | None = None, per_page: int = 20, cursor: str | None = None, get_all: bool = False
+    ) -> ListResponse | PaginatedResult:
+        """List the workspace's custom tags. Wraps GET /v1/custom_tags."""
+        params: dict[str, Any] = {"per_page": str(per_page)}
+        if key:
+            params["key"] = key
+        if cursor:
+            params["cursor"] = cursor
+        if get_all:
+            return await self.paginate_all("/custom_tags", params)
+        return await self._request_list("/custom_tags", params=params)
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 

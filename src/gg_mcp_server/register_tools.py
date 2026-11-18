@@ -33,6 +33,13 @@ from gg_api_core.tools.incident_comments import (
     edit_internal_incident_comment,
     edit_public_incident_comment,
 )
+from gg_api_core.tools.incident_custom_tags import (
+    add_internal_incident_custom_tag,
+    add_public_incident_custom_tag,
+    list_custom_tags,
+    remove_internal_incident_custom_tag,
+    remove_public_incident_custom_tag,
+)
 from gg_api_core.tools.incident_status import (
     ignore_internal_incident,
     ignore_public_incident,
@@ -64,6 +71,10 @@ ADDS_COMMENT = ToolAnnotations(
 EDITS_COMMENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
 )
+# Adding a tag keeps the incident's other tags; adding it again changes nothing.
+ADDS_TAG = ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
+# Removing a tag deletes it from the incident; removing it again changes nothing.
+REMOVES_TAG = ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False)
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
     read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
@@ -323,6 +334,49 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "assignee of a public secret incident. Returns the incident.",
         required_scopes=["incidents:write"],
         annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        add_internal_incident_custom_tag,
+        description="(Internal incidents only; for Public Monitoring use add_public_incident_custom_tag) Add one "
+        "custom tag, a key with an optional value, to an internal secret incident. Its other tags stay. Returns the "
+        "incident's tags.",
+        required_scopes=["incidents:write"],
+        annotations=ADDS_TAG,
+    )
+
+    mcp.tool(
+        remove_internal_incident_custom_tag,
+        description="(Internal incidents only; for Public Monitoring use remove_public_incident_custom_tag) Remove "
+        "one custom tag from an internal secret incident, or every tag with a key when no value is given. Its other "
+        "tags stay. Returns the incident's tags.",
+        required_scopes=["incidents:write"],
+        annotations=REMOVES_TAG,
+    )
+
+    mcp.tool(
+        add_public_incident_custom_tag,
+        description="(Public Monitoring only; for internal incidents use add_internal_incident_custom_tag) Add one "
+        "custom tag, a key and a value, to a public secret incident. Its other tags stay. Returns the incident's "
+        "tags.",
+        required_scopes=["incidents:write"],
+        annotations=ADDS_TAG,
+    )
+
+    mcp.tool(
+        remove_public_incident_custom_tag,
+        description="(Public Monitoring only; for internal incidents use remove_internal_incident_custom_tag) Remove "
+        "one custom tag from a public secret incident, or every tag with a key when no value is given. Its other "
+        "tags stay. Returns the incident's tags.",
+        required_scopes=["incidents:write"],
+        annotations=REMOVES_TAG,
+    )
+
+    mcp.tool(
+        list_custom_tags,
+        description="List the custom tags defined in the workspace, with their IDs, keys and values.",
+        required_scopes=["custom_tags:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
