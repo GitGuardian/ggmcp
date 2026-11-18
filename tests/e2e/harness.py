@@ -9,6 +9,7 @@ import json
 from typing import Any
 
 import httpx
+import jsonschema
 import respx
 
 # The hosted server's own public URL (used for OAuth metadata) and the
@@ -145,7 +146,11 @@ async def call_tool(
     arguments: dict[str, Any] | None = None,
     **kwargs,
 ) -> dict[str, Any]:
-    """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult)."""
+    """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult).
+
+    A successful result's structured content is checked against the output schema the
+    tool advertises, so every test that calls a tool also checks its output contract.
+    """
     request_id = kwargs.pop("request_id", 1)
     response = await rpc(
         client,
@@ -154,7 +159,11 @@ async def call_tool(
         request_id=request_id,
         **kwargs,
     )
-    return rpc_result(response, expected_id=request_id)
+    result = rpc_result(response, expected_id=request_id)
+    schema = getattr(client, "output_schemas", {}).get(name)
+    if schema is not None and not result.get("isError") and "structuredContent" in result:
+        jsonschema.validate(result["structuredContent"], schema)
+    return result
 
 
 def tool_output(result: dict[str, Any]) -> Any:
@@ -169,7 +178,9 @@ def tool_output(result: dict[str, Any]) -> Any:
     text_content = json.loads(content[0]["text"])
 
     if "structuredContent" in result:
+        # The text block is for clients that ignore structured content: the same output, as compact JSON.
         assert result["structuredContent"] == text_content
+        assert content[0]["text"] == json.dumps(text_content, separators=(",", ":"), ensure_ascii=False)
         return result["structuredContent"]
     return text_content
 

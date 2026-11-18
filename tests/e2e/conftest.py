@@ -88,7 +88,11 @@ async def remote_app(remote_env, gg_api):
     Depends on gg_api so the outbound mock guards the app's whole lifetime,
     startup included: any lifespan fetch against the real API fails loudly.
     """
-    app = build_http_app(build_server())
+    server = build_server()
+    app = build_http_app(server)
+    # The output schema each tool advertises, which call_tool checks every output against.
+    tools = await server.list_tools(run_middleware=False)
+    app.state.output_schemas = {tool.name: tool.output_schema for tool in tools}
     async with _run_lifespan(app):
         yield app
 
@@ -98,6 +102,7 @@ async def mcp_client(remote_app):
     """An httpx client playing the role of the remote MCP client."""
     transport = httpx.ASGITransport(app=remote_app)
     async with httpx.AsyncClient(transport=transport, base_url=MCP_BASE_URL) as client:
+        client.output_schemas = remote_app.state.output_schemas
         yield client
 
 
