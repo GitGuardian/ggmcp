@@ -58,6 +58,7 @@ EXPECTED_REQUESTED_SCOPES = [
     "honeytokens:write",
     "custom_tags:read",
     "teams:read",
+    "secrets:write",
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {
@@ -98,6 +99,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "reopen_public_incident",
     "resolve_internal_incident",
     "resolve_public_incident",
+    "revoke_secret",
     "scan_secrets",
     "set_internal_incident_severity",
     "set_public_incident_severity",

@@ -65,6 +65,7 @@ from gg_api_core.tools.members import (
     list_internal_incident_teams,
     list_members,
 )
+from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
 
 # Every tool talks only to the GitGuardian API, so none is open-world. Every hint is set,
@@ -91,6 +92,10 @@ REMOVES_TAG = ToolAnnotations(read_only_hint=False, destructive_hint=True, idemp
 # a second request for locations already being fixed.
 REQUESTS_CODE_FIX = ToolAnnotations(
     read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
+)
+# Revoking a secret cannot be undone, and reaches the secret's provider, outside GitGuardian.
+REVOKES_SECRET = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True
 )
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
@@ -479,6 +484,18 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "incident's severity now and the incident.",
         required_scopes=["incidents:write"],
         annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        revoke_secret,
+        description="Ask a secret's provider to revoke it, so that it can no longer be used: an incident's "
+        "secret_id, internal or public. This cannot be undone, and everything that uses the secret stops working: "
+        "confirm with the user first. It uses the workspace's default revocation credentials; only secrets whose "
+        "detector has a revoker can be revoked, and success is false with a reason otherwise. The workspace must "
+        "allow reading secrets through the API, which on GitGuardian SaaS also needs an IP allowlist; otherwise the "
+        "API refuses with a 403.",
+        required_scopes=["secrets:write"],
+        annotations=REVOKES_SECRET,
     )
 
     mcp.tool(

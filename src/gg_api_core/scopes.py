@@ -30,6 +30,7 @@ DEFAULT_SCOPES = [
     "honeytokens:write",
     "custom_tags:read",
     "teams:read",
+    "secrets:write",
 ]
 
 # All available GitGuardian API scopes as per documentation

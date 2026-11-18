@@ -24,6 +24,7 @@ WRITE_VERBS = {
     "remove",
     "reopen",
     "resolve",
+    "revoke",
     "set",
     "unassign",
 }

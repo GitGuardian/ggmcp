@@ -164,6 +164,7 @@ class TestScopeBasedToolVisibility:
             "edit_internal_incident_comment": changes_state,
             "edit_public_incident_comment": changes_state,
             "generate_honeytoken": adds,
+            "revoke_secret": {**changes_state, "openWorldHint": True},
             "set_internal_incident_severity": changes_state,
             "set_public_incident_severity": changes_state,
             "create_internal_incident_code_fix_request": adds,

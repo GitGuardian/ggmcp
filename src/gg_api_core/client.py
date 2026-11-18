@@ -1909,6 +1909,14 @@ class GitGuardianClient:
             f"/public-incidents/secrets/{incident_id}/set_severity", json={"severity": severity}
         )
 
+    async def revoke_secret(self, secret_id: int) -> dict[str, Any]:
+        """Ask a secret's provider to revoke it, with the workspace's default revocation credentials.
+
+        Wraps POST /v1/secrets/{secret_id}/revoke.
+        """
+        logger.info(f"Requesting the revocation of secret {secret_id}")
+        return await self._request_post(f"/secrets/{secret_id}/revoke", json={})
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 
