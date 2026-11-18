@@ -48,8 +48,9 @@ from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.scan_secret import scan_secrets
 
-# Every tool talks only to the GitGuardian API, so none is open-world.
-READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=False)
+# Every tool talks only to the GitGuardian API, so none is open-world. Every hint is set,
+# even where the spec gives a default, so no client has to guess.
+READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
 # Assign, unassign, resolve, ignore and reopen replace the incident's current state.
 # Repeating the same call changes nothing further: the API answers 409.
 CHANGES_INCIDENT_STATE = ToolAnnotations(

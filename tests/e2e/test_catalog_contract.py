@@ -22,20 +22,6 @@ INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
-MISSING_HINTS = {
-    "count_internal_incidents",
-    "get_gitguardian_resource",
-    "get_internal_incident",
-    "get_my_identity",
-    "get_public_incident",
-    "get_remediation_workflow",
-    "list_internal_incidents",
-    "list_public_incidents",
-    "list_public_occurrences",
-    "list_internal_occurrences",
-    "list_sources",
-    "scan_secrets",
-}
 LOOSE_INCIDENT_ID = {
     "get_internal_incident",
     "get_public_incident",
@@ -183,12 +169,9 @@ class TestAnnotations:
         """
         GIVEN the full tool catalog
         WHEN each tool's annotations are read
-        THEN all four hints are set explicitly, except the tools still listed in MISSING_HINTS
+        THEN all four hints are set explicitly
         """
-        missing = {
-            name for name, tool in catalog.items() if any(hint not in tool.get("annotations", {}) for hint in HINTS)
-        }
-        assert missing == MISSING_HINTS
+        assert [name for name, tool in catalog.items() if set(HINTS) - set(tool.get("annotations") or {})] == []
 
     async def test_read_only_matches_the_verb(self, catalog):
         """

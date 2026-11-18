@@ -140,7 +140,7 @@ class TestScopeBasedToolVisibility:
         THEN every tool declares whether it writes, and how, so clients can decide what to auto-approve
         """
         tools = rpc_result(await rpc(mcp_client, "tools/list", request_id=1), expected_id=1)["tools"]
-        read_only = {"readOnlyHint": True, "openWorldHint": False}
+        read_only = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
         changes_state = {
             "readOnlyHint": False,
             "destructiveHint": True,
