@@ -8,6 +8,7 @@ import structlog
 from pydantic import BaseModel, ValidationError
 from starlette.requests import ClientDisconnect
 
+from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.version import APP_VERSION
 
@@ -149,6 +150,59 @@ class TestClientDisconnectNoise:
         """
         configure_logging(log_level="INFO", log_format="json")
         _log_error_with(logger_name, exception)
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "error"
+
+
+def _rejected_token(wrapped_in: BaseException | None = None) -> BaseException:
+    """A DownstreamUnauthorizedError caused by the API's 401, optionally wrapped as FastMCP does."""
+    request = httpx.Request("GET", "https://api.gitguardian.com/v1/api_tokens/self")
+    rejected = DownstreamUnauthorizedError("GitGuardian API returned 401")
+    rejected.__cause__ = httpx.HTTPStatusError("401", request=request, response=httpx.Response(401, request=request))
+    if wrapped_in is None:
+        return rejected
+    wrapped_in.__cause__ = rejected
+    return wrapped_in
+
+
+class TestRejectedTokenNoise:
+    @pytest.mark.parametrize(
+        "exception",
+        [
+            pytest.param(_rejected_token(), id="rejected-token"),
+            pytest.param(_rejected_token(wrapped_in=RuntimeError("wrapper")), id="rejected-token-as-cause"),
+        ],
+    )
+    def test_a_rejected_token_at_the_dispatcher_is_logged_as_a_warning(self, capsys, exception):
+        """
+        GIVEN the MCP SDK dispatcher logging an error because the API rejected the client's token
+        WHEN the record is emitted
+        THEN it goes out as a warning, traceback kept
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with("mcp.shared.jsonrpc_dispatcher", exception, "handler for 'tools/list' raised")
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "warning"
+        assert payload["event"] == "handler for 'tools/list' raised"
+        assert "exception" in payload
+
+    @pytest.mark.parametrize(
+        ("logger_name", "exception"),
+        [
+            pytest.param("mcp.shared.jsonrpc_dispatcher", RuntimeError("bug"), id="real-error-same-logger"),
+            pytest.param("gg_api_core.middleware", _rejected_token(), id="rejected-token-from-another-logger"),
+        ],
+    )
+    def test_any_other_error_keeps_its_level(self, capsys, logger_name, exception):
+        """
+        GIVEN an error that is not a rejected token, or a rejected token logged elsewhere
+        WHEN the record is emitted
+        THEN it stays an error
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception, "handler for 'tools/list' raised")
 
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert payload["level"] == "error"

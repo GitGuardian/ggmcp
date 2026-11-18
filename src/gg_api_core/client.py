@@ -194,6 +194,22 @@ class DownstreamUnauthorizedError(Exception):
     """
 
 
+def caused_by_downstream_401(exc: BaseException | None) -> bool:
+    """Whether a downstream 401 is anywhere in the exception chain.
+
+    FastMCP wraps an exception raised by a tool in a ToolError, so the
+    DownstreamUnauthorizedError is usually the cause, not the exception itself.
+    """
+    seen: set[int] = set()
+    current = exc
+    while current is not None and id(current) not in seen:
+        if isinstance(current, DownstreamUnauthorizedError):
+            return True
+        seen.add(id(current))
+        current = current.__cause__ or current.__context__
+    return False
+
+
 class IncidentSeverity(str, Enum):
     """Enum for incident severity levels."""
 

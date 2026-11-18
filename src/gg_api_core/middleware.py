@@ -15,7 +15,7 @@ from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import Tool, ToolResult
 from typing_extensions import override
 
-from gg_api_core.client import DownstreamUnauthorizedError
+from gg_api_core.client import DownstreamUnauthorizedError, caused_by_downstream_401
 from gg_api_core.log_context import (
     classify_failure,
     derive_client_identity,
@@ -187,25 +187,9 @@ class DownstreamUnauthorizedMiddleware(Middleware):
         try:
             return await call_next(context)
         except Exception as exc:
-            if _caused_by_downstream_401(exc):
+            if caused_by_downstream_401(exc):
                 mark_downstream_unauthorized()
             raise
-
-
-def _caused_by_downstream_401(exc: BaseException) -> bool:
-    """Whether a downstream 401 is anywhere in the exception chain.
-
-    FastMCP wraps an exception raised by a tool in a ToolError, so the
-    DownstreamUnauthorizedError is usually the cause, not the exception itself.
-    """
-    seen: set[int] = set()
-    current: BaseException | None = exc
-    while current is not None and id(current) not in seen:
-        if isinstance(current, DownstreamUnauthorizedError):
-            return True
-        seen.add(id(current))
-        current = current.__cause__ or current.__context__
-    return False
 
 
 class ScopeFilteringMiddleware(Middleware):

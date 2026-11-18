@@ -9,6 +9,7 @@ import structlog
 from starlette.requests import ClientDisconnect
 from structlog.types import EventDict, Processor, WrappedLogger
 
+from gg_api_core.client import caused_by_downstream_401
 from gg_api_core.sanitization import scrub_by_name, scrub_by_value
 from gg_api_core.version import APP_VERSION
 
@@ -59,6 +60,26 @@ def _demote_client_disconnects(record: logging.LogRecord) -> bool:
         and record.name in _CLIENT_DISCONNECT_LOGGERS
         and record.exc_info
         and _is_client_disconnect(record.exc_info[1])
+    ):
+        record.levelno = logging.WARNING
+        record.levelname = "WARNING"
+    return True
+
+
+# When the GitGuardian API rejects a client's token while tools/list looks up its scopes,
+# the MCP SDK's dispatcher logs "handler for 'tools/list' raised" at ERROR with a traceback.
+# The client gets its 401 challenge and mcp_request_failed records the failure, so the
+# record goes out as WARNING. Any other error from this logger keeps its level.
+_REJECTED_TOKEN_LOGGERS = frozenset({"mcp.shared.jsonrpc_dispatcher"})
+
+
+def _demote_rejected_tokens(record: logging.LogRecord) -> bool:
+    """Log a rejected token reported by the MCP SDK dispatcher as WARNING instead of ERROR."""
+    if (
+        record.levelno >= logging.ERROR
+        and record.name in _REJECTED_TOKEN_LOGGERS
+        and record.exc_info
+        and caused_by_downstream_401(record.exc_info[1])
     ):
         record.levelno = logging.WARNING
         record.levelname = "WARNING"
@@ -133,6 +154,7 @@ def configure_logging(
     handler.name = "ggmcp-log"
     handler.setFormatter(formatter)
     handler.addFilter(_demote_client_disconnects)
+    handler.addFilter(_demote_rejected_tokens)
 
     root = logging.getLogger()
     root.handlers = [h for h in root.handlers if h.name != "ggmcp-log"]
