@@ -26,13 +26,12 @@ class TestScanSecrets:
         "documents",
         [
             pytest.param([{"document": "x = 1\n"}], id="no-filename"),
-            pytest.param([{"document": "x = 1\n", "filename": "a.py", "language": "python"}], id="extra-key"),
             pytest.param([{"document": "x = 1\n", "filename": "a.py"}, {"document": "y = 2\n"}], id="mixed-batch"),
         ],
     )
     async def test_document_of_any_shape_is_scanned(self, mcp_client, gg_api, mock_token_scopes, documents):
         """
-        GIVEN documents without a filename, with an extra key, or mixed in one batch
+        GIVEN documents without a filename, or mixed in one batch
         WHEN scan_secrets is called
         THEN every document is sent to the API and the results are returned
         """
@@ -55,7 +54,30 @@ class TestScanSecrets:
 
         result = await call_tool(mcp_client, "scan_secrets", {"documents": []})
 
-        assert "non-empty list" in tool_error_text(result)
+        assert "documents" in tool_error_text(result)
+        assert not route.called
+
+    @pytest.mark.parametrize(
+        ("document", "field"),
+        [
+            pytest.param({"document": "x = 1\n", "language": "python"}, "language", id="unknown-key"),
+            pytest.param({"filename": "a.py"}, "document", id="no-content"),
+            pytest.param({"document": "x = 1\n", "filename": "a" * 257}, "filename", id="filename-too-long"),
+        ],
+    )
+    async def test_a_malformed_document_is_refused_naming_the_field(
+        self, mcp_client, gg_api, mock_token_scopes, document, field
+    ):
+        """
+        GIVEN a document with a key scan_secrets does not take, without content, or with too long a filename
+        WHEN scan_secrets is called
+        THEN validation fails locally naming that field, and the API is never contacted
+        """
+        route = gg_api.post("/multiscan").respond(200, json=[])
+
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": [document]})
+
+        assert field in tool_error_text(result)
         assert not route.called
 
 

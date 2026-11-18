@@ -1,26 +1,30 @@
 import logging
 from typing import Any
 
-from fastmcp.exceptions import ToolError
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 
+class ScanDocument(BaseModel):
+    """One file's content to scan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document: str = Field(description="The content of the file, not its name")
+    filename: str | None = Field(
+        default=None, max_length=256, description="The file's path or name, which helps detect some secrets"
+    )
+
+
 class ScanSecretsParams(BaseModel):
     """Parameters for scanning secrets."""
 
-    documents: list[dict[str, str]] = Field(
-        description="""
-        List of documents to scan, each with 'document' and optional 'filename'.
-        Format: [{'document': 'file content', 'filename': 'optional_filename.txt'}, ...]
-        IMPORTANT:
-        - document is the content of the file, not the filename, is a string and is mandatory.
-        - Do not send documents that are not related to the codebase, only send files that are part of the codebase.
-        - Do not send documents that are in the .gitignore file.
-        """
+    documents: list[ScanDocument] = Field(
+        min_length=1,
+        description="The files to scan. Send only files that are part of the codebase and not ignored by .gitignore.",
     )
 
 
@@ -40,24 +44,8 @@ async def scan_secrets(params: ScanSecretsParams) -> ScanSecretsResult:
     """
     client = await get_client()
 
-    # Validate input documents
-    if not params.documents or not isinstance(params.documents, list):
-        raise ToolError("Documents parameter must be a non-empty list")
-
-    for i, doc in enumerate(params.documents):
-        if not isinstance(doc, dict) or "document" not in doc:
-            raise ToolError(f"Document at index {i} must be a dictionary with a 'document' field")
-
-    # Log the scan request (without exposing the full document contents)
-    safe_docs_log = []
-    for doc in params.documents:
-        doc_preview = (
-            doc.get("document", "")[:20] + "..." if len(doc.get("document", "")) > 20 else doc.get("document", "")
-        )
-        safe_docs_log.append({"filename": doc.get("filename", "No filename provided"), "document_preview": doc_preview})
-
     # Make the API call
-    result = await client.multiple_scan(params.documents)
+    result = await client.multiple_scan([document.model_dump(exclude_none=True) for document in params.documents])
 
     # Wrap the result in Pydantic model
     if isinstance(result, list):

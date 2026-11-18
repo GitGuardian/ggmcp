@@ -21,7 +21,6 @@ PAGE_ARGUMENTS = {"page", "per_page", "page_size", "cursor", "get_all"}
 INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
-LOOSE_NESTED_OBJECTS = {"scan_secrets"}
 # Identifiers the API defines as strings rather than numbers.
 OPAQUE_IDS = {"external_id": None, "ignorer_api_token_id": "uuid", "resolver_api_token_id": "uuid"}
 # Arguments that hold numeric IDs without ending in _id.
@@ -88,7 +87,7 @@ class TestArguments:
         """
         GIVEN the full tool catalog
         WHEN every object in each input schema is read, nested ones included
-        THEN none accepts fields it does not declare, except the tools still listed in LOOSE_NESTED_OBJECTS
+        THEN none accepts fields it does not declare
         """
         loose = {
             name
@@ -96,7 +95,7 @@ class TestArguments:
             for obj in _objects(tool["inputSchema"], tool["inputSchema"].get("$defs", {}))
             if obj.get("additionalProperties") is not False
         }
-        assert loose == LOOSE_NESTED_OBJECTS
+        assert loose == set()
 
     async def test_numeric_ids_are_positive_integers(self, catalog):
         """

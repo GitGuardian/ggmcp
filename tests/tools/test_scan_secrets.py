@@ -1,7 +1,7 @@
 import pytest
-from fastmcp.exceptions import ToolError
+from pydantic import ValidationError
 
-from gg_api_core.tools.scan_secret import ScanSecretsParams, scan_secrets
+from gg_api_core.tools.scan_secret import ScanSecretsParams
 
 
 class TestScanSecrets:
@@ -12,11 +12,10 @@ class TestScanSecrets:
         """
         GIVEN: A document with invalid format
         WHEN: Attempting to scan
-        THEN: The tool refuses it with a ToolError naming the missing field
+        THEN: The parameters refuse it, naming the missing field and the unknown one
         """
-        # Call the function with invalid document format
-        with pytest.raises(ToolError) as excinfo:
-            await scan_secrets(ScanSecretsParams(documents=[{"invalid_key": "value"}]))
+        with pytest.raises(ValidationError) as excinfo:
+            ScanSecretsParams(documents=[{"invalid_key": "value"}])
 
-        # Verify error message
-        assert "must be a dictionary with a 'document' field" in str(excinfo.value)
+        assert "document" in str(excinfo.value)
+        assert "invalid_key" in str(excinfo.value)
