@@ -17,9 +17,15 @@ from fastmcp import Client
 from gg_api_core import client as client_module
 from gg_api_core import oauth, utils
 from gg_api_core.log_context import clear_caller_identity_cache
-from gg_mcp_server.server import build_server
+from gg_mcp_server.server import build_http_app, build_server
+from tests.e2e.conftest import _run_lifespan
 from tests.e2e.harness import (
+    EXPECTED_FULL_TOOL_CATALOG,
+    EXPECTED_SCAN_ONLY_TOOL_CATALOG,
+    MCP_BASE_URL,
     assert_authenticated_request,
+    rpc,
+    rpc_result,
 )
 
 # Token the local server reads from GITGUARDIAN_PERSONAL_ACCESS_TOKEN.
@@ -214,3 +220,67 @@ class TestSingleTenantSelfHealing:
         assert route.call_count == 2
         assert seen_authorization == [f"Token {STDIO_PAT}", f"Token {STDIO_PAT}"]
         assert result.structured_content == {"incident": INCIDENT}
+
+
+CONTRACT_KEYS = ("description", "inputSchema", "outputSchema", "annotations")
+
+
+class TestTransportParity:
+    """The stdio and HTTP transports offer the same tools under the same contract."""
+
+    @pytest.mark.parametrize(
+        ("scopes", "expected"),
+        [
+            pytest.param(None, EXPECTED_FULL_TOOL_CATALOG, id="every-scope"),
+            pytest.param(["scan"], EXPECTED_SCAN_ONLY_TOOL_CATALOG, id="scan-only"),
+        ],
+    )
+    async def test_stdio_shows_the_tools_http_shows_for_the_same_scopes(
+        self, stdio_env: None, gg_api: Any, mock_token_scopes: Any, scopes: list[str] | None, expected: set[str]
+    ) -> None:
+        """
+        GIVEN a token with every scope, or with scan only
+        WHEN a stdio client lists the tools
+        THEN it sees exactly the tools an HTTP client with the same token sees
+        """
+        if scopes is not None:
+            mock_token_scopes(scopes)
+
+        async with Client(build_server()) as client:
+            tools = await client.list_tools()
+
+        assert {tool.name for tool in tools} == expected
+
+    async def test_stdio_advertises_the_contract_http_advertises(
+        self, stdio_env: None, monkeypatch: pytest.MonkeyPatch, gg_api: Any, mock_token_scopes: Any
+    ) -> None:
+        """
+        GIVEN a token with every scope
+        WHEN a stdio client and an HTTP client list the tools
+        THEN every tool has the same description, input schema, output schema and annotations on both
+        """
+        async with Client(build_server()) as client:
+            stdio = {
+                tool.name: tool.model_dump(mode="json", by_alias=True, exclude_none=True)
+                for tool in await client.list_tools()
+            }
+
+        for name, value in {
+            "MULTI_TENANCY_ENABLED": "true",
+            "MCP_PORT": "8000",
+            "MCP_OAUTH_PROXY_ENABLED": "true",
+            "MCP_BASE_URL": MCP_BASE_URL,
+        }.items():
+            monkeypatch.setenv(name, value)
+        monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
+        app = build_http_app(build_server())
+        async with _run_lifespan(app):
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url=MCP_BASE_URL) as http_client:
+                http = {tool["name"]: tool for tool in rpc_result(await rpc(http_client, "tools/list", {}))["tools"]}
+
+        assert stdio.keys() == http.keys()
+        for name in stdio:
+            assert {key: stdio[name].get(key) for key in CONTRACT_KEYS} == {
+                key: http[name].get(key) for key in CONTRACT_KEYS
+            }, name
