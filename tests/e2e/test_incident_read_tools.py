@@ -162,7 +162,9 @@ class TestListIncidents:
         )
 
         first = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True}))
-        resumed = unwrap_result(await call_tool(mcp_client, "list_incidents", {"page": first["page"] + 1}))
+        resumed = unwrap_result(
+            await call_tool(mcp_client, "list_incidents", {"page": first["page"] + 1, "page_size": first["page_size"]})
+        )
 
         assert [i["id"] for i in first["incidents"]] == [1]
         assert first["has_more"] is True
@@ -192,6 +194,104 @@ class TestListIncidents:
         assert [i["id"] for i in output["incidents"]] == list(range(1, MAX_PAGINATION_PAGES + 1))
         assert output["has_more"] is True
         assert output["page"] == MAX_PAGINATION_PAGES
+
+    @staticmethod
+    def _paged_incidents(total: int, note_bytes: int = 0):
+        """A paged /incidents-for-mcp: page p of size s holds ids (p-1)*s+1 to p*s, up to total."""
+
+        def respond(request: httpx.Request) -> httpx.Response:
+            page, size = int(request.url.params["page"]), int(request.url.params["page_size"])
+            ids = range((page - 1) * size + 1, min(page * size, total) + 1)
+            more = page * size < total
+            return httpx.Response(
+                200,
+                json={
+                    "results": [{"id": i, "note": "x" * note_bytes} for i in ids],
+                    "next": "https://api.gitguardian.com/v1/incidents-for-mcp?page=next" if more else None,
+                    "previous": None,
+                },
+            )
+
+        return respond
+
+    async def test_get_all_stays_within_its_budget_whatever_page_size_is_asked(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN incidents of about 3 KB each, and get_all asked for pages of 100
+        WHEN list_incidents is called
+        THEN it fetches small pages, stops within its size budget, and says how to continue
+        """
+        route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=500, note_bytes=3000))
+
+        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"get_all": True, "page_size": 100}))
+
+        assert {call.request.url.params["page_size"] for call in route.calls} == {"5"}
+        assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
+        assert [i["id"] for i in output["incidents"]] == list(range(1, 5 * output["page"] + 1))
+        assert output["page_size"] == 5
+        assert output["has_more"] is True
+
+    async def test_get_all_resumed_with_the_page_and_size_it_returns_skips_and_repeats_nothing(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN 40 incidents of about 3 KB each, more than one get_all call can hold
+        WHEN get_all is called again with page + 1 and the page_size returned, until has_more is false
+        THEN every incident comes back exactly once, in order
+        """
+        gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=40, note_bytes=3000))
+
+        seen: list[int] = []
+        arguments = {"get_all": True, "page_size": 100}
+        for _ in range(10):
+            output = unwrap_result(await call_tool(mcp_client, "list_incidents", arguments))
+            assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
+            seen.extend(i["id"] for i in output["incidents"])
+            if not output["has_more"]:
+                break
+            arguments = {"get_all": True, "page": output["page"] + 1, "page_size": output["page_size"]}
+
+        assert seen == list(range(1, 41))
+
+    @pytest.mark.parametrize(
+        ("page", "page_size", "fetched_page_size"),
+        [(4, 20, "5"), (3, 7, "1"), (2, 12, "4"), (1, 100, "5")],
+    )
+    async def test_get_all_starts_where_the_requested_page_starts(
+        self, mcp_client, gg_api, mock_token_scopes, page, page_size, fetched_page_size
+    ):
+        """
+        GIVEN 200 incidents
+        WHEN get_all is called with a page counted in pages of the requested page_size
+        THEN its first incident is the one that page starts with, fetched at a page size that divides the requested one
+        """
+        route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=200))
+
+        output = unwrap_result(
+            await call_tool(mcp_client, "list_incidents", {"get_all": True, "page": page, "page_size": page_size})
+        )
+
+        assert output["incidents"][0]["id"] == (page - 1) * page_size + 1
+        assert {call.request.url.params["page_size"] for call in route.calls} == {fetched_page_size}
+        assert output["page_size"] == int(fetched_page_size)
+        assert output["has_previous"] is (page > 1)
+
+    @pytest.mark.parametrize("more", [True, False])
+    async def test_a_single_page_reports_more_results_as_the_other_list_tools_do(
+        self, mcp_client, gg_api, mock_token_scopes, more
+    ):
+        """
+        GIVEN a page of incidents, with or without a next page
+        WHEN list_incidents is called without get_all
+        THEN has_more says whether more incidents match, as in the other list tools
+        """
+        gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=10 if more else 5))
+
+        output = unwrap_result(await call_tool(mcp_client, "list_incidents", {"page_size": 5}))
+
+        assert output["has_more"] is more
+        assert output["has_next"] is more
 
     @pytest.mark.parametrize(
         ("filters", "expected"),
