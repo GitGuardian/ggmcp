@@ -109,6 +109,20 @@ def _to_date_only(value: str) -> str:
         raise ValueError(f"Invalid date value: {value!r}") from exc
 
 
+def with_id_tiebreaker(ordering: str) -> str:
+    """The ordering with id appended, so that items tied on the sort field keep one order.
+
+    The cursor-paginated endpoints return tied items (many public incidents share a date
+    to the second) in an order that changes between requests, so a page boundary inside a
+    run of ties repeats some items and skips others. id is unique, and these endpoints
+    accept it after the sort field.
+    """
+    fields = [field.strip() for field in ordering.split(",") if field.strip()]
+    if not fields or any(field.lstrip("-") == "id" for field in fields):
+        return ordering
+    return ",".join([*fields, "-id" if fields[0].startswith("-") else "id"])
+
+
 def api_error_detail(response: httpx.Response) -> str:
     """Pull a human-readable reason out of a GitGuardian API error response, so the
     caller sees *why* the request was rejected rather than a bare status code."""
@@ -1260,7 +1274,7 @@ class GitGuardianClient:
         if cursor:
             params["cursor"] = cursor
         if ordering:
-            params["ordering"] = ordering
+            params["ordering"] = with_id_tiebreaker(ordering)
         if severity:
             params["severity"] = ",".join(severity)
         if validity:
@@ -1359,7 +1373,7 @@ class GitGuardianClient:
         if tags:
             params["tags"] = tags
         if ordering:
-            params["ordering"] = ordering
+            params["ordering"] = with_id_tiebreaker(ordering)
 
         endpoint = f"/public-incidents/secrets/{incident_id}/occurrences"
 
@@ -1599,7 +1613,7 @@ class GitGuardianClient:
         if custom_tag_value:
             params["custom_tag_value"] = custom_tag_value
         if ordering:
-            params["ordering"] = ordering
+            params["ordering"] = with_id_tiebreaker(ordering)
         if detector_group_name:
             params["detector_group_name"] = detector_group_name
         if ignorer_id is not None:

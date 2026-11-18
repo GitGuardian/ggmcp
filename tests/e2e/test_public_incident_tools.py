@@ -43,7 +43,7 @@ class TestListPublicIncidents:
             "status": "TRIGGERED,ASSIGNED,RESOLVED",
             "severity": "critical,high,medium,unknown",
             "validity": "valid,failed_to_check,no_checker,unknown",
-            "ordering": "-date",
+            "ordering": "-date,-id",
         }
         output = unwrap_result(result)
         assert output["incidents"] == [PUBLIC_INCIDENT]
@@ -80,7 +80,7 @@ class TestListPublicIncidents:
             ),
             pytest.param(
                 {"risk_score_min": 0, "risk_score_max": 100, "ordering": "-risk_score"},
-                {"risk_score_min": "0", "risk_score_max": "100", "ordering": "-risk_score"},
+                {"risk_score_min": "0", "risk_score_max": "100", "ordering": "-risk_score,-id"},
                 id="zero-risk-floor-is-kept",
             ),
             pytest.param({"assignee_id": 1778296}, {"assignee_id": "1778296"}, id="assignee"),
@@ -205,7 +205,7 @@ class TestListPublicOccurrences:
         result = await call_tool(mcp_client, "list_public_occurrences", {"incident_id": 103})
 
         assert_authenticated_request(route)
-        assert sent_params(route) == {"per_page": "20", "ordering": "-date"}
+        assert sent_params(route) == {"per_page": "20", "ordering": "-date,-id"}
         output = unwrap_result(result)
         assert output["occurrences"] == [PUBLIC_OCCURRENCE]
         assert output["occurrences_count"] == 1
