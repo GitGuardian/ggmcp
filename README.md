@@ -313,6 +313,11 @@ a single server-wide token.
 - The `developer-mcp-server` and `secops-mcp-server` console scripts were
   removed. Update your MCP client configuration to invoke `gg-mcp-server`.
 
+## Data handling
+
+Tool arguments and results can hold secrets. [`DATA_HANDLING.md`](DATA_HANDLING.md) says
+where they go, and what keeps them out of logs, error tracking and error messages.
+
 ## Want more?
 
 Have a use case that isn't covered? [Open an issue](https://github.com/GitGuardian/ggmcp/issues)
