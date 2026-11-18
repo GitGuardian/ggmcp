@@ -289,12 +289,16 @@ class ListResponse(TypedDict):
 
 # Size budget for a get_all result. About 17k tokens of JSON: room for several pages,
 # under the 25k-token limit some clients (Claude Code by default) put on tool output.
-# The first page is always returned whole, even when it alone exceeds the budget.
+# The first page is always returned whole, so get_all keeps its pages small.
 DEFAULT_PAGINATION_MAX_BYTES = 60_000
 
 # Hard cap on number of pages fetched during get_all pagination
 # Prevents runaway loops regardless of byte limit effectiveness
 MAX_PAGINATION_PAGES = 10
+
+# Page size get_all uses on cursor-paginated endpoints, at most. 20 public incidents,
+# occurrences or sources measured 18 to 30 KB, so the first page fits the budget.
+PAGINATE_ALL_PER_PAGE = 20
 
 # Default HTTP timeout in seconds (to handle slow pagination)
 DEFAULT_HTTP_TIMEOUT = 20
@@ -922,18 +926,22 @@ class GitGuardianClient:
         """Fetch all pages of results using cursor-based pagination.
 
         Pagination stops when either all data is fetched or the size limit is reached.
+        Pages hold at most PAGINATE_ALL_PER_PAGE items, whatever per_page asks for: the
+        first page is always returned whole, so a small page keeps it within the budget,
+        and the cursor resumes exactly whatever the page size.
 
         Args:
             endpoint: API endpoint path
             params: Query parameters to include in the request
-            max_bytes: Maximum total bytes of JSON data to accumulate (default: 20KB).
+            max_bytes: Maximum total bytes of JSON data to accumulate (default: 60KB).
                       When this limit is reached, pagination stops and truncated=True is returned.
             privacy_mode: Privacy policy applied to every page. Defaults to True.
 
         Returns:
             PaginatedResult with data, cursor, has_more, truncated info, and total_bytes
         """
-        params = params or {}
+        params = dict(params or {})
+        params["per_page"] = str(min(int(params.get("per_page") or PAGINATE_ALL_PER_PAGE), PAGINATE_ALL_PER_PAGE))
         all_items: list[dict[str, Any]] = []
         total_bytes = 0
         cursor: str | None = None
