@@ -30,7 +30,7 @@ class TestListPublicIncidents:
         GIVEN no explicit filters
         WHEN list_public_incidents is called
         THEN the API receives the default statuses, severities and validities as
-             comma-joined lists, newest first, and the incidents come back counted
+             comma-joined lists, newest first, and the incidents come back with no next page
         """
         route = gg_api.get("/public-incidents/secrets").respond(200, json=[PUBLIC_INCIDENT])
 
@@ -46,8 +46,9 @@ class TestListPublicIncidents:
         }
         output = tool_output(result)
         assert output["incidents"] == [PUBLIC_INCIDENT]
-        assert output["incidents_count"] == 1
         assert output["has_more"] is False
+        assert output["stop_reason"] == "end"
+        assert output["next_arguments"] is None
 
     @pytest.mark.parametrize(
         ("filters", "expected"),
@@ -116,7 +117,7 @@ class TestListPublicIncidents:
         """
         GIVEN a cursor from a previous page and a next page advertised via Link
         WHEN list_public_incidents is called with that cursor
-        THEN the cursor reaches the API and the next one comes back decoded
+        THEN the cursor reaches the API, and next_arguments carry the next one decoded with the same page size
         """
         route = gg_api.get("/public-incidents/secrets").respond(
             200,
@@ -124,13 +125,13 @@ class TestListPublicIncidents:
             headers={"Link": '<https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0y>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_public_incidents", {"cursor": "cD0x", "per_page": 1})
+        result = await call_tool(mcp_client, "list_public_incidents", {"cursor": "cD0x", "page_size": 1})
 
         params = sent_params(route)
         assert params["cursor"] == "cD0x"
         assert params["per_page"] == "1"
         output = tool_output(result)
-        assert output["cursor"] == "cD0y"
+        assert output["next_arguments"] == {"cursor": "cD0y", "page_size": 1}
         assert output["has_more"] is True
 
     async def test_get_all_follows_the_cursor_to_the_last_page(self, mcp_client, gg_api, mock_token_scopes):
@@ -197,7 +198,7 @@ class TestListPublicOccurrences:
         """
         GIVEN only an incident id
         WHEN list_public_occurrences is called
-        THEN that incident's occurrences are read newest first and come back counted
+        THEN that incident's occurrences are read newest first and come back with no next page
         """
         route = gg_api.get("/public-incidents/secrets/103/occurrences").respond(200, json=[PUBLIC_OCCURRENCE])
 
@@ -207,8 +208,8 @@ class TestListPublicOccurrences:
         assert sent_params(route) == {"per_page": "20", "ordering": "-date,-id"}
         output = tool_output(result)
         assert output["occurrences"] == [PUBLIC_OCCURRENCE]
-        assert output["occurrences_count"] == 1
         assert output["has_more"] is False
+        assert output["next_arguments"] is None
 
     @pytest.mark.parametrize(
         ("filters", "expected"),
@@ -235,7 +236,7 @@ class TestListPublicOccurrences:
             pytest.param(
                 {"date_after": "2020-01-01T00:00:00Z"}, {"date_after": "2020-01-01T00:00:00Z"}, id="date-after"
             ),
-            pytest.param({"cursor": "cD0x", "per_page": 1}, {"cursor": "cD0x", "per_page": "1"}, id="cursor"),
+            pytest.param({"cursor": "cD0x", "page_size": 1}, {"cursor": "cD0x", "per_page": "1"}, id="cursor"),
         ],
     )
     async def test_each_filter_is_forwarded(self, mcp_client, gg_api, mock_token_scopes, filters, expected):

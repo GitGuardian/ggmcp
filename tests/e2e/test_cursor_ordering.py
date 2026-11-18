@@ -62,19 +62,19 @@ async def test_paging_through_tied_items_returns_each_once(
 ):
     """
     GIVEN 30 items that all share one date
-    WHEN the tool is called page by page with the cursor it returns
+    WHEN the tool is called page by page with the next_arguments it returns
     THEN every item comes back exactly once
     """
     gg_api.get(endpoint).mock(side_effect=_tied_items_endpoint(endpoint, total=30))
 
     seen: list[int] = []
-    call_arguments = {**arguments, "per_page": 10}
+    call_arguments = {**arguments, "page_size": 10}
     for _ in range(5):
         output = tool_output(await call_tool(mcp_client, tool, call_arguments))
         seen.extend(item["id"] for item in output[items_key])
         if not output["has_more"]:
             break
-        call_arguments = {**call_arguments, "cursor": output["cursor"]}
+        call_arguments = output["next_arguments"]
 
     assert sorted(seen) == list(range(30))
 

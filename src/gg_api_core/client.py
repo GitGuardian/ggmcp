@@ -310,6 +310,8 @@ class PaginatedResult(TypedDict):
     data: list[dict[str, Any]]
     cursor: str | None  # Use this cursor to fetch more results if has_more is True
     has_more: bool  # True if results were capped by size limit OR more pages exist
+    # What stopped paginate_all before the last page: "size_budget" or "page_limit".
+    stopped_by: str | None
 
 
 def _derive_urls_from_env() -> tuple[str, str]:
@@ -947,6 +949,7 @@ class GitGuardianClient:
         cursor: str | None = None
         truncated = False
         has_more = False
+        stopped_by: str | None = None
         page_count = 0
 
         while True:
@@ -957,6 +960,7 @@ class GitGuardianClient:
                 )
                 truncated = True
                 has_more = True
+                stopped_by = "page_limit"
                 break
 
             # If we have a cursor, add it to params
@@ -998,6 +1002,7 @@ class GitGuardianClient:
                 )
                 truncated = True
                 has_more = True
+                stopped_by = "size_budget"
                 # Keep the cursor for this unreturned page. Advancing to the
                 # response's next cursor would silently skip its occurrences.
                 break
@@ -1029,6 +1034,7 @@ class GitGuardianClient:
             "data": all_items,
             "cursor": cursor,
             "has_more": has_more or (cursor is not None),
+            "stopped_by": stopped_by,
         }
 
     async def get_incident(

@@ -166,7 +166,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "container registries, etc.) with advanced filtering including detector type, secret category, source criticality, "
         "and public exposure. Filter by repository (via source_ids), detector type, severity, status "
         "(TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
-        "With mine=True, this tool only shows incidents assigned to the current user. Uses page-based pagination. "
+        "With mine=True, this tool only shows incidents assigned to the current user. "
         "Each incident's secret and displayed occurrence are summarized; call get_internal_incident for an incident's full details.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
@@ -187,7 +187,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_occurrences) "
         "List secret occurrences for an internal repository (source_id) or incident (incident_id) with exact match locations. "
         "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
-        "Follow cursor with the same filters until has_more is false. To enumerate every known occurrence of one incident, "
+        "To get every page, call again with next_arguments until has_more is false. To enumerate every known occurrence of one incident, "
         "pass incident_id, omit source_id, and set tags, exclude_tags, status, severity, and validity to []. "
         "Use get_internal_incident for incident metadata and get_remediation_workflow for remediation instructions.",
         required_scopes=["incidents:read"],
@@ -199,8 +199,7 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Public Monitoring only — for internal sources use list_internal_incidents) "
         "List public secret incidents detected by GitGuardian Public Monitoring on the worldwide public perimeter "
         "(public GitHub repositories, public GitHub gists, Docker Hub, etc.). Use this when investigating secrets "
-        "leaked outside the organization perimeter. Incident IDs here are NOT interchangeable with internal incident IDs. "
-        "Uses cursor-based pagination.",
+        "leaked outside the organization perimeter. Incident IDs here are NOT interchangeable with internal incident IDs.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )

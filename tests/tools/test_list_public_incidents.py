@@ -34,7 +34,7 @@ class TestListPublicIncidents:
             feedback=True,
             declarative_secret_status="active",
             ordering="-risk_score",
-            per_page=50,
+            page_size=50,
         )
         result = await list_public_incidents(params)
 

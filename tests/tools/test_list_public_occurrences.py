@@ -31,7 +31,7 @@ class TestListPublicOccurrences:
         assert call_kwargs["ordering"] == "-date"
         assert call_kwargs["get_all"] is False
 
-        assert result.occurrences_count == 1
+        assert len(result.occurrences) == 1
         assert result.applied_filters["incident_id"] == 3759
 
     @pytest.mark.asyncio
@@ -57,7 +57,7 @@ class TestListPublicOccurrences:
             validity="valid",
             tags="FROM_HISTORICAL_SCAN",
             ordering="-id",
-            per_page=100,
+            page_size=100,
         )
         result = await list_public_occurrences(params)
 
@@ -84,7 +84,7 @@ class TestListPublicOccurrences:
         """
         GIVEN: A pagination cursor on the response
         WHEN: Listing public occurrences
-        THEN: cursor and has_more are surfaced in the result
+        THEN: next_arguments carry the next cursor, and has_more is surfaced in the result
         """
         mock_gitguardian_client.list_public_occurrences = AsyncMock(
             return_value={"data": [{"id": 1}], "cursor": "next_cursor", "has_more": True}
@@ -94,5 +94,5 @@ class TestListPublicOccurrences:
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["cursor"] == "prev_cursor"
-        assert result.cursor == "next_cursor"
+        assert result.next_arguments == {"incident_id": 1, "cursor": "next_cursor", "page_size": 20}
         assert result.has_more is True

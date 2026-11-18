@@ -3,10 +3,16 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import (
-    DEFAULT_PAGINATION_MAX_BYTES,
     IncidentSeverity,
     IncidentStatus,
     IncidentValidity,
+)
+from gg_api_core.tools.pagination import (
+    CURSOR_DESCRIPTION,
+    GET_ALL_DESCRIPTION,
+    PAGE_SIZE_DESCRIPTION,
+    PageOfResults,
+    page_fields,
 )
 from gg_api_core.utils import get_client
 
@@ -41,23 +47,9 @@ class ListPublicIncidentsParams(BaseModel):
     """
 
     # Pagination
-    per_page: int = Field(
-        default=20,
-        ge=1,
-        le=100,
-        description="Number of results per page (default: 20, max: 100)",
-    )
-    cursor: str | None = Field(
-        default=None,
-        description="Pagination cursor for fetching the next page of results",
-    )
-    get_all: bool = Field(
-        default=False,
-        description=(
-            f"If True, fetch all pages (capped at ~{DEFAULT_PAGINATION_MAX_BYTES / 1000}KB; "
-            "check 'has_more' and use cursor to continue)"
-        ),
-    )
+    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
+    get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
     # Date filters
     date_before: str | None = Field(
@@ -199,13 +191,10 @@ class ListPublicIncidentsParams(BaseModel):
         return [v]
 
 
-class ListPublicIncidentsResult(BaseModel):
+class ListPublicIncidentsResult(PageOfResults):
     """Result from listing public secret incidents."""
 
-    incidents_count: int = Field(description="Number of incidents returned")
     incidents: list[dict[str, Any]] = Field(default_factory=list, description="List of public incident objects")
-    cursor: str | None = Field(default=None, description="Pagination cursor for next page")
-    has_more: bool = Field(default=False, description="True if more results exist (use cursor to fetch)")
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
 
 
@@ -270,7 +259,7 @@ async def list_public_incidents(
 
     result = await client.list_public_incidents(
         cursor=params.cursor,
-        per_page=params.per_page,
+        per_page=params.page_size,
         date_before=params.date_before,
         date_after=params.date_after,
         triggered_at_before=params.triggered_at_before,
@@ -297,14 +286,8 @@ async def list_public_incidents(
         get_all=params.get_all,
     )
 
-    incidents_data = result["data"]
-    next_cursor = result["cursor"]
-    has_more = result.get("has_more", False)
-
     return ListPublicIncidentsResult(
-        incidents_count=len(incidents_data),
-        incidents=incidents_data,
-        cursor=next_cursor,
-        has_more=has_more,
+        incidents=result["data"],
         applied_filters=_build_filter_info(params),
+        **page_fields(params, result),
     )

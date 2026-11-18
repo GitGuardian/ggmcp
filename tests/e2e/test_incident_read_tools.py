@@ -63,10 +63,10 @@ class TestListIncidents:
         assert sent_params(route) == DEFAULT_LIST_QUERY
         output = tool_output(result)
         assert output["incidents"] == [INCIDENT]
-        assert output["page"] == 1
         assert output["page_size"] == 20
-        assert output["has_next"] is False
-        assert output["has_previous"] is False
+        assert output["has_more"] is False
+        assert output["stop_reason"] == "end"
+        assert output["next_arguments"] is None
         assert output["applied_filters"]["status"] == ["TRIGGERED", "ASSIGNED", "RESOLVED"]
 
     async def test_filters_serialize_to_the_api_dialect(self, mcp_client, gg_api, mock_token_scopes):
@@ -143,13 +143,14 @@ class TestListIncidents:
         output = tool_output(result)
         assert [i["id"] for i in output["incidents"]] == [1, 2]
         assert output["has_more"] is False
-        assert output["page"] == 2
+        assert output["stop_reason"] == "end"
 
     async def test_get_all_cut_by_the_size_cap_resumes_at_the_dropped_page(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN three pages whose second page would push the result past the size cap
-        WHEN list_internal_incidents is called with get_all=True, then again with the returned page + 1
-        THEN the first call returns page 1 only, and the second call returns the page it dropped
+        WHEN list_internal_incidents is called with get_all=True, then again with the next_arguments it returns
+        THEN the first call returns page 1 only and says the size budget stopped it, and the second call returns
+             the page it dropped
         """
         big = "x" * (DEFAULT_PAGINATION_MAX_BYTES * 3 // 5)
         pages = {
@@ -164,15 +165,12 @@ class TestListIncidents:
         )
 
         first = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
-        resumed = tool_output(
-            await call_tool(
-                mcp_client, "list_internal_incidents", {"page": first["page"] + 1, "page_size": first["page_size"]}
-            )
-        )
+        resumed = tool_output(await call_tool(mcp_client, "list_internal_incidents", first["next_arguments"]))
 
         assert [i["id"] for i in first["incidents"]] == [1]
         assert first["has_more"] is True
-        assert first["page"] == 1
+        assert first["stop_reason"] == "size_budget"
+        assert first["next_arguments"] == {"get_all": True, "cursor": "2:5", "page_size": 5}
         assert [i["id"] for i in resumed["incidents"]] == [2]
 
     async def test_get_all_cut_by_the_page_cap_reports_the_last_page_it_returned(
@@ -181,7 +179,7 @@ class TestListIncidents:
         """
         GIVEN more pages than the get_all page cap
         WHEN list_internal_incidents is called with get_all=True
-        THEN the result reports the last page it includes, so page + 1 is the first one it left out
+        THEN the result says the page limit stopped it, and its next_arguments resume at the first page it left out
         """
         gg_api.get("/incidents-for-mcp").mock(
             side_effect=lambda request: httpx.Response(
@@ -197,7 +195,8 @@ class TestListIncidents:
 
         assert [i["id"] for i in output["incidents"]] == list(range(1, MAX_PAGINATION_PAGES + 1))
         assert output["has_more"] is True
-        assert output["page"] == MAX_PAGINATION_PAGES
+        assert output["stop_reason"] == "page_limit"
+        assert output["next_arguments"]["cursor"] == f"{MAX_PAGINATION_PAGES + 1}:5"
 
     @staticmethod
     def _paged_incidents(total: int, note_bytes: int = 0):
@@ -232,18 +231,22 @@ class TestListIncidents:
             await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "page_size": 100})
         )
 
+        returned = [i["id"] for i in output["incidents"]]
         assert {call.request.url.params["page_size"] for call in route.calls} == {"5"}
         assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
-        assert [i["id"] for i in output["incidents"]] == list(range(1, 5 * output["page"] + 1))
+        assert returned == list(range(1, len(returned) + 1))
+        assert len(returned) % 5 == 0
         assert output["page_size"] == 5
         assert output["has_more"] is True
+        assert output["stop_reason"] == "size_budget"
+        assert output["next_arguments"]["cursor"] == f"{len(returned) // 5 + 1}:5"
 
     async def test_get_all_resumed_with_the_page_and_size_it_returns_skips_and_repeats_nothing(
         self, mcp_client, gg_api, mock_token_scopes
     ):
         """
         GIVEN 40 incidents of about 3 KB each, more than one get_all call can hold
-        WHEN get_all is called again with page + 1 and the page_size returned, until has_more is false
+        WHEN get_all is called again with the next_arguments it returns, until has_more is false
         THEN every incident comes back exactly once, in order
         """
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=40, note_bytes=3000))
@@ -256,7 +259,7 @@ class TestListIncidents:
             seen.extend(i["id"] for i in output["incidents"])
             if not output["has_more"]:
                 break
-            arguments = {"get_all": True, "page": output["page"] + 1, "page_size": output["page_size"]}
+            arguments = output["next_arguments"]
 
         assert seen == list(range(1, 41))
 
@@ -264,26 +267,23 @@ class TestListIncidents:
         ("page", "page_size", "fetched_page_size"),
         [(4, 20, "5"), (3, 7, "1"), (2, 12, "4"), (1, 100, "5")],
     )
-    async def test_get_all_starts_where_the_requested_page_starts(
+    async def test_get_all_from_a_cursor_starts_where_its_page_starts(
         self, mcp_client, gg_api, mock_token_scopes, page, page_size, fetched_page_size
     ):
         """
         GIVEN 200 incidents
-        WHEN get_all is called with a page counted in pages of the requested page_size
-        THEN its first incident is the one that page starts with, fetched at a page size that divides the requested one
+        WHEN get_all is called with a cursor naming a page counted in pages of another page size
+        THEN its first incident is the one that page starts with, fetched at a page size that divides that one
         """
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=200))
 
         output = tool_output(
-            await call_tool(
-                mcp_client, "list_internal_incidents", {"get_all": True, "page": page, "page_size": page_size}
-            )
+            await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "cursor": f"{page}:{page_size}"})
         )
 
         assert output["incidents"][0]["id"] == (page - 1) * page_size + 1
         assert {call.request.url.params["page_size"] for call in route.calls} == {fetched_page_size}
         assert output["page_size"] == int(fetched_page_size)
-        assert output["has_previous"] is (page > 1)
 
     @pytest.mark.parametrize("more", [True, False])
     async def test_a_single_page_reports_more_results_as_the_other_list_tools_do(
@@ -292,14 +292,29 @@ class TestListIncidents:
         """
         GIVEN a page of incidents, with or without a next page
         WHEN list_internal_incidents is called without get_all
-        THEN has_more says whether more incidents match, as in the other list tools
+        THEN has_more, stop_reason and next_arguments say whether more incidents match, as in the other list tools
         """
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=10 if more else 5))
 
         output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"page_size": 5}))
 
         assert output["has_more"] is more
-        assert output["has_next"] is more
+        assert output["stop_reason"] == ("page" if more else "end")
+        assert output["next_arguments"] == ({"page_size": 5, "cursor": "2:5"} if more else None)
+
+    @pytest.mark.parametrize("cursor", ["2", "abc", "0:5", "2:0", "2:101", "2:5:1"])
+    async def test_a_cursor_it_did_not_return_is_refused(self, mcp_client, gg_api, mock_token_scopes, cursor):
+        """
+        GIVEN a cursor that is not one list_internal_incidents returns
+        WHEN it is passed
+        THEN the call fails saying to pass next_arguments as given, and the API is never called
+        """
+        route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None})
+
+        result = await call_tool(mcp_client, "list_internal_incidents", {"cursor": cursor})
+
+        assert "pass next_arguments from a previous result as given" in tool_error_text(result)
+        assert not route.called
 
     @pytest.mark.parametrize(
         ("filters", "expected"),
@@ -630,8 +645,8 @@ class TestListRepoOccurrences:
         """
         GIVEN a source id and a next page advertised via the Link header
         WHEN list_internal_occurrences is called
-        THEN the query carries the default noise filters and the decoded cursor
-             is handed back with has_more=True
+        THEN the query carries the default noise filters, and next_arguments hand back the decoded cursor
+             with has_more=True
         """
         occurrence = {"id": 9, "incident_id": 77, "filepath": "src/config.py"}
         route = gg_api.get("/occurrences/secrets").respond(
@@ -654,9 +669,9 @@ class TestListRepoOccurrences:
         )
         output = tool_output(result)
         assert output["occurrences"] == [occurrence]
-        assert output["occurrences_count"] == 1
-        assert output["cursor"] == "cD0yMDI2=="
         assert output["has_more"] is True
+        assert output["stop_reason"] == "page"
+        assert output["next_arguments"] == {"source_id": 55, "cursor": "cD0yMDI2==", "page_size": 20}
 
     async def test_mine_filters_on_the_token_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """
@@ -713,16 +728,17 @@ class TestListRepoOccurrences:
             "status": [],
             "severity": [],
             "validity": [],
-            "per_page": 100,
+            "page_size": 100,
             "get_all": False,
         }
         first = tool_output(await call_tool(mcp_client, tool_name, filters))
         assert first["has_more"] is True
-        assert first["occurrences_count"] == 100
-        second = tool_output(await call_tool(mcp_client, tool_name, {**filters, "cursor": first["cursor"]}))
+        assert len(first["occurrences"]) == 100
+        assert first["next_arguments"] == {**filters, "cursor": "next100"}
+        second = tool_output(await call_tool(mcp_client, tool_name, first["next_arguments"]))
         assert second["has_more"] is False
-        assert second["cursor"] is None
-        assert second["occurrences_count"] == 50
+        assert second["next_arguments"] is None
+        assert len(second["occurrences"]) == 50
         assert first["occurrences"] + second["occurrences"] == occurrences
         assert second["applied_filters"]["incident_id"] == 501
         assert route.call_count == 2
@@ -756,8 +772,7 @@ class TestListRepoOccurrences:
             returned.extend(output["occurrences"])
             if not output["has_more"]:
                 break
-            assert output["cursor"] is not None
-            params["cursor"] = output["cursor"]
+            params = output["next_arguments"]
 
         assert [occ["id"] for occ in returned] == [0, 1, 2]
         assert output["has_more"] is False
@@ -766,7 +781,7 @@ class TestListRepoOccurrences:
         """
         GIVEN an occurrence page followed by an empty terminal page
         WHEN get_all follows the final cursor
-        THEN the response clears the cursor and does not advertise more data
+        THEN the response has no next_arguments and does not advertise more data
         """
         occurrence = {"id": 1, "incident_id": 501, "filepath": "a.py"}
         gg_api.get("/occurrences/secrets").mock(
@@ -786,7 +801,8 @@ class TestListRepoOccurrences:
 
         assert output["occurrences"] == [occurrence]
         assert output["has_more"] is False
-        assert output["cursor"] is None
+        assert output["stop_reason"] == "end"
+        assert output["next_arguments"] is None
 
     async def test_date_range_and_presence_are_forwarded(self, mcp_client, gg_api, mock_token_scopes):
         """

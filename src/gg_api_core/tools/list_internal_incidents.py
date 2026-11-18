@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Any
 
 from fastmcp.exceptions import ToolError
@@ -13,14 +14,38 @@ from gg_api_core.tools.incident_filters import (
     build_incident_query,
     resolve_assignee,
 )
+from gg_api_core.tools.pagination import (
+    CURSOR_DESCRIPTION,
+    GET_ALL_DESCRIPTION,
+    PAGE_SIZE_DESCRIPTION,
+    PageOfResults,
+    StopReason,
+    next_arguments_for,
+    stop_reason_of,
+)
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
 # get_all fetches pages this small: about 16 KB of summaries each, so it stops near its size
-# budget instead of returning one oversized page whole, and page + 1 at this page size
+# budget instead of returning one oversized page whole, and the next page at this page size
 # resumes exactly where its result stops.
 GET_ALL_PAGE_SIZE = 5
+
+# The endpoint pages by number, so a cursor names a page and the page size it counts in.
+_CURSOR = re.compile(r"(\d+):(\d+)")
+
+
+def _cursor(page: int, page_size: int) -> str:
+    return f"{page}:{page_size}"
+
+
+def _read_cursor(cursor: str) -> tuple[int, int]:
+    """The page and page size a cursor names."""
+    match = _CURSOR.fullmatch(cursor)
+    if match is None or int(match[1]) < 1 or not 1 <= int(match[2]) <= 100:
+        raise ToolError("cursor is not one this tool returned; pass next_arguments from a previous result as given")
+    return int(match[1]), int(match[2])
 
 
 def _get_all_page_size(page_size: int) -> int:
@@ -73,18 +98,10 @@ def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> st
 class _Pagination(BaseModel):
     """Pagination fields, declared first so list_internal_incidents' schema lists them first."""
 
-    page: int = Field(default=1, description="Page number (1-indexed)", ge=1)
-    page_size: int = Field(
-        default=20,
-        description="Number of results per page (default: 20, max: 100)",
-        ge=1,
-        le=100,
-    )
+    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(
-        default=False,
-        description=f"If True, fetch pages of up to {GET_ALL_PAGE_SIZE} incidents, starting where page starts, until about "
-        f"{DEFAULT_PAGINATION_MAX_BYTES // 1000} KB of results. When has_more is true, call again with page + 1 "
-        "and the page_size returned.",
+        default=False, description=f"{GET_ALL_DESCRIPTION}. get_all fetches pages of at most {GET_ALL_PAGE_SIZE}"
     )
     ordering: str | None = Field(
         default="-date",
@@ -176,28 +193,13 @@ def summarize_incident(incident: dict[str, Any]) -> dict[str, Any]:
     return summary
 
 
-class ListIncidentsResult(BaseModel):
+class ListIncidentsResult(PageOfResults):
     """Result from listing incidents."""
 
     incidents: list[dict[str, Any]] = Field(
         default_factory=list,
         description="Incidents. Each one's secret and displayed_occurrence are summarized (validity, detector, "
         "source, file and lines); call get_internal_incident for an incident's full details.",
-    )
-    page: int = Field(
-        description="Current page number. With get_all=True, the last page whose incidents are included: "
-        "when has_more is true, continue with page + 1."
-    )
-    page_size: int = Field(
-        description=f"Number of results per page. With get_all=True, at most {GET_ALL_PAGE_SIZE}, whatever was "
-        "requested: continue with this page_size."
-    )
-    has_next: bool = Field(default=False, description="True if there are more pages available")
-    has_previous: bool = Field(default=False, description="True if there are previous pages")
-    has_more: bool = Field(
-        default=False,
-        description="True if more incidents match than this result holds: continue with page + 1 and the "
-        "page_size returned.",
     )
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
@@ -217,84 +219,68 @@ async def list_internal_incidents(
     if conflict:
         raise ToolError(conflict)
     query = build_incident_query(params, assignee_id)
+    page, page_size = _read_cursor(params.cursor) if params.cursor else (1, params.page_size)
 
-    if params.get_all:
-        # Fetch pages from params.page with a byte budget and a page cap.
-        page_size = _get_all_page_size(params.page_size)
-        # The same first incident the requested page starts at, in pages of page_size.
-        start_page = (params.page - 1) * params.page_size // page_size + 1
-        all_incidents: list[dict[str, Any]] = []
-        current_page = start_page
-        # Last page whose incidents are in the result. Pages dropped by the size or
-        # page cap are not, so a caller resuming at last_included_page + 1 sees them.
-        last_included_page = 0
-        total_bytes = 0
-        has_more = False
-        pages_fetched = 0
+    if not params.get_all:
+        response = await client.list_incidents_for_mcp(query, page=page, page_size=page_size, ordering=params.ordering)
+        incidents = [summarize_incident(incident) for incident in response.get("results", [])]
+        has_more = response.get("next") is not None
+        return _result(params, incidents, page_size, has_more, _cursor(page + 1, page_size) if has_more else None)
 
-        while True:
-            if pages_fetched >= MAX_PAGINATION_PAGES:
-                logger.warning(f"get_all pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES})")
-                has_more = True
-                break
+    # Fetch pages with a byte budget and a page cap, in pages small enough to stop near
+    # the budget, starting at the same first incident the cursor's page starts at.
+    get_all_size = _get_all_page_size(page_size)
+    current_page = (page - 1) * page_size // get_all_size + 1
+    all_incidents: list[dict[str, Any]] = []
+    total_bytes = 0
+    stopped_by: StopReason | None = None
+    pages_fetched = 0
 
-            response = await client.list_incidents_for_mcp(
-                query, page=current_page, page_size=page_size, ordering=params.ordering
-            )
-            pages_fetched += 1
+    while True:
+        if pages_fetched >= MAX_PAGINATION_PAGES:
+            logger.warning(f"get_all pagination stopped: reached max page limit ({MAX_PAGINATION_PAGES})")
+            stopped_by = "page_limit"
+            break
 
-            page_incidents = [summarize_incident(incident) for incident in response.get("results", [])]
-            has_next_page = response.get("next") is not None
-
-            # Empty page means no more matching results
-            if not page_incidents:
-                break
-
-            # Check byte limit before adding results
-            page_bytes = len(json.dumps(page_incidents))
-            if total_bytes + page_bytes > DEFAULT_PAGINATION_MAX_BYTES and all_incidents:
-                # Would exceed limit, stop here
-                has_more = True
-                break
-
-            all_incidents.extend(page_incidents)
-            total_bytes += page_bytes
-            last_included_page = current_page
-
-            if not has_next_page:
-                break
-
-            current_page += 1
-
-        return ListIncidentsResult(
-            incidents=all_incidents,
-            page=last_included_page or start_page,
-            page_size=page_size,
-            has_next=has_more,
-            has_previous=params.page > 1,
-            has_more=has_more,
-            applied_filters=build_filter_info(params),
-            suggestion=_build_suggestion(params, len(all_incidents)),
-        )
-    else:
-        # Single page request
         response = await client.list_incidents_for_mcp(
-            query, page=params.page, page_size=params.page_size, ordering=params.ordering
+            query, page=current_page, page_size=get_all_size, ordering=params.ordering
         )
+        pages_fetched += 1
+        page_incidents = [summarize_incident(incident) for incident in response.get("results", [])]
+        if not page_incidents:
+            break
 
-        # Parse the response
-        incidents_data = [summarize_incident(incident) for incident in response.get("results", [])]
-        has_next = response.get("next") is not None
-        has_previous = response.get("previous") is not None
+        page_bytes = len(json.dumps(page_incidents))
+        if total_bytes + page_bytes > DEFAULT_PAGINATION_MAX_BYTES and all_incidents:
+            stopped_by = "size_budget"
+            break
 
-        return ListIncidentsResult(
-            incidents=incidents_data,
-            page=params.page,
-            page_size=params.page_size,
-            has_next=has_next,
-            has_previous=has_previous,
-            # Same meaning as in the other list tools: more incidents match.
-            has_more=has_next,
-            applied_filters=build_filter_info(params),
-            suggestion=_build_suggestion(params, len(incidents_data)),
-        )
+        all_incidents.extend(page_incidents)
+        total_bytes += page_bytes
+        if response.get("next") is None:
+            break
+        current_page += 1
+        # The next page is not in the result yet: a stop from here resumes at it.
+
+    has_more = stopped_by is not None
+    next_cursor = _cursor(current_page, get_all_size) if has_more else None
+    return _result(params, all_incidents, get_all_size, has_more, next_cursor, stopped_by)
+
+
+def _result(
+    params: ListIncidentsParams,
+    incidents: list[dict[str, Any]],
+    page_size: int,
+    has_more: bool,
+    next_cursor: str | None,
+    stopped_by: StopReason | None = None,
+) -> ListIncidentsResult:
+    return ListIncidentsResult(
+        incidents=incidents,
+        page_size=page_size,
+        has_more=has_more,
+        stop_reason=stop_reason_of(has_more, params.get_all, stopped_by),
+        next_arguments=next_arguments_for(params, next_cursor, page_size),
+        applied_filters=build_filter_info(params),
+        suggestion=_build_suggestion(params, len(incidents)),
+    )

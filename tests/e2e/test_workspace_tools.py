@@ -16,8 +16,8 @@ class TestListSources:
         """
         GIVEN source filters and a next page advertised via the Link header
         WHEN list_sources is called
-        THEN the query carries the filters (booleans lowercased) and the cursor
-             comes back decoded with has_more=True
+        THEN the query carries the filters (booleans lowercased), and next_arguments carry them with the
+             decoded cursor and has_more=True
         """
         source = {"id": 55, "name": "ggmcp", "type": "github"}
         route = gg_api.get("/sources").respond(
@@ -37,7 +37,7 @@ class TestListSources:
         assert params == {"search": "gg", "type": "github", "monitored": "true", "per_page": "20"}
         output = tool_output(result)
         assert output["sources"] == [source]
-        assert output["next_cursor"] == "abc=="
+        assert output["next_arguments"]["cursor"] == "abc=="
         assert output["has_more"] is True
 
     @pytest.mark.parametrize(
