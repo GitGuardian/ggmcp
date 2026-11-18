@@ -20,7 +20,7 @@ HINTS = ("readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint")
 INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
-VAGUE_VERB = {"manage_incident_comment", "manage_private_incident", "manage_public_incident"}
+VAGUE_VERB = {"manage_incident_comment", "manage_public_incident"}
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
 WRAPPED_OUTPUT = {
     "count_incidents",
@@ -29,7 +29,7 @@ WRAPPED_OUTPUT = {
     "list_public_occurrences",
     "list_repo_occurrences",
 }
-UNDOCUMENTED_OUTPUT = {"manage_incident_comment", "manage_private_incident", "manage_public_incident"}
+UNDOCUMENTED_OUTPUT = {"manage_incident_comment", "manage_public_incident"}
 MISSING_HINTS = {
     "count_incidents",
     "get_gitguardian_resource",
@@ -52,12 +52,10 @@ OTHER_PAGE_ARGUMENTS = {
     "list_sources",
 }
 LOOSE_INCIDENT_ID = {
-    "assign_incident",
     "get_incident",
     "get_public_incident",
     "list_public_occurrences",
     "manage_incident_comment",
-    "manage_private_incident",
     "manage_public_incident",
 }
 

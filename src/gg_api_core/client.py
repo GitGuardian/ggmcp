@@ -1120,7 +1120,7 @@ class GitGuardianClient:
             else f"Assigning incident {incident_id} by email"
         )
         # Only the identifier in use is sent: the other key, even as null, is no part of the request.
-        payload = {"member_id": assignee_id} if assignee_id else {"email": email}
+        payload: dict[str, Any] = {"member_id": int(assignee_id)} if assignee_id else {"email": email}
         return await self._request_post(f"/incidents/secrets/{incident_id}/assign", json=payload)
 
     async def unassign_incident(self, incident_id: str) -> dict[str, Any]:
@@ -1757,6 +1757,20 @@ class GitGuardianClient:
         )
         payload: dict[str, Any] = {"member_id": int(assignee_id)} if assignee_id else {"email": email}
         return await self._request_post(f"/public-incidents/secrets/{incident_id}/assign", json=payload)
+
+    async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
+        """Unassign a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/unassign.
+
+        Args:
+            incident_id: ID of the public incident
+
+        Returns:
+            The updated public incident
+        """
+        logger.info(f"Unassigning public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/unassign")
 
     async def create_public_incident_note(self, incident_id: str, comment: str) -> dict[str, Any]:
         """Create a note (comment) on a public secret incident.

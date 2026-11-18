@@ -57,7 +57,8 @@ EXPECTED_REQUESTED_SCOPES = [
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {
-    "assign_incident",
+    "assign_internal_incident",
+    "assign_public_incident",
     "count_incidents",
     "generate_honeytoken",
     "get_gitguardian_resource",
@@ -73,13 +74,14 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "list_repo_occurrences",
     "list_sources",
     "manage_incident_comment",
-    "manage_private_incident",
     "manage_public_incident",
     "reopen_internal_incident",
     "reopen_public_incident",
     "resolve_internal_incident",
     "resolve_public_incident",
     "scan_secrets",
+    "unassign_internal_incident",
+    "unassign_public_incident",
 }
 
 EXPECTED_SCAN_ONLY_TOOL_CATALOG = {

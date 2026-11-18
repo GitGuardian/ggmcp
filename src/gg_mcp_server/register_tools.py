@@ -14,7 +14,6 @@ top-level arguments (see ``gg_api_core.model_arguments``).
 from mcp.types import ToolAnnotations
 
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
-from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.count_incidents import count_incidents
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
@@ -22,6 +21,12 @@ from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_my_identity import get_my_identity
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
+from gg_api_core.tools.incident_assignment import (
+    assign_internal_incident,
+    assign_public_incident,
+    unassign_internal_incident,
+    unassign_public_incident,
+)
 from gg_api_core.tools.incident_notes import manage_incident_comment
 from gg_api_core.tools.incident_status import (
     ignore_internal_incident,
@@ -36,7 +41,6 @@ from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
-from gg_api_core.tools.manage_incident import manage_private_incident
 from gg_api_core.tools.manage_public_incident import manage_public_incident
 from gg_api_core.tools.scan_secret import scan_secrets
 
@@ -51,8 +55,7 @@ CHANGES_INCIDENT_STATE = ToolAnnotations(
 WRITES_INCIDENT_COMMENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
 )
-# Assignments replace the incident's state, but adding a comment does not repeat cleanly,
-# so the tool as a whole is not idempotent.
+# Adding a comment does not repeat cleanly, so the tool is not idempotent.
 MANAGES_PUBLIC_INCIDENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
 )
@@ -88,12 +91,12 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
   `list_sources`.
   Write tools: `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
-  `manage_private_incident`, `assign_incident`, `manage_incident_comment`.
+  `assign_internal_incident`, `unassign_internal_incident`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
   Write tools: `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident`,
-  `manage_public_incident`.
+  `assign_public_incident`, `unassign_public_incident`, `manage_public_incident`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -105,9 +108,8 @@ write tool with a public incident ID (or vice versa) will silently 404.
 1. **Proactive Secret Scanning** (`scan_secrets`) — detect secrets in code before they're
    committed. Use to prevent accidental secret commits.
 
-2. **Incident Management** — list and filter incidents (internal and public); assign,
-   unassign, resolve, ignore, reopen, and comment on internal incidents; resolve, ignore,
-   reopen, assign, and comment on public incidents.
+2. **Incident Management** — list and filter incidents (internal and public); resolve,
+   ignore, reopen, assign, unassign, and comment on either kind.
 
 3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
    line numbers, and character indices.
@@ -209,10 +211,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         manage_public_incident,
-        description="(Public Monitoring only; for internal incidents use assign_incident and "
-        "manage_incident_comment; to resolve, ignore or reopen use resolve_public_incident, ignore_public_incident "
-        "or reopen_public_incident) Assign, or comment on, a public secret incident. Incident IDs here are NOT "
-        "interchangeable with internal incident IDs.",
+        description="(Public Monitoring only; for internal incidents use manage_incident_comment) Comment on a "
+        "public secret incident. Incident IDs here are NOT interchangeable with internal incident IDs.",
         required_scopes=["incidents:write"],
         annotations=MANAGES_PUBLIC_INCIDENT,
     )
@@ -337,18 +337,35 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        manage_private_incident,
-        description="(Internal sources only) Unassign an internal secret incident. To resolve, ignore or reopen it "
-        "use resolve_internal_incident, ignore_internal_incident or reopen_internal_incident; to assign it, assign_incident. Does not work on "
-        "public-monitoring incident IDs.",
+        assign_internal_incident,
+        description="(Internal incidents only; for Public Monitoring use assign_public_incident) Assign an internal "
+        "secret incident to one member, by member ID, by email, or to the current user with mine. Returns the new "
+        "assignee and the incident.",
         required_scopes=["incidents:write"],
         annotations=CHANGES_INCIDENT_STATE,
     )
 
     mcp.tool(
-        assign_incident,
-        description="(Internal sources only) Assign an internal secret incident to a specific member or to the current user. "
-        "Does not work on public-monitoring incident IDs.",
+        unassign_internal_incident,
+        description="(Internal incidents only; for Public Monitoring use unassign_public_incident) Remove the "
+        "assignee of an internal secret incident. Returns the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        assign_public_incident,
+        description="(Public Monitoring only; for internal incidents use assign_internal_incident) Assign a public "
+        "secret incident to one member, by member ID, by email, or to the current user with mine. Returns the new "
+        "assignee and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        unassign_public_incident,
+        description="(Public Monitoring only; for internal incidents use unassign_internal_incident) Remove the "
+        "assignee of a public secret incident. Returns the incident.",
         required_scopes=["incidents:write"],
         annotations=CHANGES_INCIDENT_STATE,
     )

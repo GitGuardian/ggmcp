@@ -39,7 +39,7 @@ class TestTopLevelArguments:
 
         assert schemas["get_incident"]["required"] == ["incident_id"]
         assert set(schemas["get_incident"]["properties"]) == {"incident_id", "with_occurrences", "with_history"}
-        assert schemas["manage_private_incident"]["required"] == ["incident_id", "action"]
+        assert schemas["resolve_internal_incident"]["required"] == ["incident_id", "secret_revoked"]
         assert schemas["scan_secrets"]["required"] == ["documents"]
         assert "required" not in schemas["list_incidents"]
 

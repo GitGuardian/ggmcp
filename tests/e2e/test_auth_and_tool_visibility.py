@@ -150,14 +150,16 @@ class TestScopeBasedToolVisibility:
         writes_comment = {**changes_state, "idempotentHint": False}
         creates = {**changes_state, "destructiveHint": False, "idempotentHint": False}
         expected = dict.fromkeys(EXPECTED_FULL_TOOL_CATALOG, read_only) | {
-            "manage_private_incident": changes_state,
+            "assign_internal_incident": changes_state,
+            "unassign_internal_incident": changes_state,
+            "assign_public_incident": changes_state,
+            "unassign_public_incident": changes_state,
             "resolve_internal_incident": changes_state,
             "ignore_internal_incident": changes_state,
             "reopen_internal_incident": changes_state,
             "resolve_public_incident": changes_state,
             "ignore_public_incident": changes_state,
             "reopen_public_incident": changes_state,
-            "assign_incident": changes_state,
             "manage_incident_comment": writes_comment,
             "manage_public_incident": writes_comment,
             "generate_honeytoken": creates,

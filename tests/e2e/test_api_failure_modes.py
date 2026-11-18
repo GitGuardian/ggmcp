@@ -62,16 +62,16 @@ async def test_a_rejected_token_on_a_list_call_triggers_reauthentication(
 
 ALREADY_IN_STATE_CALLS = [
     pytest.param(
-        "assign_incident",
+        "assign_internal_incident",
         "/incidents/secrets/77/assign",
         {"incident_id": 77, "assignee_member_id": 4242},
         "Incident already assigned to this user.",
         id="assign",
     ),
     pytest.param(
-        "manage_private_incident",
+        "unassign_internal_incident",
         "/incidents/secrets/77/unassign",
-        {"incident_id": 77, "action": "unassign"},
+        {"incident_id": 77},
         "Incident not assigned.",
         id="unassign",
     ),
@@ -464,7 +464,7 @@ class TestOneRecordPerFailure:
         mock_token_scopes(["scan", "incidents:read"])
 
         with caplog.at_level(logging.WARNING):
-            await call_tool(mcp_client, "assign_incident", {"incident_id": 77, "mine": True})
+            await call_tool(mcp_client, "assign_internal_incident", {"incident_id": 77, "mine": True})
 
         (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
         assert failed.missing_scopes == ["incidents:write"]

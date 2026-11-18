@@ -43,7 +43,7 @@ def mock_gitguardian_client():
     modules_using_get_client = [
         "gg_api_core.utils",
         "gg_api_core.mcp_server",
-        "gg_api_core.tools.assign_incident",
+        "gg_api_core.tools.incident_assignment",
         "gg_api_core.tools.count_incidents",
         "gg_api_core.tools.generate_honey_token",
         "gg_api_core.tools.get_incident",
@@ -56,7 +56,6 @@ def mock_gitguardian_client():
         "gg_api_core.tools.list_public_occurrences",
         "gg_api_core.tools.list_repo_occurrences",
         "gg_api_core.tools.list_sources",
-        "gg_api_core.tools.manage_incident",
         "gg_api_core.tools.scan_secret",
     ]
 
