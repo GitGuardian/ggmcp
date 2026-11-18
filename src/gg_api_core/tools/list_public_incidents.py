@@ -7,6 +7,7 @@ from gg_api_core.client import (
     IncidentSeverity,
     IncidentStatus,
     IncidentValidity,
+    _serialize_enum_filter,
 )
 from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
@@ -105,16 +106,14 @@ class ListPublicIncidentsParams(BaseModel):
     )
 
     # Tags
-    tags: str | None = Field(
+    tags: list[str] | None = Field(
         default=None,
-        description=(
-            "Filter by tags. Comma-separated list of tag names (e.g. "
-            "'FROM_HISTORICAL_SCAN,INTERNALLY_LEAKED'). Use 'NONE' to filter incidents with no tags."
-        ),
+        description="Incidents with any of these tags, such as FROM_HISTORICAL_SCAN or INTERNALLY_LEAKED. Use "
+        "['NONE'] for incidents with no tag.",
     )
-    custom_tags: str | None = Field(
+    custom_tags: list[UUID] | None = Field(
         default=None,
-        description="Comma-separated list of custom tag UUIDs to filter by",
+        description="Incidents with any of these custom tags, by custom tag ID",
     )
     custom_tag_key: str | None = Field(
         default=None,
@@ -135,9 +134,9 @@ class ListPublicIncidentsParams(BaseModel):
     )
 
     # Detector / actor filters
-    detector_group_name: str | None = Field(
+    detector_group_name: list[str] | None = Field(
         default=None,
-        description="Filter by detector group name (e.g. 'slackbot_token')",
+        description="Incidents from any of these detector groups, such as slackbot_token",
     )
     ignorer_id: NumericId | None = Field(
         default=None,
@@ -183,7 +182,7 @@ class ListPublicIncidentsParams(BaseModel):
     )
 
     # Coerce a single enum/string into a list so LLM callers can pass either shape.
-    @field_validator("status", "severity", "validity", mode="before")
+    @field_validator("status", "severity", "validity", "tags", "custom_tags", "detector_group_name", mode="before")
     @classmethod
     def coerce_to_list(cls, v: Any) -> list[Any] | None:
         if v is None:
@@ -223,7 +222,7 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     if params.tags:
         filters["tags"] = params.tags
     if params.custom_tags:
-        filters["custom_tags"] = params.custom_tags
+        filters["custom_tags"] = [str(tag) for tag in params.custom_tags]
     if params.custom_tag_key:
         filters["custom_tag_key"] = params.custom_tag_key
     if params.custom_tag_value:
@@ -271,12 +270,12 @@ async def list_public_incidents(
         status=params.status,
         severity=params.severity,
         validity=params.validity,
-        tags=params.tags,
-        custom_tags=params.custom_tags,
+        tags=_serialize_enum_filter(params.tags) if params.tags else None,
+        custom_tags=_serialize_enum_filter(params.custom_tags) if params.custom_tags else None,
         custom_tag_key=params.custom_tag_key,
         custom_tag_value=params.custom_tag_value,
         ordering=params.ordering,
-        detector_group_name=params.detector_group_name,
+        detector_group_name=_serialize_enum_filter(params.detector_group_name) if params.detector_group_name else None,
         ignorer_id=params.ignorer_id,
         ignorer_api_token_id=str(params.ignorer_api_token_id) if params.ignorer_api_token_id else None,
         resolver_id=params.resolver_id,

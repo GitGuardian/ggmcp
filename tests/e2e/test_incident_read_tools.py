@@ -413,10 +413,10 @@ class TestSharedIncidentFilters:
                 id="empty-lists-clear-defaults",
             ),
             pytest.param(
-                {"severity": ["CRITICAL", "20", 100, "custom"]},
-                {"severity__in": "10,20,100,custom"},
-                {"severity": ["CRITICAL", "20", 100, "custom"]},
-                id="mixed-severity-values",
+                {"severity": ["CRITICAL", "High"], "status": ["resolved"]},
+                {"severity__in": "10,20", "status__in": "RESOLVED"},
+                {"severity": ["critical", "high"], "status": ["RESOLVED"]},
+                id="values-in-any-case",
             ),
         ],
     )

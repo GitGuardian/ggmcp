@@ -1,18 +1,11 @@
 """Shared parameter validation and filter mapping for internal incidents."""
 
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 from gg_api_core.client import GitGuardianClient, _serialize_enum_filter, _to_date_only
 from gg_api_core.tools.ids import NumericId
-
-
-class IncidentStatus:
-    TRIGGERED = "TRIGGERED"  # Unassigned active incidents
-    ASSIGNED = "ASSIGNED"  # Assigned active incidents
-    RESOLVED = "RESOLVED"
-    IGNORED = "IGNORED"
 
 
 # Severity numeric values (IntegerChoices in Django)
@@ -43,23 +36,22 @@ DEFAULT_EXCLUDED_TAGS = [
     "CHECK_RUN_SKIP_LOW_RISK",
     "CHECK_RUN_SKIP_TEST_CRED",
 ]
-DEFAULT_SEVERITIES: list[str | int] = [
-    SeverityValues.CRITICAL,
-    SeverityValues.HIGH,
-    SeverityValues.MEDIUM,
-    SeverityValues.UNKNOWN,
-]  # Exclude LOW and INFO
-DEFAULT_STATUSES = [
-    IncidentStatus.TRIGGERED,
-    IncidentStatus.ASSIGNED,
-    IncidentStatus.RESOLVED,
-]  # Exclude IGNORED
-DEFAULT_VALIDITIES = [
-    "valid",
-    "failed_to_check",
-    "no_checker",
-    "not_checked",
-]  # Exclude INVALID
+# The same status, severity and validity values every list tool takes. /incidents-for-mcp
+# reads severity as numbers and calls the unknown validity not_checked, so
+# build_incident_query translates both.
+Status = Literal["TRIGGERED", "ASSIGNED", "RESOLVED", "IGNORED"]
+Severity = Literal["critical", "high", "medium", "low", "info", "unknown"]
+Validity = Literal["valid", "invalid", "failed_to_check", "no_checker", "unknown"]
+VALIDITY_TO_API = {"unknown": "not_checked"}
+
+DEFAULT_SEVERITIES: list[Severity] = ["critical", "high", "medium", "unknown"]  # Exclude LOW and INFO
+DEFAULT_STATUSES: list[Status] = ["TRIGGERED", "ASSIGNED", "RESOLVED"]  # Exclude IGNORED
+DEFAULT_VALIDITIES: list[Validity] = ["valid", "failed_to_check", "no_checker", "unknown"]  # Exclude INVALID
+EMPTY_LIST_NOTE = "Pass [] for no filter."
+STATUS_DESCRIPTION = (
+    "Filter by status: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. "
+    f"Default excludes IGNORED. {EMPTY_LIST_NOTE}"
+)
 
 
 class IncidentFilters(BaseModel):
@@ -72,9 +64,9 @@ class IncidentFilters(BaseModel):
     )
 
     # Status and assignment filters
-    status: list[str] | None = Field(
+    status: list[Status] | None = Field(
         default=DEFAULT_STATUSES,
-        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED.",
+        description=STATUS_DESCRIPTION,
     )
     mine: bool = Field(
         default=False,
@@ -87,9 +79,9 @@ class IncidentFilters(BaseModel):
     )
 
     # Severity, score, and validity filters
-    severity: list[str | int] | None = Field(
+    severity: list[Severity] | None = Field(
         default=DEFAULT_SEVERITIES,
-        description="Filter by severity levels. Values: critical (10), high (20), medium (30), low (40), info (50), unknown (100). Default excludes LOW and INFO.",
+        description=f"Filter by severity. Default excludes low and info. {EMPTY_LIST_NOTE}",
     )
     score_min: int | None = Field(
         default=None,
@@ -103,9 +95,9 @@ class IncidentFilters(BaseModel):
         ge=0,
         le=100,
     )
-    validity: list[str] | None = Field(
+    validity: list[Validity] | None = Field(
         default=DEFAULT_VALIDITIES,
-        description="Filter by validity status. Values: valid, invalid, failed_to_check, no_checker, not_checked. Default excludes INVALID.",
+        description=f"Filter by the secret's validity. Default excludes invalid. {EMPTY_LIST_NOTE}",
     )
 
     # Secret type filters
@@ -301,13 +293,16 @@ class IncidentFilters(BaseModel):
         mode="before",
     )
     @classmethod
-    def coerce_to_list(cls, v: Any) -> list[Any] | None:
-        """Convert single values to lists for LLM compatibility."""
+    def coerce_to_list(cls, v: Any, info: ValidationInfo) -> list[Any] | None:
+        """Convert single values to lists, and statuses, severities and validities to their case."""
         if v is None:
             return None
-        if isinstance(v, list):
-            return v
-        return [v]
+        values = v if isinstance(v, list) else [v]
+        if info.field_name == "status":
+            return [value.upper() if isinstance(value, str) else value for value in values]
+        if info.field_name in ("severity", "validity"):
+            return [value.lower() if isinstance(value, str) else value for value in values]
+        return values
 
 
 def build_filter_info(params: IncidentFilters) -> dict[str, Any]:
@@ -413,22 +408,6 @@ async def resolve_assignee(client: GitGuardianClient, params: IncidentFilters) -
     return params.assignee_id, None
 
 
-def _severity_values(severities: list[str | int]) -> list[int | str]:
-    """Severity names to the API's numeric values; numbers and unknown names pass through."""
-    values: list[int | str] = []
-    for sev in severities:
-        if isinstance(sev, int):
-            values.append(sev)
-        elif isinstance(sev, str) and sev.lower() in SEVERITY_NAME_TO_VALUE:
-            values.append(SEVERITY_NAME_TO_VALUE[sev.lower()])
-        else:
-            try:
-                values.append(int(str(sev)))
-            except ValueError:
-                values.append(str(sev))
-    return values
-
-
 def build_incident_query(params: IncidentFilters, assignee_id: int | None) -> dict[str, Any]:
     """Translate the shared filters into the /incidents-for-mcp query.
 
@@ -449,12 +428,13 @@ def build_incident_query(params: IncidentFilters, assignee_id: int | None) -> di
         # a user id and would silently match nothing.
         query["assignee_member_id"] = _serialize_enum_filter(assignee_id)
     if params.severity:
-        add_list("severity__in", _severity_values(params.severity))
+        add_list("severity__in", [SEVERITY_NAME_TO_VALUE[severity] for severity in params.severity])
     if params.score_min is not None:
         query["score__ge"] = params.score_min
     if params.score_max is not None:
         query["score__le"] = params.score_max
-    add_list("validity__in", params.validity)
+    if params.validity:
+        add_list("validity__in", [VALIDITY_TO_API.get(validity, validity) for validity in params.validity])
     for name in (
         "detector_group_name",
         "detector_type",

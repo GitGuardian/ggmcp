@@ -112,17 +112,25 @@ class TestTopLevelArguments:
         assert "GetIncidentParams" not in error
         assert "input_value" not in error
 
-    async def test_validity_filters_only_offer_values_their_endpoint_accepts(self, mcp_client, mock_token_scopes):
+    async def test_validity_filters_offer_the_same_values_everywhere(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN the occurrence and public incident endpoints, which reject not_checked and accept unknown,
-        and the incident endpoint, which does the opposite
-        WHEN the tools are listed
-        THEN each tool's validity filter offers only the values its endpoint accepts
+        GIVEN the occurrence and public incident endpoints, which take unknown, and the incident endpoint,
+        which calls the same validity not_checked
+        WHEN the tools are listed, and list_internal_incidents is called with unknown
+        THEN every tool offers unknown and none offers not_checked, and the incident endpoint receives not_checked
         """
         schemas = await _tool_schemas(mcp_client)
+        route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None})
 
-        for tool in ("list_internal_occurrences", "list_public_incidents"):
-            offered = json.dumps(schemas[tool])
+        await call_tool(mcp_client, "list_internal_incidents", {"validity": ["unknown"]})
+
+        for tool in (
+            "list_internal_incidents",
+            "count_internal_incidents",
+            "list_internal_occurrences",
+            "list_public_incidents",
+        ):
+            offered = json.dumps(schemas[tool]["properties"]["validity"])
             assert '"not_checked"' not in offered, tool
             assert '"unknown"' in offered, tool
-        assert "not_checked" in schemas["list_internal_incidents"]["properties"]["validity"]["description"]
+        assert sent_params(route)["validity__in"] == "not_checked"

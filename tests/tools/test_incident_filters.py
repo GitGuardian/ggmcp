@@ -14,8 +14,11 @@ def _list_filters():
         for arg in typing.get_args(field.annotation):
             if typing.get_origin(arg) is list:
                 item_type = typing.get_args(arg)[0]
-                numeric = item_type is int or typing.get_args(item_type)[:1] == (int,)
-                yield pytest.param(name, 1 if numeric else "x", id=name)
+                if typing.get_origin(item_type) is typing.Literal:
+                    value = typing.get_args(item_type)[0]
+                else:
+                    value = 1 if item_type is int or typing.get_args(item_type)[:1] == (int,) else "x"
+                yield pytest.param(name, value, id=name)
                 break
 
 
@@ -47,7 +50,8 @@ def test_list_and_count_preserve_their_tool_specific_schemas():
 
     descriptions = {
         "status": (
-            "Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED.",
+            "Filter by status: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. "
+            "Default excludes IGNORED. Pass [] for no filter.",
             " Note that OPENED is not a valid status but means 'TRIGGERED OR ASSIGNED'.",
         ),
         "score_min": (

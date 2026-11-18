@@ -219,17 +219,19 @@ class TestListPublicOccurrences:
             pytest.param({"sha": "7474a92c9f"}, {"sha": "7474a92c9f"}, id="sha"),
             pytest.param({"filepath": "hello.py"}, {"filepath": "hello.py"}, id="filepath"),
             pytest.param(
-                {"attachment_reason": "by_dev_from_perimeter,on_github_org_in_perimeter"},
+                {"attachment_reason": ["by_dev_from_perimeter", "on_github_org_in_perimeter"]},
                 {"attachment_reason": "by_dev_from_perimeter,on_github_org_in_perimeter"},
                 id="attachment-reason",
             ),
-            pytest.param({"severity": "critical,high"}, {"severity": "critical,high"}, id="severity"),
-            pytest.param({"status": "TRIGGERED,ASSIGNED"}, {"status": "TRIGGERED,ASSIGNED"}, id="status"),
+            pytest.param({"severity": ["critical", "high"]}, {"severity": "critical,high"}, id="severity"),
+            pytest.param({"status": ["TRIGGERED", "ASSIGNED"]}, {"status": "TRIGGERED,ASSIGNED"}, id="status"),
             pytest.param(
-                {"validity": "valid,invalid,no_checker"}, {"validity": "valid,invalid,no_checker"}, id="validity"
+                {"validity": ["valid", "invalid", "no_checker"]},
+                {"validity": "valid,invalid,no_checker"},
+                id="validity",
             ),
             pytest.param(
-                {"tags": "FROM_HISTORICAL_SCAN,INTERNALLY_LEAKED"},
+                {"tags": ["FROM_HISTORICAL_SCAN", "INTERNALLY_LEAKED"]},
                 {"tags": "FROM_HISTORICAL_SCAN,INTERNALLY_LEAKED"},
                 id="tags",
             ),

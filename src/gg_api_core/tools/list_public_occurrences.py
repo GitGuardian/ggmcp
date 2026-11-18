@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
+from gg_api_core.client import IncidentSeverity, IncidentStatus, IncidentValidity, _serialize_enum_filter
 from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
@@ -40,9 +41,9 @@ class ListPublicOccurrencesParams(BaseModel):
         default=None,
         description="Filter occurrences belonging to this source ID",
     )
-    presence: str | None = Field(
+    presence: Literal["present", "removed"] | None = Field(
         default=None,
-        description="Filter by presence status (present, removed)",
+        description="Occurrences still present in their source, or removed from it",
     )
     sha: str | None = Field(
         default=None,
@@ -54,45 +55,31 @@ class ListPublicOccurrencesParams(BaseModel):
         min_length=3,
         description="Filter by filepath (>=3 characters)",
     )
-    attachment_reason: str | None = Field(
-        default=None,
-        description=(
-            "Filter by attachment reason. Comma-separated values allowed. "
-            "Options: by_dev_from_perimeter, on_github_org_in_perimeter, from_secret_grasper"
-        ),
-    )
+    attachment_reason: (
+        list[Literal["by_dev_from_perimeter", "on_github_org_in_perimeter", "from_secret_grasper"]] | None
+    ) = Field(default=None, description="Occurrences attached to the incident for any of these reasons")
 
     # Related-incident filters
-    severity: str | None = Field(
-        default=None,
-        description=(
-            "Filter occurrences by the severity of their related incident. "
-            "Comma-separated values allowed (e.g. 'critical,high'). "
-            "Options: critical, high, medium, low, info, unknown"
-        ),
+    severity: list[IncidentSeverity] | None = Field(
+        default=None, description="Occurrences whose incident has any of these severities"
     )
-    status: str | None = Field(
-        default=None,
-        description=(
-            "Filter occurrences by the status of their related incident. "
-            "Comma-separated values allowed (e.g. 'TRIGGERED,ASSIGNED'). "
-            "Options: IGNORED, TRIGGERED, ASSIGNED, RESOLVED"
-        ),
+    status: list[IncidentStatus] | None = Field(
+        default=None, description="Occurrences whose incident has any of these statuses"
     )
-    validity: str | None = Field(
-        default=None,
-        description=(
-            "Filter occurrences by the validity of their related secret. "
-            "Comma-separated values allowed. "
-            "Options: valid, invalid, failed_to_check, no_checker, unknown"
-        ),
+    validity: list[IncidentValidity] | None = Field(
+        default=None, description="Occurrences whose secret has any of these validities"
     )
-    tags: str | None = Field(
-        default=None,
-        description=(
-            "Filter by tags. Comma-separated list of tag names. Use 'NONE' to filter occurrences with no tags."
-        ),
+    tags: list[str] | None = Field(
+        default=None, description="Occurrences with any of these tags. Use ['NONE'] for occurrences with no tag."
     )
+
+    @field_validator("attachment_reason", "severity", "status", "validity", "tags", mode="before")
+    @classmethod
+    def coerce_to_list(cls, v: Any) -> list[Any] | None:
+        """Accept a single value where a list is expected."""
+        if v is None or isinstance(v, list):
+            return v
+        return [v]
 
     # Ordering
     ordering: str | None = Field(
@@ -125,11 +112,11 @@ def _build_filter_info(params: ListPublicOccurrencesParams) -> dict[str, Any]:
     if params.attachment_reason:
         filters["attachment_reason"] = params.attachment_reason
     if params.severity:
-        filters["severity"] = params.severity
+        filters["severity"] = [value.value for value in params.severity]
     if params.status:
-        filters["status"] = params.status
+        filters["status"] = [value.value for value in params.status]
     if params.validity:
-        filters["validity"] = params.validity
+        filters["validity"] = [value.value for value in params.validity]
     if params.tags:
         filters["tags"] = params.tags
     return filters
@@ -155,11 +142,11 @@ async def list_public_occurrences(
         presence=params.presence,
         sha=params.sha,
         filepath=params.filepath,
-        attachment_reason=params.attachment_reason,
-        severity=params.severity,
-        status=params.status,
-        validity=params.validity,
-        tags=params.tags,
+        attachment_reason=_serialize_enum_filter(params.attachment_reason) if params.attachment_reason else None,
+        severity=_serialize_enum_filter(params.severity) if params.severity else None,
+        status=_serialize_enum_filter(params.status) if params.status else None,
+        validity=_serialize_enum_filter(params.validity) if params.validity else None,
+        tags=_serialize_enum_filter(params.tags) if params.tags else None,
         ordering=params.ordering,
         get_all=params.get_all,
     )

@@ -9,7 +9,9 @@ from pydantic import BaseModel, Field
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES
 from gg_api_core.tools.incident_filters import (
     DEFAULT_STATUSES,
+    STATUS_DESCRIPTION,
     IncidentFilters,
+    Status,
     build_filter_info,
     build_incident_query,
     resolve_assignee,
@@ -112,9 +114,9 @@ class _Pagination(BaseModel):
 class ListIncidentsParams(IncidentFilters, _Pagination):
     """Parameters for listing incidents using the MCP-optimized endpoint."""
 
-    status: list[str] | None = Field(
+    status: list[Status] | None = Field(
         default=DEFAULT_STATUSES,
-        description="Filter by status. Values: TRIGGERED (unassigned active), ASSIGNED (assigned active), RESOLVED, IGNORED. Default excludes IGNORED. Note that OPENED is not a valid status but means 'TRIGGERED OR ASSIGNED'.",
+        description=f"{STATUS_DESCRIPTION} Note that OPENED is not a valid status but means 'TRIGGERED OR ASSIGNED'.",
     )
     mine: bool = Field(
         default=False,
