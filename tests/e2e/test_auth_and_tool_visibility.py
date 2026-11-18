@@ -147,8 +147,7 @@ class TestScopeBasedToolVisibility:
             "idempotentHint": True,
             "openWorldHint": False,
         }
-        writes_comment = {**changes_state, "idempotentHint": False}
-        creates = {**changes_state, "destructiveHint": False, "idempotentHint": False}
+        adds = {**changes_state, "destructiveHint": False, "idempotentHint": False}
         expected = dict.fromkeys(EXPECTED_FULL_TOOL_CATALOG, read_only) | {
             "assign_internal_incident": changes_state,
             "unassign_internal_incident": changes_state,
@@ -160,9 +159,11 @@ class TestScopeBasedToolVisibility:
             "resolve_public_incident": changes_state,
             "ignore_public_incident": changes_state,
             "reopen_public_incident": changes_state,
-            "manage_incident_comment": writes_comment,
-            "manage_public_incident": writes_comment,
-            "generate_honeytoken": creates,
+            "add_internal_incident_comment": adds,
+            "add_public_incident_comment": adds,
+            "edit_internal_incident_comment": changes_state,
+            "edit_public_incident_comment": changes_state,
+            "generate_honeytoken": adds,
         }
 
         assert {tool["name"]: tool.get("annotations") for tool in tools} == expected

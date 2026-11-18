@@ -27,7 +27,12 @@ from gg_api_core.tools.incident_assignment import (
     unassign_internal_incident,
     unassign_public_incident,
 )
-from gg_api_core.tools.incident_notes import manage_incident_comment
+from gg_api_core.tools.incident_comments import (
+    add_internal_incident_comment,
+    add_public_incident_comment,
+    edit_internal_incident_comment,
+    edit_public_incident_comment,
+)
 from gg_api_core.tools.incident_status import (
     ignore_internal_incident,
     ignore_public_incident,
@@ -41,7 +46,6 @@ from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
-from gg_api_core.tools.manage_public_incident import manage_public_incident
 from gg_api_core.tools.scan_secret import scan_secrets
 
 # Every tool talks only to the GitGuardian API, so none is open-world.
@@ -51,13 +55,13 @@ READ_ONLY = ToolAnnotations(read_only_hint=True, open_world_hint=False)
 CHANGES_INCIDENT_STATE = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
 )
-# Adding a comment is additive, but editing one replaces its body.
-WRITES_INCIDENT_COMMENT = ToolAnnotations(
-    read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
+# Adding a comment changes nothing that exists, but each call adds another comment.
+ADDS_COMMENT = ToolAnnotations(
+    read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
 )
-# Adding a comment does not repeat cleanly, so the tool is not idempotent.
-MANAGES_PUBLIC_INCIDENT = ToolAnnotations(
-    read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
+# Editing a comment replaces its body; the same edit twice leaves the same body.
+EDITS_COMMENT = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
 )
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
@@ -91,12 +95,14 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
   `list_sources`.
   Write tools: `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
-  `assign_internal_incident`, `unassign_internal_incident`, `manage_incident_comment`.
+  `assign_internal_incident`, `unassign_internal_incident`, `add_internal_incident_comment`,
+  `edit_internal_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
   Write tools: `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident`,
-  `assign_public_incident`, `unassign_public_incident`, `manage_public_incident`.
+  `assign_public_incident`, `unassign_public_incident`, `add_public_incident_comment`,
+  `edit_public_incident_comment`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -207,14 +213,6 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "are NOT interchangeable with internal incident IDs.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
-    )
-
-    mcp.tool(
-        manage_public_incident,
-        description="(Public Monitoring only; for internal incidents use manage_incident_comment) Comment on a "
-        "public secret incident. Incident IDs here are NOT interchangeable with internal incident IDs.",
-        required_scopes=["incidents:write"],
-        annotations=MANAGES_PUBLIC_INCIDENT,
     )
 
     mcp.tool(
@@ -371,11 +369,35 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
-        manage_incident_comment,
-        description="(Internal sources only) "
-        "Add a comment (note) to an internal secret incident, or edit an existing one. Use action='add' to create a "
-        "new comment, or action='edit' with the comment_id of an existing comment to replace its body. "
-        "Does not work on public-monitoring incident IDs.",
+        add_internal_incident_comment,
+        description="(Internal incidents only; for Public Monitoring use add_public_incident_comment) Add a comment "
+        "to an internal secret incident. Returns the comment and its comment_id, which "
+        "edit_internal_incident_comment takes.",
         required_scopes=["incidents:write"],
-        annotations=WRITES_INCIDENT_COMMENT,
+        annotations=ADDS_COMMENT,
+    )
+
+    mcp.tool(
+        edit_internal_incident_comment,
+        description="(Internal incidents only; for Public Monitoring use edit_public_incident_comment) Replace the "
+        "body of a comment on an internal secret incident. Returns the comment.",
+        required_scopes=["incidents:write"],
+        annotations=EDITS_COMMENT,
+    )
+
+    mcp.tool(
+        add_public_incident_comment,
+        description="(Public Monitoring only; for internal incidents use add_internal_incident_comment) Add a "
+        "comment to a public secret incident. Returns the comment and its comment_id, which "
+        "edit_public_incident_comment takes.",
+        required_scopes=["incidents:write"],
+        annotations=ADDS_COMMENT,
+    )
+
+    mcp.tool(
+        edit_public_incident_comment,
+        description="(Public Monitoring only; for internal incidents use edit_internal_incident_comment) Replace the "
+        "body of a comment on a public secret incident. Returns the comment.",
+        required_scopes=["incidents:write"],
+        annotations=EDITS_COMMENT,
     )

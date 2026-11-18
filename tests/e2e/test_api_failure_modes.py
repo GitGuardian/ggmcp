@@ -257,14 +257,12 @@ class TestServerErrorRetries:
     async def test_a_write_that_times_out_is_never_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay):
         """
         GIVEN a comment write that times out, which the API may still have applied
-        WHEN manage_incident_comment adds a comment
+        WHEN add_internal_incident_comment adds a comment
         THEN the write is sent exactly once
         """
         route = gg_api.post("/incidents/secrets/77/notes").mock(side_effect=httpx.ReadTimeout("timed out"))
 
-        result = await call_tool(
-            mcp_client, "manage_incident_comment", {"incident_id": 77, "action": "add", "comment": "hi"}
-        )
+        result = await call_tool(mcp_client, "add_internal_incident_comment", {"incident_id": 77, "comment": "hi"})
 
         assert route.call_count == 1
         assert "timed out" in tool_error_text(result)
@@ -273,14 +271,12 @@ class TestServerErrorRetries:
     async def test_a_failed_write_is_never_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, status):
         """
         GIVEN the API failing a comment write, which it may have applied before failing
-        WHEN manage_incident_comment adds a comment
+        WHEN add_internal_incident_comment adds a comment
         THEN the write is sent exactly once, so the comment cannot be posted twice
         """
         route = gg_api.post("/incidents/secrets/77/notes").respond(status, json={"detail": "Unavailable."})
 
-        result = await call_tool(
-            mcp_client, "manage_incident_comment", {"incident_id": 77, "action": "add", "comment": "hi"}
-        )
+        result = await call_tool(mcp_client, "add_internal_incident_comment", {"incident_id": 77, "comment": "hi"})
 
         assert route.call_count == 1
         assert str(status) in tool_error_text(result)

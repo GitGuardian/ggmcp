@@ -57,9 +57,13 @@ EXPECTED_REQUESTED_SCOPES = [
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {
+    "add_internal_incident_comment",
+    "add_public_incident_comment",
     "assign_internal_incident",
     "assign_public_incident",
     "count_incidents",
+    "edit_internal_incident_comment",
+    "edit_public_incident_comment",
     "generate_honeytoken",
     "get_gitguardian_resource",
     "get_incident",
@@ -73,8 +77,6 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "list_public_occurrences",
     "list_repo_occurrences",
     "list_sources",
-    "manage_incident_comment",
-    "manage_public_incident",
     "reopen_internal_incident",
     "reopen_public_incident",
     "resolve_internal_incident",

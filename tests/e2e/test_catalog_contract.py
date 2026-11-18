@@ -20,7 +20,6 @@ HINTS = ("readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint")
 INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
-VAGUE_VERB = {"manage_incident_comment", "manage_public_incident"}
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
 WRAPPED_OUTPUT = {
     "count_incidents",
@@ -29,7 +28,6 @@ WRAPPED_OUTPUT = {
     "list_public_occurrences",
     "list_repo_occurrences",
 }
-UNDOCUMENTED_OUTPUT = {"manage_incident_comment", "manage_public_incident"}
 MISSING_HINTS = {
     "count_incidents",
     "get_gitguardian_resource",
@@ -55,8 +53,6 @@ LOOSE_INCIDENT_ID = {
     "get_incident",
     "get_public_incident",
     "list_public_occurrences",
-    "manage_incident_comment",
-    "manage_public_incident",
 }
 
 
@@ -93,11 +89,10 @@ class TestNames:
         """
         GIVEN the full tool catalog
         WHEN each name is read
-        THEN it is snake_case and starts with a read or write verb, except the tools still listed in VAGUE_VERB
+        THEN it is snake_case and starts with a read or write verb
         """
         assert all(re.fullmatch(r"[a-z]+(_[a-z]+)+", name) for name in catalog)
-        vague = {name for name in catalog if name.split("_", 1)[0] not in READ_VERBS | WRITE_VERBS}
-        assert vague == VAGUE_VERB
+        assert [name for name in catalog if name.split("_", 1)[0] not in READ_VERBS | WRITE_VERBS] == []
 
 
 class TestArguments:
@@ -187,10 +182,9 @@ class TestOutputs:
         """
         GIVEN the full tool catalog
         WHEN each output schema is read
-        THEN it declares its fields, except the tools still listed in UNDOCUMENTED_OUTPUT
+        THEN it declares its fields
         """
-        undocumented = {name for name, tool in catalog.items() if not tool["outputSchema"].get("properties")}
-        assert undocumented == UNDOCUMENTED_OUTPUT
+        assert [name for name, tool in catalog.items() if not tool["outputSchema"].get("properties")] == []
 
 
 class TestAnnotations:
@@ -214,8 +208,7 @@ class TestAnnotations:
         mismatched = [
             name
             for name, tool in catalog.items()
-            if name not in VAGUE_VERB
-            and tool.get("annotations", {}).get("readOnlyHint") != (name.split("_", 1)[0] in READ_VERBS)
+            if tool.get("annotations", {}).get("readOnlyHint") != (name.split("_", 1)[0] in READ_VERBS)
         ]
         assert mismatched == []
 
