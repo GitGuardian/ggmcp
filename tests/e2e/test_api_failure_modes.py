@@ -168,7 +168,7 @@ class TestServerErrorRetries:
         assert route.call_count == 4
         assert "500" in tool_error_text(result)
 
-    @pytest.mark.parametrize("status", [500, 503])
+    @pytest.mark.parametrize("status", [500, 502, 503, 504])
     async def test_a_read_that_fails_once_is_retried(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, status
     ):
@@ -223,7 +223,53 @@ class TestServerErrorRetries:
         assert "GitGuardian API returned 429 Too Many Requests: Throttled." in tool_error_text(result)
         assert no_retry_delay == []
 
-    @pytest.mark.parametrize("status", [429, 500, 503])
+    async def test_a_read_that_times_out_once_is_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay):
+        """
+        GIVEN a read that times out once, then answers
+        WHEN get_incident is called
+        THEN the read is repeated at once and the tool succeeds
+        """
+        route = gg_api.get("/incidents/secrets/77").mock(
+            side_effect=[httpx.ReadTimeout("timed out"), httpx.Response(200, json=INCIDENT)]
+        )
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+
+        assert route.call_count == 2
+        assert not result.get("isError")
+        assert no_retry_delay == []
+
+    async def test_a_read_that_keeps_timing_out_is_retried_only_once(
+        self, mcp_client, gg_api, mock_token_scopes, no_retry_delay
+    ):
+        """
+        GIVEN a read that times out on every attempt
+        WHEN get_incident is called
+        THEN it is tried twice in all, and the timeout reaches the agent
+        """
+        route = gg_api.get("/incidents/secrets/77").mock(side_effect=httpx.ReadTimeout("timed out"))
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+
+        assert route.call_count == 2
+        assert "timed out" in tool_error_text(result)
+
+    async def test_a_write_that_times_out_is_never_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay):
+        """
+        GIVEN a comment write that times out, which the API may still have applied
+        WHEN manage_incident_comment adds a comment
+        THEN the write is sent exactly once
+        """
+        route = gg_api.post("/incidents/secrets/77/notes").mock(side_effect=httpx.ReadTimeout("timed out"))
+
+        result = await call_tool(
+            mcp_client, "manage_incident_comment", {"incident_id": 77, "action": "add", "comment": "hi"}
+        )
+
+        assert route.call_count == 1
+        assert "timed out" in tool_error_text(result)
+
+    @pytest.mark.parametrize("status", [429, 500, 502, 503, 504])
     async def test_a_failed_write_is_never_retried(self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, status):
         """
         GIVEN the API failing a comment write, which it may have applied before failing

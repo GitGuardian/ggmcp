@@ -130,7 +130,10 @@ def api_error_detail(response: httpx.Response) -> str:
 
 # Reads are retried on these statuses. Writes never are: the API may have applied a
 # write that then failed, and repeating it can create a second comment or honeytoken.
-_RETRYABLE_READ_STATUSES = frozenset({429, 500, 503})
+_RETRYABLE_READ_STATUSES = frozenset({429, 500, 502, 503, 504})
+# A read that times out is retried this many times. Each timeout already took the full
+# client timeout, so one retry is the most a tool call should wait for.
+_MAX_READ_TIMEOUT_RETRIES = 1
 # A longer Retry-After fails the call now rather than holding the tool call open.
 _MAX_RETRY_AFTER_SECONDS = 10
 
@@ -631,6 +634,7 @@ class GitGuardianClient:
 
         max_retries = 3
         retry_count = 0
+        timeout_retries = 0
 
         while retry_count <= max_retries:
             try:
@@ -751,6 +755,19 @@ class GitGuardianClient:
                 raise httpx.HTTPStatusError(
                     describe_api_error(e.response), request=e.request, response=e.response
                 ) from e
+            except httpx.TimeoutException as e:
+                # A slow read often answers when repeated, and repeating a read changes nothing.
+                if (
+                    method.upper() == "GET"
+                    and timeout_retries < _MAX_READ_TIMEOUT_RETRIES
+                    and retry_count < max_retries
+                ):
+                    timeout_retries += 1
+                    retry_count += 1
+                    logger.warning(f"Request timed out ({type(e).__name__}), retrying once")
+                    continue
+                logger.warning(f"Request error occurred: {str(e)}")
+                raise
             except httpx.RequestError as e:
                 logger.warning(f"Request error occurred: {str(e)}")
                 raise
