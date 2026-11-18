@@ -1885,6 +1885,18 @@ class GitGuardianClient:
         """List the teams that can see an internal incident. Wraps GET .../teams."""
         return await self._list(f"/incidents/secrets/{incident_id}/teams", {}, per_page, cursor, get_all)
 
+    async def list_secret_detectors(
+        self,
+        search: str | None = None,
+        active: bool | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse | PaginatedResult:
+        """List the secret detectors. Wraps GET /v1/secret_detectors."""
+        params = {"search": search, "is_active": None if active is None else str(active).lower()}
+        return await self._list("/secret_detectors", params, per_page, cursor, get_all)
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 

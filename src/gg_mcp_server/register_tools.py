@@ -14,6 +14,7 @@ top-level arguments (see ``gg_api_core.model_arguments``).
 from mcp.types import ToolAnnotations
 
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
+from gg_api_core.tools.catalog_reads import list_detectors, list_honeytokens
 from gg_api_core.tools.count_internal_incidents import count_internal_incidents
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
@@ -442,6 +443,22 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="(Internal incidents only) List the teams that can see an internal incident, with their "
         "permission on it.",
         required_scopes=["incidents:read", "teams:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        list_honeytokens,
+        description="List the workspace's honeytokens: their name, status (active, triggered when someone used one, "
+        "or revoked), dates and creator. Their credentials are not included.",
+        required_scopes=["honeytokens:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        list_detectors,
+        description="List GitGuardian's secret detectors: their name, display name, category, and whether they are "
+        "enabled in the workspace.",
+        required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 

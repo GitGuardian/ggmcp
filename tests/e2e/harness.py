@@ -81,6 +81,8 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "ignore_internal_incident",
     "ignore_public_incident",
     "list_custom_tags",
+    "list_detectors",
+    "list_honeytokens",
     "list_internal_incident_locations",
     "list_internal_incident_members",
     "list_internal_incident_teams",
