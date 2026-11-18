@@ -34,7 +34,8 @@ class ManageIncidentCommentParams(BaseModel):
     )
     comment_id: int | None = Field(
         default=None,
-        description="ID of the comment to edit. Required when action is 'edit'. Use the listing tool to find it.",
+        description="ID of the comment to edit, required when action is 'edit': the id that action 'add' returned "
+        "for it. No tool lists an incident's existing comments.",
     )
 
     @model_validator(mode="after")
