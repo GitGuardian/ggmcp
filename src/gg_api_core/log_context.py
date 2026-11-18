@@ -15,6 +15,8 @@ from urllib.parse import urlparse
 
 import httpx
 
+from gg_api_core.scopes import MissingScopesError
+
 __all__ = [
     "DownstreamStats",
     "classify_failure",
@@ -244,6 +246,8 @@ def _gg_error_code(response: httpx.Response) -> str | None:
 def classify_failure(exc: BaseException) -> dict[str, Any]:
     """Turn an exception into queryable status and ownership fields."""
     failure: dict[str, Any] = {"error_class": _qualified_name(exc)}
+    if isinstance(exc, MissingScopesError):
+        failure["missing_scopes"] = exc.missing_scopes
 
     status_error = _find_status_error(exc)
     if status_error is None:

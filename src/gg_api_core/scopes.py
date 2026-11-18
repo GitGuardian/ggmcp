@@ -1,5 +1,22 @@
 """GitGuardian API scope definitions."""
 
+from fastmcp.exceptions import ToolError
+
+
+class MissingScopesError(ToolError):
+    """A tool call refused before it runs because the token lacks scopes the tool needs.
+
+    Carries the missing scopes, so the failure log records them as a field.
+    """
+
+    def __init__(self, tool_name: str, missing_scopes: list[str]) -> None:
+        self.missing_scopes = missing_scopes
+        super().__init__(
+            f"Tool '{tool_name}' was not run: it needs the {', '.join(missing_scopes)} scope, which this "
+            "token does not have. Do not retry; authenticate with a token that has this scope."
+        )
+
+
 # The scopes the server requests by default: the ones its tools use. members:read
 # resolves mine=True in list_incidents and count_incidents; honeytokens:read lets
 # generate_honeytoken reuse an existing honeytoken.

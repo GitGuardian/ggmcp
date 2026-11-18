@@ -409,6 +409,21 @@ class TestOneRecordPerFailure:
         outcomes = [r for r in caplog.records if r.getMessage().startswith("tool_call")]
         assert [(r.getMessage(), r.levelno) for r in outcomes] == [("tool_call_failed", logging.WARNING)]
 
+    async def test_a_scope_refusal_records_the_missing_scopes(self, mcp_client, gg_api, mock_token_scopes, caplog):
+        """
+        GIVEN a token with incidents:read but not incidents:write
+        WHEN a client calls a tool that needs incidents:write
+        THEN the tool_call_failed record lists incidents:write in missing_scopes
+        """
+        mock_token_scopes(["scan", "incidents:read"])
+
+        with caplog.at_level(logging.WARNING):
+            await call_tool(mcp_client, "assign_incident", {"incident_id": 77, "mine": True})
+
+        (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert failed.missing_scopes == ["incidents:write"]
+        assert failed.failure_kind == "expected"
+
     async def test_an_unexpected_failure_logs_one_traceback(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, caplog
     ):

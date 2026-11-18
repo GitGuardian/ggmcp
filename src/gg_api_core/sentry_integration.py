@@ -31,6 +31,7 @@ from fastmcp.exceptions import ToolError
 from fastmcp.exceptions import ValidationError as ArgumentValidationError
 
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
+from .scopes import MissingScopesError
 from .settings import SentrySettings
 
 if TYPE_CHECKING:
@@ -239,10 +240,11 @@ def is_expected_tool_failure(exception: BaseException) -> bool:
     """Whether a failed tool call is a refusal the caller can act on rather than a defect.
 
     Expected: invalid arguments, a ToolError a tool raises on purpose (one with
-    no underlying exception), and a 4xx answer from the API other than 408 and
-    429, the expired-token 401 included. Everything else is unexpected: a bug
-    in our code, a timeout, a 5xx after retries, rate limiting, or a refused
-    cross-origin redirect.
+    no underlying exception), a call refused for missing scopes, and a 4xx
+    answer from the API other than 408 and 429, the expired-token 401 included.
+    Everything else is unexpected: a bug in our code, a timeout, a 5xx after
+    retries, rate limiting, or a refused cross-origin redirect. Other ToolError
+    subclasses, such as a response the tool cannot parse, are unexpected too.
     """
     chain = _exception_chain(exception)
     if any(isinstance(link, ArgumentValidationError) for link in chain):
@@ -251,7 +253,7 @@ def is_expected_tool_failure(exception: BaseException) -> bool:
     if isinstance(root, httpx.HTTPStatusError):
         status = root.response.status_code
         return 400 <= status < 500 and status not in _UPSTREAM_TROUBLE_STATUSES
-    return type(root) is ToolError
+    return type(root) is ToolError or isinstance(root, MissingScopesError)
 
 
 def capture_tool_failure(exception: BaseException) -> None:

@@ -18,6 +18,7 @@ from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.model_arguments import ToolBodyError
 from gg_api_core.redirects import CrossOriginRedirectError
+from gg_api_core.scopes import MissingScopesError
 from gg_api_core.sentry_integration import (
     _MAX_SCRUB_DEPTH,
     _scrub_sentry_payload,
@@ -311,6 +312,7 @@ class TestExpectedToolFailures:
             ),
             pytest.param(FastMCPValidationError("Invalid arguments for tool 'get_incident'"), id="bad-arguments"),
             pytest.param(ToolError("No honeytoken was created: ..."), id="deliberate-refusal"),
+            pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), id="missing-scopes"),
         ],
     )
     def test_a_refusal_the_caller_can_act_on_is_expected(self, exception):

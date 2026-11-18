@@ -23,6 +23,7 @@ from gg_api_core.log_context import (
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
+from gg_api_core.scopes import MissingScopesError
 from gg_api_core.sentry_integration import capture_tool_failure, is_expected_tool_failure, set_sentry_request_id
 from gg_api_core.settings import get_settings
 from gg_api_core.urls import derive_public_api_url
@@ -258,10 +259,7 @@ class ScopeFilteringMiddleware(Middleware):
                 raise ToolError(f"Tool '{tool_name}' was not run: this token's scopes could not be checked.") from exc
             missing = sorted(self._missing_scopes(tool_name, scopes))
             if missing:
-                raise ToolError(
-                    f"Tool '{tool_name}' was not run: it needs the {', '.join(missing)} scope, which this "
-                    "token does not have. Do not retry; authenticate with a token that has this scope."
-                )
+                raise MissingScopesError(tool_name, missing)
         return await call_next(context)
 
 
