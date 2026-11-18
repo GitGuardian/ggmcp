@@ -62,6 +62,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "generate_honeytoken",
     "get_gitguardian_resource",
     "get_incident",
+    "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
     "list_incidents",
@@ -75,6 +76,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
 }
 
 EXPECTED_SCAN_ONLY_TOOL_CATALOG = {
+    "get_my_identity",
     "scan_secrets",
 }
 

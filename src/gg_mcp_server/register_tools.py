@@ -19,6 +19,7 @@ from gg_api_core.tools.count_incidents import count_incidents
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
 from gg_api_core.tools.get_incident import get_incident
+from gg_api_core.tools.get_my_identity import get_my_identity
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
 from gg_api_core.tools.incident_notes import manage_incident_comment
@@ -97,6 +98,9 @@ write tool with a public incident ID (or vice versa) will silently 404.
    `get_remediation_workflow` for the workspace's instructions.
 
 5. **Honeytokens** — generate honeytokens with `generate_honeytoken`.
+
+6. **Identity** — `get_my_identity` says who the token belongs to, their role, and the token's
+   scopes and expiry. Use it when a call is refused for permissions.
 
 ## Behavioural notes
 
@@ -241,6 +245,14 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "incidents. Returns the configured custom workflow if one exists, otherwise the default workflow. Use this to "
         "remediate an incident following the same instructions a human sees in the dashboard.",
         required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        get_my_identity,
+        description="Describe the caller: the workspace member the token belongs to (name, email, role) and the "
+        "token itself (scopes, expiry). Use it when the user asks who they are signed in as or what this server "
+        "lets them do, or when a call was refused for permissions.",
         annotations=READ_ONLY,
     )
 

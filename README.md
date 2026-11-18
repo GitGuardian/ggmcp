@@ -31,6 +31,8 @@ backed by GitGuardian's 500+ detectors.
 - **Remediation**: fetch your workspace's remediation workflow
   (`get_remediation_workflow`).
 - **Honeytokens**: generate honeytokens (`generate_honeytoken`).
+- **Identity**: see who the token belongs to, their role, and the token's scopes and
+  expiry (`get_my_identity`).
 
 The exact set of tools exposed to your agent depends on the OAuth scopes
 granted to your access token.
