@@ -298,6 +298,13 @@ def _caused_by(outer: BaseException, cause: BaseException) -> BaseException:
     return outer
 
 
+def _raised_from_none(outer: BaseException, context: BaseException) -> BaseException:
+    """``raise outer from None`` while handling ``context``: the context is kept but severed."""
+    outer.__context__ = context
+    outer.__suppress_context__ = True
+    return outer
+
+
 class TestExpectedToolFailures:
     @pytest.mark.parametrize(
         "exception",
@@ -313,6 +320,10 @@ class TestExpectedToolFailures:
             pytest.param(FastMCPValidationError("Invalid arguments for tool 'get_incident'"), id="bad-arguments"),
             pytest.param(ToolError("No honeytoken was created: ..."), id="deliberate-refusal"),
             pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), id="missing-scopes"),
+            pytest.param(
+                _raised_from_none(ToolError("Provide a valid absolute GitGuardian HTTP(S) URL"), ValueError("port")),
+                id="refusal-raised-from-none",
+            ),
         ],
     )
     def test_a_refusal_the_caller_can_act_on_is_expected(self, exception):
@@ -338,6 +349,9 @@ class TestExpectedToolFailures:
                 id="cross-origin-redirect",
             ),
             pytest.param(_caused_by(ToolBodyError("bad response shape"), ValueError("x")), id="response-parsing"),
+            pytest.param(
+                _raised_from_none(ValueError("bug"), _status_error(404)), id="bug-raised-from-none-over-a-404"
+            ),
         ],
     )
     def test_a_defect_or_an_upstream_failure_is_unexpected(self, exception):

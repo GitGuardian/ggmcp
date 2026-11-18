@@ -227,12 +227,20 @@ def set_sentry_request_id(request_id: str) -> None:
 
 
 def _exception_chain(exception: BaseException) -> list[BaseException]:
-    """The exception followed by its causes, outermost first."""
+    """The exception followed by its causes, outermost first.
+
+    A context severed with ``raise ... from None`` is not a cause and ends the chain.
+    """
     chain: list[BaseException] = []
     current: BaseException | None = exception
     while current is not None and all(current is not seen for seen in chain):
         chain.append(current)
-        current = current.__cause__ or current.__context__
+        if current.__cause__ is not None:
+            current = current.__cause__
+        elif current.__suppress_context__:
+            current = None
+        else:
+            current = current.__context__
     return chain
 
 

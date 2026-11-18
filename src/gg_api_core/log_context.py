@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 import httpx
 
 from gg_api_core.scopes import MissingScopesError
+from gg_api_core.sentry_integration import is_expected_tool_failure
 
 __all__ = [
     "DownstreamStats",
@@ -251,9 +252,10 @@ def classify_failure(exc: BaseException) -> dict[str, Any]:
 
     status_error = _find_status_error(exc)
     if status_error is None:
-        # No HTTP status anywhere in the chain: a bug in our code, a timeout, or
-        # a validation error raised before the request went out.
-        failure["fault"] = "server"
+        # No HTTP status anywhere in the chain. Invalid arguments, a deliberate refusal
+        # and missing scopes are the caller's to fix, the same failures Sentry counts as
+        # expected; a bug in our code, a timeout or a refused redirect is ours.
+        failure["fault"] = "client" if is_expected_tool_failure(exc) else "server"
         return failure
 
     response = status_error.response

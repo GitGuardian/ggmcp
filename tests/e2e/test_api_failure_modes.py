@@ -424,6 +424,31 @@ class TestOneRecordPerFailure:
         assert failed.missing_scopes == ["incidents:write"]
         assert failed.failure_kind == "expected"
 
+    @pytest.mark.parametrize(
+        ("tool", "arguments"),
+        [
+            pytest.param("get_incident", {"params": {"incident_id": 77}}, id="bad-arguments"),
+            pytest.param("manage_private_incident", {"incident_id": 77, "action": "ignore"}, id="deliberate-refusal"),
+            pytest.param(
+                "get_gitguardian_resource", {"url": "https://[invalid/workspace/1/incidents/77"}, id="bad-link"
+            ),
+        ],
+    )
+    async def test_a_mistake_the_caller_can_fix_is_their_fault_and_no_error(
+        self, mcp_client, gg_api, mock_token_scopes, caplog, tool, arguments
+    ):
+        """
+        GIVEN a call refused before any API answer: invalid arguments, a missing decision, a malformed link
+        WHEN the tool is called
+        THEN tool_call_failed is a warning marked expected and fault=client, and nothing is logged at ERROR
+        """
+        with caplog.at_level(logging.WARNING):
+            await call_tool(mcp_client, tool, arguments)
+
+        (failed,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert (failed.levelno, failed.failure_kind, failed.fault) == (logging.WARNING, "expected", "client")
+        assert [r.getMessage() for r in caplog.records if r.levelno >= logging.ERROR] == []
+
     async def test_an_unexpected_failure_logs_one_traceback(
         self, mcp_client, gg_api, mock_token_scopes, no_retry_delay, caplog
     ):
