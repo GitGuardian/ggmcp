@@ -17,27 +17,34 @@ backed by GitGuardian's 500+ detectors.
 - **Secret scanning**: proactively scan files for leaked credentials (`scan_secrets`).
 - **Incident triage**: list, count and inspect internal incidents
   (`list_internal_incidents`, `count_internal_incidents`, `get_internal_incident`,
-  which can include an incident's comments and history), and drill into their exact
-  locations (`list_internal_occurrences`, `list_sources`).
+  which can include an incident's comments and history), and drill into where the
+  secret is (`list_internal_occurrences`, `list_internal_incident_locations`,
+  `list_sources`).
 - **Incident links and IDs**: open an incident from a pasted dashboard or public API
   link, or from a bare incident ID (`get_gitguardian_resource`). It works out whether
   the incident is internal or from Public Monitoring and returns its details. Links
   must come from the configured instance and the token's workspace. For share links,
   supply the authenticated dashboard link.
-- **Incident management**: resolve, ignore, reopen, assign, unassign, and comment
-  on internal incidents (`resolve_internal_incident`, `ignore_internal_incident`,
-  `reopen_internal_incident`, `assign_internal_incident`,
-  `unassign_internal_incident`, `add_internal_incident_comment`,
-  `edit_internal_incident_comment`).
-- **Public Monitoring**: list and inspect public incidents and their occurrences
-  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`),
-  resolve, ignore, reopen, assign, or unassign them (`resolve_public_incident`,
-  `ignore_public_incident`, `reopen_public_incident`, `assign_public_incident`,
-  `unassign_public_incident`), and comment on them (`add_public_incident_comment`,
-  `edit_public_incident_comment`).
+- **Incident management**, for internal incidents and, with `_public_` in the name,
+  for Public Monitoring incidents: resolve, ignore, or reopen them
+  (`resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`),
+  assign or unassign them (`assign_internal_incident`, `unassign_internal_incident`),
+  set their severity (`set_internal_incident_severity`), tag them
+  (`add_internal_incident_custom_tag`, `remove_internal_incident_custom_tag`, and
+  `list_custom_tags` for the workspace's tags), and comment on them
+  (`add_internal_incident_comment`, `edit_internal_incident_comment`).
+- **Public Monitoring**: list and inspect public incidents, their history and their
+  occurrences (`list_public_incidents`, `get_public_incident`,
+  `list_public_occurrences`).
 - **Remediation**: fetch your workspace's remediation workflow
-  (`get_remediation_workflow`).
-- **Honeytokens**: generate honeytokens (`generate_honeytoken`).
+  (`get_remediation_workflow`), ask GitGuardian to open pull requests that remove a
+  secret (`create_internal_incident_code_fix_request`), and revoke a secret at its
+  provider (`revoke_secret`).
+- **Members**: find members and see who can access an incident (`list_members`,
+  `get_member`, `list_internal_incident_members`, `list_internal_incident_teams`).
+- **Honeytokens and detectors**: generate and list honeytokens
+  (`generate_honeytoken`, `list_honeytokens`), and list the secret detectors
+  (`list_detectors`).
 - **Identity**: see who the token belongs to, their role, and the token's scopes and
   expiry (`get_my_identity`).
 
@@ -304,18 +311,25 @@ from the tool list; scripts and prompts that name tools or arguments need updati
 | `count_incidents` | `count_internal_incidents` |
 | `get_incident` | `get_internal_incident` |
 | `list_repo_occurrences` | `list_internal_occurrences` |
+| `list_remediation_targets` | `list_internal_incident_locations`, or `list_internal_occurrences` with `tags: ["DEFAULT_BRANCH"]` |
 | `list_incident_activity_logs`, `list_incident_comments` | `get_internal_incident` with `with_history` |
+| `list_public_incident_activity_logs`, `list_public_incident_comments` | `get_public_incident` with `with_history` |
 | `manage_private_incident` | `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`, `unassign_internal_incident` |
 | `assign_incident` | `assign_internal_incident` |
 | `manage_incident_comment` | `add_internal_incident_comment`, `edit_internal_incident_comment` |
 | `update_public_incident_status` | `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident` |
 | `assign_public_incident` | `assign_public_incident`, and `unassign_public_incident`, which is new |
 | `manage_public_incident_comment` | `add_public_incident_comment`, `edit_public_incident_comment` |
+| `update_or_create_incident_custom_tags` | `add_internal_incident_custom_tag`, `remove_internal_incident_custom_tag`, and the `_public_` pair, which are new. Each changes one tag and keeps the others |
+| `read_custom_tags` | `list_custom_tags` |
+| `update_incident_severity` | `set_internal_incident_severity`, and `set_public_incident_severity`, which is new |
+| `create_code_fix_request` | `create_internal_incident_code_fix_request`, with location IDs from `list_internal_incident_locations` |
+| `list_users` | `list_members` |
+| `list_incident_members`, `list_incident_teams` | `list_internal_incident_members`, `list_internal_incident_teams` |
 | `get_authenticated_user_info`, `get_current_token_info` | `get_my_identity` |
 | `find_current_source_id` | `list_sources`, filtered by `search` or `external_id` |
-| `scan_secrets`, `list_public_incidents`, `get_public_incident`, `list_public_occurrences`, `list_sources`, `get_remediation_workflow`, `generate_honeytoken` | Same name |
-| `get_member`, `list_users`, `list_incident_members`, `list_incident_teams` | Removed. Assign by email with `assignee_email` |
-| `list_public_incident_activity_logs`, `list_public_incident_comments`, `list_detectors`, `list_honeytokens`, `list_remediation_targets`, `read_custom_tags`, `write_custom_tags`, `update_or_create_incident_custom_tags`, `update_incident_severity`, `revoke_secret`, `revoke_current_token`, `create_code_fix_request` | Removed. Use the GitGuardian dashboard |
+| `scan_secrets`, `list_public_incidents`, `get_public_incident`, `list_public_occurrences`, `list_sources`, `get_remediation_workflow`, `generate_honeytoken`, `get_member`, `list_honeytokens`, `list_detectors`, `revoke_secret` | Same name |
+| `write_custom_tags`, `revoke_current_token` | Removed. Use the GitGuardian dashboard |
 
 `get_gitguardian_resource` is new: it opens an incident from a link or an ID of either kind.
 
