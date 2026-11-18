@@ -19,7 +19,7 @@ def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
     """
     event = {
         "contexts": {"scan": {"document": "raw file content"}},
-        "extra": {"account_id": 475789, "token": "gg_pat_secret"},
+        "extra": {"account_id": 42, "token": "gg_pat_secret"},
         "breadcrumbs": {
             "values": [
                 {
@@ -48,7 +48,7 @@ def test_error_event_scrubs_custom_data_without_damaging_stacktrace():
 
     assert outgoing_event["contexts"]["scan"]["document"] == SENSITIVE_DATA_PLACEHOLDER
     assert outgoing_event["extra"]["token"] == SENSITIVE_DATA_PLACEHOLDER
-    assert outgoing_event["extra"]["account_id"] == 475789
+    assert outgoing_event["extra"]["account_id"] == 42
     assert outgoing_event["breadcrumbs"]["values"][0]["data"]["password"] == SENSITIVE_DATA_PLACEHOLDER
     assert outgoing_event["breadcrumbs"]["values"][0]["data"]["endpoint"] == "/v1/scan"
     frame = outgoing_event["exception"]["values"][0]["stacktrace"]["frames"][0]
@@ -99,7 +99,7 @@ def test_transaction_scrubs_free_form_fields_and_drops_span_arguments():
     """
     event = {
         "contexts": {"scan": {"document": "raw file content"}},
-        "extra": {"token": "gg_pat_secret", "account_id": 475789},
+        "extra": {"token": "gg_pat_secret", "account_id": 42},
         "breadcrumbs": {"values": [{"data": {"password": "secret"}}]},
         "spans": [
             {
@@ -116,7 +116,7 @@ def test_transaction_scrubs_free_form_fields_and_drops_span_arguments():
 
     assert outgoing_event["contexts"]["scan"]["document"] == SENSITIVE_DATA_PLACEHOLDER
     assert outgoing_event["extra"]["token"] == SENSITIVE_DATA_PLACEHOLDER
-    assert outgoing_event["extra"]["account_id"] == 475789
+    assert outgoing_event["extra"]["account_id"] == 42
     assert outgoing_event["breadcrumbs"]["values"][0]["data"]["password"] == SENSITIVE_DATA_PLACEHOLDER
     span_data = outgoing_event["spans"][0]["data"]
     assert span_data["mcp.tool.name"] == "revoke_secret"

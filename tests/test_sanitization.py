@@ -22,7 +22,7 @@ class TestScrubByName:
             ("Authorization", "raw secret material", PLACEHOLDER),
             ("document", "raw secret material", PLACEHOLDER),
             # benign key -> value kept
-            ("account_id", 475789, 475789),
+            ("account_id", 42, 42),
             ("token_id", "d0ca9877-641f-4c37-8857-c08e0ae148c4", "d0ca9877-641f-4c37-8857-c08e0ae148c4"),
             ("endpoint", "/v1/incidents", "/v1/incidents"),
             # benign key whose value carries a secret shape -> value-scrubbed

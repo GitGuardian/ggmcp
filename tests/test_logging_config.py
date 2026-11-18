@@ -35,10 +35,10 @@ class TestConfigureLogging:
 
     def test_json_format_renders_with_service(self, capsys):
         _reconfigure_json()
-        structlog.get_logger("t").info("event msg", account_id=475789)
+        structlog.get_logger("t").info("event msg", account_id=42)
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert payload["event"] == "event msg"
-        assert payload["account_id"] == 475789
+        assert payload["account_id"] == 42
         assert payload["gg_service"] == "gg-mcp-server"
         assert payload["level"] == "info"
         assert payload["gg_version"] == (APP_VERSION or "unknown")
