@@ -1,5 +1,6 @@
 import logging
 
+import httpx
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
 
@@ -110,5 +111,14 @@ async def assign_incident(params: AssignIncidentParams) -> AssignIncidentResult:
             # Fallback response
             return AssignIncidentResult(incident_id=params.incident_id, assignee_id=response_assignee_id, success=True)
 
+    except httpx.HTTPStatusError as e:
+        # The API answers an email no member has with a bare "Invalid payload." The address is
+        # not repeated here, so the failure log does not record it.
+        if assignee_email is not None and e.response.status_code == 400:
+            raise ToolError(
+                f"{e} This usually means no member of this workspace has that email address. Check it, or "
+                "assign the incident by member ID; retrying with the same email will not help."
+            ) from e
+        raise ToolError(str(e)) from e
     except Exception as e:
         raise ToolError(str(e))

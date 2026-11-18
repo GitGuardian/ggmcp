@@ -5,6 +5,8 @@ and JSON body for every action, and that guard rails (required reasons) block
 the HTTP call entirely.
 """
 
+import logging
+
 import pytest
 
 from tests.e2e.harness import call_tool, sent_body, tool_error_text, tool_output
@@ -138,16 +140,62 @@ class TestAssignIncident:
         GIVEN mine=True
         WHEN assign_incident is called
         THEN the caller is resolved via /api_tokens/self and the assign body
-             carries the stringified member id with a null email
+             carries only the stringified member id
         """
         route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42, "assignee_id": 4242})
 
         result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "mine": True})
 
-        assert sent_body(route) == {"member_id": "4242", "email": None}
+        assert sent_body(route) == {"member_id": "4242"}
         output = tool_output(result)
         assert output["assignee_id"] == 4242
         assert output["success"] is True
+
+    async def test_an_email_assignment_sends_only_the_email(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an email
+        WHEN assign_incident is called
+        THEN the assign body carries only the email, and the member the API resolved is returned
+        """
+        route = gg_api.post("/incidents/secrets/42/assign").respond(200, json={"id": 42, "assignee_id": 4242})
+
+        result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "email": "dev@example.com"})
+
+        assert sent_body(route) == {"email": "dev@example.com"}
+        assert tool_output(result)["assignee_id"] == 4242
+
+    async def test_an_email_no_member_has_gets_a_hint_that_does_not_repeat_it(
+        self, mcp_client, gg_api, mock_token_scopes, caplog
+    ):
+        """
+        GIVEN an email the API refuses with its bare "Invalid payload." 400
+        WHEN assign_incident is called
+        THEN the error says no member likely has that address and how to proceed, and neither it nor any log repeats it
+        """
+        gg_api.post("/incidents/secrets/42/assign").respond(400, json={"detail": "Invalid payload."})
+
+        with caplog.at_level(logging.DEBUG):
+            result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "email": "nobody@example.com"})
+
+        error = tool_error_text(result)
+        assert "Invalid payload" in error
+        assert "no member of this workspace has that email address" in error
+        assert "nobody@example.com" not in error
+        assert [r.getMessage() for r in caplog.records if "nobody@example.com" in r.getMessage()] == []
+
+    async def test_a_member_id_assignment_refusal_gets_no_email_hint(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a member ID the API refuses with a 400
+        WHEN assign_incident is called
+        THEN the error carries the API's reason only, with no hint about email addresses
+        """
+        gg_api.post("/incidents/secrets/42/assign").respond(400, json={"detail": "Invalid payload."})
+
+        result = await call_tool(mcp_client, "assign_incident", {"incident_id": 42, "assignee_member_id": 7})
+
+        error = tool_error_text(result)
+        assert "Invalid payload" in error
+        assert "email" not in error
 
 
 class TestManageIncidentComment:

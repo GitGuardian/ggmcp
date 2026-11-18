@@ -1067,17 +1067,22 @@ class GitGuardianClient:
         Args:
             incident_id: ID of the secret incident
             assignee_id: ID of the member to assign the incident to
+            email: Email of the member to assign the incident to, instead of assignee_id
 
         Returns:
             Status of the operation
         """
         if assignee_id and email:
             raise ValueError("either email or assignee_id should be provided. Not both")
-        logger.info(f"Assigning incident {incident_id} to member {assignee_id or email}")
-        return await self._request_post(
-            f"/incidents/secrets/{incident_id}/assign",
-            json={"member_id": assignee_id, "email": email},
+        # The email address is personal data, so the log names only the member ID.
+        logger.info(
+            f"Assigning incident {incident_id} to member {assignee_id}"
+            if assignee_id
+            else f"Assigning incident {incident_id} by email"
         )
+        # Only the identifier in use is sent: the other key, even as null, is no part of the request.
+        payload = {"member_id": assignee_id} if assignee_id else {"email": email}
+        return await self._request_post(f"/incidents/secrets/{incident_id}/assign", json=payload)
 
     async def unassign_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a secret incident.
