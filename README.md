@@ -293,21 +293,55 @@ a single server-wide token.
 
 ## Migration notes
 
-- Tool arguments are passed at the top level, `{"incident_id": 123}`, instead of
-  inside a `params` object, `{"params": {"incident_id": 123}}`. A call in the old
-  shape is refused with an error that says so. MCP clients that read the tool list
-  pick this up on their own.
-- The server now exposes the 15 tools listed in [What it does](#what-it-does).
-  These tools were removed: `assign_public_incident`, `create_code_fix_request`,
-  `find_current_source_id`, `get_authenticated_user_info`, `get_current_token_info`,
-  `get_member`, `list_detectors`, `list_honeytokens`, `list_incident_activity_logs`,
-  `list_incident_comments`, `list_incident_members`, `list_incident_teams`,
-  `list_public_incident_activity_logs`, `list_public_incident_comments`,
-  `list_remediation_targets`, `list_users`, `manage_public_incident_comment`,
-  `read_custom_tags`, `revoke_current_token`, `revoke_secret`,
-  `update_incident_severity`, `update_or_create_incident_custom_tags`,
-  `update_public_incident_status`, `write_custom_tags`. Use the GitGuardian
-  dashboard for those actions.
+These notes cover moving from 0.7.x. Agents pick up the new tool names and arguments
+from the tool list; scripts and prompts that name tools or arguments need updating.
+
+### Tools
+
+| 0.7.x tool | Now |
+|---|---|
+| `list_incidents` | `list_internal_incidents` |
+| `count_incidents` | `count_internal_incidents` |
+| `get_incident` | `get_internal_incident` |
+| `list_repo_occurrences` | `list_internal_occurrences` |
+| `list_incident_activity_logs`, `list_incident_comments` | `get_internal_incident` with `with_history` |
+| `manage_private_incident` | `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`, `unassign_internal_incident` |
+| `assign_incident` | `assign_internal_incident` |
+| `manage_incident_comment` | `add_internal_incident_comment`, `edit_internal_incident_comment` |
+| `update_public_incident_status` | `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident` |
+| `assign_public_incident` | `assign_public_incident`, and `unassign_public_incident`, which is new |
+| `manage_public_incident_comment` | `add_public_incident_comment`, `edit_public_incident_comment` |
+| `get_authenticated_user_info`, `get_current_token_info` | `get_my_identity` |
+| `find_current_source_id` | `list_sources`, filtered by `search` or `external_id` |
+| `scan_secrets`, `list_public_incidents`, `get_public_incident`, `list_public_occurrences`, `list_sources`, `get_remediation_workflow`, `generate_honeytoken` | Same name |
+| `get_member`, `list_users`, `list_incident_members`, `list_incident_teams` | Removed. Assign by email with `assignee_email` |
+| `list_public_incident_activity_logs`, `list_public_incident_comments`, `list_detectors`, `list_honeytokens`, `list_remediation_targets`, `read_custom_tags`, `write_custom_tags`, `update_or_create_incident_custom_tags`, `update_incident_severity`, `revoke_secret`, `revoke_current_token`, `create_code_fix_request` | Removed. Use the GitGuardian dashboard |
+
+`get_gitguardian_resource` is new: it opens an incident from a link or an ID of either kind.
+
+### Arguments and results
+
+- Arguments are passed at the top level, `{"incident_id": 123}`, instead of inside a
+  `params` object, `{"params": {"incident_id": 123}}`. A call in the old shape is
+  refused with an error that says so.
+- Every list tool takes `page_size`, `cursor` and `get_all`, and returns `page_size`,
+  `has_more`, `stop_reason` and `next_arguments`; call the tool again with
+  `next_arguments` for the next page. `page` and `per_page` are gone, and so are
+  `cursor`, `next_cursor`, `has_next`, `has_previous` and the result counts in results.
+- List and count results are no longer wrapped in a `result` object.
+- Multi-value filters take lists. Severities are named (`critical` to `unknown`) in
+  every tool, and the unknown validity is `unknown` everywhere.
+- `list_internal_occurrences` takes `date_after`, `date_before` and `assignee_id`, which
+  replace `from_date`, `to_date` and `member_assignee_id`.
+- Assigning by email takes `assignee_email` for both incident kinds, which replaces
+  `email` on internal incidents.
+- Write tools return the incident's kind and ID, the change, whether it changed
+  anything (`changed`), and the incident.
+- `scan_secrets` reports secrets whose incident was already resolved or ignored, with
+  `is_excluded: true`, and refuses document fields other than `document` and `filename`.
+
+### Deployment
+
 - The SSE app (`gg_mcp_server.sse_app:app`) was removed. Serve
   `gg_mcp_server.http_app:app` instead.
 - The `developer-mcp-server` and `secops-mcp-server` console scripts were
