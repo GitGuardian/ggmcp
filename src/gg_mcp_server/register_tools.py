@@ -191,7 +191,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         get_public_incident,
         description=(
             "(Public Monitoring only; for internal incidents use get_internal_incident) Get one public incident: "
-            "its detector, status, severity, validity, risk score, tags, dates and assignee."
+            "its detector, status, severity, validity, risk score, tags, dates and assignee. with_history adds its "
+            "comments and the record of its status changes and assignments."
         ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,

@@ -1,12 +1,13 @@
 import asyncio
 import logging
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import httpx
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
-from gg_api_core.client import GitGuardianClient
+from gg_api_core.client import ListResponse
 from gg_api_core.tools.ids import NumericId
 from gg_api_core.utils import get_client
 
@@ -64,14 +65,14 @@ class GetIncidentResult(BaseModel):
     )
 
 
-async def _incident_history(client: GitGuardianClient, incident_id: int) -> IncidentHistory:
-    """The incident's activity log, or the reason it could not be read.
+async def incident_history(fetch: Callable[[], Awaitable[ListResponse]]) -> IncidentHistory:
+    """An incident's activity log, from one page that fetch reads, or the reason it could not be read.
 
     A 401 is raised, so that the client is asked to authenticate again; any other
     failure leaves the incident readable and is reported in unavailable_reason.
     """
     try:
-        page = await client.list_incident_activity_logs(incident_id, per_page=HISTORY_LIMIT)
+        page = await fetch()
     except httpx.HTTPStatusError as e:
         return IncidentHistory(unavailable_reason=f"The history could not be read: {e}")
     except httpx.RequestError as e:
@@ -100,7 +101,7 @@ async def get_internal_incident(params: GetIncidentParams) -> GetIncidentResult:
 
         incident, history = await asyncio.gather(
             client.get_incident(incident_id=params.incident_id, with_occurrences=params.with_occurrences),
-            _incident_history(client, params.incident_id),
+            incident_history(lambda: client.list_incident_activity_logs(params.incident_id, per_page=HISTORY_LIMIT)),
         )
         return GetIncidentResult(incident=incident, history=history)
     except Exception as e:

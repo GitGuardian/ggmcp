@@ -327,3 +327,26 @@ class TestWorkspaceWithoutPublicMonitoring:
 
         assert "You do not have permission" in error
         assert "Public Monitoring" not in error
+
+
+class TestGetPublicIncidentHistory:
+    async def test_history_is_read_newest_first_only_when_asked(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN a public incident with an activity log
+        WHEN get_public_incident is called with with_history
+        THEN the log is read newest first and returned beside the incident, and without it the log is not read
+        """
+        gg_api.get("/public-incidents/secrets/103").respond(200, json=PUBLIC_INCIDENT)
+        entry = {"id": 1, "content": {"type": "note", "comment": "Asked the repository owner"}}
+        log = gg_api.get("/public-incidents/secrets/103/activity-logs").respond(200, json=[entry])
+
+        plain = tool_output(await call_tool(mcp_client, "get_public_incident", {"incident_id": 103}))
+        assert "history" not in plain
+        assert not log.called
+
+        result = tool_output(
+            await call_tool(mcp_client, "get_public_incident", {"incident_id": 103, "with_history": True})
+        )
+
+        assert sent_params(log) == {"per_page": "50", "ordering": "-created_at"}
+        assert result["history"] == {"entries": [entry], "has_more": False, "unavailable_reason": None}

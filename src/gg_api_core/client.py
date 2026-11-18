@@ -1917,6 +1917,18 @@ class GitGuardianClient:
         logger.info(f"Requesting the revocation of secret {secret_id}")
         return await self._request_post(f"/secrets/{secret_id}/revoke", json={})
 
+    async def list_public_incident_activity_logs(self, incident_id: int, per_page: int) -> ListResponse:
+        """List one page of a public secret incident's activity log, newest first.
+
+        Wraps GET /v1/public-incidents/secrets/{incident_id}/activity-logs, which holds the
+        incident's comments and system actions, oldest first unless asked otherwise.
+        """
+        logger.info(f"Listing activity logs for public incident {incident_id}")
+        return await self._request_list(
+            f"/public-incidents/secrets/{incident_id}/activity-logs",
+            params={"per_page": per_page, "ordering": "-created_at"},
+        )
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 
