@@ -72,6 +72,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "list_sources",
     "manage_incident_comment",
     "manage_private_incident",
+    "manage_public_incident",
     "scan_secrets",
 }
 

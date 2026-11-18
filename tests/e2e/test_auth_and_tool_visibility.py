@@ -153,6 +153,7 @@ class TestScopeBasedToolVisibility:
             "manage_private_incident": changes_state,
             "assign_incident": changes_state,
             "manage_incident_comment": writes_comment,
+            "manage_public_incident": writes_comment,
             "generate_honeytoken": creates,
         }
 

@@ -27,7 +27,8 @@ backed by GitGuardian's 500+ detectors.
   on internal incidents (`assign_incident`, `manage_private_incident`,
   `manage_incident_comment`).
 - **Public Monitoring**: list and inspect public incidents and their occurrences
-  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`).
+  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`), and
+  resolve, ignore, reopen, assign, or comment on them (`manage_public_incident`).
 - **Remediation**: fetch your workspace's remediation workflow
   (`get_remediation_workflow`).
 - **Honeytokens**: generate honeytokens (`generate_honeytoken`).

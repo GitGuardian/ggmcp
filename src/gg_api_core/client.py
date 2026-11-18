@@ -1683,6 +1683,114 @@ class GitGuardianClient:
         logger.info(f"Getting public incident {incident_id}")
         return await self._request_get(f"/public-incidents/secrets/{incident_id}")
 
+    async def resolve_public_incident(self, incident_id: str, resolve_reason: str) -> dict[str, Any]:
+        """Resolve a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/resolve.
+
+        Args:
+            incident_id: ID of the public incident
+            resolve_reason: Why it is resolved (revoked, dmca_request, source_deleted)
+
+        Returns:
+            The updated public incident
+        """
+        logger.info(f"Resolving public incident {incident_id} (resolve_reason={resolve_reason})")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/resolve", json={"resolve_reason": resolve_reason}
+        )
+
+    async def ignore_public_incident(self, incident_id: str, ignore_reason: str) -> dict[str, Any]:
+        """Ignore a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/ignore.
+
+        Args:
+            incident_id: ID of the public incident
+            ignore_reason: Why it is ignored (test_credential, false_positive, low_risk, invalid,
+                ignore_actor, ignore_secret)
+
+        Returns:
+            The updated public incident
+        """
+        logger.info(f"Ignoring public incident {incident_id} with reason: {ignore_reason}")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/ignore", json={"ignore_reason": ignore_reason}
+        )
+
+    async def reopen_public_incident(self, incident_id: str) -> dict[str, Any]:
+        """Reopen a resolved or ignored public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/reopen.
+
+        Args:
+            incident_id: ID of the public incident
+
+        Returns:
+            The updated public incident
+        """
+        logger.info(f"Reopening public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/reopen")
+
+    async def assign_public_incident(
+        self, incident_id: str, assignee_id: str | None = None, email: str | None = None
+    ) -> dict[str, Any]:
+        """Assign a public secret incident to a member.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/assign.
+
+        Args:
+            incident_id: ID of the public incident
+            assignee_id: ID of the member to assign it to
+            email: Email of the member to assign it to, instead of assignee_id
+
+        Returns:
+            The updated public incident
+        """
+        if assignee_id and email:
+            raise ValueError("either email or assignee_id should be provided. Not both")
+        # The email address is personal data, so the log names only the member ID.
+        logger.info(
+            f"Assigning public incident {incident_id} to member {assignee_id}"
+            if assignee_id
+            else f"Assigning public incident {incident_id} by email"
+        )
+        payload: dict[str, Any] = {"member_id": int(assignee_id)} if assignee_id else {"email": email}
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/assign", json=payload)
+
+    async def create_public_incident_note(self, incident_id: str, comment: str) -> dict[str, Any]:
+        """Create a note (comment) on a public secret incident.
+
+        Wraps POST /v1/public-incidents/secrets/{incident_id}/notes.
+
+        Args:
+            incident_id: ID of the public incident
+            comment: Content of the comment (1-10000 characters)
+
+        Returns:
+            The created note
+        """
+        logger.info(f"Creating note for public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/notes", json={"comment": comment})
+
+    async def update_public_incident_note(self, incident_id: str, note_id: str, comment: str) -> dict[str, Any]:
+        """Update a note (comment) on a public secret incident.
+
+        Wraps PATCH /v1/public-incidents/secrets/{incident_id}/notes/{note_id}.
+
+        Args:
+            incident_id: ID of the public incident
+            note_id: ID of the note to update
+            comment: New content for the comment (1-10000 characters)
+
+        Returns:
+            The updated note
+        """
+        logger.info(f"Updating note {note_id} for public incident {incident_id}")
+        return await self._request_patch(
+            f"/public-incidents/secrets/{incident_id}/notes/{note_id}", json={"comment": comment}
+        )
+
     async def list_honeytokens(
         self,
         status: str | None = None,

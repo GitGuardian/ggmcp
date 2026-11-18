@@ -29,6 +29,7 @@ from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_repo_occurrences import list_repo_occurrences
 from gg_api_core.tools.list_sources import list_sources
 from gg_api_core.tools.manage_incident import manage_private_incident
+from gg_api_core.tools.manage_public_incident import manage_public_incident
 from gg_api_core.tools.scan_secret import scan_secrets
 
 # Every tool talks only to the GitGuardian API, so none is open-world.
@@ -40,6 +41,11 @@ CHANGES_INCIDENT_STATE = ToolAnnotations(
 )
 # Adding a comment is additive, but editing one replaces its body.
 WRITES_INCIDENT_COMMENT = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
+)
+# Status changes and assignments replace the incident's state, but adding a comment does
+# not repeat cleanly, so the tool as a whole is not idempotent.
+MANAGES_PUBLIC_INCIDENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
 )
 # Each call creates a new honeytoken and changes nothing that exists.
@@ -77,6 +83,7 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
+  Write tool: `manage_public_incident`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -89,7 +96,8 @@ write tool with a public incident ID (or vice versa) will silently 404.
    committed. Use to prevent accidental secret commits.
 
 2. **Incident Management** — list and filter incidents (internal and public); assign,
-   unassign, resolve, ignore, reopen, and comment on internal incidents.
+   unassign, resolve, ignore, reopen, and comment on internal incidents; resolve, ignore,
+   reopen, assign, and comment on public incidents.
 
 3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
    line numbers, and character indices.
@@ -187,6 +195,16 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "are NOT interchangeable with internal incident IDs.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        manage_public_incident,
+        description="(Public Monitoring only — for internal incidents use manage_private_incident, assign_incident "
+        "and manage_incident_comment) Resolve, ignore, reopen, assign, or comment on a public secret incident. "
+        "Resolving needs a resolve_reason and ignoring an ignore_reason, both chosen by the user. Incident IDs here "
+        "are NOT interchangeable with internal incident IDs.",
+        required_scopes=["incidents:write"],
+        annotations=MANAGES_PUBLIC_INCIDENT,
     )
 
     mcp.tool(
