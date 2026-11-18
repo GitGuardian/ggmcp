@@ -22,11 +22,12 @@ INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
-LOOSE_INCIDENT_ID = {
-    "get_internal_incident",
-    "get_public_incident",
-    "list_public_occurrences",
-}
+# Identifiers the API defines as strings rather than numbers.
+OPAQUE_IDS = {"external_id": None, "ignorer_api_token_id": "uuid", "resolver_api_token_id": "uuid"}
+# Arguments that hold numeric IDs without ending in _id.
+ID_ARGUMENTS = {"source_ids", "teams", "secret_manager_instance", "similar_to"}
+# The internal incident filters take assignee_id 0 to mean unassigned.
+ZERO_ALLOWED_IDS = {("list_internal_incidents", "assignee_id"), ("count_internal_incidents", "assignee_id")}
 
 
 @pytest.fixture
@@ -97,21 +98,36 @@ class TestArguments:
         }
         assert loose == LOOSE_NESTED_OBJECTS
 
-    async def test_incident_ids_are_positive_integers(self, catalog):
+    async def test_numeric_ids_are_positive_integers(self, catalog):
         """
-        GIVEN the tools that take an incident_id
+        GIVEN every argument that holds a numeric ID, alone or in a list
         WHEN its schema is read
-        THEN it is an integer of at least 1, except the tools still listed in LOOSE_INCIDENT_ID
+        THEN it is an integer of at least 1, or of at least 0 where 0 means unassigned
         """
-        loose = set()
+        loose = []
         for name, tool in catalog.items():
-            schema = tool["inputSchema"].get("properties", {}).get("incident_id")
-            if schema is None:
-                continue
-            types = _integer_types(schema)
-            if len(types) != 1 or types[0].get("type") != "integer" or types[0].get("minimum", 0) < 1:
-                loose.add(name)
-        assert loose == LOOSE_INCIDENT_ID
+            for field, schema in tool["inputSchema"].get("properties", {}).items():
+                if field in OPAQUE_IDS or not (field.endswith("_id") or field in ID_ARGUMENTS):
+                    continue
+                (value,) = _integer_types(schema)
+                value = value.get("items", value)
+                lowest = 0 if (name, field) in ZERO_ALLOWED_IDS else 1
+                if value.get("type") != "integer" or value.get("minimum") != lowest:
+                    loose.append(f"{name}.{field}")
+        assert loose == []
+
+    async def test_opaque_ids_are_strings_of_their_format(self, catalog):
+        """
+        GIVEN every argument that holds an identifier the API defines as a string
+        WHEN its schema is read
+        THEN it is a string, with the uuid format where the API uses UUIDs
+        """
+        for tool in catalog.values():
+            for field, schema in tool["inputSchema"].get("properties", {}).items():
+                if field in OPAQUE_IDS:
+                    (value,) = _integer_types(schema)
+                    assert value["type"] == "string", field
+                    assert value.get("format") == OPAQUE_IDS[field], field
 
     async def test_paginated_tools_take_page_size_cursor_and_get_all(self, catalog):
         """

@@ -14,7 +14,8 @@ def _list_filters():
         for arg in typing.get_args(field.annotation):
             if typing.get_origin(arg) is list:
                 item_type = typing.get_args(arg)[0]
-                yield pytest.param(name, 1 if item_type is int else "x", id=name)
+                numeric = item_type is int or typing.get_args(item_type)[:1] == (int,)
+                yield pytest.param(name, 1 if numeric else "x", id=name)
                 break
 
 

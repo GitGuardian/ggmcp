@@ -4,6 +4,7 @@ from typing import Any
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class GetPublicIncidentParams(BaseModel):
     """Parameters for retrieving a public secret incident."""
 
-    incident_id: int = Field(description="The id of the public secret incident to retrieve")
+    incident_id: NumericId = Field(description="The id of the public secret incident to retrieve")
 
 
 class GetPublicIncidentResult(BaseModel):

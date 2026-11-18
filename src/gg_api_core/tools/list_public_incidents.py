@@ -1,4 +1,5 @@
 from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -7,6 +8,7 @@ from gg_api_core.client import (
     IncidentStatus,
     IncidentValidity,
 )
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
@@ -74,7 +76,7 @@ class ListPublicIncidentsParams(BaseModel):
         default=None,
         description="Filter by assignee email",
     )
-    assignee_id: int | None = Field(
+    assignee_id: NumericId | None = Field(
         default=None,
         description="Filter by assignee user id",
     )
@@ -137,19 +139,19 @@ class ListPublicIncidentsParams(BaseModel):
         default=None,
         description="Filter by detector group name (e.g. 'slackbot_token')",
     )
-    ignorer_id: int | None = Field(
+    ignorer_id: NumericId | None = Field(
         default=None,
         description="Filter incidents ignored by this user id",
     )
-    ignorer_api_token_id: str | None = Field(
+    ignorer_api_token_id: UUID | None = Field(
         default=None,
         description="Filter incidents ignored by this API token id",
     )
-    resolver_id: int | None = Field(
+    resolver_id: NumericId | None = Field(
         default=None,
         description="Filter incidents resolved by this user id",
     )
-    resolver_api_token_id: str | None = Field(
+    resolver_api_token_id: UUID | None = Field(
         default=None,
         description="Filter incidents resolved by this API token id",
     )
@@ -231,11 +233,11 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     if params.ignorer_id is not None:
         filters["ignorer_id"] = params.ignorer_id
     if params.ignorer_api_token_id:
-        filters["ignorer_api_token_id"] = params.ignorer_api_token_id
+        filters["ignorer_api_token_id"] = str(params.ignorer_api_token_id)
     if params.resolver_id is not None:
         filters["resolver_id"] = params.resolver_id
     if params.resolver_api_token_id:
-        filters["resolver_api_token_id"] = params.resolver_api_token_id
+        filters["resolver_api_token_id"] = str(params.resolver_api_token_id)
     if params.feedback is not None:
         filters["feedback"] = params.feedback
     if params.declarative_secret_status:
@@ -276,9 +278,9 @@ async def list_public_incidents(
         ordering=params.ordering,
         detector_group_name=params.detector_group_name,
         ignorer_id=params.ignorer_id,
-        ignorer_api_token_id=params.ignorer_api_token_id,
+        ignorer_api_token_id=str(params.ignorer_api_token_id) if params.ignorer_api_token_id else None,
         resolver_id=params.resolver_id,
-        resolver_api_token_id=params.resolver_api_token_id,
+        resolver_api_token_id=str(params.resolver_api_token_id) if params.resolver_api_token_id else None,
         feedback=params.feedback,
         declarative_secret_status=params.declarative_secret_status,
         risk_score_min=params.risk_score_min,

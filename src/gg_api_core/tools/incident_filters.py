@@ -5,6 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field, field_validator
 
 from gg_api_core.client import GitGuardianClient, _serialize_enum_filter, _to_date_only
+from gg_api_core.tools.ids import NumericId
 
 
 class IncidentStatus:
@@ -81,6 +82,7 @@ class IncidentFilters(BaseModel):
     )
     assignee_id: int | None = Field(
         default=None,
+        ge=0,
         description="Filter by assignee member ID. Use 0 for unassigned incidents. Cannot be used with 'mine'.",
     )
 
@@ -137,7 +139,7 @@ class IncidentFilters(BaseModel):
     )
 
     # Source filters
-    source_ids: list[int] | None = Field(
+    source_ids: list[NumericId] | None = Field(
         default=None,
         description="Filter by source ID(s). Can be obtained using the list_sources tool.",
     )
@@ -213,7 +215,7 @@ class IncidentFilters(BaseModel):
         default=None,
         description="Filter by vault type. Values: hashicorpvault, awssecretsmanager, azurekeyvault, gcpsecretmanager, cyberarksaas, cyberarkselfhosted, akeyless, delineasecretserver",
     )
-    secret_manager_instance: list[int] | None = Field(
+    secret_manager_instance: list[NumericId] | None = Field(
         default=None,
         description="Filter by vault instance ID(s)",
     )
@@ -229,13 +231,13 @@ class IncidentFilters(BaseModel):
     )
 
     # Team filters
-    teams: list[int] | None = Field(
+    teams: list[NumericId] | None = Field(
         default=None,
         description="Filter by team ID(s)",
     )
 
     # Similar issues filter
-    similar_to: int | None = Field(
+    similar_to: NumericId | None = Field(
         default=None,
         description="Filter incidents similar to the given incident ID",
     )

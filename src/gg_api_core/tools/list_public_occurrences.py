@@ -2,6 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
@@ -15,7 +16,7 @@ from gg_api_core.utils import get_client
 class ListPublicOccurrencesParams(BaseModel):
     """Parameters for listing occurrences of a public secret incident."""
 
-    incident_id: int = Field(
+    incident_id: NumericId = Field(
         description="The id of the public secret incident to list occurrences for",
     )
 
@@ -35,7 +36,7 @@ class ListPublicOccurrencesParams(BaseModel):
     )
 
     # Source / location filters
-    source_id: int | None = Field(
+    source_id: NumericId | None = Field(
         default=None,
         description="Filter occurrences belonging to this source ID",
     )

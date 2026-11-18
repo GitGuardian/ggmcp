@@ -4,6 +4,7 @@ from typing import Any, Literal
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
@@ -93,7 +94,7 @@ class ListSourcesParams(BaseModel):
         default=None,
         description="Filter by monitored status (true/false)",
     )
-    team_id: int | None = Field(
+    team_id: NumericId | None = Field(
         default=None,
         description="Filter sources by team id. Only sources belonging to the given team's perimeter are returned.",
     )

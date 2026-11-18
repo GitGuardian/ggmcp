@@ -30,7 +30,7 @@ class TestListRepoOccurrences:
         # Call the function with member_assignee_id
         result = await list_internal_occurrences(
             ListRepoOccurrencesParams(
-                source_id="source_123",
+                source_id=123,
                 member_assignee_id=12345,
             )
         )
@@ -66,7 +66,7 @@ class TestListRepoOccurrences:
         # Call the function with mine=True
         result = await list_internal_occurrences(
             ListRepoOccurrencesParams(
-                source_id="source_123",
+                source_id=123,
                 mine=True,
             )
         )

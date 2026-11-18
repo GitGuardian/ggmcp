@@ -7,6 +7,7 @@ from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
 from gg_api_core.client import GitGuardianClient
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ HISTORY_LIMIT = 50
 class GetIncidentParams(BaseModel):
     """Parameters for retrieving a specific incident."""
 
-    incident_id: int = Field(description="The ID of the incident to retrieve")
+    incident_id: NumericId = Field(description="The ID of the incident to retrieve")
     with_occurrences: int = Field(
         default=20,
         ge=0,

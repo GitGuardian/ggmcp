@@ -9,6 +9,7 @@ from gg_api_core.client import (
     IncidentValidity,
     TagNames,
 )
+from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
@@ -83,7 +84,9 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=False,
         description="If True, fetch occurrences related to issues assigned to the current user",
     )
-    member_assignee_id: int | None = Field(default=None, description="Filter by the member the incident is assigned to")
+    member_assignee_id: NumericId | None = Field(
+        default=None, description="Filter by the member the incident is assigned to"
+    )
 
     @model_validator(mode="after")
     def validate_exactly_one_assignee_option(self):
@@ -96,7 +99,7 @@ class ListRepoOccurrencesFilters(BaseModel):
 class ListRepoOccurrencesBaseParams(BaseModel):
     """Parameters for listing repository occurrences."""
 
-    source_id: str | int | None = Field(
+    source_id: NumericId | None = Field(
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using the list_sources tool.",
     )
