@@ -151,6 +151,12 @@ class TestScopeBasedToolVisibility:
         creates = {**changes_state, "destructiveHint": False, "idempotentHint": False}
         expected = dict.fromkeys(EXPECTED_FULL_TOOL_CATALOG, read_only) | {
             "manage_private_incident": changes_state,
+            "resolve_internal_incident": changes_state,
+            "ignore_internal_incident": changes_state,
+            "reopen_internal_incident": changes_state,
+            "resolve_public_incident": changes_state,
+            "ignore_public_incident": changes_state,
+            "reopen_public_incident": changes_state,
             "assign_incident": changes_state,
             "manage_incident_comment": writes_comment,
             "manage_public_incident": writes_comment,
@@ -349,7 +355,7 @@ class TestScopeEnforcementOnCall:
         mock_token_scopes(["scan"])
         write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 77, "action": "reopen"})
+        result = await call_tool(mcp_client, "reopen_internal_incident", {"incident_id": 77})
 
         assert "incidents:write" in tool_error_text(result)
         assert not write_route.called

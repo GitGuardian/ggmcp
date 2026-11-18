@@ -23,12 +23,14 @@ backed by GitGuardian's 500+ detectors.
   the incident is internal or from Public Monitoring and returns its details. Links
   must come from the configured instance and the token's workspace. For share links,
   supply the authenticated dashboard link.
-- **Incident management**: assign, unassign, resolve, ignore, reopen, and comment
-  on internal incidents (`assign_incident`, `manage_private_incident`,
-  `manage_incident_comment`).
+- **Incident management**: resolve, ignore, reopen, assign, unassign, and comment
+  on internal incidents (`resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
+  `assign_incident`, `manage_private_incident`, `manage_incident_comment`).
 - **Public Monitoring**: list and inspect public incidents and their occurrences
-  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`), and
-  resolve, ignore, reopen, assign, or comment on them (`manage_public_incident`).
+  (`list_public_incidents`, `get_public_incident`, `list_public_occurrences`),
+  resolve, ignore, or reopen them (`resolve_public_incident`,
+  `ignore_public_incident`, `reopen_public_incident`), and assign or comment on them
+  (`manage_public_incident`).
 - **Remediation**: fetch your workspace's remediation workflow
   (`get_remediation_workflow`).
 - **Honeytokens**: generate honeytokens (`generate_honeytoken`).

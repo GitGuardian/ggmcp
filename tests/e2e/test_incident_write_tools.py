@@ -17,24 +17,6 @@ class TestManagePrivateIncident:
         ("arguments", "expected_path", "expected_body"),
         [
             pytest.param(
-                {"incident_id": 42, "action": "resolve", "secret_revoked": True},
-                "/incidents/secrets/42/resolve",
-                {"secret_revoked": True},
-                id="resolve-sends-secret-revoked",
-            ),
-            pytest.param(
-                {"incident_id": 42, "action": "ignore", "ignore_reason": "low_risk"},
-                "/incidents/secrets/42/ignore",
-                {"ignore_reason": "low_risk"},
-                id="ignore-sends-ignore-reason",
-            ),
-            pytest.param(
-                {"incident_id": 42, "action": "reopen"},
-                "/incidents/secrets/42/reopen",
-                None,
-                id="reopen-sends-no-body",
-            ),
-            pytest.param(
                 {"incident_id": 42, "action": "unassign"},
                 "/incidents/secrets/42/unassign",
                 None,
@@ -59,34 +41,6 @@ class TestManagePrivateIncident:
         assert sent_body(route) == expected_body
         assert tool_output(result) == {"id": 42, "status": "UPDATED"}
 
-    async def test_resolving_without_the_revocation_answer_is_blocked_locally(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
-        """
-        GIVEN action=resolve without secret_revoked
-        WHEN manage_private_incident is called
-        THEN the tool refuses with guidance and no API call happens
-        """
-        route = gg_api.post("/incidents/secrets/42/resolve").respond(200, json={})
-
-        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "resolve"})
-
-        assert "'secret_revoked' parameter is required" in tool_error_text(result)
-        assert not route.called
-
-    async def test_ignoring_without_a_reason_is_blocked_locally(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN action=ignore without ignore_reason
-        WHEN manage_private_incident is called
-        THEN the tool refuses with guidance and no API call happens
-        """
-        route = gg_api.post("/incidents/secrets/42/ignore").respond(200, json={})
-
-        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 42, "action": "ignore"})
-
-        assert "'ignore_reason' parameter is required" in tool_error_text(result)
-        assert not route.called
-
 
 CRAFTED_INCIDENT_IDS = [
     pytest.param("1/../../members/5", id="path-traversal"),
@@ -97,7 +51,7 @@ CRAFTED_INCIDENT_IDS = [
 
 ID_IN_PATH_CALLS = [
     pytest.param("assign_incident", {"mine": True}, id="assign_incident"),
-    pytest.param("manage_private_incident", {"action": "reopen"}, id="manage_private_incident"),
+    pytest.param("manage_private_incident", {"action": "unassign"}, id="manage_private_incident"),
 ]
 
 
@@ -126,7 +80,7 @@ async def test_a_numeric_string_incident_id_is_still_accepted(
     WHEN a tool that places it in the URL path is called
     THEN the request goes to that incident's endpoint
     """
-    endpoint = "/incidents/secrets/42/assign" if tool_name == "assign_incident" else "/incidents/secrets/42/reopen"
+    endpoint = "/incidents/secrets/42/assign" if tool_name == "assign_incident" else "/incidents/secrets/42/unassign"
     route = gg_api.post(endpoint).respond(200, json={"id": 42})
 
     await call_tool(mcp_client, tool_name, {"incident_id": "42", **arguments})

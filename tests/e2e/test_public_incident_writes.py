@@ -1,4 +1,4 @@
-"""manage_public_incident: status, assignment and comments on Public Monitoring incidents.
+"""manage_public_incident: assignment and comments on Public Monitoring incidents.
 
 These write to customer workspaces, so the tests pin the endpoint and JSON body for every
 action, and that a missing argument blocks the API call entirely.
@@ -15,19 +15,6 @@ class TestManagePublicIncident:
     @pytest.mark.parametrize(
         ("arguments", "expected_path", "expected_body"),
         [
-            pytest.param(
-                {"action": "resolve", "resolve_reason": "revoked"},
-                "/public-incidents/secrets/103/resolve",
-                {"resolve_reason": "revoked"},
-                id="resolve",
-            ),
-            pytest.param(
-                {"action": "ignore", "ignore_reason": "ignore_actor"},
-                "/public-incidents/secrets/103/ignore",
-                {"ignore_reason": "ignore_actor"},
-                id="ignore",
-            ),
-            pytest.param({"action": "reopen"}, "/public-incidents/secrets/103/reopen", None, id="reopen"),
             pytest.param(
                 {"action": "assign", "assignee_member_id": 42},
                 "/public-incidents/secrets/103/assign",
@@ -106,8 +93,6 @@ class TestManagePublicIncident:
     @pytest.mark.parametrize(
         ("arguments", "message"),
         [
-            pytest.param({"action": "resolve"}, "resolve_reason is required", id="resolve-without-reason"),
-            pytest.param({"action": "ignore"}, "ignore_reason is required", id="ignore-without-reason"),
             pytest.param({"action": "assign"}, "exactly one of", id="assign-without-assignee"),
             pytest.param(
                 {"action": "assign", "mine": True, "assignee_member_id": 42}, "exactly one of", id="assign-twice"
@@ -120,11 +105,6 @@ class TestManagePublicIncident:
                 {"action": "add_comment", "comment": "x", "comment_id": 9},
                 "comment_id must not be provided",
                 id="add-with-comment-id",
-            ),
-            pytest.param(
-                {"action": "resolve", "resolve_reason": "test_credential"},
-                "resolve_reason",
-                id="internal-reason-on-a-public-incident",
             ),
         ],
     )
@@ -171,9 +151,11 @@ class TestManagePublicIncident:
         THEN it is refused for the missing scope, and the API is never called
         """
         mock_token_scopes(scopes=["incidents:read"])
-        route = gg_api.post("/public-incidents/secrets/103/reopen").respond(200, json=PUBLIC_INCIDENT)
+        route = gg_api.post("/public-incidents/secrets/103/assign").respond(200, json=PUBLIC_INCIDENT)
 
-        result = await call_tool(mcp_client, "manage_public_incident", {"incident_id": 103, "action": "reopen"})
+        result = await call_tool(
+            mcp_client, "manage_public_incident", {"incident_id": 103, "action": "assign", "assignee_member_id": 42}
+        )
 
         assert result["isError"] is True
         assert "incidents:write" in tool_error_text(result)

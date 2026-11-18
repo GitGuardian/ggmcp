@@ -14,7 +14,7 @@ import pytest
 from tests.e2e.harness import rpc, rpc_result
 
 READ_VERBS = {"count", "get", "list", "scan"}
-WRITE_VERBS = {"add", "assign", "edit", "generate", "update"}
+WRITE_VERBS = {"add", "assign", "edit", "generate", "ignore", "reopen", "resolve", "unassign"}
 HINTS = ("readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint")
 # The first part of the server instructions that clients are sure to show the model.
 INSTRUCTIONS_HEAD = 512

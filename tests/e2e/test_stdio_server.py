@@ -174,8 +174,8 @@ class TestStartupScopeCache:
 
         async with Client(build_server()) as client:
             result = await client.call_tool(
-                "manage_private_incident",
-                {"incident_id": 77, "action": "reopen"},
+                "reopen_internal_incident",
+                {"incident_id": 77},
                 raise_on_error=False,
             )
 

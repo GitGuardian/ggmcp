@@ -1,4 +1,4 @@
-"""Tool for acting on a Public Monitoring incident: status, assignment and comments."""
+"""Tool for acting on a Public Monitoring incident: assignment and comments."""
 
 import logging
 from typing import Any, Literal
@@ -14,32 +14,14 @@ from gg_api_core.utils import get_client
 
 logger = logging.getLogger(__name__)
 
-PublicResolveReason = Literal["revoked", "dmca_request", "source_deleted"]
-PublicIgnoreReason = Literal[
-    "test_credential", "false_positive", "low_risk", "invalid", "ignore_actor", "ignore_secret"
-]
-
 
 class ManagePublicIncidentParams(BaseModel):
     """Parameters for acting on a Public Monitoring incident."""
 
     incident_id: PathId = Field(description="ID of the Public Monitoring incident")
-    action: Literal["resolve", "ignore", "reopen", "assign", "add_comment", "edit_comment"] = Field(
-        description="'resolve' (needs resolve_reason), 'ignore' (needs ignore_reason), 'reopen' a resolved or "
-        "ignored incident, 'assign' (needs one of assignee_member_id, assignee_email or mine), 'add_comment' "
+    action: Literal["assign", "add_comment", "edit_comment"] = Field(
+        description="'assign' (needs one of assignee_member_id, assignee_email or mine), 'add_comment' "
         "(needs comment), 'edit_comment' (needs comment and comment_id)"
-    )
-    resolve_reason: PublicResolveReason | None = Field(
-        default=None,
-        description="Why the incident is resolved. Required for 'resolve'; must come from the user. 'revoked' (the "
-        "secret was revoked or rotated), 'dmca_request' (taken down through a DMCA request), 'source_deleted' (the "
-        "public source holding the secret was deleted)",
-    )
-    ignore_reason: PublicIgnoreReason | None = Field(
-        default=None,
-        description="Why the incident is ignored. Required for 'ignore'; must come from the user. 'test_credential', "
-        "'false_positive', 'low_risk', 'invalid', 'ignore_actor' (ignore the account that leaked it), "
-        "'ignore_secret' (ignore this secret)",
     )
     assignee_member_id: int | None = Field(default=None, description="For 'assign': ID of the member to assign")
     assignee_email: str | None = Field(default=None, description="For 'assign': email of the member to assign")
@@ -54,10 +36,6 @@ class ManagePublicIncidentParams(BaseModel):
     @model_validator(mode="after")
     def check_the_arguments_of_the_action(self):
         """Require what the action needs, and refuse a comment_id when adding a comment."""
-        if self.action == "resolve" and self.resolve_reason is None:
-            raise ValueError("resolve_reason is required when action is 'resolve'; ask the user why it is resolved")
-        if self.action == "ignore" and self.ignore_reason is None:
-            raise ValueError("ignore_reason is required when action is 'ignore'; ask the user why it is ignored")
         if self.action == "assign":
             chosen = sum([self.assignee_member_id is not None, self.assignee_email is not None, self.mine])
             if chosen != 1:
@@ -72,7 +50,7 @@ class ManagePublicIncidentParams(BaseModel):
 
 
 async def manage_public_incident(params: ManagePublicIncidentParams) -> dict[str, Any]:
-    """Resolve, ignore, reopen, assign, or comment on a Public Monitoring incident.
+    """Assign, or comment on, a Public Monitoring incident.
 
     Args:
         params: ManagePublicIncidentParams with the incident ID, the action, and what the action needs
@@ -81,14 +59,6 @@ async def manage_public_incident(params: ManagePublicIncidentParams) -> dict[str
     incident_id = str(params.incident_id)
 
     try:
-        if params.action == "resolve":
-            assert params.resolve_reason is not None
-            return await client.resolve_public_incident(incident_id, resolve_reason=params.resolve_reason)
-        if params.action == "ignore":
-            assert params.ignore_reason is not None
-            return await client.ignore_public_incident(incident_id, ignore_reason=params.ignore_reason)
-        if params.action == "reopen":
-            return await client.reopen_public_incident(incident_id)
         if params.action == "assign":
             return await _assign(client, incident_id, params)
         assert params.comment is not None

@@ -23,6 +23,14 @@ from gg_api_core.tools.get_my_identity import get_my_identity
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
 from gg_api_core.tools.incident_notes import manage_incident_comment
+from gg_api_core.tools.incident_status import (
+    ignore_internal_incident,
+    ignore_public_incident,
+    reopen_internal_incident,
+    reopen_public_incident,
+    resolve_internal_incident,
+    resolve_public_incident,
+)
 from gg_api_core.tools.list_incidents import list_incidents
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
@@ -43,8 +51,8 @@ CHANGES_INCIDENT_STATE = ToolAnnotations(
 WRITES_INCIDENT_COMMENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
 )
-# Status changes and assignments replace the incident's state, but adding a comment does
-# not repeat cleanly, so the tool as a whole is not idempotent.
+# Assignments replace the incident's state, but adding a comment does not repeat cleanly,
+# so the tool as a whole is not idempotent.
 MANAGES_PUBLIC_INCIDENT = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False
 )
@@ -79,11 +87,13 @@ GitGuardian surfaces two distinct, non-overlapping categories of secret incident
   Identified by a `source_id`. Default category for most customer workflows.
   Read tools: `list_incidents`, `count_incidents`, `get_incident`, `list_repo_occurrences`,
   `list_sources`.
-  Write tools: `manage_private_incident`, `assign_incident`, `manage_incident_comment`.
+  Write tools: `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
+  `manage_private_incident`, `assign_incident`, `manage_incident_comment`.
 - **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
   perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
   Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
-  Write tool: `manage_public_incident`.
+  Write tools: `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident`,
+  `manage_public_incident`.
 
 Incident IDs are **not** interchangeable between the two categories. If the user's intent is
 about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
@@ -199,10 +209,10 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         manage_public_incident,
-        description="(Public Monitoring only — for internal incidents use manage_private_incident, assign_incident "
-        "and manage_incident_comment) Resolve, ignore, reopen, assign, or comment on a public secret incident. "
-        "Resolving needs a resolve_reason and ignoring an ignore_reason, both chosen by the user. Incident IDs here "
-        "are NOT interchangeable with internal incident IDs.",
+        description="(Public Monitoring only; for internal incidents use assign_incident and "
+        "manage_incident_comment; to resolve, ignore or reopen use resolve_public_incident, ignore_public_incident "
+        "or reopen_public_incident) Assign, or comment on, a public secret incident. Incident IDs here are NOT "
+        "interchangeable with internal incident IDs.",
         required_scopes=["incidents:write"],
         annotations=MANAGES_PUBLIC_INCIDENT,
     )
@@ -275,9 +285,62 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     )
 
     mcp.tool(
+        resolve_internal_incident,
+        description="(Internal incidents only; for Public Monitoring use resolve_public_incident) Resolve an internal secret incident. "
+        "secret_revoked must come from the user: ask whether the secret was revoked or rotated. Returns the "
+        "incident's new status and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        ignore_internal_incident,
+        description="(Internal incidents only; for Public Monitoring use ignore_public_incident) Ignore an internal secret incident. "
+        "The ignore_reason must come from the user: ask, do not choose. Returns the incident's new status and the "
+        "incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        reopen_internal_incident,
+        description="(Internal incidents only; for Public Monitoring use reopen_public_incident) Reopen a resolved or ignored "
+        "internal secret incident. Returns the incident's new status and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        resolve_public_incident,
+        description="(Public Monitoring only; for internal incidents use resolve_internal_incident) Resolve a public secret incident. "
+        "The resolve_reason must come from the user: ask, do not choose. Returns the incident's new status and the "
+        "incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        ignore_public_incident,
+        description="(Public Monitoring only; for internal incidents use ignore_internal_incident) Ignore a public secret incident. "
+        "The ignore_reason must come from the user: ask, do not choose. Returns the incident's new status and the "
+        "incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        reopen_public_incident,
+        description="(Public Monitoring only; for internal incidents use reopen_internal_incident) Reopen a resolved or ignored public "
+        "secret incident. Returns the incident's new status and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
         manage_private_incident,
-        description="(Internal sources only) Manage an internal secret incident (assign, unassign, resolve, ignore, reopen). "
-        "Does not work on public-monitoring incident IDs.",
+        description="(Internal sources only) Unassign an internal secret incident. To resolve, ignore or reopen it "
+        "use resolve_internal_incident, ignore_internal_incident or reopen_internal_incident; to assign it, assign_incident. Does not work on "
+        "public-monitoring incident IDs.",
         required_scopes=["incidents:write"],
         annotations=CHANGES_INCIDENT_STATE,
     )

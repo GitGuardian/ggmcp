@@ -65,6 +65,8 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
+    "ignore_internal_incident",
+    "ignore_public_incident",
     "list_incidents",
     "list_public_incidents",
     "list_public_occurrences",
@@ -73,6 +75,10 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "manage_incident_comment",
     "manage_private_incident",
     "manage_public_incident",
+    "reopen_internal_incident",
+    "reopen_public_incident",
+    "resolve_internal_incident",
+    "resolve_public_incident",
     "scan_secrets",
 }
 

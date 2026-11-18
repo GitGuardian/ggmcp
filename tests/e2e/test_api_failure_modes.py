@@ -76,23 +76,23 @@ ALREADY_IN_STATE_CALLS = [
         id="unassign",
     ),
     pytest.param(
-        "manage_private_incident",
+        "resolve_internal_incident",
         "/incidents/secrets/77/resolve",
-        {"incident_id": 77, "action": "resolve", "secret_revoked": False},
+        {"incident_id": 77, "secret_revoked": False},
         "Incident is already resolved.",
         id="resolve",
     ),
     pytest.param(
-        "manage_private_incident",
+        "ignore_internal_incident",
         "/incidents/secrets/77/ignore",
-        {"incident_id": 77, "action": "ignore", "ignore_reason": "test_credential"},
+        {"incident_id": 77, "ignore_reason": "test_credential"},
         "Incident is already ignored.",
         id="ignore",
     ),
     pytest.param(
-        "manage_private_incident",
+        "reopen_internal_incident",
         "/incidents/secrets/77/reopen",
-        {"incident_id": 77, "action": "reopen"},
+        {"incident_id": 77},
         "Incident is already open.",
         id="reopen",
     ),
@@ -450,7 +450,7 @@ class TestOneRecordPerFailure:
         mock_token_scopes(["scan"])
 
         with caplog.at_level(logging.WARNING):
-            await call_tool(mcp_client, "manage_private_incident", {"incident_id": 77, "action": "reopen"})
+            await call_tool(mcp_client, "reopen_internal_incident", {"incident_id": 77})
 
         outcomes = [r for r in caplog.records if r.getMessage().startswith("tool_call")]
         assert [(r.getMessage(), r.levelno) for r in outcomes] == [("tool_call_failed", logging.WARNING)]
@@ -474,7 +474,7 @@ class TestOneRecordPerFailure:
         ("tool", "arguments"),
         [
             pytest.param("get_incident", {"params": {"incident_id": 77}}, id="bad-arguments"),
-            pytest.param("manage_private_incident", {"incident_id": 77, "action": "ignore"}, id="deliberate-refusal"),
+            pytest.param("resolve_internal_incident", {"incident_id": 77}, id="deliberate-refusal"),
             pytest.param(
                 "get_gitguardian_resource", {"url": "https://[invalid/workspace/1/incidents/77"}, id="bad-link"
             ),

@@ -70,13 +70,13 @@ class TestTopLevelArguments:
 
     async def test_the_model_validators_still_run(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN manage_private_incident asked to resolve without saying whether the secret was revoked
+        GIVEN resolve_internal_incident called without saying whether the secret was revoked
         WHEN it runs
         THEN the model's validator blocks it before any API call
         """
         resolve = gg_api.post("/incidents/secrets/77/resolve").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "manage_private_incident", {"incident_id": 77, "action": "resolve"})
+        result = await call_tool(mcp_client, "resolve_internal_incident", {"incident_id": 77})
 
         assert "secret_revoked" in tool_error_text(result)
         assert not resolve.called
