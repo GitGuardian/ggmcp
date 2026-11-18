@@ -42,6 +42,13 @@ class GenerateHoneytokenResult(BaseModel):
     injection_recommendations: dict[str, Any] | None = Field(default=None, description="Injection recommendations")
 
 
+# Returned with every honeytoken, reused or created.
+INJECTION_RECOMMENDATIONS = {
+    "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, "
+    "or code comments to detect unauthorized access."
+}
+
+
 async def _most_recent_active_honeytoken(client: Any) -> dict[str, Any] | None:
     """Return the caller's most recent active honeytoken, or None when they have none.
 
@@ -97,7 +104,9 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
     if not params.new_token:
         existing = await _most_recent_active_honeytoken(client)
         if existing is not None:
-            return GenerateHoneytokenResult(**existing)
+            return GenerateHoneytokenResult.model_validate(
+                {**existing, "injection_recommendations": INJECTION_RECOMMENDATIONS}
+            )
 
     # Create a new honeytoken: requested, or the caller has none to reuse
     try:
@@ -114,12 +123,9 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         if not creation_result.get("id"):
             raise ToolError("Failed to get honeytoken ID from GitGuardian API")
 
-        # Add injection recommendations to the response
-        creation_result["injection_recommendations"] = {
-            "instructions": "Add the honeytoken to your codebase in configuration files, environment variables, or code comments to detect unauthorized access."
-        }
-
-        return GenerateHoneytokenResult(**creation_result)
+        return GenerateHoneytokenResult.model_validate(
+            {**creation_result, "injection_recommendations": INJECTION_RECOMMENDATIONS}
+        )
     except ToolError:
         raise
     except httpx.HTTPStatusError as e:
