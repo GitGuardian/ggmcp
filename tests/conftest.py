@@ -58,6 +58,7 @@ def mock_gitguardian_client():
         "gg_api_core.tools.list_public_occurrences",
         "gg_api_core.tools.list_internal_occurrences",
         "gg_api_core.tools.list_sources",
+        "gg_api_core.tools.members",
         "gg_api_core.tools.scan_secret",
     ]
 

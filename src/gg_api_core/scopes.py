@@ -29,6 +29,7 @@ DEFAULT_SCOPES = [
     "honeytokens:read",
     "honeytokens:write",
     "custom_tags:read",
+    "teams:read",
 ]
 
 # All available GitGuardian API scopes as per documentation
@@ -53,6 +54,7 @@ ALL_SCOPES = [
     "members:read",
     "secrets:write",
     "secrets:read",
+    "teams:read",
 ]
 
 # Self-hosted releases are delayed compared to SaaS, so an API scope available in SaaS may not be already available

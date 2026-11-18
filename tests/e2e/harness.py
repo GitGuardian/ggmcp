@@ -43,6 +43,7 @@ EXPECTED_SCOPES = [
     "members:read",
     "secrets:write",
     "secrets:read",
+    "teams:read",
 ]
 
 # The scopes the server asks for. Kept independent from ``gg_api_core.scopes.DEFAULT_SCOPES``
@@ -56,6 +57,7 @@ EXPECTED_REQUESTED_SCOPES = [
     "honeytokens:read",
     "honeytokens:write",
     "custom_tags:read",
+    "teams:read",
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {
@@ -72,6 +74,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "generate_honeytoken",
     "get_gitguardian_resource",
     "get_internal_incident",
+    "get_member",
     "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
@@ -79,8 +82,11 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "ignore_public_incident",
     "list_custom_tags",
     "list_internal_incident_locations",
+    "list_internal_incident_members",
+    "list_internal_incident_teams",
     "list_internal_incidents",
     "list_internal_occurrences",
+    "list_members",
     "list_public_incidents",
     "list_public_occurrences",
     "list_sources",

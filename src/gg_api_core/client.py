@@ -1838,6 +1838,53 @@ class GitGuardianClient:
         payload = {"locations": [{"issue_id": incident_id, "location_ids": location_ids}]}
         return await self._request_post("/code-fix-requests", json=payload)
 
+    async def _list(
+        self, endpoint: str, params: dict[str, Any], per_page: int, cursor: str | None, get_all: bool
+    ) -> ListResponse | PaginatedResult:
+        """One page of a cursor-paginated endpoint, or every page up to the get_all budget."""
+        params = {key: value for key, value in params.items() if value is not None}
+        params["per_page"] = str(per_page)
+        if cursor:
+            params["cursor"] = cursor
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+        return await self._request_list(endpoint, params=params)
+
+    async def list_members(
+        self,
+        search: str | None = None,
+        access_level: str | None = None,
+        active: bool | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse | PaginatedResult:
+        """List the workspace's members. Wraps GET /v1/members."""
+        params = {
+            "search": search,
+            "access_level": access_level,
+            "active": None if active is None else str(active).lower(),
+        }
+        return await self._list("/members", params, per_page, cursor, get_all)
+
+    async def list_incident_members(
+        self,
+        incident_id: int,
+        search: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse | PaginatedResult:
+        """List the members who can see an internal incident. Wraps GET .../members."""
+        endpoint = f"/incidents/secrets/{incident_id}/members"
+        return await self._list(endpoint, {"search": search}, per_page, cursor, get_all)
+
+    async def list_incident_teams(
+        self, incident_id: int, per_page: int = 20, cursor: str | None = None, get_all: bool = False
+    ) -> ListResponse | PaginatedResult:
+        """List the teams that can see an internal incident. Wraps GET .../teams."""
+        return await self._list(f"/incidents/secrets/{incident_id}/teams", {}, per_page, cursor, get_all)
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 

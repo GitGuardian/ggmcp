@@ -57,6 +57,12 @@ from gg_api_core.tools.list_internal_occurrences import list_internal_occurrence
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_sources import list_sources
+from gg_api_core.tools.members import (
+    get_member,
+    list_internal_incident_members,
+    list_internal_incident_teams,
+    list_members,
+)
 from gg_api_core.tools.scan_secret import scan_secrets
 
 # Every tool talks only to the GitGuardian API, so none is open-world. Every hint is set,
@@ -405,6 +411,38 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "enabled. Opening pull requests is visible to the repositories' owners: confirm with the user first.",
         required_scopes=["incidents:write"],
         annotations=REQUESTS_CODE_FIX,
+    )
+
+    mcp.tool(
+        list_members,
+        description="List the workspace's members, by name or email, role and activity: to find the member to "
+        "assign an incident to, or who a member ID is.",
+        required_scopes=["members:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        get_member,
+        description="Get one workspace member by ID, such as an incident's assignee_id: name, email, role and "
+        "whether the member is active.",
+        required_scopes=["members:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        list_internal_incident_members,
+        description="(Internal incidents only) List the members who can see an internal incident, with their "
+        "permission on it.",
+        required_scopes=["incidents:read", "members:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        list_internal_incident_teams,
+        description="(Internal incidents only) List the teams that can see an internal incident, with their "
+        "permission on it.",
+        required_scopes=["incidents:read", "teams:read"],
+        annotations=READ_ONLY,
     )
 
     mcp.tool(
