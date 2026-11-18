@@ -99,6 +99,8 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "resolve_internal_incident",
     "resolve_public_incident",
     "scan_secrets",
+    "set_internal_incident_severity",
+    "set_public_incident_severity",
     "unassign_internal_incident",
     "unassign_public_incident",
 }

@@ -1897,6 +1897,18 @@ class GitGuardianClient:
         params = {"search": search, "is_active": None if active is None else str(active).lower()}
         return await self._list("/secret_detectors", params, per_page, cursor, get_all)
 
+    async def set_incident_severity(self, incident_id: int, severity: str) -> dict[str, Any]:
+        """Set an internal secret incident's severity. Wraps PATCH /v1/incidents/secrets/{incident_id}."""
+        logger.info(f"Setting the severity of incident {incident_id} to {severity}")
+        return await self._request_patch(f"/incidents/secrets/{incident_id}", json={"severity": severity})
+
+    async def set_public_incident_severity(self, incident_id: int, severity: str) -> dict[str, Any]:
+        """Set a public secret incident's severity. Wraps POST .../set_severity."""
+        logger.info(f"Setting the severity of public incident {incident_id} to {severity}")
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/set_severity", json={"severity": severity}
+        )
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 

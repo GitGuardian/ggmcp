@@ -164,6 +164,8 @@ class TestScopeBasedToolVisibility:
             "edit_internal_incident_comment": changes_state,
             "edit_public_incident_comment": changes_state,
             "generate_honeytoken": adds,
+            "set_internal_incident_severity": changes_state,
+            "set_public_incident_severity": changes_state,
             "create_internal_incident_code_fix_request": adds,
             "add_internal_incident_custom_tag": {**adds, "idempotentHint": True},
             "add_public_incident_custom_tag": {**adds, "idempotentHint": True},

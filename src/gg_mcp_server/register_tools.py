@@ -45,6 +45,7 @@ from gg_api_core.tools.incident_locations import (
     create_internal_incident_code_fix_request,
     list_internal_incident_locations,
 )
+from gg_api_core.tools.incident_severity import set_internal_incident_severity, set_public_incident_severity
 from gg_api_core.tools.incident_status import (
     ignore_internal_incident,
     ignore_public_incident,
@@ -460,6 +461,24 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "enabled in the workspace.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        set_internal_incident_severity,
+        description="(Internal incidents only; for Public Monitoring use set_public_incident_severity) Set an "
+        "internal secret incident's severity. The severity must come from the user: ask, do not choose. Returns the "
+        "incident's severity now and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
+    )
+
+    mcp.tool(
+        set_public_incident_severity,
+        description="(Public Monitoring only; for internal incidents use set_internal_incident_severity) Set a "
+        "public secret incident's severity. The severity must come from the user: ask, do not choose. Returns the "
+        "incident's severity now and the incident.",
+        required_scopes=["incidents:write"],
+        annotations=CHANGES_INCIDENT_STATE,
     )
 
     mcp.tool(

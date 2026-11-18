@@ -53,6 +53,7 @@ def mock_gitguardian_client():
         "gg_api_core.tools.incident_comments",
         "gg_api_core.tools.incident_custom_tags",
         "gg_api_core.tools.incident_locations",
+        "gg_api_core.tools.incident_severity",
         "gg_api_core.tools.incident_status",
         "gg_api_core.tools.list_internal_incidents",
         "gg_api_core.tools.list_public_incidents",
