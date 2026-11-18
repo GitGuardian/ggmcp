@@ -211,12 +211,12 @@ class TestDescriptions:
         """
         assert [name for name, tool in catalog.items() if not tool.get("description", "").strip()] == []
 
-    @pytest.mark.xfail(strict=True, reason="The instructions open with general text; the incident split comes later")
     async def test_the_instructions_open_with_the_internal_public_split(self, mcp_client, mock_token_scopes):
         """
         GIVEN the server instructions
         WHEN their first 512 characters are read
-        THEN they name both incident kinds, so a client that shows only the start still gives the model the split
+        THEN they name both incident kinds and the tool that tells them apart, so a client that shows only the
+             start still gives the model the split
         """
         initialize = {
             "protocolVersion": "2025-06-18",
@@ -225,3 +225,4 @@ class TestDescriptions:
         }
         head = rpc_result(await rpc(mcp_client, "initialize", initialize))["instructions"][:INSTRUCTIONS_HEAD]
         assert "internal" in head.lower() and "public" in head.lower()
+        assert "get_gitguardian_resource" in head

@@ -70,69 +70,22 @@ CREATES_HONEYTOKEN = ToolAnnotations(
 )
 
 GITGUARDIAN_INSTRUCTIONS = """
-# GitGuardian MCP Tools
+GitGuardian finds secrets in code and tracks each leak as an incident. Incidents are
+internal, from the sources the workspace integrates (Git repositories, Slack, Jira,
+registries), or public, found by Public Monitoring (public GitHub, gists, Docker Hub). The
+two kinds have separate IDs, and each tool's name says its kind. Use the public tools for
+leaks outside the organization, the internal ones otherwise. For an incident link, or an
+ID of unknown kind, call get_gitguardian_resource first.
 
-This server exposes GitGuardian's secret detection, incident management, and
-honeytoken capabilities through MCP. Tools require specific API token scopes;
-tools whose scopes the current token does not satisfy are hidden automatically.
-If a tool you expect is missing, your token is likely missing the required
-scope — re-authenticate or issue a new token rather than substituting another
-tool.
-
-## Incident links and IDs
-
-Start with `get_gitguardian_resource` when the user gives a GitGuardian incident link, or an
-incident ID without saying whether it is internal or public. It works out which kind of
-incident it is and fetches it. A link must belong to this server's configured instance and
-the token's workspace; for a share-token link, ask for the authenticated dashboard link.
-
-## Two incident categories — pick the right tool
-
-GitGuardian surfaces two distinct, non-overlapping categories of secret incidents:
-
-- **Internal incidents** — detected in sources the workspace has explicitly integrated:
-  private/org Git repos, Slack, Jira, Confluence, container registries, SharePoint, etc.
-  Identified by a `source_id`. Default category for most customer workflows.
-  Read tools: `list_internal_incidents`, `count_internal_incidents`, `get_internal_incident`, `list_internal_occurrences`,
-  `list_sources`.
-  Write tools: `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`,
-  `assign_internal_incident`, `unassign_internal_incident`, `add_internal_incident_comment`,
-  `edit_internal_incident_comment`.
-- **Public incidents** — detected by GitGuardian Public Monitoring on the worldwide public
-  perimeter: public GitHub repos/gists, Docker Hub, etc. Not linked to a workspace source.
-  Read tools: `list_public_incidents`, `get_public_incident`, `list_public_occurrences`.
-  Write tools: `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident`,
-  `assign_public_incident`, `unassign_public_incident`, `add_public_incident_comment`,
-  `edit_public_incident_comment`.
-
-Incident IDs are **not** interchangeable between the two categories. If the user's intent is
-about leaks "on public GitHub / outside the org / on Docker Hub / found by Public Monitoring",
-use the `list_public_*` tools. Otherwise default to the internal tools. Invoking an internal
-write tool with a public incident ID (or vice versa) will silently 404.
-
-## Capabilities
-
-1. **Proactive Secret Scanning** (`scan_secrets`) — detect secrets in code before they're
-   committed. Use to prevent accidental secret commits.
-
-2. **Incident Management** — list and filter incidents (internal and public); resolve,
-   ignore, reopen, assign, unassign, and comment on either kind.
-
-3. **Repository Analysis** — drill into a specific repository's occurrences with file paths,
-   line numbers, and character indices.
-
-4. **Remediation** — follow the triage-incidents skill when available and call
-   `get_remediation_workflow` for the workspace's instructions.
-
-5. **Honeytokens** — generate honeytokens with `generate_honeytoken`.
-
-6. **Identity** — `get_my_identity` says who the token belongs to, their role, and the token's
-   scopes and expiry. Use it when a call is refused for permissions.
-
-## Behavioural notes
-
-- If a prompt is asking to filter results for the current user, you MUST use the `mine`
-  parameter. Examples: "list incidents assigned to me", "list my incidents".
+- Resolving and ignoring take an answer only the user has: whether the secret was revoked,
+  or why the incident is resolved or ignored. Ask; never choose one.
+- For the user's own incidents ("my incidents", "assigned to me"), pass mine=true.
+- List tools return next_arguments: call the tool again with them for the next page.
+- A write result's changed=false means the incident already was in the requested state.
+- Tools the token's scopes do not allow are hidden. If one is missing, the user needs a
+  token with more scopes; get_my_identity shows the token's scopes and the user's role.
+- Scan code with scan_secrets before it is committed. To fix an incident, follow the steps
+  from get_remediation_workflow, and the triage-incidents skill when it is available.
 """
 
 
