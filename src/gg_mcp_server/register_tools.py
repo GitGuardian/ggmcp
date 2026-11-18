@@ -144,100 +144,101 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
     """
     mcp.tool(
         scan_secrets,
-        description="""
-        Scan multiple content items for secrets and policy breaks.
-
-        This tool allows you to scan multiple files or content strings at once for secrets and policy violations.
-        Each document must have a 'document' field and can optionally include a 'filename' field for better context.
-        Do not send documents that are not related to the codebase, only send files that are part of the codebase.
-        Do not send documents that are in the .gitignore file.
-
-        Every secret found is reported, including ones whose GitGuardian incident was already resolved
-        or ignored. Those policy breaks have is_excluded=true and an exclude_reason: the secret is still
-        present in the scanned content, so do not report the content as clean.
-        """,
+        description=(
+            "Scan file contents for secrets, before they are committed. Returns, for each document, the secrets "
+            "found in it (policy breaks). A secret whose incident was already resolved or ignored is still reported, with "
+            "is_excluded=true and an exclude_reason: it is still in the content, so do not report the content as clean."
+        ),
         required_scopes=["scan"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         list_internal_incidents,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_incidents) "
-        "List secret incidents detected in sources the workspace has integrated (private/org Git repos, Slack, Jira, "
-        "container registries, etc.) with advanced filtering including detector type, secret category, source criticality, "
-        "and public exposure. Filter by repository (via source_ids), detector type, severity, status "
-        "(TRIGGERED, ASSIGNED, RESOLVED, IGNORED), secret category, source criticality, public exposure, and more. "
-        "With mine=True, this tool only shows incidents assigned to the current user. "
-        "Each incident's secret and displayed occurrence are summarized; call get_internal_incident for an incident's full details.",
+        description=(
+            "(Internal incidents only; for Public Monitoring use list_public_incidents) List the secret incidents "
+            "found in the sources the workspace integrates: Git repositories, Slack, Jira, container registries and more. "
+            "Filters narrow by status, severity, validity, source, detector, tags and more; by default, ignored incidents, "
+            "low and info severities, invalid secrets and test files are left out. mine=true lists the incidents assigned "
+            "to the current user. Each incident's secret and occurrence are summarized; call get_internal_incident for the "
+            "full incident."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         count_internal_incidents,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub there is no equivalent count tool) "
-        "Count internal secret incidents matching the given filters without fetching the full list. "
-        "Accepts the same filters as list_internal_incidents (status, severity, detector type, source, tags, etc.) "
-        "but returns only the total count. Useful for getting an overview of incident volume or checking filter results before paginating.",
+        description=(
+            "(Internal incidents only; Public Monitoring has no count tool) Count the internal incidents that "
+            "match the filters list_internal_incidents takes, with the same defaults, without listing them."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         list_internal_occurrences,
-        description="(Internal sources only — for public GitHub/gists/Docker Hub use list_public_occurrences) "
-        "List secret occurrences for an internal repository (source_id) or incident (incident_id) with exact match locations. "
-        "Returns detailed occurrence data including file paths, line numbers, and character indices where secrets were detected. "
-        "To get every page, call again with next_arguments until has_more is false. To enumerate every known occurrence of one incident, "
-        "pass incident_id, omit source_id, and set tags, exclude_tags, status, severity, and validity to []. "
-        "Use get_internal_incident for incident metadata and get_remediation_workflow for remediation instructions.",
+        description=(
+            "(Internal incidents only; for Public Monitoring use list_public_occurrences) List where secrets "
+            "were found, with file paths, lines and character positions, in one source (source_id) or for one incident "
+            "(incident_id). By default, occurrences of ignored incidents, low and info severities, invalid secrets and test "
+            "files are left out; to list every occurrence of one incident, pass incident_id and [] for tags, exclude_tags, "
+            "status, severity and validity."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         list_public_incidents,
-        description="(Public Monitoring only — for internal sources use list_internal_incidents) "
-        "List public secret incidents detected by GitGuardian Public Monitoring on the worldwide public perimeter "
-        "(public GitHub repositories, public GitHub gists, Docker Hub, etc.). Use this when investigating secrets "
-        "leaked outside the organization perimeter. Incident IDs here are NOT interchangeable with internal incident IDs.",
+        description=(
+            "(Public Monitoring only; for internal incidents use list_internal_incidents) List the incidents "
+            "Public Monitoring found outside the organization: public GitHub repositories and gists, Docker Hub and other "
+            "public sources. By default, ignored incidents, low and info severities and invalid secrets are left out."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         get_public_incident,
-        description="(Public Monitoring only — for internal sources use get_internal_incident) "
-        "Retrieve a single public secret incident by id, with detector, status, severity, "
-        "validity, risk_score, tags, timestamps, assignee, and share_url. Incident IDs here "
-        "are NOT interchangeable with internal incident IDs.",
+        description=(
+            "(Public Monitoring only; for internal incidents use get_internal_incident) Get one public incident: "
+            "its detector, status, severity, validity, risk score, tags, dates and assignee."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         list_public_occurrences,
-        description="(Public Monitoring only — for internal sources use list_internal_occurrences) "
-        "List occurrences of a specific public secret incident detected by GitGuardian Public Monitoring on "
-        "public sources, including filepath, commit sha, source repository, actor, and attachment reasons. "
-        "Use this after list_public_incidents to drill into a specific public incident.",
+        description=(
+            "(Public Monitoring only; for internal incidents use list_internal_occurrences) List where a public "
+            "incident's secret was found: file path, commit, repository, author, and why it was attached to the incident."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         generate_honeytoken,
-        description="Generate an AWS GitGuardian honeytoken and get injection recommendations. "
-        "Honeytoken names must be unique among the workspace's active honeytokens.",
+        description=(
+            "Get an AWS honeytoken to plant as a decoy, with advice on where to put it. Without new_token, "
+            "returns your most recent active honeytoken rather than creating one. Names must be unique among the "
+            "workspace's active honeytokens."
+        ),
         required_scopes=["honeytokens:write"],
         annotations=CREATES_HONEYTOKEN,
     )
 
     mcp.tool(
         list_sources,
-        description="(Internal perimeter only) List sources (repositories, integrations) the workspace monitors — "
-        "private/org Git repos, Slack, Jira, container registries, etc. Filter by type, health, visibility, criticality, "
-        "and scan status. The worldwide public perimeter scanned by Public Monitoring is not represented here.",
+        description=(
+            "(Internal incidents only) List the sources the workspace monitors: Git repositories, Slack, Jira, "
+            "container registries and other integrations, by type, health, visibility, criticality, team or scan status. "
+            "Public Monitoring's sources are not listed."
+        ),
         required_scopes=["sources:read"],
         annotations=READ_ONLY,
     )
@@ -257,19 +258,22 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
 
     mcp.tool(
         get_internal_incident,
-        description="(Internal sources only - for public GitHub/gists/Docker Hub incidents use get_public_incident)"
-        "Retrieve a specific internal secret incident by its ID with detailed information including occurrences, "
-        "detector info, assignee details, and custom tags. Set with_history to also get its comments and the "
-        "record of its status changes and assignments.",
+        description=(
+            "(Internal incidents only; for Public Monitoring use get_public_incident) Get one internal incident: "
+            "its detector, status, severity, assignee and tags, and up to with_occurrences of its occurrences; "
+            "occurrences_count gives how many it has. with_history adds its comments and the record of its status changes "
+            "and assignments."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 
     mcp.tool(
         get_remediation_workflow,
-        description="Retrieve the workspace remediation workflow — the ordered, step-by-step guidance shown for secret "
-        "incidents. Returns the configured custom workflow if one exists, otherwise the default workflow. Use this to "
-        "remediate an incident following the same instructions a human sees in the dashboard.",
+        description=(
+            "Get the workspace's remediation workflow: the ordered steps the dashboard shows for fixing a "
+            "secret incident, the workspace's own if it has one, otherwise the default."
+        ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
