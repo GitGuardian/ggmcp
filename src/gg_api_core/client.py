@@ -1800,6 +1800,44 @@ class GitGuardianClient:
             return await self.paginate_all("/custom_tags", params)
         return await self._request_list("/custom_tags", params=params)
 
+    async def list_incident_locations(
+        self,
+        incident_id: int,
+        source_id: int | None = None,
+        active: bool | None = None,
+        search: str | None = None,
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse | PaginatedResult:
+        """List the files that still hold an internal incident's secret.
+
+        Wraps GET /v1/incidents/secrets/{incident_id}/locations: one location per file of
+        one source, on the source's default branch, with the matches and remediation PRs.
+        """
+        params: dict[str, Any] = {"per_page": str(per_page)}
+        if source_id is not None:
+            params["source"] = str(source_id)
+        if active is not None:
+            params["active"] = str(active).lower()
+        if search:
+            params["search"] = search
+        if cursor:
+            params["cursor"] = cursor
+        endpoint = f"/incidents/secrets/{incident_id}/locations"
+        if get_all:
+            return await self.paginate_all(endpoint, params)
+        return await self._request_list(endpoint, params=params)
+
+    async def create_code_fix_request(self, incident_id: int, location_ids: list[int]) -> dict[str, Any]:
+        """Ask GitGuardian to open pull requests that remove an incident's secret from these locations.
+
+        Wraps POST /v1/code-fix-requests with one incident.
+        """
+        logger.info(f"Requesting a code fix for incident {incident_id} at {len(location_ids)} locations")
+        payload = {"locations": [{"issue_id": incident_id, "location_ids": location_ids}]}
+        return await self._request_post("/code-fix-requests", json=payload)
+
     async def unassign_public_incident(self, incident_id: str) -> dict[str, Any]:
         """Unassign a public secret incident.
 

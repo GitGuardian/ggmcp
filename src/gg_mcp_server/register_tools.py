@@ -40,6 +40,10 @@ from gg_api_core.tools.incident_custom_tags import (
     remove_internal_incident_custom_tag,
     remove_public_incident_custom_tag,
 )
+from gg_api_core.tools.incident_locations import (
+    create_internal_incident_code_fix_request,
+    list_internal_incident_locations,
+)
 from gg_api_core.tools.incident_status import (
     ignore_internal_incident,
     ignore_public_incident,
@@ -75,6 +79,11 @@ EDITS_COMMENT = ToolAnnotations(
 ADDS_TAG = ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=True, open_world_hint=False)
 # Removing a tag deletes it from the incident; removing it again changes nothing.
 REMOVES_TAG = ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False)
+# A code fix request opens pull requests and changes nothing that exists; GitGuardian refuses
+# a second request for locations already being fixed.
+REQUESTS_CODE_FIX = ToolAnnotations(
+    read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
+)
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
     read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=False
@@ -377,6 +386,25 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         description="List the custom tags defined in the workspace, with their IDs, keys and values.",
         required_scopes=["custom_tags:read"],
         annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        list_internal_incident_locations,
+        description="(Internal incidents only) List the files that still hold an internal incident's secret, one "
+        "location per file of a source, on its default branch: the lines of each match, and the pull requests "
+        "already opened to fix it. These are the places to remediate, and their IDs are what "
+        "create_internal_incident_code_fix_request takes.",
+        required_scopes=["incidents:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        create_internal_incident_code_fix_request,
+        description="(Internal incidents only) Ask GitGuardian to open pull requests that remove an internal "
+        "incident's secret from the given locations, one pull request per source. The workspace must have code fixes "
+        "enabled. Opening pull requests is visible to the repositories' owners: confirm with the user first.",
+        required_scopes=["incidents:write"],
+        annotations=REQUESTS_CODE_FIX,
     )
 
     mcp.tool(
