@@ -22,7 +22,6 @@ from tests.e2e.harness import (
     token_info,
     tool_error_text,
     tool_output,
-    unwrap_result,
 )
 
 INCIDENT = {"id": 77, "status": "TRIGGERED", "severity": "high", "detector": {"name": "aws_iam"}}
@@ -62,7 +61,7 @@ class TestListIncidents:
         result = await call_tool(mcp_client, "list_internal_incidents", {})
 
         assert sent_params(route) == DEFAULT_LIST_QUERY
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["incidents"] == [INCIDENT]
         assert output["page"] == 1
         assert output["page_size"] == 20
@@ -141,7 +140,7 @@ class TestListIncidents:
         result = await call_tool(mcp_client, "list_internal_incidents", {"get_all": True})
 
         assert route.call_count == 2
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert [i["id"] for i in output["incidents"]] == [1, 2]
         assert output["has_more"] is False
         assert output["page"] == 2
@@ -164,8 +163,8 @@ class TestListIncidents:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        first = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
-        resumed = unwrap_result(
+        first = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
+        resumed = tool_output(
             await call_tool(
                 mcp_client, "list_internal_incidents", {"page": first["page"] + 1, "page_size": first["page_size"]}
             )
@@ -194,7 +193,7 @@ class TestListIncidents:
             )
         )
 
-        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
+        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
 
         assert [i["id"] for i in output["incidents"]] == list(range(1, MAX_PAGINATION_PAGES + 1))
         assert output["has_more"] is True
@@ -229,7 +228,7 @@ class TestListIncidents:
         """
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=500, note_bytes=3000))
 
-        output = unwrap_result(
+        output = tool_output(
             await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "page_size": 100})
         )
 
@@ -252,7 +251,7 @@ class TestListIncidents:
         seen: list[int] = []
         arguments = {"get_all": True, "page_size": 100}
         for _ in range(10):
-            output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", arguments))
+            output = tool_output(await call_tool(mcp_client, "list_internal_incidents", arguments))
             assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
             seen.extend(i["id"] for i in output["incidents"])
             if not output["has_more"]:
@@ -275,7 +274,7 @@ class TestListIncidents:
         """
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=200))
 
-        output = unwrap_result(
+        output = tool_output(
             await call_tool(
                 mcp_client, "list_internal_incidents", {"get_all": True, "page": page, "page_size": page_size}
             )
@@ -297,7 +296,7 @@ class TestListIncidents:
         """
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=10 if more else 5))
 
-        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"page_size": 5}))
+        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"page_size": 5}))
 
         assert output["has_more"] is more
         assert output["has_next"] is more
@@ -428,7 +427,7 @@ class TestSharedIncidentFilters:
         )
         assert sent_params(route) == {**pagination, **expected_query}
         # The existing echo omits zero occurrence/day floors even though the API receives them.
-        assert unwrap_result(result)["applied_filters"] == expected_echo
+        assert tool_output(result)["applied_filters"] == expected_echo
 
     async def test_mine_conflicting_with_assignee_id_short_circuits(
         self, mcp_client, gg_api, mock_token_scopes, tool_name
@@ -479,7 +478,7 @@ class TestCountIncidents:
         result = await call_tool(mcp_client, "count_internal_incidents", {"mine": True})
 
         assert sent_params(route)["assignee_member_id"] == str(TEST_MEMBER_ID)
-        assert unwrap_result(result)["count"] == 2
+        assert tool_output(result)["count"] == 2
 
 
 class TestGetIncident:
@@ -653,7 +652,7 @@ class TestListRepoOccurrences:
         assert params["exclude_tags"] == (
             "TEST_FILE,FALSE_POSITIVE,CHECK_RUN_SKIP_FALSE_POSITIVE,CHECK_RUN_SKIP_LOW_RISK,CHECK_RUN_SKIP_TEST_CRED"
         )
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["occurrences"] == [occurrence]
         assert output["occurrences_count"] == 1
         assert output["cursor"] == "cD0yMDI2=="
@@ -717,10 +716,10 @@ class TestListRepoOccurrences:
             "per_page": 100,
             "get_all": False,
         }
-        first = unwrap_result(await call_tool(mcp_client, tool_name, filters))
+        first = tool_output(await call_tool(mcp_client, tool_name, filters))
         assert first["has_more"] is True
         assert first["occurrences_count"] == 100
-        second = unwrap_result(await call_tool(mcp_client, tool_name, {**filters, "cursor": first["cursor"]}))
+        second = tool_output(await call_tool(mcp_client, tool_name, {**filters, "cursor": first["cursor"]}))
         assert second["has_more"] is False
         assert second["cursor"] is None
         assert second["occurrences_count"] == 50
@@ -753,7 +752,7 @@ class TestListRepoOccurrences:
         params = {"source_id": 55, "get_all": True}
         returned = []
         for _ in range(3):
-            output = unwrap_result(await call_tool(mcp_client, "list_internal_occurrences", params))
+            output = tool_output(await call_tool(mcp_client, "list_internal_occurrences", params))
             returned.extend(output["occurrences"])
             if not output["has_more"]:
                 break
@@ -781,7 +780,7 @@ class TestListRepoOccurrences:
             ]
         )
 
-        output = unwrap_result(
+        output = tool_output(
             await call_tool(mcp_client, "list_internal_occurrences", {"source_id": 55, "get_all": True})
         )
 
@@ -875,7 +874,7 @@ class TestIncidentSummariesInLists:
         """
         gg_api.get("/incidents-for-mcp").respond(200, json={"results": [_full_incident(7)], "next": None})
 
-        (incident,) = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {}))["incidents"]
+        (incident,) = tool_output(await call_tool(mcp_client, "list_internal_incidents", {}))["incidents"]
 
         assert {k: incident[k] for k in ("id", "status", "severity", "score", "occurrences_count", "hash")} == {
             "id": 7,
@@ -943,7 +942,7 @@ class TestIncidentSummariesInLists:
             side_effect=lambda request: httpx.Response(200, json=pages[request.url.params["page"]])
         )
 
-        output = unwrap_result(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
+        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True}))
 
         assert [i["id"] for i in output["incidents"]] == [1, 2, 3]
         assert output["has_more"] is False

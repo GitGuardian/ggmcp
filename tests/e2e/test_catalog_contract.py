@@ -21,13 +21,6 @@ INSTRUCTIONS_HEAD = 512
 
 # Tools that still break a rule. Remove a tool once it follows the rule.
 LOOSE_NESTED_OBJECTS = {"scan_secrets"}
-WRAPPED_OUTPUT = {
-    "count_internal_incidents",
-    "list_internal_incidents",
-    "list_public_incidents",
-    "list_public_occurrences",
-    "list_internal_occurrences",
-}
 MISSING_HINTS = {
     "count_internal_incidents",
     "get_gitguardian_resource",
@@ -173,10 +166,9 @@ class TestOutputs:
         """
         GIVEN the full tool catalog
         WHEN each output schema is read
-        THEN none wraps the output in a generic result key, except the tools still listed in WRAPPED_OUTPUT
+        THEN none wraps the output in a generic result key
         """
-        wrapped = {name for name, tool in catalog.items() if tool["outputSchema"].get("x-fastmcp-wrap-result")}
-        assert wrapped == WRAPPED_OUTPUT
+        assert [name for name, tool in catalog.items() if tool["outputSchema"].get("x-fastmcp-wrap-result")] == []
 
     async def test_outputs_name_their_fields(self, catalog):
         """

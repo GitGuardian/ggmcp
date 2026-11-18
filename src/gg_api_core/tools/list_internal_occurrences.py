@@ -182,17 +182,9 @@ def _build_suggestion(params: ListRepoOccurrencesParams, occurrences_count: int)
     return "\n".join(suggestions) if suggestions else ""
 
 
-# Stays in the tool's return type so its output schema, and the result wrapper
-# that schema implies, are unchanged. The tool raises instead of returning it.
-class ListRepoOccurrencesError(BaseModel):
-    """Error result from listing repository occurrences."""
-
-    error: str = Field(description="Error message")
-
-
 async def list_internal_occurrences(
     params: ListRepoOccurrencesParams = ListRepoOccurrencesParams(),
-) -> ListRepoOccurrencesResult | ListRepoOccurrencesError:
+) -> ListRepoOccurrencesResult:
     """List secret occurrences for a repository or incident using the GitGuardian v1/occurrences/secrets API.
 
     Args:

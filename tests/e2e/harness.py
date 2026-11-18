@@ -160,9 +160,7 @@ async def call_tool(
 def tool_output(result: dict[str, Any]) -> Any:
     """Extract a successful tool call's output from a CallToolResult, verbatim.
 
-    Use for tools whose output shape is asserted exactly; use
-    :func:`unwrap_result` for union-typed tools whose output FastMCP wraps
-    in a ``result`` envelope.
+    The structured content and the text content must carry the same output.
     """
     assert result.get("isError") is not True, result
     content = result.get("content")
@@ -171,24 +169,9 @@ def tool_output(result: dict[str, Any]) -> Any:
     text_content = json.loads(content[0]["text"])
 
     if "structuredContent" in result:
-        structured_content = result["structuredContent"]
-        if result.get("_meta", {}).get("fastmcp", {}).get("wrap_result") is True:
-            assert structured_content == {"result": text_content}
-        else:
-            assert structured_content == text_content
-        return structured_content
+        assert result["structuredContent"] == text_content
+        return result["structuredContent"]
     return text_content
-
-
-def unwrap_result(result: dict[str, Any]) -> Any:
-    """Tool output minus the ``result`` envelope FastMCP adds for union-typed tools.
-
-    Asserts the envelope is present so a change in FastMCP's wire shape for
-    union-typed tools fails loudly instead of being silently absorbed.
-    """
-    output = tool_output(result)
-    assert isinstance(output, dict) and set(output) == {"result"}, output
-    return output["result"]
 
 
 def tool_error_text(result: dict[str, Any]) -> str:

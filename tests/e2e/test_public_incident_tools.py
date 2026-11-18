@@ -15,7 +15,6 @@ from tests.e2e.harness import (
     sent_params,
     tool_error_text,
     tool_output,
-    unwrap_result,
 )
 
 PUBLIC_INCIDENT = {"id": 103, "status": "TRIGGERED", "detector": {"name": "slackbot_token"}}
@@ -45,7 +44,7 @@ class TestListPublicIncidents:
             "validity": "valid,failed_to_check,no_checker,unknown",
             "ordering": "-date,-id",
         }
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["incidents"] == [PUBLIC_INCIDENT]
         assert output["incidents_count"] == 1
         assert output["has_more"] is False
@@ -130,7 +129,7 @@ class TestListPublicIncidents:
         params = sent_params(route)
         assert params["cursor"] == "cD0x"
         assert params["per_page"] == "1"
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["cursor"] == "cD0y"
         assert output["has_more"] is True
 
@@ -158,7 +157,7 @@ class TestListPublicIncidents:
 
         assert route.call_count == 2
         assert dict(route.calls[1].request.url.params)["cursor"] == "cD01"
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["incidents"] == [PUBLIC_INCIDENT, second]
         assert output["has_more"] is False
 
@@ -206,7 +205,7 @@ class TestListPublicOccurrences:
 
         assert_authenticated_request(route)
         assert sent_params(route) == {"per_page": "20", "ordering": "-date,-id"}
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["occurrences"] == [PUBLIC_OCCURRENCE]
         assert output["occurrences_count"] == 1
         assert output["has_more"] is False
@@ -276,7 +275,7 @@ class TestListPublicOccurrences:
 
         assert route.call_count == 2
         assert dict(route.calls[1].request.url.params)["cursor"] == "cD0x"
-        output = unwrap_result(result)
+        output = tool_output(result)
         assert output["occurrences"] == [PUBLIC_OCCURRENCE, second]
         assert output["has_more"] is False
 

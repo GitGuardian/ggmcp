@@ -9,7 +9,7 @@ import random
 import httpx
 import pytest
 
-from tests.e2e.harness import call_tool, sent_params, unwrap_result
+from tests.e2e.harness import call_tool, sent_params, tool_output
 
 # (tool, arguments, endpoint, key holding the items)
 CURSOR_TOOLS = [
@@ -70,7 +70,7 @@ async def test_paging_through_tied_items_returns_each_once(
     seen: list[int] = []
     call_arguments = {**arguments, "per_page": 10}
     for _ in range(5):
-        output = unwrap_result(await call_tool(mcp_client, tool, call_arguments))
+        output = tool_output(await call_tool(mcp_client, tool, call_arguments))
         seen.extend(item["id"] for item in output[items_key])
         if not output["has_more"]:
             break

@@ -258,17 +258,9 @@ def _build_filter_info(params: ListPublicIncidentsParams) -> dict[str, Any]:
     return filters
 
 
-# Stays in the tool's return type so its output schema, and the result wrapper
-# that schema implies, are unchanged. The tool raises instead of returning it.
-class ListPublicIncidentsError(BaseModel):
-    """Error result from listing public secret incidents."""
-
-    error: str = Field(description="Error message")
-
-
 async def list_public_incidents(
     params: ListPublicIncidentsParams = ListPublicIncidentsParams(),
-) -> ListPublicIncidentsResult | ListPublicIncidentsError:
+) -> ListPublicIncidentsResult:
     """List public secret incidents detected by GitGuardian on public sources (e.g. public GitHub).
 
     Args:

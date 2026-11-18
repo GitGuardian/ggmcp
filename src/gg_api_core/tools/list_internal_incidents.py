@@ -203,17 +203,9 @@ class ListIncidentsResult(BaseModel):
     suggestion: str = Field(default="", description="Suggestions for interpreting or modifying the results")
 
 
-# Stays in the tool's return type so its output schema, and the result wrapper
-# that schema implies, are unchanged. The tool raises instead of returning it.
-class ListIncidentsError(BaseModel):
-    """Error result from listing incidents."""
-
-    error: str = Field(description="Error message")
-
-
 async def list_internal_incidents(
     params: ListIncidentsParams = ListIncidentsParams(),
-) -> ListIncidentsResult | ListIncidentsError:
+) -> ListIncidentsResult:
     """List secret incidents with enhanced filtering using the MCP-optimized endpoint.
 
     Args:

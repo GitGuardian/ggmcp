@@ -26,17 +26,9 @@ class CountIncidentsResult(BaseModel):
     applied_filters: dict[str, Any] = Field(default_factory=dict, description="Filters that were applied to the query")
 
 
-# Stays in the tool's return type so its output schema, and the result wrapper
-# that schema implies, are unchanged. The tool raises instead of returning it.
-class CountIncidentsError(BaseModel):
-    """Error result from counting incidents."""
-
-    error: str = Field(description="Error message")
-
-
 async def count_internal_incidents(
     params: CountIncidentsParams = CountIncidentsParams(),
-) -> CountIncidentsResult | CountIncidentsError:
+) -> CountIncidentsResult:
     """Count secret incidents matching the given filters.
 
     Args:
