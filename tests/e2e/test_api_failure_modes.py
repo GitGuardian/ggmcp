@@ -8,7 +8,7 @@ from http import HTTPStatus
 import httpx
 import pytest
 
-from tests.e2e.harness import call_tool, rpc, tool_error_text
+from tests.e2e.harness import call_tool, rpc, tool_error_text, tool_output
 
 INCIDENT = {"id": 77, "status": "TRIGGERED"}
 
@@ -60,12 +60,14 @@ async def test_a_rejected_token_on_a_list_call_triggers_reauthentication(
     assert "www-authenticate" in response.headers
 
 
+# (tool, endpoint, arguments, the API's 409 detail, the incident in the requested state)
 ALREADY_IN_STATE_CALLS = [
     pytest.param(
         "assign_internal_incident",
         "/incidents/secrets/77/assign",
         {"incident_id": 77, "assignee_member_id": 4242},
         "Incident already assigned to this user.",
+        {"id": 77, "status": "ASSIGNED", "assignee_id": 4242},
         id="assign",
     ),
     pytest.param(
@@ -73,6 +75,7 @@ ALREADY_IN_STATE_CALLS = [
         "/incidents/secrets/77/unassign",
         {"incident_id": 77},
         "Incident not assigned.",
+        {"id": 77, "status": "TRIGGERED", "assignee_id": None},
         id="unassign",
     ),
     pytest.param(
@@ -80,6 +83,7 @@ ALREADY_IN_STATE_CALLS = [
         "/incidents/secrets/77/resolve",
         {"incident_id": 77, "secret_revoked": False},
         "Incident is already resolved.",
+        {"id": 77, "status": "RESOLVED"},
         id="resolve",
     ),
     pytest.param(
@@ -87,6 +91,7 @@ ALREADY_IN_STATE_CALLS = [
         "/incidents/secrets/77/ignore",
         {"incident_id": 77, "ignore_reason": "test_credential"},
         "Incident is already ignored.",
+        {"id": 77, "status": "IGNORED"},
         id="ignore",
     ),
     pytest.param(
@@ -94,6 +99,7 @@ ALREADY_IN_STATE_CALLS = [
         "/incidents/secrets/77/reopen",
         {"incident_id": 77},
         "Incident is already open.",
+        {"id": 77, "status": "TRIGGERED"},
         id="reopen",
     ),
 ]
@@ -118,22 +124,43 @@ class TestRefusalMessages:
         assert "internal and public incident IDs are not interchangeable" in text
         assert "Retrying will not help." in text
 
-    @pytest.mark.parametrize(("tool_name", "endpoint", "params", "detail"), ALREADY_IN_STATE_CALLS)
-    async def test_an_incident_already_in_the_requested_state_says_nothing_changed(
-        self, mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params, detail
+    @pytest.mark.parametrize(("tool_name", "endpoint", "params", "detail", "incident"), ALREADY_IN_STATE_CALLS)
+    async def test_an_incident_already_in_the_requested_state_is_a_verified_no_op(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params, detail, incident
     ):
         """
-        GIVEN the API answering 409 because the incident is already in the requested state
+        GIVEN the API answering 409, and the incident, read back, already in the requested state
         WHEN the write tool is called
-        THEN the tool error gives the API's reason and tells the agent not to retry
+        THEN it succeeds with changed=False and the incident as read back
         """
         gg_api.post(endpoint).respond(409, json={"detail": detail})
+        read_back = gg_api.get("/incidents/secrets/77").respond(200, json=incident)
+
+        result = await call_tool(mcp_client, tool_name, params)
+
+        output = tool_output(result)
+        assert read_back.called
+        assert output["changed"] is False
+        assert output["incident"] == incident
+
+    @pytest.mark.parametrize(("tool_name", "endpoint", "params", "detail", "incident"), ALREADY_IN_STATE_CALLS)
+    async def test_a_conflict_the_incident_does_not_explain_stands(
+        self, mcp_client, gg_api, mock_token_scopes, tool_name, endpoint, params, detail, incident
+    ):
+        """
+        GIVEN the API answering 409, and the incident, read back, not in the requested state
+        WHEN the write tool is called
+        THEN it fails with the API's reason, and does not claim the incident is already in that state
+        """
+        gg_api.post(endpoint).respond(409, json={"detail": detail})
+        gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77, "status": "SOMETHING_ELSE", "assignee_id": 1})
 
         result = await call_tool(mcp_client, tool_name, params)
 
         text = tool_error_text(result)
         assert f"GitGuardian API returned 409 Conflict: {detail}" in text
-        assert "Nothing was changed: the incident is already in the requested state. Do not retry." in text
+        assert "already in the requested state" not in text
+        assert "read the incident" in text
 
     async def test_a_non_json_refusal_is_reported_without_flooding_the_agent(
         self, mcp_client, gg_api, mock_token_scopes

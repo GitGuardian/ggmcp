@@ -167,7 +167,8 @@ _REFUSAL_GUIDANCE = {
         "It does not exist, or this account cannot access it: incidents outside the caller's teams also "
         "return 404, and internal and public incident IDs are not interchangeable. Retrying will not help."
     ),
-    409: "Nothing was changed: the incident is already in the requested state. Do not retry.",
+    409: "The API refused the change because of the incident's current state: read the incident to see that "
+    "state before trying again.",
 }
 # Public incidents come from Public Monitoring, which a workspace may not have. The
 # scope gate refuses calls without incidents:read, so a 403 here is the workspace's.

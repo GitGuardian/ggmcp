@@ -67,6 +67,7 @@ class TestHoneytokenReuse:
 
         assert tool_output(result)["id"] == "5b0d6f6e-6c2a-4f4b-9d0a-2f3c1e7a9b10"
         assert "honeytoken to your codebase" in tool_output(result)["injection_recommendations"]["instructions"]
+        assert tool_output(result)["reused"] is True
         assert not create.called
         # The API rejects any other casing of the status filter with a 400.
         params = lookup.calls.last.request.url.params
@@ -88,3 +89,4 @@ class TestHoneytokenReuse:
         assert create.called
         assert tool_output(result)["id"] == "8e1f2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b"
         assert "honeytoken to your codebase" in tool_output(result)["injection_recommendations"]["instructions"]
+        assert tool_output(result)["reused"] is False

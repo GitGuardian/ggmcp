@@ -88,6 +88,7 @@ async def test_each_tool_posts_to_its_endpoint(
         "incident_kind": kind,
         "incident_id": 42,
         "action": tool.split("_", 1)[0],
+        "changed": True,
         "status": status,
         "incident": incident,
     }

@@ -40,6 +40,10 @@ class GenerateHoneytokenResult(BaseModel):
     status: str | None = Field(default=None, description="Honeytoken status")
     token: dict[str, Any] | None = Field(default=None, description="Token details if show_token=True")
     injection_recommendations: dict[str, Any] | None = Field(default=None, description="Injection recommendations")
+    reused: bool = Field(
+        description="True when this is your most recent active honeytoken, returned instead of creating one; False "
+        "when this call created it"
+    )
 
 
 # Returned with every honeytoken, reused or created.
@@ -105,7 +109,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
         existing = await _most_recent_active_honeytoken(client)
         if existing is not None:
             return GenerateHoneytokenResult.model_validate(
-                {**existing, "injection_recommendations": INJECTION_RECOMMENDATIONS}
+                {**existing, "injection_recommendations": INJECTION_RECOMMENDATIONS, "reused": True}
             )
 
     # Create a new honeytoken: requested, or the caller has none to reuse
@@ -124,7 +128,7 @@ async def generate_honeytoken(params: GenerateHoneytokenParams) -> GenerateHoney
             raise ToolError("Failed to get honeytoken ID from GitGuardian API")
 
         return GenerateHoneytokenResult.model_validate(
-            {**creation_result, "injection_recommendations": INJECTION_RECOMMENDATIONS}
+            {**creation_result, "injection_recommendations": INJECTION_RECOMMENDATIONS, "reused": False}
         )
     except ToolError:
         raise

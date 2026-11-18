@@ -50,6 +50,7 @@ async def test_assign_posts_only_the_assignee(
         "incident_kind": kind,
         "incident_id": 42,
         "action": "assign",
+        "changed": True,
         "assignee_id": 7,
         "incident": incident,
     }
@@ -72,6 +73,7 @@ async def test_unassign_posts_without_a_body(mcp_client, gg_api, mock_token_scop
         "incident_kind": kind,
         "incident_id": 42,
         "action": "unassign",
+        "changed": True,
         "assignee_id": None,
         "incident": incident,
     }
