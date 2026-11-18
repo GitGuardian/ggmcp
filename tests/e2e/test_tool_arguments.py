@@ -38,7 +38,7 @@ class TestTopLevelArguments:
         schemas = await _tool_schemas(mcp_client)
 
         assert schemas["get_incident"]["required"] == ["incident_id"]
-        assert set(schemas["get_incident"]["properties"]) == {"incident_id", "with_occurrences"}
+        assert set(schemas["get_incident"]["properties"]) == {"incident_id", "with_occurrences", "with_history"}
         assert schemas["manage_private_incident"]["required"] == ["incident_id", "action"]
         assert schemas["scan_secrets"]["required"] == ["documents"]
         assert "required" not in schemas["list_incidents"]

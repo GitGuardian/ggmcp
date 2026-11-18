@@ -1219,6 +1219,27 @@ class GitGuardianClient:
             json={"comment": comment},
         )
 
+    async def list_incident_activity_logs(self, incident_id: int | str, per_page: int) -> ListResponse:
+        """List one page of an internal secret incident's activity log, newest first.
+
+        Wraps GET /v1/incidents/secrets/{incident_id}/activity-logs. The log holds the
+        incident's comments (``content.type`` "note") and its system actions, such as
+        status changes and assignments (``content.type`` "action"). The API lists it
+        oldest first unless asked otherwise, so a page would hold the oldest entries.
+
+        Args:
+            incident_id: ID of the secret incident
+            per_page: Number of entries to return (1-100)
+
+        Returns:
+            ListResponse with the entries, the next cursor and has_more
+        """
+        logger.info(f"Listing activity logs for incident {incident_id}")
+        return await self._request_list(
+            f"/incidents/secrets/{incident_id}/activity-logs",
+            params={"per_page": per_page, "ordering": "-created_at"},
+        )
+
     async def list_occurrences(
         self,
         from_date: str | None = None,

@@ -518,6 +518,103 @@ class TestGetIncident:
         assert sent_params(route) == {"with_occurrences": "0"}
 
 
+ACTIVITY_LOG = [
+    {"id": 2, "content": {"type": "note", "comment": "Rotating the key today"}},
+    {"id": 1, "content": {"type": "action", "content_key": "TRIGGER", "data": {}}},
+]
+
+
+class TestGetIncidentHistory:
+    async def test_history_is_not_read_unless_asked_for(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an incident id and no with_history
+        WHEN get_incident is called
+        THEN the activity log is not requested and the output has no history key
+        """
+        gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+        history_route = gg_api.get("/incidents/secrets/77/activity-logs").respond(200, json=ACTIVITY_LOG)
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77})
+
+        assert not history_route.called
+        assert tool_output(result) == {"incident": INCIDENT}
+
+    async def test_with_history_returns_the_activity_log_alongside_the_incident(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN an incident with two activity log entries
+        WHEN get_incident is called with with_history=true
+        THEN the 50 most recent entries are requested, newest first, and returned under history with has_more false
+        """
+        gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+        history_route = gg_api.get("/incidents/secrets/77/activity-logs").respond(200, json=ACTIVITY_LOG)
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+
+        assert sent_params(history_route) == {"per_page": "50", "ordering": "-created_at"}
+        assert tool_output(result) == {
+            "incident": INCIDENT,
+            "history": {"entries": ACTIVITY_LOG, "has_more": False, "unavailable_reason": None},
+        }
+
+    async def test_a_longer_history_says_more_entries_exist(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an activity log with a next page
+        WHEN get_incident is called with with_history=true
+        THEN history.has_more is true
+        """
+        gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+        gg_api.get("/incidents/secrets/77/activity-logs").respond(
+            200,
+            json=ACTIVITY_LOG,
+            headers={
+                "Link": '<https://api.gitguardian.com/v1/incidents/secrets/77/activity-logs?cursor=abc>; rel="next"'
+            },
+        )
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+
+        assert tool_output(result)["history"]["has_more"] is True
+
+    async def test_an_unreadable_history_still_returns_the_incident(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN an activity log the API refuses with a 403
+        WHEN get_incident is called with with_history=true
+        THEN the incident is returned, and history says why it could not be read
+        """
+        gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+        gg_api.get("/incidents/secrets/77/activity-logs").respond(403, json={"detail": "Insufficient permissions."})
+
+        result = await call_tool(mcp_client, "get_incident", {"incident_id": 77, "with_history": True})
+
+        output = tool_output(result)
+        assert output["incident"] == INCIDENT
+        assert output["history"]["entries"] == []
+        assert "403" in output["history"]["unavailable_reason"]
+        assert "Insufficient permissions." in output["history"]["unavailable_reason"]
+
+    async def test_a_rejected_token_on_the_history_asks_to_authenticate_again(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN a token the API rejects with a 401 on the activity log
+        WHEN get_incident is called with with_history=true
+        THEN the response asks the MCP client to authenticate again
+        """
+        gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
+        gg_api.get("/incidents/secrets/77/activity-logs").respond(401, json={"detail": "Invalid API key."})
+
+        response = await rpc(
+            mcp_client,
+            "tools/call",
+            {"name": "get_incident", "arguments": {"incident_id": 77, "with_history": True}},
+        )
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert "www-authenticate" in response.headers
+
+
 class TestListRepoOccurrences:
     async def test_occurrences_query_and_cursor_pagination(self, mcp_client, gg_api, mock_token_scopes):
         """

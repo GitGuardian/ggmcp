@@ -229,7 +229,8 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         get_incident,
         description="(Internal sources only - for public GitHub/gists/Docker Hub incidents use get_public_incident)"
         "Retrieve a specific internal secret incident by its ID with detailed information including occurrences, "
-        "detector info, assignee details, and custom tags.",
+        "detector info, assignee details, and custom tags. Set with_history to also get its comments and the "
+        "record of its status changes and assignments.",
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
