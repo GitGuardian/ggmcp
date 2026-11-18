@@ -4,10 +4,9 @@ Every tool is declared here with its ``required_scopes``. At runtime the
 ``ScopeFilteringMiddleware`` (see ``gg_api_core.mcp_server``) hides tools
 the current access token cannot satisfy.
 
-The tools below are the ten that carry real traffic plus the four that
-GitGuardian's published agent skills depend on (remediation workflow, public
-incidents, honeytokens). Their names and outputs are kept identical to the
-previous 38-tool server, so existing agents, prompts and skills keep working.
+The tools below cover secret scanning, incident management, remediation and
+honeytokens. The URL entry point routes incident links to the matching internal
+or Public Monitoring read endpoint.
 Each tool function takes one pydantic model, whose fields are the tool's
 top-level arguments (see ``gg_api_core.model_arguments``).
 """
@@ -18,6 +17,7 @@ from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.assign_incident import assign_incident
 from gg_api_core.tools.count_incidents import count_incidents
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
+from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
 from gg_api_core.tools.get_incident import get_incident
 from gg_api_core.tools.get_public_incident import get_public_incident
 from gg_api_core.tools.get_remediation_workflow import get_remediation_workflow
@@ -55,6 +55,13 @@ tools whose scopes the current token does not satisfy are hidden automatically.
 If a tool you expect is missing, your token is likely missing the required
 scope — re-authenticate or issue a new token rather than substituting another
 tool.
+
+## Incident links and IDs
+
+Start with `get_gitguardian_resource` when the user gives a GitGuardian incident link, or an
+incident ID without saying whether it is internal or public. It works out which kind of
+incident it is and fetches it. A link must belong to this server's configured instance and
+the token's workspace; for a share-token link, ask for the authenticated dashboard link.
 
 ## Two incident categories — pick the right tool
 
@@ -202,6 +209,19 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "private/org Git repos, Slack, Jira, container registries, etc. Filter by type, health, visibility, criticality, "
         "and scan status. The worldwide public perimeter scanned by Public Monitoring is not represented here.",
         required_scopes=["sources:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        get_gitguardian_resource,
+        description="Open a GitGuardian incident from a pasted link or a bare incident ID. Start here when the user "
+        "gives an incident link, or an incident ID without saying whether it is internal or public. "
+        "A dashboard or public API incident link is read as the internal or Public Monitoring incident it points to. "
+        "A bare ID is looked up as both, and the result says which matched, or that the ID is ambiguous. "
+        "Returns the incident with its kind, ID and dashboard link. A link to an incidents list points to the list "
+        "tools. Links for other instances or workspaces are refused; query strings and fragments are ignored; "
+        "share-token links are unsupported.",
+        required_scopes=["incidents:read"],
         annotations=READ_ONLY,
     )
 

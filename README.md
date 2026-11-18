@@ -18,6 +18,11 @@ backed by GitGuardian's 500+ detectors.
 - **Incident triage**: list, count and inspect internal incidents (`list_incidents`,
   `count_incidents`, `get_incident`), and drill into their exact locations
   (`list_repo_occurrences`, `list_sources`).
+- **Incident links and IDs**: open an incident from a pasted dashboard or public API
+  link, or from a bare incident ID (`get_gitguardian_resource`). It works out whether
+  the incident is internal or from Public Monitoring and returns its details. Links
+  must come from the configured instance and the token's workspace. For share links,
+  supply the authenticated dashboard link.
 - **Incident management**: assign, unassign, resolve, ignore, reopen, and comment
   on internal incidents (`assign_incident`, `manage_private_incident`,
   `manage_incident_comment`).
@@ -283,7 +288,7 @@ a single server-wide token.
   inside a `params` object, `{"params": {"incident_id": 123}}`. A call in the old
   shape is refused with an error that says so. MCP clients that read the tool list
   pick this up on their own.
-- The server now exposes the 14 tools listed in [What it does](#what-it-does).
+- The server now exposes the 15 tools listed in [What it does](#what-it-does).
   These tools were removed: `assign_public_incident`, `create_code_fix_request`,
   `find_current_source_id`, `get_authenticated_user_info`, `get_current_token_info`,
   `get_member`, `list_detectors`, `list_honeytokens`, `list_incident_activity_logs`,

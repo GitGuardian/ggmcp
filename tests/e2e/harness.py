@@ -60,6 +60,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "assign_incident",
     "count_incidents",
     "generate_honeytoken",
+    "get_gitguardian_resource",
     "get_incident",
     "get_public_incident",
     "get_remediation_workflow",
