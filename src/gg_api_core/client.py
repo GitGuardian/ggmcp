@@ -1248,8 +1248,8 @@ class GitGuardianClient:
 
     async def list_occurrences(
         self,
-        from_date: str | None = None,
-        to_date: str | None = None,
+        date_after: str | None = None,
+        date_before: str | None = None,
         source_id: str | None = None,
         presence: str | None = None,
         tags: list[str] | None = None,
@@ -1262,14 +1262,14 @@ class GitGuardianClient:
         validity: list[IncidentValidity] | None = None,
         status: list[IncidentStatus] | None = None,
         with_sources: bool | None = None,
-        member_assignee_id: int | None = None,
+        assignee_id: int | None = None,
         incident_id: int | None = None,
     ) -> ListResponse:
         """List secret occurrences with optional filtering and cursor-based pagination.
 
         Args:
-            from_date: Filter occurrences created after this date (ISO format: YYYY-MM-DD)
-            to_date: Filter occurrences created before this date (ISO format: YYYY-MM-DD)
+            date_after: Occurrences found after this date (ISO datetime)
+            date_before: Occurrences found before this date (ISO datetime)
             source_id: Filter by specific source ID
             presence: Filter by presence status
             tags: Filter by tags (list of tag names)
@@ -1282,7 +1282,7 @@ class GitGuardianClient:
             validity: Filter by validity (list of validity names)
             status: Filter by status (list of status names)
             with_sources: Whether to include source details in the response
-            member_assignee_id: Filter by the incident's assigned member
+            assignee_id: Filter by the member the incident is assigned to
             incident_id: Filter by a specific incident across sources
 
         Returns:
@@ -1292,10 +1292,10 @@ class GitGuardianClient:
 
         # Build parameters
         params = {}
-        if from_date:
-            params["from_date"] = from_date
-        if to_date:
-            params["to_date"] = to_date
+        if date_after:
+            params["date_after"] = date_after
+        if date_before:
+            params["date_before"] = date_before
         if source_id:
             params["source_id"] = source_id
         if presence:
@@ -1318,8 +1318,8 @@ class GitGuardianClient:
             params["status"] = ",".join(status)
         if with_sources is not None:
             params["with_sources"] = str(with_sources).lower()
-        if member_assignee_id is not None:
-            params["incident_assignee_id"] = str(member_assignee_id)
+        if assignee_id is not None:
+            params["incident_assignee_id"] = str(assignee_id)
         if incident_id is not None:
             params["incident_id"] = str(incident_id)
 

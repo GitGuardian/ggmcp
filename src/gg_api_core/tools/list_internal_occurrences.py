@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field, model_validator
@@ -55,15 +55,17 @@ class ListRepoOccurrencesFilters(BaseModel):
         "Other filters still apply; pass [] for tags, exclude_tags, status, severity, and validity "
         "to enumerate all known occurrences of that incident.",
     )
-    from_date: str | None = Field(
+    date_after: str | None = Field(
         default=None,
-        description="Filter occurrences created after this date (ISO format: YYYY-MM-DD)",
+        description="Occurrences found after this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)",
     )
-    to_date: str | None = Field(
+    date_before: str | None = Field(
         default=None,
-        description="Filter occurrences created before this date (ISO format: YYYY-MM-DD)",
+        description="Occurrences found before this date (ISO datetime, e.g. 2025-01-31T00:00:00Z)",
     )
-    presence: str | None = Field(default=None, description="Filter by presence status")
+    presence: Literal["present", "removed"] | None = Field(
+        default=None, description="Occurrences still present in their source, or removed from it"
+    )
     tags: list[str] | None = Field(default=None, description="Filter by tags (list of tag names)")
     exclude_tags: list[TagNames] | None = Field(
         default=DEFAULT_EXCLUDED_TAGS,
@@ -84,15 +86,15 @@ class ListRepoOccurrencesFilters(BaseModel):
         default=False,
         description="If True, fetch occurrences related to issues assigned to the current user",
     )
-    member_assignee_id: NumericId | None = Field(
-        default=None, description="Filter by the member the incident is assigned to"
+    assignee_id: NumericId | None = Field(
+        default=None, description="Occurrences whose incident is assigned to this member ID. Cannot be used with mine."
     )
 
     @model_validator(mode="after")
-    def validate_exactly_one_assignee_option(self):
-        """Validate that exactly one of member_assignee_id, or mine is provided."""
-        if self.member_assignee_id is not None and self.mine:
-            raise ValueError("Only one of assignee_member_id, or mine should be provided")
+    def validate_one_assignee_option(self):
+        """Refuse assignee_id together with mine."""
+        if self.assignee_id is not None and self.mine:
+            raise ValueError("give assignee_id or mine, not both")
         return self
 
 
@@ -103,7 +105,11 @@ class ListRepoOccurrencesBaseParams(BaseModel):
         default=None,
         description="The GitGuardian source ID to filter by. Can be obtained using the list_sources tool.",
     )
-    ordering: str | None = Field(default=None, description="Sort field (e.g., 'date', '-date' for descending)")
+    ordering: Literal["date", "-date"] | None = Field(
+        default=None,
+        description="Sort order: date, or -date for newest first. Unset, occurrences come in the order the API "
+        "returns them, by ID",
+    )
     page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
@@ -128,10 +134,10 @@ def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
     # Include all active filters
     if params.incident_id is not None:
         filters["incident_id"] = params.incident_id
-    if params.from_date:
-        filters["from_date"] = params.from_date
-    if params.to_date:
-        filters["to_date"] = params.to_date
+    if params.date_after:
+        filters["date_after"] = params.date_after
+    if params.date_before:
+        filters["date_before"] = params.date_before
     if params.presence:
         filters["presence"] = params.presence
     if params.tags:
@@ -146,8 +152,8 @@ def _build_filter_info(params: ListRepoOccurrencesParams) -> dict[str, Any]:
         filters["validity"] = [v.value if hasattr(v, "value") else v for v in params.validity]
     if params.mine:
         filters["mine"] = params.mine
-    if params.member_assignee_id:
-        filters["member_assignee_id"] = params.member_assignee_id
+    if params.assignee_id:
+        filters["assignee_id"] = params.assignee_id
 
     return filters
 
@@ -193,23 +199,23 @@ async def list_internal_occurrences(
     """
     client = await get_client()
 
-    member_assignee_id = params.member_assignee_id
+    assignee_id = params.assignee_id
     if params.mine:
         # Token info provides the member ID without requiring members:read.
         # Fail before querying occurrences if the caller cannot be identified.
         token_info = await client.get_current_token_info()
-        member_assignee_id = token_info.get("member_id")
-        if member_assignee_id is None:
+        assignee_id = token_info.get("member_id")
+        if assignee_id is None:
             raise ToolError(
                 "mine=True requires a personal token with a member_id. "
-                "Use member_assignee_id to select an assignee with a service token."
+                "Use assignee_id to select an assignee with a service token."
             )
 
     result = await client.list_occurrences(
         incident_id=params.incident_id,
         source_id=str(params.source_id) if params.source_id is not None else None,
-        from_date=params.from_date,
-        to_date=params.to_date,
+        date_after=params.date_after,
+        date_before=params.date_before,
         presence=params.presence,
         tags=params.tags,
         exclude_tags=params.exclude_tags,
@@ -220,7 +226,7 @@ async def list_internal_occurrences(
         status=params.status,
         severity=params.severity,
         validity=params.validity,
-        member_assignee_id=member_assignee_id,
+        assignee_id=assignee_id,
         with_sources=False,
     )
 

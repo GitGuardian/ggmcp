@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -39,6 +39,12 @@ DEFAULT_VALIDITIES: list[IncidentValidity] = [
     IncidentValidity.NO_CHECKER,
     IncidentValidity.UNKNOWN,
 ]
+
+
+Ordering = Literal[
+    "date", "-date", "resolved_at", "-resolved_at", "ignored_at", "-ignored_at", "risk_score", "-risk_score"
+]
+DEFAULT_ORDERING: Ordering = "-date"
 
 
 class ListPublicIncidentsParams(BaseModel):
@@ -125,12 +131,8 @@ class ListPublicIncidentsParams(BaseModel):
     )
 
     # Ordering
-    ordering: str | None = Field(
-        default="-date",
-        description=(
-            "Sort field with optional '-' prefix for descending. Options: date, -date, "
-            "resolved_at, -resolved_at, ignored_at, -ignored_at, risk_score, -risk_score"
-        ),
+    ordering: Ordering = Field(
+        default=DEFAULT_ORDERING, description="Sort order: a field, prefixed with '-' for descending"
     )
 
     # Detector / actor filters

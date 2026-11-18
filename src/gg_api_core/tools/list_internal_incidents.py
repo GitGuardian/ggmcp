@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from typing import Any
+from typing import Any, Literal
 
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
@@ -97,6 +97,10 @@ def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> st
     return "\n".join(suggestions) if suggestions else ""
 
 
+Ordering = Literal["date", "-date", "score", "-score", "severity", "-severity", "status", "-status"]
+DEFAULT_ORDERING: Ordering = "-date"
+
+
 class _Pagination(BaseModel):
     """Pagination fields, declared first so list_internal_incidents' schema lists them first."""
 
@@ -105,9 +109,8 @@ class _Pagination(BaseModel):
     get_all: bool = Field(
         default=False, description=f"{GET_ALL_DESCRIPTION}. get_all fetches pages of at most {GET_ALL_PAGE_SIZE}"
     )
-    ordering: str | None = Field(
-        default="-date",
-        description="Sort field with optional '-' prefix for descending. Options: score, -score, date, -date, severity, -severity, status, -status",
+    ordering: Ordering = Field(
+        default=DEFAULT_ORDERING, description="Sort order: a field, prefixed with '-' for descending"
     )
 
 

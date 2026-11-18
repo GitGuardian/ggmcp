@@ -84,8 +84,6 @@ async def test_paging_through_tied_items_returns_each_once(
     [
         pytest.param("date", "date,id", id="ascending"),
         pytest.param("-risk_score", "-risk_score,-id", id="descending"),
-        pytest.param("-id", "-id", id="already-by-id"),
-        pytest.param("risk_score,-id", "risk_score,-id", id="already-tied-by-id"),
     ],
 )
 async def test_ordering_gets_an_id_tiebreaker_in_its_direction(mcp_client, gg_api, mock_token_scopes, ordering, sent):
@@ -112,3 +110,16 @@ async def test_repo_occurrences_without_an_ordering_send_none(mcp_client, gg_api
     await call_tool(mcp_client, "list_internal_occurrences", {"source_id": 55})
 
     assert "ordering" not in sent_params(route)
+
+
+async def test_an_ordering_by_id_gets_no_second_id(mcp_client, gg_api, mock_token_scopes):
+    """
+    GIVEN an ordering by id, which list_public_occurrences offers
+    WHEN the tool is called with it
+    THEN the API receives it unchanged, since id already breaks every tie
+    """
+    route = gg_api.get("/public-incidents/secrets/7/occurrences").respond(200, json=[])
+
+    await call_tool(mcp_client, "list_public_occurrences", {"incident_id": 7, "ordering": "-id"})
+
+    assert sent_params(route)["ordering"] == "-id"

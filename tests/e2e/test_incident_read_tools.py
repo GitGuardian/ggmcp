@@ -681,7 +681,7 @@ class TestListRepoOccurrences:
         await call_tool(mcp_client, "list_internal_occurrences", {"mine": True})
 
         assert sent_params(route)["incident_assignee_id"] == str(TEST_MEMBER_ID)
-        assert "member_assignee_id" not in sent_params(route)
+        assert "assignee_id" not in sent_params(route)
 
     @pytest.mark.parametrize("tool_name", ["list_internal_occurrences"])
     async def test_service_token_without_member_id_rejects_mine_filter(
@@ -805,19 +805,21 @@ class TestListRepoOccurrences:
         """
         GIVEN a date range and a presence filter
         WHEN list_internal_occurrences is called
-        THEN both reach the occurrences query unchanged
+        THEN the range reaches the occurrences query as the date_after and date_before the API documents,
+             not as from_date and to_date, which it ignores, and presence reaches it unchanged
         """
         route = gg_api.get("/occurrences/secrets").respond(200, json={"results": []})
 
         await call_tool(
             mcp_client,
             "list_internal_occurrences",
-            {"from_date": "2024-01-01", "to_date": "2024-12-31", "presence": "present"},
+            {"date_after": "2024-01-01", "date_before": "2024-12-31", "presence": "present"},
         )
 
         params = sent_params(route)
-        assert params["from_date"] == "2024-01-01"
-        assert params["to_date"] == "2024-12-31"
+        assert params["date_after"] == "2024-01-01"
+        assert params["date_before"] == "2024-12-31"
+        assert not {"from_date", "to_date"} & set(params)
         assert params["presence"] == "present"
 
 

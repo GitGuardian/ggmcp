@@ -82,9 +82,8 @@ class ListPublicOccurrencesParams(BaseModel):
         return [v]
 
     # Ordering
-    ordering: str | None = Field(
-        default="-date",
-        description="Sort field with optional '-' prefix for descending. Options: id, -id, date, -date",
+    ordering: Literal["date", "-date", "id", "-id"] = Field(
+        default="-date", description="Sort order: a field, prefixed with '-' for descending"
     )
 
 
