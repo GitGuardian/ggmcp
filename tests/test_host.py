@@ -16,7 +16,7 @@ class TestIsSelfHostedInstance:
         # The function should handle this gracefully
         result = is_self_hosted_instance("dashboard.gitguardian.com")
         # urlparse will put the hostname in path if no scheme is present
-        # So this should return True (not in SAAS_HOSTNAMES as netloc)
+        # An empty netloc is classified as self-hosted.
         assert result is True
 
     def test_none_url_without_env_var(self):
@@ -27,10 +27,12 @@ class TestIsSelfHostedInstance:
 
     def test_url_with_different_ports(self):
         """Test that URLs with different ports are handled correctly."""
-        assert is_self_hosted_instance("https://dashboard.gitguardian.com:443") is True  # Port not in SAAS_HOSTNAMES
+        # SaaS matching uses the full netloc, including the port.
+        assert is_self_hosted_instance("https://dashboard.gitguardian.com:443") is True
         assert is_self_hosted_instance("https://custom.domain.com:8443") is True
-        assert is_self_hosted_instance("http://localhost:3000") is False  # Explicitly in SAAS_HOSTNAMES
-        assert is_self_hosted_instance("http://127.0.0.1:3000") is False  # Explicitly in SAAS_HOSTNAMES
+        # Local hostname detection handles ports separately.
+        assert is_self_hosted_instance("http://localhost:3000") is False
+        assert is_self_hosted_instance("http://127.0.0.1:3000") is False
 
     def test_url_with_basic_auth(self):
         """Test that URLs with basic auth credentials are handled correctly."""
@@ -38,6 +40,17 @@ class TestIsSelfHostedInstance:
         # The suffix-based matching still recognizes the SaaS domain
         assert is_self_hosted_instance("https://user:pass@dashboard.gitguardian.com") is False
         assert is_self_hosted_instance("https://user:pass@custom.domain.com") is True
+
+    def test_public_saas_hosts_return_false(self):
+        """Test that suffix matching recognizes the public dashboard and API endpoints."""
+        hosts = [
+            "dashboard.gitguardian.com",
+            "api.gitguardian.com",
+            "dashboard.eu1.gitguardian.com",
+            "api.eu1.gitguardian.com",
+        ]
+        for host in hosts:
+            assert is_self_hosted_instance(f"https://{host}") is False
 
     def test_configured_suffixes_recognize_subdomains(self):
         """Test that each configured SaaS suffix recognizes additional subdomains."""

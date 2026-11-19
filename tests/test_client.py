@@ -5,6 +5,7 @@ import httpx
 import pytest
 
 from gg_api_core.client import GitGuardianClient
+from gg_api_core.host import SAAS_DOMAIN_SUFFIXES
 
 HONEYTOKEN_ID = "00000000-0000-4000-8000-000000000001"
 
@@ -268,7 +269,7 @@ class TestGitGuardianClientURLs:
     def test_computed_urls(self, url, expected):
         """Test client initialization with URLs containing paths."""
         with (
-            patch("gg_api_core.host.SAAS_DOMAIN_SUFFIXES", [".example.test"]),
+            patch("gg_api_core.host.SAAS_DOMAIN_SUFFIXES", SAAS_DOMAIN_SUFFIXES + [".example.test"]),
             patch.dict(os.environ, {"GITGUARDIAN_URL": url}),
         ):
             client = GitGuardianClient()

@@ -2,14 +2,7 @@ from urllib.parse import urlparse
 
 from .settings import get_settings
 
-SAAS_HOSTNAMES = [
-    "dashboard.gitguardian.com",
-    "api.gitguardian.com",
-    "dashboard.eu1.gitguardian.com",
-    "api.eu1.gitguardian.com",
-]
-
-# Domain suffixes for additional SaaS-like environments.
+# Domain suffixes for SaaS-like environments.
 SAAS_DOMAIN_SUFFIXES = [
     ".gitguardian.com",
     ".gitguardian.tech",
@@ -27,9 +20,6 @@ def _is_local_hostname(parsed_hostname: str | None) -> bool:
 
 def _is_saas_hostname(netloc: str) -> bool:
     """Check if a netloc (host:port) belongs to a SaaS or SaaS-like environment."""
-    if netloc in SAAS_HOSTNAMES:
-        return True
-    # Match subdomains of the configured SaaS domain suffixes.
     return any(netloc.endswith(suffix) for suffix in SAAS_DOMAIN_SUFFIXES)
 
 
