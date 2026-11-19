@@ -9,11 +9,12 @@ import pytest
 import structlog
 from fastmcp import Client
 from fastmcp.tools import ToolResult
+from mcp.types import ClientCapabilities, Implementation, InitializeRequestParams, TextContent
+
 from gg_api_core.log_context import clear_caller_identity_cache, record_downstream_call, record_truncation
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.mcp_server import get_mcp_server
 from gg_api_core.middleware import RequestLoggingContextMiddleware, ToolCallLoggingMiddleware
-from mcp.types import TextContent
 
 TOKEN_INFO = {
     "id": "tok-uuid",
@@ -28,10 +29,22 @@ def _ctx(name, arguments=None):
     return SimpleNamespace(message=SimpleNamespace(name=name, arguments=arguments))
 
 
-def _message_ctx(message=None, session_id=None, method="tools/list"):
+def _message_ctx(message=None, session_id=None, method="tools/list", message_type="request", client_params=None):
     """A middleware context shaped like the fields the middleware reads."""
-    fastmcp_context = SimpleNamespace(session_id=session_id) if session_id else None
-    return SimpleNamespace(message=message, fastmcp_context=fastmcp_context, method=method)
+    fastmcp_context = None
+    if session_id or client_params:
+        session = SimpleNamespace(client_params=client_params)
+        fastmcp_context = SimpleNamespace(session_id=session_id, request_context=SimpleNamespace(session=session))
+    return SimpleNamespace(message=message, fastmcp_context=fastmcp_context, method=method, type=message_type)
+
+
+def _client_params(name="claude-code", version="3.0.0", protocol_version="2026-07-28"):
+    """The client declaration the MCP SDK exposes on a request's session."""
+    return InitializeRequestParams(
+        protocol_version=protocol_version,
+        capabilities=ClientCapabilities(),
+        client_info=Implementation(name=name, version=version),
+    )
 
 
 class FakeServer:
@@ -74,12 +87,12 @@ class TestToolCallLoggingMiddleware:
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
             result = await ToolCallLoggingMiddleware().on_call_tool(
-                _ctx("get_incident", {"incident_id": "123"}), call_next
+                _ctx("get_internal_incident", {"incident_id": "123"}), call_next
             )
 
         assert result == "result"
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
-        assert rec.tool == "get_incident"
+        assert rec.tool == "get_internal_incident"
         assert rec.status == "ok"
         assert isinstance(rec.duration_ms, int)
 
@@ -115,7 +128,7 @@ class TestToolCallLoggingMiddleware:
             )
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.result_bytes == len('{"data": [1, 2, 3]}')
@@ -135,7 +148,7 @@ class TestToolCallLoggingMiddleware:
             return ToolResult(content=[])
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("get_incident"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("get_internal_incident"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.downstream_calls == 2
@@ -154,7 +167,7 @@ class TestToolCallLoggingMiddleware:
             return ToolResult(content=[])
 
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+            await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call")
         assert rec.truncated is True
@@ -163,7 +176,7 @@ class TestToolCallLoggingMiddleware:
         """
         GIVEN a tool failing with a wrapped GitGuardian 400
         WHEN the failure is logged
-        THEN status, fault and error class are fields on that same line
+        THEN status, fault and error class are fields on that same line, a warning without a traceback
         """
         request = httpx.Request("GET", "https://api.gitguardian.com/v1/incidents/secrets")
         response = httpx.Response(400, json={"code": "invalid_severity"}, request=request)
@@ -171,15 +184,37 @@ class TestToolCallLoggingMiddleware:
         async def call_next(ctx):
             raise httpx.HTTPStatusError("bad request", request=request, response=response)
 
-        with caplog.at_level(logging.ERROR, logger="gg_api_core.middleware"):
+        with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
             with pytest.raises(httpx.HTTPStatusError):
-                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_incidents"), call_next)
+                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
 
         rec = next(r for r in caplog.records if r.getMessage() == "tool_call_failed")
         assert rec.upstream_status == 400
         assert rec.fault == "client"
         assert rec.gg_error_code == "invalid_severity"
         assert rec.error_class == "httpx.HTTPStatusError"
+        assert rec.levelno == logging.WARNING
+        assert rec.failure_kind == "expected"
+        assert not rec.exc_info
+
+    async def test_an_unexpected_failure_is_an_error_with_its_traceback(self, caplog):
+        """
+        GIVEN a tool failing because of a bug
+        WHEN the failure is logged
+        THEN it is one error line carrying the traceback
+        """
+
+        async def call_next(ctx):
+            raise KeyError("results")
+
+        with caplog.at_level(logging.WARNING, logger="gg_api_core.middleware"):
+            with pytest.raises(KeyError):
+                await ToolCallLoggingMiddleware().on_call_tool(_ctx("list_internal_incidents"), call_next)
+
+        (rec,) = [r for r in caplog.records if r.getMessage() == "tool_call_failed"]
+        assert rec.levelno == logging.ERROR
+        assert rec.failure_kind == "unexpected"
+        assert rec.exc_info
 
     async def test_downstream_stats_do_not_leak_between_calls(self, caplog):
         """
@@ -197,7 +232,7 @@ class TestToolCallLoggingMiddleware:
 
         middleware = ToolCallLoggingMiddleware()
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await middleware.on_call_tool(_ctx("get_incident"), call_next_with_downstream)
+            await middleware.on_call_tool(_ctx("get_internal_incident"), call_next_with_downstream)
             await middleware.on_call_tool(_ctx("list_detectors"), call_next_without)
 
         first, second = (r for r in caplog.records if r.getMessage() == "tool_call")
@@ -206,41 +241,6 @@ class TestToolCallLoggingMiddleware:
 
 
 class TestRequestLoggingContextMiddleware:
-    async def test_binds_request_id_and_clears_after(self):
-        """
-        GIVEN an MCP message without a request ID
-        WHEN the message is handled
-        THEN a request ID is bound only for that message
-        """
-        seen: dict = {}
-
-        async def call_next(ctx):
-            seen.update(structlog.contextvars.get_contextvars())
-            return "ok"
-
-        result = await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
-
-        assert result == "ok"
-        assert seen["request_id"]
-        assert "request_id" not in structlog.contextvars.get_contextvars()
-
-    async def test_prefers_inbound_x_request_id_header(self, monkeypatch):
-        """
-        GIVEN an MCP message with an X-Request-ID header
-        WHEN the message is handled
-        THEN the inbound request ID is bound
-        """
-        seen: dict = {}
-
-        async def call_next(ctx):
-            seen.update(structlog.contextvars.get_contextvars())
-            return "ok"
-
-        monkeypatch.setattr("gg_api_core.middleware.get_http_headers", lambda: {"x-request-id": "trace-123"})
-        await RequestLoggingContextMiddleware(FakeServer()).on_message(_message_ctx(), call_next)
-
-        assert seen["request_id"] == "trace-123"
-
     @pytest.mark.parametrize("inbound", ["trace 123", "trace\nforged", "x" * 65, ""])
     async def test_rejects_unsafe_inbound_request_id(self, monkeypatch, inbound):
         """
@@ -319,46 +319,54 @@ class TestRequestLoggingContextMiddleware:
         assert "account_id" not in seen
         assert "workspace_id" not in seen
 
-    async def test_identity_is_fetched_once_across_messages(self):
+    async def test_binds_the_client_a_request_declares(self):
         """
-        GIVEN several messages from the same token
-        WHEN each is handled
-        THEN token info is fetched only once
+        GIVEN a sessionless request whose _meta declares the client and protocol revision
+        WHEN the message is handled
+        THEN the client name, version and protocol revision are bound
         """
+        seen: dict = {}
 
         async def call_next(ctx):
+            seen.update(structlog.contextvars.get_contextvars())
+            return "ok"
+
+        await RequestLoggingContextMiddleware(FakeServer()).on_message(
+            _message_ctx(client_params=_client_params()), call_next
+        )
+
+        assert seen["client_name"] == "claude-code"
+        assert seen["client_version"] == "3.0.0"
+        assert seen["protocol_version"] == "2026-07-28"
+
+    @pytest.mark.parametrize(
+        ("method", "message_type"),
+        [
+            ("ping", "request"),
+        ],
+    )
+    async def test_protocol_plumbing_is_passed_through_untouched(self, caplog, method, message_type):
+        """
+        GIVEN a notification or a ping, which reach on_message in FastMCP 4
+        WHEN the message is handled
+        THEN it is dispatched with no bound fields, no identity lookup and no mcp_request line
+        """
+        seen: dict = {}
+
+        async def call_next(ctx):
+            seen.update(structlog.contextvars.get_contextvars())
             return "ok"
 
         server = FakeServer()
-        middleware = RequestLoggingContextMiddleware(server)
-        for _ in range(3):
-            await middleware.on_message(_message_ctx(), call_next)
-
-        assert server.token_info_calls == 1
-
-    async def test_logs_client_identity_on_initialize(self, caplog):
-        """
-        GIVEN an initialize request carrying clientInfo and a protocol version
-        WHEN it is handled
-        THEN an mcp_initialize event records both
-        """
-        params = SimpleNamespace(
-            clientInfo=SimpleNamespace(name="claude-ai", version="0.1.0"),
-            protocolVersion="2025-06-18",
-        )
-
-        async def call_next(ctx):
-            return None
-
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            await RequestLoggingContextMiddleware(FakeServer()).on_initialize(
-                _message_ctx(message=SimpleNamespace(params=params)), call_next
+            result = await RequestLoggingContextMiddleware(server).on_message(
+                _message_ctx(method=method, message_type=message_type), call_next
             )
 
-        rec = next(r for r in caplog.records if r.getMessage() == "mcp_initialize")
-        assert rec.client_name == "claude-ai"
-        assert rec.client_version == "0.1.0"
-        assert rec.protocol_version == "2025-06-18"
+        assert result == "ok"
+        assert seen == {}
+        assert server.token_info_calls == 0
+        assert not [r for r in caplog.records if r.getMessage() == "mcp_request"]
 
     async def test_every_middleware_log_carries_request_identity_through_the_real_stack(self, capsys):
         """

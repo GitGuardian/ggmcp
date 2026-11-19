@@ -10,7 +10,7 @@ All env-var access in `gg-mcp` goes through `gg_api_core.settings.Settings`. Add
 ## Pattern
 
 ```python
-# 1. Declare the field on Settings (packages/gg_api_core/src/gg_api_core/settings.py)
+# 1. Declare the field on Settings (src/gg_api_core/settings.py)
 github_token: str | None = None   # → reads GITHUB_TOKEN (case-insensitive)
 
 # 2. Read it

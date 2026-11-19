@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Any
 
 import sentry_sdk
-from gg_api_core.sentry_integration import init_sentry
-from gg_api_core.tools.scan_secret import ScanSecretsParams
-from mcp.server.fastmcp import FastMCP
-from mcp.shared.memory import create_connected_server_and_client_session
+from fastmcp import Client, FastMCP
 from sentry_sdk.envelope import Envelope
 from sentry_sdk.transport import Transport
+
+from gg_api_core.sentry_integration import init_sentry
+from gg_api_core.tools.scan_secret import ScanSecretsParams
 
 RAW_DOCUMENT = "AKIAIOSFODNN7EXAMPLE password = 'unrecognized-secret-format'"
 
@@ -28,8 +28,8 @@ class _CapturingTransport(Transport):
 
 
 async def _call_scan_tool(server: FastMCP) -> None:
-    async with create_connected_server_and_client_session(server) as session:
-        await session.call_tool(
+    async with Client(server) as client:
+        await client.call_tool(
             "scan_secrets",
             {
                 "params": {
@@ -58,6 +58,7 @@ def main(output_path: Path) -> None:
     sentry_client = sentry_sdk.get_client()
     assert sentry_client.options["send_default_pii"] is False
     assert sentry_client.options["traces_sample_rate"] == 1.0
+    assert sentry_client.options["max_request_body_size"] == "never"
 
     transport = _CapturingTransport()
     sentry_client.transport = transport

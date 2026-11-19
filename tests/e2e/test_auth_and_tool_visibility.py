@@ -7,13 +7,18 @@ GitGuardian API).
 """
 
 import asyncio
+import json
+import re
 from http import HTTPStatus
 
+import fastmcp
 import httpx
 import pytest
 
+from gg_api_core.version import APP_VERSION
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
+    EXPECTED_REQUESTED_SCOPES,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,
     EXPECTED_SCOPES,
     TEST_PAT,
@@ -24,9 +29,25 @@ from tests.e2e.harness import (
     rpc,
     rpc_result,
     token_info,
+    tool_error_text,
     tool_output,
-    unwrap_result,
 )
+
+# Tool-shaped identifiers (verb_noun) as they appear in cross-tool guidance.
+_TOOL_NAME_PATTERN = re.compile(
+    r"\b(?:assign|count|create|find|generate|get|list|manage|read|revoke|scan|update|write)_[a-z]+(?:_[a-z]+)*\b"
+)
+
+
+def _property_names(schema):
+    """Yield every property name declared anywhere in a JSON schema."""
+    if isinstance(schema, dict):
+        yield from schema.get("properties", {})
+        for value in schema.values():
+            yield from _property_names(value)
+    elif isinstance(schema, list):
+        for value in schema:
+            yield from _property_names(value)
 
 
 class TestProtocolHandshake:
@@ -49,6 +70,8 @@ class TestProtocolHandshake:
         result = rpc_result(response)
         assert result["protocolVersion"] == "2025-06-18"
         assert result["serverInfo"]["name"] == "GitGuardian"
+        assert result["serverInfo"]["version"] == APP_VERSION
+        assert result["serverInfo"]["version"] != fastmcp.__version__
         assert "tools" in result["capabilities"]
         assert result["instructions"]
         assert not gg_api.calls
@@ -83,6 +106,76 @@ class TestScopeBasedToolVisibility:
 
         assert names == EXPECTED_FULL_TOOL_CATALOG
 
+    async def test_requested_scopes_expose_the_whole_catalog(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding exactly the scopes the server requests
+        WHEN tools/list is requested
+        THEN every tool is visible
+        """
+        mock_token_scopes(EXPECTED_REQUESTED_SCOPES)
+
+        names = await list_tool_names(mcp_client)
+
+        assert names == EXPECTED_FULL_TOOL_CATALOG
+
+    async def test_tool_definitions_only_point_at_exposed_tools(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding every GitGuardian scope
+        WHEN tools/list is requested
+        THEN no tool description or input schema sends agents to a tool the server does not expose
+        """
+        tools = rpc_result(await rpc(mcp_client, "tools/list", request_id=1), expected_id=1)["tools"]
+        exposed = {tool["name"] for tool in tools}
+
+        for tool in tools:
+            schema = tool["inputSchema"]
+            text = json.dumps([tool.get("description", ""), schema])
+            mentioned = set(_TOOL_NAME_PATTERN.findall(text)) - set(_property_names(schema))
+            assert mentioned <= exposed, f"{tool['name']} points at unexposed tools {sorted(mentioned - exposed)}"
+
+    async def test_tool_annotations_tell_clients_which_tools_write(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN a token holding every GitGuardian scope
+        WHEN tools/list is requested
+        THEN every tool declares whether it writes, and how, so clients can decide what to auto-approve
+        """
+        tools = rpc_result(await rpc(mcp_client, "tools/list", request_id=1), expected_id=1)["tools"]
+        read_only = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+        changes_state = {
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        }
+        adds = {**changes_state, "destructiveHint": False, "idempotentHint": False}
+        expected = dict.fromkeys(EXPECTED_FULL_TOOL_CATALOG, read_only) | {
+            "assign_internal_incident": changes_state,
+            "unassign_internal_incident": changes_state,
+            "assign_public_incident": changes_state,
+            "unassign_public_incident": changes_state,
+            "resolve_internal_incident": changes_state,
+            "ignore_internal_incident": changes_state,
+            "reopen_internal_incident": changes_state,
+            "resolve_public_incident": changes_state,
+            "ignore_public_incident": changes_state,
+            "reopen_public_incident": changes_state,
+            "add_internal_incident_comment": adds,
+            "add_public_incident_comment": adds,
+            "edit_internal_incident_comment": changes_state,
+            "edit_public_incident_comment": changes_state,
+            "generate_honeytoken": adds,
+            "revoke_secret": {**changes_state, "openWorldHint": True},
+            "set_internal_incident_severity": changes_state,
+            "set_public_incident_severity": changes_state,
+            "create_internal_incident_code_fix_request": adds,
+            "add_internal_incident_custom_tag": {**adds, "idempotentHint": True},
+            "add_public_incident_custom_tag": {**adds, "idempotentHint": True},
+            "remove_internal_incident_custom_tag": changes_state,
+            "remove_public_incident_custom_tag": changes_state,
+        }
+
+        assert {tool["name"]: tool.get("annotations") for tool in tools} == expected
+
     async def test_token_scopes_are_fetched_from_the_api_with_the_callers_token(
         self, mcp_client, gg_api, mock_token_scopes
     ):
@@ -98,35 +191,6 @@ class TestScopeBasedToolVisibility:
         assert token_requests, "expected a live scope fetch against /api_tokens/self"
         assert token_requests[0].headers["Authorization"] == f"Token {TEST_PAT}"
         assert token_requests[0].headers["X-Privacy-Mode"] == "true"
-
-    async def test_scan_only_token_hides_scope_gated_tools(self, mcp_client, mock_token_scopes):
-        """
-        GIVEN a token limited to the scan scope
-        WHEN tools/list is requested
-        THEN only scan-gated and ungated tools remain visible
-        """
-        mock_token_scopes(scopes=["scan"])
-
-        names = await list_tool_names(mcp_client)
-
-        assert names == EXPECTED_SCAN_ONLY_TOOL_CATALOG
-
-    async def test_incidents_read_token_gets_read_but_not_write_tools(self, mcp_client, mock_token_scopes):
-        """
-        GIVEN a token with incidents:read but not incidents:write
-        WHEN tools/list is requested
-        THEN incident read tools are visible and incident write tools are hidden
-        """
-        mock_token_scopes(scopes=["incidents:read"])
-
-        names = await list_tool_names(mcp_client)
-
-        assert {"list_incidents", "count_incidents", "get_incident", "get_remediation_workflow"} <= names
-        assert "manage_private_incident" not in names
-        assert "assign_incident" not in names
-        assert "update_incident_severity" not in names
-        # list_remediation_targets needs sources:read on top of incidents:read
-        assert "list_remediation_targets" not in names
 
     async def test_tool_visibility_is_isolated_between_tenants_on_one_server(self, mcp_client, gg_api):
         """
@@ -152,9 +216,28 @@ class TestScopeBasedToolVisibility:
         assert first_full_catalog == EXPECTED_FULL_TOOL_CATALOG
         assert scan_catalog == EXPECTED_SCAN_ONLY_TOOL_CATALOG
         assert second_full_catalog == EXPECTED_FULL_TOOL_CATALOG
-        # Each tools/list resolves scopes. Logging enrichment also resolves caller
-        # identity once per distinct token, then serves repeat calls from its cache.
-        assert token_route.call_count == 5
+        # One lookup per distinct token: scopes and logged caller identity both come
+        # from the same cached token info.
+        assert token_route.call_count == 2
+
+    @pytest.mark.parametrize(("ttl_seconds", "new_lookups"), [(300.0, 0), (0.0, 1)], ids=["fresh", "expired"])
+    async def test_a_tokens_scopes_are_looked_up_again_only_once_its_cache_entry_expires(
+        self, mcp_client, mock_token_scopes, monkeypatch, ttl_seconds, new_lookups
+    ):
+        """
+        GIVEN a token whose scopes were looked up for a first tools/list
+        WHEN the same token lists tools again
+        THEN the scopes come from the cache while the entry is fresh, and from the API once it expired
+        """
+        monkeypatch.setattr("gg_api_core.mcp_server._TOKEN_INFO_TTL_SECONDS", ttl_seconds)
+        token_route = mock_token_scopes()
+
+        first = await list_tool_names(mcp_client)
+        lookups_after_first = token_route.call_count
+        second = await list_tool_names(mcp_client, request_id=2)
+
+        assert first == second == EXPECTED_FULL_TOOL_CATALOG
+        assert token_route.call_count - lookups_after_first == new_lookups
 
     async def test_concurrent_requests_keep_tenant_context_isolated(self, mcp_client, gg_api):
         """
@@ -235,15 +318,15 @@ class TestScopeBasedToolVisibility:
             asyncio.gather(
                 call_tool(
                     mcp_client,
-                    "get_incident",
-                    {"params": {"incident_id": 77}},
+                    "get_internal_incident",
+                    {"incident_id": 77},
                     headers=mcp_headers("full-scope-token"),
                     request_id=201,
                 ),
                 call_tool(
                     mcp_client,
                     "scan_secrets",
-                    {"params": {"documents": [{"document": "x = 1", "filename": "x.py"}]}},
+                    {"documents": [{"document": "x = 1", "filename": "x.py"}]},
                     headers=mcp_headers("scan-only-token"),
                     request_id=202,
                 ),
@@ -256,81 +339,54 @@ class TestScopeBasedToolVisibility:
         assert_authenticated_request(incident_route, "full-scope-token")
         assert_authenticated_request(scan_route, "scan-only-token")
 
-    async def test_a_scope_hidden_tool_is_still_callable(self, mcp_client, gg_api, mock_token_scopes):
-        """
-        GIVEN a scan-only token, for which list_incidents is hidden
-        WHEN list_incidents is called anyway
-        THEN the tool executes and its request is forwarded to the API
-        """
-        mock_token_scopes(scopes=["scan"])
-        route = gg_api.get("/incidents-for-mcp").respond(200, json={"results": [], "next": None, "previous": None})
-
-        result = await call_tool(mcp_client, "list_incidents", {"params": {}})
-
-        # Scope filtering only controls visibility; enforcement happens at the
-        # GitGuardian API, which rejects tokens lacking the scope.
-        assert route.called
-        assert unwrap_result(result)["incidents"] == []
-
 
 class TestPerRequestScopeCost:
-    async def test_tool_dispatch_fetches_scopes_once_then_reuses_a_shared_cache(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
+    async def test_tool_dispatch_reuses_the_cached_scopes(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN the stateless remote deployment
-        WHEN the same tool is called twice
-        THEN the first dispatch resolves scopes upstream (tool-cache refresh)
-             and the second reuses the process-wide cache
+        WHEN the same tool is called twice with one token
+        THEN the scopes are looked up upstream once, then served from the token's cache entry
         """
         gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
-        await call_tool(mcp_client, "get_incident", {"params": {"incident_id": 77}})
+        await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
+        await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
-        # Only the dispatch path caches (per server instance, meaning
-        # process-wide in production). The scope-filtered tool list cached here
-        # is shared by all tenants of the process; per-call scope enforcement
-        # is delegated to the GitGuardian API rejecting tokens that lack the
-        # scope.
         scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
         assert len(scope_fetches) == 1
 
-    async def test_explicit_tools_list_refetches_scopes_every_time(self, mcp_client, gg_api, mock_token_scopes):
+
+class TestScopeEnforcementOnCall:
+    async def test_a_scope_hidden_tool_is_refused_before_reaching_the_api(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN the stateless remote deployment
-        WHEN tools/list is requested twice
-        THEN each request re-resolves the token's scopes upstream
+        GIVEN a scan-only token, for which incident write tools are hidden
+        WHEN a client calls one of those tools directly
+        THEN the call fails naming the missing scope, and the API is never asked to act
         """
-        await list_tool_names(mcp_client)
-        await list_tool_names(mcp_client)
+        mock_token_scopes(["scan"])
+        write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json={"id": 77})
 
-        scope_fetches = [call for call in gg_api.calls if call.request.url.path == "/v1/api_tokens/self"]
-        assert len(scope_fetches) == 2
+        result = await call_tool(mcp_client, "reopen_internal_incident", {"incident_id": 77})
 
+        assert "incidents:write" in tool_error_text(result)
+        assert not write_route.called
 
-class TestAuthenticatedUserInfo:
-    async def test_get_authenticated_user_info_reports_proxy_mode_and_scopes(self, mcp_client, mock_token_scopes):
+    async def test_a_tool_the_scopes_allow_still_runs(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN the hosted server in OAuth proxy mode
-        WHEN get_authenticated_user_info is called
-        THEN it returns the token info, the OAUTH_PROXY mode marker, and the scopes
+        GIVEN a token with the incidents:read scope
+        WHEN a client calls get_internal_incident
+        THEN the call reaches the API and returns its result
         """
-        mock_token_scopes(scopes=["scan", "incidents:read"])
+        mock_token_scopes(["incidents:read"])
+        route = gg_api.get("/incidents/secrets/77").respond(200, json={"id": 77})
 
-        result = await call_tool(mcp_client, "get_authenticated_user_info")
-        output = tool_output(result)
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77})
 
-        assert output["authentication_mode"] == "OAUTH_PROXY"
-        assert set(output["available_scopes"]) == {"scan", "incidents:read"}
-        assert output["token_info"]["scopes"] == ["scan", "incidents:read"]
+        assert route.called
+        assert tool_output(result) == {"incident": {"id": 77}}
 
 
 class TestExpiredTokenOnToolsList:
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: scope-fetch failures do not reach the downstream reauthentication middleware",
-    )
     async def test_rejected_token_on_scope_fetch_triggers_reauthentication(self, mcp_client, gg_api):
         """
         GIVEN a token the GitGuardian API rejects with 401
@@ -346,6 +402,28 @@ class TestExpiredTokenOnToolsList:
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert "www-authenticate" in response.headers
+
+    async def test_a_rejected_scope_lookup_is_not_remembered(self, mcp_client, gg_api):
+        """
+        GIVEN a token the API rejected during a first tools/list
+        WHEN the API accepts the same token on the next tools/list
+        THEN that tools/list succeeds, because only successful lookups are cached
+        """
+        api_state = {"rejects_token": True}
+
+        def token_response(request: httpx.Request) -> httpx.Response:
+            if api_state["rejects_token"]:
+                return httpx.Response(HTTPStatus.UNAUTHORIZED, json={"detail": "Invalid API key."})
+            return httpx.Response(HTTPStatus.OK, json=token_info(EXPECTED_SCOPES))
+
+        gg_api.get("/api_tokens/self").mock(side_effect=token_response)
+
+        rejected = await rpc(mcp_client, "tools/list")
+        api_state["rejects_token"] = False
+        names = await list_tool_names(mcp_client, request_id=2)
+
+        assert rejected.status_code == HTTPStatus.UNAUTHORIZED
+        assert names == EXPECTED_FULL_TOOL_CATALOG
 
 
 async def test_health_endpoint_requires_no_auth(mcp_client, gg_api):

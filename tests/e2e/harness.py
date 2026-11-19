@@ -9,6 +9,7 @@ import json
 from typing import Any
 
 import httpx
+import jsonschema
 import respx
 
 # The hosted server's own public URL (used for OAuth metadata) and the
@@ -22,8 +23,7 @@ TEST_PAT = "e2e-test-pat"
 
 TEST_MEMBER_ID = 4242
 
-# Keep this test oracle independent from ``gg_api_core.scopes.ALL_SCOPES``:
-# an accidental production-scope removal must fail the remote contract tests.
+# Every GitGuardian scope: what a full-access token holds.
 EXPECTED_SCOPES = [
     "scan",
     "incidents:read",
@@ -43,53 +43,72 @@ EXPECTED_SCOPES = [
     "members:read",
     "secrets:write",
     "secrets:read",
+    "teams:read",
+]
+
+# The scopes the server asks for. Kept independent from ``gg_api_core.scopes.DEFAULT_SCOPES``
+# so a change to what new tokens can do fails the remote contract tests.
+EXPECTED_REQUESTED_SCOPES = [
+    "scan",
+    "incidents:read",
+    "incidents:write",
+    "sources:read",
+    "members:read",
+    "honeytokens:read",
+    "honeytokens:write",
+    "custom_tags:read",
+    "teams:read",
+    "secrets:write",
 ]
 
 EXPECTED_FULL_TOOL_CATALOG = {
-    "assign_incident",
+    "add_internal_incident_comment",
+    "add_internal_incident_custom_tag",
+    "add_public_incident_comment",
+    "add_public_incident_custom_tag",
+    "assign_internal_incident",
     "assign_public_incident",
-    "count_incidents",
-    "create_code_fix_request",
-    "find_current_source_id",
+    "count_internal_incidents",
+    "create_internal_incident_code_fix_request",
+    "edit_internal_incident_comment",
+    "edit_public_incident_comment",
     "generate_honeytoken",
-    "get_authenticated_user_info",
-    "get_current_token_info",
-    "get_incident",
+    "get_gitguardian_resource",
+    "get_internal_incident",
     "get_member",
+    "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
+    "ignore_internal_incident",
+    "ignore_public_incident",
+    "list_custom_tags",
     "list_detectors",
     "list_honeytokens",
-    "list_incident_activity_logs",
-    "list_incident_comments",
-    "list_incident_members",
-    "list_incident_teams",
-    "list_incidents",
-    "list_public_incident_activity_logs",
-    "list_public_incident_comments",
+    "list_internal_incident_locations",
+    "list_internal_incident_members",
+    "list_internal_incident_teams",
+    "list_internal_incidents",
+    "list_internal_occurrences",
+    "list_members",
     "list_public_incidents",
     "list_public_occurrences",
-    "list_repo_occurrences",
     "list_sources",
-    "list_users",
-    "manage_incident_comment",
-    "manage_private_incident",
-    "manage_public_incident_comment",
-    "read_custom_tags",
-    "list_remediation_targets",
-    "revoke_current_token",
+    "remove_internal_incident_custom_tag",
+    "remove_public_incident_custom_tag",
+    "reopen_internal_incident",
+    "reopen_public_incident",
+    "resolve_internal_incident",
+    "resolve_public_incident",
     "revoke_secret",
     "scan_secrets",
-    "update_incident_severity",
-    "update_or_create_incident_custom_tags",
-    "update_public_incident_status",
-    "write_custom_tags",
+    "set_internal_incident_severity",
+    "set_public_incident_severity",
+    "unassign_internal_incident",
+    "unassign_public_incident",
 }
 
 EXPECTED_SCAN_ONLY_TOOL_CATALOG = {
-    "get_authenticated_user_info",
-    "list_detectors",
-    "revoke_current_token",
+    "get_my_identity",
     "scan_secrets",
 }
 
@@ -147,7 +166,11 @@ async def call_tool(
     arguments: dict[str, Any] | None = None,
     **kwargs,
 ) -> dict[str, Any]:
-    """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult)."""
+    """Call an MCP tool and return the JSON-RPC ``result`` (CallToolResult).
+
+    A successful result's structured content is checked against the output schema the
+    tool advertises, so every test that calls a tool also checks its output contract.
+    """
     request_id = kwargs.pop("request_id", 1)
     response = await rpc(
         client,
@@ -156,15 +179,17 @@ async def call_tool(
         request_id=request_id,
         **kwargs,
     )
-    return rpc_result(response, expected_id=request_id)
+    result = rpc_result(response, expected_id=request_id)
+    schema = getattr(client, "output_schemas", {}).get(name)
+    if schema is not None and not result.get("isError") and "structuredContent" in result:
+        jsonschema.validate(result["structuredContent"], schema)
+    return result
 
 
 def tool_output(result: dict[str, Any]) -> Any:
     """Extract a successful tool call's output from a CallToolResult, verbatim.
 
-    Use for tools whose output shape is asserted exactly; use
-    :func:`unwrap_result` for union-typed tools whose output FastMCP wraps
-    in a ``result`` envelope.
+    The structured content and the text content must carry the same output.
     """
     assert result.get("isError") is not True, result
     content = result.get("content")
@@ -173,24 +198,11 @@ def tool_output(result: dict[str, Any]) -> Any:
     text_content = json.loads(content[0]["text"])
 
     if "structuredContent" in result:
-        structured_content = result["structuredContent"]
-        if result.get("_meta", {}).get("fastmcp", {}).get("wrap_result") is True:
-            assert structured_content == {"result": text_content}
-        else:
-            assert structured_content == text_content
-        return structured_content
+        # The text block is for clients that ignore structured content: the same output, as compact JSON.
+        assert result["structuredContent"] == text_content
+        assert content[0]["text"] == json.dumps(text_content, separators=(",", ":"), ensure_ascii=False)
+        return result["structuredContent"]
     return text_content
-
-
-def unwrap_result(result: dict[str, Any]) -> Any:
-    """Tool output minus the ``result`` envelope FastMCP adds for union-typed tools.
-
-    Asserts the envelope is present so a change in FastMCP's wire shape for
-    union-typed tools fails loudly instead of being silently absorbed.
-    """
-    output = tool_output(result)
-    assert isinstance(output, dict) and set(output) == {"result"}, output
-    return output["result"]
 
 
 def tool_error_text(result: dict[str, Any]) -> str:

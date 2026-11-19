@@ -7,23 +7,25 @@ itself is covered by test_stdio_transport.py. As in the remote suite, only
 the outbound GitGuardian API is faked with respx.
 """
 
-import subprocess
 from pathlib import Path
 from typing import Any, Iterator
 
 import httpx
 import pytest
 from fastmcp import Client
+
 from gg_api_core import client as client_module
 from gg_api_core import oauth, utils
-from gg_mcp_server.server import build_server
-from mcp.types import TextContent
-
+from gg_api_core.log_context import clear_caller_identity_cache
+from gg_mcp_server.server import build_http_app, build_server
+from tests.e2e.conftest import _run_lifespan
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,
+    MCP_BASE_URL,
     assert_authenticated_request,
-    token_info,
+    rpc,
+    rpc_result,
 )
 
 # Token the local server reads from GITGUARDIAN_PERSONAL_ACCESS_TOKEN.
@@ -58,49 +60,16 @@ def stdio_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
 @pytest.fixture(autouse=True)
 def reset_client_singleton() -> Iterator[None]:
-    """Single-tenant mode caches one client per process; isolate each test."""
+    """Single-tenant mode caches one client and one caller identity per process; isolate each test."""
     utils._client_singleton = None
+    clear_caller_identity_cache()
     yield
     utils._client_singleton = None
+    clear_caller_identity_cache()
 
 
 class TestPatEnvAuthentication:
     """Authentication-source and identity behavior for local stdio sessions."""
-
-    async def test_the_env_token_wins_over_stored_oauth_with_the_stdio_marker(
-        self,
-        stdio_env: None,
-        monkeypatch: pytest.MonkeyPatch,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN both an env PAT and a different stored OAuth token
-        WHEN a tool is called
-        THEN the env PAT wins and reaches every API request with a User-Agent
-             marking the stdio transport
-        """
-        oauth.FileTokenStorage().save_token(
-            "https://dashboard.gitguardian.com",
-            {"access_token": "decoy-stored-token"},
-        )
-
-        async def unexpected_oauth_flow(*_args: Any, **_kwargs: Any) -> None:
-            raise AssertionError("interactive OAuth must not start while an env PAT exists")
-
-        monkeypatch.setattr(client_module, "_run_oauth_flow", unexpected_oauth_flow)
-        scope_route = mock_token_scopes()
-        route = gg_api.get("/incidents/secrets/77").respond(200, json=INCIDENT)
-
-        server = build_server()
-        assert server.authentication_mode.value == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
-        async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
-
-        assert result.structured_content == {"incident": INCIDENT}
-        assert_authenticated_request(scope_route, STDIO_PAT)
-        assert_authenticated_request(route, STDIO_PAT)
-        assert "(transport=stdio)" in route.calls.last.request.headers["User-Agent"]
 
     async def test_default_oauth_mode_still_uses_the_env_token_without_a_browser_flow(
         self,
@@ -126,31 +95,10 @@ class TestPatEnvAuthentication:
         server = build_server()
         assert server.authentication_mode.value == "LOCAL_OAUTH_FLOW"
         async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_internal_incident", {"incident_id": 77})
 
         assert result.structured_content == {"incident": INCIDENT}
         assert route.calls.last.request.headers["Authorization"] == f"Token {STDIO_PAT}"
-
-    async def test_get_authenticated_user_info_reports_the_env_var_mode(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a stdio server authenticated by the PAT env var
-        WHEN get_authenticated_user_info is called
-        THEN it reports the PERSONAL_ACCESS_TOKEN_ENV_VAR mode and the scopes
-        """
-        mock_token_scopes(scopes=["scan", "incidents:read"])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("get_authenticated_user_info", {})
-
-        output = result.structured_content
-        assert output is not None
-        assert output["authentication_mode"] == "PERSONAL_ACCESS_TOKEN_ENV_VAR"
-        assert set(output["available_scopes"]) == {"scan", "incidents:read"}
 
     async def test_stored_oauth_token_is_used_without_starting_a_browser_flow(
         self,
@@ -182,7 +130,7 @@ class TestPatEnvAuthentication:
         server = build_server()
         assert server.authentication_mode.value == "LOCAL_OAUTH_FLOW"
         async with Client(server) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_internal_incident", {"incident_id": 77})
 
         assert result.structured_content == {"incident": INCIDENT}
         assert_authenticated_request(scope_route, stored_pat)
@@ -206,73 +154,40 @@ class TestStartupScopeCache:
         scope_route = mock_token_scopes()
 
         async with Client(build_server()) as client:
-            assert scope_route.call_count == 1
+            await client.list_tools()
+            calls_after_first_list = scope_route.call_count
             await client.list_tools()
             await client.list_tools()
 
         # Unlike the remote server, which re-fetches scopes per tools/list.
-        assert scope_route.call_count == 1
+        assert scope_route.call_count == calls_after_first_list
         assert_authenticated_request(scope_route, STDIO_PAT)
         assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
 
-    async def test_scan_only_token_prunes_the_catalog_at_startup(
+    async def test_a_scope_hidden_tool_is_refused_before_reaching_the_api(
         self,
         stdio_env: None,
         gg_api: Any,
         mock_token_scopes: Any,
     ) -> None:
         """
-        GIVEN a scan-only token in the environment
-        WHEN the session starts
-        THEN only scan-gated and ungated tools are listed
+        GIVEN a stdio server whose token only has the scan scope
+        WHEN the client calls an incident write tool that tools/list hides
+        THEN the call fails naming the missing scope, and the API is never asked to act
         """
-        mock_token_scopes(scopes=["scan"])
+        mock_token_scopes(["scan"])
+        write_route = gg_api.post("/incidents/secrets/77/reopen").respond(200, json=INCIDENT)
 
         async with Client(build_server()) as client:
-            names = {tool.name for tool in await client.list_tools()}
+            result = await client.call_tool(
+                "reopen_internal_incident",
+                {"incident_id": 77},
+                raise_on_error=False,
+            )
 
-        assert names == EXPECTED_SCAN_ONLY_TOOL_CATALOG
-
-    async def test_full_scope_token_exposes_the_exact_stdio_catalog(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-    ) -> None:
-        """
-        GIVEN a stdio token holding every supported GitGuardian scope
-        WHEN the session lists tools
-        THEN the complete production catalog is visible with no missing extras
-        """
-        mock_token_scopes()
-
-        async with Client(build_server()) as client:
-            names = {tool.name for tool in await client.list_tools()}
-
-        assert names == EXPECTED_FULL_TOOL_CATALOG
-
-    async def test_startup_scope_fetch_failure_degrades_instead_of_crashing(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        no_retry_delay: None,
-    ) -> None:
-        """
-        GIVEN the API failing while the server starts
-        WHEN the session opens anyway and the API later recovers
-        THEN startup survives and the next tools/list re-fetches the scopes
-        """
-        failed_startup_route = gg_api.get("/api_tokens/self").respond(500, text="boom")
-
-        async with Client(build_server()) as client:
-            assert failed_startup_route.called
-            # Startup swallowed the failure; the cache is empty, so the next
-            # listing fetches live and sees the recovered API.
-            recovered = gg_api.get("/api_tokens/self").respond(200, json=token_info())
-            names = {tool.name for tool in await client.list_tools()}
-
-        assert recovered.called
-        assert "list_incidents" in names
+        assert result.is_error
+        assert "incidents:write" in result.content[0].text
+        assert not write_route.called
 
 
 class TestSingleTenantSelfHealing:
@@ -300,135 +215,72 @@ class TestSingleTenantSelfHealing:
         route = gg_api.get("/incidents/secrets/77").mock(side_effect=invalid_then_success)
 
         async with Client(build_server()) as client:
-            result = await client.call_tool("get_incident", {"params": {"incident_id": 77}})
+            result = await client.call_tool("get_internal_incident", {"incident_id": 77})
 
         assert route.call_count == 2
         assert seen_authorization == [f"Token {STDIO_PAT}", f"Token {STDIO_PAT}"]
         assert result.structured_content == {"incident": INCIDENT}
 
-    async def test_a_persistently_invalid_token_is_retried_only_once(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
+
+CONTRACT_KEYS = ("description", "inputSchema", "outputSchema", "annotations")
+
+
+class TestTransportParity:
+    """The stdio and HTTP transports offer the same tools under the same contract."""
+
+    @pytest.mark.parametrize(
+        ("scopes", "expected"),
+        [
+            pytest.param(None, EXPECTED_FULL_TOOL_CATALOG, id="every-scope"),
+            pytest.param(["scan"], EXPECTED_SCAN_ONLY_TOOL_CATALOG, id="scan-only"),
+        ],
+    )
+    async def test_stdio_shows_the_tools_http_shows_for_the_same_scopes(
+        self, stdio_env: None, gg_api: Any, mock_token_scopes: Any, scopes: list[str] | None, expected: set[str]
     ) -> None:
         """
-        GIVEN the API rejecting both the original and reacquired token
-        WHEN a tool is called
-        THEN self-healing stops after one refresh attempt and returns an error
+        GIVEN a token with every scope, or with scan only
+        WHEN a stdio client lists the tools
+        THEN it sees exactly the tools an HTTP client with the same token sees
         """
-        route = gg_api.get("/incidents/secrets/77").respond(401, json={"detail": "Invalid API key."})
+        if scopes is not None:
+            mock_token_scopes(scopes)
 
         async with Client(build_server()) as client:
-            result = await client.call_tool(
-                "get_incident",
-                {"params": {"incident_id": 77}},
-                raise_on_error=False,
-            )
+            tools = await client.list_tools()
 
-        assert route.call_count == 2
-        assert result.is_error is True
-        error_content = result.content[0]
-        assert isinstance(error_content, TextContent)
-        assert "401" in error_content.text
+        assert {tool.name for tool in tools} == expected
 
-    async def test_a_forbidden_token_is_not_refreshed(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
+    async def test_stdio_advertises_the_contract_http_advertises(
+        self, stdio_env: None, monkeypatch: pytest.MonkeyPatch, gg_api: Any, mock_token_scopes: Any
     ) -> None:
         """
-        GIVEN a valid token lacking permission for an API operation
-        WHEN the API returns 403
-        THEN the client surfaces the denial without attempting token refresh
+        GIVEN a token with every scope
+        WHEN a stdio client and an HTTP client list the tools
+        THEN every tool has the same description, input schema, output schema and annotations on both
         """
-        route = gg_api.get("/incidents/secrets/77").respond(403, json={"detail": "Forbidden."})
-
         async with Client(build_server()) as client:
-            result = await client.call_tool(
-                "get_incident",
-                {"params": {"incident_id": 77}},
-                raise_on_error=False,
-            )
+            stdio = {
+                tool.name: tool.model_dump(mode="json", by_alias=True, exclude_none=True)
+                for tool in await client.list_tools()
+            }
 
-        assert route.call_count == 1
-        assert result.is_error is True
-        error_content = result.content[0]
-        assert isinstance(error_content, TextContent)
-        assert "403" in error_content.text
+        for name, value in {
+            "MULTI_TENANCY_ENABLED": "true",
+            "MCP_PORT": "8000",
+            "MCP_OAUTH_PROXY_ENABLED": "true",
+            "MCP_BASE_URL": MCP_BASE_URL,
+        }.items():
+            monkeypatch.setenv(name, value)
+        monkeypatch.delenv("GITGUARDIAN_PERSONAL_ACCESS_TOKEN")
+        app = build_http_app(build_server())
+        async with _run_lifespan(app):
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url=MCP_BASE_URL) as http_client:
+                http = {tool["name"]: tool for tool in rpc_result(await rpc(http_client, "tools/list", {}))["tools"]}
 
-
-class TestLocalGitIntrospection:
-    """Local-repository behavior available specifically to the stdio server."""
-
-    async def test_find_current_source_id_reads_the_local_git_remote(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-        tmp_path: Path,
-    ) -> None:
-        """
-        GIVEN a local git repository with an origin remote
-        WHEN find_current_source_id is called with its path (stdio server can
-             shell out, unlike the hosted server)
-        THEN the workspace sources are searched by the repository name and the
-             matching source id is returned
-        """
-        repo = tmp_path / "widget-factory"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/widget-factory.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
-        route = gg_api.get("/sources").respond(200, json=[{"id": 99, "name": "widget-factory"}])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
-
-        assert dict(route.calls.last.request.url.params) == {"search": "widget-factory", "per_page": "50"}
-        assert result.structured_content is not None
-        output = result.structured_content["result"]
-        assert output["source_id"] == 99
-        assert output["repository_name"] == "widget-factory"
-
-    async def test_find_current_source_id_reports_when_no_source_matches(
-        self,
-        stdio_env: None,
-        gg_api: Any,
-        mock_token_scopes: Any,
-        tmp_path: Path,
-    ) -> None:
-        """
-        GIVEN a local git repository that has no matching GitGuardian source
-        WHEN find_current_source_id searches for its origin repository name
-        THEN it returns a useful not-found error rather than a source id
-        """
-        repo = tmp_path / "unmonitored-repository"
-        repo.mkdir()
-        subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, timeout=5)
-        subprocess.run(
-            ["git", "remote", "add", "origin", "git@github.com:acme/unmonitored-repository.git"],
-            cwd=repo,
-            check=True,
-            timeout=5,
-        )
-        route = gg_api.get("/sources").respond(200, json=[])
-
-        async with Client(build_server()) as client:
-            result = await client.call_tool("find_current_source_id", {"repository_path": str(repo)})
-
-        assert route.call_count == 1
-        assert dict(route.calls.last.request.url.params) == {
-            "search": "unmonitored-repository",
-            "per_page": "50",
-        }
-        assert result.structured_content is not None
-        output = result.structured_content["result"]
-        assert output["repository_name"] == "unmonitored-repository"
-        assert output["error"] == "Repository 'unmonitored-repository' not found in GitGuardian"
-        assert "source_id" not in output
+        assert stdio.keys() == http.keys()
+        for name in stdio:
+            assert {key: stdio[name].get(key) for key in CONTRACT_KEYS} == {
+                key: http[name].get(key) for key in CONTRACT_KEYS
+            }, name

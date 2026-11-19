@@ -85,7 +85,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
     """
     GIVEN the installed gg-mcp-server entrypoint, an environment PAT, and a
           local fake GitGuardian API
-    WHEN a real MCP client calls get_incident over stdio
+    WHEN a real MCP client calls get_internal_incident over stdio
     THEN the incident is returned, every upstream request carries the expected
          headers, and the PAT is not logged
     """
@@ -115,8 +115,8 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
 
     async with Client(transport) as client:
         result = await client.call_tool(
-            "get_incident",
-            {"params": {"incident_id": 77}},
+            "get_internal_incident",
+            {"incident_id": 77},
         )
 
     assert result.structured_content == {"incident": INCIDENT}

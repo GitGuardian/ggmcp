@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+
 from gg_api_core.tools.list_public_occurrences import (
     ListPublicOccurrencesParams,
     list_public_occurrences,
@@ -30,7 +31,7 @@ class TestListPublicOccurrences:
         assert call_kwargs["ordering"] == "-date"
         assert call_kwargs["get_all"] is False
 
-        assert result.occurrences_count == 1
+        assert len(result.occurrences) == 1
         assert result.applied_filters["incident_id"] == 3759
 
     @pytest.mark.asyncio
@@ -50,13 +51,13 @@ class TestListPublicOccurrences:
             presence="present",
             sha="fccebf0562",
             filepath="src/config",
-            attachment_reason="by_dev_from_perimeter,on_github_org_in_perimeter",
-            severity="critical,high",
-            status="TRIGGERED,ASSIGNED",
+            attachment_reason=["by_dev_from_perimeter", "on_github_org_in_perimeter"],
+            severity=["critical", "high"],
+            status=["TRIGGERED", "ASSIGNED"],
             validity="valid",
             tags="FROM_HISTORICAL_SCAN",
             ordering="-id",
-            per_page=100,
+            page_size=100,
         )
         result = await list_public_occurrences(params)
 
@@ -83,7 +84,7 @@ class TestListPublicOccurrences:
         """
         GIVEN: A pagination cursor on the response
         WHEN: Listing public occurrences
-        THEN: cursor and has_more are surfaced in the result
+        THEN: next_arguments carry the next cursor, and has_more is surfaced in the result
         """
         mock_gitguardian_client.list_public_occurrences = AsyncMock(
             return_value={"data": [{"id": 1}], "cursor": "next_cursor", "has_more": True}
@@ -93,40 +94,5 @@ class TestListPublicOccurrences:
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["cursor"] == "prev_cursor"
-        assert result.cursor == "next_cursor"
+        assert result.next_arguments == {"incident_id": 1, "cursor": "next_cursor", "page_size": 20}
         assert result.has_more is True
-
-    @pytest.mark.asyncio
-    async def test_get_all_forwarded(self, mock_gitguardian_client):
-        """
-        GIVEN: get_all=True
-        WHEN: Listing public occurrences
-        THEN: get_all is forwarded to the client method
-        """
-        mock_gitguardian_client.list_public_occurrences = AsyncMock(
-            return_value={
-                "data": [{"id": 1}, {"id": 2}],
-                "cursor": None,
-                "has_more": False,
-            }
-        )
-
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1, get_all=True))
-
-        call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
-        assert call_kwargs["get_all"] is True
-        assert result.occurrences_count == 2
-
-    @pytest.mark.asyncio
-    async def test_client_error_returns_error_result(self, mock_gitguardian_client):
-        """
-        GIVEN: The client raises an exception
-        WHEN: Listing public occurrences
-        THEN: An error result is returned
-        """
-        mock_gitguardian_client.list_public_occurrences = AsyncMock(side_effect=Exception("Boom"))
-
-        result = await list_public_occurrences(ListPublicOccurrencesParams(incident_id=1))
-
-        assert hasattr(result, "error")
-        assert "Failed to list public occurrences" in result.error

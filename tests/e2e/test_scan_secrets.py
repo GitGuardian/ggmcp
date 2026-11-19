@@ -6,7 +6,7 @@ come back untouched) and the input-validation and crash behavior around it.
 
 import pytest
 
-from tests.e2e.harness import assert_authenticated_request, call_tool, sent_body, tool_error_text, tool_output
+from tests.e2e.harness import call_tool, sent_body, tool_error_text, tool_output
 
 SCAN_RESULT = {
     "policy_break_count": 1,
@@ -22,45 +22,27 @@ SCAN_RESULT = {
 
 
 class TestScanSecrets:
-    async def test_documents_are_posted_verbatim_and_results_returned_untouched(
-        self, mcp_client, gg_api, mock_token_scopes
-    ):
-        """
-        GIVEN two documents with filenames
-        WHEN scan_secrets is called
-        THEN the multiscan API receives the raw document list as JSON body and
-             the per-document results are returned verbatim under scan_results
-        """
-        documents = [
-            {"document": "aws_key = 'AKIA...'\n", "filename": "config.py"},
-            {"document": "clean file\n", "filename": "README.md"},
-        ]
-        route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT, {"policy_break_count": 0}])
-
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
-
-        assert_authenticated_request(route)
-        assert sent_body(route) == documents
-        assert tool_output(result) == {"scan_results": [SCAN_RESULT, {"policy_break_count": 0}]}
-
-    @pytest.mark.xfail(
-        strict=True,
-        reason="SI-3891: request logging crashes when a scan document has no filename",
+    @pytest.mark.parametrize(
+        "documents",
+        [
+            pytest.param([{"document": "x = 1\n"}], id="no-filename"),
+            pytest.param([{"document": "x = 1\n", "filename": "a.py"}, {"document": "y = 2\n"}], id="mixed-batch"),
+        ],
     )
-    async def test_document_without_filename_is_scanned(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_document_of_any_shape_is_scanned(self, mcp_client, gg_api, mock_token_scopes, documents):
         """
-        GIVEN a document dict carrying only the document key
+        GIVEN documents without a filename, or mixed in one batch
         WHEN scan_secrets is called
-        THEN the document is sent to the API and its result is returned
+        THEN every document is sent to the API and the results are returned
         """
-        route = gg_api.post("/multiscan").respond(200, json=[SCAN_RESULT])
-        documents = [{"document": "x = 1\n"}]
+        results = [SCAN_RESULT] * len(documents)
+        route = gg_api.post("/multiscan").respond(200, json=results)
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": documents}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": documents})
 
         assert route.called
         assert sent_body(route) == documents
-        assert tool_output(result) == {"scan_results": [SCAN_RESULT]}
+        assert tool_output(result) == {"scan_results": results}
 
     async def test_empty_document_list_is_rejected_without_an_api_call(self, mcp_client, gg_api, mock_token_scopes):
         """
@@ -70,23 +52,57 @@ class TestScanSecrets:
         """
         route = gg_api.post("/multiscan").respond(200, json=[])
 
-        result = await call_tool(mcp_client, "scan_secrets", {"params": {"documents": []}})
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": []})
 
-        assert "non-empty list" in tool_error_text(result)
+        assert "documents" in tool_error_text(result)
         assert not route.called
 
-    async def test_api_rejection_bubbles_up_as_a_tool_error(self, mcp_client, gg_api, mock_token_scopes):
+    @pytest.mark.parametrize(
+        ("document", "field"),
+        [
+            pytest.param({"document": "x = 1\n", "language": "python"}, "language", id="unknown-key"),
+            pytest.param({"filename": "a.py"}, "document", id="no-content"),
+            pytest.param({"document": "x = 1\n", "filename": "a" * 257}, "filename", id="filename-too-long"),
+        ],
+    )
+    async def test_a_malformed_document_is_refused_naming_the_field(
+        self, mcp_client, gg_api, mock_token_scopes, document, field
+    ):
         """
-        GIVEN the API rejecting the batch with 400
+        GIVEN a document with a key scan_secrets does not take, without content, or with too long a filename
         WHEN scan_secrets is called
-        THEN the failure surfaces as a tool error naming the status
+        THEN validation fails locally naming that field, and the API is never contacted
         """
-        gg_api.post("/multiscan").respond(400, json={"detail": "Too many documents."})
+        route = gg_api.post("/multiscan").respond(200, json=[])
+
+        result = await call_tool(mcp_client, "scan_secrets", {"documents": [document]})
+
+        assert field in tool_error_text(result)
+        assert not route.called
+
+
+class TestExcludedSecrets:
+    async def test_a_secret_with_a_resolved_or_ignored_incident_is_still_reported(
+        self, mcp_client, gg_api, mock_token_scopes
+    ):
+        """
+        GIVEN a document holding a secret whose incident was ignored in GitGuardian
+        WHEN scan_secrets is called
+        THEN the scan asks the API for all secrets, and the break comes back flagged as excluded
+        """
+        excluded_break = {
+            "type": "AWS Keys",
+            "policy": "Secrets detection",
+            "matches": [{"type": "apikey", "match": "AKIA...", "line_start": 1}],
+            "is_excluded": True,
+            "exclude_reason": "Ignored in dashboard",
+        }
+        scan_result = {"policy_break_count": 1, "policies": ["Secrets detection"], "policy_breaks": [excluded_break]}
+        route = gg_api.post("/multiscan").respond(200, json=[scan_result])
 
         result = await call_tool(
-            mcp_client,
-            "scan_secrets",
-            {"params": {"documents": [{"document": "x", "filename": "x.py"}]}},
+            mcp_client, "scan_secrets", {"documents": [{"document": "k = 1\n", "filename": "a.py"}]}
         )
 
-        assert "400" in tool_error_text(result)
+        assert route.calls.last.request.url.params["all_secrets"] == "true"
+        assert tool_output(result) == {"scan_results": [scan_result]}

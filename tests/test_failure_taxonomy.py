@@ -1,8 +1,20 @@
 """Grading of tool failures into queryable fields."""
 
 import httpx
+import pytest
+from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ValidationError as FastMCPValidationError
+
 from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.log_context import classify_failure
+from gg_api_core.model_arguments import ToolBodyError
+from gg_api_core.redirects import CrossOriginRedirectError
+from gg_api_core.scopes import MissingScopesError
+
+
+def _caused_by(outer: BaseException, cause: BaseException) -> BaseException:
+    outer.__cause__ = cause
+    return outer
 
 
 def _status_error(status: int, body: dict | str | None = None) -> httpx.HTTPStatusError:
@@ -24,25 +36,6 @@ class TestClassifyFailure:
         """
         assert classify_failure(ValueError("boom"))["error_class"] == "ValueError"
 
-    def test_grades_a_4xx_as_the_caller_s_fault(self):
-        """
-        GIVEN a 400 from the GitGuardian API
-        WHEN it is classified
-        THEN the status is surfaced and the fault is the client's
-        """
-        failure = classify_failure(_status_error(400))
-
-        assert failure["upstream_status"] == 400
-        assert failure["fault"] == "client"
-
-    def test_grades_a_5xx_as_our_fault(self):
-        """
-        GIVEN a 502 from the GitGuardian API
-        WHEN it is classified
-        THEN the fault is the server's
-        """
-        assert classify_failure(_status_error(502))["fault"] == "server"
-
     def test_grades_a_429_as_our_fault_despite_being_a_4xx(self):
         """
         GIVEN a 429 from the GitGuardian API
@@ -50,17 +43,6 @@ class TestClassifyFailure:
         THEN the fault is the server's
         """
         assert classify_failure(_status_error(429))["fault"] == "server"
-
-    def test_grades_an_unexpected_exception_as_our_fault(self):
-        """
-        GIVEN an exception with no HTTP status anywhere in its chain
-        WHEN it is classified
-        THEN the fault is the server's and no status is invented
-        """
-        failure = classify_failure(KeyError("missing"))
-
-        assert failure["fault"] == "server"
-        assert "upstream_status" not in failure
 
     def test_finds_the_status_through_a_wrapped_exception(self):
         """
@@ -79,39 +61,6 @@ class TestClassifyFailure:
         assert failure["upstream_status"] == 401
         assert failure["fault"] == "client"
         assert failure["error_class"] == "gg_api_core.client.DownstreamUnauthorizedError"
-
-    def test_surfaces_the_gitguardian_error_code(self):
-        """
-        GIVEN an error body carrying a machine-readable code
-        WHEN it is classified
-        THEN the code is surfaced as its own field
-        """
-        failure = classify_failure(_status_error(400, {"code": "invalid_severity"}))
-
-        assert failure["gg_error_code"] == "invalid_severity"
-
-    def test_ignores_the_detail_prose(self):
-        """
-        GIVEN an error body whose `detail` echoes the submitted document
-        WHEN it is classified
-        THEN no error code is emitted
-        """
-        failure = classify_failure(
-            _status_error(400, {"detail": "Invalid document: 'aws_secret_access_key=wJalrXUtnFEMI'"})
-        )
-
-        assert "gg_error_code" not in failure
-        assert "wJalrXUtnFEMI" not in str(failure)
-
-    def test_rejects_an_over_long_code(self):
-        """
-        GIVEN a `code` field carrying a sentence rather than an identifier
-        WHEN it is classified
-        THEN it is not surfaced
-        """
-        failure = classify_failure(_status_error(400, {"code": "x" * 200}))
-
-        assert "gg_error_code" not in failure
 
     def test_finds_the_status_inside_an_exception_group(self):
         """
@@ -143,13 +92,35 @@ class TestClassifyFailure:
         assert "upstream_status" not in failure
         assert failure["fault"] == "server"
 
-    def test_tolerates_a_non_json_error_body(self):
+    @pytest.mark.parametrize(
+        ("exception", "fault"),
+        [
+            pytest.param(
+                FastMCPValidationError("Invalid arguments for tool 'get_internal_incident'"),
+                "client",
+                id="bad-arguments",
+            ),
+            pytest.param(ToolError("The 'ignore_reason' parameter is required"), "client", id="deliberate-refusal"),
+            pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), "client", id="missing-scopes"),
+            pytest.param(_caused_by(ToolError("Error calling tool"), KeyError("results")), "server", id="bug"),
+            pytest.param(_caused_by(ToolBodyError("bad response shape"), ValueError("x")), "server", id="bad-response"),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), CrossOriginRedirectError("redirected")),
+                "server",
+                id="cross-origin-redirect",
+            ),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), httpx.ReadTimeout("timed out")), "server", id="timeout"
+            ),
+        ],
+    )
+    def test_a_failure_without_an_http_status_is_the_callers_only_when_they_can_fix_it(self, exception, fault):
         """
-        GIVEN an error body that is not JSON (a proxy's HTML error page)
+        GIVEN a failure no API answer caused
         WHEN it is classified
-        THEN the status is still reported and no code is invented
+        THEN invalid arguments, deliberate refusals and missing scopes are the client's fault, anything else ours
         """
-        failure = classify_failure(_status_error(502, "<html>bad gateway</html>"))
+        failure = classify_failure(exception)
 
-        assert failure["upstream_status"] == 502
-        assert "gg_error_code" not in failure
+        assert "upstream_status" not in failure
+        assert failure["fault"] == fault

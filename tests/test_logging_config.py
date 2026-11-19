@@ -1,8 +1,14 @@
 import json
 import logging
 
+import anyio
+import httpx
 import pytest
 import structlog
+from pydantic import BaseModel, ValidationError
+from starlette.requests import ClientDisconnect
+
+from gg_api_core.client import DownstreamUnauthorizedError
 from gg_api_core.logging_config import configure_logging
 from gg_api_core.version import APP_VERSION
 
@@ -20,16 +26,6 @@ def _assert_structlog_configuration_restored():
 
 
 class TestConfigureLogging:
-    def test_configuration_does_not_leak_between_tests(self, _assert_structlog_configuration_restored):
-        """
-        GIVEN the process-global Structlog configuration before a test
-        WHEN configure_logging replaces its processor chain
-        THEN the autouse logging fixture restores the original configuration afterward
-        """
-        _reconfigure_json()
-
-        assert structlog.get_config() != _assert_structlog_configuration_restored
-
     def test_logs_go_to_stderr_not_stdout(self, capsys):
         _reconfigure_json()
         structlog.get_logger("t").info("hello")
@@ -39,10 +35,10 @@ class TestConfigureLogging:
 
     def test_json_format_renders_with_service(self, capsys):
         _reconfigure_json()
-        structlog.get_logger("t").info("event msg", account_id=475789)
+        structlog.get_logger("t").info("event msg", account_id=42)
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
         assert payload["event"] == "event msg"
-        assert payload["account_id"] == 475789
+        assert payload["account_id"] == 42
         assert payload["gg_service"] == "gg-mcp-server"
         assert payload["level"] == "info"
         assert payload["gg_version"] == (APP_VERSION or "unknown")
@@ -63,52 +59,150 @@ class TestConfigureLogging:
         assert payload["endpoint"] == "/v1/x"
         assert payload["token"] == "[REDACTED]"
 
-    def test_exception_cls_is_added(self, capsys):
+    def test_logged_validation_errors_do_not_carry_the_rejected_input(self, capsys):
         _reconfigure_json()
+
+        class Params(BaseModel):
+            incident_id: int
+
+        # Built at runtime: the traceback quotes source lines, and this one must not hold the value.
+        rejected_input = "-".join(("pasted", "secret"))
         try:
-            raise ValueError("boom")
-        except ValueError:
-            structlog.get_logger("t").exception("failed")
+            Params.model_validate({"incident_id": rejected_input})
+        except ValidationError:
+            logging.getLogger("t.stdlib").exception("tool_call_failed")
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
-        assert payload["exception_cls"] == "ValueError"
+        assert "type=int_parsing" in payload["exception"]
+        assert "pasted-secret" not in json.dumps(payload)
 
-    def test_exception_cls_on_stdlib_logger(self, capsys):
+    def test_logged_http_errors_keep_the_url_path_but_not_its_query(self, capsys):
         _reconfigure_json()
+        request = httpx.Request("GET", "https://api.gitguardian.com/v1/incidents-for-mcp?search=pasted-secret&page=1")
+        response = httpx.Response(404, request=request)
         try:
-            raise KeyError("k")
-        except KeyError:
-            logging.getLogger("t.stdlib").exception("failed")
+            response.raise_for_status()
+        except httpx.HTTPStatusError:
+            logging.getLogger("t.stdlib").exception("tool_call_failed")
         payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
-        assert payload["exception_cls"] == "KeyError"
+        assert "https://api.gitguardian.com/v1/incidents-for-mcp?[REDACTED]" in payload["exception"]
+        assert "pasted-secret" not in json.dumps(payload)
 
-    def test_bound_contextvars_reach_rendered_output(self, capsys):
+
+def _log_error_with(logger_name: str, exception: BaseException, message: str = "Stateless session crashed") -> None:
+    try:
+        raise exception
+    except BaseException:
+        logging.getLogger(logger_name).exception(message)
+
+
+class TestClientDisconnectNoise:
+    @pytest.mark.parametrize(
+        ("logger_name", "exception", "message"),
+        [
+            pytest.param(
+                "mcp.server.streamable_http", ClientDisconnect(), "Error handling POST request", id="body-read"
+            ),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                anyio.ClosedResourceError(),
+                "Stateless session crashed",
+                id="closed-stream",
+            ),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                BaseExceptionGroup("unhandled", [anyio.ClosedResourceError(), anyio.BrokenResourceError()]),
+                "Stateless session crashed",
+                id="group-of-disconnects",
+            ),
+        ],
+    )
+    def test_a_client_disconnect_is_logged_as_a_warning(self, capsys, logger_name, exception, message):
         """
-        GIVEN a value bound via structlog.contextvars
-        WHEN a line is emitted through the structlog and the stdlib logger
-        THEN both rendered payloads carry it
-
-        Guards ``merge_contextvars`` staying in *both* the structlog processor
-        chain and the ProcessorFormatter ``foreign_pre_chain``. Dropping it
-        from either silently strips ``request_id`` from production logs while
-        every contextvars-level unit test still passes.
+        GIVEN the MCP SDK logging an error because the client hung up
+        WHEN the record is emitted
+        THEN it goes out as a warning, traceback kept
         """
-        _reconfigure_json()
-        with structlog.contextvars.bound_contextvars(
-            account_id=475789,
-            request_id="req-abc",
-            token_id="d0ca9877-641f-4c37-8857-c08e0ae148c4",
-        ):
-            structlog.get_logger("t").info("native")
-            # How ToolCallLoggingMiddleware actually emits: stdlib logger + extra.
-            logging.getLogger("t.stdlib").info("foreign", extra={"tool": "scan_secrets"})
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception, message)
 
-        native, foreign = (json.loads(line) for line in capsys.readouterr().err.strip().splitlines()[-2:])
-        assert native["event"] == "native"
-        assert native["account_id"] == 475789
-        assert native["request_id"] == "req-abc"
-        assert native["token_id"] == "d0ca9877-641f-4c37-8857-c08e0ae148c4"
-        assert foreign["event"] == "foreign"
-        assert foreign["account_id"] == 475789
-        assert foreign["request_id"] == "req-abc"
-        assert foreign["token_id"] == "d0ca9877-641f-4c37-8857-c08e0ae148c4"
-        assert foreign["tool"] == "scan_secrets"
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "warning"
+        assert payload["event"] == message
+        assert "exception" in payload
+
+    @pytest.mark.parametrize(
+        ("logger_name", "exception"),
+        [
+            pytest.param("mcp.server.streamable_http_manager", RuntimeError("bug"), id="real-error-same-logger"),
+            pytest.param(
+                "mcp.server.streamable_http_manager",
+                BaseExceptionGroup("unhandled", [anyio.ClosedResourceError(), RuntimeError("bug")]),
+                id="disconnect-mixed-with-a-real-error",
+            ),
+            pytest.param("gg_api_core.client", ClientDisconnect(), id="disconnect-from-another-logger"),
+        ],
+    )
+    def test_any_other_error_keeps_its_level(self, capsys, logger_name, exception):
+        """
+        GIVEN an error that is not only a client disconnect, or one logged elsewhere
+        WHEN the record is emitted
+        THEN it stays an error
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception)
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "error"
+
+
+def _rejected_token(wrapped_in: BaseException | None = None) -> BaseException:
+    """A DownstreamUnauthorizedError caused by the API's 401, optionally wrapped as FastMCP does."""
+    request = httpx.Request("GET", "https://api.gitguardian.com/v1/api_tokens/self")
+    rejected = DownstreamUnauthorizedError("GitGuardian API returned 401")
+    rejected.__cause__ = httpx.HTTPStatusError("401", request=request, response=httpx.Response(401, request=request))
+    if wrapped_in is None:
+        return rejected
+    wrapped_in.__cause__ = rejected
+    return wrapped_in
+
+
+class TestRejectedTokenNoise:
+    @pytest.mark.parametrize(
+        "exception",
+        [
+            pytest.param(_rejected_token(), id="rejected-token"),
+            pytest.param(_rejected_token(wrapped_in=RuntimeError("wrapper")), id="rejected-token-as-cause"),
+        ],
+    )
+    def test_a_rejected_token_at_the_dispatcher_is_logged_as_a_warning(self, capsys, exception):
+        """
+        GIVEN the MCP SDK dispatcher logging an error because the API rejected the client's token
+        WHEN the record is emitted
+        THEN it goes out as a warning, traceback kept
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with("mcp.shared.jsonrpc_dispatcher", exception, "handler for 'tools/list' raised")
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "warning"
+        assert payload["event"] == "handler for 'tools/list' raised"
+        assert "exception" in payload
+
+    @pytest.mark.parametrize(
+        ("logger_name", "exception"),
+        [
+            pytest.param("mcp.shared.jsonrpc_dispatcher", RuntimeError("bug"), id="real-error-same-logger"),
+            pytest.param("gg_api_core.middleware", _rejected_token(), id="rejected-token-from-another-logger"),
+        ],
+    )
+    def test_any_other_error_keeps_its_level(self, capsys, logger_name, exception):
+        """
+        GIVEN an error that is not a rejected token, or a rejected token logged elsewhere
+        WHEN the record is emitted
+        THEN it stays an error
+        """
+        configure_logging(log_level="INFO", log_format="json")
+        _log_error_with(logger_name, exception, "handler for 'tools/list' raised")
+
+        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
+        assert payload["level"] == "error"

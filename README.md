@@ -14,12 +14,39 @@ backed by GitGuardian's 500+ detectors.
 
 ## What it does
 
-- **Secret scanning** — proactively scan files for leaked credentials.
-- **Incident management** — list, filter, assign, resolve, and tag incidents
-  (both internal and Public Monitoring incidents).
-- **Honeytokens** — generate honeytokens and list existing ones.
-- **Code-fix automation** — open pull requests that remediate secrets in
-  repositories your workspace monitors.
+- **Secret scanning**: proactively scan files for leaked credentials (`scan_secrets`).
+- **Incident triage**: list, count and inspect internal incidents
+  (`list_internal_incidents`, `count_internal_incidents`, `get_internal_incident`,
+  which can include an incident's comments and history), and drill into where the
+  secret is (`list_internal_occurrences`, `list_internal_incident_locations`,
+  `list_sources`).
+- **Incident links and IDs**: open an incident from a pasted dashboard or public API
+  link, or from a bare incident ID (`get_gitguardian_resource`). It works out whether
+  the incident is internal or from Public Monitoring and returns its details. Links
+  must come from the configured instance and the token's workspace. For share links,
+  supply the authenticated dashboard link.
+- **Incident management**, for internal incidents and, with `_public_` in the name,
+  for Public Monitoring incidents: resolve, ignore, or reopen them
+  (`resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`),
+  assign or unassign them (`assign_internal_incident`, `unassign_internal_incident`),
+  set their severity (`set_internal_incident_severity`), tag them
+  (`add_internal_incident_custom_tag`, `remove_internal_incident_custom_tag`, and
+  `list_custom_tags` for the workspace's tags), and comment on them
+  (`add_internal_incident_comment`, `edit_internal_incident_comment`).
+- **Public Monitoring**: list and inspect public incidents, their history and their
+  occurrences (`list_public_incidents`, `get_public_incident`,
+  `list_public_occurrences`).
+- **Remediation**: fetch your workspace's remediation workflow
+  (`get_remediation_workflow`), ask GitGuardian to open pull requests that remove a
+  secret (`create_internal_incident_code_fix_request`), and revoke a secret at its
+  provider (`revoke_secret`).
+- **Members**: find members and see who can access an incident (`list_members`,
+  `get_member`, `list_internal_incident_members`, `list_internal_incident_teams`).
+- **Honeytokens and detectors**: generate and list honeytokens
+  (`generate_honeytoken`, `list_honeytokens`), and list the secret detectors
+  (`list_detectors`).
+- **Identity**: see who the token belongs to, their role, and the token's scopes and
+  expiry (`get_my_identity`).
 
 The exact set of tools exposed to your agent depends on the OAuth scopes
 granted to your access token.
@@ -40,10 +67,6 @@ Check if there are any new security incidents assigned to me.
 
 ```
 Help me understand this security incident and provide remediation steps.
-```
-
-```
-List all my active honeytokens.
 ```
 
 ```
@@ -87,8 +110,8 @@ Edit `~/.cursor/mcp.json`:
 
 Edit `~/Library/Application Support/Claude Desktop/mcp.json` (macOS) or
 `%APPDATA%\Claude Desktop\mcp.json` (Windows). Same JSON as Cursor. Claude
-Desktop versions that pre-date HTTP MCP support need the
-[Local stdio fallback](#local-stdio-mode-pat-only).
+Desktop versions that pre-date HTTP MCP support can run the server
+[locally over stdio](#local-stdio-mode).
 
 ### Claude.ai (web)
 
@@ -120,42 +143,69 @@ Edit `~/Library/Application Support/Zed/mcp.json` (or
 
 ## Choosing a deployment
 
-Two deployment paths are supported. Pick based on where your GitGuardian
+Three deployment paths are supported. Pick based on where your GitGuardian
 instance lives and what tradeoffs you accept.
 
-| Deployment                                                 | When to use                                                                                                              |
-|------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| **Hosted MCP** (Quick start above)                         | GitGuardian SaaS (US/EU) and you accept that requests transit `mcp.gitguardian.com` in addition to `api.gitguardian.com` |
-| **Self-hosted MCP** ([§](#self-hosting-the-mcp-server))    | Self-hosted GitGuardian, airgapped environments, or you want the MCP server on your own infrastructure                   |
-| **Local stdio with PAT** ([§](#local-stdio-mode-pat-only)) | CI/CD, scripts, one-off invocations, or older MCP clients without `type: http` support                                   |
+| Deployment                                              | When to use                                                                                                              |
+|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| **Hosted MCP** (Quick start above)                      | GitGuardian SaaS (US/EU) and you accept that requests transit `mcp.gitguardian.com` in addition to `api.gitguardian.com` |
+| **Self-hosted MCP** ([§](#self-hosting-the-mcp-server)) | Self-hosted GitGuardian, airgapped environments, or you want the MCP server on your own infrastructure                   |
+| **Local stdio** ([§](#local-stdio-mode))                | MCP clients without `type: http` support, CI/CD and scripts, or you want the server to run on your own machine          |
 
 ## Authentication
 
-> Most users do not need to touch this — the [Quick start](#quick-start)
-> config implicitly uses the **OAuth proxy** mode on the hosted server, and the
-[Local stdio](#local-stdio-mode-pat-only) config uses **PAT env**.
+> Most users do not need to touch this. The [Quick start](#quick-start)
+> config uses the **OAuth proxy** mode on the hosted server, and
+> [Local stdio](#local-stdio-mode) uses **Browser OAuth** or **PAT env**.
 
 There are four authentication modes the server can run in; you pick one via
 env vars.
 
 | Mode                                   | Configuration                                                          | Used by                                                                                                             |
 |----------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `ENABLE_LOCAL_OAUTH=false`            | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
-| **Raw bearer** (HTTP)                  | `ENABLE_LOCAL_OAUTH=false` + `MCP_PORT` set                            | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
-| **PAT env** (any transport)            | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
-| **Browser-OAuth stdio** *(deprecated)* | `ENABLE_LOCAL_OAUTH=true` (today's default in stdio)                   | Legacy `uvx --from …` flow that opens a localhost callback and stores the PAT on disk.                              |
+| **OAuth proxy** (HTTP)                 | `MCP_OAUTH_PROXY_ENABLED=true` + `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | The hosted MCP server. MCP client runs OAuth against `/authorize`+`/token`; the server proxies to the GG dashboard. |
+| **Raw bearer** (HTTP)                  | `MULTI_TENANCY_ENABLED=true` + `MCP_PORT` + `ENABLE_LOCAL_OAUTH=false` | Self-hosted deployments without OAuth. Client sends `Authorization: Bearer <PAT>` on every request.                 |
+| **PAT env** (stdio)                    | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN=<pat>` + `ENABLE_LOCAL_OAUTH=false` | CI, scripts, local stdio. Server uses the env-var PAT for every GG API call.                                        |
+| **Browser OAuth** (stdio)              | `ENABLE_LOCAL_OAUTH=true` (the default in stdio)                       | Local stdio without a PAT. The server opens a GitGuardian login in the browser and stores the PAT it receives on disk. |
 
-> [!NOTE]
-> Browser-driven OAuth in stdio mode is **deprecated**. New stdio deployments
-> should authenticate with a PAT; OAuth-driven flows should use the hosted or
-> self-hosted HTTP server. The stdio OAuth code path will be removed in a
-> future release; until then it remains the default in stdio for backward
-> compatibility.
+## Local stdio mode
 
-## Local stdio mode (PAT-only)
+Run the server on your own machine over stdio, with
+[`uvx`](https://docs.astral.sh/uv/). Use it for MCP clients without
+`type: http` support, for CI/CD and scripts, or when you want requests to go
+straight from your machine to the GitGuardian API.
 
-For CI/CD, airgapped environments, or older MCP clients, run the server
-locally over stdio with a PAT:
+### Sign in with your browser
+
+By default the server opens a GitGuardian login in your browser the first time
+a tool runs, then stores the PAT it receives on disk and reuses it on later
+starts:
+
+```json
+{
+  "mcpServers": {
+    "GitGuardian": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/GitGuardian/ggmcp.git",
+        "gg-mcp-server"
+      ],
+      "env": {
+        "GITGUARDIAN_URL": "https://dashboard.gitguardian.com"
+      }
+    }
+  }
+}
+```
+
+Set `GITGUARDIAN_URL` to your own dashboard URL if you are not on US SaaS. Each
+login creates a new PAT in your GitGuardian account.
+
+### Use a PAT
+
+For CI/CD, headless machines, or when you manage the token yourself, pass a PAT
+and turn the browser login off:
 
 ```json
 {
@@ -178,10 +228,13 @@ locally over stdio with a PAT:
 ```
 
 Create a PAT in your GitGuardian dashboard under **API → Personal Access
-Tokens**. The set of tools the server exposes depends on the PAT's scopes.
+Tokens**.
+
+In both cases the set of tools the server exposes depends on the token's
+scopes.
 
 For Claude Desktop on macOS, the `command` field needs the **absolute path**
-to `uvx` (e.g. `/Users/you/.local/bin/uvx`) — Claude Desktop does not resolve
+to `uvx` (e.g. `/Users/you/.local/bin/uvx`): Claude Desktop does not resolve
 `$PATH` for MCP servers.
 
 ## Self-hosting the MCP server
@@ -201,6 +254,8 @@ docker run -p 8000:8000 \
   -e IS_ON_PREM=true \
   -e MCP_BASE_URL=https://mcp.mycorp.local \
   -e MCP_OAUTH_PROXY_ENABLED=true \
+  -e MULTI_TENANCY_ENABLED=true \
+  -e MCP_PORT=8000 \
   -e ENABLE_LOCAL_OAUTH=false \
   ghcr.io/gitguardian/mcp-server:latest \
   gunicorn --workers=4 --worker-class=uvicorn.workers.UvicornWorker \
@@ -218,6 +273,11 @@ Protected Resource (RFC 9728) and proxy `/authorize`, `/token`, `/register`
 to your GitGuardian dashboard. MCP clients then run the OAuth flow against
 your domain.
 
+`MULTI_TENANCY_ENABLED=true` (with `MCP_PORT` set) makes the server use the
+token each request carries in its `Authorization` header. Without it, the
+server refuses to start over HTTP, since every caller would otherwise act under
+a single server-wide token.
+
 ## Configuration reference
 
 | Variable                            | Description                                      | Default                             |
@@ -225,22 +285,86 @@ your domain.
 | `GITGUARDIAN_URL`                   | GitGuardian dashboard URL                        | `https://dashboard.gitguardian.com` |
 | `IS_ON_PREM`                        | `true` => self-hosted; `false` => SaaS; unset ⇒ guess from hostname | Unset            |
 | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | PAT (overrides OAuth)                            | Unset                               |
-| `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | Auto                                |
+| `GITGUARDIAN_SCOPES`                | Comma-separated OAuth scopes to request          | The scopes the tools use            |
 | `GITGUARDIAN_CLIENT_ID`             | OAuth client ID                                  | `ggshield_oauth`                    |
 | `GITGUARDIAN_TOKEN_NAME`            | Display name for OAuth-issued PATs               | `MCP Token`                         |
 | `GITGUARDIAN_TOKEN_LIFETIME`        | PAT lifetime in days (or `never`)                | `30`                                |
 | `MCP_PORT`                          | Port for HTTP transport (unset ⇒ stdio)          | Unset                               |
+| `MULTI_TENANCY_ENABLED`             | Use each request's `Authorization` token; required over HTTP | `false`                 |
 | `MCP_HOST`                          | Bind address for HTTP transport                  | `127.0.0.1`                         |
 | `MCP_BASE_URL`                      | Public URL of this MCP server (OAuth proxy mode) | `http://localhost:8000`             |
 | `MCP_OAUTH_PROXY_ENABLED`           | Advertise OAuth Protected Resource metadata      | `false`                             |
-| `ENABLE_LOCAL_OAUTH`                | Legacy: enable stdio OAuth flow (deprecated)     | `true`                              |
+| `ENABLE_LOCAL_OAUTH`                | Browser login flow in stdio                      | `true`                              |
+| `LOG_LEVEL`                         | Log level                                        | `INFO`                              |
+| `LOG_FORMAT`                        | `json` or `console`                              | `console` on a TTY, else `json`     |
 
 ## Migration notes
 
-The `developer-mcp-server` and `secops-mcp-server` console scripts are
-deprecated and re-export the unified `gg-mcp-server`. Update your MCP client
-configuration to invoke `gg-mcp-server` directly; both old scripts will be
-removed in a future release.
+These notes cover moving from 0.7.x. Agents pick up the new tool names and arguments
+from the tool list; scripts and prompts that name tools or arguments need updating.
+
+### Tools
+
+| 0.7.x tool | Now |
+|---|---|
+| `list_incidents` | `list_internal_incidents` |
+| `count_incidents` | `count_internal_incidents` |
+| `get_incident` | `get_internal_incident` |
+| `list_repo_occurrences` | `list_internal_occurrences` |
+| `list_remediation_targets` | `list_internal_incident_locations`, or `list_internal_occurrences` with `tags: ["DEFAULT_BRANCH"]` |
+| `list_incident_activity_logs`, `list_incident_comments` | `get_internal_incident` with `with_history` |
+| `list_public_incident_activity_logs`, `list_public_incident_comments` | `get_public_incident` with `with_history` |
+| `manage_private_incident` | `resolve_internal_incident`, `ignore_internal_incident`, `reopen_internal_incident`, `unassign_internal_incident` |
+| `assign_incident` | `assign_internal_incident` |
+| `manage_incident_comment` | `add_internal_incident_comment`, `edit_internal_incident_comment` |
+| `update_public_incident_status` | `resolve_public_incident`, `ignore_public_incident`, `reopen_public_incident` |
+| `assign_public_incident` | `assign_public_incident`, and `unassign_public_incident`, which is new |
+| `manage_public_incident_comment` | `add_public_incident_comment`, `edit_public_incident_comment` |
+| `update_or_create_incident_custom_tags` | `add_internal_incident_custom_tag`, `remove_internal_incident_custom_tag`, and the `_public_` pair, which are new. Each changes one tag and keeps the others |
+| `read_custom_tags` | `list_custom_tags` |
+| `update_incident_severity` | `set_internal_incident_severity`, and `set_public_incident_severity`, which is new |
+| `create_code_fix_request` | `create_internal_incident_code_fix_request`, with location IDs from `list_internal_incident_locations` |
+| `list_users` | `list_members` |
+| `list_incident_members`, `list_incident_teams` | `list_internal_incident_members`, `list_internal_incident_teams` |
+| `get_authenticated_user_info`, `get_current_token_info` | `get_my_identity` |
+| `find_current_source_id` | `list_sources`, filtered by `search` or `external_id` |
+| `scan_secrets`, `list_public_incidents`, `get_public_incident`, `list_public_occurrences`, `list_sources`, `get_remediation_workflow`, `generate_honeytoken`, `get_member`, `list_honeytokens`, `list_detectors`, `revoke_secret` | Same name |
+| `write_custom_tags`, `revoke_current_token` | Removed. Use the GitGuardian dashboard |
+
+`get_gitguardian_resource` is new: it opens an incident from a link or an ID of either kind.
+
+### Arguments and results
+
+- Arguments are passed at the top level, `{"incident_id": 123}`, instead of inside a
+  `params` object, `{"params": {"incident_id": 123}}`. A call in the old shape is
+  refused with an error that says so.
+- Every list tool takes `page_size`, `cursor` and `get_all`, and returns `page_size`,
+  `has_more`, `stop_reason` and `next_arguments`; call the tool again with
+  `next_arguments` for the next page. `page` and `per_page` are gone, and so are
+  `cursor`, `next_cursor`, `has_next`, `has_previous` and the result counts in results.
+- List and count results are no longer wrapped in a `result` object.
+- Multi-value filters take lists. Severities are named (`critical` to `unknown`) in
+  every tool, and the unknown validity is `unknown` everywhere.
+- `list_internal_occurrences` takes `date_after`, `date_before` and `assignee_id`, which
+  replace `from_date`, `to_date` and `member_assignee_id`.
+- Assigning by email takes `assignee_email` for both incident kinds, which replaces
+  `email` on internal incidents.
+- Write tools return the incident's kind and ID, the change, whether it changed
+  anything (`changed`), and the incident.
+- `scan_secrets` reports secrets whose incident was already resolved or ignored, with
+  `is_excluded: true`, and refuses document fields other than `document` and `filename`.
+
+### Deployment
+
+- The SSE app (`gg_mcp_server.sse_app:app`) was removed. Serve
+  `gg_mcp_server.http_app:app` instead.
+- The `developer-mcp-server` and `secops-mcp-server` console scripts were
+  removed. Update your MCP client configuration to invoke `gg-mcp-server`.
+
+## Data handling
+
+Tool arguments and results can hold secrets. [`DATA_HANDLING.md`](DATA_HANDLING.md) says
+where they go, and what keeps them out of logs, error tracking and error messages.
 
 ## Want more?
 
