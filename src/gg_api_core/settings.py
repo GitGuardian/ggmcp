@@ -69,10 +69,8 @@ class Settings(BaseSettings):
     mcp_oauth_proxy_enabled: str | None = None
     mcp_base_url: str = "http://localhost:8000"
     mcp_oauth_token_name: str = "MCP server token (OAuth Proxy)"
-    # Explicit 90 mirrors the server-side policy for DCR-issued tokens
-    # (oauth2_access_token_max_lifetime: default and cap, per SI-3329). The local
-    # flow's 30-day gitguardian_token_lifetime default must not leak into the
-    # proxy — DCR tokens have a server backstop, local ones don't.
+    # OAuth proxy tokens default to 90 days, independently of the local
+    # OAuth flow's 30-day gitguardian_token_lifetime default.
     mcp_oauth_token_lifetime: str = "90"
 
     # --- System ---

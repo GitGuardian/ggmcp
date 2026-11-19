@@ -1,4 +1,4 @@
-"""generate_honeytoken creates a live decoy only on purpose (SI-4073).
+"""generate_honeytoken creates a live decoy only on purpose.
 
 With new_token=False the caller asked to reuse a honeytoken, so a new one is
 created only when the reuse lookup succeeded and found none.

@@ -1,70 +1,36 @@
-# Git
-.git
-.gitignore
-
-# Python
-__pycache__
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-.venv
-venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-.cursor/
-*.swp
-*.swo
-*~
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# Documentation
-docs/_build/
-*.md
+# Send only the files required by Dockerfile COPY instructions.
+# Root-level local configuration, reports, and tooling stay outside the context.
+**
+!pyproject.toml
+!uv.lock
 !README.md
+!src/
+src/*
+!src/gg_api_core/
+!src/gg_api_core/**
+!src/gg_mcp_server/
+!src/gg_mcp_server/**
 
-# CI/CD
-.github/
-.circleci/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Environment
-.env
-.env.local
-
-# Examples and tests
-examples/
-tests/
-
-# Helm charts
-helm/
+# Keep generated files and local configuration out of the source trees too.
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+**/*.egg-info/
+**/.env*
+**/.git/
+**/.venv/
+**/.claude/
+**/.pi/
+**/.build/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.pytest_cache/
+**/.idea/
+**/.vscode/
+**/.DS_Store
+**/*.log
+**/*.sqlite
+**/*.db
+**/*.swp
+**/*.swo
+**/*~

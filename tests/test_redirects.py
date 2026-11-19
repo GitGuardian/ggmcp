@@ -1,4 +1,4 @@
-"""Redirects are followed only while they stay on the request's origin (SI-4058)."""
+"""Redirects are followed only while they stay on the request's origin."""
 
 import httpx
 import pytest

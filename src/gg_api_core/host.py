@@ -2,17 +2,7 @@ from urllib.parse import urlparse
 
 from .settings import get_settings
 
-SAAS_HOSTNAMES = [
-    "dashboard.gitguardian.com",
-    "api.gitguardian.com",
-    "dashboard.eu1.gitguardian.com",
-    "api.eu1.gitguardian.com",
-    "dashboard.staging.gitguardian.tech",
-    "dashboard.preprod.gitguardian.com",
-]
-
-# Domain suffixes for dynamic SaaS-like environments (e.g. review-apps)
-# where hostnames include a dynamic ID like dashboard-23683.review-apps.preprod.gitguardian.tech
+# Domain suffixes for SaaS-like environments.
 SAAS_DOMAIN_SUFFIXES = [
     ".gitguardian.com",
     ".gitguardian.tech",
@@ -30,9 +20,6 @@ def _is_local_hostname(parsed_hostname: str | None) -> bool:
 
 def _is_saas_hostname(netloc: str) -> bool:
     """Check if a netloc (host:port) belongs to a SaaS or SaaS-like environment."""
-    if netloc in SAAS_HOSTNAMES:
-        return True
-    # Match dynamic environments like review-apps (e.g. dashboard-23683.review-apps.preprod.gitguardian.tech)
     return any(netloc.endswith(suffix) for suffix in SAAS_DOMAIN_SUFFIXES)
 
 

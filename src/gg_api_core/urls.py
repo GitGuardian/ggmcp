@@ -26,7 +26,7 @@ def derive_public_api_url(gitguardian_url: str) -> str:
 
     try:
         parsed = urlparse(api_url)
-        # localhost is always treated as self-hosted, regardless of SAAS_HOSTNAMES
+        # Derive localhost API URLs using the self-hosted path.
         is_localhost = parsed.netloc.startswith("localhost") or parsed.netloc.startswith("127.0.0.1")
 
         # SaaS path

@@ -1,4 +1,4 @@
-"""Tools take their arguments at the top level (SI-3963).
+"""Tools take their arguments at the top level.
 
 Each tool's arguments are the fields of one pydantic model. The model's fields
 are the tool's top-level arguments, and the model still validates them.

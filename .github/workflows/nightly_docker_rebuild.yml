@@ -7,7 +7,7 @@ name: Nightly Docker Rebuild
 
 on:
   schedule:
-    - cron: '0 1 * * 1-5'    # Weekdays at 01:00 UTC, same cadence as ggscout
+    - cron: '0 1 * * 1-5'    # Weekdays at 01:00 UTC
   workflow_dispatch: {}
 
 concurrency:

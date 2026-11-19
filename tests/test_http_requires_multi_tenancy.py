@@ -1,4 +1,4 @@
-"""Serving MCP over HTTP requires multi-tenancy, so no caller can act under a server-wide token (SI-4057)."""
+"""Serving MCP over HTTP requires multi-tenancy, so no caller can act under a server-wide token."""
 
 import os
 from unittest.mock import patch

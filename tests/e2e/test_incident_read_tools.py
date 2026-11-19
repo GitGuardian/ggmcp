@@ -105,7 +105,7 @@ class TestListIncidents:
 
     @pytest.mark.xfail(
         strict=True,
-        reason="SI-3891: mine=True is not rejected clearly for service tokens",
+        reason="mine=True is not rejected clearly for service tokens",
     )
     async def test_service_token_without_member_id_rejects_mine_filter(self, mcp_client, gg_api, mock_token_scopes):
         """
