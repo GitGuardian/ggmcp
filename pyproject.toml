@@ -70,6 +70,22 @@ gg-mcp-server = "gg_mcp_server.run:run_mcp_server"
 [tool.hatch.build.targets.wheel]
 packages = ["src/gg_api_core", "src/gg_mcp_server"]
 
+# Publish only runtime sources, release metadata, and public documentation.
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "src/gg_api_core",
+    "src/gg_mcp_server",
+    "pyproject.toml",
+    "uv.lock",
+    ".gitignore",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "DATA_HANDLING.md",
+    "DEVELOPMENT.md",
+    "PUBLISHING.md",
+]
+
 [tool.ruff]
 line-length = 120
 exclude = [
