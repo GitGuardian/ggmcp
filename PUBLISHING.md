@@ -85,13 +85,11 @@ the same commit produces the same tag.
 
 ### Tag format contract
 
-Downstream deployment automation tracks `main-<sha>-<seq>` tags with
-`^main-[0-9a-f]{8}-(?<patch>\d+)$` and deploys the highest `<seq>`. The tag
-shape is a contract: changing how it is built silently breaks that tracking.
+Keep the documented image tag format stable for consumers that pin or select
+images by tag.
 
-Never tag images with versions that outrank semver releases (e.g. a
-CalVer-looking `2026.6.0`): downstream semver tracking would consider every
-real `0.x.y` release "older" and stop proposing updates.
+Use semantic versioning for release tags so version-aware clients can order
+releases consistently.
 
 ## Escape hatch: manual release
 

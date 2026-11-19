@@ -130,8 +130,7 @@ def token_storage(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterator[o
     try:
         yield storage
     finally:
-        # oauth_process cleanup is tracked separately as SI-3956; keep these
-        # tests hermetic while that application bug remains open.
+        # Stop every callback server started by the flow to keep tests isolated.
         for callback_server in callback_servers:
             callback_server.stop()
 

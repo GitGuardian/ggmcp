@@ -542,7 +542,7 @@ class GitGuardianClient:
                 hostname = parsed_url.netloc
                 # Replace 'api.' prefix with 'dashboard.' if it exists
                 if hostname.startswith("api."):
-                    # Replace 'api.' with 'dashboard.' (e.g., api.staging.gitguardian.tech -> dashboard.staging.gitguardian.tech)
+                    # Replace 'api.' with 'dashboard.' (e.g., api.example.test -> dashboard.example.test)
                     hostname = "dashboard." + hostname[4:]
                 derived_url = f"{parsed_url.scheme}://{hostname}"
             return derived_url

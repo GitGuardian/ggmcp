@@ -240,11 +240,11 @@ class TestGitGuardianClientURLs:
                 },
             ),
             (
-                "https://dashboard.preprod.gitguardian.com/",
+                "https://dashboard.preview.example.test/",
                 {
-                    "dashboard_url": "https://dashboard.preprod.gitguardian.com",
-                    "public_api_url": "https://api.preprod.gitguardian.com/v1",
-                    "private_api_url": "https://dashboard.preprod.gitguardian.com/api/v1",
+                    "dashboard_url": "https://dashboard.preview.example.test",
+                    "public_api_url": "https://api.preview.example.test/v1",
+                    "private_api_url": "https://dashboard.preview.example.test/api/v1",
                 },
             ),
             (
@@ -267,7 +267,10 @@ class TestGitGuardianClientURLs:
     )
     def test_computed_urls(self, url, expected):
         """Test client initialization with URLs containing paths."""
-        with patch.dict(os.environ, {"GITGUARDIAN_URL": url}):
+        with (
+            patch("gg_api_core.host.SAAS_DOMAIN_SUFFIXES", [".example.test"]),
+            patch.dict(os.environ, {"GITGUARDIAN_URL": url}),
+        ):
             client = GitGuardianClient()
 
             assert client.public_api_url == expected["public_api_url"]

@@ -3,7 +3,7 @@
 import os
 from unittest.mock import patch
 
-from gg_api_core.host import is_self_hosted_instance
+from gg_api_core.host import SAAS_DOMAIN_SUFFIXES, is_self_hosted_instance
 from gg_api_core.urls import derive_public_api_url
 
 
@@ -39,15 +39,21 @@ class TestIsSelfHostedInstance:
         assert is_self_hosted_instance("https://user:pass@dashboard.gitguardian.com") is False
         assert is_self_hosted_instance("https://user:pass@custom.domain.com") is True
 
-    def test_review_app_returns_false(self):
-        """Test that review-app URLs are recognized as SaaS-like (not self-hosted)."""
-        review_app_urls = [
-            "https://dashboard-23683.review-apps.preprod.gitguardian.tech",
-            "https://api-23683.review-apps.preprod.gitguardian.tech",
-            "https://dashboard-99999.review-apps.preprod.gitguardian.tech",
+    def test_configured_suffixes_recognize_subdomains(self):
+        """Test that each configured SaaS suffix recognizes additional subdomains."""
+        for suffix in SAAS_DOMAIN_SUFFIXES:
+            assert is_self_hosted_instance(f"https://dashboard.example{suffix}") is False
+
+    def test_dynamic_subdomains_return_false(self):
+        """Test that dynamic subdomains of a configured SaaS suffix are recognized."""
+        urls = [
+            "https://dashboard-alpha.preview.example.test",
+            "https://api-alpha.preview.example.test",
+            "https://dashboard-beta.preview.example.test",
         ]
-        for url in review_app_urls:
-            assert is_self_hosted_instance(url) is False, f"Expected False for {url}"
+        with patch("gg_api_core.host.SAAS_DOMAIN_SUFFIXES", [".example.test"]):
+            for url in urls:
+                assert is_self_hosted_instance(url) is False, f"Expected False for {url}"
 
 
 class TestOnPremOverride:
@@ -59,8 +65,10 @@ class TestOnPremOverride:
         WHEN the public API URL is derived from the base URL
         THEN the /exposed/v1 prefix is appended
         """
-        with patch.dict(os.environ, {"IS_ON_PREM": "true"}):
-            assert (
-                derive_public_api_url("https://on-prem.preprod.gitguardian.tech")
-                == "https://on-prem.preprod.gitguardian.tech/exposed/v1"
-            )
+        url = "https://self-hosted.example.test"
+        with patch("gg_api_core.host.SAAS_DOMAIN_SUFFIXES", [".example.test"]):
+            with patch.dict(os.environ, {"IS_ON_PREM": "false"}):
+                assert is_self_hosted_instance(url) is False
+            with patch.dict(os.environ, {"IS_ON_PREM": "true"}):
+                assert is_self_hosted_instance(url) is True
+                assert derive_public_api_url(url) == f"{url}/exposed/v1"

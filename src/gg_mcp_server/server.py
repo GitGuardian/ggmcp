@@ -81,7 +81,7 @@ def get_server() -> AbstractGitGuardianFastMCP:
     order is load-bearing: Sentry's ``MCPIntegration`` instruments tool calls
     by patching the lowlevel ``Server`` decorators when ``sentry_sdk.init()``
     runs, and FastMCP consumes those decorators in its constructor. A server
-    built before Sentry init never emits ``mcp.server`` spans (SI-3929).
+    built before Sentry init never emits ``mcp.server`` spans.
     """
     init_sentry()
     configure_logging_from_settings(get_settings())

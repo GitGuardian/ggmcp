@@ -74,7 +74,7 @@ on an HTTP deployment. The server
 advertises OAuth Protected Resource metadata (RFC 9728) and proxies
 `/authorize`, `/token`, `/register` to the GG dashboard. MCP clients run
 the OAuth flow themselves and send `Authorization: Bearer <PAT>` on every
-request. This is what the hosted server at `mcp.gitguardian.com` runs.
+request.
 
 ### Per-request bearer (HTTP fallback)
 
