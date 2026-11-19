@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/GitGuardian/ggmcp/compare/v0.7.5...v0.8.0) (2026-11-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **tools:** gg_mcp_server.sse_app:app no longer exists. Serve gg_mcp_server.http_app:app instead.
+
+### Features
+
+* **tools:** move to FastMCP 4 and give every tool one contract ([#241](https://github.com/GitGuardian/ggmcp/issues/241)) ([f895868](https://github.com/GitGuardian/ggmcp/commit/f89586877853a47b41dbfd2297d342fee1697350))
+
 ## [0.7.5](https://github.com/GitGuardian/ggmcp/compare/v0.7.4...v0.7.5) (2026-11-10)
 
 
