@@ -81,7 +81,6 @@ only-include = [
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
-    "DEVELOPMENT.md",
     "PUBLISHING.md",
 ]
 
