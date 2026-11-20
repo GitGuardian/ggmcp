@@ -6,6 +6,7 @@ GitGuardian API side.
 """
 
 import json
+import re
 from typing import Any
 
 import httpx
@@ -234,6 +235,15 @@ def sent_body(route: respx.Route) -> Any:
 def sent_params(route: respx.Route) -> dict[str, str]:
     """Query params of the last request the GitGuardian API received on a route."""
     return dict(route.calls.last.request.url.params)
+
+
+def secret_value_reads(router: respx.MockRouter) -> list[httpx.Request]:
+    """Requests the GitGuardian API received on GET /secrets/{id}, which answers with the secret's value."""
+    return [
+        call.request
+        for call in router.calls
+        if call.request.method == "GET" and re.fullmatch(r"/v1/secrets/[^/]+/?", call.request.url.path)
+    ]
 
 
 def assert_authenticated_request(route: respx.Route, token: str = TEST_PAT) -> None:
