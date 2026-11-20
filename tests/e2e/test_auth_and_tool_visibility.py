@@ -18,9 +18,10 @@ import pytest
 from gg_api_core.version import APP_VERSION
 from tests.e2e.harness import (
     EXPECTED_FULL_TOOL_CATALOG,
-    EXPECTED_REQUESTED_SCOPES,
     EXPECTED_SCAN_ONLY_TOOL_CATALOG,
     EXPECTED_SCOPES,
+    EXPECTED_SCOPES_OF_A_DEFAULT_TOKEN,
+    EXPECTED_TOOLS_BEYOND_REQUESTED_SCOPES,
     TEST_PAT,
     assert_authenticated_request,
     call_tool,
@@ -106,17 +107,17 @@ class TestScopeBasedToolVisibility:
 
         assert names == EXPECTED_FULL_TOOL_CATALOG
 
-    async def test_requested_scopes_expose_the_whole_catalog(self, mcp_client, mock_token_scopes):
+    async def test_requested_scopes_expose_every_tool_they_cover(self, mcp_client, mock_token_scopes):
         """
-        GIVEN a token holding exactly the scopes the server requests
+        GIVEN a token created with exactly the scopes the server requests, as GitGuardian reports it
         WHEN tools/list is requested
-        THEN every tool is visible
+        THEN every tool is visible, except the ones named as needing a scope the server does not request
         """
-        mock_token_scopes(EXPECTED_REQUESTED_SCOPES)
+        mock_token_scopes(EXPECTED_SCOPES_OF_A_DEFAULT_TOKEN)
 
         names = await list_tool_names(mcp_client)
 
-        assert names == EXPECTED_FULL_TOOL_CATALOG
+        assert names == EXPECTED_FULL_TOOL_CATALOG - EXPECTED_TOOLS_BEYOND_REQUESTED_SCOPES
 
     async def test_tool_definitions_only_point_at_exposed_tools(self, mcp_client, mock_token_scopes):
         """
@@ -165,6 +166,9 @@ class TestScopeBasedToolVisibility:
             "edit_public_incident_comment": changes_state,
             "generate_honeytoken": adds,
             "revoke_secret": {**changes_state, "openWorldHint": True},
+            "set_secret_validity_override": changes_state,
+            "remove_secret_validity_override": {**changes_state, "openWorldHint": True},
+            "request_secret_validity_check": {**adds, "openWorldHint": True},
             "set_internal_incident_severity": changes_state,
             "set_public_incident_severity": changes_state,
             "create_internal_incident_code_fix_request": adds,

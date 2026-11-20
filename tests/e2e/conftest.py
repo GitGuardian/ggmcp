@@ -25,7 +25,7 @@ import pytest
 import respx
 
 from gg_mcp_server.server import build_http_app, build_server
-from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, token_info
+from tests.e2e.harness import GG_API_URL, MCP_BASE_URL, TEST_MEMBER_ID, secret_value_reads, token_info
 
 
 @pytest.fixture(autouse=True)
@@ -141,9 +141,10 @@ def no_retry_delay(monkeypatch):
 
 @pytest.fixture
 def gg_api():
-    """Mock of the GitGuardian API; unmocked outbound calls raise."""
+    """Mock of the GitGuardian API; unmocked outbound calls raise, and a test that reads a secret's value fails."""
     with respx.mock(base_url=GG_API_URL, assert_all_called=False) as router:
         yield router
+        assert not secret_value_reads(router), "GET /secrets/{id} answers with the secret's value: no tool may call it"
 
 
 @pytest.fixture

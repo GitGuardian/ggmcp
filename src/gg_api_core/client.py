@@ -177,6 +177,24 @@ _PUBLIC_MONITORING_GUIDANCE = (
     "This usually means Public Monitoring is not enabled for this workspace. Retrying will not help; "
     "internal incidents are still available through the internal incident tools."
 )
+_SECRETS_PATH = "/v1/secrets/"
+_SECRET_NOT_FOUND_GUIDANCE = (
+    "No secret with this ID is visible to this token: pass an incident's secret_id, not its incident ID. "
+    "Retrying will not help."
+)
+_VALIDITY_CHECK_PATH_END = "/validity/check"
+_VALIDITY_CHECKS_GUIDANCE = (
+    "This usually means secret validity checks are not enabled for this workspace. Retrying will not help."
+)
+_ENDPOINTS_PATH = "/v1/endpoints/"
+_ENDPOINTS_ACCESS_GUIDANCE = (
+    "The endpoint inventory needs a token with the Manager access level or above, or a service account token. "
+    "Retrying will not help."
+)
+_MACHINE_NOT_FOUND_GUIDANCE = (
+    "No machine with this ID in this workspace: pass a machine's id from list_machines, not its machine_id. "
+    "Retrying will not help."
+)
 _MAX_DETAIL_CHARS = 300
 
 
@@ -197,8 +215,17 @@ def describe_api_error(response: httpx.Response) -> str:
     else:
         message = f"{message}."
     guidance = _REFUSAL_GUIDANCE.get(response.status_code)
-    if response.status_code == 403 and _PUBLIC_INCIDENTS_PATH in _request_path(response):
+    path = _request_path(response)
+    if response.status_code == 403 and _PUBLIC_INCIDENTS_PATH in path:
         guidance = _PUBLIC_MONITORING_GUIDANCE
+    if response.status_code == 403 and path.endswith(_VALIDITY_CHECK_PATH_END):
+        guidance = _VALIDITY_CHECKS_GUIDANCE
+    if response.status_code == 404 and _SECRETS_PATH in path:
+        guidance = _SECRET_NOT_FOUND_GUIDANCE
+    if response.status_code == 403 and _ENDPOINTS_PATH in path:
+        guidance = _ENDPOINTS_ACCESS_GUIDANCE
+    if response.status_code == 404 and _ENDPOINTS_PATH in path:
+        guidance = _MACHINE_NOT_FOUND_GUIDANCE
     if guidance:
         message = f"{message} {guidance}"
     return message
@@ -1916,6 +1943,65 @@ class GitGuardianClient:
         """
         logger.info(f"Requesting the revocation of secret {secret_id}")
         return await self._request_post(f"/secrets/{secret_id}/revoke", json={})
+
+    async def list_machines(
+        self,
+        search: str | None = None,
+        usernames: list[str] | None = None,
+        ordering: str = "id",
+        per_page: int = 20,
+        cursor: str | None = None,
+        get_all: bool = False,
+    ) -> ListResponse | PaginatedResult:
+        """List the machines that ggshield or the endpoint scanner report. Wraps GET /v1/endpoints/machines."""
+        params: dict[str, Any] = {"per_page": str(per_page), "ordering": ordering}
+        if search:
+            params["search"] = search
+        if usernames:
+            params["username__in"] = ",".join(usernames)
+        if cursor:
+            params["cursor"] = cursor
+        if get_all:
+            return await self.paginate_all("/endpoints/machines", params)
+        return await self._request_list("/endpoints/machines", params=params)
+
+    async def get_machine(self, machine_id: int) -> dict[str, Any]:
+        """Get one machine with its partitions. Wraps GET /v1/endpoints/machines/{id}."""
+        logger.info(f"Getting machine {machine_id}")
+        return await self._request_get(f"/endpoints/machines/{machine_id}")
+
+    async def get_secret_validity(self, secret_id: int) -> dict[str, Any]:
+        """Get a secret's validity, its validity override and its stored analysis.
+
+        Wraps GET /v1/secrets/{secret_id}/validity.
+        """
+        logger.info(f"Getting the validity of secret {secret_id}")
+        return await self._request_get(f"/secrets/{secret_id}/validity")
+
+    async def set_secret_validity_override(self, secret_id: int, validity: str) -> dict[str, Any]:
+        """Override a secret's validity, which pauses its periodic validity checks.
+
+        Wraps POST /v1/secrets/{secret_id}/validity, which answers with the secret's validity.
+        """
+        logger.info(f"Setting a validity override on secret {secret_id}")
+        return await self._request_post(f"/secrets/{secret_id}/validity", json={"validity": validity})
+
+    async def remove_secret_validity_override(self, secret_id: int) -> None:
+        """Remove a secret's validity override, which resumes its periodic validity checks.
+
+        Wraps DELETE /v1/secrets/{secret_id}/validity, which answers 204 with no body.
+        """
+        logger.info(f"Removing the validity override of secret {secret_id}")
+        await self._request("DELETE", f"/secrets/{secret_id}/validity")
+
+    async def request_secret_validity_check(self, secret_id: int) -> None:
+        """Ask for a new validity check of a secret.
+
+        Wraps POST /v1/secrets/{secret_id}/validity/check, which answers 202 with no body.
+        The 202 acknowledges the request; it does not say that a check was queued.
+        """
+        logger.info(f"Requesting a validity check of secret {secret_id}")
+        await self._request("POST", f"/secrets/{secret_id}/validity/check")
 
     async def list_public_incident_activity_logs(self, incident_id: int, per_page: int) -> ListResponse:
         """List one page of a public secret incident's activity log, newest first.
