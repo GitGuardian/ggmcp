@@ -1,14 +1,25 @@
 # GitGuardian MCP Server
 
-Use GitGuardian's secret detection and incident management from your AI agent.
+Remediate leaked secrets from your AI agent, from a single repository to your whole organization.
 
-- Scan code for credentials with GitGuardian's 500+ secret detectors.
-- Investigate internal and Public Monitoring incidents, including their history and locations.
-- Manage incidents: assign, resolve, ignore, tag, and comment.
-- Remediate findings, revoke secrets, and create honeytokens.
+The GitGuardian MCP server connects any MCP client to GitGuardian's secrets detection and incident management. Your agent gets the same view of your incidents as the GitGuardian dashboard, and can act on them for you.
 
-Your client discovers the available tools automatically. The token's OAuth scopes
-determine which tools it can use.
+## Built for two jobs
+ 
+### SecOps and AppSec: orchestrate remediation at scale
+ 
+- **Triage the backlog.** List, count and prioritize internal and Public Monitoring
+  incidents by severity, validity, source, tag or assignee.
+- **Route the work.** Assign incidents to the right developer or team, set severity,
+  add tags and comments, across the whole workspace.
+- **Close the loop.** Resolve, ignore or reopen incidents, revoke exposed secrets,
+  and deploy honeytokens.
+  
+### Developers: fix incidents in the repository you work on
+ 
+- **See what's yours.** Get the incidents assigned to you and the leaks in the current
+  repository, with their exact locations and history.
+- **Fix them in place.** Follow GitGuardian’s remediation workflow, or your organization’s own, to remove the secret from the code and get it rotated.
 
 > [!CAUTION]
 > Agents act with your permissions. Review actions that modify incidents, create
