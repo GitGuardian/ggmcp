@@ -44,6 +44,7 @@ EXPECTED_SCOPES = [
     "secrets:write",
     "secrets:read",
     "teams:read",
+    "endpoints:read",
 ]
 
 # The scopes the server asks for. Kept independent from ``gg_api_core.scopes.DEFAULT_SCOPES``
@@ -75,10 +76,12 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "generate_honeytoken",
     "get_gitguardian_resource",
     "get_internal_incident",
+    "get_machine",
     "get_member",
     "get_my_identity",
     "get_public_incident",
     "get_remediation_workflow",
+    "get_secret_validity",
     "ignore_internal_incident",
     "ignore_public_incident",
     "list_custom_tags",
@@ -89,22 +92,33 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "list_internal_incident_teams",
     "list_internal_incidents",
     "list_internal_occurrences",
+    "list_machines",
     "list_members",
     "list_public_incidents",
     "list_public_occurrences",
     "list_sources",
     "remove_internal_incident_custom_tag",
     "remove_public_incident_custom_tag",
+    "remove_secret_validity_override",
     "reopen_internal_incident",
     "reopen_public_incident",
+    "request_secret_validity_check",
     "resolve_internal_incident",
     "resolve_public_incident",
     "revoke_secret",
     "scan_secrets",
     "set_internal_incident_severity",
     "set_public_incident_severity",
+    "set_secret_validity_override",
     "unassign_internal_incident",
     "unassign_public_incident",
+}
+
+EXPECTED_SCOPES_OF_A_DEFAULT_TOKEN = [*EXPECTED_REQUESTED_SCOPES, "secrets:read"]
+
+EXPECTED_TOOLS_BEYOND_REQUESTED_SCOPES = {
+    "get_machine",
+    "list_machines",
 }
 
 EXPECTED_SCAN_ONLY_TOOL_CATALOG = {
