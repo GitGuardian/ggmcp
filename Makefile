@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: test test-with-env lint format typecheck
+.PHONY: test test-with-env lint format typecheck tool-contracts
 
 # =============================================================================
 # CI commands (no .env sourcing)
@@ -32,3 +32,11 @@ format:
 # Type checking
 typecheck:
 	uv run pyrefly check
+
+# =============================================================================
+# Generated files
+# =============================================================================
+
+# Regenerate tool-contracts.json (every tool's schemas and scopes) after changing a tool
+tool-contracts:
+	uv run python -m gg_mcp_server.tool_contracts tool-contracts.json
