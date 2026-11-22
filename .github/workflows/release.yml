@@ -235,12 +235,22 @@ jobs:
     permissions:
       contents: write
 
-    # No checkout: publishing by tag_name is a pure API call.
     steps:
+      # The tag's tool-contracts.json, attached below. tests/test_tool_contracts.py keeps
+      # it in sync with the code on main, and the release PR changes no tool.
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
+
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || needs.release-please.outputs.tag }}
+          # Every tool's name, input and output schemas and scopes, for consumers such as
+          # GitGuardian/agent-skills to check against without installing the server.
+          files: tool-contracts.json
+          fail_on_unmatched_files: true
           draft: false
           # Keep release-please's changelog notes; generate them only for the
           # manual tag escape hatch.

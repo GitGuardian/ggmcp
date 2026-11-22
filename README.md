@@ -170,6 +170,13 @@ Tools live in `src/gg_api_core/tools/` and are registered with their required
 scopes in `src/gg_mcp_server/register_tools.py`. Cover new tools in `tests/e2e/`.
 See [PUBLISHING.md](PUBLISHING.md) for the release process.
 
+[`tool-contracts.json`](tool-contracts.json) describes every tool: its name,
+description, input and output JSON Schemas, annotations, and the token scopes that
+gate it. It is committed here and attached to each GitHub release, so consumers such as
+[GitGuardian/agent-skills](https://github.com/GitGuardian/agent-skills/issues/157)
+can check against a version's contracts without installing the server. After changing
+a tool, run `make tool-contracts`; a test fails until the file is regenerated.
+
 ## Migration notes
 
 <details>

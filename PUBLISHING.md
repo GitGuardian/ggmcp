@@ -21,7 +21,8 @@ Releases are driven by [Conventional Commits](https://www.conventionalcommits.or
      changelog),
    - builds, pushes, and cosign-signs the Docker image tagged `X.Y.Z`,
      `X.Y`, `latest`, and `main`,
-   - publishes the GitHub release only after the image build succeeds.
+   - publishes the GitHub release only after the image build succeeds, with the
+     tag's `tool-contracts.json` attached as an asset.
 
 Merge the release PR whenever you decide to ship — releases are batched, not
 per-merge. Until then it just sits there, updating itself.
