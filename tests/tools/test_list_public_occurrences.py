@@ -57,7 +57,7 @@ class TestListPublicOccurrences:
             validity="valid",
             tags="FROM_HISTORICAL_SCAN",
             ordering="-id",
-            page_size=100,
+            per_page=100,
         )
         result = await list_public_occurrences(params)
 
@@ -94,5 +94,5 @@ class TestListPublicOccurrences:
 
         call_kwargs = mock_gitguardian_client.list_public_occurrences.call_args.kwargs
         assert call_kwargs["cursor"] == "prev_cursor"
-        assert result.next_arguments == {"incident_id": 1, "cursor": "next_cursor", "page_size": 20}
+        assert result.next_arguments == {"incident_id": 1, "cursor": "next_cursor", "per_page": 20}
         assert result.has_more is True

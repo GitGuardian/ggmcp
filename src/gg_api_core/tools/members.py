@@ -10,8 +10,8 @@ from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     page_fields,
 )
 from gg_api_core.utils import get_client
@@ -27,7 +27,7 @@ class ListMembersParams(BaseModel):
     search: str | None = Field(default=None, description="Only the members whose name or email contains this text")
     access_level: AccessLevel | None = Field(default=None, description="Only the members with this role")
     active: bool | None = Field(default=None, description="True for active members only, False for inactive ones")
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -46,7 +46,7 @@ async def list_members(params: ListMembersParams = ListMembersParams()) -> ListM
             search=params.search,
             access_level=params.access_level,
             active=params.active,
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
         )
@@ -82,7 +82,7 @@ class ListInternalIncidentMembersParams(BaseModel):
 
     incident_id: NumericId = Field(description="ID of the internal secret incident")
     search: str | None = Field(default=None, description="Only the members whose name or email contains this text")
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -102,7 +102,7 @@ async def list_internal_incident_members(
         response = await client.list_incident_members(
             params.incident_id,
             search=params.search,
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
         )
@@ -115,7 +115,7 @@ class ListInternalIncidentTeamsParams(BaseModel):
     """Parameters for listing the teams that can see an internal incident."""
 
     incident_id: NumericId = Field(description="ID of the internal secret incident")
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -131,7 +131,7 @@ async def list_internal_incident_teams(params: ListInternalIncidentTeamsParams) 
     client = await get_client()
     try:
         response = await client.list_incident_teams(
-            params.incident_id, per_page=params.page_size, cursor=params.cursor, get_all=params.get_all
+            params.incident_id, per_page=params.per_page, cursor=params.cursor, get_all=params.get_all
         )
     except Exception as e:
         raise ToolError(str(e))

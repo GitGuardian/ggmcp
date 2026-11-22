@@ -11,8 +11,8 @@ from gg_api_core.tools.incident_writes import IncidentKind, uncertain_write_erro
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     page_fields,
 )
 from gg_api_core.utils import get_client
@@ -35,7 +35,7 @@ class ListInternalIncidentLocationsParams(BaseModel):
         default=None, description="True for the locations that still hold the secret, False for the fixed ones"
     )
     search: str | None = Field(default=None, description="Only the locations whose file path contains this text")
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -60,7 +60,7 @@ async def list_internal_incident_locations(
             source_id=params.source_id,
             active=params.active,
             search=params.search,
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
         )

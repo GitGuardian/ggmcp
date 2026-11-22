@@ -125,13 +125,13 @@ class TestListPublicIncidents:
             headers={"Link": '<https://api.gitguardian.com/v1/public-incidents/secrets?cursor=cD0y>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_public_incidents", {"cursor": "cD0x", "page_size": 1})
+        result = await call_tool(mcp_client, "list_public_incidents", {"cursor": "cD0x", "per_page": 1})
 
         params = sent_params(route)
         assert params["cursor"] == "cD0x"
         assert params["per_page"] == "1"
         output = tool_output(result)
-        assert output["next_arguments"] == {"cursor": "cD0y", "page_size": 1}
+        assert output["next_arguments"] == {"cursor": "cD0y", "per_page": 1}
         assert output["has_more"] is True
 
     async def test_get_all_follows_the_cursor_to_the_last_page(self, mcp_client, gg_api, mock_token_scopes):
@@ -238,7 +238,7 @@ class TestListPublicOccurrences:
             pytest.param(
                 {"date_after": "2020-01-01T00:00:00Z"}, {"date_after": "2020-01-01T00:00:00Z"}, id="date-after"
             ),
-            pytest.param({"cursor": "cD0x", "page_size": 1}, {"cursor": "cD0x", "per_page": "1"}, id="cursor"),
+            pytest.param({"cursor": "cD0x", "per_page": 1}, {"cursor": "cD0x", "per_page": "1"}, id="cursor"),
         ],
     )
     async def test_each_filter_is_forwarded(self, mcp_client, gg_api, mock_token_scopes, filters, expected):

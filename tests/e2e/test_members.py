@@ -23,7 +23,7 @@ class TestListMembers:
         result = await call_tool(
             mcp_client,
             "list_members",
-            {"search": "ada", "access_level": "member", "active": True, "page_size": 1},
+            {"search": "ada", "access_level": "member", "active": True, "per_page": 1},
         )
 
         assert sent_params(route) == {"search": "ada", "access_level": "member", "active": "true", "per_page": "1"}

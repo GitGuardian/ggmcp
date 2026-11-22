@@ -44,8 +44,8 @@ def test_list_and_count_preserve_their_tool_specific_schemas():
     count_fields = count_schema["properties"]
     assert list_schema["title"] == "ListIncidentsParams"
     assert count_schema["title"] == "CountIncidentsParams"
-    assert list_fields.keys() - count_fields.keys() == {"page_size", "cursor", "get_all", "ordering"}
-    assert list(list_fields)[:4] == ["page_size", "cursor", "get_all", "ordering"]
+    assert list_fields.keys() - count_fields.keys() == {"per_page", "cursor", "get_all", "ordering"}
+    assert list(list_fields)[:4] == ["per_page", "cursor", "get_all", "ordering"]
     assert not count_fields.keys() - list_fields.keys()
 
     descriptions = {

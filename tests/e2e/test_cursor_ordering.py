@@ -68,7 +68,7 @@ async def test_paging_through_tied_items_returns_each_once(
     gg_api.get(endpoint).mock(side_effect=_tied_items_endpoint(endpoint, total=30))
 
     seen: list[int] = []
-    call_arguments = {**arguments, "page_size": 10}
+    call_arguments = {**arguments, "per_page": 10}
     for _ in range(5):
         output = tool_output(await call_tool(mcp_client, tool, call_arguments))
         seen.extend(item["id"] for item in output[items_key])

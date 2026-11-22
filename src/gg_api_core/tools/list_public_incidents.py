@@ -13,8 +13,8 @@ from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     page_fields,
 )
 from gg_api_core.utils import get_client
@@ -56,7 +56,7 @@ class ListPublicIncidentsParams(BaseModel):
     """
 
     # Pagination
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -262,7 +262,7 @@ async def list_public_incidents(
 
     result = await client.list_public_incidents(
         cursor=params.cursor,
-        per_page=params.page_size,
+        per_page=params.per_page,
         date_before=params.date_before,
         date_after=params.date_after,
         triggered_at_before=params.triggered_at_before,

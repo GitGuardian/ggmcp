@@ -59,13 +59,13 @@ async def test_get_all_asks_for_small_pages_and_stays_within_its_budget(
     """
     route = gg_api.get(endpoint).mock(side_effect=_cursor_pages(endpoint, total=200))
 
-    output = tool_output(await call_tool(mcp_client, tool, {**arguments, "get_all": True, "page_size": 100}))
+    output = tool_output(await call_tool(mcp_client, tool, {**arguments, "get_all": True, "per_page": 100}))
 
     assert {call.request.url.params["per_page"] for call in route.calls} == {str(PAGINATE_ALL_PER_PAGE)}
     assert len(json.dumps(output[items_key])) <= DEFAULT_PAGINATION_MAX_BYTES
     assert output["has_more"] is True
     assert output["stop_reason"] == "size_budget"
-    assert output["page_size"] == PAGINATE_ALL_PER_PAGE
+    assert output["per_page"] == PAGINATE_ALL_PER_PAGE
 
 
 @pytest.mark.parametrize(("tool", "arguments", "endpoint", "items_key"), CURSOR_TOOLS)
@@ -81,7 +81,7 @@ async def test_get_all_resumed_with_its_next_arguments_returns_every_item_once(
     gg_api.get(endpoint).mock(side_effect=_cursor_pages(endpoint, total=90))
 
     seen: list[int] = []
-    call_arguments = {**arguments, "get_all": True, "page_size": 100}
+    call_arguments = {**arguments, "get_all": True, "per_page": 100}
     for _ in range(10):
         output = tool_output(await call_tool(mcp_client, tool, call_arguments))
         assert len(json.dumps(output[items_key])) <= DEFAULT_PAGINATION_MAX_BYTES
