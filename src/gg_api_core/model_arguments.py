@@ -6,22 +6,16 @@ clients send the fields at the top level, as with any other MCP server. A
 :class:`ModelArgumentsTool` advertises the model's fields as the tool's
 top-level arguments and validates them with the model itself, so its defaults,
 before-validators and model validators apply exactly as they do on any input.
-
-A field may also accept older names through ``validation_alias=AliasChoices(...)``,
-the first choice being the field's own name. The schema advertises that name only;
-the older ones are accepted, and matched by ``patternProperties`` so that a client
-validating arguments against the schema accepts them too.
 """
 
 import inspect
 import logging
-import re
 from typing import Any, get_type_hints
 
 from fastmcp.exceptions import ValidationError
 from fastmcp.tools import FunctionTool, ToolResult
 from fastmcp.utilities.json_schema import compress_schema
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import BaseModel, Field
 from pydantic import ValidationError as PydanticValidationError
 from typing_extensions import override
 
@@ -48,38 +42,11 @@ def arguments_model(fn: Any) -> type[BaseModel] | None:
     return hint if isinstance(hint, type) and issubclass(hint, BaseModel) else None
 
 
-def _alias_names(model: type[BaseModel]) -> dict[str, str]:
-    """Each older argument name the model accepts, mapped to the field name it stands for."""
-    aliases = {}
-    for name, field in model.model_fields.items():
-        choices = field.validation_alias.choices if isinstance(field.validation_alias, AliasChoices) else []
-        for choice in choices:
-            if isinstance(choice, str) and choice != name:
-                aliases[choice] = name
-    return aliases
-
-
-def accepted_argument_names(model: type[BaseModel]) -> set[str]:
-    """The argument names a call may use: the model's fields and their older names."""
-    return set(model.model_fields) | set(_alias_names(model))
-
-
 def model_input_schema(model: type[BaseModel]) -> dict[str, Any]:
     """The model's JSON schema as a tool input schema: its fields are the top-level properties."""
     schema = model.model_json_schema()
     schema.pop("title", None)
     schema.pop("description", None)
-    # Older names stay valid without being advertised as properties.
-    aliases = _alias_names(model)
-    if aliases:
-        schema["patternProperties"] = {
-            f"^{re.escape(alias)}$": {
-                **{k: v for k, v in schema["properties"][name].items() if k not in ("default", "description")},
-                "description": f"Deprecated name of {name}; use {name}",
-                "deprecated": True,
-            }
-            for alias, name in aliases.items()
-        }
     # Unknown arguments are refused, as FastMCP refuses them for any function tool.
     schema["additionalProperties"] = False
     return compress_schema(schema, prune_titles=True)
@@ -100,7 +67,7 @@ class ModelArgumentsTool(FunctionTool):
     async def run(self, arguments: dict[str, Any]) -> ToolResult:
         # The model ignores unknown fields, which would let a call in an old or guessed
         # shape run with default arguments. Refuse them instead.
-        unknown = sorted(set(arguments) - accepted_argument_names(self.arguments_model))
+        unknown = sorted(set(arguments) - set(self.arguments_model.model_fields))
         if unknown:
             hint = " Arguments go at the top level, not inside a 'params' object." if "params" in unknown else ""
             raise ValidationError(

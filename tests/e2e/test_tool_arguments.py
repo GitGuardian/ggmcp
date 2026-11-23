@@ -138,35 +138,58 @@ class TestTopLevelArguments:
         assert sent_params(route)["validity__in"] == "not_checked"
 
 
-class TestPerPageAlias:
-    """per_page is advertised; page_size, its name in gg-mcp 0.8, is still accepted."""
+class TestPerPage:
+    """Every paginated tool uses per_page as its only page-size argument."""
 
-    async def test_page_size_is_accepted_but_not_advertised(self, mcp_client, mock_token_scopes):
+    async def test_only_per_page_is_advertised_and_validates(self, mcp_client, mock_token_scopes):
         """
         GIVEN every tool that takes per_page
-        WHEN the tools are listed
-        THEN page_size is not one of their properties, yet a call sending page_size validates
-        against the advertised schema, and one sending an unknown argument still does not
+        WHEN its full input schema is read and used to validate arguments
+        THEN it contains no page_size alias, accepts per_page within its bounds,
+        and refuses page_size and unknown arguments
         """
         schemas = await _tool_schemas(mcp_client)
         paged = {name: schema for name, schema in schemas.items() if "per_page" in schema["properties"]}
 
         assert paged
         for name, schema in paged.items():
-            assert "page_size" not in schema["properties"], name
+            assert "page_size" not in json.dumps(schema), name
             # Only the page size is under test, not the tool's required arguments.
             schema = {key: value for key, value in schema.items() if key != "required"}
-            jsonschema.validate({"page_size": 5}, schema)
-            with pytest.raises(jsonschema.ValidationError):
-                jsonschema.validate({"page_size": 500}, schema)
-            with pytest.raises(jsonschema.ValidationError):
-                jsonschema.validate({"pagesize": 5}, schema)
+            for per_page in (1, 20, 100):
+                jsonschema.validate({"per_page": per_page}, schema)
+            for arguments in (
+                {"per_page": 0},
+                {"per_page": 101},
+                {"page_size": 5},
+                {"per_page": 5, "page_size": 5},
+                {"pagesize": 5},
+            ):
+                with pytest.raises(jsonschema.ValidationError):
+                    jsonschema.validate(arguments, schema)
 
-    async def test_a_call_with_page_size_runs_and_resumes_with_per_page(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_every_paginated_tool_refuses_page_size(self, mcp_client, mock_token_scopes):
         """
-        GIVEN list_members called with page_size, as written against gg-mcp 0.8
+        GIVEN every tool that takes per_page
+        WHEN page_size is sent alone or alongside per_page
+        THEN the call is refused as an unknown argument before reaching the API
+        """
+        schemas = await _tool_schemas(mcp_client)
+        paged = {name: schema for name, schema in schemas.items() if "per_page" in schema["properties"]}
+
+        assert paged
+        for name in paged:
+            for arguments in ({"page_size": 5}, {"per_page": 5, "page_size": 5}):
+                # Unknown arguments are refused before required fields are checked.
+                result = await call_tool(mcp_client, name, arguments)
+
+                assert f"Unknown argument(s) for tool '{name}': page_size." in tool_error_text(result), name
+
+    async def test_a_call_with_per_page_runs_and_resumes_with_per_page(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN list_members called with per_page
         WHEN it runs
-        THEN the API gets that page size as per_page, and next_arguments use per_page
+        THEN the API, result and next_arguments use per_page
         """
         route = gg_api.get("/members").respond(
             200,
@@ -174,21 +197,23 @@ class TestPerPageAlias:
             headers={"Link": '<https://api.gitguardian.com/v1/members?cursor=cD0x>; rel="next"'},
         )
 
-        output = tool_output(await call_tool(mcp_client, "list_members", {"page_size": 1}))
+        output = tool_output(await call_tool(mcp_client, "list_members", {"per_page": 1}))
 
         assert sent_params(route)["per_page"] == "1"
         assert output["per_page"] == 1
+        assert "page_size" not in output
         assert output["next_arguments"] == {"per_page": 1, "cursor": "cD0x"}
 
-    async def test_page_size_is_still_checked_against_its_bounds(self, mcp_client, gg_api, mock_token_scopes):
+    async def test_per_page_is_checked_against_its_bounds(self, mcp_client, gg_api, mock_token_scopes):
         """
-        GIVEN list_members called with a page_size above 100
+        GIVEN list_members called with per_page outside 1 to 100
         WHEN it runs
         THEN the call is refused before any API call
         """
         route = gg_api.get("/members").respond(200, json=[])
 
-        result = await call_tool(mcp_client, "list_members", {"page_size": 500})
+        for per_page in (0, 101):
+            result = await call_tool(mcp_client, "list_members", {"per_page": per_page})
 
-        assert "page_size" in tool_error_text(result)
-        assert not route.called
+            assert "per_page" in tool_error_text(result)
+            assert not route.called

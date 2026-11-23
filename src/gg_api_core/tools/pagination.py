@@ -4,16 +4,12 @@ Each list tool takes per_page, cursor and get_all, and its result carries per_pa
 has_more, stop_reason and next_arguments. next_arguments repeats the caller's own
 arguments with the cursor that resumes after the results returned, so the next call
 keeps the same filters and neither skips nor repeats a result.
-
-per_page is the public REST API's name for the page size. gg-mcp 0.8 called it
-page_size; list tools still accept page_size as an input alias so calls written
-against 0.8 keep working, but only advertise per_page.
 """
 
 from collections.abc import Mapping
 from typing import Annotated, Any, Literal
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import BaseModel, Field
 
 from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES, MAX_PAGINATION_PAGES, PAGINATE_ALL_PER_PAGE
 
@@ -30,12 +26,7 @@ GET_ALL_DESCRIPTION = (
 )
 
 
-# The page size argument of every list tool. The schema advertises per_page; page_size,
-# its name in gg-mcp 0.8, is still accepted on input.
-PerPage = Annotated[
-    int,
-    Field(ge=1, le=100, validation_alias=AliasChoices("per_page", "page_size"), description=PER_PAGE_DESCRIPTION),
-]
+PerPage = Annotated[int, Field(ge=1, le=100, description=PER_PAGE_DESCRIPTION)]
 
 
 class PageOfResults(BaseModel):
@@ -63,11 +54,7 @@ def stop_reason_of(has_more: bool, get_all: bool, stopped_by: StopReason | None 
 
 
 def next_arguments_for(params: BaseModel, cursor: str | None, per_page: int) -> dict[str, Any] | None:
-    """The caller's arguments, with the cursor and page size that resume after this result.
-
-    Arguments are dumped by field name, so a call that used the page_size alias gets
-    per_page back.
-    """
+    """The caller's arguments, with the cursor and page size that resume after this result."""
     if cursor is None:
         return None
     arguments = params.model_dump(mode="json", exclude_unset=True)
