@@ -52,6 +52,25 @@ def model_input_schema(model: type[BaseModel]) -> dict[str, Any]:
     return compress_schema(schema, prune_titles=True)
 
 
+# Argument names gg-mcp 0.8 used, mapped to the argument that takes their place.
+# TODO(page-size-hint): temporary. Once clients no longer send page_size, delete this
+# entry; if the table is then empty, delete it with the loop in _correction_hints.
+# `git grep page-size-hint` lists everything to remove.
+RENAMED_ARGUMENTS = {"page_size": "per_page"}
+
+
+def _correction_hints(unknown: list[str], model: type[BaseModel]) -> str:
+    """What to send instead of the unknown arguments, for the ones with a known correction."""
+    hints = [
+        f" Use {RENAMED_ARGUMENTS[name]} instead of {name}."
+        for name in unknown
+        if RENAMED_ARGUMENTS.get(name) in model.model_fields
+    ]
+    if "params" in unknown:
+        hints.append(" Arguments go at the top level, not inside a 'params' object.")
+    return "".join(hints)
+
+
 class ModelArgumentsTool(FunctionTool):
     """A function tool whose arguments are the fields of the model its function takes."""
 
@@ -69,9 +88,9 @@ class ModelArgumentsTool(FunctionTool):
         # shape run with default arguments. Refuse them instead.
         unknown = sorted(set(arguments) - set(self.arguments_model.model_fields))
         if unknown:
-            hint = " Arguments go at the top level, not inside a 'params' object." if "params" in unknown else ""
             raise ValidationError(
-                f"Unknown argument(s) for tool '{self.name}': {', '.join(unknown)}.{hint}",
+                f"Unknown argument(s) for tool '{self.name}': {', '.join(unknown)}."
+                f"{_correction_hints(unknown, self.arguments_model)}",
                 log_level=logging.WARNING,
             )
         try:

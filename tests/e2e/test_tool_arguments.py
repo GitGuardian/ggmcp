@@ -172,7 +172,7 @@ class TestPerPage:
         """
         GIVEN every tool that takes per_page
         WHEN page_size is sent alone or alongside per_page
-        THEN the call is refused as an unknown argument before reaching the API
+        THEN the call is refused before reaching the API, and the error names per_page as the argument to send
         """
         schemas = await _tool_schemas(mcp_client)
         paged = {name: schema for name, schema in schemas.items() if "per_page" in schema["properties"]}
@@ -183,7 +183,34 @@ class TestPerPage:
                 # Unknown arguments are refused before required fields are checked.
                 result = await call_tool(mcp_client, name, arguments)
 
-                assert f"Unknown argument(s) for tool '{name}': page_size." in tool_error_text(result), name
+                # TODO(page-size-hint): drop the "Use per_page" sentence with the hint.
+                assert (
+                    f"Unknown argument(s) for tool '{name}': page_size. Use per_page instead of page_size."
+                    in tool_error_text(result)
+                ), name
+
+    # TODO(page-size-hint): delete this test with the hint.
+    async def test_page_size_gets_no_correction_on_a_tool_without_per_page(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN get_internal_incident, which does not page
+        WHEN page_size is sent
+        THEN the call is refused as an unknown argument, with no advice to send per_page
+        """
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "page_size": 5})
+
+        error = tool_error_text(result)
+        assert "Unknown argument(s) for tool 'get_internal_incident': page_size." in error
+        assert "per_page" not in error
+
+    async def test_a_wrapped_page_size_gets_the_top_level_correction(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN list_members called in the 0.7 shape, page_size inside a params object
+        WHEN it runs
+        THEN the error says arguments go at the top level
+        """
+        result = await call_tool(mcp_client, "list_members", {"params": {"page_size": 5}})
+
+        assert "Arguments go at the top level, not inside a 'params' object." in tool_error_text(result)
 
     async def test_a_call_with_per_page_runs_and_resumes_with_per_page(self, mcp_client, gg_api, mock_token_scopes):
         """
