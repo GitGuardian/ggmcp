@@ -90,7 +90,7 @@ class TestProtocolLifecycleEvents:
                 pass
 
         (rec,) = _events(caplog, "mcp_initialize")
-        assert rec.client_name == "mcp"
+        assert rec.client_name == "fastmcp"
         assert rec.protocol_version == "2025-11-25"
 
 
