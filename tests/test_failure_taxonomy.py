@@ -2,7 +2,7 @@
 
 import httpx
 import pytest
-from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import NotFoundError, ToolError
 from fastmcp.exceptions import ValidationError as FastMCPValidationError
 
 from gg_api_core.client import DownstreamUnauthorizedError
@@ -99,6 +99,19 @@ class TestClassifyFailure:
                 FastMCPValidationError("Invalid arguments for tool 'get_internal_incident'"),
                 "client",
                 id="bad-arguments",
+            ),
+            pytest.param(NotFoundError("Unknown tool: 'old_tool'"), "client", id="unknown-tool"),
+            pytest.param(
+                _caused_by(ToolError("Error calling tool"), NotFoundError("Unknown tool: 'old_tool'")),
+                "client",
+                id="wrapped-unknown-tool",
+            ),
+            pytest.param(NotFoundError("Unknown resource: 'data'"), "server", id="other-lookup-failure"),
+            pytest.param(ValueError("Unknown tool: 'old_tool'"), "server", id="unrelated-exception"),
+            pytest.param(
+                _caused_by(NotFoundError("Unknown tool: 'old_tool'"), KeyError("registry")),
+                "server",
+                id="lookup-defect",
             ),
             pytest.param(ToolError("The 'ignore_reason' parameter is required"), "client", id="deliberate-refusal"),
             pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), "client", id="missing-scopes"),
