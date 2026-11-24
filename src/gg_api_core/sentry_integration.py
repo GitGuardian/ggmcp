@@ -244,11 +244,11 @@ def _exception_chain(exception: BaseException) -> list[BaseException]:
     return chain
 
 
-def is_expected_tool_failure(exception: BaseException) -> bool:
+def is_expected_tool_failure(exception: BaseException, *, method: str | None = "tools/call") -> bool:
     """Whether a failed tool call is a refusal the caller can act on rather than a defect.
 
     Expected: invalid arguments, a ToolError a tool raises on purpose (one with
-    no underlying exception), an unknown tool name, a call refused for missing scopes, and a 4xx
+    no underlying exception), a tool lookup refusal during tools/call, missing scopes, and a 4xx
     answer from the API other than 408 and 429, the expired-token 401 included.
     Everything else is unexpected: a bug in our code, a timeout, a 5xx after
     retries, rate limiting, or a refused cross-origin redirect. Other ToolError
@@ -258,9 +258,9 @@ def is_expected_tool_failure(exception: BaseException) -> bool:
     if any(isinstance(link, ArgumentValidationError) for link in chain):
         return True
     root = chain[-1]
-    # FastMCP uses NotFoundError for resources and prompts too. Limit this
-    # policy to its tool-lookup refusal, preserving other lookup defects.
-    if isinstance(root, NotFoundError) and str(root).startswith("Unknown tool: "):
+    # FastMCP shares this exception type across tools, resources and prompts.
+    # The request operation gives the lookup context independently of error wording.
+    if method == "tools/call" and isinstance(root, NotFoundError):
         return True
     if isinstance(root, httpx.HTTPStatusError):
         status = root.response.status_code

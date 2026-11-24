@@ -7,6 +7,7 @@ from io import StringIO
 import pytest
 import sentry_sdk
 import structlog
+from fastmcp.exceptions import NotFoundError
 
 from gg_api_core.logging_config import configure_logging
 from tests.e2e.harness import call_tool, mcp_headers, tool_error_text
@@ -31,8 +32,19 @@ def json_logs():
         structlog.configure(**config)
 
 
-@pytest.mark.parametrize("tool", ["get_current_token_info", "get_incident", "list_incidents", "nonexistent_tool"])
-async def test_unknown_tool_is_a_client_failure(sentry_capture, mcp_client, mock_token_scopes, caplog, json_logs, tool):
+@pytest.mark.parametrize(
+    ("tool", "lookup_message"),
+    [
+        ("get_current_token_info", None),
+        ("get_incident", None),
+        ("list_incidents", None),
+        ("nonexistent_tool", None),
+        ("nonexistent_tool", "This name is unavailable"),
+    ],
+)
+async def test_unknown_tool_is_a_client_failure(
+    sentry_capture, mcp_client, mock_token_scopes, caplog, json_logs, monkeypatch, tool, lookup_message
+):
     """
     GIVEN a stale or unsupported tool name
     WHEN it is called over HTTP/JSON-RPC with the production Sentry integration active
@@ -40,6 +52,9 @@ async def test_unknown_tool_is_a_client_failure(sentry_capture, mcp_client, mock
     """
     events, transactions = sentry_capture
     assert sentry_sdk.get_client().get_integration("mcp") is not None
+    if lookup_message is not None:
+        # Exercise FastMCP's real lookup failure with different SDK error wording.
+        monkeypatch.setattr(NotFoundError, "__str__", lambda self: lookup_message)
 
     with caplog.at_level(logging.WARNING), sentry_sdk.start_transaction(name="unknown-tool"):
         result = await call_tool(mcp_client, tool, headers={**mcp_headers(), "X-Request-ID": "unknown-tool-request"})
@@ -49,6 +64,8 @@ async def test_unknown_tool_is_a_client_failure(sentry_capture, mcp_client, mock
     (failed,) = [record for record in caplog.records if record.getMessage() == "tool_call_failed"]
     assert (failed.levelno, failed.failure_kind, failed.fault) == (logging.WARNING, "expected", "client")
     assert failed.tool == tool
+    if lookup_message is not None:
+        assert failed.error == lookup_message
     (rendered,) = [
         record
         for line in json_logs.getvalue().splitlines()

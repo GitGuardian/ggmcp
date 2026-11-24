@@ -244,8 +244,8 @@ def _gg_error_code(response: httpx.Response) -> str | None:
     return None
 
 
-def classify_failure(exc: BaseException) -> dict[str, Any]:
-    """Turn an exception into queryable status and ownership fields."""
+def classify_failure(exc: BaseException, *, method: str | None = None) -> dict[str, Any]:
+    """Turn an exception and its request operation into status and ownership fields."""
     failure: dict[str, Any] = {"error_class": _qualified_name(exc)}
     if isinstance(exc, MissingScopesError):
         failure["missing_scopes"] = exc.missing_scopes
@@ -255,7 +255,7 @@ def classify_failure(exc: BaseException) -> dict[str, Any]:
         # No HTTP status anywhere in the chain. Invalid arguments, a deliberate refusal
         # and missing scopes are the caller's to fix, the same failures Sentry counts as
         # expected; a bug in our code, a timeout or a refused redirect is ours.
-        failure["fault"] = "client" if is_expected_tool_failure(exc) else "server"
+        failure["fault"] = "client" if is_expected_tool_failure(exc, method=method) else "server"
         return failure
 
     response = status_error.response

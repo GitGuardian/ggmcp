@@ -126,7 +126,7 @@ class RequestLoggingContextMiddleware(Middleware):
                     "mcp_method": method,
                     "status": "error",
                     "duration_ms": round((time.perf_counter() - start) * 1000),
-                    **classify_failure(exc),
+                    **classify_failure(exc, method=context.method),
                 },
             )
             raise
@@ -315,7 +315,7 @@ class ToolCallLoggingMiddleware(Middleware):
                         "failure_kind": "expected" if expected else "unexpected",
                         "error": str(exc),
                         "duration_ms": round((time.perf_counter() - start) * 1000),
-                        **classify_failure(exc),
+                        **classify_failure(exc, method=_TOOL_CALL_METHOD),
                         **downstream.as_log_fields(),
                     },
                 )
