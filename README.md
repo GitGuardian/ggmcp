@@ -143,7 +143,7 @@ is refused with an error naming `per_page`, so an agent can correct itself.
 | `GITGUARDIAN_URL` | GitGuardian dashboard URL | `https://dashboard.gitguardian.com` |
 | `IS_ON_PREM` | `true`: self-hosted; `false`: SaaS; unset: detect from hostname | Unset |
 | `GITGUARDIAN_PERSONAL_ACCESS_TOKEN` | PAT for local stdio | Unset |
-| `GITGUARDIAN_SCOPES` | Comma-separated OAuth scopes to request | Scopes used by the tools |
+| `GITGUARDIAN_SCOPES` | Comma-separated OAuth scopes to request. Add `endpoints:read` for `list_machines` and `get_machine` | Scopes used by the other tools |
 | `GITGUARDIAN_CLIENT_ID` | OAuth client ID | `ggshield_oauth` |
 | `GITGUARDIAN_TOKEN_NAME` | Name for a local OAuth-issued PAT | `MCP Token` |
 | `GITGUARDIAN_TOKEN_LIFETIME` | Local OAuth PAT lifetime in days, or `never` | `30` |

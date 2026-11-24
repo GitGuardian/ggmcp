@@ -59,6 +59,7 @@ from gg_api_core.tools.list_internal_occurrences import list_internal_occurrence
 from gg_api_core.tools.list_public_incidents import list_public_incidents
 from gg_api_core.tools.list_public_occurrences import list_public_occurrences
 from gg_api_core.tools.list_sources import list_sources
+from gg_api_core.tools.machines import get_machine, list_machines
 from gg_api_core.tools.members import (
     get_member,
     list_internal_incident_members,
@@ -67,6 +68,12 @@ from gg_api_core.tools.members import (
 )
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
+from gg_api_core.tools.secret_validity import (
+    get_secret_validity,
+    remove_secret_validity_override,
+    request_secret_validity_check,
+    set_secret_validity_override,
+)
 
 # Every tool talks only to the GitGuardian API, so none is open-world. Every hint is set,
 # even where the spec gives a default, so no client has to guess.
@@ -96,6 +103,15 @@ REQUESTS_CODE_FIX = ToolAnnotations(
 # Revoking a secret cannot be undone, and reaches the secret's provider, outside GitGuardian.
 REVOKES_SECRET = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True
+)
+SETS_VALIDITY_OVERRIDE = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
+)
+REMOVES_VALIDITY_OVERRIDE = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True
+)
+REQUESTS_VALIDITY_CHECK = ToolAnnotations(
+    read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True
 )
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
@@ -497,6 +513,78 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         "API refuses with a 403.",
         required_scopes=["secrets:write"],
         annotations=REVOKES_SECRET,
+    )
+
+    mcp.tool(
+        list_machines,
+        description="List the machines of the endpoint inventory: the laptops and servers that ggshield or the "
+        "endpoint scanner report from, with the users found on each (username, full name, home directory, whether "
+        "the account is privileged) and when each last reported. Filter by hostname, machine_id or username, for "
+        "example to find the machines of someone leaving the company. It does not list the secrets found on a "
+        "machine. The token must belong to a Manager or be a service account token; otherwise the API refuses "
+        "with a 403.",
+        required_scopes=["endpoints:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        get_machine,
+        description="Read one machine of the endpoint inventory by its id from list_machines: its hostname, "
+        "machine_id, the users found on it and when each last reported. It does not list the secrets found on "
+        "the machine.",
+        required_scopes=["endpoints:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        get_secret_validity,
+        description="Get a secret's validity: an incident's secret_id, internal or public. Returns the validity "
+        "now, the validity override if one is set, when GitGuardian last checked the secret (last_checked_at), "
+        "and the stored analysis of what the secret gives access to. Call it again later to see the outcome of "
+        "request_secret_validity_check: with no override set, a newer last_checked_at shows that a check ran. "
+        "Setting an override also moves last_checked_at.",
+        required_scopes=["secrets:read"],
+        annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        request_secret_validity_check,
+        description="Ask GitGuardian to check again whether a secret is still valid, for example after it was "
+        "revoked: an incident's secret_id, internal or public. The check is asynchronous and this returns no "
+        "validity: accepted only means the API acknowledged the request. No check runs for a secret checked in "
+        "the last 5 minutes, a secret with a validity override, or a secret GitGuardian cannot check, and the "
+        "API does not say which happened. Read the outcome later with get_secret_validity, comparing its "
+        "last_checked_at, which can take minutes to move; do not report the secret as checked from this call "
+        "alone. Like any check, its result can resolve, ignore or reopen the secret's incidents through the "
+        "workspace's playbooks. The workspace must have validity checks enabled; "
+        "otherwise the API refuses with a 403.",
+        required_scopes=["secrets:write"],
+        annotations=REQUESTS_VALIDITY_CHECK,
+    )
+
+    mcp.tool(
+        set_secret_validity_override,
+        description="Record a validity chosen by the user as a secret's validity override: an incident's "
+        "secret_id, internal or public. While the override is set, GitGuardian shows it as the secret's validity "
+        "and stops its periodic validity checks of the secret, until remove_secret_validity_override is called. "
+        "It acts like a check result on the secret's incidents: with the workspace's playbooks, invalid can "
+        "resolve or ignore them, valid can reopen them, and members can be notified. The validity must come "
+        "from the user: ask, do not choose, and confirm with the user first, saying what it does to the "
+        "incidents. Never set one because a check failed or to close an incident. Returns the secret's validity "
+        "as it is now.",
+        required_scopes=["secrets:write"],
+        annotations=SETS_VALIDITY_OVERRIDE,
+    )
+
+    mcp.tool(
+        remove_secret_validity_override,
+        description="Remove a secret's validity override: an incident's secret_id, internal or public. "
+        "GitGuardian resumes its periodic validity checks of the secret and triggers a new check, which "
+        "recomputes the validity asynchronously. Its result can resolve, ignore or reopen the secret's incidents "
+        "through the workspace's playbooks: confirm with the user first. This returns no validity; read it later "
+        "with get_secret_validity.",
+        required_scopes=["secrets:write"],
+        annotations=REMOVES_VALIDITY_OVERRIDE,
     )
 
     mcp.tool(

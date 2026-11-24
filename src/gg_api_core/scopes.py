@@ -56,6 +56,7 @@ ALL_SCOPES = [
     "secrets:write",
     "secrets:read",
     "teams:read",
+    "endpoints:read",
 ]
 
 # Self-hosted releases are delayed compared to SaaS, so an API scope available in SaaS may not be already available

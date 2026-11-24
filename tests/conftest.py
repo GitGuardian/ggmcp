@@ -60,9 +60,11 @@ def mock_gitguardian_client():
         "gg_api_core.tools.list_public_occurrences",
         "gg_api_core.tools.list_internal_occurrences",
         "gg_api_core.tools.list_sources",
+        "gg_api_core.tools.machines",
         "gg_api_core.tools.members",
         "gg_api_core.tools.revoke_secret",
         "gg_api_core.tools.scan_secret",
+        "gg_api_core.tools.secret_validity",
     ]
 
     with ExitStack() as stack:

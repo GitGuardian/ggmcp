@@ -23,6 +23,7 @@ WRITE_VERBS = {
     "ignore",
     "remove",
     "reopen",
+    "request",
     "resolve",
     "revoke",
     "set",
