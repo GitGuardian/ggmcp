@@ -26,7 +26,7 @@ on:
         type: boolean
         required: false
         default: false
-        description: Skip the build cache and force a fresh base image pull (nightly rebuilds, to pick up upstream security patches).
+        description: Skip the build cache for nightly rebuilds. Base images are always refreshed.
       scan:
         type: boolean
         required: false
@@ -111,7 +111,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          pull: ${{ inputs.no-cache }}
+          # Refresh base images on every build to pick up OS security updates.
+          pull: true
           no-cache: ${{ inputs.no-cache }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

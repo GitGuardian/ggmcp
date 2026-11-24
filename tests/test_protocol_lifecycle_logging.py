@@ -5,6 +5,7 @@ import logging
 import pytest
 import structlog
 from fastmcp import Client, FastMCP
+from mcp.types import Implementation
 
 from gg_api_core.middleware import RequestLoggingContextMiddleware, ScopeFilteringMiddleware
 from tests.test_middleware import FakeServer
@@ -86,11 +87,11 @@ class TestProtocolLifecycleEvents:
         THEN mcp_initialize names the client and the protocol revision
         """
         with caplog.at_level(logging.INFO, logger="gg_api_core.middleware"):
-            async with Client(server, mode="legacy"):
+            async with Client(server, mode="legacy", client_info=Implementation(name="lifecycle-test", version="1.0")):
                 pass
 
         (rec,) = _events(caplog, "mcp_initialize")
-        assert rec.client_name == "mcp"
+        assert rec.client_name == "lifecycle-test"
         assert rec.protocol_version == "2025-11-25"
 
 
