@@ -13,8 +13,8 @@ from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     page_fields,
 )
 from gg_api_core.utils import get_client
@@ -110,7 +110,7 @@ class ListRepoOccurrencesBaseParams(BaseModel):
         description="Sort order: date, or -date for newest first. Unset, occurrences come in the order the API "
         "returns them, by ID",
     )
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -219,7 +219,7 @@ async def list_internal_occurrences(
         presence=params.presence,
         tags=params.tags,
         exclude_tags=params.exclude_tags,
-        per_page=params.page_size,
+        per_page=params.per_page,
         cursor=params.cursor,
         ordering=params.ordering,
         get_all=params.get_all,

@@ -7,6 +7,8 @@ are the tool's top-level arguments, and the model still validates them.
 import json
 
 import httpx
+import jsonschema
+import pytest
 
 from tests.e2e.harness import call_tool, rpc, rpc_result, sent_params, tool_error_text, tool_output
 
@@ -134,3 +136,111 @@ class TestTopLevelArguments:
             assert '"not_checked"' not in offered, tool
             assert '"unknown"' in offered, tool
         assert sent_params(route)["validity__in"] == "not_checked"
+
+
+class TestPerPage:
+    """Every paginated tool uses per_page as its only page-size argument."""
+
+    async def test_only_per_page_is_advertised_and_validates(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN every tool that takes per_page
+        WHEN its full input schema is read and used to validate arguments
+        THEN it contains no page_size alias, accepts per_page within its bounds,
+        and refuses page_size and unknown arguments
+        """
+        schemas = await _tool_schemas(mcp_client)
+        paged = {name: schema for name, schema in schemas.items() if "per_page" in schema["properties"]}
+
+        assert paged
+        for name, schema in paged.items():
+            assert "page_size" not in json.dumps(schema), name
+            # Only the page size is under test, not the tool's required arguments.
+            schema = {key: value for key, value in schema.items() if key != "required"}
+            for per_page in (1, 20, 100):
+                jsonschema.validate({"per_page": per_page}, schema)
+            for arguments in (
+                {"per_page": 0},
+                {"per_page": 101},
+                {"page_size": 5},
+                {"per_page": 5, "page_size": 5},
+                {"pagesize": 5},
+            ):
+                with pytest.raises(jsonschema.ValidationError):
+                    jsonschema.validate(arguments, schema)
+
+    async def test_every_paginated_tool_refuses_page_size(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN every tool that takes per_page
+        WHEN page_size is sent alone or alongside per_page
+        THEN the call is refused before reaching the API, and the error names per_page as the argument to send
+        """
+        schemas = await _tool_schemas(mcp_client)
+        paged = {name: schema for name, schema in schemas.items() if "per_page" in schema["properties"]}
+
+        assert paged
+        for name in paged:
+            for arguments in ({"page_size": 5}, {"per_page": 5, "page_size": 5}):
+                # Unknown arguments are refused before required fields are checked.
+                result = await call_tool(mcp_client, name, arguments)
+
+                # TODO(page-size-hint): drop the "Use per_page" sentence with the hint.
+                assert (
+                    f"Unknown argument(s) for tool '{name}': page_size. Use per_page instead of page_size."
+                    in tool_error_text(result)
+                ), name
+
+    # TODO(page-size-hint): delete this test with the hint.
+    async def test_page_size_gets_no_correction_on_a_tool_without_per_page(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN get_internal_incident, which does not page
+        WHEN page_size is sent
+        THEN the call is refused as an unknown argument, with no advice to send per_page
+        """
+        result = await call_tool(mcp_client, "get_internal_incident", {"incident_id": 77, "page_size": 5})
+
+        error = tool_error_text(result)
+        assert "Unknown argument(s) for tool 'get_internal_incident': page_size." in error
+        assert "per_page" not in error
+
+    async def test_a_wrapped_page_size_gets_the_top_level_correction(self, mcp_client, mock_token_scopes):
+        """
+        GIVEN list_members called in the 0.7 shape, page_size inside a params object
+        WHEN it runs
+        THEN the error says arguments go at the top level
+        """
+        result = await call_tool(mcp_client, "list_members", {"params": {"page_size": 5}})
+
+        assert "Arguments go at the top level, not inside a 'params' object." in tool_error_text(result)
+
+    async def test_a_call_with_per_page_runs_and_resumes_with_per_page(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN list_members called with per_page
+        WHEN it runs
+        THEN the API, result and next_arguments use per_page
+        """
+        route = gg_api.get("/members").respond(
+            200,
+            json=[{"id": 7}],
+            headers={"Link": '<https://api.gitguardian.com/v1/members?cursor=cD0x>; rel="next"'},
+        )
+
+        output = tool_output(await call_tool(mcp_client, "list_members", {"per_page": 1}))
+
+        assert sent_params(route)["per_page"] == "1"
+        assert output["per_page"] == 1
+        assert "page_size" not in output
+        assert output["next_arguments"] == {"per_page": 1, "cursor": "cD0x"}
+
+    async def test_per_page_is_checked_against_its_bounds(self, mcp_client, gg_api, mock_token_scopes):
+        """
+        GIVEN list_members called with per_page outside 1 to 100
+        WHEN it runs
+        THEN the call is refused before any API call
+        """
+        route = gg_api.get("/members").respond(200, json=[])
+
+        for per_page in (0, 101):
+            result = await call_tool(mcp_client, "list_members", {"per_page": per_page})
+
+            assert "per_page" in tool_error_text(result)
+            assert not route.called

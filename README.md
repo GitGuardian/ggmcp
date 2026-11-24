@@ -124,6 +124,15 @@ docker run -p 8000:8000 \
 For HTTP clients that send a PAT directly, leave `MCP_OAUTH_PROXY_ENABLED` unset,
 keep `ENABLE_LOCAL_OAUTH=false`, and send `Authorization: Bearer <PAT>` with each request.
 
+## Pagination
+
+List tools accept `per_page` (1 to 100, default 20), `cursor` and `get_all`.
+Results report `per_page` and provide `next_arguments` for the next call.
+The former `page_size` input and result field have been removed; update existing
+calls and result consumers to use `per_page`. A call that still sends `page_size`
+is refused with an error naming `per_page`, so an agent can correct itself.
+<!-- TODO(page-size-hint): remove the sentence above with the hint. -->
+
 ## Configuration
 
 <details>

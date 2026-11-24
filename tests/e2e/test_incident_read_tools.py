@@ -63,7 +63,7 @@ class TestListIncidents:
         assert sent_params(route) == DEFAULT_LIST_QUERY
         output = tool_output(result)
         assert output["incidents"] == [INCIDENT]
-        assert output["page_size"] == 20
+        assert output["per_page"] == 20
         assert output["has_more"] is False
         assert output["stop_reason"] == "end"
         assert output["next_arguments"] is None
@@ -170,7 +170,7 @@ class TestListIncidents:
         assert [i["id"] for i in first["incidents"]] == [1]
         assert first["has_more"] is True
         assert first["stop_reason"] == "size_budget"
-        assert first["next_arguments"] == {"get_all": True, "cursor": "2:5", "page_size": 5}
+        assert first["next_arguments"] == {"get_all": True, "cursor": "2:5", "per_page": 5}
         assert [i["id"] for i in resumed["incidents"]] == [2]
 
     async def test_get_all_cut_by_the_page_cap_reports_the_last_page_it_returned(
@@ -227,16 +227,14 @@ class TestListIncidents:
         """
         route = gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=500, note_bytes=3000))
 
-        output = tool_output(
-            await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "page_size": 100})
-        )
+        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"get_all": True, "per_page": 100}))
 
         returned = [i["id"] for i in output["incidents"]]
         assert {call.request.url.params["page_size"] for call in route.calls} == {"5"}
         assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
         assert returned == list(range(1, len(returned) + 1))
         assert len(returned) % 5 == 0
-        assert output["page_size"] == 5
+        assert output["per_page"] == 5
         assert output["has_more"] is True
         assert output["stop_reason"] == "size_budget"
         assert output["next_arguments"]["cursor"] == f"{len(returned) // 5 + 1}:5"
@@ -252,7 +250,7 @@ class TestListIncidents:
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=40, note_bytes=3000))
 
         seen: list[int] = []
-        arguments = {"get_all": True, "page_size": 100}
+        arguments = {"get_all": True, "per_page": 100}
         for _ in range(10):
             output = tool_output(await call_tool(mcp_client, "list_internal_incidents", arguments))
             assert len(json.dumps(output["incidents"])) <= DEFAULT_PAGINATION_MAX_BYTES
@@ -283,7 +281,7 @@ class TestListIncidents:
 
         assert output["incidents"][0]["id"] == (page - 1) * page_size + 1
         assert {call.request.url.params["page_size"] for call in route.calls} == {fetched_page_size}
-        assert output["page_size"] == int(fetched_page_size)
+        assert output["per_page"] == int(fetched_page_size)
 
     @pytest.mark.parametrize("more", [True, False])
     async def test_a_single_page_reports_more_results_as_the_other_list_tools_do(
@@ -296,11 +294,11 @@ class TestListIncidents:
         """
         gg_api.get("/incidents-for-mcp").mock(side_effect=self._paged_incidents(total=10 if more else 5))
 
-        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"page_size": 5}))
+        output = tool_output(await call_tool(mcp_client, "list_internal_incidents", {"per_page": 5}))
 
         assert output["has_more"] is more
         assert output["stop_reason"] == ("page" if more else "end")
-        assert output["next_arguments"] == ({"page_size": 5, "cursor": "2:5"} if more else None)
+        assert output["next_arguments"] == ({"per_page": 5, "cursor": "2:5"} if more else None)
 
     @pytest.mark.parametrize("cursor", ["2", "abc", "0:5", "2:0", "2:101", "2:5:1"])
     async def test_a_cursor_it_did_not_return_is_refused(self, mcp_client, gg_api, mock_token_scopes, cursor):
@@ -668,7 +666,7 @@ class TestListRepoOccurrences:
         assert output["occurrences"] == [occurrence]
         assert output["has_more"] is True
         assert output["stop_reason"] == "page"
-        assert output["next_arguments"] == {"source_id": 55, "cursor": "cD0yMDI2==", "page_size": 20}
+        assert output["next_arguments"] == {"source_id": 55, "cursor": "cD0yMDI2==", "per_page": 20}
 
     async def test_mine_filters_on_the_token_member_id(self, mcp_client, gg_api, mock_token_scopes):
         """
@@ -725,7 +723,7 @@ class TestListRepoOccurrences:
             "status": [],
             "severity": [],
             "validity": [],
-            "page_size": 100,
+            "per_page": 100,
             "get_all": False,
         }
         first = tool_output(await call_tool(mcp_client, tool_name, filters))

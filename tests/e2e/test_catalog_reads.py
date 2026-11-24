@@ -38,14 +38,14 @@ class TestListHoneytokens:
     async def test_an_answer_the_api_did_not_page_is_paged_by_the_tool(self, mcp_client, gg_api, mock_token_scopes):
         """
         GIVEN /honeytokens answering five honeytokens at once, whatever per_page asks for
-        WHEN list_honeytokens is called with page_size 2, then with the next_arguments it returns
+        WHEN list_honeytokens is called with per_page 2, then with the next_arguments it returns
         THEN each call returns two honeytokens, in order, until the last one, without the API paging them
         """
         tokens = [{"id": f"hk-{i}", "name": f"decoy-{i}", "status": "active"} for i in range(5)]
         gg_api.get("/honeytokens").respond(200, json=tokens)
 
         seen = []
-        arguments = {"page_size": 2}
+        arguments = {"per_page": 2}
         for _ in range(5):
             output = tool_output(await call_tool(mcp_client, "list_honeytokens", arguments))
             assert len(output["honeytokens"]) <= 2
@@ -83,9 +83,9 @@ class TestListDetectors:
             headers={"Link": '<https://api.gitguardian.com/v1/secret_detectors?cursor=cD0x>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_detectors", {"search": "aws", "active": True, "page_size": 1})
+        result = await call_tool(mcp_client, "list_detectors", {"search": "aws", "active": True, "per_page": 1})
 
         assert sent_params(route) == {"search": "aws", "is_active": "true", "per_page": "1"}
         output = tool_output(result)
         assert output["detectors"] == [DETECTOR]
-        assert output["next_arguments"] == {"search": "aws", "active": True, "page_size": 1, "cursor": "cD0x"}
+        assert output["next_arguments"] == {"search": "aws", "active": True, "per_page": 1, "cursor": "cD0x"}

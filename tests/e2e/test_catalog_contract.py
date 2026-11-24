@@ -141,29 +141,29 @@ class TestArguments:
                     assert value["type"] == "string", field
                     assert value.get("format") == OPAQUE_IDS[field], field
 
-    async def test_paginated_tools_take_page_size_cursor_and_get_all(self, catalog):
+    async def test_paginated_tools_take_per_page_cursor_and_get_all(self, catalog):
         """
         GIVEN the tools that return pages
         WHEN their arguments are read
-        THEN each takes page_size, cursor and get_all, and none takes page or per_page
+        THEN each advertises per_page, cursor and get_all, and none advertises page or page_size
         """
         paginated = [name for name, tool in catalog.items() if PAGE_ARGUMENTS & set(tool["inputSchema"]["properties"])]
         assert paginated
         for name in paginated:
             arguments = set(catalog[name]["inputSchema"]["properties"])
-            assert {"page_size", "cursor", "get_all"} <= arguments, name
-            assert not {"page", "per_page"} & arguments, name
+            assert {"per_page", "cursor", "get_all"} <= arguments, name
+            assert not {"page", "page_size"} & arguments, name
 
     async def test_paginated_tools_say_how_to_continue(self, catalog):
         """
         GIVEN the tools that return pages
         WHEN their output schemas are read
-        THEN each result carries page_size, has_more, stop_reason and next_arguments
+        THEN each result carries per_page, has_more, stop_reason and next_arguments
         """
         paginated = [name for name, tool in catalog.items() if PAGE_ARGUMENTS & set(tool["inputSchema"]["properties"])]
         for name in paginated:
             outputs = set(catalog[name]["outputSchema"]["properties"])
-            assert {"page_size", "has_more", "stop_reason", "next_arguments"} <= outputs, name
+            assert {"per_page", "has_more", "stop_reason", "next_arguments"} <= outputs, name
 
 
 class TestOutputs:

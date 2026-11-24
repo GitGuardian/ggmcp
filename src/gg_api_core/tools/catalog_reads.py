@@ -12,8 +12,8 @@ from gg_api_core.client import DEFAULT_PAGINATION_MAX_BYTES
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     StopReason,
     next_arguments_for,
     page_fields,
@@ -41,7 +41,7 @@ class ListHoneytokensParams(BaseModel):
     ordering: HoneytokenOrdering = Field(
         default=DEFAULT_HONEYTOKEN_ORDERING, description="Sort order: a field, prefixed with '-' for descending"
     )
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -71,7 +71,7 @@ async def list_honeytokens(params: ListHoneytokensParams = ListHoneytokensParams
             ordering=params.ordering,
             show_token=False,
             creator_id=None if creator_id is None else str(creator_id),
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=None if offset is not None else params.cursor,
             get_all=params.get_all and offset is None,
         )
@@ -102,7 +102,7 @@ def _page_locally(
     stopped_by: StopReason | None = None
     size = 0
     for honeytoken in honeytokens[offset:]:
-        if not params.get_all and len(page) == params.page_size:
+        if not params.get_all and len(page) == params.per_page:
             break
         item_size = len(json.dumps(honeytoken))
         if params.get_all and page and size + item_size > DEFAULT_PAGINATION_MAX_BYTES:
@@ -114,10 +114,10 @@ def _page_locally(
     has_more = next_offset < len(honeytokens)
     return ListHoneytokensResult(
         honeytokens=page,
-        page_size=params.page_size,
+        per_page=params.per_page,
         has_more=has_more,
         stop_reason=stop_reason_of(has_more, params.get_all, stopped_by),
-        next_arguments=next_arguments_for(params, f"offset:{next_offset}" if has_more else None, params.page_size),
+        next_arguments=next_arguments_for(params, f"offset:{next_offset}" if has_more else None, params.per_page),
     )
 
 
@@ -128,7 +128,7 @@ class ListDetectorsParams(BaseModel):
     active: bool | None = Field(
         default=None, description="True for the detectors enabled in the workspace, False for the disabled ones"
     )
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -148,7 +148,7 @@ async def list_detectors(params: ListDetectorsParams = ListDetectorsParams()) ->
         response = await client.list_secret_detectors(
             search=params.search,
             active=params.active,
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
         )

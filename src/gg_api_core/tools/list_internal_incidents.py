@@ -19,8 +19,8 @@ from gg_api_core.tools.incident_filters import (
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     StopReason,
     next_arguments_for,
     stop_reason_of,
@@ -38,8 +38,8 @@ GET_ALL_PAGE_SIZE = 5
 _CURSOR = re.compile(r"(\d+):(\d+)")
 
 
-def _cursor(page: int, page_size: int) -> str:
-    return f"{page}:{page_size}"
+def _cursor(page: int, per_page: int) -> str:
+    return f"{page}:{per_page}"
 
 
 def _read_cursor(cursor: str) -> tuple[int, int]:
@@ -50,13 +50,13 @@ def _read_cursor(cursor: str) -> tuple[int, int]:
     return int(match[1]), int(match[2])
 
 
-def _get_all_page_size(page_size: int) -> int:
+def _get_all_per_page(per_page: int) -> int:
     """The largest page size up to GET_ALL_PAGE_SIZE that divides the requested one.
 
     The requested page, counted in pages of the requested size, then starts exactly on a
     page boundary at the smaller size.
     """
-    return max(size for size in range(1, GET_ALL_PAGE_SIZE + 1) if page_size % size == 0)
+    return max(size for size in range(1, GET_ALL_PAGE_SIZE + 1) if per_page % size == 0)
 
 
 def _build_suggestion(params: "ListIncidentsParams", incidents_count: int) -> str:
@@ -104,7 +104,7 @@ DEFAULT_ORDERING: Ordering = "-date"
 class _Pagination(BaseModel):
     """Pagination fields, declared first so list_internal_incidents' schema lists them first."""
 
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(
         default=False, description=f"{GET_ALL_DESCRIPTION}. get_all fetches pages of at most {GET_ALL_PAGE_SIZE}"
@@ -224,18 +224,18 @@ async def list_internal_incidents(
     if conflict:
         raise ToolError(conflict)
     query = build_incident_query(params, assignee_id)
-    page, page_size = _read_cursor(params.cursor) if params.cursor else (1, params.page_size)
+    page, per_page = _read_cursor(params.cursor) if params.cursor else (1, params.per_page)
 
     if not params.get_all:
-        response = await client.list_incidents_for_mcp(query, page=page, page_size=page_size, ordering=params.ordering)
+        response = await client.list_incidents_for_mcp(query, page=page, page_size=per_page, ordering=params.ordering)
         incidents = [summarize_incident(incident) for incident in response.get("results", [])]
         has_more = response.get("next") is not None
-        return _result(params, incidents, page_size, has_more, _cursor(page + 1, page_size) if has_more else None)
+        return _result(params, incidents, per_page, has_more, _cursor(page + 1, per_page) if has_more else None)
 
     # Fetch pages with a byte budget and a page cap, in pages small enough to stop near
     # the budget, starting at the same first incident the cursor's page starts at.
-    get_all_size = _get_all_page_size(page_size)
-    current_page = (page - 1) * page_size // get_all_size + 1
+    get_all_size = _get_all_per_page(per_page)
+    current_page = (page - 1) * per_page // get_all_size + 1
     all_incidents: list[dict[str, Any]] = []
     total_bytes = 0
     stopped_by: StopReason | None = None
@@ -275,17 +275,17 @@ async def list_internal_incidents(
 def _result(
     params: ListIncidentsParams,
     incidents: list[dict[str, Any]],
-    page_size: int,
+    per_page: int,
     has_more: bool,
     next_cursor: str | None,
     stopped_by: StopReason | None = None,
 ) -> ListIncidentsResult:
     return ListIncidentsResult(
         incidents=incidents,
-        page_size=page_size,
+        per_page=per_page,
         has_more=has_more,
         stop_reason=stop_reason_of(has_more, params.get_all, stopped_by),
-        next_arguments=next_arguments_for(params, next_cursor, page_size),
+        next_arguments=next_arguments_for(params, next_cursor, per_page),
         applied_filters=build_filter_info(params),
         suggestion=_build_suggestion(params, len(incidents)),
     )

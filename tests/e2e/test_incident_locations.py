@@ -37,7 +37,7 @@ class TestListInternalIncidentLocations:
         result = await call_tool(
             mcp_client,
             "list_internal_incident_locations",
-            {"incident_id": 42, "source_id": 7, "active": True, "search": "config", "page_size": 1},
+            {"incident_id": 42, "source_id": 7, "active": True, "search": "config", "per_page": 1},
         )
 
         assert sent_params(route) == {"source": "7", "active": "true", "search": "config", "per_page": "1"}
@@ -48,7 +48,7 @@ class TestListInternalIncidentLocations:
             "source_id": 7,
             "active": True,
             "search": "config",
-            "page_size": 1,
+            "per_page": 1,
             "cursor": "cD0x",
         }
 

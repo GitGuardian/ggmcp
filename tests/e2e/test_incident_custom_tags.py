@@ -220,12 +220,12 @@ class TestListCustomTags:
             headers={"Link": '<https://api.gitguardian.com/v1/custom_tags?cursor=cD0x>; rel="next"'},
         )
 
-        result = await call_tool(mcp_client, "list_custom_tags", {"key": "team", "page_size": 1})
+        result = await call_tool(mcp_client, "list_custom_tags", {"key": "team", "per_page": 1})
 
         output = tool_output(result)
         assert dict(route.calls.last.request.url.params) == {"key": "team", "per_page": "1"}
         assert output["custom_tags"] == [TEAM_TAG]
-        assert output["next_arguments"] == {"key": "team", "page_size": 1, "cursor": "cD0x"}
+        assert output["next_arguments"] == {"key": "team", "per_page": 1, "cursor": "cD0x"}
 
     async def test_it_needs_the_custom_tags_read_scope(self, mcp_client, gg_api, mock_token_scopes):
         """

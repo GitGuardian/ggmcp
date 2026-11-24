@@ -8,8 +8,8 @@ from gg_api_core.tools.ids import NumericId
 from gg_api_core.tools.pagination import (
     CURSOR_DESCRIPTION,
     GET_ALL_DESCRIPTION,
-    PAGE_SIZE_DESCRIPTION,
     PageOfResults,
+    PerPage,
     page_fields,
 )
 from gg_api_core.utils import get_client
@@ -98,7 +98,7 @@ class ListSourcesParams(BaseModel):
         default=None,
         description="Filter sources by team id. Only sources belonging to the given team's perimeter are returned.",
     )
-    page_size: int = Field(default=20, ge=1, le=100, description=PAGE_SIZE_DESCRIPTION)
+    per_page: PerPage = 20
     cursor: str | None = Field(default=None, description=CURSOR_DESCRIPTION)
     get_all: bool = Field(default=False, description=GET_ALL_DESCRIPTION)
 
@@ -129,7 +129,7 @@ async def list_sources(params: ListSourcesParams = ListSourcesParams()) -> ListS
             source_criticality=params.source_criticality,
             monitored=params.monitored,
             team_id=params.team_id,
-            per_page=params.page_size,
+            per_page=params.per_page,
             cursor=params.cursor,
             get_all=params.get_all,
         )
