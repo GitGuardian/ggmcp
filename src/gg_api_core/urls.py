@@ -47,12 +47,12 @@ def derive_public_api_url(gitguardian_url: str) -> str:
 
         if not path or path == "/" or not path.startswith("/exposed"):
             normalized = f"{api_url}/exposed/v1"
-            logger.info(f"Normalized self-hosted base URL: {api_url} -> {normalized}")
+            logger.debug(f"Normalized self-hosted base URL: {api_url} -> {normalized}")
             return normalized
 
         # path starts with /exposed but lacks /v1
         normalized = f"{api_url}/v1"
-        logger.info(f"Normalized self-hosted API URL: {api_url} -> {normalized}")
+        logger.debug(f"Normalized self-hosted API URL: {api_url} -> {normalized}")
         return normalized
 
     except Exception as e:

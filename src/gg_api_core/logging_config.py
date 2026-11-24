@@ -9,7 +9,7 @@ import structlog
 from starlette.requests import ClientDisconnect
 from structlog.types import EventDict, Processor, WrappedLogger
 
-from gg_api_core.client import caused_by_downstream_401
+from gg_api_core.client import DownstreamUnauthorizedError, caused_by_downstream_401
 from gg_api_core.sanitization import scrub_by_name, scrub_by_value
 from gg_api_core.version import APP_VERSION
 
@@ -35,7 +35,7 @@ _RESERVED_KEYS = frozenset(
 
 
 # Their per-request INFO lines are replaced by structured events.
-_DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server")
+_DEMOTED_LOGGERS = ("httpx", "httpcore", "mcp.server.lowlevel.server", "mcp.server.streamable_http")
 
 # A client that hangs up mid-request makes the MCP SDK log an ERROR with a traceback:
 # ClientDisconnect while the request body is read ("Error handling POST request"), or
@@ -66,21 +66,24 @@ def _demote_client_disconnects(record: logging.LogRecord) -> bool:
     return True
 
 
-# When the GitGuardian API rejects a client's token while tools/list looks up its scopes,
-# the MCP SDK's dispatcher logs "handler for 'tools/list' raised" at ERROR with a traceback.
-# The client gets its 401 challenge and mcp_request_failed records the failure, so the
-# record goes out as WARNING. Any other error from this logger keeps its level.
-_REJECTED_TOKEN_LOGGERS = frozenset({"mcp.shared.jsonrpc_dispatcher"})
+# The MCP SDK logs an ERROR with a traceback each time a client sends an expired or
+# revoked token. That is not a server error, and mcp_request_failed already logs it,
+# so this filter drops the SDK's record (LOG_LEVEL=DEBUG keeps it, as a WARNING).
+# A different exception raised while handling such a token is still logged, as a WARNING.
+_REJECTED_TOKEN_LOGGERS = frozenset({"mcp.server.runner", "mcp.shared.jsonrpc_dispatcher"})
 
 
-def _demote_rejected_tokens(record: logging.LogRecord) -> bool:
-    """Log a rejected token reported by the MCP SDK dispatcher as WARNING instead of ERROR."""
+def _drop_rejected_tokens(record: logging.LogRecord) -> bool:
+    """Drop the MCP SDK's error record for a rejected token."""
     if (
         record.levelno >= logging.ERROR
         and record.name in _REJECTED_TOKEN_LOGGERS
         and record.exc_info
         and caused_by_downstream_401(record.exc_info[1])
     ):
+        rejected_token_itself = isinstance(record.exc_info[1], DownstreamUnauthorizedError)
+        if rejected_token_itself and not logging.getLogger().isEnabledFor(logging.DEBUG):
+            return False
         record.levelno = logging.WARNING
         record.levelname = "WARNING"
     return True
@@ -154,7 +157,7 @@ def configure_logging(
     handler.name = "ggmcp-log"
     handler.setFormatter(formatter)
     handler.addFilter(_demote_client_disconnects)
-    handler.addFilter(_demote_rejected_tokens)
+    handler.addFilter(_drop_rejected_tokens)
 
     root = logging.getLogger()
     root.handlers = [h for h in root.handlers if h.name != "ggmcp-log"]

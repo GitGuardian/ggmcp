@@ -503,13 +503,13 @@ class GitGuardianClient:
         raw_url = gitguardian_url or get_settings().gitguardian_url
 
         self.public_api_url = derive_public_api_url(raw_url)
-        logger.info(f"Using API URL: {self.public_api_url}")
+        logger.debug(f"Using API URL: {self.public_api_url}")
 
         # Extract the base URL for dashboard (needed for OAuth)
         self.dashboard_url = self._get_dashboard_url()
-        logger.info(f"Using dashboard URL: {self.dashboard_url}")
+        logger.debug(f"Using dashboard URL: {self.dashboard_url}")
         self.private_api_url = f"{self.dashboard_url}/api/v1"
-        logger.info(f"Using private API URL: {self.private_api_url}")
+        logger.debug(f"Using private API URL: {self.private_api_url}")
 
     def _get_dashboard_url(self) -> str:
         """
@@ -523,11 +523,11 @@ class GitGuardianClient:
 
         # If using SaaS API URLs, return the corresponding dashboard URL
         if self.public_api_url == "https://api.gitguardian.com/v1":
-            logger.info(f"Using default dashboard URL: {default_dashboard_url}")
+            logger.debug(f"Using default dashboard URL: {default_dashboard_url}")
             return default_dashboard_url
         elif self.public_api_url == "https://api.eu1.gitguardian.com/v1":
             eu_dashboard_url = "https://dashboard.eu1.gitguardian.com"
-            logger.info(f"Using EU dashboard URL: {eu_dashboard_url}")
+            logger.debug(f"Using EU dashboard URL: {eu_dashboard_url}")
             return eu_dashboard_url
 
         try:
@@ -726,8 +726,6 @@ class GitGuardianClient:
             except httpx.HTTPStatusError as e:
                 # Special handling for 401 errors - token might be invalid/expired
                 if e.response.status_code == 401 and self._oauth_token is not None:
-                    logger.warning("Received 401 Unauthorized - token may be invalid or expired")
-
                     # In single-tenant mode with token refresh enabled,
                     # attempt to clear the invalid token and acquire a new one.
                     # In multi-tenant mode (_allow_token_refresh=False), each request
@@ -1067,7 +1065,7 @@ class GitGuardianClient:
         Returns:
             Dictionary containing token information including scopes
         """
-        logger.info("Getting current API token information")
+        logger.debug("Getting current API token information")
 
         # If we already have token info, return it
         if self._token_info is not None:

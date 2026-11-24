@@ -168,27 +168,6 @@ def _rejected_token(wrapped_in: BaseException | None = None) -> BaseException:
 
 class TestRejectedTokenNoise:
     @pytest.mark.parametrize(
-        "exception",
-        [
-            pytest.param(_rejected_token(), id="rejected-token"),
-            pytest.param(_rejected_token(wrapped_in=RuntimeError("wrapper")), id="rejected-token-as-cause"),
-        ],
-    )
-    def test_a_rejected_token_at_the_dispatcher_is_logged_as_a_warning(self, capsys, exception):
-        """
-        GIVEN the MCP SDK dispatcher logging an error because the API rejected the client's token
-        WHEN the record is emitted
-        THEN it goes out as a warning, traceback kept
-        """
-        configure_logging(log_level="INFO", log_format="json")
-        _log_error_with("mcp.shared.jsonrpc_dispatcher", exception, "handler for 'tools/list' raised")
-
-        payload = json.loads(capsys.readouterr().err.strip().splitlines()[-1])
-        assert payload["level"] == "warning"
-        assert payload["event"] == "handler for 'tools/list' raised"
-        assert "exception" in payload
-
-    @pytest.mark.parametrize(
         ("logger_name", "exception"),
         [
             pytest.param("mcp.shared.jsonrpc_dispatcher", RuntimeError("bug"), id="real-error-same-logger"),
