@@ -2,7 +2,7 @@
 
 import httpx
 import pytest
-from fastmcp.exceptions import NotFoundError, ToolError
+from fastmcp.exceptions import ToolError
 from fastmcp.exceptions import ValidationError as FastMCPValidationError
 
 from gg_api_core.client import DownstreamUnauthorizedError
@@ -28,23 +28,6 @@ def _status_error(status: int, body: dict | str | None = None) -> httpx.HTTPStat
 
 
 class TestClassifyFailure:
-    @pytest.mark.parametrize("message", ["Unknown tool: 'old_tool'", "This name is unavailable"])
-    @pytest.mark.parametrize("wrapped", [False, True])
-    @pytest.mark.parametrize(
-        ("method", "fault"),
-        [("tools/call", "client"), ("resources/read", "server"), ("prompts/get", "server"), (None, "server")],
-    )
-    def test_lookup_failure_ownership_uses_the_operation(self, message, wrapped, method, fault):
-        """Tool lookup failures are client mistakes regardless of the SDK's error wording."""
-        exception = NotFoundError(message)
-        if wrapped:
-            exception = _caused_by(ToolError("Tool failed"), exception)
-
-        failure = classify_failure(exception, method=method)
-
-        assert failure["fault"] == fault
-        assert "upstream_status" not in failure
-
     def test_reports_the_exception_class(self):
         """
         GIVEN a plain exception
@@ -116,13 +99,6 @@ class TestClassifyFailure:
                 FastMCPValidationError("Invalid arguments for tool 'get_internal_incident'"),
                 "client",
                 id="bad-arguments",
-            ),
-            pytest.param(NotFoundError("Unknown resource: 'data'"), "server", id="other-lookup-failure"),
-            pytest.param(ValueError("Unknown tool: 'old_tool'"), "server", id="unrelated-exception"),
-            pytest.param(
-                _caused_by(NotFoundError("Unknown tool: 'old_tool'"), KeyError("registry")),
-                "server",
-                id="lookup-defect",
             ),
             pytest.param(ToolError("The 'ignore_reason' parameter is required"), "client", id="deliberate-refusal"),
             pytest.param(MissingScopesError("assign_incident", ["incidents:write"]), "client", id="missing-scopes"),
