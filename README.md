@@ -11,7 +11,12 @@ The GitGuardian MCP server connects any MCP client to GitGuardian's secrets dete
 - **Triage the backlog.** List, count and prioritize internal and Public Monitoring
   incidents by severity, validity, source, tag or assignee.
 - **Route the work.** Assign incidents to the right developer or team, set severity,
-  add tags and comments, across the whole workspace.
+  add tags and comments, across the whole workspace. Share Public Monitoring incidents
+  with external developers using `create_public_incident_share_link` (requires
+  `incidents:share`). Anyone holding the link can view the shared incident; feedback
+  collection and permission to resolve or ignore default to off. Set `lifespan` in
+  hours, or leave it at zero for the workspace's default sharing duration. Revoke the link
+  with `revoke_public_incident_share_link` to end that access.
 - **Close the loop.** Resolve, ignore or reopen incidents, revoke exposed secrets,
   and deploy honeytokens.
   
