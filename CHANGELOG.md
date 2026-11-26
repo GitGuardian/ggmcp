@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.0](https://github.com/GitGuardian/ggmcp/compare/v0.8.0...v0.9.0) (2026-11-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **tools:** list tool results carry per_page instead of page_size. The output field has no alias; code that reads page_size from a result must read per_page.
+
+### Features
+
+* create share links for public incidents ([#257](https://github.com/GitGuardian/ggmcp/issues/257)) ([2497cda](https://github.com/GitGuardian/ggmcp/commit/2497cda831fcc43e0f7bb27f358cb69fbb0f3312))
+* **tools:** advertise per_page on every list tool, keep page_size as an alias ([#251](https://github.com/GitGuardian/ggmcp/issues/251)) ([98012e2](https://github.com/GitGuardian/ggmcp/commit/98012e262192e4b3eeb6120d27dc871123c8a35b))
+
+
+### Bug Fixes
+
+* **deps:** bump Python dependencies ([#254](https://github.com/GitGuardian/ggmcp/issues/254)) ([d795582](https://github.com/GitGuardian/ggmcp/commit/d7955826ea51a8357d9b1968d10b6aab00497d1e))
+
+
+### Documentation
+
+* remove migration notes from README ([#246](https://github.com/GitGuardian/ggmcp/issues/246)) ([cb44d24](https://github.com/GitGuardian/ggmcp/commit/cb44d24a36c222bb66672f2185638d5c6156bb6c))
+
 ## [0.8.0](https://github.com/GitGuardian/ggmcp/compare/v0.7.5...v0.8.0) (2026-11-19)
 
 
