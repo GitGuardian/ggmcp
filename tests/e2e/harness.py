@@ -101,6 +101,7 @@ EXPECTED_FULL_TOOL_CATALOG = {
     "reopen_public_incident",
     "resolve_internal_incident",
     "resolve_public_incident",
+    "revoke_public_incident_share_link",
     "revoke_secret",
     "scan_secrets",
     "set_internal_incident_severity",

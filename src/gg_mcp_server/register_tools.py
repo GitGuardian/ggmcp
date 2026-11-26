@@ -66,6 +66,7 @@ from gg_api_core.tools.members import (
     list_internal_incident_teams,
     list_members,
 )
+from gg_api_core.tools.revoke_public_incident_share_link import revoke_public_incident_share_link
 from gg_api_core.tools.revoke_secret import revoke_secret
 from gg_api_core.tools.scan_secret import scan_secrets
 
@@ -101,6 +102,10 @@ REVOKES_SECRET = ToolAnnotations(
 # Sharing grants external access; the API refuses a second active link with 409.
 CREATES_SHARE_LINK = ToolAnnotations(
     read_only_hint=False, destructive_hint=False, idempotent_hint=True, open_world_hint=False
+)
+# Revoking the link ends the access of everyone holding it; revoking it again changes nothing.
+REVOKES_SHARE_LINK = ToolAnnotations(
+    read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False
 )
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
@@ -211,10 +216,21 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
             "Feedback collection and permission to resolve or ignore default to false. "
             "lifespan sets the duration in hours; zero uses the workspace default. "
             "Returns the link, expiration and permissions. An existing active link causes a conflict; "
-            "check the incident's sharing settings in the GitGuardian dashboard."
+            "revoke it with revoke_public_incident_share_link before creating another."
         ),
         required_scopes=["incidents:share"],
         annotations=CREATES_SHARE_LINK,
+    )
+
+    mcp.tool(
+        revoke_public_incident_share_link,
+        description=(
+            "(Public Monitoring only) Revoke the share link of a public secret incident. Everyone holding the link "
+            "loses access to the incident, and the link cannot be restored; a new one can be created with "
+            "create_public_incident_share_link. changed is false when the incident had no active link."
+        ),
+        required_scopes=["incidents:share"],
+        annotations=REVOKES_SHARE_LINK,
     )
 
     mcp.tool(

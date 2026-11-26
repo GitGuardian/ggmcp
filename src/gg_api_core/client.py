@@ -1965,6 +1965,11 @@ class GitGuardianClient:
             },
         )
 
+    async def revoke_public_incident_share_link(self, incident_id: int) -> dict[str, Any]:
+        """Revoke the link via POST /v1/public-incidents/secrets/{incident_id}/unshare."""
+        logger.info(f"Revoking the share link of public incident {incident_id}")
+        return await self._request_post(f"/public-incidents/secrets/{incident_id}/unshare")
+
     async def create_public_incident_note(self, incident_id: str, comment: str) -> dict[str, Any]:
         """Create a note (comment) on a public secret incident.
 

@@ -1,4 +1,4 @@
-"""Share a Public Monitoring incident through the remote MCP boundary."""
+"""Share and unshare a Public Monitoring incident through the remote MCP boundary."""
 
 import logging
 
@@ -153,3 +153,96 @@ async def test_share_response_redirects_are_refused(mcp_client, gg_api, mock_tok
     assert "307" in tool_error_text(result)
     assert route.call_count == 1
     assert not destination.called
+
+
+REVOKE_TOOL = "revoke_public_incident_share_link"
+REVOKE_PATH = "/public-incidents/secrets/77/unshare"
+
+
+async def test_revoking_the_link_unshares_the_incident(mcp_client, gg_api, mock_token_scopes):
+    """
+    GIVEN a shared public incident and a token holding only incidents:share
+    WHEN its link is revoked
+    THEN the caller's token calls the unshare endpoint once and the result reports a change
+    """
+    mock_token_scopes(["incidents:share"])
+    route = gg_api.post(REVOKE_PATH).respond(204)
+
+    result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
+
+    assert route.call_count == 1
+    assert route.calls.last.request.headers["Authorization"] == f"Token {TEST_PAT}"
+    assert tool_output(result) == {"incident_id": 77, "changed": True}
+
+
+async def test_revoking_a_missing_link_reports_no_change(mcp_client, gg_api, mock_token_scopes):
+    """An incident with no active link answers 409, which is the requested state."""
+    route = gg_api.post(REVOKE_PATH).respond(409, json={"detail": "Incident is not shared"})
+
+    result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
+
+    assert tool_output(result) == {"incident_id": 77, "changed": False}
+    assert route.call_count == 1
+
+
+@pytest.mark.parametrize(
+    ("arguments", "field"),
+    [
+        ({}, "incident_id"),
+        ({"incident_id": 0}, "incident_id"),
+        ({"incident_id": 1.5}, "incident_id"),
+        ({"incident_id": 77, "unknown": True}, "unknown"),
+    ],
+)
+async def test_invalid_arguments_block_the_revocation(mcp_client, gg_api, mock_token_scopes, arguments, field):
+    """Missing, invalid and unknown inputs fail before contacting the unshare endpoint."""
+    route = gg_api.post(REVOKE_PATH).respond(204)
+
+    result = await call_tool(mcp_client, REVOKE_TOOL, arguments)
+
+    assert field in tool_error_text(result)
+    assert not route.called
+
+
+async def test_missing_share_scope_hides_and_blocks_the_revocation(mcp_client, gg_api, mock_token_scopes):
+    """Incident read and write scopes alone cannot end external sharing."""
+    mock_token_scopes(["incidents:read", "incidents:write"])
+    route = gg_api.post(REVOKE_PATH).respond(204)
+
+    assert REVOKE_TOOL not in await list_tool_names(mcp_client)
+    result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
+
+    assert "incidents:share" in tool_error_text(result)
+    assert not route.called
+
+
+@pytest.mark.parametrize("status", [400, 403, 404, 429])
+async def test_revocation_refusals_are_returned_without_retry(mcp_client, gg_api, mock_token_scopes, status):
+    """Validation, permission and missing-incident refusals remain errors."""
+    route = gg_api.post(REVOKE_PATH).respond(status, json={"detail": "Unsharing refused"})
+
+    result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
+
+    error = tool_error_text(result)
+    assert str(status) in error
+    assert "may or may not have been applied" not in error
+    assert route.call_count == 1
+
+
+@pytest.mark.parametrize("failure", ["timeout", "connection", "server"])
+async def test_uncertain_revocations_are_sent_once_with_dashboard_check_advice(
+    mcp_client, gg_api, mock_token_scopes, failure
+):
+    """An unknown outcome asks the caller to check sharing settings before trying again."""
+    if failure == "server":
+        route = gg_api.post(REVOKE_PATH).respond(503, json={"detail": "Unavailable"})
+    else:
+        exception = httpx.ReadTimeout if failure == "timeout" else httpx.ConnectError
+        route = gg_api.post(REVOKE_PATH).mock(side_effect=exception("connection interrupted"))
+
+    result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
+
+    error = tool_error_text(result)
+    assert "may or may not have been applied" in error
+    assert "sharing settings in the GitGuardian dashboard" in error
+    assert route.call_count == 1
