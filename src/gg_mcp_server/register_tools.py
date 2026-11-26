@@ -16,6 +16,7 @@ from mcp.types import ToolAnnotations
 from gg_api_core.mcp_server import AbstractGitGuardianFastMCP
 from gg_api_core.tools.catalog_reads import list_detectors, list_honeytokens
 from gg_api_core.tools.count_internal_incidents import count_internal_incidents
+from gg_api_core.tools.create_public_incident_share_link import create_public_incident_share_link
 from gg_api_core.tools.generate_honey_token import generate_honeytoken
 from gg_api_core.tools.get_gitguardian_resource import get_gitguardian_resource
 from gg_api_core.tools.get_internal_incident import get_internal_incident
@@ -96,6 +97,10 @@ REQUESTS_CODE_FIX = ToolAnnotations(
 # Revoking a secret cannot be undone, and reaches the secret's provider, outside GitGuardian.
 REVOKES_SECRET = ToolAnnotations(
     read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=True
+)
+# Sharing grants external access; the API refuses a second active link with 409.
+CREATES_SHARE_LINK = ToolAnnotations(
+    read_only_hint=False, destructive_hint=False, idempotent_hint=True, open_world_hint=False
 )
 # Each call creates a new honeytoken and changes nothing that exists.
 CREATES_HONEYTOKEN = ToolAnnotations(
@@ -196,6 +201,20 @@ def register_tools(mcp: AbstractGitGuardianFastMCP) -> None:
         ),
         required_scopes=["incidents:read"],
         annotations=READ_ONLY,
+    )
+
+    mcp.tool(
+        create_public_incident_share_link,
+        description=(
+            "(Public Monitoring only) Create a shareable link granting external access to a public secret incident. "
+            "Anyone holding the link can view the shared incident; get the user's approval before creating it. "
+            "Feedback collection and permission to resolve or ignore default to false. "
+            "lifespan sets the duration in hours; zero uses the workspace default. "
+            "Returns the link, expiration and permissions. An existing active link causes a conflict; "
+            "check the incident's sharing settings in the GitGuardian dashboard."
+        ),
+        required_scopes=["incidents:share"],
+        annotations=CREATES_SHARE_LINK,
     )
 
     mcp.tool(

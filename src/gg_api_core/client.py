@@ -1943,6 +1943,28 @@ class GitGuardianClient:
         logger.info(f"Unassigning public incident {incident_id}")
         return await self._request_post(f"/public-incidents/secrets/{incident_id}/unassign")
 
+    async def create_public_incident_share_link(
+        self,
+        incident_id: int,
+        *,
+        feedback_collection: bool = False,
+        auto_healing: bool = False,
+        lifespan: int = 0,
+    ) -> dict[str, Any]:
+        """Create a link via POST /v1/public-incidents/secrets/{incident_id}/share."""
+        logger.info(f"Creating a share link for public incident {incident_id}")
+        # Sharing responses contain an access token in both token and share_url.
+        # Disable response-body logging and redirects for this credential-bearing call.
+        return await self._request_post(
+            f"/public-incidents/secrets/{incident_id}/share",
+            privacy_mode=False,
+            json={
+                "feedback_collection": feedback_collection,
+                "auto_healing": auto_healing,
+                "lifespan": lifespan,
+            },
+        )
+
     async def create_public_incident_note(self, incident_id: str, comment: str) -> dict[str, Any]:
         """Create a note (comment) on a public secret incident.
 

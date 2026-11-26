@@ -168,6 +168,7 @@ class TestScopeBasedToolVisibility:
             "set_internal_incident_severity": changes_state,
             "set_public_incident_severity": changes_state,
             "create_internal_incident_code_fix_request": adds,
+            "create_public_incident_share_link": {**adds, "idempotentHint": True},
             "add_internal_incident_custom_tag": {**adds, "idempotentHint": True},
             "add_public_incident_custom_tag": {**adds, "idempotentHint": True},
             "remove_internal_incident_custom_tag": changes_state,

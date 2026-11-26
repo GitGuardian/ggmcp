@@ -24,6 +24,7 @@ DEFAULT_SCOPES = [
     "scan",
     "incidents:read",
     "incidents:write",
+    "incidents:share",
     "sources:read",
     "members:read",
     "honeytokens:read",
