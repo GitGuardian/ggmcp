@@ -23,6 +23,13 @@ class CreatePublicIncidentShareLinkParams(BaseModel):
         ge=0,
         description="Link lifespan in hours. Zero uses the workspace's default sharing duration.",
     )
+    privacy_mode: bool = Field(
+        default=False,
+        description=(
+            "Send the request in privacy mode. The link is returned either way. When false, the server never "
+            "logs the response and follows no redirect; when true, the response can appear in its debug log."
+        ),
+    )
 
 
 class CreatePublicIncidentShareLinkResult(BaseModel):
@@ -48,6 +55,7 @@ async def create_public_incident_share_link(
             feedback_collection=params.feedback_collection,
             auto_healing=params.auto_healing,
             lifespan=params.lifespan,
+            privacy_mode=params.privacy_mode,
         )
     except Exception as e:
         raise uncertain_write_error(

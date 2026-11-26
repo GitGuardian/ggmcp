@@ -64,6 +64,17 @@ async def test_explicit_permissions_and_lifespan_are_forwarded(
     assert output["expire_at"] == response["expire_at"]
 
 
+@pytest.mark.parametrize(("arguments", "header"), [({}, "false"), ({"privacy_mode": True}, "true")])
+async def test_privacy_mode_is_off_unless_requested(mcp_client, gg_api, mock_token_scopes, arguments, header):
+    """The share call runs without privacy mode by default, and the link is returned either way."""
+    route = gg_api.post(PATH).respond(200, json=SHARE)
+
+    result = await call_tool(mcp_client, TOOL, {"incident_id": 77, **arguments})
+
+    assert route.calls.last.request.headers["X-Privacy-Mode"] == header
+    assert tool_output(result)["share_url"] == SHARE["share_url"]
+
+
 @pytest.mark.parametrize(
     ("arguments", "field"),
     [
