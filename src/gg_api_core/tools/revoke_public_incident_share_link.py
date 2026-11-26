@@ -12,7 +12,7 @@ from gg_api_core.utils import get_client
 class RevokePublicIncidentShareLinkParams(BaseModel):
     """The incident whose share link is revoked."""
 
-    incident_id: NumericId = Field(description="ID of the Public Monitoring incident to stop sharing")
+    incident_id: NumericId = Field(description="ID of the public incident to unshare")
 
 
 class RevokePublicIncidentShareLinkResult(BaseModel):

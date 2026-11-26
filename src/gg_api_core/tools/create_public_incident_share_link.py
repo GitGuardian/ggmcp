@@ -11,24 +11,17 @@ from gg_api_core.utils import get_client
 class CreatePublicIncidentShareLinkParams(BaseModel):
     """The incident and the permissions granted to anyone holding the link."""
 
-    incident_id: NumericId = Field(description="ID of the Public Monitoring incident to share")
-    feedback_collection: bool = Field(
-        default=False, description="Allow anyone holding the link to submit feedback on the incident"
-    )
-    auto_healing: bool = Field(
-        default=False, description="Allow anyone holding the link to resolve or ignore the incident"
-    )
+    incident_id: NumericId = Field(description="ID of the public incident to share")
+    feedback_collection: bool = Field(default=False, description="Let link holders submit feedback")
+    auto_healing: bool = Field(default=False, description="Let link holders resolve or ignore the incident")
     lifespan: int = Field(
         default=0,
         ge=0,
-        description="Link lifespan in hours. Zero uses the workspace's default sharing duration.",
+        description="Lifespan in hours; 0 uses the workspace default",
     )
     privacy_mode: bool = Field(
         default=False,
-        description=(
-            "Send the request in privacy mode. The link is returned either way. When false, the server never "
-            "logs the response and follows no redirect; when true, the response can appear in its debug log."
-        ),
+        description="Send the request in privacy mode; the link is returned either way",
     )
 
 
