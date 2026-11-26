@@ -244,8 +244,10 @@ def _exception_chain(exception: BaseException) -> list[BaseException]:
     return chain
 
 
-def is_expected_tool_failure(exception: BaseException, *, method: str | None = "tools/call") -> bool:
+def is_expected_tool_failure(exception: BaseException, *, method: str | None = None) -> bool:
     """Whether a failed tool call is a refusal the caller can act on rather than a defect.
+
+    Tool lookup refusals require an explicit ``tools/call`` method.
 
     Expected: invalid arguments, a ToolError a tool raises on purpose (one with
     no underlying exception), a tool lookup refusal during tools/call, missing scopes, and a 4xx
@@ -286,7 +288,7 @@ def capture_tool_failure(exception: BaseException) -> None:
     if sentry_sdk is None or SPANSTATUS is None:
         return
     try:
-        expected = is_expected_tool_failure(exception)
+        expected = is_expected_tool_failure(exception, method="tools/call")
         span = sentry_sdk.get_current_span()
         if span is not None:
             span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)

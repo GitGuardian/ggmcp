@@ -2,7 +2,7 @@
 
 import httpx
 import pytest
-from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import NotFoundError, ToolError
 from fastmcp.exceptions import ValidationError as FastMCPValidationError
 
 from gg_api_core.client import DownstreamUnauthorizedError
@@ -10,6 +10,7 @@ from gg_api_core.log_context import classify_failure
 from gg_api_core.model_arguments import ToolBodyError
 from gg_api_core.redirects import CrossOriginRedirectError
 from gg_api_core.scopes import MissingScopesError
+from gg_api_core.sentry_integration import is_expected_tool_failure
 
 
 def _caused_by(outer: BaseException, cause: BaseException) -> BaseException:
@@ -28,6 +29,33 @@ def _status_error(status: int, body: dict | str | None = None) -> httpx.HTTPStat
 
 
 class TestClassifyFailure:
+    def test_lookup_classifiers_agree_without_a_request_method(self):
+        exc = NotFoundError("Unknown tool")
+
+        assert is_expected_tool_failure(exc) is False
+        assert classify_failure(exc)["fault"] == "server"
+
+    @pytest.mark.parametrize(
+        ("method", "expected", "fault"),
+        [
+            ("tools/call", True, "client"),
+            ("resources/read", False, "server"),
+            ("prompts/get", False, "server"),
+            (None, False, "server"),
+        ],
+    )
+    def test_lookup_classifiers_agree_for_the_request_method(self, method, expected, fault):
+        exc = NotFoundError("Lookup failed")
+
+        assert is_expected_tool_failure(exc, method=method) is expected
+        assert classify_failure(exc, method=method)["fault"] == fault
+
+    def test_a_lookup_error_caused_by_a_defect_is_a_server_failure(self):
+        exc = _caused_by(NotFoundError("Lookup failed"), RuntimeError("Provider defect"))
+
+        assert is_expected_tool_failure(exc, method="tools/call") is False
+        assert classify_failure(exc, method="tools/call")["fault"] == "server"
+
     def test_reports_the_exception_class(self):
         """
         GIVEN a plain exception
