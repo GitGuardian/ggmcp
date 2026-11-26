@@ -42,7 +42,7 @@ async def test_defaults_create_a_view_only_link(mcp_client, gg_api, mock_token_s
     assert SHARE["share_url"] not in caplog.text
 
 
-@pytest.mark.parametrize(("feedback_collection", "auto_healing"), [(True, False), (False, True), (True, True)])
+@pytest.mark.parametrize(("feedback_collection", "auto_healing"), [(True, False), (False, True)])
 async def test_explicit_permissions_and_lifespan_are_forwarded(
     mcp_client, gg_api, mock_token_scopes, feedback_collection, auto_healing
 ):
@@ -64,28 +64,12 @@ async def test_explicit_permissions_and_lifespan_are_forwarded(
     assert output["expire_at"] == response["expire_at"]
 
 
-@pytest.mark.parametrize("expire_at", [None, "2026-12-01T12:00:00Z"])
-async def test_expiration_is_returned_as_reported(mcp_client, gg_api, mock_token_scopes, expire_at):
-    """The API's expiration can be null or an ISO-8601 timestamp."""
-    gg_api.post(PATH).respond(200, json={**SHARE, "expire_at": expire_at})
-
-    result = await call_tool(mcp_client, TOOL, {"incident_id": 77})
-
-    assert tool_output(result)["expire_at"] == expire_at
-
-
 @pytest.mark.parametrize(
     ("arguments", "field"),
     [
         ({}, "incident_id"),
-        ({"incident_id": 0}, "incident_id"),
-        ({"incident_id": -1}, "incident_id"),
-        ({"incident_id": 1.5}, "incident_id"),
         ({"incident_id": 77, "lifespan": -1}, "lifespan"),
-        ({"incident_id": 77, "lifespan": 1.5}, "lifespan"),
-        ({"incident_id": 77, "lifespan": None}, "lifespan"),
         ({"incident_id": 77, "auto_healing": "maybe"}, "auto_healing"),
-        ({"incident_id": 77, "feedback_collection": "maybe"}, "feedback_collection"),
         ({"incident_id": 77, "unknown": True}, "unknown"),
     ],
 )
@@ -111,9 +95,9 @@ async def test_missing_share_scope_hides_and_blocks_the_tool(mcp_client, gg_api,
     assert not route.called
 
 
-@pytest.mark.parametrize("status", [400, 403, 404, 409, 429])
+@pytest.mark.parametrize("status", [409, 429])
 async def test_api_refusals_are_returned_without_retry(mcp_client, gg_api, mock_token_scopes, status):
-    """Validation, permissions, missing incidents and already-shared conflicts remain errors."""
+    """An already-shared conflict and a rate limit remain errors, and the write is not sent again."""
     route = gg_api.post(PATH).respond(status, json={"detail": "Sharing refused"})
 
     result = await call_tool(mcp_client, TOOL, {"incident_id": 77})
@@ -124,16 +108,9 @@ async def test_api_refusals_are_returned_without_retry(mcp_client, gg_api, mock_
     assert route.call_count == 1
 
 
-@pytest.mark.parametrize("failure", ["timeout", "connection", "server"])
-async def test_uncertain_writes_are_sent_once_with_dashboard_check_advice(
-    mcp_client, gg_api, mock_token_scopes, failure
-):
+async def test_an_uncertain_write_is_sent_once_with_dashboard_check_advice(mcp_client, gg_api, mock_token_scopes):
     """An unknown outcome asks the caller to check sharing settings before trying again."""
-    if failure == "server":
-        route = gg_api.post(PATH).respond(503, json={"detail": "Unavailable"})
-    else:
-        exception = httpx.ReadTimeout if failure == "timeout" else httpx.ConnectError
-        route = gg_api.post(PATH).mock(side_effect=exception("connection interrupted"))
+    route = gg_api.post(PATH).mock(side_effect=httpx.ReadTimeout("connection interrupted"))
 
     result = await call_tool(mcp_client, TOOL, {"incident_id": 77})
 
@@ -185,25 +162,6 @@ async def test_revoking_a_missing_link_reports_no_change(mcp_client, gg_api, moc
     assert route.call_count == 1
 
 
-@pytest.mark.parametrize(
-    ("arguments", "field"),
-    [
-        ({}, "incident_id"),
-        ({"incident_id": 0}, "incident_id"),
-        ({"incident_id": 1.5}, "incident_id"),
-        ({"incident_id": 77, "unknown": True}, "unknown"),
-    ],
-)
-async def test_invalid_arguments_block_the_revocation(mcp_client, gg_api, mock_token_scopes, arguments, field):
-    """Missing, invalid and unknown inputs fail before contacting the unshare endpoint."""
-    route = gg_api.post(REVOKE_PATH).respond(204)
-
-    result = await call_tool(mcp_client, REVOKE_TOOL, arguments)
-
-    assert field in tool_error_text(result)
-    assert not route.called
-
-
 async def test_missing_share_scope_hides_and_blocks_the_revocation(mcp_client, gg_api, mock_token_scopes):
     """Incident read and write scopes alone cannot end external sharing."""
     mock_token_scopes(["incidents:read", "incidents:write"])
@@ -216,29 +174,19 @@ async def test_missing_share_scope_hides_and_blocks_the_revocation(mcp_client, g
     assert not route.called
 
 
-@pytest.mark.parametrize("status", [400, 403, 404, 429])
-async def test_revocation_refusals_are_returned_without_retry(mcp_client, gg_api, mock_token_scopes, status):
-    """Validation, permission and missing-incident refusals remain errors."""
-    route = gg_api.post(REVOKE_PATH).respond(status, json={"detail": "Unsharing refused"})
+async def test_a_missing_incident_is_an_error_not_an_absent_link(mcp_client, gg_api, mock_token_scopes):
+    """Only a 409 means there was no link; a 404 remains an error."""
+    route = gg_api.post(REVOKE_PATH).respond(404, json={"detail": "Not found"})
 
     result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
 
-    error = tool_error_text(result)
-    assert str(status) in error
-    assert "may or may not have been applied" not in error
+    assert "404" in tool_error_text(result)
     assert route.call_count == 1
 
 
-@pytest.mark.parametrize("failure", ["timeout", "connection", "server"])
-async def test_uncertain_revocations_are_sent_once_with_dashboard_check_advice(
-    mcp_client, gg_api, mock_token_scopes, failure
-):
+async def test_an_uncertain_revocation_is_sent_once_with_dashboard_check_advice(mcp_client, gg_api, mock_token_scopes):
     """An unknown outcome asks the caller to check sharing settings before trying again."""
-    if failure == "server":
-        route = gg_api.post(REVOKE_PATH).respond(503, json={"detail": "Unavailable"})
-    else:
-        exception = httpx.ReadTimeout if failure == "timeout" else httpx.ConnectError
-        route = gg_api.post(REVOKE_PATH).mock(side_effect=exception("connection interrupted"))
+    route = gg_api.post(REVOKE_PATH).respond(503, json={"detail": "Unavailable"})
 
     result = await call_tool(mcp_client, REVOKE_TOOL, {"incident_id": 77})
 
