@@ -14,9 +14,13 @@ DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else
 _current_tool: ContextVar[str | None] = ContextVar("gg_api_tool", default=None)
 
 
-def _ua_field(value: str) -> str:
-    """Bound untrusted comment fields and remove delimiters and non-ASCII text."""
-    return re.sub(r"[^\x20-\x7e]|[();=,]", "", value).strip()[:64]
+def _safe_user_agent_field(value: str) -> str:
+    """Keep valid metadata unchanged and omit unsafe values."""
+    if not value.isascii() or not value.isprintable():
+        return ""
+    if any(character in value for character in "();=,"):
+        return ""
+    return value
 
 
 def build_request_headers(user_agent: str | None = None) -> dict[str, str]:
@@ -33,9 +37,9 @@ def build_request_headers(user_agent: str | None = None) -> dict[str, str]:
             info = params.client_info
             if info.name:
                 caller = f"{info.name}/{info.version}" if info.version else info.name
-        if client := _ua_field(caller):
+        if client := _safe_user_agent_field(caller):
             fields.append(f"client={client}")
-        if params is not None and (protocol := _ua_field(params.protocol_version)):
+        if params is not None and (protocol := _safe_user_agent_field(params.protocol_version)):
             fields.append(f"mcp={protocol}")
         user_agent = f"{DEFAULT_USER_AGENT} ({'; '.join(fields)})"
 
