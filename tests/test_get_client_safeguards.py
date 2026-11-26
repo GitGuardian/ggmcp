@@ -6,11 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastmcp.exceptions import ValidationError
 
-from gg_api_core.client import GitGuardianClient
 from gg_api_core.utils import get_client
-
-# Prefix every outgoing User-Agent carries, regardless of transport.
-UA_PREFIX = GitGuardianClient.DEFAULT_USER_AGENT
 
 
 class TestGetClientMultiTenantMode:
@@ -31,12 +27,12 @@ class TestGetClientMultiTenantMode:
 
     @patch("gg_api_core.utils.get_http_headers")
     @patch("gg_api_core.utils.GitGuardianClient")
-    async def test_multi_tenant_forwards_caller_user_agent(self, mock_client_class, mock_get_headers):
+    async def test_multi_tenant_defers_user_agent_to_outgoing_requests(self, mock_client_class, mock_get_headers):
         """
         GIVEN MULTI_TENANCY_ENABLED=true and MCP_PORT is set
         AND request has both Authorization and User-Agent headers
         WHEN get_client is called
-        THEN the caller's User-Agent is preserved as client=... in the UA string
+        THEN the API client receives no fixed User-Agent, so it reads live context
         """
         mock_get_headers.return_value = {
             "authorization": "Bearer request-token",
@@ -50,7 +46,7 @@ class TestGetClientMultiTenantMode:
 
         mock_client_class.assert_called_once_with(
             personal_access_token="request-token",
-            user_agent=f"{UA_PREFIX} (transport=http; client=GitGuardian-In-App-Agent)",
+            user_agent=None,
         )
         assert result == mock_client
 
