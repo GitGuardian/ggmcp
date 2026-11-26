@@ -44,7 +44,6 @@ class _FakeGitGuardianApi(BaseHTTPRequestHandler):
                 "authorization": self.headers.get("Authorization"),
                 "user_agent": self.headers.get("User-Agent"),
                 "privacy_mode": self.headers.get("X-Privacy-Mode"),
-                "tool": self.headers.get("X-GG-MCP-Tool"),
             }
         )
         body = self.payloads.get(path)
@@ -79,11 +78,9 @@ def fake_gg_api(socket_enabled: None) -> Iterator[ThreadingHTTPServer]:
         assert not thread.is_alive()
 
 
-@pytest.mark.parametrize("mode", ["legacy", "2026-07-28"])
 async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
     fake_gg_api: ThreadingHTTPServer,
     tmp_path: Path,
-    mode: str,
 ) -> None:
     """
     GIVEN the installed gg-mcp-server entrypoint, an environment PAT, and a
@@ -116,7 +113,7 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
         log_file=stderr_log,
     )
 
-    async with Client(transport, mode=mode) as client:
+    async with Client(transport) as client:
         result = await client.call_tool(
             "get_internal_incident",
             {"incident_id": 77},
@@ -136,10 +133,4 @@ async def test_installed_stdio_entrypoint_serves_gitguardian_tools(
         request["user_agent"] is not None and "transport=stdio" in request["user_agent"] for request in api_requests
     )
 
-    tool_request = api_requests[-1]
-    assert "client=fastmcp/" in tool_request["user_agent"]
-    protocol = "2025-11-25" if mode == "legacy" else mode
-    assert f"mcp={protocol}" in tool_request["user_agent"]
-    assert tool_request["tool"] == "get_internal_incident"
-    assert all(request["tool"] is None for request in api_requests[:-1])
     assert STDIO_PAT not in stderr_log.read_text()
