@@ -126,7 +126,7 @@ class RequestLoggingContextMiddleware(Middleware):
                     "mcp_method": method,
                     "status": "error",
                     "duration_ms": round((time.perf_counter() - start) * 1000),
-                    **classify_failure(exc),
+                    **classify_failure(exc, method=context.method),
                 },
             )
             raise
@@ -304,7 +304,7 @@ class ToolCallLoggingMiddleware(Middleware):
                 # The one record of a failed call. An expected failure (a refusal the
                 # caller can act on) is a warning without a traceback; an unexpected one
                 # is an error and carries the traceback, logged nowhere else.
-                expected = is_expected_tool_failure(exc)
+                expected = is_expected_tool_failure(exc, method=_TOOL_CALL_METHOD)
                 logger.log(
                     logging.WARNING if expected else logging.ERROR,
                     "tool_call_failed",
@@ -315,7 +315,7 @@ class ToolCallLoggingMiddleware(Middleware):
                         "failure_kind": "expected" if expected else "unexpected",
                         "error": str(exc),
                         "duration_ms": round((time.perf_counter() - start) * 1000),
-                        **classify_failure(exc),
+                        **classify_failure(exc, method=_TOOL_CALL_METHOD),
                         **downstream.as_log_fields(),
                     },
                 )

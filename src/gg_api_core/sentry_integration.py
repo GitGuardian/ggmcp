@@ -27,7 +27,7 @@ except ImportError:
     LoggingIntegration = None
 
 import httpx
-from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import NotFoundError, ToolError
 from fastmcp.exceptions import ValidationError as ArgumentValidationError
 
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
@@ -244,11 +244,13 @@ def _exception_chain(exception: BaseException) -> list[BaseException]:
     return chain
 
 
-def is_expected_tool_failure(exception: BaseException) -> bool:
+def is_expected_tool_failure(exception: BaseException, *, method: str | None = None) -> bool:
     """Whether a failed tool call is a refusal the caller can act on rather than a defect.
 
+    Tool lookup refusals require an explicit ``tools/call`` method.
+
     Expected: invalid arguments, a ToolError a tool raises on purpose (one with
-    no underlying exception), a call refused for missing scopes, and a 4xx
+    no underlying exception), a tool lookup refusal during tools/call, missing scopes, and a 4xx
     answer from the API other than 408 and 429, the expired-token 401 included.
     Everything else is unexpected: a bug in our code, a timeout, a 5xx after
     retries, rate limiting, or a refused cross-origin redirect. Other ToolError
@@ -258,6 +260,10 @@ def is_expected_tool_failure(exception: BaseException) -> bool:
     if any(isinstance(link, ArgumentValidationError) for link in chain):
         return True
     root = chain[-1]
+    # FastMCP shares this exception type across tools, resources and prompts.
+    # The request operation gives the lookup context independently of error wording.
+    if method == "tools/call" and isinstance(root, NotFoundError):
+        return True
     if isinstance(root, httpx.HTTPStatusError):
         status = root.response.status_code
         return 400 <= status < 500 and status not in _UPSTREAM_TROUBLE_STATUSES
@@ -282,7 +288,7 @@ def capture_tool_failure(exception: BaseException) -> None:
     if sentry_sdk is None or SPANSTATUS is None:
         return
     try:
-        expected = is_expected_tool_failure(exception)
+        expected = is_expected_tool_failure(exception, method="tools/call")
         span = sentry_sdk.get_current_span()
         if span is not None:
             span.set_data(_MCP_TOOL_RESULT_IS_ERROR, True)
