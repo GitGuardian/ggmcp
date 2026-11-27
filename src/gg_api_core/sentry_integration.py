@@ -7,7 +7,7 @@ allowing users to opt-in to Sentry monitoring without forcing a dependency.
 Environment Variables:
     SENTRY_DSN: Sentry Data Source Name (required to enable Sentry)
     SENTRY_ENVIRONMENT: Environment name (e.g., production, development)
-    SENTRY_RELEASE: Release version or commit SHA
+    SENTRY_RELEASE: Release identifier (defaults to ggmcp@<installed version>)
     SENTRY_TRACES_SAMPLE_RATE: Sampling rate for performance traces (0.0 to 1.0)
     SENTRY_PROFILES_SAMPLE_RATE: Sampling rate for profiling (0.0 to 1.0)
 """
@@ -33,6 +33,7 @@ from fastmcp.exceptions import ValidationError as ArgumentValidationError
 from .sanitization import SENSITIVE_DATA_PLACEHOLDER, scrub_by_name, scrub_by_value, scrub_mapping
 from .scopes import MissingScopesError
 from .settings import SentrySettings
+from .version import APP_VERSION
 
 if TYPE_CHECKING:
     from sentry_sdk.types import Event, Hint
@@ -174,7 +175,7 @@ def init_sentry() -> bool:
         return False
 
     environment = sentry_settings.environment
-    release = sentry_settings.release
+    release = sentry_settings.release or (f"ggmcp@{APP_VERSION}" if APP_VERSION else None)
     traces_sample_rate = sentry_settings.traces_sample_rate
     profiles_sample_rate = sentry_settings.profiles_sample_rate
 

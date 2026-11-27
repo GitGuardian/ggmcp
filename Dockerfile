@@ -58,8 +58,13 @@ USER 65532
 # Expose MCP server port
 EXPOSE 8000
 
+# CI supplies the release version or checked-out commit; local builds use package metadata.
+# A runtime SENTRY_RELEASE environment variable can override the baked-in value.
+ARG SENTRY_RELEASE=""
+
 # Set environment variables
-ENV PYTHONUNBUFFERED=1 \
+ENV SENTRY_RELEASE=${SENTRY_RELEASE} \
+    PYTHONUNBUFFERED=1 \
     MCP_PORT=8000 \
     MCP_HOST=0.0.0.0 \
     ENABLE_LOCAL_OAUTH=false

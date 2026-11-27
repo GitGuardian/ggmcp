@@ -54,8 +54,10 @@ jobs:
           fetch-depth: 0 # Required by git rev-list --count below
 
       # PUBLISHING.md defines the tag format contract.
-      - name: Stamp the unique per-commit main tag
+      - name: Stamp the unique per-commit main tag and Sentry release
         id: stamp
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
         run: |
           if [ "$(git rev-parse --is-shallow-repository)" != false ]; then
             echo "::error::full Git history is required to calculate the image sequence"
@@ -69,6 +71,12 @@ jobs:
             exit 1
           fi
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+          # Resolve from the checked-out source: nightly builds check out a release tag.
+          release="ggmcp@${RELEASE_TAG#v}"
+          if [ -z "$RELEASE_TAG" ]; then
+            release="ggmcp@$sha"
+          fi
+          printf 'sentry-release=%s\n' "$release" >> "$GITHUB_OUTPUT"
 
       # The one definition of the image reference, reused by every step below.
       # github.repository_owner keeps the org's real case ("GitGuardian"), which
@@ -115,6 +123,8 @@ jobs:
           no-cache: ${{ inputs.no-cache }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SENTRY_RELEASE=${{ steps.stamp.outputs.sentry-release }}
           cache-from: ${{ inputs.no-cache && '' || 'type=gha' }}
           cache-to: ${{ inputs.no-cache && '' || 'type=gha,mode=max' }}
           platforms: linux/amd64,linux/arm64
