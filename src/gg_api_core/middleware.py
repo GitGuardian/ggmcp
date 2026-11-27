@@ -23,6 +23,7 @@ from gg_api_core.log_context import (
     track_downstream_calls,
 )
 from gg_api_core.oauth_proxy_auth import mark_downstream_unauthorized
+from gg_api_core.request_headers import track_tool_call
 from gg_api_core.scopes import MissingScopesError
 from gg_api_core.sentry_integration import capture_tool_failure, is_expected_tool_failure, set_sentry_request_id
 from gg_api_core.settings import get_settings
@@ -297,7 +298,7 @@ class ToolCallLoggingMiddleware(Middleware):
         tool = context.message.name
 
         start = time.perf_counter()
-        with track_downstream_calls() as downstream:
+        with track_tool_call(tool), track_downstream_calls() as downstream:
             try:
                 result = await call_next(context)
             except Exception as exc:

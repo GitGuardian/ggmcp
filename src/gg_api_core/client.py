@@ -15,8 +15,8 @@ from pydantic import TypeAdapter, ValidationError
 
 from gg_api_core.log_context import record_downstream_call, record_downstream_wait, record_truncation
 from gg_api_core.redirects import MAX_REDIRECTS, request_following_same_origin
+from gg_api_core.request_headers import DEFAULT_USER_AGENT, build_request_headers
 from gg_api_core.settings import get_settings
-from gg_api_core.version import APP_VERSION
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -96,9 +96,6 @@ async def _track_api_request(
         retried=retried,
     )
     return response
-
-
-DEFAULT_USER_AGENT = f"GitGuardian-MCP-Server/{APP_VERSION}" if APP_VERSION else "GitGuardian-MCP-Server"
 
 
 def _to_date_only(value: str) -> str:
@@ -478,13 +475,13 @@ class GitGuardianClient:
                 token when a 401 error occurs (via env var or OAuth flow).
                 This enables self-healing when tokens expire or become invalid.
             user_agent: Custom User-Agent string to identify the MCP client.
-                Defaults to DEFAULT_USER_AGENT if not provided.
+                Defaults to the server identity enriched with the current MCP request.
         """
 
         self._init_urls(gitguardian_url)
         self._oauth_token = personal_access_token
         self._allow_token_refresh = allow_token_refresh
-        self._user_agent = user_agent or self.DEFAULT_USER_AGENT
+        self._user_agent = user_agent
         self._token_info: Any | None = None
 
     def _base_headers(self, *, privacy_mode: bool = True) -> dict[str, str]:
@@ -492,8 +489,8 @@ class GitGuardianClient:
         return {
             "Authorization": f"Token {self._oauth_token}",
             "Content-Type": "application/json",
-            "User-Agent": self._user_agent,
             "X-Privacy-Mode": "true" if privacy_mode else "false",
+            **build_request_headers(self._user_agent),
         }
 
     def _init_urls(self, gitguardian_url: str | None = None):

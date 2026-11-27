@@ -162,7 +162,7 @@ class TestStartupScopeCache:
         # Unlike the remote server, which re-fetches scopes per tools/list.
         assert scope_route.call_count == calls_after_first_list
         assert_authenticated_request(scope_route, STDIO_PAT)
-        assert "(transport=stdio)" in scope_route.calls.last.request.headers["User-Agent"]
+        assert "transport=stdio" in scope_route.calls.last.request.headers["User-Agent"]
 
     async def test_a_scope_hidden_tool_is_refused_before_reaching_the_api(
         self,
