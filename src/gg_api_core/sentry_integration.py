@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urlsplit
 
 try:
     import sentry_sdk
@@ -122,10 +123,25 @@ def _request_id_from_trace(event: Event) -> str | None:
     return request_id if isinstance(request_id, str) else None
 
 
+def _normalize_mcp_transaction(event: Event) -> None:
+    """Replace the ASGI full-URL fallback for the MCP endpoint with its stable route."""
+    transaction = event.get("transaction")
+    if not isinstance(transaction, str):
+        return
+    try:
+        url = urlsplit(transaction)
+    except ValueError:
+        return
+    if url.scheme in {"http", "https"} and url.netloc and url.path == "/mcp":
+        event["transaction"] = "/mcp"
+        event["transaction_info"] = dict(event.get("transaction_info", {}), source="route")
+
+
 def _before_send_event(event: Event, hint: Hint) -> Event:
     event = _scrub_sentry_payload(event)
     _scrub_free_form_fields(event)
     _drop_request_query(event)
+    _normalize_mcp_transaction(event)
     request_id = _request_id_from_trace(event)
     if request_id:
         event.setdefault("tags", {})[_REQUEST_ID_FIELD] = request_id
@@ -146,6 +162,7 @@ def _before_send_transaction(event: Event, _hint: dict[str, Any]) -> Event:
     event = _scrub_sentry_payload(event)
     _scrub_free_form_fields(event)
     _drop_request_query(event)
+    _normalize_mcp_transaction(event)
     spans = event.get("spans")
     if not isinstance(spans, list):
         return event
