@@ -4,6 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from gg_api_core.sanitization import SENSITIVE_DATA_PLACEHOLDER
 from gg_api_core.sentry_integration import _before_send_event, _before_send_transaction
 from tests.helpers.sentry_mcp_transaction_probe import RAW_DOCUMENT
@@ -209,3 +211,77 @@ def test_error_event_redacts_the_input_a_validation_error_quotes():
     value = outgoing["exception"]["values"][0]["value"]
     assert "pasted-secret" not in value
     assert f"[type=int_parsing, input_value={SENSITIVE_DATA_PLACEHOLDER}, input_type=str]" in value
+
+
+@pytest.mark.parametrize("before_send", [_before_send_event, _before_send_transaction], ids=["error", "transaction"])
+@pytest.mark.parametrize(
+    "transaction",
+    [
+        "http://worker-a:8000/mcp",
+        "http://192.0.2.10:9000/mcp",
+        "https://mcp.example.test/mcp",
+        "http://[2001:db8::1]:8000/mcp",
+        "http://worker-b:8000/mcp?page=1#fragment",
+    ],
+)
+def test_mcp_http_transaction_uses_a_stable_route_name(before_send, transaction):
+    """Full MCP URLs share one route name while diagnostic metadata and tool spans survive."""
+    event = {
+        "transaction": transaction,
+        "transaction_info": {"source": "url"},
+        "request": {"method": "POST", "url": "https://mcp.example.test/mcp"},
+        "server_name": "worker-a",
+        "contexts": {"trace": {"trace_id": "a" * 32, "data": {"request_id": "req-normalize"}}},
+        "spans": [
+            {
+                "op": "mcp.server",
+                "description": "tools/call get_internal_incident",
+                "data": {"mcp.tool.name": "get_internal_incident", "mcp.request.argument.incident_id": 77},
+            }
+        ],
+    }
+
+    outgoing = before_send(event, {})
+
+    assert outgoing["transaction"] == "/mcp"
+    assert outgoing["transaction_info"]["source"] == "route"
+    assert outgoing["request"] == {"method": "POST", "url": "https://mcp.example.test/mcp"}
+    assert outgoing["server_name"] == "worker-a"
+    assert outgoing["contexts"]["trace"] == {"trace_id": "a" * 32, "data": {"request_id": "req-normalize"}}
+    assert outgoing["spans"][0]["description"] == "tools/call get_internal_incident"
+    if before_send is _before_send_event:
+        assert outgoing["tags"]["request_id"] == "req-normalize"
+    else:
+        assert outgoing["spans"][0]["data"] == {"mcp.tool.name": "get_internal_incident"}
+
+
+@pytest.mark.parametrize("before_send", [_before_send_event, _before_send_transaction], ids=["error", "transaction"])
+@pytest.mark.parametrize(
+    "transaction",
+    [
+        "/mcp",
+        "/register",
+        "http://worker-a:8000/register",
+        "https://mcp.example.test/token",
+        "http://worker-a:8000/mcp/other",
+        "http://worker-a:8000/mcp/",
+        "tools/call list_internal_incidents",
+        "mcp-scrubbing-test",
+        "http://[invalid/mcp",
+        "https:///mcp",
+        "file://worker-a/mcp",
+        None,
+    ],
+)
+def test_other_transaction_names_are_preserved(before_send, transaction):
+    event = {"transaction": transaction, "transaction_info": {"source": "custom"}}
+
+    outgoing = before_send(event, {})
+
+    assert outgoing["transaction"] == transaction
+    assert outgoing["transaction_info"] == {"source": "custom"}
+
+
+@pytest.mark.parametrize("before_send", [_before_send_event, _before_send_transaction], ids=["error", "transaction"])
+def test_missing_transaction_name_is_preserved(before_send):
+    assert before_send({}, {}) == {}
