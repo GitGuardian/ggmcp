@@ -7,6 +7,7 @@ current token cannot satisfy are filtered out at list-tools time.
 import logging
 from functools import cache
 
+import fastmcp
 from fastmcp.server.http import create_streamable_http_app
 from starlette.applications import Starlette
 
@@ -16,6 +17,12 @@ from gg_api_core.sentry_integration import init_sentry
 from gg_api_core.settings import get_settings
 from gg_mcp_server.add_health_check import add_health_check
 from gg_mcp_server.register_tools import GITGUARDIAN_INSTRUCTIONS, register_tools
+
+# Persistent listen responses prevent request-limit worker recycling from draining.
+# Keep live change subscriptions disabled for both HTTP and stdio servers.
+# Older FastMCP versions allowed by our dependency range lack this setting.
+if hasattr(fastmcp.settings, "enable_subscriptions_listen"):
+    fastmcp.settings.enable_subscriptions_listen = False
 
 logger = logging.getLogger(__name__)
 

@@ -129,6 +129,13 @@ docker run -p 8000:8000 \
 For HTTP clients that send a PAT directly, leave `MCP_OAUTH_PROXY_ENABLED` unset,
 keep `ENABLE_LOCAL_OAUTH=false`, and send `Authorization: Bearer <PAT>` with each request.
 
+## Live change notifications
+
+Live tool, prompt and resource change subscriptions are disabled for HTTP and stdio.
+This keeps long-lived `subscriptions/listen` responses from blocking worker recycling.
+Clients can continue to discover and call tools normally; modern protocol discovery
+advertises change subscriptions as unavailable.
+
 ## Pagination
 
 List tools accept `per_page` (1 to 100, default 20), `cursor` and `get_all`.
