@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.10.0](https://github.com/GitGuardian/ggmcp/compare/v0.9.0...v0.10.0) (2026-11-27)
+
+
+### Features
+
+* **client:** identify MCP client, protocol, and tool on outgoing API calls ([#216](https://github.com/GitGuardian/ggmcp/issues/216)) ([63063d3](https://github.com/GitGuardian/ggmcp/commit/63063d334696a79d115a2f6b47f4c0335c80b068))
+
+
+### Bug Fixes
+
+* classify unknown MCP tool calls as client mistakes ([#256](https://github.com/GitGuardian/ggmcp/issues/256)) ([24a250b](https://github.com/GitGuardian/ggmcp/commit/24a250b58f35ae5ac584f73ecef63ec8a173d568))
+* disable FastMCP listen streams to allow worker recycling ([#259](https://github.com/GitGuardian/ggmcp/issues/259)) ([d5e7f4d](https://github.com/GitGuardian/ggmcp/commit/d5e7f4de9196eabe60756e17c049910062f0f1cc))
+* **logging:** cut rejected-token and per-request log noise ([#255](https://github.com/GitGuardian/ggmcp/issues/255)) ([da90947](https://github.com/GitGuardian/ggmcp/commit/da90947515966e5004dd937b76022e1ad51e0cc3))
+
 ## [0.9.0](https://github.com/GitGuardian/ggmcp/compare/v0.8.0...v0.9.0) (2026-11-26)
 
 
