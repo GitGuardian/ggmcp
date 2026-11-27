@@ -126,6 +126,25 @@ jobs in `release.yml` are disabled (`if: false`). Enabling them needs
 this repo first. `server.json` (MCP registry metadata) is version-synced by
 release-please regardless.
 
+## Sentry release tagging
+
+When Sentry is enabled with `SENTRY_DSN`, errors and transactions carry a
+`release` identifier:
+
+- CI images built from a release tag (including nightly rebuilds): `ggmcp@X.Y.Z`.
+- CI images built from `main` or a branch: `ggmcp@<full checked-out commit SHA>`.
+- Local Docker builds and package installs: `ggmcp@<installed version>`.
+
+CI passes the identifier as the Docker `SENTRY_RELEASE` build argument.
+Set `SENTRY_RELEASE` at runtime to override it, for example
+`SENTRY_RELEASE=ggmcp@1.2.3+deployment`. Without an explicit identifier or
+installed package metadata, the Sentry SDK uses its own release detection.
+
+In Sentry's Errors explorer, add `release:ggmcp@1.2.3` (or the actual commit
+identifier) to the search. Add `release` to the aggregate table fields to compare
+versions. After deploying, check the **Release** field on a new error event or
+sampled transaction. Historical events keep their original metadata.
+
 ## Monitoring
 
 - Workflow runs: https://github.com/GitGuardian/ggmcp/actions/workflows/release.yml
